@@ -1,0 +1,771 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "HAProxy 3.2",
+  "scopeName": "source.haproxy",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#sections"
+    },
+    {
+      "include": "#directives-with-values"
+    },
+    {
+      "include": "#directives-multiword"
+    },
+    {
+      "include": "#directives-single"
+    },
+    {
+      "include": "#sample-fetches"
+    },
+    {
+      "include": "#rule-actions"
+    },
+    {
+      "include": "#check-actions"
+    },
+    {
+      "include": "#acl-line"
+    },
+    {
+      "include": "#log-line"
+    },
+    {
+      "include": "#cookie-line"
+    },
+    {
+      "include": "#single-arg-directives"
+    },
+    {
+      "include": "#redirect-keywords"
+    },
+    {
+      "include": "#bind-param-pairs"
+    },
+    {
+      "include": "#addresses"
+    },
+    {
+      "include": "#http-methods"
+    },
+    {
+      "include": "#versions"
+    },
+    {
+      "include": "#sample-fetches"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#enums"
+    },
+    {
+      "include": "#modifiers"
+    },
+    {
+      "include": "#expressions"
+    },
+    {
+      "include": "#filenames"
+    },
+    {
+      "include": "#punctuation"
+    },
+    {
+      "include": "#identifiers"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.haproxy",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.haproxy",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.haproxy",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.haproxy",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.haproxy",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "sections": {
+      "patterns": [
+        {
+          "match": "(?m)^(?:\\t| )*((?:crt\\-store|frontend|userlist|defaults|crt\\-list|backend|global|traces|listen|peers|acme))\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "entity.name.type.section.haproxy"
+            },
+            "2": {
+              "name": "entity.name.type.proxy.haproxy"
+            }
+          }
+        },
+        {
+          "name": "entity.name.type.section.haproxy",
+          "match": "(?m)^(?:\\t| )*(global|defaults|frontend|backend|listen|peers|userlist|resolvers|mailers|program|http-errors|ring|cache|crt-list|crt-store|traces|acme)\\b"
+        }
+      ]
+    },
+    "directives-with-values": {
+      "patterns": [
+        {
+          "match": "\\b(stats)\\s+(socket)\\s+(/\\S*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "3": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(stats)\\s+(timeout)\\s+([0-9]+(?:\\.[0-9]+)?(?:ms|s|m|h|d|k)?)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "3": {
+              "name": "constant.numeric.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(stats)\\s+(uri|refresh|scope)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "3": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(timeout)\\s+(client|connect|server|check|queue|tunnel)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "3": {
+              "name": "constant.numeric.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(maxconn)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "constant.numeric.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(bind)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(log)\\s+(\\S+)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "string.unquoted.haproxy"
+            },
+            "3": {
+              "name": "storage.type"
+            }
+          }
+        },
+        {
+          "match": "\\b(acl)\\s+(\\S+)\\s+([\\w.-]+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "entity.name.type.proxy.haproxy"
+            },
+            "3": {
+              "name": "storage.type"
+            }
+          }
+        },
+        {
+          "match": "\\b(cookie)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "entity.name.type.proxy.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(lua-load(?:-per-thread|-per-worker)?)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(redirect)\\s+(location|prefix|scheme)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "3": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(option)\\s+([\\w-]+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "storage.type"
+            }
+          }
+        },
+        {
+          "match": "\\b(mode)\\s+(http|tcp|health)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "storage.type"
+            }
+          }
+        },
+        {
+          "match": "\\b(balance)\\s+(roundrobin|leastconn|first|source|uri|url_param|random|static-rr|hash)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "storage.type"
+            }
+          }
+        },
+        {
+          "match": "\\b(server)\\s+(\\S+)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "entity.name.type.proxy.haproxy"
+            },
+            "3": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(redirect)\\s+(location)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "3": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(external-check)\\s+(command)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "3": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        }
+      ]
+    },
+    "directives-multiword": {
+      "patterns": [
+        {
+          "match": "\\b(stats)\\s+(socket|timeout|uri|refresh|scope|enable|auth|realm|admin|hide-version|show-desc|show-legends|show-node|maxconn|http-request)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(timeout)\\s+(client|connect|server|check|queue|tunnel|http-keep-alive|http-request|client-fin|client-hs|server-fin|tarpit)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(redirect)\\s+(location)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(external-check)\\s+(command|path)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(capture)\\s+(request|response)\\s+(header)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "3": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(tcp-request)\\s+(connection|session|content|inspect-delay)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(tcp-response)\\s+(content|inspect-delay)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(no)\\s+(option)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.modifier.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        }
+      ]
+    },
+    "directives-single": {
+      "patterns": [
+        {
+          "name": "keyword.other.directive.haproxy",
+          "match": "\\b(?:bind|server|acl|log|cookie|redirect|external-check|http-request|http-response|tcp-request|tcp-response|retries|source|fullconn|enabled|disabled|compression|filter|errorfile|monitor|stick|watch|use-server|use-backend|tcp-check|http-check|description|id|guid|daemon|chroot|pidfile|nbproc|nbthread|grace|quiet|node|peers|mailers|resolvers|program|ring|cache|crt-store|crt-list|acme|traces|default-path|cpu-map|cpu-sets|master-worker|localpeer|hard-stop-after|presetenv|setenv|unsetenv|lua-load|maxconnrate|maxsslconn|spread-checks|ca-base|crt-base|key-base|issuers-chain-path|expose-experimental-directives|warn-blocked-traffic-after|zero-warning|mworker-max-reloads|log-send-hostname|log-tag|shutdown|strict-limits|limited-quic|no-quic|numa-cpu-mapping|setcap|set-var|set-var-fmt|load|issuer|key|server-state-base|backlog|declare|http-error|http-after-response|log-format|log-format-sd|errorfiles|errorloc|errorloc302|errorloc303|hash-preserve-affinity|hash-type|hash-balance-factor|http-reuse|http-send-name-header|max-keep-alive-queue|max-session-srv-conns|rate-limit|retry-on|log-steps|quic-initial|use-fcgi-app|default_backend|monitor-uri|unique-id-format|unique-id-header|email-alert|persist|force-persist|ignore-persist|stick-table|default-server|load-server-state-from-file|balance|capture|reqadd|reqidel|reqirep|rspadd|rspidel|rspirep|block|force-persist|ignore-persist|accept|white_list|group|userlist|tune\\.[\\w.-]+|no option)\\b"
+        }
+      ]
+    },
+    "rule-actions": {
+      "patterns": [
+        {
+          "match": "\\b(http-request|http-response|tcp-request|tcp-response)\\s+(deny|allow|reject|add-header|set-header|del-header|replace-header|redirect|return|use-service|cache-use|auth|track-sc|set-var|unset-var|set-timeout|set-log-level|do-resolve|set-src|set-dst|silent-drop|tarpit|early-hint|set-mark|set-tos|set-nice|set-priority-class|set-priority-offset|set-src-proxy|set-dst-proxy|attach-srv|send-spoe-group|set-bc-mark|set-bc-tos|set-fc-mark|set-fc-tos|set-dst-port|set-src-port|set-var-fmt|lua\\.[\\w.-]+)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(add-header|set-header|del-header|replace-header)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        },
+        {
+          "name": "keyword.other.directive.haproxy",
+          "match": "\\b(?:deny|allow|reject|add-header|set-header|del-header|replace-header|return|use-service|cache-use|code|prefix|drop-query|set-cookie|clear-cookie|insert|indirect|rewrite|postonly|preserve|dynamic|httponly|secure|accept-proxy|send-proxy|send-proxy-v2|proxy-v2-options|usesrc|v4only|v6only|via-socks4|via-socks5|location|scheme|global|debug|len|gt|lt|eq|ne)\\b"
+        }
+      ]
+    },
+    "check-actions": {
+      "patterns": [
+        {
+          "match": "\\b(tcp-check|http-check)\\s+(connect|comment|send|send-binary|send-lf|send-pv|expect|disable-on-404|disable-on-error|enable-on-success|ok-status|error-status|send-state|send-hex|send-hex-lf|send-hex-crlf|send-hex-strict|send-hex-strict-lf|send-hex-strict-crlf)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(expect)\\s+(!)?\\s*(status|binary|string|rstring|lstring|comment|hdr|unique-id-id|unique-id-counters|http-version|ssl|alpn|npn|proto|method|uri|body|header|cookie|var|env|proc|sess|be|fe|src|dst|bytes|date|rand|uuid)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.modifier.haproxy"
+            },
+            "3": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "name": "keyword.other.directive.haproxy",
+          "match": "\\b(?:connect|comment|send-binary|send-lf|disable-on-404|disable-on-error|enable-on-success|expect|status|binary|string|rstring|lstring)\\b"
+        }
+      ]
+    },
+    "acl-line": {
+      "patterns": [
+        {
+          "match": "\\b(acl)\\s+(\\S+)\\s+([\\w.-]+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "entity.name.type.proxy.haproxy"
+            },
+            "3": {
+              "name": "storage.type"
+            }
+          }
+        }
+      ]
+    },
+    "log-line": {
+      "patterns": [
+        {
+          "match": "\\b(log)\\s+(\\S+)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "string.unquoted.haproxy"
+            },
+            "3": {
+              "name": "storage.type"
+            }
+          }
+        },
+        {
+          "match": "\\b(log-format(?:-sd)?)\\s+(.+)$",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        }
+      ]
+    },
+    "cookie-line": {
+      "patterns": [
+        {
+          "match": "\\b(cookie)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "entity.name.type.proxy.haproxy"
+            }
+          }
+        }
+      ]
+    },
+    "single-arg-directives": {
+      "patterns": [
+        {
+          "match": "\\b(?:errorfile|presetenv|setenv|unsetenv|pidfile|chroot|ca-base|crt-base|key-base|load-server-state-from-file|log-tag|server-state-base|default-path|issuers-chain-path|unique-id-format|unique-id-header|monitor-uri|email-alert|description|id|guid|name|process|label|group|interface|namespace|default_backend|default-server|use-fcgi-app|http-error|http-after-response|errorfiles|errorloc|errorloc302|errorloc303|declare|backlog|fullconn|retries|compression|filter|monitor|stick|watch|use-server|use-backend|enabled|disabled|persist|force-persist|ignore-persist|stick-table|hash-preserve-affinity|hash-type|hash-balance-factor|http-reuse|http-send-name-header|max-keep-alive-queue|max-session-srv-conns|rate-limit|retry-on|log-steps|quic-initial|capture|reqadd|reqidel|reqirep|rspadd|rspidel|rspirep|block|accept|white_list|userlist)\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        }
+      ]
+    },
+    "redirect-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.other.directive.haproxy",
+          "match": "\\b(?:code|prefix|drop-query|set-cookie|clear-cookie|location|scheme)\\b"
+        }
+      ]
+    },
+    "bind-param-pairs": {
+      "patterns": [
+        {
+          "match": "\\b(mode)\\s+(\\d+)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.option.haproxy"
+            },
+            "2": {
+              "name": "constant.numeric.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(level)\\s+(admin|user|operator)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.option.haproxy"
+            },
+            "2": {
+              "name": "storage.type"
+            }
+          }
+        },
+        {
+          "name": "keyword.other.option.haproxy",
+          "match": "\\b(?:ssl|check|inter|fall|rise|crt|verify|alpn|ciphers|proto|name|label|process|thread|nice|nbconn|uid|gid|group|interface|severity-output|quic-cc-algo|mss|namespace|shards|sigalgs|tls-ticket-keys|npn|curves|ca-file|ciphersuites|client-sigalgs|verifyhost|sni|send-proxy|send-proxy-v2|proxy-v2-options|no-check|no-backup|backup|disabled|enabled|track|stick|cookie|capture|port|weight|slowstart|maxqueue|minconn|agent-port|agent-inter|observe|on-error|on-marked-down|on-marked-up|error-limit|fastinter|downinter|init-addr|idle-ping|hash-key|shard|ws|log-proto|log-bufsize|max-reuse|resolve-prefer|resolve-opts|resolve-net|resolvers|redir|addr|command|path|pool-max-conn|pool-low-conn|pool-purge-delay|pool-conn-name|level|mode)\\b"
+        }
+      ]
+    },
+    "addresses": {
+      "patterns": [
+        {
+          "name": "string.unquoted.haproxy",
+          "match": "\\*(?::[0-9]+(?:-[0-9]+)?)?"
+        },
+        {
+          "name": "string.unquoted.haproxy",
+          "match": "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}(?::[+:-]?[0-9]+(?:-[0-9]+)?)?\\b"
+        },
+        {
+          "name": "string.unquoted.haproxy",
+          "match": "\\b::[\\d.a-fA-F:+-]+\\b"
+        },
+        {
+          "name": "string.unquoted.haproxy",
+          "match": "\\b[0-9a-fA-F:]*::[\\d.a-fA-F:+-]+\\b"
+        },
+        {
+          "name": "string.unquoted.haproxy",
+          "match": ":[0-9]+(?:\\.[0-9]+)?(?:\\.[0-9]+)?(?:\\.[0-9]+)?(?:\\.[0-9]+)?"
+        },
+        {
+          "name": "string.unquoted.haproxy",
+          "match": "\\b[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+\\b"
+        },
+        {
+          "name": "string.unquoted.haproxy",
+          "match": "/(?:[\\w./_$-]|\\$\\{[^}]+\\})*"
+        },
+        {
+          "name": "string.unquoted.haproxy",
+          "match": "\\b(?:localhost|127\\.0\\.0\\.1|::1|0\\.0\\.0\\.0)\\b"
+        }
+      ]
+    },
+    "http-methods": {
+      "patterns": [
+        {
+          "name": "storage.type",
+          "match": "\\b(?:GET|POST|PUT|DELETE|HEAD|OPTIONS|PATCH|TRACE|CONNECT|HTTP|TCP)\\b"
+        }
+      ]
+    },
+    "versions": {
+      "patterns": [
+        {
+          "name": "constant.numeric.haproxy",
+          "match": "\\b\\d+\\.\\d+(?:-\\d+\\.\\d+)?\\b"
+        }
+      ]
+    },
+    "sample-fetches": {
+      "patterns": [
+        {
+          "name": "storage.type",
+          "match": "\\b[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]+)+(?:\\([^)]*\\))?"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.haproxy",
+          "match": "\\b[0-9A-Fa-f]*[0-9][0-9A-Fa-f]*\\b"
+        },
+        {
+          "name": "constant.numeric.haproxy",
+          "match": "\\b[0-9]+(?:\\.[0-9]+)?(?:ms|s|m|h|d|k|%)?\\b"
+        }
+      ]
+    },
+    "enums": {
+      "patterns": [
+        {
+          "name": "storage.type",
+          "match": "\\b(?:http|tcp|health|roundrobin|leastconn|first|source|uri|url_param|random|static-rr|hash|httpclose|httpkeepalive|httplog|httpslog|tcplog|forwardfor|mysql-check|pgsql-check|redis-check|smtpchk|ldap-check|ssl-hello-chk|tcp-check|external-check|http-server-close|http-keep-alive|dontlognull|logasap|nolinger|redispatch|transparent|abortonclose|clitcpka|srvtcpka|tcpka|contstats|httpchk|prefer-last-server|persist|socket-stats|splice-auto|splice-request|splice-response|tcp-smart-accept|tcp-smart-connect|independent-streams|http-no-delay|http-buffer-request|http-pretend-keepalive|http-ignore-probes|http-use-proxy-header|idle-close-on-response|log-health-checks|log-separate-errors|checkcache|allbackups|disable-h2-upgrade|dontlog-normal|user|operator|admin|required|none|if|unless|local0|local1|local2|local3|local4|local5|local6|local7|emerg|alert|crit|err|warning|notice|info|debug|url_reg|url_sub|url_dir|url_beg|url_end|url_dom|url_len|url_dec|hdr|hdr_beg|hdr_sub|hdr_end|hdr_len|hdr_reg|hdr_dom|path|path_beg|path_sub|path_end|path_dir|path_reg|path_len|path_dom|method|method_int|nbsrv|connslots|always_true|always_false|req\\.hdr|req\\.uri|req\\.method|res\\.hdr|res\\.status|ssl_fc|ssl_bc|src|dst|insert|indirect|rewrite|prefix|noraise|postonly|preserve|dynamic|httponly|secure|socks4|socks5|accept-proxy|send-proxy-v2|proxy-v2-options|v4only|v6only|global|len|TRUE|FALSE)\\b"
+        }
+      ]
+    },
+    "modifiers": {
+      "patterns": [
+        {
+          "name": "keyword.other.modifier.haproxy",
+          "match": "\\b(?:no|default|!\\s*)\\b"
+        }
+      ]
+    },
+    "expressions": {
+      "patterns": [
+        {
+          "name": "string.unquoted.haproxy",
+          "match": "\\{[^}]*\\}"
+        },
+        {
+          "name": "string.unquoted.haproxy",
+          "match": "%\\[[^\\]]*\\]"
+        },
+        {
+          "name": "string.unquoted.haproxy",
+          "match": "\\[[^\\]]*\\]"
+        },
+        {
+          "name": "constant.character.escape.haproxy",
+          "match": "\\\\[\\s\"\\\\]"
+        }
+      ]
+    },
+    "filenames": {
+      "patterns": [
+        {
+          "name": "string.unquoted.haproxy",
+          "match": "\\b[\\w.-]+\\.(?:lua|pem|crt|key|cfg|txt|json|xml|html|so|bin)\\b"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "keyword.other.modifier.haproxy",
+          "match": "[=,:+\\-!|&()\\[\\]{}^]"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "name": "entity.name.type.proxy.haproxy",
+          "match": "\\b[A-Za-z_][\\w.-]*\\b"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "name": "haproxy-config",
+  "displayName": "HAProxy Config",
+  "description": "HAProxy config highlighting, completion, hover docs, and schema diagnostics",
+  "version": "0.4.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "HAProxy",
+      "properties": {
+        "haproxy.version": {
+          "type": "string",
+          "enum": [
+            "3.0",
+            "3.2"
+          ],
+          "default": "3.2",
+          "description": "HAProxy release used for completion, diagnostics, hover, and syntax highlighting."
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "haproxy",
+        "aliases": [
+          "HAProxy",
+          "haproxy"
+        ],
+        "extensions": [
+          ".cfg"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "haproxy",
+        "scopeName": "source.haproxy",
+        "path": "./syntaxes/haproxy-active.tmLanguage.json"
+      }
+    ]
+  },
+  "configurationDefaults": {
+    "[haproxy]": {
+      "editor.semanticHighlighting.enabled": false
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "verify:highlight": "node scripts/verify-highlight.mjs ../haproxy_git/haproxy-3.2/tests/conf",
+    "verify:conf": "node scripts/validate-conf.mjs ../haproxy_git/haproxy-3.2/tests/conf",
+    "test:highlight": "node scripts/test-highlight.mjs",
+    "test:diagnostics": "node scripts/test-diagnostics.mjs",
+    "compare:haproxy": "node scripts/compare-haproxy-c.mjs",
+    "generate:schema": "npm run generate:schema:3.2",
+    "generate:schema:3.2": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-3.2/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-3.2.txt --out ./schemas/haproxy-3.2.schema.json --language-data-out ./schemas/haproxy-3.2.language.json --grammar-out ./syntaxes/haproxy-3.2.tmLanguage.json --grammar-template ./syntaxes/haproxy.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-3.2.json --version 3.2",
+    "generate:dkall:3.2": "powershell -ExecutionPolicy Bypass -File ../haproxy-schema/scripts/generate-dkall.ps1 -Version 3.2",
+    "generate:dkall:3.0": "powershell -ExecutionPolicy Bypass -File ../haproxy-schema/scripts/generate-dkall.ps1 -Version 3.0",
+    "generate:schema:3.0": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-3.0/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-3.0.txt --out ./schemas/haproxy-3.0.schema.json --language-data-out ./schemas/haproxy-3.0.language.json --grammar-out ./syntaxes/haproxy-3.0.tmLanguage.json --grammar-template ./syntaxes/haproxy.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-3.0.json --version 3.0",
+    "generate:grammar:3.0": "python -m haproxy_schema emit-grammar --schema ./schemas/haproxy-3.0.schema.json --out ./syntaxes/haproxy-3.0.tmLanguage.json --grammar-template ./syntaxes/haproxy.tmLanguage.json",
+    "sync:active-grammar": "node scripts/sync-active-grammar.mjs",
+    "generate:language-data": "npm run generate:schema",
+    "test": "npm run compile && npm run test:highlight && npm run test:diagnostics && npm run compare:haproxy"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.8",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.5.4",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
+  }
+}

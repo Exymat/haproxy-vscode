@@ -1,0 +1,7 @@
+node_modules/
+*.vsix
+.DS_Store
+Thumbs.db
+
+# Build / test artifacts (regenerate with npm run compile / npm test)
+scripts/compare-haproxy-c-report.json
