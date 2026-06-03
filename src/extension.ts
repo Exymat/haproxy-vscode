@@ -7,6 +7,7 @@ import { provideHover } from "./hover";
 import { clearLanguageDataCache, HaproxyLanguageData, loadLanguageData } from "./languageData";
 import { clearSchemaCache, HaproxySchema, loadSchema } from "./schema";
 import { getExtensionSettings, onSettingsChanged } from "./settings";
+import { registerVersionStatusBar } from "./statusBar";
 import { getConfiguredVersion, HaproxyVersion, onVersionConfigurationChanged } from "./version";
 
 interface ExtensionBundle {
@@ -20,6 +21,8 @@ let bundle: ExtensionBundle | undefined;
 let bundleLoadPromise: Promise<ExtensionBundle> | undefined;
 
 export function activate(context: vscode.ExtensionContext): void {
+  registerVersionStatusBar(context);
+
   const diagnostics = vscode.languages.createDiagnosticCollection("haproxy");
   context.subscriptions.push(diagnostics);
 
@@ -119,7 +122,13 @@ export function activate(context: vscode.ExtensionContext): void {
     })
   );
 
-  setImmediate(() => refreshAllDocuments());
+  setImmediate(() => {
+    void ensureBundle().then((b) => {
+      const grammarChanged = syncActiveGrammar(context, b.version);
+      void promptReloadIfGrammarChanged(grammarChanged);
+    });
+    refreshAllDocuments();
+  });
 
   const selector: vscode.DocumentSelector = { language: "haproxy" };
 

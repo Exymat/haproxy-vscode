@@ -35,18 +35,29 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DEFAULT_HAPROXY_VERSION = exports.SUPPORTED_HAPROXY_VERSIONS = void 0;
 exports.getConfiguredVersion = getConfiguredVersion;
+exports.setConfiguredVersion = setConfiguredVersion;
 exports.onVersionConfigurationChanged = onVersionConfigurationChanged;
 const vscode = __importStar(require("vscode"));
-exports.SUPPORTED_HAPROXY_VERSIONS = ["3.0", "3.2"];
+exports.SUPPORTED_HAPROXY_VERSIONS = ["3.0", "3.2", "3.4"];
 exports.DEFAULT_HAPROXY_VERSION = "3.2";
 const CONFIG_SECTION = "haproxy";
 const CONFIG_VERSION = "version";
+function isHaproxyVersion(raw) {
+    return exports.SUPPORTED_HAPROXY_VERSIONS.includes(raw ?? "");
+}
 function getConfiguredVersion() {
     const raw = vscode.workspace.getConfiguration(CONFIG_SECTION).get(CONFIG_VERSION);
-    if (raw === "3.0" || raw === "3.2") {
+    if (isHaproxyVersion(raw)) {
         return raw;
     }
     return exports.DEFAULT_HAPROXY_VERSION;
+}
+async function setConfiguredVersion(version) {
+    const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
+    const target = vscode.workspace.workspaceFolders?.length
+        ? vscode.ConfigurationTarget.Workspace
+        : vscode.ConfigurationTarget.Global;
+    await config.update(CONFIG_VERSION, version, target);
 }
 function onVersionConfigurationChanged(listener) {
     return vscode.workspace.onDidChangeConfiguration((event) => {

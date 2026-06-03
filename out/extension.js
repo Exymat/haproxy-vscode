@@ -43,11 +43,13 @@ const hover_1 = require("./hover");
 const languageData_1 = require("./languageData");
 const schema_1 = require("./schema");
 const settings_1 = require("./settings");
+const statusBar_1 = require("./statusBar");
 const version_1 = require("./version");
 const pendingDiagnostics = new Map();
 let bundle;
 let bundleLoadPromise;
 function activate(context) {
+    (0, statusBar_1.registerVersionStatusBar)(context);
     const diagnostics = vscode.languages.createDiagnosticCollection("haproxy");
     context.subscriptions.push(diagnostics);
     const ensureBundle = () => {
@@ -130,7 +132,13 @@ function activate(context) {
     }), (0, settings_1.onSettingsChanged)(() => {
         refreshAllDocuments();
     }));
-    setImmediate(() => refreshAllDocuments());
+    setImmediate(() => {
+        void ensureBundle().then((b) => {
+            const grammarChanged = (0, grammar_1.syncActiveGrammar)(context, b.version);
+            void (0, grammar_1.promptReloadIfGrammarChanged)(grammarChanged);
+        });
+        refreshAllDocuments();
+    });
     const selector = { language: "haproxy" };
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider(selector, {
         async provideCompletionItems(document, position) {
