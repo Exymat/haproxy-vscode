@@ -4,6 +4,7 @@ node_modules/
 Thumbs.db
 .npmrc
 .vscode/**
+package-lock.json
 
 # Build / test artifacts (regenerate with npm run compile / npm test)
 scripts/compare-haproxy-c-report.json
