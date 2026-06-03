@@ -6,6 +6,7 @@ Thumbs.db
 .vscode/**
 package-lock.json
 dkall.output
+*.cpuprofile
 
 # Build / test artifacts (regenerate with npm run compile / npm test)
 scripts/compare-haproxy-c-report.json
