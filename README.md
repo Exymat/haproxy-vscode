@@ -32,12 +32,12 @@ Hover any supported keyword to read summaries sourced from HAProxy’s official 
 
 Catch common mistakes while you type:
 
-| Category | Examples |
-| -------- | -------- |
-| Keywords | Unknown directive, keyword used in the wrong section |
-| Structure | Nested `option` / parameter misuse |
-| Arguments | Missing or extra arguments for known statement shapes |
-| Expressions | Invalid sample fetch / converter references |
+| Category    | Examples                                              |
+| ----------- | ----------------------------------------------------- |
+| Keywords    | Unknown directive, keyword used in the wrong section  |
+| Structure   | Nested `option` / parameter misuse                    |
+| Arguments   | Missing or extra arguments for known statement shapes |
+| Expressions | Invalid sample fetch / converter references           |
 
 Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Always validate with your real binary before deploying.
 
@@ -57,11 +57,11 @@ No extra runtime is required for day-to-day editing — schemas and grammars shi
 
 Pick the release that matches the binaries you operate:
 
-| Version | Default? | Notes |
-| ------- | -------- | ----- |
-| **3.2** | Yes | Recommended for most users |
-| **3.4** | | Latest supported line |
-| **3.0** | | Legacy LTS |
+| Version | Default? | Notes                      |
+| ------- | -------- | -------------------------- |
+| **3.2** | Yes      | Recommended for most users |
+| **3.4** |          | Latest supported line      |
+| **3.0** |          | Legacy LTS                 |
 
 **Ways to change version:**
 
@@ -75,12 +75,12 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 
 ## Settings
 
-| Setting | Default | Description |
-| ------- | ------- | ----------- |
-| `haproxy.version` | `3.2` | HAProxy release used for completion, diagnostics, hover, and syntax highlighting |
-| `haproxy.diagnostics.enabled` | `true` | Turn off if opening very large `.cfg` files feels slow |
-| `haproxy.diagnostics.debounceMs` | `500` | Delay after edits before recomputing diagnostics (100–5000 ms) |
-| `haproxy.diagnostics.maxLines` | `4000` | Skip diagnostics above this line count to limit memory use |
+| Setting                          | Default | Description                                                                      |
+| -------------------------------- | ------- | -------------------------------------------------------------------------------- |
+| `haproxy.version`                | `3.2`   | HAProxy release used for completion, diagnostics, hover, and syntax highlighting |
+| `haproxy.diagnostics.enabled`    | `true`  | Turn off if opening very large `.cfg` files feels slow                           |
+| `haproxy.diagnostics.debounceMs` | `500`   | Delay after edits before recomputing diagnostics (100–5000 ms)                   |
+| `haproxy.diagnostics.maxLines`   | `4000`  | Skip diagnostics above this line count to limit memory use                       |
 
 The extension also raises `editor.maxTokenizationLineLength` for HAProxy files so long `server` / `bind` lines tokenize correctly.
 
@@ -88,8 +88,8 @@ The extension also raises `editor.maxTokenizationLineLength` for HAProxy files s
 
 ## Commands
 
-| Command | Description |
-| ------- | ----------- |
+| Command                             | Description                          |
+| ----------------------------------- | ------------------------------------ |
 | **HAProxy: Select HAProxy Version** | Quick-pick between 3.0, 3.2, and 3.4 |
 
 ---
@@ -102,6 +102,23 @@ Language data is built offline from two upstream sources:
 2. **`haproxy -dKall`** — the complete keyword list emitted by the binary.
 
 Those inputs are merged into JSON schemas, completion/hover payloads, and TextMate grammars (see the companion [**haproxy-schema**](https://github.com/Exymat/haproxy-schema) repository). The VS Code extension loads the bundled artifacts for the version you select — no Python or local HAProxy install needed to **use** the extension.
+
+---
+
+## Report issues
+
+Found a false positive, missing completion, or wrong hover text? Open an issue on [GitHub](https://github.com/Exymat/haproxy-vscode/issues).
+
+**Required information** — issues without these details are hard to reproduce and may be closed:
+
+1. **Offending config** — paste the exact line(s) or a minimal snippet that triggers the problem (redact secrets; keep structure intact).
+2. **Error or unexpected behavior** — copy the full diagnostic message from the Problems panel, or describe what you expected vs. what happened (e.g. no squiggle, wrong completion list).
+
+**Helpful context** (include when relevant):
+
+- **HAProxy: Version** (`haproxy.version`) — e.g. `3.2`
+- Extension version and editor (VS Code version)
+- Whether `haproxy -c` accepts or rejects the same config on your binary
 
 ---
 
