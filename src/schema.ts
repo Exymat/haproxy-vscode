@@ -79,6 +79,7 @@ export interface HaproxySchema {
 }
 
 const schemaCache = new Map<HaproxyVersion, HaproxySchema>();
+const sectionKeywordCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
 
 export function clearSchemaCache(): void {
   schemaCache.clear();
@@ -96,9 +97,22 @@ export function buildPrefixSubcommands(keywords: Iterable<string>, prefix: strin
   return subs;
 }
 
+export function noPrefixKeywordSet(schema: HaproxySchema): Set<string> {
+  return new Set((schema.tokens.no_prefix_keywords ?? []).map((k) => k.toLowerCase()));
+}
+
 export function sectionKeywordSet(schema: HaproxySchema, section: string | null): Set<string> {
   if (!section) {
     return new Set();
+  }
+  let perSchema = sectionKeywordCache.get(schema);
+  if (!perSchema) {
+    perSchema = new Map();
+    sectionKeywordCache.set(schema, perSchema);
+  }
+  const cached = perSchema.get(section);
+  if (cached) {
+    return cached;
   }
   const allowed = new Set((schema.sections[section]?.keywords ?? []).map((k) => k.toLowerCase()));
   for (const [name, keyword] of Object.entries(schema.keywords)) {
@@ -106,6 +120,7 @@ export function sectionKeywordSet(schema: HaproxySchema, section: string | null)
       allowed.add(name.toLowerCase());
     }
   }
+  perSchema.set(section, allowed);
   return allowed;
 }
 

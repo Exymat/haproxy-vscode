@@ -106,21 +106,12 @@ export function extractExpressionSpans(lineText: string): ExpressionSpan[] {
   let idx = 0;
   while (idx < lineText.length) {
     const pct = lineText.indexOf("%[", idx);
-    const brace = lineText.indexOf("{", idx);
-    let start = -1;
-    let endChar = "";
-    if (pct >= 0 && (brace < 0 || pct <= brace)) {
-      start = pct + 2;
-      endChar = "]";
-      idx = pct + 2;
-    } else if (brace >= 0) {
-      start = brace + 1;
-      endChar = "}";
-      idx = brace + 1;
-    } else {
+    if (pct < 0) {
       break;
     }
-    const end = lineText.indexOf(endChar, start);
+    const start = pct + 2;
+    idx = pct + 2;
+    const end = lineText.indexOf("]", start);
     if (end < 0) {
       spans.push({ text: lineText.slice(start), start });
       break;
@@ -128,6 +119,8 @@ export function extractExpressionSpans(lineText: string): ExpressionSpan[] {
     spans.push({ text: lineText.slice(start, end), start });
     idx = end + 1;
   }
+
+  // ACL conditions use { ... }; only %[ ... ] are sample expressions (see configuration.txt §7).
   return spans;
 }
 
@@ -543,7 +536,7 @@ function lookupSample(
   return undefined;
 }
 
-function validateExpressionBody(
+export function validateExpressionBody(
   body: string,
   spanStart: number,
   fetches: Record<string, SampleFunction>,

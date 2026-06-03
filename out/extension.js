@@ -42,56 +42,110 @@ const grammar_1 = require("./grammar");
 const hover_1 = require("./hover");
 const languageData_1 = require("./languageData");
 const schema_1 = require("./schema");
+const settings_1 = require("./settings");
 const version_1 = require("./version");
+const pendingDiagnostics = new Map();
+let bundle;
+let bundleLoadPromise;
 function activate(context) {
-    let bundle = loadBundle(context);
     const diagnostics = vscode.languages.createDiagnosticCollection("haproxy");
     context.subscriptions.push(diagnostics);
-    const refreshDiagnostics = (document) => {
+    const ensureBundle = () => {
+        if (bundle) {
+            return Promise.resolve(bundle);
+        }
+        if (!bundleLoadPromise) {
+            bundleLoadPromise = new Promise((resolve) => {
+                setImmediate(() => {
+                    const version = (0, version_1.getConfiguredVersion)();
+                    bundle = {
+                        version,
+                        schema: (0, schema_1.loadSchema)(context, version),
+                        languageData: (0, languageData_1.loadLanguageData)(context, version),
+                    };
+                    resolve(bundle);
+                });
+            });
+        }
+        return bundleLoadPromise;
+    };
+    const runDiagnostics = async (document) => {
+        const settings = (0, settings_1.getExtensionSettings)();
+        if (!settings.diagnosticsEnabled || document.languageId !== "haproxy") {
+            return;
+        }
+        if (document.lineCount > settings.maxDiagnosticsLines) {
+            diagnostics.set(document.uri, []);
+            return;
+        }
+        const b = await ensureBundle();
+        diagnostics.set(document.uri, (0, diagnostics_1.computeDiagnostics)(document, b.schema));
+    };
+    const scheduleDiagnostics = (document) => {
         if (document.languageId !== "haproxy") {
             return;
         }
-        diagnostics.set(document.uri, (0, diagnostics_1.computeDiagnostics)(document, bundle.schema));
+        const settings = (0, settings_1.getExtensionSettings)();
+        if (!settings.diagnosticsEnabled) {
+            diagnostics.delete(document.uri);
+            return;
+        }
+        const key = document.uri.toString();
+        const existing = pendingDiagnostics.get(key);
+        if (existing) {
+            clearTimeout(existing);
+        }
+        pendingDiagnostics.set(key, setTimeout(() => {
+            pendingDiagnostics.delete(key);
+            void runDiagnostics(document);
+        }, settings.diagnosticsDebounceMs));
     };
     const refreshAllDocuments = () => {
-        vscode.workspace.textDocuments.forEach(refreshDiagnostics);
-    };
-    const reloadBundle = async (fromConfigChange) => {
-        const previous = bundle.version;
-        bundle = loadBundle(context);
-        refreshAllDocuments();
-        if (fromConfigChange && previous !== bundle.version) {
-            const grammarChanged = (0, grammar_1.syncActiveGrammar)(context, bundle.version);
-            await (0, grammar_1.promptReloadIfGrammarChanged)(grammarChanged);
+        for (const document of vscode.workspace.textDocuments) {
+            scheduleDiagnostics(document);
         }
     };
-    context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(refreshDiagnostics), vscode.workspace.onDidChangeTextDocument((event) => refreshDiagnostics(event.document)), vscode.workspace.onDidSaveTextDocument(refreshDiagnostics), vscode.workspace.onDidCloseTextDocument((doc) => diagnostics.delete(doc.uri)), (0, version_1.onVersionConfigurationChanged)(() => {
+    const reloadBundle = async (syncGrammar) => {
         (0, schema_1.clearSchemaCache)();
         (0, languageData_1.clearLanguageDataCache)();
+        bundle = undefined;
+        bundleLoadPromise = undefined;
+        const b = await ensureBundle();
+        if (syncGrammar) {
+            const grammarChanged = (0, grammar_1.syncActiveGrammar)(context, b.version);
+            await (0, grammar_1.promptReloadIfGrammarChanged)(grammarChanged);
+        }
+        refreshAllDocuments();
+    };
+    context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(scheduleDiagnostics), vscode.workspace.onDidChangeTextDocument((event) => scheduleDiagnostics(event.document)), vscode.workspace.onDidSaveTextDocument(scheduleDiagnostics), vscode.workspace.onDidCloseTextDocument((doc) => {
+        const key = doc.uri.toString();
+        const pending = pendingDiagnostics.get(key);
+        if (pending) {
+            clearTimeout(pending);
+            pendingDiagnostics.delete(key);
+        }
+        diagnostics.delete(doc.uri);
+    }), (0, version_1.onVersionConfigurationChanged)(() => {
         void reloadBundle(true);
+    }), (0, settings_1.onSettingsChanged)(() => {
+        refreshAllDocuments();
     }));
-    refreshAllDocuments();
+    setImmediate(() => refreshAllDocuments());
     const selector = { language: "haproxy" };
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider(selector, {
-        provideCompletionItems(document, position) {
-            return (0, completion_1.provideCompletionItems)(document, position, bundle.languageData, bundle.schema);
+        async provideCompletionItems(document, position) {
+            const b = await ensureBundle();
+            return (0, completion_1.provideCompletionItems)(document, position, b.languageData, b.schema);
         },
     }, " ", "\t"), vscode.languages.registerHoverProvider(selector, {
-        provideHover(document, position) {
-            return (0, hover_1.provideHover)(document, position, bundle.languageData, bundle.schema);
+        async provideHover(document, position) {
+            const b = await ensureBundle();
+            return (0, hover_1.provideHover)(document, position, b.languageData, b.schema);
         },
     }));
 }
-function loadBundle(context) {
-    const version = (0, version_1.getConfiguredVersion)();
-    (0, grammar_1.syncActiveGrammar)(context, version);
-    return {
-        version,
-        schema: (0, schema_1.loadSchema)(context, version),
-        languageData: (0, languageData_1.loadLanguageData)(context, version),
-    };
-}
 function deactivate() {
-    // no-op
+    bundle = undefined;
+    bundleLoadPromise = undefined;
 }
 //# sourceMappingURL=extension.js.map

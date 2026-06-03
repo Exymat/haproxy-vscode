@@ -8,7 +8,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const extensionRoot = join(__dirname, "..");
 const defaultConfDir = resolve(extensionRoot, "..", "haproxy_git", "haproxy-3.2", "tests", "conf");
 
-const FIXTURE_SNIPPET = readFileSync(join(__dirname, "fixtures", "test-stats-head.cfg"), "utf-8");
+const FIXTURE_SNIPPETS = [
+  readFileSync(join(__dirname, "fixtures", "test-stats-head.cfg"), "utf-8"),
+  readFileSync(join(__dirname, "fixtures", "grammar-directives.cfg"), "utf-8"),
+];
 
 function collectCfgFiles(dir) {
   const files = [];
@@ -23,14 +26,14 @@ function collectCfgFiles(dir) {
   return files.sort();
 }
 
-async function assertFixtureSnippetFullyScoped() {
-  const { lineResults } = await analyzeDocument(FIXTURE_SNIPPET);
+async function assertFixtureSnippetFullyScoped(content, label) {
+  const { lineResults } = await analyzeDocument(content);
   const unscoped = lineResults.flatMap((line) =>
     line.unscoped.map((t) => ({ ...t, lineNo: line.lineNo }))
   );
   if (unscoped.length > 0) {
     const details = unscoped.map((t) => `  line ${t.lineNo} "${t.text}" scope=${t.displayScope}`).join("\n");
-    throw new Error(`Fixture has ${unscoped.length} unscoped token(s):\n${details}`);
+    throw new Error(`${label}: ${unscoped.length} unscoped token(s):\n${details}`);
   }
 }
 
@@ -48,14 +51,17 @@ async function main() {
   const confDir = process.argv[2] ? resolve(process.argv[2]) : defaultConfDir;
   let failed = false;
 
-  process.stdout.write("fixture snippet scoped ... ");
-  try {
-    await assertFixtureSnippetFullyScoped();
-    console.log("ok");
-  } catch (error) {
-    console.log("FAIL");
-    console.error(String(error.message ?? error));
-    failed = true;
+  for (let i = 0; i < FIXTURE_SNIPPETS.length; i += 1) {
+    const label = i === 0 ? "fixture snippet scoped" : "grammar directives fixture";
+    process.stdout.write(`${label} ... `);
+    try {
+      await assertFixtureSnippetFullyScoped(FIXTURE_SNIPPETS[i], label);
+      console.log("ok");
+    } catch (error) {
+      console.log("FAIL");
+      console.error(String(error.message ?? error));
+      failed = true;
+    }
   }
 
   process.stdout.write(`all cfg in ${confDir} ... `);

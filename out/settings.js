@@ -33,22 +33,23 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.expressionDiagnostics = expressionDiagnostics;
+exports.getExtensionSettings = getExtensionSettings;
+exports.onSettingsChanged = onSettingsChanged;
 const vscode = __importStar(require("vscode"));
-const aclCondition_1 = require("./aclCondition");
-const sampleExpression_1 = require("./sampleExpression");
-function expressionDiagnostics(line, lineText, schema) {
-    const diagnostics = [];
-    const expressionIssues = [
-        ...(0, sampleExpression_1.validateSampleExpressions)(lineText, schema),
-        ...(0, aclCondition_1.validateAclConditions)(lineText, schema),
-    ];
-    for (const issue of expressionIssues) {
-        diagnostics.push(new vscode.Diagnostic(new vscode.Range(line.line, issue.start, line.line, issue.end), issue.message, vscode.DiagnosticSeverity.Error));
-        const last = diagnostics[diagnostics.length - 1];
-        last.source = issue.source;
-        last.code = issue.code;
-    }
-    return diagnostics;
+const SECTION = "haproxy";
+function getExtensionSettings() {
+    const config = vscode.workspace.getConfiguration(SECTION);
+    return {
+        diagnosticsEnabled: config.get("diagnostics.enabled", true),
+        diagnosticsDebounceMs: Math.max(100, config.get("diagnostics.debounceMs", 500)),
+        maxDiagnosticsLines: Math.max(100, config.get("diagnostics.maxLines", 4000)),
+    };
 }
-//# sourceMappingURL=expressionDiagnostics.js.map
+function onSettingsChanged(listener) {
+    return vscode.workspace.onDidChangeConfiguration((event) => {
+        if (event.affectsConfiguration(SECTION)) {
+            listener();
+        }
+    });
+}
+//# sourceMappingURL=settings.js.map

@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.clearSchemaCache = clearSchemaCache;
 exports.buildPrefixSubcommands = buildPrefixSubcommands;
+exports.noPrefixKeywordSet = noPrefixKeywordSet;
 exports.sectionKeywordSet = sectionKeywordSet;
 exports.loadSchema = loadSchema;
 exports.sectionNames = sectionNames;
@@ -42,6 +43,7 @@ const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const version_1 = require("./version");
 const schemaCache = new Map();
+const sectionKeywordCache = new WeakMap();
 function clearSchemaCache() {
     schemaCache.clear();
 }
@@ -56,9 +58,21 @@ function buildPrefixSubcommands(keywords, prefix) {
     }
     return subs;
 }
+function noPrefixKeywordSet(schema) {
+    return new Set((schema.tokens.no_prefix_keywords ?? []).map((k) => k.toLowerCase()));
+}
 function sectionKeywordSet(schema, section) {
     if (!section) {
         return new Set();
+    }
+    let perSchema = sectionKeywordCache.get(schema);
+    if (!perSchema) {
+        perSchema = new Map();
+        sectionKeywordCache.set(schema, perSchema);
+    }
+    const cached = perSchema.get(section);
+    if (cached) {
+        return cached;
     }
     const allowed = new Set((schema.sections[section]?.keywords ?? []).map((k) => k.toLowerCase()));
     for (const [name, keyword] of Object.entries(schema.keywords)) {
@@ -66,6 +80,7 @@ function sectionKeywordSet(schema, section) {
             allowed.add(name.toLowerCase());
         }
     }
+    perSchema.set(section, allowed);
     return allowed;
 }
 function loadSchema(context, version = version_1.DEFAULT_HAPROXY_VERSION) {

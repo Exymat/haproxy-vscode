@@ -4,14 +4,16 @@ import { argumentModelDiagnostics } from "./argumentDiagnostics";
 import { expressionDiagnostics } from "./expressionDiagnostics";
 import { aclNameDiagnostics, sectionHeaderDiagnostics } from "./sectionDiagnostics";
 import { statementDiagnostics } from "./statementDiagnostics";
-import { parseDocument, ParsedLine } from "./parser";
-import { HaproxySchema, sectionKeywordSet } from "./schema";
+import { getParsedDocument } from "./parseCache";
+import { ParsedLine } from "./parser";
+import { HaproxySchema, noPrefixKeywordSet, sectionKeywordSet } from "./schema";
 import {
   actionTokenIndex,
   BALANCE_ALGORITHMS,
   BIND_LEVEL_VALUES,
   isLikelyValue,
   MODE_VALUES,
+  normalizeActionName,
   PREFIX_FAMILIES,
   resolveLongestDirectiveMatch,
   resolveSubcommandSpan,
@@ -100,9 +102,10 @@ function optionAllowedInSection(allowed: Set<string>): boolean {
 function topLevelDiagnostics(
   line: ParsedLine,
   schema: HaproxySchema,
-  allowed: Set<string>
+  allowed: Set<string>,
+  noPrefix: Set<string>
 ): vscode.Diagnostic[] {
-  const match = resolveLongestDirectiveMatch(line, allowed);
+  const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefix);
   if (match.matched) {
     return [];
   }
@@ -255,7 +258,8 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
 
   const actionIdx = actionTokenIndex(line);
   if (actionIdx !== null) {
-    const token = line.tokens[actionIdx].text.toLowerCase().replace(/\*$/, "");
+    const rawToken = line.tokens[actionIdx].text;
+    const token = normalizeActionName(rawToken);
     let allowedActions: string[] = [];
     if (t0 === "http-request") {
       allowedActions = groups.http_request_actions ?? [];
@@ -273,7 +277,7 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
       diagnostics.push(
         makeDiagnostic(
           diagRange(line, actionIdx),
-          `Unknown ${line.tokens[0].text} action '${line.tokens[actionIdx].text}'`,
+          `Unknown ${line.tokens[0].text} action '${rawToken}'`,
           vscode.DiagnosticSeverity.Warning,
           "unknown-action"
         )
@@ -299,7 +303,7 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
 }
 
 export function computeDiagnostics(document: vscode.TextDocument, schema: HaproxySchema): vscode.Diagnostic[] {
-  const parsed = parseDocument(document);
+  const parsed = getParsedDocument(document);
   const diagnostics: vscode.Diagnostic[] = [];
   const lineTexts = Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
 
@@ -316,12 +320,13 @@ export function computeDiagnostics(document: vscode.TextDocument, schema: Haprox
     }
 
     const allowed = sectionKeywordSet(schema, line.section);
-    const topDiags = topLevelDiagnostics(line, schema, allowed);
+    const noPrefix = noPrefixKeywordSet(schema);
+    const topDiags = topLevelDiagnostics(line, schema, allowed, noPrefix);
     diagnostics.push(...topDiags);
     if (topDiags.length === 0) {
       diagnostics.push(...statementDiagnostics(line, schema));
       diagnostics.push(...unknownNestedDiagnostics(line, schema));
-      diagnostics.push(...argumentModelDiagnostics(line, schema, allowed));
+      diagnostics.push(...argumentModelDiagnostics(line, schema, allowed, noPrefix));
     }
     diagnostics.push(...aclNameDiagnostics(line));
     diagnostics.push(...expressionDiagnostics(line, lineTexts[line.line] ?? "", schema));

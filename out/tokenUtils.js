@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PREFIX_FAMILIES = exports.BIND_LEVEL_VALUES = exports.BALANCE_ALGORITHMS = exports.MODE_VALUES = exports.TCP_RULE_PHASES = exports.BIND_OPTIONS_WITH_VALUE = exports.SERVER_OPTIONS_WITH_VALUE = void 0;
+exports.MODIFIER_PREFIXES = exports.PREFIX_FAMILIES = exports.BIND_LEVEL_VALUES = exports.BALANCE_ALGORITHMS = exports.MODE_VALUES = exports.TCP_RULE_PHASES = exports.BIND_OPTIONS_WITH_VALUE = exports.SERVER_OPTIONS_WITH_VALUE = void 0;
 exports.isWordToken = isWordToken;
 exports.isDirectivePart = isDirectivePart;
 exports.isNumberToken = isNumberToken;
@@ -11,6 +11,7 @@ exports.resolveLongestDirectiveMatch = resolveLongestDirectiveMatch;
 exports.resolveAttemptedDirectiveSpan = resolveAttemptedDirectiveSpan;
 exports.resolveSubcommandSpan = resolveSubcommandSpan;
 exports.resolveDirectiveSpan = resolveDirectiveSpan;
+exports.normalizeActionName = normalizeActionName;
 exports.actionTokenIndex = actionTokenIndex;
 exports.tcpPhaseIndex = tcpPhaseIndex;
 exports.classifyValueToken = classifyValueToken;
@@ -137,6 +138,7 @@ exports.BALANCE_ALGORITHMS = new Set([
 ]);
 exports.BIND_LEVEL_VALUES = new Set(["user", "operator", "admin"]);
 exports.PREFIX_FAMILIES = ["stats", "timeout", "tcp-check", "http-check", "capture", "tcp-request", "tcp-response"];
+exports.MODIFIER_PREFIXES = new Set(["no", "default"]);
 function isWordToken(token) {
     return /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(token);
 }
@@ -185,10 +187,23 @@ function joinTokens(tokens, start, end) {
         .map((t) => t.text.toLowerCase())
         .join(" ");
 }
-function resolveLongestDirectiveMatch(line, allowed, maxParts = 4) {
+function resolveLongestDirectiveMatch(line, allowed, maxParts = 4, noPrefixKeywords) {
     const tokens = line.tokens;
     if (tokens.length === 0) {
         return { start: 0, end: -1, keyword: "", matched: false };
+    }
+    if (noPrefixKeywords &&
+        tokens.length >= 2 &&
+        exports.MODIFIER_PREFIXES.has(tokens[0].text.toLowerCase())) {
+        const inner = resolveLongestDirectiveMatch({ ...line, tokens: tokens.slice(1) }, allowed, maxParts, undefined);
+        if (inner.matched && noPrefixKeywords.has(inner.keyword)) {
+            return {
+                start: 0,
+                end: inner.end + 1,
+                keyword: inner.keyword,
+                matched: true,
+            };
+        }
     }
     const limit = Math.min(tokens.length, maxParts);
     for (let end = limit - 1; end >= 0; end -= 1) {
@@ -268,6 +283,15 @@ function resolveSubcommandSpan(line, allowed, prefix) {
 function resolveDirectiveSpan(line, allowed) {
     const match = resolveLongestDirectiveMatch(line, allowed);
     return { start: match.start, end: match.end };
+}
+/** Rule action name from a config token (e.g. set-var(txn.path) -> set-var). */
+function normalizeActionName(token) {
+    const lower = token.toLowerCase().replace(/\*$/, "");
+    const paren = lower.indexOf("(");
+    if (paren > 0 && lower.endsWith(")")) {
+        return lower.slice(0, paren);
+    }
+    return lower;
 }
 function actionTokenIndex(line) {
     const tokens = line.tokens;

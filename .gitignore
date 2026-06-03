@@ -2,6 +2,8 @@ node_modules/
 *.vsix
 .DS_Store
 Thumbs.db
+.npmrc
+.vscode/**
 
 # Build / test artifacts (regenerate with npm run compile / npm test)
 scripts/compare-haproxy-c-report.json

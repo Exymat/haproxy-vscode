@@ -1,0 +1,13 @@
+.vscode/**
+src/**
+scripts/**
+**/*.ts
+**/*.map
+tsconfig.json
+package-lock.json
+.npmrc
+.gitignore
+node_modules/**
+*.vsix
+dkall.output
+syntaxes/haproxy.tmLanguage.json

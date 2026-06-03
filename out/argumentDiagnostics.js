@@ -138,8 +138,8 @@ function allowsMissingArgs(schemaKw, model) {
     }
     return false;
 }
-function argumentModelDiagnostics(line, schema, allowed) {
-    const match = (0, tokenUtils_1.resolveLongestDirectiveMatch)(line, allowed);
+function argumentModelDiagnostics(line, schema, allowed, noPrefixKeywords) {
+    const match = (0, tokenUtils_1.resolveLongestDirectiveMatch)(line, allowed, 4, noPrefixKeywords);
     if (!match.matched) {
         return [];
     }
@@ -148,8 +148,11 @@ function argumentModelDiagnostics(line, schema, allowed) {
         return [];
     }
     const t0 = line.tokens[0]?.text.toLowerCase();
-    if (t0 === "no" && line.tokens[1]?.text.toLowerCase() === "option") {
-        return [];
+    if (t0 === "no" || t0 === "default") {
+        const base = match.keyword.toLowerCase();
+        if (line.tokens[1]?.text.toLowerCase() === "option" || noPrefixKeywords?.has(base)) {
+            return [];
+        }
     }
     if (tokenUtils_1.PREFIX_FAMILIES.includes(keyword) || (t0 && tokenUtils_1.PREFIX_FAMILIES.includes(t0))) {
         return [];

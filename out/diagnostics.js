@@ -39,7 +39,7 @@ const argumentDiagnostics_1 = require("./argumentDiagnostics");
 const expressionDiagnostics_1 = require("./expressionDiagnostics");
 const sectionDiagnostics_1 = require("./sectionDiagnostics");
 const statementDiagnostics_1 = require("./statementDiagnostics");
-const parser_1 = require("./parser");
+const parseCache_1 = require("./parseCache");
 const schema_1 = require("./schema");
 const tokenUtils_1 = require("./tokenUtils");
 const DIAG_SOURCE = "haproxy";
@@ -92,8 +92,8 @@ function optionAllowedInSection(allowed) {
     }
     return false;
 }
-function topLevelDiagnostics(line, schema, allowed) {
-    const match = (0, tokenUtils_1.resolveLongestDirectiveMatch)(line, allowed);
+function topLevelDiagnostics(line, schema, allowed, noPrefix) {
+    const match = (0, tokenUtils_1.resolveLongestDirectiveMatch)(line, allowed, 4, noPrefix);
     if (match.matched) {
         return [];
     }
@@ -181,7 +181,8 @@ function unknownNestedDiagnostics(line, schema) {
     }
     const actionIdx = (0, tokenUtils_1.actionTokenIndex)(line);
     if (actionIdx !== null) {
-        const token = line.tokens[actionIdx].text.toLowerCase().replace(/\*$/, "");
+        const rawToken = line.tokens[actionIdx].text;
+        const token = (0, tokenUtils_1.normalizeActionName)(rawToken);
         let allowedActions = [];
         if (t0 === "http-request") {
             allowedActions = groups.http_request_actions ?? [];
@@ -200,7 +201,7 @@ function unknownNestedDiagnostics(line, schema) {
         }
         const allowed = new Set(allowedActions.map((v) => v.toLowerCase()));
         if (token && !token.startsWith("lua.") && !allowed.has(token)) {
-            diagnostics.push(makeDiagnostic(diagRange(line, actionIdx), `Unknown ${line.tokens[0].text} action '${line.tokens[actionIdx].text}'`, vscode.DiagnosticSeverity.Warning, "unknown-action"));
+            diagnostics.push(makeDiagnostic(diagRange(line, actionIdx), `Unknown ${line.tokens[0].text} action '${rawToken}'`, vscode.DiagnosticSeverity.Warning, "unknown-action"));
         }
         else if (token === "use-service" && actionIdx + 1 < line.tokens.length) {
             const serviceIdx = actionIdx + 1;
@@ -214,7 +215,7 @@ function unknownNestedDiagnostics(line, schema) {
     return diagnostics;
 }
 function computeDiagnostics(document, schema) {
-    const parsed = (0, parser_1.parseDocument)(document);
+    const parsed = (0, parseCache_1.getParsedDocument)(document);
     const diagnostics = [];
     const lineTexts = Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
     for (const line of parsed) {
@@ -229,12 +230,13 @@ function computeDiagnostics(document, schema) {
             continue;
         }
         const allowed = (0, schema_1.sectionKeywordSet)(schema, line.section);
-        const topDiags = topLevelDiagnostics(line, schema, allowed);
+        const noPrefix = (0, schema_1.noPrefixKeywordSet)(schema);
+        const topDiags = topLevelDiagnostics(line, schema, allowed, noPrefix);
         diagnostics.push(...topDiags);
         if (topDiags.length === 0) {
             diagnostics.push(...(0, statementDiagnostics_1.statementDiagnostics)(line, schema));
             diagnostics.push(...unknownNestedDiagnostics(line, schema));
-            diagnostics.push(...(0, argumentDiagnostics_1.argumentModelDiagnostics)(line, schema, allowed));
+            diagnostics.push(...(0, argumentDiagnostics_1.argumentModelDiagnostics)(line, schema, allowed, noPrefix));
         }
         diagnostics.push(...(0, sectionDiagnostics_1.aclNameDiagnostics)(line));
         diagnostics.push(...(0, expressionDiagnostics_1.expressionDiagnostics)(line, lineTexts[line.line] ?? "", schema));

@@ -2,10 +2,18 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Config",
   "description": "HAProxy config highlighting, completion, hover docs, and schema diagnostics",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "publisher": "local",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Exymat/haproxy-vscode.git"
+  },
+  "activationEvents": [
+    "onLanguage:haproxy"
+  ],
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.105.0"
   },
   "categories": [
     "Programming Languages",
@@ -16,7 +24,7 @@
     "configuration": {
       "title": "HAProxy",
       "properties": {
-        "haproxy.version": {
+        "version": {
           "type": "string",
           "enum": [
             "3.0",
@@ -24,6 +32,24 @@
           ],
           "default": "3.2",
           "description": "HAProxy release used for completion, diagnostics, hover, and syntax highlighting."
+        },
+        "diagnostics.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable schema-based diagnostics for HAProxy configs. Turn off if opening .cfg files is slow."
+        },
+        "diagnostics.debounceMs": {
+          "type": "number",
+          "default": 500,
+          "minimum": 100,
+          "maximum": 5000,
+          "description": "Milliseconds to wait after edits before recomputing diagnostics."
+        },
+        "diagnostics.maxLines": {
+          "type": "number",
+          "default": 4000,
+          "minimum": 100,
+          "description": "Skip diagnostics above this line count to protect editor memory."
         }
       }
     },
@@ -50,15 +76,18 @@
   },
   "configurationDefaults": {
     "[haproxy]": {
-      "editor.semanticHighlighting.enabled": false
+      "editor.maxTokenizationLineLength": 20000
     }
   },
   "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "package": "vsce package",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "verify:highlight": "node scripts/verify-highlight.mjs ../haproxy_git/haproxy-3.2/tests/conf",
     "verify:conf": "node scripts/validate-conf.mjs ../haproxy_git/haproxy-3.2/tests/conf",
     "test:highlight": "node scripts/test-highlight.mjs",
+    "test:grammar-coverage": "node scripts/test-grammar-coverage.mjs",
     "test:diagnostics": "node scripts/test-diagnostics.mjs",
     "compare:haproxy": "node scripts/compare-haproxy-c.mjs",
     "generate:schema": "npm run generate:schema:3.2",
@@ -69,12 +98,13 @@
     "generate:grammar:3.0": "python -m haproxy_schema emit-grammar --schema ./schemas/haproxy-3.0.schema.json --out ./syntaxes/haproxy-3.0.tmLanguage.json --grammar-template ./syntaxes/haproxy.tmLanguage.json",
     "sync:active-grammar": "node scripts/sync-active-grammar.mjs",
     "generate:language-data": "npm run generate:schema",
-    "test": "npm run compile && npm run test:highlight && npm run test:diagnostics && npm run compare:haproxy"
+    "test": "npm run compile && npm run test:grammar-coverage && npm run test:highlight && npm run test:diagnostics && npm run compare:haproxy"
   },
   "devDependencies": {
-    "@types/node": "^20.14.8",
-    "@types/vscode": "^1.90.0",
-    "typescript": "^5.5.4",
+    "@types/node": "^25.9.1",
+    "@types/vscode": "^1.105.0",
+    "@vscode/vsce": "^3.9.1",
+    "typescript": "^6.0.3",
     "vscode-oniguruma": "^2.0.1",
     "vscode-textmate": "^9.3.2"
   }

@@ -37,7 +37,7 @@ exports.tokenModifiers = exports.tokenTypes = void 0;
 exports.createSemanticTokensProvider = createSemanticTokensProvider;
 exports.semanticTokensLegend = semanticTokensLegend;
 const vscode = __importStar(require("vscode"));
-const parser_1 = require("./parser");
+const parseCache_1 = require("./parseCache");
 const tokenUtils_1 = require("./tokenUtils");
 exports.tokenTypes = [
     "section",
@@ -168,7 +168,11 @@ function highlightDirectiveLine(builder, line, sectionKeywords, options, bindOpt
         highlightServerLine(builder, line, options, bindOptions, serverOptions);
         return;
     }
-    if (t0 === "http-request" || t0 === "http-response" || t0 === "tcp-request" || t0 === "tcp-response") {
+    if (t0 === "http-request" ||
+        t0 === "http-response" ||
+        t0 === "http-after-response" ||
+        t0 === "tcp-request" ||
+        t0 === "tcp-response") {
         pushToken(builder, line.line, tokens[0], "keyword");
         highlightRuleLine(builder, line, options, bindOptions, serverOptions);
         return;
@@ -191,10 +195,35 @@ function highlightDirectiveLine(builder, line, sectionKeywords, options, bindOpt
     }
     highlightArguments(builder, line, span.end + 1, options, bindOptions, serverOptions);
 }
+function highlightSectionHeader(builder, line, declaration) {
+    pushToken(builder, line.line, line.tokens[0], "section", declaration);
+    let index = 1;
+    if (index < line.tokens.length) {
+        pushToken(builder, line.line, line.tokens[index], "sectionName");
+        index += 1;
+    }
+    while (index < line.tokens.length) {
+        if (line.tokens[index].text.toLowerCase() === "from") {
+            pushToken(builder, line.line, line.tokens[index], "keyword");
+            index += 1;
+            if (index < line.tokens.length) {
+                pushToken(builder, line.line, line.tokens[index], "sectionName");
+                index += 1;
+            }
+        }
+        else {
+            pushToken(builder, line.line, line.tokens[index], "sectionName");
+            index += 1;
+        }
+    }
+}
 function createSemanticTokensProvider(schema) {
     return {
         provideDocumentSemanticTokens(document) {
-            const parsed = (0, parser_1.parseDocument)(document);
+            if (document.lineCount > 4000) {
+                return new vscode.SemanticTokensBuilder(legend).build();
+            }
+            const parsed = (0, parseCache_1.getParsedDocument)(document);
             const builder = new vscode.SemanticTokensBuilder(legend);
             const declaration = exports.tokenModifiers.indexOf("declaration");
             const options = new Set((schema.keyword_groups.options ?? []).map((v) => v.toLowerCase()));
@@ -205,10 +234,7 @@ function createSemanticTokensProvider(schema) {
                     continue;
                 }
                 if (line.isSectionHeader) {
-                    pushToken(builder, line.line, line.tokens[0], "section", declaration);
-                    for (let i = 1; i < line.tokens.length; i += 1) {
-                        pushToken(builder, line.line, line.tokens[i], "sectionName");
-                    }
+                    highlightSectionHeader(builder, line, declaration);
                     continue;
                 }
                 if (line.tokens[0].text.startsWith(".")) {

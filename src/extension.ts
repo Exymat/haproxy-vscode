@@ -6,6 +6,7 @@ import { promptReloadIfGrammarChanged, syncActiveGrammar } from "./grammar";
 import { provideHover } from "./hover";
 import { clearLanguageDataCache, HaproxyLanguageData, loadLanguageData } from "./languageData";
 import { clearSchemaCache, HaproxySchema, loadSchema } from "./schema";
+import { getExtensionSettings, onSettingsChanged } from "./settings";
 import { getConfiguredVersion, HaproxyVersion, onVersionConfigurationChanged } from "./version";
 
 interface ExtensionBundle {
@@ -14,46 +15,111 @@ interface ExtensionBundle {
   languageData: HaproxyLanguageData;
 }
 
-export function activate(context: vscode.ExtensionContext): void {
-  let bundle = loadBundle(context);
+const pendingDiagnostics = new Map<string, NodeJS.Timeout>();
+let bundle: ExtensionBundle | undefined;
+let bundleLoadPromise: Promise<ExtensionBundle> | undefined;
 
+export function activate(context: vscode.ExtensionContext): void {
   const diagnostics = vscode.languages.createDiagnosticCollection("haproxy");
   context.subscriptions.push(diagnostics);
 
-  const refreshDiagnostics = (document: vscode.TextDocument): void => {
+  const ensureBundle = (): Promise<ExtensionBundle> => {
+    if (bundle) {
+      return Promise.resolve(bundle);
+    }
+    if (!bundleLoadPromise) {
+      bundleLoadPromise = new Promise((resolve) => {
+        setImmediate(() => {
+          const version = getConfiguredVersion();
+          bundle = {
+            version,
+            schema: loadSchema(context, version),
+            languageData: loadLanguageData(context, version),
+          };
+          resolve(bundle);
+        });
+      });
+    }
+    return bundleLoadPromise;
+  };
+
+  const runDiagnostics = async (document: vscode.TextDocument): Promise<void> => {
+    const settings = getExtensionSettings();
+    if (!settings.diagnosticsEnabled || document.languageId !== "haproxy") {
+      return;
+    }
+    if (document.lineCount > settings.maxDiagnosticsLines) {
+      diagnostics.set(document.uri, []);
+      return;
+    }
+    const b = await ensureBundle();
+    diagnostics.set(document.uri, computeDiagnostics(document, b.schema));
+  };
+
+  const scheduleDiagnostics = (document: vscode.TextDocument): void => {
     if (document.languageId !== "haproxy") {
       return;
     }
-    diagnostics.set(document.uri, computeDiagnostics(document, bundle.schema));
+    const settings = getExtensionSettings();
+    if (!settings.diagnosticsEnabled) {
+      diagnostics.delete(document.uri);
+      return;
+    }
+    const key = document.uri.toString();
+    const existing = pendingDiagnostics.get(key);
+    if (existing) {
+      clearTimeout(existing);
+    }
+    pendingDiagnostics.set(
+      key,
+      setTimeout(() => {
+        pendingDiagnostics.delete(key);
+        void runDiagnostics(document);
+      }, settings.diagnosticsDebounceMs)
+    );
   };
 
   const refreshAllDocuments = (): void => {
-    vscode.workspace.textDocuments.forEach(refreshDiagnostics);
-  };
-
-  const reloadBundle = async (fromConfigChange: boolean): Promise<void> => {
-    const previous = bundle.version;
-    bundle = loadBundle(context);
-    refreshAllDocuments();
-    if (fromConfigChange && previous !== bundle.version) {
-      const grammarChanged = syncActiveGrammar(context, bundle.version);
-      await promptReloadIfGrammarChanged(grammarChanged);
+    for (const document of vscode.workspace.textDocuments) {
+      scheduleDiagnostics(document);
     }
   };
 
+  const reloadBundle = async (syncGrammar: boolean): Promise<void> => {
+    clearSchemaCache();
+    clearLanguageDataCache();
+    bundle = undefined;
+    bundleLoadPromise = undefined;
+    const b = await ensureBundle();
+    if (syncGrammar) {
+      const grammarChanged = syncActiveGrammar(context, b.version);
+      await promptReloadIfGrammarChanged(grammarChanged);
+    }
+    refreshAllDocuments();
+  };
+
   context.subscriptions.push(
-    vscode.workspace.onDidOpenTextDocument(refreshDiagnostics),
-    vscode.workspace.onDidChangeTextDocument((event) => refreshDiagnostics(event.document)),
-    vscode.workspace.onDidSaveTextDocument(refreshDiagnostics),
-    vscode.workspace.onDidCloseTextDocument((doc) => diagnostics.delete(doc.uri)),
+    vscode.workspace.onDidOpenTextDocument(scheduleDiagnostics),
+    vscode.workspace.onDidChangeTextDocument((event) => scheduleDiagnostics(event.document)),
+    vscode.workspace.onDidSaveTextDocument(scheduleDiagnostics),
+    vscode.workspace.onDidCloseTextDocument((doc) => {
+      const key = doc.uri.toString();
+      const pending = pendingDiagnostics.get(key);
+      if (pending) {
+        clearTimeout(pending);
+        pendingDiagnostics.delete(key);
+      }
+      diagnostics.delete(doc.uri);
+    }),
     onVersionConfigurationChanged(() => {
-      clearSchemaCache();
-      clearLanguageDataCache();
       void reloadBundle(true);
+    }),
+    onSettingsChanged(() => {
+      refreshAllDocuments();
     })
   );
 
-  refreshAllDocuments();
+  setImmediate(() => refreshAllDocuments());
 
   const selector: vscode.DocumentSelector = { language: "haproxy" };
 
@@ -61,31 +127,24 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.languages.registerCompletionItemProvider(
       selector,
       {
-        provideCompletionItems(document, position) {
-          return provideCompletionItems(document, position, bundle.languageData, bundle.schema);
+        async provideCompletionItems(document, position) {
+          const b = await ensureBundle();
+          return provideCompletionItems(document, position, b.languageData, b.schema);
         },
       },
       " ",
       "\t"
     ),
     vscode.languages.registerHoverProvider(selector, {
-      provideHover(document, position) {
-        return provideHover(document, position, bundle.languageData, bundle.schema);
+      async provideHover(document, position) {
+        const b = await ensureBundle();
+        return provideHover(document, position, b.languageData, b.schema);
       },
     })
   );
 }
 
-function loadBundle(context: vscode.ExtensionContext): ExtensionBundle {
-  const version = getConfiguredVersion();
-  syncActiveGrammar(context, version);
-  return {
-    version,
-    schema: loadSchema(context, version),
-    languageData: loadLanguageData(context, version),
-  };
-}
-
 export function deactivate(): void {
-  // no-op
+  bundle = undefined;
+  bundleLoadPromise = undefined;
 }

@@ -69,7 +69,8 @@ function ruleMatchesScopes(ruleScope, scopes) {
 }
 
 export function loadGrammarObject() {
-  const raw = readFileSync(join(extensionRoot, "syntaxes", "haproxy-3.2.tmLanguage.json"), "utf-8").replace(/^\uFEFF/, "");
+  const grammarPath = join(extensionRoot, "syntaxes", "haproxy-active.tmLanguage.json");
+  const raw = readFileSync(grammarPath, "utf-8").replace(/^\uFEFF/, "");
   const grammar = JSON.parse(raw);
   delete grammar.$schema;
   return grammar;

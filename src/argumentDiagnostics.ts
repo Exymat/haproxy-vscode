@@ -149,9 +149,10 @@ function allowsMissingArgs(schemaKw: SchemaKeyword | undefined, model: ArgumentM
 export function argumentModelDiagnostics(
   line: ParsedLine,
   schema: HaproxySchema,
-  allowed: Set<string>
+  allowed: Set<string>,
+  noPrefixKeywords?: Set<string>
 ): vscode.Diagnostic[] {
-  const match = resolveLongestDirectiveMatch(line, allowed);
+  const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefixKeywords);
   if (!match.matched) {
     return [];
   }
@@ -162,8 +163,11 @@ export function argumentModelDiagnostics(
   }
 
   const t0 = line.tokens[0]?.text.toLowerCase();
-  if (t0 === "no" && line.tokens[1]?.text.toLowerCase() === "option") {
-    return [];
+  if (t0 === "no" || t0 === "default") {
+    const base = match.keyword.toLowerCase();
+    if (line.tokens[1]?.text.toLowerCase() === "option" || noPrefixKeywords?.has(base)) {
+      return [];
+    }
   }
   if (PREFIX_FAMILIES.includes(keyword) || (t0 && PREFIX_FAMILIES.includes(t0))) {
     return [];

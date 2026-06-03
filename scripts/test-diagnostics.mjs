@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createRequire } from "node:module";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -73,12 +73,30 @@ function runCase(name, content, expectations) {
 }
 
 const validSnippet = readFileSync(join(__dirname, "fixtures", "basic-check-snippet.cfg"), "utf-8");
+const hapeeAclSnippet = readFileSync(join(__dirname, "fixtures", "hapee-acl-snippet.cfg"), "utf-8");
 const invalidFixture = readFileSync(join(__dirname, "fixtures", "diagnostics-invalid.cfg"), "utf-8");
+const hapeeCfgPath = resolve(extensionRoot, "..", "HAPEE", "oci-integration-hub_priv", "haproxy.cfg");
+
+function expectNoCode(content, name, code) {
+  const doc = createDocument(content);
+  const diags = computeDiagnostics(doc, schema).filter((d) => d.code === code);
+  if (diags.length > 0) {
+    throw new Error(
+      `${name}: expected no '${code}' diagnostics, got ${diags.length}\n` +
+        diags.map((d) => `  L${d.range.start.line + 1}: ${d.message}`).join("\n")
+    );
+  }
+}
 
 const cases = [
   {
     name: "valid snippet",
     content: validSnippet,
+    expectations: { total: 0 },
+  },
+  {
+    name: "hapee acl snippet",
+    content: hapeeAclSnippet,
     expectations: { total: 0 },
   },
   {
@@ -120,6 +138,31 @@ const cases = [
     name: "unknown http-request action",
     content: "frontend x\n\tbind :80\n\thttp-request notreal if { always_true }\n",
     expectations: { total: 1, counts: { "unknown-action": 1 } },
+  },
+  {
+    name: "no log on invertible keyword",
+    content: "frontend x\n\tbind :80\n\tno log\n",
+    expectations: { total: 0 },
+  },
+  {
+    name: "no option on invertible option",
+    content: "defaults\n\tno option redispatch\n",
+    expectations: { total: 0 },
+  },
+  {
+    name: "set-var with inline variable name",
+    content: "backend x\n\thttp-request set-var(txn.rwtpath) path\n",
+    expectations: { total: 0 },
+  },
+  {
+    name: "set-var-fmt with inline variable name",
+    content: "backend x\n\thttp-request set-var-fmt(txn.host) %H\n",
+    expectations: { total: 0 },
+  },
+  {
+    name: "unset-var with inline variable name",
+    content: "backend x\n\thttp-request unset-var(txn.rwtpath)\n",
+    expectations: { total: 0 },
   },
   {
     name: "server invalid address blah",
@@ -329,6 +372,28 @@ try {
   console.log("FAIL");
   console.error(String(error.message ?? error));
   failed = true;
+}
+
+process.stdout.write("hapee acl snippet ... ");
+try {
+  expectNoCode(hapeeAclSnippet, "hapee acl snippet", "sample-syntax");
+  console.log("ok");
+} catch (error) {
+  console.log("FAIL");
+  console.error(String(error.message ?? error));
+  failed = true;
+}
+
+if (existsSync(hapeeCfgPath)) {
+  process.stdout.write(`hapee ${hapeeCfgPath} sample-syntax ... `);
+  try {
+    expectNoCode(readFileSync(hapeeCfgPath, "utf-8"), "hapee haproxy.cfg", "sample-syntax");
+    console.log("ok");
+  } catch (error) {
+    console.log("FAIL");
+    console.error(String(error.message ?? error));
+    failed = true;
+  }
 }
 
 process.stdout.write("test-address-syntax.cfg bind/name diagnostics ... ");

@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 
 import { ParsedLine } from "./parser";
 import { HaproxySchema } from "./schema";
+import { validateAclConditions } from "./aclCondition";
 import { validateSampleExpressions } from "./sampleExpression";
 
 export function expressionDiagnostics(
@@ -10,7 +11,11 @@ export function expressionDiagnostics(
   schema: HaproxySchema
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
-  for (const issue of validateSampleExpressions(lineText, schema)) {
+  const expressionIssues = [
+    ...validateSampleExpressions(lineText, schema),
+    ...validateAclConditions(lineText, schema),
+  ];
+  for (const issue of expressionIssues) {
     diagnostics.push(
       new vscode.Diagnostic(
         new vscode.Range(line.line, issue.start, line.line, issue.end),

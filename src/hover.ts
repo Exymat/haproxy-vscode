@@ -113,6 +113,23 @@ export function provideHover(
     }
   }
 
+  const aclRefGroups = [
+    "acl_flags",
+    "acl_match_methods",
+    "acl_int_operators",
+    "acl_string_match_methods",
+    "acl_predefined",
+  ] as const;
+  for (const groupName of aclRefGroups) {
+    const group = groupItems(data, groupName).find((g) => g.name.toLowerCase() === tokenLower);
+    if (group) {
+      return new vscode.Hover(
+        hoverMarkdown(group.name, group.signature, group.description, []),
+        range
+      );
+    }
+  }
+
   const sectionKeywords = keywordsForSection(data, ctx.line.section);
   const allowed = new Set(sectionKeywords.map((kw) => kw.name.toLowerCase()));
   const directive = resolveDirective(ctx.line, allowed);

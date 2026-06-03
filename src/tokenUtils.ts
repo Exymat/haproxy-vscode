@@ -129,6 +129,8 @@ export const BIND_LEVEL_VALUES = new Set(["user", "operator", "admin"]);
 
 export const PREFIX_FAMILIES = ["stats", "timeout", "tcp-check", "http-check", "capture", "tcp-request", "tcp-response"];
 
+export const MODIFIER_PREFIXES = new Set(["no", "default"]);
+
 export function isWordToken(token: string): boolean {
   return /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(token);
 }
@@ -190,10 +192,36 @@ export function joinTokens(tokens: ParsedToken[], start: number, end: number): s
     .join(" ");
 }
 
-export function resolveLongestDirectiveMatch(line: ParsedLine, allowed: Set<string>, maxParts = 4): DirectiveMatch {
+export function resolveLongestDirectiveMatch(
+  line: ParsedLine,
+  allowed: Set<string>,
+  maxParts = 4,
+  noPrefixKeywords?: Set<string>
+): DirectiveMatch {
   const tokens = line.tokens;
   if (tokens.length === 0) {
     return { start: 0, end: -1, keyword: "", matched: false };
+  }
+
+  if (
+    noPrefixKeywords &&
+    tokens.length >= 2 &&
+    MODIFIER_PREFIXES.has(tokens[0].text.toLowerCase())
+  ) {
+    const inner = resolveLongestDirectiveMatch(
+      { ...line, tokens: tokens.slice(1) },
+      allowed,
+      maxParts,
+      undefined
+    );
+    if (inner.matched && noPrefixKeywords.has(inner.keyword)) {
+      return {
+        start: 0,
+        end: inner.end + 1,
+        keyword: inner.keyword,
+        matched: true,
+      };
+    }
   }
 
   const limit = Math.min(tokens.length, maxParts);
@@ -287,6 +315,16 @@ export function resolveSubcommandSpan(
 export function resolveDirectiveSpan(line: ParsedLine, allowed: Set<string>): { start: number; end: number } {
   const match = resolveLongestDirectiveMatch(line, allowed);
   return { start: match.start, end: match.end };
+}
+
+/** Rule action name from a config token (e.g. set-var(txn.path) -> set-var). */
+export function normalizeActionName(token: string): string {
+  const lower = token.toLowerCase().replace(/\*$/, "");
+  const paren = lower.indexOf("(");
+  if (paren > 0 && lower.endsWith(")")) {
+    return lower.slice(0, paren);
+  }
+  return lower;
 }
 
 export function actionTokenIndex(line: ParsedLine): number | null {

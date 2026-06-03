@@ -5,7 +5,7 @@ exports.keywordsForSection = keywordsForSection;
 exports.groupItems = groupItems;
 exports.sectionKeywordNames = sectionKeywordNames;
 exports.getSectionKeywords = getSectionKeywords;
-const parser_1 = require("./parser");
+const parseCache_1 = require("./parseCache");
 const schema_1 = require("./schema");
 function tokenAtPosition(line, character) {
     for (let i = 0; i < line.tokens.length; i += 1) {
@@ -62,7 +62,7 @@ function expressionKindAt(lineText, character) {
     return "expression-fetch";
 }
 function getDocumentContext(document, position, schema) {
-    const parsed = (0, parser_1.parseDocument)(document);
+    const parsed = (0, parseCache_1.getParsedDocument)(document);
     const line = parsed[position.line];
     if (!line || line.isSectionHeader) {
         return null;

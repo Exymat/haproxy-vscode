@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 
 import { HaproxyLanguageData, LanguageKeyword } from "./languageData";
-import { parseDocument, ParsedLine, ParsedToken } from "./parser";
+import { getParsedDocument } from "./parseCache";
+import { ParsedLine, ParsedToken } from "./parser";
 import { HaproxySchema, sectionNames, StatementRule } from "./schema";
 
 export type CompletionKind =
@@ -98,7 +99,7 @@ export function getDocumentContext(
   position: vscode.Position,
   schema: HaproxySchema
 ): DocumentContext | null {
-  const parsed = parseDocument(document);
+  const parsed = getParsedDocument(document);
   const line = parsed[position.line];
   if (!line || line.isSectionHeader) {
     return null;
