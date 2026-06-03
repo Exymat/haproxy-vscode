@@ -60,6 +60,8 @@
       "shdr_len",
       "shdr_reg",
       "shdr_sub",
+      "ssl_fc_sni_end",
+      "ssl_fc_sni_reg",
       "url",
       "url_beg",
       "url_dir",
@@ -80,16 +82,40 @@
     "bind_options": [
       "accept-netscaler-cip",
       "accept-proxy",
+      "allow-0rtt",
+      "alpn",
       "backlog",
+      "ca-file",
+      "ca-ignore-err",
+      "ca-sign-file",
+      "ca-sign-pass",
+      "ca-verify-file",
       "cc",
+      "ciphers",
+      "ciphersuites",
+      "client-sigalgs",
+      "crl-file",
+      "crt",
+      "crt-ignore-err",
+      "crt-list",
+      "curves",
+      "default-crt",
       "defer-accept",
+      "ecdhe",
       "expose-fd",
+      "force-sslv3",
+      "force-tlsv10",
+      "force-tlsv11",
+      "force-tlsv12",
+      "force-tlsv13",
+      "generate-certificates",
       "gid",
       "group",
       "guid-prefix",
       "id",
       "idle-ping",
       "interface",
+      "ktls",
       "label",
       "level",
       "maxconn",
@@ -99,20 +125,39 @@
       "namespace",
       "nbconn",
       "nice",
+      "no-alpn",
+      "no-ca-names",
+      "no-sslv3",
+      "no-strict-sni",
+      "no-tls-tickets",
+      "no-tlsv10",
+      "no-tlsv11",
+      "no-tlsv12",
+      "no-tlsv13",
+      "npn",
+      "prefer-client-ciphers",
       "process",
       "proto",
       "severity-output",
       "shards",
+      "sigalgs",
+      "ssl",
+      "ssl-max-ver",
+      "ssl-min-ver",
+      "strict-sni",
       "tcp-md5sig",
       "tcp-ss",
       "tcp-ut",
       "tfo",
       "thread",
+      "tls-ticket-keys",
+      "tls-tickets",
       "transparent",
       "uid",
       "user",
       "v4v6",
-      "v6only"
+      "v6only",
+      "verify"
     ],
     "filters": [
       "bwlim-in",
@@ -354,6 +399,10 @@
     "sample_converters": [
       "add",
       "add_item",
+      "aes_cbc_dec",
+      "aes_cbc_enc",
+      "aes_gcm_dec",
+      "aes_gcm_enc",
       "and",
       "b64dec",
       "base2",
@@ -371,6 +420,7 @@
       "cut_crlf",
       "date",
       "debug",
+      "digest",
       "div",
       "djb2",
       "eth.data",
@@ -386,6 +436,7 @@
       "fix_tag_value",
       "hex",
       "hex2i",
+      "hmac",
       "host_only",
       "htonl",
       "http_date",
@@ -404,6 +455,13 @@
       "ipmask",
       "json",
       "json_query",
+      "jwt_decrypt_cert",
+      "jwt_decrypt_jwk",
+      "jwt_decrypt_secret",
+      "jwt_header_query",
+      "jwt_payload_query",
+      "jwt_verify",
+      "jwt_verify_cert",
       "language",
       "le2dec",
       "length",
@@ -473,8 +531,10 @@
       "rfc7239_np",
       "rtrim",
       "sdbm",
+      "secure_memcmp",
       "set-var",
       "sha1",
+      "sha2",
       "srv_is_up",
       "srv_queue",
       "strcmp",
@@ -539,6 +599,7 @@
       "when",
       "word",
       "wt6",
+      "x509_v_err_str",
       "xor",
       "xxh3",
       "xxh32",
@@ -972,6 +1033,108 @@
       "srv_sess_rate",
       "srv_uweight",
       "srv_weight",
+      "ssl_bc",
+      "ssl_bc_alg_keysize",
+      "ssl_bc_alpn",
+      "ssl_bc_cipher",
+      "ssl_bc_client_early_traffic_secret",
+      "ssl_bc_client_handshake_traffic_secret",
+      "ssl_bc_client_random",
+      "ssl_bc_client_traffic_secret_0",
+      "ssl_bc_curve",
+      "ssl_bc_early_exporter_secret",
+      "ssl_bc_err",
+      "ssl_bc_err_str",
+      "ssl_bc_exporter_secret",
+      "ssl_bc_is_resumed",
+      "ssl_bc_npn",
+      "ssl_bc_protocol",
+      "ssl_bc_server_handshake_traffic_secret",
+      "ssl_bc_server_random",
+      "ssl_bc_server_traffic_secret_0",
+      "ssl_bc_session_id",
+      "ssl_bc_session_key",
+      "ssl_bc_sni",
+      "ssl_bc_unique_id",
+      "ssl_bc_use_keysize",
+      "ssl_c_ca_err",
+      "ssl_c_ca_err_depth",
+      "ssl_c_chain_der",
+      "ssl_c_der",
+      "ssl_c_err",
+      "ssl_c_i_dn",
+      "ssl_c_key_alg",
+      "ssl_c_notafter",
+      "ssl_c_notbefore",
+      "ssl_c_r_dn",
+      "ssl_c_s_dn",
+      "ssl_c_san",
+      "ssl_c_serial",
+      "ssl_c_sha1",
+      "ssl_c_sig_alg",
+      "ssl_c_used",
+      "ssl_c_verify",
+      "ssl_c_version",
+      "ssl_f_der",
+      "ssl_f_i_dn",
+      "ssl_f_key_alg",
+      "ssl_f_notafter",
+      "ssl_f_notbefore",
+      "ssl_f_s_dn",
+      "ssl_f_serial",
+      "ssl_f_sha1",
+      "ssl_f_sig_alg",
+      "ssl_f_version",
+      "ssl_fc",
+      "ssl_fc_alg_keysize",
+      "ssl_fc_alpn",
+      "ssl_fc_cipher",
+      "ssl_fc_cipherlist_bin",
+      "ssl_fc_cipherlist_hex",
+      "ssl_fc_cipherlist_str",
+      "ssl_fc_cipherlist_xxh",
+      "ssl_fc_client_early_traffic_secret",
+      "ssl_fc_client_handshake_traffic_secret",
+      "ssl_fc_client_random",
+      "ssl_fc_client_traffic_secret_0",
+      "ssl_fc_crtname",
+      "ssl_fc_curve",
+      "ssl_fc_early_exporter_secret",
+      "ssl_fc_early_rcvd",
+      "ssl_fc_ecformats_bin",
+      "ssl_fc_eclist_bin",
+      "ssl_fc_err",
+      "ssl_fc_err_str",
+      "ssl_fc_exporter_secret",
+      "ssl_fc_extlist_bin",
+      "ssl_fc_has_crt",
+      "ssl_fc_has_early",
+      "ssl_fc_has_sni",
+      "ssl_fc_is_resumed",
+      "ssl_fc_npn",
+      "ssl_fc_protocol",
+      "ssl_fc_protocol_hello_id",
+      "ssl_fc_server_handshake_traffic_secret",
+      "ssl_fc_server_random",
+      "ssl_fc_server_traffic_secret_0",
+      "ssl_fc_session_id",
+      "ssl_fc_session_key",
+      "ssl_fc_sigalgs_bin",
+      "ssl_fc_sni",
+      "ssl_fc_supported_versions_bin",
+      "ssl_fc_unique_id",
+      "ssl_fc_use_keysize",
+      "ssl_s_chain_der",
+      "ssl_s_der",
+      "ssl_s_i_dn",
+      "ssl_s_key_alg",
+      "ssl_s_notafter",
+      "ssl_s_notbefore",
+      "ssl_s_s_dn",
+      "ssl_s_serial",
+      "ssl_s_sha1",
+      "ssl_s_sig_alg",
+      "ssl_s_version",
       "status",
       "stopping",
       "str",
@@ -1008,21 +1171,39 @@
       "agent-inter",
       "agent-port",
       "agent-send",
+      "allow-0rtt",
+      "alpn",
       "backup",
+      "ca-file",
       "cc",
       "check",
+      "check-alpn",
       "check-pool-conn-name",
       "check-proto",
       "check-reuse-pool",
       "check-send-proxy",
+      "check-sni",
+      "check-sni-auto",
+      "check-ssl",
       "check-via-socks4",
+      "ciphers",
+      "ciphersuites",
+      "client-sigalgs",
       "cookie",
+      "crl-file",
+      "crt",
+      "curves",
       "disabled",
       "downinter",
       "enabled",
       "error-limit",
       "fall",
       "fastinter",
+      "force-sslv3",
+      "force-tlsv10",
+      "force-tlsv11",
+      "force-tlsv12",
+      "force-tlsv13",
       "guid",
       "hash-key",
       "healthcheck",
@@ -1031,6 +1212,7 @@
       "init-addr",
       "init-state",
       "inter",
+      "ktls",
       "log-bufsize",
       "log-proto",
       "max-reuse",
@@ -1043,10 +1225,25 @@
       "no-check",
       "no-check-reuse-pool",
       "no-check-send-proxy",
+      "no-check-sni-auto",
+      "no-check-ssl",
+      "no-renegotiate",
       "no-send-proxy",
       "no-send-proxy-v2",
+      "no-send-proxy-v2-ssl",
+      "no-send-proxy-v2-ssl-cn",
+      "no-sni-auto",
+      "no-ssl",
+      "no-ssl-reuse",
+      "no-sslv3",
       "no-tfo",
+      "no-tls-tickets",
+      "no-tlsv10",
+      "no-tlsv11",
+      "no-tlsv12",
+      "no-tlsv13",
       "non-stick",
+      "npn",
       "observe",
       "on-error",
       "on-marked-down",
@@ -1059,6 +1256,7 @@
       "proto",
       "proxy-v2-options",
       "redir",
+      "renegotiate",
       "resolve-net",
       "resolve-opts",
       "resolve-prefer",
@@ -1066,18 +1264,30 @@
       "rise",
       "send-proxy",
       "send-proxy-v2",
+      "send-proxy-v2-ssl",
+      "send-proxy-v2-ssl-cn",
       "set-proxy-v2-tlv-fmt",
       "shard",
+      "sigalgs",
       "slowstart",
+      "sni",
+      "sni-auto",
       "socks4",
       "source",
+      "ssl",
+      "ssl-max-ver",
+      "ssl-min-ver",
+      "ssl-reuse",
       "stick",
       "strict-maxconn",
       "tcp-md5sig",
       "tcp-ut",
       "tfo",
+      "tls-tickets",
       "track",
       "usesrc",
+      "verify",
+      "verifyhost",
       "weight",
       "ws"
     ],
@@ -2164,6 +2374,7 @@
         "account-key <filename>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -2278,6 +2489,7 @@
         "acme-vars <string>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -2305,6 +2517,7 @@
         "acme.scheduler { auto | off }"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -2457,6 +2670,30 @@
       ],
       "sources": [
         "doc"
+      ]
+    },
+    "allow-0rtt": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "allow-0rtt",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
+    "alpn": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "alpn",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
       ]
     },
     "always_false : boolean": {
@@ -3454,6 +3691,7 @@
         "bits <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -3658,7 +3896,32 @@
         "ca-base <dir>"
       ],
       "sources": [
+        "dkall",
         "doc"
+      ]
+    },
+    "ca-file": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "ca-file",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
+    "ca-verify-file": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "ca-verify-file",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
       ]
     },
     "capture cookie": {
@@ -3949,6 +4212,7 @@
         "challenge <string>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -3983,6 +4247,7 @@
         "challenge-ready <value>[,<value>]*"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -4011,6 +4276,42 @@
       "sources": [
         "dkall",
         "doc"
+      ]
+    },
+    "ciphers": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "ciphers",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
+    "ciphersuites": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "ciphersuites",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
+    "client-sigalgs": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "client-sigalgs",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
       ]
     },
     "clitcpka-cnt": {
@@ -4353,6 +4654,7 @@
         "contact <string>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -4771,6 +5073,18 @@
         "doc"
       ]
     },
+    "crl-file": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "crl-file",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
     "crt": {
       "argument_model": {
         "max_args": 1,
@@ -4820,6 +5134,7 @@
         "crt-base <dir>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -4954,6 +5269,7 @@
         "curves <string>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -5476,6 +5792,7 @@
         "directory <string>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -5659,6 +5976,7 @@
         "dns-delay <time>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -5683,6 +6001,7 @@
         "dns-timeout <time>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -5868,6 +6187,7 @@
         "eab-key-id <filename>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -5896,6 +6216,7 @@
         "eab-mac-alg { HS256 | HS384 | HS512 }"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -5920,7 +6241,20 @@
         "eab-mac-key <filename>"
       ],
       "sources": [
+        "dkall",
         "doc"
+      ]
+    },
+    "ecdhe": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "ecdhe",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
       ]
     },
     "email-alert from": {
@@ -9695,6 +10029,7 @@
         "httpclient.ssl.ca-file <cafile>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -9717,6 +10052,7 @@
         "httpclient.ssl.verify [none|required]"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -10479,6 +10815,7 @@
         "issuers-chain-path <dir>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -10564,6 +10901,7 @@
         "jwt.decrypt_alg_list <list>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -10588,6 +10926,7 @@
         "jwt.decrypt_enc_list <list>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -10764,6 +11103,7 @@
         "key-base <dir>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -10791,7 +11131,20 @@
         "keytype [ RSA | ECDSA ]"
       ],
       "sources": [
+        "dkall",
         "doc"
+      ]
+    },
+    "ktls": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "ktls",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
       ]
     },
     "language(<value>[,<default>])": {
@@ -10982,6 +11335,7 @@
         "load [crt <filename>] [param*]"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -11586,6 +11940,7 @@
         "map <map>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -12014,6 +12369,7 @@
         "maxsslconn <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -12629,6 +12985,30 @@
         "doc"
       ]
     },
+    "no-alpn": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "no-alpn",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
+    "no-ca-names": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "no-ca-names",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
     "no-memory-trimming": {
       "argument_model": {
         "max_args": 0,
@@ -12839,6 +13219,18 @@
         "doc"
       ]
     },
+    "npn": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "npn",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
     "numa-cpu-mapping": {
       "argument_model": {
         "max_args": 0,
@@ -12928,6 +13320,7 @@
         "ocsp-update.disable [ on | off ]"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -12957,6 +13350,7 @@
         "ocsp-update.httpproxy <address>[:port]"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -12982,6 +13376,7 @@
         "tune.ssl.ocsp-update.maxdelay <number> (deprecated)"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -13007,6 +13402,7 @@
         "tune.ssl.ocsp-update.mindelay <number> (deprecated)"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -13031,6 +13427,7 @@
         "ocsp-update.mode [ on | off ]"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -15189,6 +15586,7 @@
         "profile <string>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -15296,6 +15694,7 @@
         "provider-name <string>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -17016,6 +17415,7 @@
         "reuse-key { on | off }"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -18470,6 +18870,18 @@
         "doc"
       ]
     },
+    "sigalgs": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "sigalgs",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
     "size": {
       "argument_model": {
         "max_args": 1,
@@ -19606,6 +20018,7 @@
         "ssl-default-bind-ciphers <ciphers>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19630,6 +20043,7 @@
         "ssl-default-bind-ciphersuites <ciphersuites>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19654,6 +20068,7 @@
         "ssl-default-bind-client-sigalgs <sigalgs>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19678,6 +20093,7 @@
         "ssl-default-bind-curves <curves>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19702,6 +20118,7 @@
         "ssl-default-bind-options [<option>]..."
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19726,6 +20143,7 @@
         "ssl-default-bind-sigalgs <sigalgs>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19750,6 +20168,7 @@
         "ssl-default-server-ciphers <ciphers>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19774,6 +20193,7 @@
         "ssl-default-server-ciphersuites <ciphersuites>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19798,6 +20218,7 @@
         "ssl-default-server-client-sigalgs <sigalgs>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19822,6 +20243,7 @@
         "ssl-default-server-curves <curves>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19846,6 +20268,7 @@
         "ssl-default-server-options [<option>]..."
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19870,6 +20293,7 @@
         "ssl-default-server-sigalgs <sigalgs>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19894,6 +20318,7 @@
         "ssl-dh-param-file <file>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19923,6 +20348,7 @@
         "ssl-engine <name> [algo <comma-separated list of algorithms>]"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19956,6 +20382,7 @@
         "ssl-f-use [<sslbindconf> ...]*"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -19974,6 +20401,7 @@
         "ssl-load-extra-del-ext"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -20003,7 +20431,32 @@
         "ssl-load-extra-files <none|all|bundle|sctl|ocsp|issuer|key>*"
       ],
       "sources": [
+        "dkall",
         "doc"
+      ]
+    },
+    "ssl-max-ver": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "ssl-max-ver",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
+    "ssl-min-ver": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "ssl-min-ver",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
       ]
     },
     "ssl-mode-async": {
@@ -20021,6 +20474,7 @@
         "ssl-mode-async"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -20050,6 +20504,7 @@
         "ssl-passphrase-cmd <cmd> <args> ..."
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -20074,6 +20529,7 @@
         "ssl-propquery <query>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -20098,6 +20554,7 @@
         "ssl-provider <name>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -20122,6 +20579,7 @@
         "ssl-provider-path <path>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -20146,6 +20604,7 @@
         "ssl-security-level <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -20188,6 +20647,7 @@
         "ssl-skip-self-issued-ca"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -28025,6 +28485,7 @@
         "tune.ssl.cachesize <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -28050,7 +28511,20 @@
         "tune.ssl.capture-cipherlist-size <number> (deprecated)"
       ],
       "sources": [
+        "dkall",
         "doc"
+      ]
+    },
+    "tune.ssl.capture-cipherlist-size": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "tune.ssl.capture-cipherlist-size",
+      "sections": [
+        "global"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
       ]
     },
     "tune.ssl.certificate-compression": {
@@ -28077,6 +28551,7 @@
         "tune.ssl.certificate-compression { auto | off }"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -28101,6 +28576,7 @@
         "tune.ssl.default-dh-param <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -28119,6 +28595,7 @@
         "tune.ssl.force-private-cache"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -28143,6 +28620,7 @@
         "tune.ssl.hard-maxrecord <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -28170,6 +28648,7 @@
         "tune.ssl.keylog { on | off }"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -28194,6 +28673,7 @@
         "tune.ssl.lifetime <timeout>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -28218,7 +28698,32 @@
         "tune.ssl.maxrecord <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
+      ]
+    },
+    "tune.ssl.ocsp-update.maxdelay": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "tune.ssl.ocsp-update.maxdelay",
+      "sections": [
+        "global"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
+    "tune.ssl.ocsp-update.mindelay": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "tune.ssl.ocsp-update.mindelay",
+      "sections": [
+        "global"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
       ]
     },
     "tune.ssl.ssl-ctx-cache-size": {
@@ -28242,6 +28747,7 @@
         "tune.ssl.ssl-ctx-cache-size <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ]
     },
@@ -29301,6 +29807,18 @@
         "doc"
       ]
     },
+    "verify": {
+      "argument_model": null,
+      "arguments": [],
+      "name": "verify",
+      "sections": [
+        "crt-list"
+      ],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ]
+    },
     "wait_end : boolean": {
       "argument_model": {
         "max_args": 0,
@@ -29672,6 +30190,56 @@
       "name": "add_item",
       "out_type": "str"
     },
+    "aes_cbc_dec": {
+      "args": [
+        "integer",
+        "string",
+        "string",
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "bin",
+      "name": "aes_cbc_dec",
+      "out_type": "bin"
+    },
+    "aes_cbc_enc": {
+      "args": [
+        "integer",
+        "string",
+        "string",
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "bin",
+      "name": "aes_cbc_enc",
+      "out_type": "bin"
+    },
+    "aes_gcm_dec": {
+      "args": [
+        "integer",
+        "string",
+        "string",
+        "string",
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "bin",
+      "name": "aes_gcm_dec",
+      "out_type": "bin"
+    },
+    "aes_gcm_enc": {
+      "args": [
+        "integer",
+        "string",
+        "string",
+        "string",
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "bin",
+      "name": "aes_gcm_enc",
+      "out_type": "bin"
+    },
     "and": {
       "args": [
         "string"
@@ -29819,6 +30387,15 @@
       "name": "debug",
       "out_type": "any"
     },
+    "digest": {
+      "args": [
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "bin",
+      "name": "digest",
+      "out_type": "bin"
+    },
     "div": {
       "args": [
         "string"
@@ -29933,6 +30510,16 @@
       "in_type": "sint",
       "name": "hex2i",
       "out_type": "str"
+    },
+    "hmac": {
+      "args": [
+        "string",
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "bin",
+      "name": "hmac",
+      "out_type": "bin"
     },
     "host_only": {
       "args": [],
@@ -30077,6 +30664,73 @@
       "in_type": "any",
       "name": "json_query",
       "out_type": "str"
+    },
+    "jwt_decrypt_cert": {
+      "args": [
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "bin",
+      "name": "jwt_decrypt_cert",
+      "out_type": "bin"
+    },
+    "jwt_decrypt_jwk": {
+      "args": [
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "bin",
+      "name": "jwt_decrypt_jwk",
+      "out_type": "bin"
+    },
+    "jwt_decrypt_secret": {
+      "args": [
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "bin",
+      "name": "jwt_decrypt_secret",
+      "out_type": "bin"
+    },
+    "jwt_header_query": {
+      "args": [
+        "string",
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "any",
+      "name": "jwt_header_query",
+      "out_type": "bin"
+    },
+    "jwt_payload_query": {
+      "args": [
+        "string",
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "any",
+      "name": "jwt_payload_query",
+      "out_type": "bin"
+    },
+    "jwt_verify": {
+      "args": [
+        "string",
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "sint",
+      "name": "jwt_verify",
+      "out_type": "bin"
+    },
+    "jwt_verify_cert": {
+      "args": [
+        "string",
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "sint",
+      "name": "jwt_verify_cert",
+      "out_type": "bin"
     },
     "language": {
       "args": [
@@ -30709,6 +31363,15 @@
       "name": "sdbm",
       "out_type": "bin"
     },
+    "secure_memcmp": {
+      "args": [
+        "string"
+      ],
+      "contexts": [],
+      "in_type": "bool",
+      "name": "secure_memcmp",
+      "out_type": "bin"
+    },
     "set-var": {
       "args": [
         "string",
@@ -30727,6 +31390,15 @@
       "contexts": [],
       "in_type": "bin",
       "name": "sha1",
+      "out_type": "bin"
+    },
+    "sha2": {
+      "args": [
+        "integer"
+      ],
+      "contexts": [],
+      "in_type": "bin",
+      "name": "sha2",
       "out_type": "bin"
     },
     "srv_is_up": {
@@ -31285,6 +31957,13 @@
       "in_type": "sint",
       "name": "wt6",
       "out_type": "bin"
+    },
+    "x509_v_err_str": {
+      "args": [],
+      "contexts": [],
+      "in_type": "str",
+      "name": "x509_v_err_str",
+      "out_type": "sint"
     },
     "xor": {
       "args": [
@@ -44732,6 +45411,3108 @@
       "name": "srv_weight",
       "out_type": "sint"
     },
+    "ssl_bc": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc",
+      "out_type": "bool"
+    },
+    "ssl_bc_alg_keysize": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_alg_keysize",
+      "out_type": "sint"
+    },
+    "ssl_bc_alpn": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_alpn",
+      "out_type": "str"
+    },
+    "ssl_bc_cipher": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_cipher",
+      "out_type": "str"
+    },
+    "ssl_bc_client_early_traffic_secret": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_client_early_traffic_secret",
+      "out_type": "str"
+    },
+    "ssl_bc_client_handshake_traffic_secret": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_client_handshake_traffic_secret",
+      "out_type": "str"
+    },
+    "ssl_bc_client_random": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_client_random",
+      "out_type": "bin"
+    },
+    "ssl_bc_client_traffic_secret_0": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_client_traffic_secret_0",
+      "out_type": "str"
+    },
+    "ssl_bc_curve": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_curve",
+      "out_type": "str"
+    },
+    "ssl_bc_early_exporter_secret": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_early_exporter_secret",
+      "out_type": "str"
+    },
+    "ssl_bc_err": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_err",
+      "out_type": "sint"
+    },
+    "ssl_bc_err_str": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_err_str",
+      "out_type": "str"
+    },
+    "ssl_bc_exporter_secret": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_exporter_secret",
+      "out_type": "str"
+    },
+    "ssl_bc_is_resumed": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_is_resumed",
+      "out_type": "bool"
+    },
+    "ssl_bc_npn": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_npn",
+      "out_type": "str"
+    },
+    "ssl_bc_protocol": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_protocol",
+      "out_type": "str"
+    },
+    "ssl_bc_server_handshake_traffic_secret": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_server_handshake_traffic_secret",
+      "out_type": "str"
+    },
+    "ssl_bc_server_random": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_server_random",
+      "out_type": "bin"
+    },
+    "ssl_bc_server_traffic_secret_0": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_server_traffic_secret_0",
+      "out_type": "str"
+    },
+    "ssl_bc_session_id": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_session_id",
+      "out_type": "bin"
+    },
+    "ssl_bc_session_key": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_session_key",
+      "out_type": "bin"
+    },
+    "ssl_bc_sni": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_sni",
+      "out_type": "str"
+    },
+    "ssl_bc_unique_id": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_unique_id",
+      "out_type": "bin"
+    },
+    "ssl_bc_use_keysize": {
+      "args": [],
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_bc_use_keysize",
+      "out_type": "sint"
+    },
+    "ssl_c_ca_err": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_ca_err",
+      "out_type": "sint"
+    },
+    "ssl_c_ca_err_depth": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_ca_err_depth",
+      "out_type": "sint"
+    },
+    "ssl_c_chain_der": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_chain_der",
+      "out_type": "bin"
+    },
+    "ssl_c_der": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_der",
+      "out_type": "bin"
+    },
+    "ssl_c_err": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_err",
+      "out_type": "sint"
+    },
+    "ssl_c_i_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_i_dn",
+      "out_type": "str"
+    },
+    "ssl_c_key_alg": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_key_alg",
+      "out_type": "str"
+    },
+    "ssl_c_notafter": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_notafter",
+      "out_type": "str"
+    },
+    "ssl_c_notbefore": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_notbefore",
+      "out_type": "str"
+    },
+    "ssl_c_r_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_r_dn",
+      "out_type": "str"
+    },
+    "ssl_c_s_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_s_dn",
+      "out_type": "str"
+    },
+    "ssl_c_san": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_san",
+      "out_type": "str"
+    },
+    "ssl_c_serial": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_serial",
+      "out_type": "bin"
+    },
+    "ssl_c_sha1": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_sha1",
+      "out_type": "bin"
+    },
+    "ssl_c_sig_alg": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_sig_alg",
+      "out_type": "str"
+    },
+    "ssl_c_used": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_used",
+      "out_type": "bool"
+    },
+    "ssl_c_verify": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_verify",
+      "out_type": "sint"
+    },
+    "ssl_c_version": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_c_version",
+      "out_type": "sint"
+    },
+    "ssl_f_der": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_f_der",
+      "out_type": "bin"
+    },
+    "ssl_f_i_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_f_i_dn",
+      "out_type": "str"
+    },
+    "ssl_f_key_alg": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_f_key_alg",
+      "out_type": "str"
+    },
+    "ssl_f_notafter": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_f_notafter",
+      "out_type": "str"
+    },
+    "ssl_f_notbefore": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_f_notbefore",
+      "out_type": "str"
+    },
+    "ssl_f_s_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_f_s_dn",
+      "out_type": "str"
+    },
+    "ssl_f_serial": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_f_serial",
+      "out_type": "bin"
+    },
+    "ssl_f_sha1": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_f_sha1",
+      "out_type": "bin"
+    },
+    "ssl_f_sig_alg": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_f_sig_alg",
+      "out_type": "str"
+    },
+    "ssl_f_version": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_f_version",
+      "out_type": "sint"
+    },
+    "ssl_fc": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc",
+      "out_type": "bool"
+    },
+    "ssl_fc_alg_keysize": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_alg_keysize",
+      "out_type": "sint"
+    },
+    "ssl_fc_alpn": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_alpn",
+      "out_type": "str"
+    },
+    "ssl_fc_cipher": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_cipher",
+      "out_type": "str"
+    },
+    "ssl_fc_cipherlist_bin": {
+      "args": [
+        "integer"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_cipherlist_bin",
+      "out_type": "str"
+    },
+    "ssl_fc_cipherlist_hex": {
+      "args": [
+        "integer"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_cipherlist_hex",
+      "out_type": "bin"
+    },
+    "ssl_fc_cipherlist_str": {
+      "args": [
+        "integer"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_cipherlist_str",
+      "out_type": "str"
+    },
+    "ssl_fc_cipherlist_xxh": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_cipherlist_xxh",
+      "out_type": "sint"
+    },
+    "ssl_fc_client_early_traffic_secret": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_client_early_traffic_secret",
+      "out_type": "str"
+    },
+    "ssl_fc_client_handshake_traffic_secret": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_client_handshake_traffic_secret",
+      "out_type": "str"
+    },
+    "ssl_fc_client_random": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_client_random",
+      "out_type": "bin"
+    },
+    "ssl_fc_client_traffic_secret_0": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_client_traffic_secret_0",
+      "out_type": "str"
+    },
+    "ssl_fc_crtname": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_crtname",
+      "out_type": "str"
+    },
+    "ssl_fc_curve": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_curve",
+      "out_type": "str"
+    },
+    "ssl_fc_early_exporter_secret": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_early_exporter_secret",
+      "out_type": "str"
+    },
+    "ssl_fc_early_rcvd": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_early_rcvd",
+      "out_type": "bool"
+    },
+    "ssl_fc_ecformats_bin": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_ecformats_bin",
+      "out_type": "str"
+    },
+    "ssl_fc_eclist_bin": {
+      "args": [
+        "integer"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_eclist_bin",
+      "out_type": "str"
+    },
+    "ssl_fc_err": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_err",
+      "out_type": "sint"
+    },
+    "ssl_fc_err_str": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_err_str",
+      "out_type": "str"
+    },
+    "ssl_fc_exporter_secret": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_exporter_secret",
+      "out_type": "str"
+    },
+    "ssl_fc_extlist_bin": {
+      "args": [
+        "integer"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_extlist_bin",
+      "out_type": "str"
+    },
+    "ssl_fc_has_crt": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_has_crt",
+      "out_type": "bool"
+    },
+    "ssl_fc_has_early": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_has_early",
+      "out_type": "bool"
+    },
+    "ssl_fc_has_sni": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_has_sni",
+      "out_type": "bool"
+    },
+    "ssl_fc_is_resumed": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_is_resumed",
+      "out_type": "bool"
+    },
+    "ssl_fc_npn": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_npn",
+      "out_type": "str"
+    },
+    "ssl_fc_protocol": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_protocol",
+      "out_type": "str"
+    },
+    "ssl_fc_protocol_hello_id": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_protocol_hello_id",
+      "out_type": "sint"
+    },
+    "ssl_fc_server_handshake_traffic_secret": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_server_handshake_traffic_secret",
+      "out_type": "str"
+    },
+    "ssl_fc_server_random": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_server_random",
+      "out_type": "bin"
+    },
+    "ssl_fc_server_traffic_secret_0": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_server_traffic_secret_0",
+      "out_type": "str"
+    },
+    "ssl_fc_session_id": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_session_id",
+      "out_type": "bin"
+    },
+    "ssl_fc_session_key": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_session_key",
+      "out_type": "bin"
+    },
+    "ssl_fc_sigalgs_bin": {
+      "args": [
+        "integer"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_sigalgs_bin",
+      "out_type": "bin"
+    },
+    "ssl_fc_sni": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_sni",
+      "out_type": "str"
+    },
+    "ssl_fc_supported_versions_bin": {
+      "args": [
+        "integer"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_supported_versions_bin",
+      "out_type": "bin"
+    },
+    "ssl_fc_unique_id": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_unique_id",
+      "out_type": "bin"
+    },
+    "ssl_fc_use_keysize": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_fc_use_keysize",
+      "out_type": "sint"
+    },
+    "ssl_s_chain_der": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_s_chain_der",
+      "out_type": "bin"
+    },
+    "ssl_s_der": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_s_der",
+      "out_type": "bin"
+    },
+    "ssl_s_i_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_s_i_dn",
+      "out_type": "str"
+    },
+    "ssl_s_key_alg": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_s_key_alg",
+      "out_type": "str"
+    },
+    "ssl_s_notafter": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_s_notafter",
+      "out_type": "str"
+    },
+    "ssl_s_notbefore": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_s_notbefore",
+      "out_type": "str"
+    },
+    "ssl_s_s_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_s_s_dn",
+      "out_type": "str"
+    },
+    "ssl_s_serial": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_s_serial",
+      "out_type": "bin"
+    },
+    "ssl_s_sha1": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_s_sha1",
+      "out_type": "bin"
+    },
+    "ssl_s_sig_alg": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_s_sig_alg",
+      "out_type": "str"
+    },
+    "ssl_s_version": {
+      "args": [],
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "in_type": "",
+      "name": "ssl_s_version",
+      "out_type": "sint"
+    },
     "status": {
       "args": [],
       "contexts": [
@@ -46447,19 +50228,36 @@
         "--------------------",
         "acme",
         "alias",
+        "allow-0rtt",
+        "alpn",
         "bits",
+        "ca-file",
+        "ca-verify-file",
+        "ciphers",
+        "ciphersuites",
+        "client-sigalgs",
+        "crl-file",
         "crt",
         "curves",
         "domains",
+        "ecdhe",
         "generate-dummy",
         "ips",
         "issuer",
         "jwt",
         "key",
         "keytype",
+        "ktls",
+        "no-alpn",
+        "no-ca-names",
+        "npn",
         "ocsp",
         "ocsp-update",
-        "sctl"
+        "sctl",
+        "sigalgs",
+        "ssl-max-ver",
+        "ssl-min-ver",
+        "verify"
       ],
       "name": "crt-list"
     },
@@ -47062,6 +50860,7 @@
         "tune.sndbuf.server",
         "tune.ssl.cachesize",
         "tune.ssl.capture-buffer-size",
+        "tune.ssl.capture-cipherlist-size",
         "tune.ssl.certificate-compression",
         "tune.ssl.default-dh-param",
         "tune.ssl.force-private-cache",
@@ -47069,6 +50868,8 @@
         "tune.ssl.keylog",
         "tune.ssl.lifetime",
         "tune.ssl.maxrecord",
+        "tune.ssl.ocsp-update.maxdelay",
+        "tune.ssl.ocsp-update.mindelay",
         "tune.ssl.ssl-ctx-cache-size",
         "tune.stick-counters",
         "tune.streams-elasticity",

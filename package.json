@@ -105,7 +105,37 @@
   },
   "configurationDefaults": {
     "[haproxy]": {
-      "editor.maxTokenizationLineLength": 20000
+      "editor.maxTokenizationLineLength": 20000,
+      "editor.tokenColorCustomizations": {
+        "textMateRules": [
+          {
+            "scope": "entity.name.label.haproxy",
+            "settings": {
+              "foreground": "#3794FF"
+            }
+          }
+        ],
+        "[*Dark*]": {
+          "textMateRules": [
+            {
+              "scope": "entity.name.label.haproxy",
+              "settings": {
+                "foreground": "#9CDCFE"
+              }
+            }
+          ]
+        },
+        "[*Light*]": {
+          "textMateRules": [
+            {
+              "scope": "entity.name.label.haproxy",
+              "settings": {
+                "foreground": "#0451A5"
+              }
+            }
+          ]
+        }
+      }
     }
   },
   "scripts": {

@@ -156,6 +156,16 @@ function scanNestedOptions(line, rule, schema) {
         return diagnostics;
     }
     const allowed = new Set((schema.keyword_groups[groupName] ?? []).map((v) => v.toLowerCase()));
+    const optionsWithValue = rule.kind === "server"
+        ? tokenUtils_1.SERVER_OPTIONS_WITH_VALUE
+        : rule.kind === "bind"
+            ? tokenUtils_1.BIND_OPTIONS_WITH_VALUE
+            : null;
+    if (optionsWithValue) {
+        for (const opt of optionsWithValue) {
+            allowed.add(opt);
+        }
+    }
     const condStart = (0, directiveUtils_1.conditionalStartIndex)(line, 0);
     let i = nestedStart;
     while (i < condStart) {
