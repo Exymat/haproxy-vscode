@@ -1,4 +1,4 @@
-# HAProxy Config
+# HAProxy Language Support
 
 **Schema-driven language support for HAProxy configuration files** in Visual Studio Code and compatible editors.
 

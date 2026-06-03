@@ -1,8 +1,8 @@
 {
   "name": "haproxy-config",
-  "displayName": "HAProxy Config",
+  "displayName": "HAProxy Language Support",
   "description": "HAProxy config highlighting, completion, hover docs, and schema diagnostics",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
