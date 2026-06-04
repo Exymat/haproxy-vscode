@@ -196,6 +196,48 @@ export async function analyzeDocument(content) {
   return { lineResults, colorRules };
 }
 
+/** Tokenize every line; used by tests that assert specific scopes. */
+export async function tokenizeDocument(content) {
+  const grammar = await createHaproxyGrammar();
+  const colorRules = loadColorRules();
+  const lines = content.split(/\r?\n/);
+  let ruleStack = null;
+  const lineTokens = [];
+
+  for (let lineNo = 0; lineNo < lines.length; lineNo += 1) {
+    const lineText = lines[lineNo];
+    const { tokens, ruleStack: nextStack } = grammar.tokenizeLine(lineText, ruleStack);
+    ruleStack = nextStack;
+    const classified = [];
+    for (let i = 0; i < tokens.length; i += 1) {
+      const nextStart = i + 1 < tokens.length ? tokens[i + 1].startIndex : lineText.length;
+      const info = classifyToken(lineText, tokens[i], nextStart, colorRules);
+      if (info) {
+        classified.push(info);
+      }
+    }
+    lineTokens.push({ lineNo: lineNo + 1, lineText, tokens: classified });
+  }
+
+  return lineTokens;
+}
+
+/** Find the single token with exact text on a 1-based line number. */
+export function findTokenOnLine(lineTokens, lineNo, text) {
+  const line = lineTokens.find((entry) => entry.lineNo === lineNo);
+  if (!line) {
+    throw new Error(`line ${lineNo} not found in fixture`);
+  }
+  const matches = line.tokens.filter((token) => token.text === text);
+  if (matches.length !== 1) {
+    const found = matches.map((token) => `"${token.text}"→${token.displayScope}`).join(", ");
+    throw new Error(
+      `line ${lineNo}: expected 1 token "${text}", found ${matches.length}${found ? `: ${found}` : ""}`
+    );
+  }
+  return matches[0];
+}
+
 export function summarizeResults(fileResults) {
   let totalUnscoped = 0;
   let totalUncolored = 0;

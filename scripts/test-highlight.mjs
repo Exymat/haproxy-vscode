@@ -2,7 +2,12 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { analyzeDocument, summarizeResults } from "./highlight-lib.mjs";
+import {
+  analyzeDocument,
+  findTokenOnLine,
+  summarizeResults,
+  tokenizeDocument,
+} from "./highlight-lib.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const extensionRoot = join(__dirname, "..");
@@ -11,6 +16,23 @@ const defaultConfDir = resolve(extensionRoot, "..", "haproxy_git", "haproxy-3.2"
 const FIXTURE_SNIPPETS = [
   readFileSync(join(__dirname, "fixtures", "test-stats-head.cfg"), "utf-8"),
   readFileSync(join(__dirname, "fixtures", "grammar-directives.cfg"), "utf-8"),
+];
+
+const NAME_SCOPE_FIXTURE = readFileSync(join(__dirname, "fixtures", "name-scopes.cfg"), "utf-8");
+
+const SCOPES = {
+  label: "entity.name.type.class.proxy.haproxy",
+  acl: "entity.other.attribute-name.acl.haproxy",
+  reference: "entity.name.type.proxy.haproxy",
+};
+
+const NAME_SCOPE_EXPECTATIONS = [
+  { line: 1, text: "profile_default", scope: SCOPES.label },
+  { line: 1, text: "fusion_defaults", scope: SCOPES.reference },
+  { line: 2, text: "FRONTEND_PRD", scope: SCOPES.label },
+  { line: 2, text: "profile_default", scope: SCOPES.reference },
+  { line: 3, text: "acl_sample", scope: SCOPES.acl },
+  { line: 4, text: "maintenance_cache", scope: SCOPES.label },
 ];
 
 function collectCfgFiles(dir) {
@@ -24,6 +46,24 @@ function collectCfgFiles(dir) {
     }
   }
   return files.sort();
+}
+
+async function assertNameScopeFixture() {
+  const lineTokens = await tokenizeDocument(NAME_SCOPE_FIXTURE);
+  const mismatches = [];
+
+  for (const { line, text, scope } of NAME_SCOPE_EXPECTATIONS) {
+    const token = findTokenOnLine(lineTokens, line, text);
+    if (token.displayScope !== scope) {
+      mismatches.push(
+        `  line ${line} "${text}": expected ${scope}, got ${token.displayScope}`
+      );
+    }
+  }
+
+  if (mismatches.length > 0) {
+    throw new Error(`name scope fixture:\n${mismatches.join("\n")}`);
+  }
 }
 
 async function assertFixtureSnippetFullyScoped(content, label) {
@@ -62,6 +102,16 @@ async function main() {
       console.error(String(error.message ?? error));
       failed = true;
     }
+  }
+
+  process.stdout.write("name scope fixture ... ");
+  try {
+    await assertNameScopeFixture();
+    console.log("ok");
+  } catch (error) {
+    console.log("FAIL");
+    console.error(String(error.message ?? error));
+    failed = true;
   }
 
   process.stdout.write(`all cfg in ${confDir} ... `);
