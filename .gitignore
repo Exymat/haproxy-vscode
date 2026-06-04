@@ -8,5 +8,8 @@ package-lock.json
 dkall.output
 *.cpuprofile
 
+# TypeScript compile output (regenerate with npm run compile)
+out/
+
 # Build / test artifacts (regenerate with npm run compile / npm test)
 scripts/compare-haproxy-c-report.json
