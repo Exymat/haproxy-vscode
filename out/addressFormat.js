@@ -18,7 +18,7 @@ exports.ADDRESS_POLICIES = {
     serverSocks4: { portOk: true, portMandatory: true, portRange: false, portOffset: false },
     tcpCheckAddr: { portOk: true, portMandatory: false, portRange: false, portOffset: false },
 };
-const ADDRESS_PREFIX_RE = /^(?:(?:stream|dgram|quic)\+)?(?:ipv4|ipv6|ip|unix|uxdg@|uxst@|fd@|abnsz?@|sockpair@|tcp4@|tcp6@|udp4@|udp6@|tcp@|udp@|quic4@|quic6@)/i;
+const ADDRESS_PREFIX_RE = /^(?:(?:stream|dgram|quic)\+)?(?:ipv4|ipv6|ip|unix|uxdg@|uxst@|fd@|abnsz?@|sockpair@|tcp4@|tcp6@|udp4@|udp6@|tcp@|udp@|quic4@|quic6@|mptcp4@|mptcp6@|mptcp@)/i;
 const IPV4_OCTET = /^(25[0-5]|2[0-4]\d|[01]?\d\d?)$/;
 function stripAddressPrefixes(token) {
     const match = ADDRESS_PREFIX_RE.exec(token);

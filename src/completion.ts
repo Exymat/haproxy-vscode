@@ -62,8 +62,14 @@ export function provideCompletionItems(
       const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Value);
       const group = groupItems(data, "options").find((g) => g.name === name);
       item.detail = "option";
-      if (group?.description) {
-        item.documentation = markdownDoc(group.description);
+      const optKeyword =
+        data.keywords[`option ${name}`.toLowerCase()] ??
+        data.keywords[`no option ${name}`.toLowerCase()];
+      if (optKeyword?.description || group?.description) {
+        item.documentation = markdownDoc(
+          optKeyword?.description ?? group?.description ?? "",
+          optKeyword?.docsUrl ?? group?.docsUrl
+        );
       }
       return item;
     });
@@ -110,7 +116,7 @@ export function provideCompletionItems(
       const group = groupItems(data, actionKind).find((g) => g.name === name);
       item.detail = ctx.kind;
       if (group?.description) {
-        item.documentation = markdownDoc(group.description);
+        item.documentation = markdownDoc(group.description, group.docsUrl);
       }
       return item;
     });

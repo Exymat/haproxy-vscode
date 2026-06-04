@@ -30,6 +30,25 @@ function findClosingBrace(lineText: string, open: number): number {
   return -1;
 }
 
+function isAclOnlyCriterion(
+  name: string,
+  schema: HaproxySchema,
+  fetchNames: Set<string>,
+  fetches: Record<string, import("./schema").SampleFunction>
+): boolean {
+  const lower = name.toLowerCase();
+  const inAcl = (schema.keyword_groups.acl_criteria ?? []).some(
+    (criterion) => criterion.toLowerCase() === lower
+  );
+  if (!inAcl) {
+    return false;
+  }
+  if (fetchNames.has(name) || fetchNames.has(lower) || fetches[name] || fetches[lower]) {
+    return false;
+  }
+  return true;
+}
+
 export function extractAclConditionSpans(lineText: string): ExpressionSpan[] {
   const spans: ExpressionSpan[] = [];
   let idx = 0;
@@ -152,9 +171,14 @@ export function validateAclConditions(
         pos += 1;
         continue;
       }
+      const aclOnly = isAclOnlyCriterion(id.name, schema, fetchNames, fetches);
       const after = skipSpace(body, id.end);
       if (after < body.length && body[after] === "(") {
         const end = findExprEnd(body, after);
+        if (aclOnly) {
+          pos = end;
+          continue;
+        }
         const slice = body.slice(pos, end);
         issues.push(
           ...validateExpressionBody(

@@ -1,6 +1,10 @@
 import * as vscode from "vscode";
 
 import {
+  conditionalBlocksDocsUrl,
+  lookupConditionalDirective,
+} from "./conditionalDirectives";
+import {
   argumentPosition,
   findArgumentValue,
   getKeywordFromLanguage,
@@ -9,6 +13,7 @@ import {
 import { getDocumentContext, groupItems, keywordsForSection } from "./documentContext";
 import { findKeywordByPrefix, HaproxyLanguageData, LanguageGroupItem } from "./languageData";
 import { HaproxySchema } from "./schema";
+import { HaproxyVersion } from "./version";
 
 function hoverMarkdown(
   title: string,
@@ -77,9 +82,19 @@ export function provideHover(
 
   if (ctx.kind === "option" && ctx.tokenIndex >= 1) {
     const group = groupItems(data, "options").find((g) => g.name.toLowerCase() === tokenLower);
-    if (group) {
+    const optKeyword =
+      getKeywordFromLanguage(data, `option ${ctx.token.text}`) ??
+      getKeywordFromLanguage(data, `no option ${ctx.token.text}`);
+    if (group || optKeyword) {
+      const name = group?.name ?? ctx.token.text;
       return new vscode.Hover(
-        hoverMarkdown(group.name, "option " + group.name, group.description, []),
+        hoverMarkdown(
+          `option ${name}`,
+          optKeyword?.signatures[0] ?? `option ${name}`,
+          optKeyword?.description ?? group?.description ?? "",
+          optKeyword?.sections.length ? [`**Valid in:** ${optKeyword.sections.join(", ")}`] : [],
+          optKeyword?.docsUrl ?? group?.docsUrl
+        ),
         range
       );
     }
@@ -100,10 +115,25 @@ export function provideHover(
         extras.push(`**Rulesets:** ${group.rulesets.join(", ")}`);
       }
       return new vscode.Hover(
-        hoverMarkdown(group.name, group.signature, group.description, extras),
+        hoverMarkdown(group.name, group.signature, group.description, extras, group.docsUrl),
         range
       );
     }
+  }
+
+  const conditional = lookupConditionalDirective(ctx.token.text);
+  if (conditional && ctx.tokenIndex === 0) {
+    const version = data.version as HaproxyVersion;
+    return new vscode.Hover(
+      hoverMarkdown(
+        conditional.name,
+        conditional.signature,
+        conditional.description,
+        [],
+        conditionalBlocksDocsUrl(version)
+      ),
+      range
+    );
   }
 
   if (ctx.kind === "acl-criterion" && ctx.tokenIndex >= 2) {
@@ -157,13 +187,16 @@ export function provideHover(
     .map((t) => t.text)
     .join(" ");
   const kw =
-    findKeywordByPrefix(data, combined) ??
-    (directive.matched ? getKeywordFromLanguage(data, directive.keyword) : undefined);
+    (directive.matched ? getKeywordFromLanguage(data, directive.keyword) : undefined) ??
+    findKeywordByPrefix(data, combined);
 
   if (!kw) {
     const group = findGroupItem(data, ctx.token.text);
     if (group) {
-      return new vscode.Hover(hoverMarkdown(group.name, group.signature, group.description, []), range);
+      return new vscode.Hover(
+        hoverMarkdown(group.name, group.signature, group.description, [], group.docsUrl),
+        range
+      );
     }
     return null;
   }

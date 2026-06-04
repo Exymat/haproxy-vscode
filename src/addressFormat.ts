@@ -30,7 +30,7 @@ export interface AddressValidationResult {
 }
 
 const ADDRESS_PREFIX_RE =
-  /^(?:(?:stream|dgram|quic)\+)?(?:ipv4|ipv6|ip|unix|uxdg@|uxst@|fd@|abnsz?@|sockpair@|tcp4@|tcp6@|udp4@|udp6@|tcp@|udp@|quic4@|quic6@)/i;
+  /^(?:(?:stream|dgram|quic)\+)?(?:ipv4|ipv6|ip|unix|uxdg@|uxst@|fd@|abnsz?@|sockpair@|tcp4@|tcp6@|udp4@|udp6@|tcp@|udp@|quic4@|quic6@|mptcp4@|mptcp6@|mptcp@)/i;
 
 const IPV4_OCTET = /^(25[0-5]|2[0-4]\d|[01]?\d\d?)$/;
 

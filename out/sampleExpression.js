@@ -358,6 +358,9 @@ function validateExpressionBody(body, spanStart, fetches, converters, fetchNames
     }
     const fetchSpec = lookupSample(id.name, fetches, undefined);
     if (!fetchSpec && !fetchNames.has(id.name)) {
+        if (id.name.startsWith("wurfl-")) {
+            return issues;
+        }
         issues.push(issue(spanStart, spanStart + id.name.length, `unknown fetch method '${id.name}'`, "sample-unknown-fetch"));
         return issues;
     }

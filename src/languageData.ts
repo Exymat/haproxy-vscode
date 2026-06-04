@@ -9,6 +9,7 @@ export interface LanguageGroupItem {
   description: string;
   signature: string;
   rulesets: string[];
+  docsUrl?: string;
 }
 
 export interface LanguageArgumentValue {

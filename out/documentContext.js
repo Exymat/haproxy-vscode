@@ -5,6 +5,7 @@ exports.keywordsForSection = keywordsForSection;
 exports.groupItems = groupItems;
 exports.sectionKeywordNames = sectionKeywordNames;
 exports.getSectionKeywords = getSectionKeywords;
+const conditionalDirectives_1 = require("./conditionalDirectives");
 const parseCache_1 = require("./parseCache");
 const schema_1 = require("./schema");
 function tokenAtPosition(line, character) {
@@ -65,6 +66,10 @@ function getDocumentContext(document, position, schema) {
     const parsed = (0, parseCache_1.getParsedDocument)(document);
     const line = parsed[position.line];
     if (!line || line.isSectionHeader) {
+        return null;
+    }
+    const firstToken = line.tokens[0]?.text;
+    if ((0, conditionalDirectives_1.isConditionalOrStatusDirective)(firstToken)) {
         return null;
     }
     const lineText = document.lineAt(position.line).text;

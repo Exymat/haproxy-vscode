@@ -75,12 +75,16 @@ function tokenizeLine(line) {
     flush(i);
     return tokens;
 }
+function isCommentLine(text) {
+    const trimmed = text.trimStart();
+    return trimmed.startsWith("#");
+}
 function parseDocument(document) {
     const out = [];
     let currentSection = null;
     for (let lineNo = 0; lineNo < document.lineCount; lineNo += 1) {
         const text = document.lineAt(lineNo).text;
-        const tokens = tokenizeLine(text);
+        const tokens = isCommentLine(text) ? [] : tokenizeLine(text);
         let isSectionHeader = false;
         if (tokens.length > 0) {
             const first = tokens[0].text.toLowerCase();

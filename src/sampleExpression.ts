@@ -560,6 +560,9 @@ export function validateExpressionBody(
 
   const fetchSpec = lookupSample(id.name, fetches, undefined);
   if (!fetchSpec && !fetchNames.has(id.name)) {
+    if (id.name.startsWith("wurfl-")) {
+      return issues;
+    }
     issues.push(
       issue(
         spanStart,

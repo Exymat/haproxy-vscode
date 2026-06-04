@@ -207,7 +207,10 @@ function unknownNestedDiagnostics(line, schema) {
             const serviceIdx = actionIdx + 1;
             const serviceName = line.tokens[serviceIdx].text.toLowerCase();
             const services = new Set((groups.services ?? []).map((v) => v.toLowerCase()));
-            if (services.size > 0 && serviceName && !services.has(serviceName)) {
+            if (services.size > 0 &&
+                serviceName &&
+                !serviceName.startsWith("lua.") &&
+                !services.has(serviceName)) {
                 diagnostics.push(makeDiagnostic(diagRange(line, serviceIdx), `Unknown service '${line.tokens[serviceIdx].text}'`, vscode.DiagnosticSeverity.Warning, "unknown-service"));
             }
         }

@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.provideHover = provideHover;
 const vscode = __importStar(require("vscode"));
+const conditionalDirectives_1 = require("./conditionalDirectives");
 const directiveUtils_1 = require("./directiveUtils");
 const documentContext_1 = require("./documentContext");
 const languageData_1 = require("./languageData");
@@ -83,8 +84,11 @@ function provideHover(document, position, data, schema) {
     const tokenLower = ctx.token.text.toLowerCase();
     if (ctx.kind === "option" && ctx.tokenIndex >= 1) {
         const group = (0, documentContext_1.groupItems)(data, "options").find((g) => g.name.toLowerCase() === tokenLower);
-        if (group) {
-            return new vscode.Hover(hoverMarkdown(group.name, "option " + group.name, group.description, []), range);
+        const optKeyword = (0, directiveUtils_1.getKeywordFromLanguage)(data, `option ${ctx.token.text}`) ??
+            (0, directiveUtils_1.getKeywordFromLanguage)(data, `no option ${ctx.token.text}`);
+        if (group || optKeyword) {
+            const name = group?.name ?? ctx.token.text;
+            return new vscode.Hover(hoverMarkdown(`option ${name}`, optKeyword?.signatures[0] ?? `option ${name}`, optKeyword?.description ?? group?.description ?? "", optKeyword?.sections.length ? [`**Valid in:** ${optKeyword.sections.join(", ")}`] : [], optKeyword?.docsUrl ?? group?.docsUrl), range);
         }
     }
     const actionGroups = [
@@ -101,8 +105,13 @@ function provideHover(document, position, data, schema) {
             if (group.rulesets.length > 0) {
                 extras.push(`**Rulesets:** ${group.rulesets.join(", ")}`);
             }
-            return new vscode.Hover(hoverMarkdown(group.name, group.signature, group.description, extras), range);
+            return new vscode.Hover(hoverMarkdown(group.name, group.signature, group.description, extras, group.docsUrl), range);
         }
+    }
+    const conditional = (0, conditionalDirectives_1.lookupConditionalDirective)(ctx.token.text);
+    if (conditional && ctx.tokenIndex === 0) {
+        const version = data.version;
+        return new vscode.Hover(hoverMarkdown(conditional.name, conditional.signature, conditional.description, [], (0, conditionalDirectives_1.conditionalBlocksDocsUrl)(version)), range);
     }
     if (ctx.kind === "acl-criterion" && ctx.tokenIndex >= 2) {
         const group = findGroupItem(data, ctx.token.text);
@@ -144,12 +153,12 @@ function provideHover(document, position, data, schema) {
         .slice(0, Math.min(ctx.tokenIndex + 1, 4))
         .map((t) => t.text)
         .join(" ");
-    const kw = (0, languageData_1.findKeywordByPrefix)(data, combined) ??
-        (directive.matched ? (0, directiveUtils_1.getKeywordFromLanguage)(data, directive.keyword) : undefined);
+    const kw = (directive.matched ? (0, directiveUtils_1.getKeywordFromLanguage)(data, directive.keyword) : undefined) ??
+        (0, languageData_1.findKeywordByPrefix)(data, combined);
     if (!kw) {
         const group = findGroupItem(data, ctx.token.text);
         if (group) {
-            return new vscode.Hover(hoverMarkdown(group.name, group.signature, group.description, []), range);
+            return new vscode.Hover(hoverMarkdown(group.name, group.signature, group.description, [], group.docsUrl), range);
         }
         return null;
     }

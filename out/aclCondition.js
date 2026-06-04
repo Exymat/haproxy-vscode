@@ -32,6 +32,17 @@ function findClosingBrace(lineText, open) {
     }
     return -1;
 }
+function isAclOnlyCriterion(name, schema, fetchNames, fetches) {
+    const lower = name.toLowerCase();
+    const inAcl = (schema.keyword_groups.acl_criteria ?? []).some((criterion) => criterion.toLowerCase() === lower);
+    if (!inAcl) {
+        return false;
+    }
+    if (fetchNames.has(name) || fetchNames.has(lower) || fetches[name] || fetches[lower]) {
+        return false;
+    }
+    return true;
+}
 function extractAclConditionSpans(lineText) {
     const spans = [];
     let idx = 0;
@@ -137,9 +148,14 @@ function validateAclConditions(lineText, schema) {
                 pos += 1;
                 continue;
             }
+            const aclOnly = isAclOnlyCriterion(id.name, schema, fetchNames, fetches);
             const after = skipSpace(body, id.end);
             if (after < body.length && body[after] === "(") {
                 const end = findExprEnd(body, after);
+                if (aclOnly) {
+                    pos = end;
+                    continue;
+                }
                 const slice = body.slice(pos, end);
                 issues.push(...(0, sampleExpression_1.validateExpressionBody)(slice, span.start + pos, fetches, converters, fetchNames, convNames));
                 pos = end;

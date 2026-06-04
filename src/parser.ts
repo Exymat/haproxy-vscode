@@ -95,13 +95,18 @@ function tokenizeLine(line: string): ParsedToken[] {
   return tokens;
 }
 
+function isCommentLine(text: string): boolean {
+  const trimmed = text.trimStart();
+  return trimmed.startsWith("#");
+}
+
 export function parseDocument(document: vscode.TextDocument): ParsedLine[] {
   const out: ParsedLine[] = [];
   let currentSection: string | null = null;
 
   for (let lineNo = 0; lineNo < document.lineCount; lineNo += 1) {
     const text = document.lineAt(lineNo).text;
-    const tokens = tokenizeLine(text);
+    const tokens = isCommentLine(text) ? [] : tokenizeLine(text);
     let isSectionHeader = false;
 
     if (tokens.length > 0) {
