@@ -1,3 +1,6 @@
+import { extractAclConditionSpans, validateAclConditions } from "../../src/aclCondition";
+import { argumentModelDiagnostics } from "../../src/argumentDiagnostics";
+import { enumNamesForSlot } from "../../src/argumentEnumUtils";
 import { provideDefinition, provideReferences } from "../../src/navigation";
 import { formatConfig, splitLineAtComment } from "../../src/formatter";
 import {
@@ -7,10 +10,12 @@ import {
 } from "../../src/addressFormat";
 import { computeDiagnostics } from "../../src/diagnostics";
 import { validateSampleExpressions } from "../../src/sampleExpression";
+import { parseDocument } from "../../src/parser";
+import { sectionKeywordSet } from "../../src/schema";
+import { statementDiagnostics } from "../../src/statementDiagnostics";
 import * as symbolIndex from "../../src/symbolIndex";
 import { buildSymbolIndex } from "../../src/symbolIndex";
-import { parseDocument } from "../../src/parser";
-import { statementDiagnostics } from "../../src/statementDiagnostics";
+import { isLikelyValue } from "../../src/tokenUtils";
 import { createDocument } from "../helpers/document";
 import { loadSchema, loadSchemaBundle } from "../helpers/schema";
 
@@ -368,5 +373,69 @@ describe("coverage line gaps", () => {
       bindSchema.statement_rules = bindOnly;
       expect(statementDiagnostics(bindLine, bindSchema).length).toBeGreaterThanOrEqual(0);
     }
+  });
+
+  it("covers CI gaps without upstream haproxy_git fixtures", () => {
+    expect(extractAclConditionSpans('log-format "%{+Q}o %t"')).toEqual([]);
+    expect(validateAclConditions("deny if { base_beg(/api) }", bundle.schema)).toEqual([]);
+    expect(validateAclConditions("deny if { req.hdr(host }", bundle.schema).length).toBeGreaterThan(
+      0,
+    );
+
+    expect(validateHaproxyAddress("127.0.0.1:", ADDRESS_POLICIES.log)).toEqual({ valid: true });
+    expect(validateHaproxyAddress("127.0.0.1:100-abc", ADDRESS_POLICIES.serverSource).code).toBe(
+      "invalid-port",
+    );
+
+    const balanceLine = parseDocument(createDocument("defaults\n    balance"))[1];
+    expect(
+      argumentModelDiagnostics(
+        balanceLine,
+        bundle.schema,
+        sectionKeywordSet(bundle.schema, balanceLine.section),
+      ),
+    ).toEqual([]);
+
+    const cpuPolicyLine = parseDocument(createDocument("global\n    cpu-policy"))[1];
+    expect(
+      argumentModelDiagnostics(
+        cpuPolicyLine,
+        bundle.schema,
+        sectionKeywordSet(bundle.schema, cpuPolicyLine.section),
+      ).filter((d) => d.code === "missing-argument"),
+    ).toHaveLength(0);
+
+    const modeLine = parseDocument(createDocument("defaults\n    mode /tmp/haproxy.sock"))[1];
+    expect(
+      argumentModelDiagnostics(
+        modeLine,
+        bundle.schema,
+        sectionKeywordSet(bundle.schema, modeLine.section),
+      ).filter((d) => d.code === "unknown-value"),
+    ).toHaveLength(0);
+    expect(isLikelyValue("127.0.0.1:8080")).toBe(true);
+
+    expect(enumNamesForSlot({ value_kind: "path" }, bundle.schema.keywords.mode, 0)).toEqual([]);
+
+    expect(validateSampleExpressions("http-request add-header n %[src()]", schema32)).toEqual([]);
+    expect(
+      validateSampleExpressions("http-request add-header n %[path(]", schema32).some(
+        (d) => d.code === "sample-syntax",
+      ),
+    ).toBe(true);
+    expect(
+      validateSampleExpressions("http-request add-header n %[src,map(x]", schema32).some(
+        (d) => d.code === "sample-syntax",
+      ),
+    ).toBe(true);
+
+    const serverLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 ca-file /etc/ssl/ca.pem"),
+    )[1];
+    statementDiagnostics(serverLine, bundle.schema);
+
+    const parsed = parseDocument(createDocument("frontend web\n    http-request deny if acl1"));
+    parsed[1].tokens[2] = undefined as never;
+    buildSymbolIndex(parsed, bundle.schema);
   });
 });
