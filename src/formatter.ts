@@ -3,7 +3,7 @@ import { SECTION_HEADERS, tokenizeLine } from "./parser";
 /**
  * Layout rules follow HAProxy configuration.txt sections 2.1 and 2.2
  * (Configuration file format, Quoting and escaping). Those rules are
- * identical across supported versions 3.0, 3.2, and 3.4.
+ * identical across supported versions 2.6, 2.8, 3.0, 3.2, and 3.4.
  */
 export interface FormatOptions {
   indentStyle: "spaces" | "tab";

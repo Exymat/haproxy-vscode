@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-export const SUPPORTED_HAPROXY_VERSIONS = ["3.0", "3.2", "3.4"] as const;
+export const SUPPORTED_HAPROXY_VERSIONS = ["2.6", "2.8", "3.0", "3.2", "3.4"] as const;
 export type HaproxyVersion = (typeof SUPPORTED_HAPROXY_VERSIONS)[number];
 
 export const DEFAULT_HAPROXY_VERSION: HaproxyVersion = "3.2";

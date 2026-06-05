@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const extensionRoot = resolve(__dirname, "..");
 const haproxyGitRoot = resolve(extensionRoot, "..", "haproxy_git");
-const VERSIONS = ["3.0", "3.2", "3.4"];
+const VERSIONS = ["2.6", "2.8", "3.0", "3.2", "3.4"];
 /** Default schema for inline diagnostic behavior cases (engine, not version matrix). */
 const DEFAULT_VERSION = "3.2";
 const mockVscodePath = join(__dirname, "mock-vscode.cjs");
@@ -37,8 +37,31 @@ function loadSchema(version) {
   return JSON.parse(readFileSync(path, "utf-8"));
 }
 
+function loadLanguageData(version) {
+  const path = join(extensionRoot, "schemas", `haproxy-${version}.language.json`);
+  if (!existsSync(path)) {
+    throw new Error(`missing language data: ${path}`);
+  }
+  return JSON.parse(readFileSync(path, "utf-8"));
+}
+
 const schemas = Object.fromEntries(VERSIONS.map((version) => [version, loadSchema(version)]));
+const languageDataByVersion = Object.fromEntries(
+  VERSIONS.map((version) => [version, loadLanguageData(version)])
+);
 const schema = schemas[DEFAULT_VERSION];
+
+function diagnosticOptions(version = DEFAULT_VERSION, overrides = {}) {
+  return {
+    languageData: languageDataByVersion[version],
+    deprecatedWarnings: true,
+    ...overrides,
+  };
+}
+
+function runDiagnostics(doc, schemaForCase, version = DEFAULT_VERSION, overrides = {}) {
+  return computeDiagnostics(doc, schemaForCase, diagnosticOptions(version, overrides));
+}
 
 function createDocument(content, uri = "file:///test.cfg") {
   const lines = content.split(/\r?\n/);
@@ -54,9 +77,9 @@ function createDocument(content, uri = "file:///test.cfg") {
   };
 }
 
-function runCase(name, content, expectations, schemaForCase = schema) {
+function runCase(name, content, expectations, schemaForCase = schema, version = DEFAULT_VERSION) {
   const doc = createDocument(content);
-  const diagnostics = computeDiagnostics(doc, schemaForCase);
+  const diagnostics = runDiagnostics(doc, schemaForCase, version);
   const byCode = new Map();
   for (const diag of diagnostics) {
     const code = diag.code ?? "unknown";
@@ -95,9 +118,9 @@ const hapeeAclSnippet = readFileSync(join(__dirname, "fixtures", "hapee-acl-snip
 const invalidFixture = readFileSync(join(__dirname, "fixtures", "diagnostics-invalid.cfg"), "utf-8");
 const hapeeCfgPath = resolve(extensionRoot, "..", "HAPEE", "oci-integration-hub_priv", "haproxy.cfg");
 
-function expectNoCode(content, name, code, schemaForCase = schema) {
+function expectNoCode(content, name, code, schemaForCase = schema, version = DEFAULT_VERSION) {
   const doc = createDocument(content);
-  const diags = computeDiagnostics(doc, schemaForCase).filter((d) => d.code === code);
+  const diags = runDiagnostics(doc, schemaForCase, version).filter((d) => d.code === code);
   if (diags.length > 0) {
     throw new Error(
       `${name}: expected no '${code}' diagnostics, got ${diags.length}\n` +
@@ -232,13 +255,75 @@ const cases = [
       },
     },
   },
+  {
+    name: "deprecated keyword master-worker",
+    content: "global\n\tmaster-worker\n",
+    expectations: { total: 1, counts: { "deprecated-keyword": 1 }, severity: 1 },
+    schema: schemas["3.4"],
+    version: "3.4",
+  },
+  {
+    name: "deprecated option transparent",
+    content: "frontend x\n\toption transparent\n",
+    expectations: { total: 1, counts: { "deprecated-keyword": 1 }, severity: 1 },
+    schema: schemas["3.4"],
+    version: "3.4",
+  },
+  {
+    name: "deprecated http-request set-mark",
+    content: "frontend x\n\thttp-request set-mark 1\n",
+    expectations: { total: 1, counts: { "deprecated-action": 1 }, severity: 1 },
+    schema: schemas["3.4"],
+    version: "3.4",
+  },
+  {
+    name: "expose-deprecated-directives suppresses deprecated warnings",
+    content: "global\n\texpose-deprecated-directives\n\tmaster-worker\n",
+    expectations: { total: 0 },
+    schema: schemas["3.4"],
+    version: "3.4",
+  },
+  {
+    name: "named defaults required for acl in anonymous defaults",
+    content: "defaults\n\tacl is_admin path_beg /admin\n",
+    expectations: { total: 1, counts: { "named-defaults-required": 1 }, severity: 1 },
+    schema: schemas["3.4"],
+    version: "3.4",
+  },
+  {
+    name: "named defaults required for http-request in anonymous defaults",
+    content: "defaults\n\thttp-request deny if TRUE\n",
+    expectations: { total: 1, counts: { "named-defaults-required": 1 }, severity: 1 },
+    schema: schemas["3.4"],
+    version: "3.4",
+  },
+  {
+    name: "named defaults keyword allowed in named defaults section",
+    content: "defaults my-defaults\n\thttp-request deny if TRUE\n",
+    expectations: { total: 0 },
+    schema: schemas["3.4"],
+    version: "3.4",
+  },
+  {
+    name: "maxconn allowed in anonymous defaults",
+    content: "defaults\n\tmaxconn 1000\n",
+    expectations: { total: 0 },
+    schema: schemas["3.4"],
+    version: "3.4",
+  },
 ];
 
 let failed = false;
 for (const testCase of cases) {
   process.stdout.write(`${testCase.name} ... `);
   try {
-    runCase(testCase.name, testCase.content, testCase.expectations, testCase.schema);
+    runCase(
+      testCase.name,
+      testCase.content,
+      testCase.expectations,
+      testCase.schema ?? schema,
+      testCase.version ?? DEFAULT_VERSION
+    );
     console.log("ok");
   } catch (error) {
     console.log("FAIL");
@@ -266,13 +351,13 @@ function collectCfgFiles(dir) {
   return files;
 }
 
-function assertNoErrorDiagnostics(label, dir, filterCodes, schemaForDir, skipFiles = new Set()) {
+function assertNoErrorDiagnostics(label, dir, filterCodes, schemaForDir, version, skipFiles = new Set()) {
   const files = collectCfgFiles(dir).filter((file) => !skipFiles.has(file.split(/[/\\]/).pop() ?? ""));
   const blocked = filterCodes ? new Set(filterCodes) : null;
   const failures = [];
   for (const file of files) {
     const content = readFileSync(file, "utf-8");
-    const diags = computeDiagnostics(createDocument(content, `file://${file}`), schemaForDir).filter(
+    const diags = runDiagnostics(createDocument(content, `file://${file}`), schemaForDir, version).filter(
       (diag) => diag.severity === ERROR_SEVERITY && (!blocked || blocked.has(diag.code))
     );
     if (diags.length > 0) {
@@ -303,7 +388,7 @@ for (const version of VERSIONS) {
   const confDir = haproxyTreeDir(version, "tests", "conf");
   process.stdout.write(`[${version}] all cfg in ${confDir} ... `);
   try {
-    const count = assertNoErrorDiagnostics("conf", confDir, ["unknown-keyword", "wrong-section"], versionSchema);
+    const count = assertNoErrorDiagnostics("conf", confDir, ["unknown-keyword", "wrong-section"], versionSchema, version);
     console.log(`ok (${count} files clean)`);
   } catch (error) {
     console.log("FAIL");
@@ -316,7 +401,7 @@ for (const version of VERSIONS) {
   const skipNote = examplesSkip.size > 0 ? `, skip ${[...examplesSkip].join(", ")}` : "";
   process.stdout.write(`[${version}] all cfg in ${examplesDir}${skipNote} ... `);
   try {
-    const count = assertNoErrorDiagnostics("examples", examplesDir, null, versionSchema, examplesSkip);
+    const count = assertNoErrorDiagnostics("examples", examplesDir, null, versionSchema, version, examplesSkip);
     console.log(`ok (${count} files clean)`);
   } catch (error) {
     console.log("FAIL");
@@ -341,7 +426,7 @@ const portsExpectedLines = new Set([
 function expectPortsAddressLines(confDir, versionSchema, version) {
   const portsPath = join(confDir, "ports.cfg");
   const portsContent = readFileSync(portsPath, "utf-8");
-  const portsDiags = computeDiagnostics(createDocument(portsContent, `file://${portsPath}`), versionSchema).filter(
+  const portsDiags = runDiagnostics(createDocument(portsContent, `file://${portsPath}`), versionSchema, version).filter(
     (diag) => addressCodes.has(diag.code)
   );
   const actualLines = new Set(portsDiags.map((diag) => diag.range.start.line + 1));
@@ -381,7 +466,7 @@ function expectSampleLines(confDir, fileName, lineList, versionSchema, version) 
   const expectedLines = new Set(lineList);
   const filePath = join(confDir, fileName);
   const content = readFileSync(filePath, "utf-8");
-  const diags = computeDiagnostics(createDocument(content, `file://${filePath}`), versionSchema).filter((diag) =>
+  const diags = runDiagnostics(createDocument(content, `file://${filePath}`), versionSchema, version).filter((diag) =>
     sampleCodes.has(diag.code)
   );
   const actualLines = new Set(diags.map((diag) => diag.range.start.line + 1));
@@ -421,7 +506,7 @@ function expectErrorLines(confDir, fileName, codes, lineList, versionSchema, ver
   const expectedLines = new Set(lineList);
   const filePath = join(confDir, fileName);
   const content = readFileSync(filePath, "utf-8");
-  const diags = computeDiagnostics(createDocument(content, `file://${filePath}`), versionSchema).filter(
+  const diags = runDiagnostics(createDocument(content, `file://${filePath}`), versionSchema, version).filter(
     (diag) => codeSet.has(diag.code) && diag.severity === 0
   );
   const actualLines = new Set(diags.map((diag) => diag.range.start.line + 1));

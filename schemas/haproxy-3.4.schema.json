@@ -39910,6 +39910,19 @@
       "no",
       "default"
     ],
+    "named_defaults_keywords": [
+      "acl",
+      "http-after-response",
+      "http-request",
+      "http-response",
+      "quic-initial",
+      "tcp-request connection",
+      "tcp-request content",
+      "tcp-request inspect-delay",
+      "tcp-request session",
+      "tcp-response content",
+      "tcp-response inspect-delay"
+    ],
     "no_prefix_keywords": [
       "log",
       "option abortonclose",

@@ -1,7 +1,11 @@
 import * as vscode from "vscode";
 
 import { argumentModelDiagnostics } from "./argumentDiagnostics";
+import { buildDeprecatedIndex } from "./deprecatedIndex";
+import { deprecatedDiagnostics, documentUsesExposeDeprecatedDirectives } from "./deprecatedDiagnostics";
 import { expressionDiagnostics } from "./expressionDiagnostics";
+import { HaproxyLanguageData } from "./languageData";
+import { namedDefaultsDiagnostics } from "./namedDefaultsDiagnostics";
 import { aclNameDiagnostics, sectionHeaderDiagnostics } from "./sectionDiagnostics";
 import { statementDiagnostics } from "./statementDiagnostics";
 import { getParsedDocument } from "./parseCache";
@@ -34,7 +38,10 @@ type DiagCode =
   | "unknown-criterion"
   | "unknown-check-step"
   | "extra-argument"
-  | "missing-argument";
+  | "missing-argument"
+  | "deprecated-keyword"
+  | "deprecated-action"
+  | "named-defaults-required";
 
 function diagRangeForTokens(line: ParsedLine, startIdx: number, endIdx: number): vscode.Range {
   const startTok = line.tokens[startIdx];
@@ -307,10 +314,25 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
   return diagnostics;
 }
 
-export function computeDiagnostics(document: vscode.TextDocument, schema: HaproxySchema): vscode.Diagnostic[] {
+export interface ComputeDiagnosticsOptions {
+  languageData?: HaproxyLanguageData;
+  deprecatedWarnings?: boolean;
+}
+
+export function computeDiagnostics(
+  document: vscode.TextDocument,
+  schema: HaproxySchema,
+  options: ComputeDiagnosticsOptions = {}
+): vscode.Diagnostic[] {
   const parsed = getParsedDocument(document);
   const diagnostics: vscode.Diagnostic[] = [];
   const lineTexts = Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
+  const deprecatedWarnings = options.deprecatedWarnings !== false;
+  const deprecatedIndex = deprecatedWarnings
+    ? buildDeprecatedIndex(schema, options.languageData)
+    : undefined;
+  const suppressDeprecated =
+    deprecatedIndex !== undefined && documentUsesExposeDeprecatedDirectives(parsed);
 
   for (const line of parsed) {
     if (line.tokens.length === 0) {
@@ -335,6 +357,10 @@ export function computeDiagnostics(document: vscode.TextDocument, schema: Haprox
     }
     diagnostics.push(...aclNameDiagnostics(line));
     diagnostics.push(...expressionDiagnostics(line, lineTexts[line.line] ?? "", schema));
+    if (deprecatedIndex) {
+      diagnostics.push(...deprecatedDiagnostics(parsed, line, schema, deprecatedIndex, suppressDeprecated));
+    }
+    diagnostics.push(...namedDefaultsDiagnostics(line, schema));
   }
   return diagnostics;
 }

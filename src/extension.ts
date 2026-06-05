@@ -59,7 +59,10 @@ export function activate(context: vscode.ExtensionContext): void {
       return;
     }
     const b = await ensureBundle();
-    diagnostics.set(document.uri, computeDiagnostics(document, b.schema));
+    diagnostics.set(document.uri, computeDiagnostics(document, b.schema, {
+      languageData: b.languageData,
+      deprecatedWarnings: settings.deprecatedWarnings,
+    }));
   };
 
   const scheduleDiagnostics = (document: vscode.TextDocument): void => {

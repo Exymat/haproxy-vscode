@@ -101,6 +101,10 @@ export function noPrefixKeywordSet(schema: HaproxySchema): Set<string> {
   return new Set((schema.tokens.no_prefix_keywords ?? []).map((k) => k.toLowerCase()));
 }
 
+export function namedDefaultsKeywordSet(schema: HaproxySchema): Set<string> {
+  return new Set((schema.tokens.named_defaults_keywords ?? []).map((k) => k.toLowerCase()));
+}
+
 export function sectionKeywordSet(schema: HaproxySchema, section: string | null): Set<string> {
   if (!section) {
     return new Set();

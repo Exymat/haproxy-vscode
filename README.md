@@ -2,7 +2,7 @@
 
 **Schema-driven language support for HAProxy configuration files** in Visual Studio Code and compatible editors.
 
-Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, schema-based diagnostics, document formatting, and section outline — all tuned to the HAProxy release you run in production (**3.0**, **3.2**, or **3.4**).
+Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, schema-based diagnostics, document formatting, and section outline — all tuned to the HAProxy release you run in production (**2.6**, **2.8**, **3.0**, **3.2**, or **3.4**).
 
 ---
 
@@ -34,11 +34,11 @@ Catch common mistakes while you type:
 
 | Category    | Examples                                                                 |
 | ----------- | ------------------------------------------------------------------------ |
-| Keywords    | Unknown directive, keyword used in the wrong section                     |
-| Structure   | Nested `option` / parameter misuse                                       |
+| Keywords    | Unknown directive, keyword used in the wrong section, **deprecated** keyword |
+| Structure   | Nested `option` / parameter misuse; keywords marked `(!)` in anonymous `defaults` |
 | Arguments   | Missing or extra arguments for known statement shapes                    |
 | Expressions | Invalid sample fetch / converter references, ACL-only criteria misuse    |
-| Rules       | Unknown `http-request` / `tcp-request` action, unknown `use-service` target |
+| Rules       | Unknown or **deprecated** `http-request` / `tcp-request` action, unknown `use-service` target |
 
 Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Always validate with your real binary before deploying.
 
@@ -75,11 +75,15 @@ No extra runtime is required for day-to-day editing — schemas and grammars shi
 
 Pick the release that matches the binaries you operate:
 
-| Version | Default? | Notes                      |
-| ------- | -------- | -------------------------- |
-| **3.2** | Yes      | Recommended for most users |
-| **3.4** |          | Latest supported line      |
-| **3.0** |          | Legacy LTS                 |
+| Version | Default? | Notes                                      |
+| ------- | -------- | ------------------------------------------ |
+| **3.2** | Yes      | Recommended for most users on the 3.x line |
+| **3.4** |          | Latest supported 3.x line                  |
+| **3.0** |          | 3.x LTS                                    |
+| **2.8** |          | Latest supported 2.x line                  |
+| **2.6** |          | 2.x LTS                                    |
+
+Schemas for **2.6** and **2.8** are generated from the legacy `configuration.txt` layout (actions listed under each ruleset in §4.2 rather than §4.3/§4.4). Completion, diagnostics, and hover reflect keywords available in that release.
 
 **Ways to change version:**
 
@@ -99,6 +103,7 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 | `haproxy.diagnostics.enabled`                  | `true`      | Turn off if opening very large `.cfg` files feels slow                           |
 | `haproxy.diagnostics.debounceMs`               | `500`       | Delay after edits before recomputing diagnostics (100–5000 ms)                   |
 | `haproxy.diagnostics.maxLines`                 | `4000`      | Skip diagnostics above this line count to limit memory use                       |
+| `haproxy.diagnostics.deprecatedWarnings`       | `true`      | Warn on directives and rule actions marked `(deprecated)` in the official docs. Warnings are suppressed when `global` contains `expose-deprecated-directives`. |
 | `haproxy.format.enabled`                       | `true`      | Enable **Format Document** for HAProxy configs                                   |
 | `haproxy.format.indent`                        | `spaces-4`  | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                    |
 | `haproxy.format.insertBlankLineBetweenSections`| `true`      | Insert a blank line before each new section header when formatting               |
@@ -111,7 +116,7 @@ The extension also raises `editor.maxTokenizationLineLength` for HAProxy files s
 
 | Command                             | Description                          |
 | ----------------------------------- | ------------------------------------ |
-| **HAProxy: Select HAProxy Version** | Quick-pick between 3.0, 3.2, and 3.4 |
+| **HAProxy: Select HAProxy Version** | Quick-pick between 2.6, 2.8, 3.0, 3.2, and 3.4 |
 
 ---
 
@@ -152,6 +157,8 @@ parent/
   haproxy-vscode/     # this extension
   haproxy-schema/     # schema & grammar generator (python -m haproxy_schema)
   haproxy_git/        # optional: upstream HAProxy trees for regeneration & tests
+    haproxy-2.6/
+    haproxy-2.8/
     haproxy-3.0/
     haproxy-3.2/
     haproxy-3.4/
@@ -184,9 +191,11 @@ npm run generate:schema:3.2
 npm run sync:active-grammar -- 3.2
 ```
 
-Replace `3.2` with `3.0` or `3.4` as needed. To refresh keyword dumps:
+Replace `3.2` with any supported version (`2.6`, `2.8`, `3.0`, `3.4`, …) as needed. To refresh keyword dumps (requires a DEBUG build of the matching HAProxy binary in `haproxy_git/`):
 
 ```powershell
+npm run generate:dkall:2.6
+npm run generate:dkall:2.8
 npm run generate:dkall:3.2
 ```
 

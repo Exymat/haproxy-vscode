@@ -31,6 +31,8 @@ export interface ParsedLine {
   section: string | null;
   tokens: ParsedToken[];
   isSectionHeader: boolean;
+  /** True when this line is inside an anonymous (unnamed) defaults section. */
+  anonymousDefaults: boolean;
 }
 
 export function tokenizeLine(line: string): ParsedToken[] {
@@ -103,6 +105,7 @@ function isCommentLine(text: string): boolean {
 export function parseDocument(document: vscode.TextDocument): ParsedLine[] {
   const out: ParsedLine[] = [];
   let currentSection: string | null = null;
+  let inAnonymousDefaults = false;
 
   for (let lineNo = 0; lineNo < document.lineCount; lineNo += 1) {
     const text = document.lineAt(lineNo).text;
@@ -114,6 +117,7 @@ export function parseDocument(document: vscode.TextDocument): ParsedLine[] {
       if (SECTION_HEADERS.has(first)) {
         currentSection = first;
         isSectionHeader = true;
+        inAnonymousDefaults = first === "defaults" && tokens.length === 1;
       }
     }
 
@@ -122,6 +126,7 @@ export function parseDocument(document: vscode.TextDocument): ParsedLine[] {
       section: currentSection,
       tokens,
       isSectionHeader,
+      anonymousDefaults: inAnonymousDefaults,
     });
   }
   return out;

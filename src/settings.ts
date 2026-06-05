@@ -17,6 +17,7 @@ export interface HaproxyExtensionSettings {
   formatEnabled: boolean;
   formatIndent: FormatIndent;
   formatInsertBlankLineBetweenSections: boolean;
+  deprecatedWarnings: boolean;
 }
 
 function readFormatIndent(config: vscode.WorkspaceConfiguration): FormatIndent {
@@ -42,6 +43,7 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
       "format.insertBlankLineBetweenSections",
       true
     ),
+    deprecatedWarnings: config.get<boolean>("diagnostics.deprecatedWarnings", true),
   };
 }
 
