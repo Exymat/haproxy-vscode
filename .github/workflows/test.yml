@@ -48,4 +48,3 @@ jobs:
           files: ./coverage/lcov.info
           flags: ${{ matrix.os }}
           name: coverage-${{ matrix.os }}
-
