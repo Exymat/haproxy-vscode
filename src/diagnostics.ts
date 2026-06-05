@@ -18,18 +18,24 @@ import {
   HaproxySchema,
   modifierPrefixSet,
   noPrefixKeywordSet,
+  prefixFamilies,
+  prefixSubcommandSet,
   sectionKeywordSet,
   statsSocketLevelSet,
-  tcpRulePhaseSet,
+  tcpRequestPhaseSet,
+  tcpResponsePhaseSet,
 } from "./schema";
 import {
-  actionTokenIndex,
+  findStatementRule,
+  resolveActionTokenIndex,
+  resolvePhaseTokenIndex,
+  ruleActionGroup,
+} from "./statementLayout";
+import {
   isLikelyValue,
   normalizeActionName,
-  PREFIX_FAMILIES,
   resolveLongestDirectiveMatch,
   resolveSubcommandSpan,
-  tcpPhaseIndex,
 } from "./tokenUtils";
 
 const DIAG_SOURCE = "haproxy";
@@ -136,8 +142,13 @@ function topLevelDiagnostics(
   }
 
   const prefix = line.tokens[0]?.text.toLowerCase();
-  if (prefix && PREFIX_FAMILIES.includes(prefix)) {
-    const sub = resolveSubcommandSpan(line, allowed, prefix);
+  if (prefix && prefixFamilies(schema).includes(prefix)) {
+    const sub = resolveSubcommandSpan(
+      line,
+      allowed,
+      prefix,
+      prefixSubcommandSet(schema, prefix),
+    );
     if (sub && !sub.matched) {
       return [
         makeDiagnostic(
@@ -175,8 +186,8 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
   const diagnostics: vscode.Diagnostic[] = [];
   const groups = schema.keyword_groups;
   const conditionals = conditionalTokenSet(schema);
-  const tcpPhases = tcpRulePhaseSet(schema);
-  const statsSocketLevels = statsSocketLevelSet();
+  const statsSocketLevels = statsSocketLevelSet(schema);
+  const rule = findStatementRule(schema, line);
   const t0 = line.tokens[0]?.text.toLowerCase();
   const t1 = line.tokens[1]?.text.toLowerCase();
 
@@ -253,16 +264,13 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
     return diagnostics;
   }
 
-  const phaseIdx = tcpPhaseIndex(line, tcpPhases);
-  if (phaseIdx !== null) {
+  const phaseIdx = resolvePhaseTokenIndex(rule, line);
+  if (phaseIdx !== null && (t0 === "tcp-request" || t0 === "tcp-response")) {
+    const phases = t0 === "tcp-request" ? tcpRequestPhaseSet(schema) : tcpResponsePhaseSet(schema);
     const phase = line.tokens[phaseIdx].text.toLowerCase();
-    if (!tcpPhases.has(phase)) {
-      let allowedActions: string[] = [];
-      if (t0 === "tcp-request") {
-        allowedActions = groups.tcp_request_actions ?? [];
-      } else if (t0 === "tcp-response") {
-        allowedActions = groups.tcp_response_actions ?? [];
-      }
+    if (!phases.has(phase)) {
+      const groupName = ruleActionGroup(rule);
+      const allowedActions = groupName ? (groups[groupName] ?? []) : [];
       const allowed = new Set(allowedActions.map((v) => v.toLowerCase()));
       if (!allowed.has(phase)) {
         diagnostics.push(
@@ -277,22 +285,12 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
     }
   }
 
-  const actionIdx = actionTokenIndex(line);
+  const actionIdx = resolveActionTokenIndex(rule, line);
   if (actionIdx !== null) {
     const rawToken = line.tokens[actionIdx].text;
     const token = normalizeActionName(rawToken);
-    let allowedActions: string[] = [];
-    if (t0 === "http-request") {
-      allowedActions = groups.http_request_actions ?? [];
-    } else if (t0 === "http-response") {
-      allowedActions = groups.http_response_actions ?? [];
-    } else if (t0 === "http-after-response") {
-      allowedActions = groups.http_after_response_actions ?? [];
-    } else if (t0 === "tcp-request") {
-      allowedActions = groups.tcp_request_actions ?? [];
-    } else if (t0 === "tcp-response") {
-      allowedActions = groups.tcp_response_actions ?? [];
-    }
+    const groupName = ruleActionGroup(rule);
+    const allowedActions = groupName ? (groups[groupName] ?? []) : [];
     const allowed = new Set(allowedActions.map((v) => v.toLowerCase()));
     if (token && !token.startsWith("lua.") && !allowed.has(token)) {
       diagnostics.push(

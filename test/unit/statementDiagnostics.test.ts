@@ -99,6 +99,31 @@ describe("statementDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
   });
 
+  it("validates server addresses using kind fallback without address_policy", () => {
+    const schema = structuredClone(bundle.schema);
+    const serverRule = schema.statement_rules.find((r) => r.keyword === "server");
+    const addressSlot = serverRule?.fixed_slots?.find((s) => s.role === "address");
+    if (addressSlot) {
+      delete addressSlot.address_policy;
+    }
+    const line = parseDocument(createDocument("backend api\n    server s1 bad-address:80"))[1];
+    const diags = statementDiagnostics(line, schema);
+    expect(diags.some((d) => d.code === "invalid-address")).toBe(true);
+  });
+
+  it("validates bind addresses using kind fallback without address_policy", () => {
+    const schema = structuredClone(bundle.schema);
+    const bindRule = schema.statement_rules.find((r) => r.keyword === "bind");
+    if (bindRule?.fixed_slots) {
+      for (const slot of bindRule.fixed_slots) {
+        delete slot.address_policy;
+      }
+    }
+    const line = parseDocument(createDocument("frontend web\n    bind bad-address:80"))[1];
+    const diags = statementDiagnostics(line, schema);
+    expect(diags.some((d) => d.code === "invalid-address")).toBe(true);
+  });
+
   it("returns empty for rules without option groups", () => {
     const schema = structuredClone(bundle.schema);
     schema.statement_rules = [

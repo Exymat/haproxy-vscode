@@ -13,6 +13,7 @@ export interface ArgumentSlot {
   optional?: boolean;
   variadic?: boolean;
   enum?: string[];
+  value_kind?: string;
 }
 
 export interface ArgumentModel {
@@ -47,11 +48,14 @@ export interface SampleFunction {
   out_type: string;
   in_type?: string;
   contexts?: boolean[];
+  min_args?: number;
+  max_args?: number | null;
 }
 
 export interface FixedSlotSpec {
   role: string;
   port?: string | null;
+  address_policy?: string | null;
 }
 
 export interface StatementRule {
@@ -70,6 +74,14 @@ export interface StatementRule {
   symbol_name_token_index?: number;
 }
 
+export interface LineLayout {
+  prefix_families?: string[];
+  prefix_subcommands?: Record<string, string[]>;
+  tcp_request_phases?: string[];
+  tcp_response_phases?: string[];
+  stats_socket_levels?: string[];
+}
+
 export interface HaproxySchema {
   version: string;
   sections: Record<string, SchemaSection>;
@@ -78,6 +90,7 @@ export interface HaproxySchema {
   statement_rules: StatementRule[];
   sample_fetches: Record<string, SampleFunction>;
   sample_converters: Record<string, SampleFunction>;
+  line_layout?: LineLayout;
   tokens: Record<string, string[]>;
 }
 
@@ -85,103 +98,32 @@ const schemaCache = new Map<HaproxyVersion, HaproxySchema>();
 const sectionKeywordCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
 const optionsWithValueCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
 
-const VALUE_OPTION_HINTS = [
-  "-file",
-  "-path",
-  "-pass",
-  "-list",
-  "-addr",
-  "-port",
-  "-net",
-  "-opts",
-  "-prefer",
-  "-name",
-  "-tag",
-  "-format",
-  "-header",
-  "-backend",
-  "-server",
-  "-conn",
-  "-delay",
-  "-limit",
-  "-inter",
-  "-key",
+const FALLBACK_PREFIX_FAMILIES = [
+  "stats",
+  "timeout",
+  "tcp-check",
+  "http-check",
+  "capture",
+  "tcp-request",
+  "tcp-response",
 ] as const;
 
-const VALUE_OPTION_EXACT = new Set([
-  "crt",
-  "name",
-  "alpn",
-  "ciphers",
-  "ciphersuites",
-  "curves",
-  "npn",
-  "proto",
-  "verify",
-  "verifyhost",
-  "sni",
-  "mss",
-  "nbconn",
-  "nice",
-  "uid",
-  "gid",
-  "group",
-  "interface",
-  "namespace",
-  "thread",
-  "process",
-  "shards",
-  "sigalgs",
-  "addr",
-  "path",
-  "command",
-  "redir",
-  "resolvers",
-  "weight",
-  "port",
-  "mode",
-  "level",
-  "label",
-  "id",
-  "ws",
-  "shard",
-  "hash-key",
-  "monitor",
-  "description",
-  "agent-port",
-  "agent-inter",
-  "agent-send",
-  "pool-max-conn",
-  "pool-low-conn",
-  "pool-purge-delay",
-  "pool-conn-name",
-  "log-proto",
-  "log-bufsize",
-  "max-reuse",
-  "slowstart",
-  "maxqueue",
-  "minconn",
-  "maxconn",
-  "quic-cc-algo",
-  "severity-output",
-  "tls-ticket-keys",
-  "client-sigalgs",
-  "proxy-v2-options",
-  "send-proxy-v2",
-  "default-crt",
-  "ca-verify-file",
-  "ca-sign-file",
-  "ca-sign-pass",
-  "crl-file",
-  "crt-list",
-  "crt-ignore-err",
-  "ca-ignore-err",
-]);
-
-const STATS_SOCKET_LEVELS = new Set(["user", "operator", "admin"]);
+const FALLBACK_STATS_SOCKET_LEVELS = ["user", "operator", "admin"] as const;
 
 export function clearSchemaCache(): void {
   schemaCache.clear();
+}
+
+export function prefixFamilies(schema: HaproxySchema): string[] {
+  return schema.line_layout?.prefix_families ?? [...FALLBACK_PREFIX_FAMILIES];
+}
+
+export function prefixSubcommandSet(schema: HaproxySchema, prefix: string): Set<string> {
+  const fromLayout = schema.line_layout?.prefix_subcommands?.[prefix.toLowerCase()];
+  if (fromLayout) {
+    return new Set(fromLayout.map((v) => v.toLowerCase()));
+  }
+  return buildPrefixSubcommands(Object.keys(schema.keywords), prefix);
 }
 
 export function buildPrefixSubcommands(keywords: Iterable<string>, prefix: string): Set<string> {
@@ -212,10 +154,29 @@ export function namedDefaultsKeywordSet(schema: HaproxySchema): Set<string> {
   return new Set((schema.tokens.named_defaults_keywords ?? []).map((k) => k.toLowerCase()));
 }
 
-export function tcpRulePhaseSet(schema: HaproxySchema): Set<string> {
+export function tcpRulePhaseSet(schema: HaproxySchema, kind: "tcp-request" | "tcp-response"): Set<string> {
+  const fromLayout =
+    kind === "tcp-request"
+      ? schema.line_layout?.tcp_request_phases
+      : schema.line_layout?.tcp_response_phases;
+  if (fromLayout) {
+    return new Set(fromLayout.map((v) => v.toLowerCase()));
+  }
+  return buildPrefixSubcommands(Object.keys(schema.keywords), kind);
+}
+
+export function tcpRequestPhaseSet(schema: HaproxySchema): Set<string> {
+  return tcpRulePhaseSet(schema, "tcp-request");
+}
+
+export function tcpResponsePhaseSet(schema: HaproxySchema): Set<string> {
+  return tcpRulePhaseSet(schema, "tcp-response");
+}
+
+function legacyTcpRulePhaseSet(schema: HaproxySchema): Set<string> {
   const phases = new Set<string>();
   for (const name of Object.keys(schema.keywords)) {
-    for (const prefix of ["tcp-request", "tcp-response"]) {
+    for (const prefix of ["tcp-request", "tcp-response"] as const) {
       const needle = `${prefix} `;
       if (name.startsWith(needle)) {
         phases.add(name.slice(needle.length).toLowerCase());
@@ -225,12 +186,33 @@ export function tcpRulePhaseSet(schema: HaproxySchema): Set<string> {
   return phases;
 }
 
-function optionTakesValue(option: string): boolean {
+/** @deprecated Use tcpRequestPhaseSet / tcpResponsePhaseSet instead. */
+export function allTcpRulePhases(schema: HaproxySchema): Set<string> {
+  if (schema.line_layout?.tcp_request_phases || schema.line_layout?.tcp_response_phases) {
+    return new Set([...tcpRequestPhaseSet(schema), ...tcpResponsePhaseSet(schema)]);
+  }
+  return legacyTcpRulePhaseSet(schema);
+}
+
+function optionTakesValueFallback(option: string): boolean {
   const lower = option.toLowerCase();
-  if (VALUE_OPTION_EXACT.has(lower)) {
+  if (
+    [
+      "crt",
+      "name",
+      "alpn",
+      "addr",
+      "path",
+      "port",
+      "mode",
+      "level",
+      "maxconn",
+      "minconn",
+    ].includes(lower)
+  ) {
     return true;
   }
-  return VALUE_OPTION_HINTS.some((hint) => lower.includes(hint));
+  return ["-file", "-path", "-addr", "-port", "-name", "-inter"].some((hint) => lower.includes(hint));
 }
 
 export function optionsWithValueSet(schema: HaproxySchema, groupName: string): Set<string> {
@@ -243,9 +225,15 @@ export function optionsWithValueSet(schema: HaproxySchema, groupName: string): S
   if (cached) {
     return cached;
   }
+  const explicit = schema.keyword_groups.options_with_value;
+  if (groupName === "options" && explicit?.length) {
+    const result = new Set(explicit.map((v) => v.toLowerCase()));
+    perSchema.set(groupName, result);
+    return result;
+  }
   const result = new Set<string>();
   for (const option of schema.keyword_groups[groupName] ?? []) {
-    if (optionTakesValue(option)) {
+    if (optionTakesValueFallback(option)) {
       result.add(option.toLowerCase());
     }
   }
@@ -253,8 +241,9 @@ export function optionsWithValueSet(schema: HaproxySchema, groupName: string): S
   return result;
 }
 
-export function statsSocketLevelSet(): Set<string> {
-  return STATS_SOCKET_LEVELS;
+export function statsSocketLevelSet(schema: HaproxySchema): Set<string> {
+  const levels = schema.line_layout?.stats_socket_levels ?? [...FALLBACK_STATS_SOCKET_LEVELS];
+  return new Set(levels.map((v) => v.toLowerCase()));
 }
 
 export function sectionKeywordSet(schema: HaproxySchema, section: string | null): Set<string> {
@@ -294,6 +283,7 @@ export function loadSchema(
   data.statement_rules = data.statement_rules ?? [];
   data.sample_fetches = data.sample_fetches ?? {};
   data.sample_converters = data.sample_converters ?? {};
+  data.line_layout = data.line_layout ?? {};
   schemaCache.set(version, data);
   return data;
 }

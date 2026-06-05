@@ -192,6 +192,21 @@ describe("validateSampleExpressions inline", () => {
     );
     expect(codesForLine("http-request add-header n %[path(0,)]")).toContain("sample-fetch-args");
   });
+  it("honors explicit min_args on sample fetches", () => {
+    const schema = structuredClone(schema32);
+    schema.sample_fetches.custom = {
+      name: "custom",
+      args: ["string"],
+      out_type: "str",
+      min_args: 1,
+      max_args: 1,
+    };
+    expect(
+      validateSampleExpressions("http-request add-header n %[custom()]", schema).some(
+        (d) => d.code === "sample-fetch-args",
+      ),
+    ).toBe(true);
+  });
 });
 
 describe("validateSampleExpressions upstream fixture", () => {

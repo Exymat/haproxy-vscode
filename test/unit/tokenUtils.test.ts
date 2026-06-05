@@ -1,5 +1,4 @@
 import {
-  PREFIX_FAMILIES,
   actionTokenIndex,
   isAddressOrPathToken,
   isDirectivePart,
@@ -14,6 +13,7 @@ import {
   resolveSubcommandSpan,
   tcpPhaseIndex,
 } from "../../src/tokenUtils";
+import { prefixFamilies } from "../../src/schema";
 import { parseDocument } from "../../src/parser";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
@@ -149,7 +149,7 @@ describe("tokenUtils", () => {
     expect(tcpPhaseIndex(parsedLine("    tcp-request"), phases)).toBeNull();
   });
 
-  it("exports prefix families constant", () => {
-    expect(PREFIX_FAMILIES).toContain("stats");
+  it("reads prefix families from schema line_layout", () => {
+    expect(prefixFamilies(loadSchema("3.4"))).toContain("stats");
   });
 });

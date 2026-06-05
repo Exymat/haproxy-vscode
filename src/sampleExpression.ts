@@ -372,13 +372,27 @@ function issue(
   return { start, end: Math.max(end, start + 1), message, code, source: DIAG_SOURCE };
 }
 
+function sampleMinArgs(spec: SampleFunction, name: string, fallback = 0): number {
+  if (spec.min_args !== undefined && spec.min_args !== null) {
+    return spec.min_args;
+  }
+  return FETCH_MIN_ARGS[name] ?? fallback;
+}
+
+function sampleMaxArgs(spec: SampleFunction): number {
+  if (spec.max_args !== undefined && spec.max_args !== null) {
+    return spec.max_args;
+  }
+  return spec.args.length;
+}
+
 function validateFetchArgs(
   name: string,
   spec: SampleFunction,
   parsed: ParsedArgList,
   _spanStart: number,
 ): SampleDiagnostic | undefined {
-  const maxArgs = spec.args.length;
+  const maxArgs = sampleMaxArgs(spec);
 
   if (maxArgs === 0 && parsed.hadParens && parsed.args.length > 0) {
     const first = parsed.args[0];
@@ -426,7 +440,7 @@ function validateConverterArgs(
   parsed: ParsedArgList,
   _nameStart: number,
 ): SampleDiagnostic | undefined {
-  const maxArgs = spec.args.length;
+  const maxArgs = sampleMaxArgs(spec);
 
   if (maxArgs === 0 && parsed.hadParens && parsed.args.length > 0) {
     return issue(
@@ -498,7 +512,13 @@ export function validateExpressionBody(
   }
 
   const spec = fetchSpec ?? { name: id.name, args: [], out_type: "any" };
-  const parsedFetch = parseArgList(body, pos, spanStart, spec.args, FETCH_MIN_ARGS[id.name] ?? 0);
+  const parsedFetch = parseArgList(
+    body,
+    pos,
+    spanStart,
+    spec.args,
+    sampleMinArgs(spec, id.name, 0),
+  );
   const fetchArgIssue = validateFetchArgs(id.name, spec, parsedFetch, spanStart);
   if (fetchArgIssue) {
     issues.push(fetchArgIssue);

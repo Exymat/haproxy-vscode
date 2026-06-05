@@ -3,8 +3,8 @@ import * as vscode from "vscode";
 import { enumNamesForSlot } from "./argumentEnumUtils";
 import { argumentTokenIndices } from "./directiveUtils";
 import { ParsedLine } from "./parser";
-import { conditionalTokenSet, HaproxySchema, modifierPrefixSet, SchemaKeyword } from "./schema";
-import { isLikelyValue, PREFIX_FAMILIES, resolveLongestDirectiveMatch } from "./tokenUtils";
+import { conditionalTokenSet, HaproxySchema, modifierPrefixSet, prefixFamilies } from "./schema";
+import { isLikelyValue, resolveLongestDirectiveMatch } from "./tokenUtils";
 
 export interface ArgumentSlot {
   optional?: boolean;
@@ -122,7 +122,7 @@ export function argumentModelDiagnostics(
       return [];
     }
   }
-  if (PREFIX_FAMILIES.includes(keyword) || (t0 && PREFIX_FAMILIES.includes(t0))) {
+  if (prefixFamilies(schema).includes(keyword) || (t0 && prefixFamilies(schema).includes(t0))) {
     return [];
   }
 

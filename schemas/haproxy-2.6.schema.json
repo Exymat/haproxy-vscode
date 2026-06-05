@@ -346,6 +346,17 @@
       "tcplog",
       "transparent"
     ],
+    "options_with_value": [
+      "h1-case-adjust-bogus-server",
+      "http-no-delay",
+      "http-restrict-req-hdr-names",
+      "http-server-close",
+      "http-use-proxy-header",
+      "keep-conn",
+      "mpxs-conns",
+      "prefer-last-server",
+      "tcp-smart-connect"
+    ],
     "quic_initial_actions": [],
     "sample_converters": [
       "add",
@@ -1024,6 +1035,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1048,26 +1060,31 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -1096,6 +1113,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -1120,6 +1138,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1164,11 +1183,13 @@
               "url_param"
             ],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1271,11 +1292,13 @@
               "url_param"
             ],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1366,21 +1389,25 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": true
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -1416,16 +1443,19 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -1471,6 +1501,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1495,16 +1526,19 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1536,16 +1570,19 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1577,16 +1614,19 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1618,6 +1658,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1642,6 +1683,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1675,6 +1717,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1708,6 +1751,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1753,6 +1797,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1784,6 +1829,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -1808,11 +1854,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -1849,6 +1897,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -1957,6 +2006,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -2057,21 +2107,25 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2149,21 +2203,25 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -2188,6 +2246,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2242,16 +2301,19 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2283,6 +2345,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -2312,6 +2375,7 @@
               "origin <path>"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -2337,6 +2401,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -2370,6 +2435,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2402,6 +2468,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2431,6 +2498,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -2455,6 +2523,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2479,6 +2548,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           }
         ]
@@ -2503,6 +2573,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2527,11 +2598,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "address",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -2576,11 +2649,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "address",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2612,6 +2687,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -2636,6 +2712,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2662,6 +2739,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "address",
             "variadic": false
           }
         ]
@@ -2695,6 +2773,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2728,6 +2807,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2761,6 +2841,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2794,6 +2875,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "address",
             "variadic": false
           }
         ]
@@ -2849,6 +2931,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2875,11 +2958,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -2915,11 +3000,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -2954,11 +3041,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -2993,11 +3082,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3032,11 +3123,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3089,6 +3182,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3114,6 +3208,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3271,6 +3366,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -3303,6 +3399,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3327,11 +3424,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -3368,11 +3467,13 @@
               "unless"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3398,6 +3499,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3457,6 +3559,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3489,6 +3592,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3513,6 +3617,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3544,11 +3649,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -3595,11 +3702,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3625,6 +3734,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -3668,6 +3778,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3702,6 +3813,7 @@
               "off"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -3730,6 +3842,7 @@
               "off"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -3755,6 +3868,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3786,16 +3900,19 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3842,11 +3959,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3871,11 +3990,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -3916,6 +4037,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -3948,21 +4070,25 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4009,11 +4135,13 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4061,16 +4189,19 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4117,6 +4248,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4149,6 +4281,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4219,11 +4352,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4262,6 +4397,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           }
         ]
@@ -4286,11 +4422,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -4319,11 +4457,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -4357,6 +4497,7 @@
               "always"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -4383,6 +4524,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4415,6 +4557,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4438,6 +4581,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4461,6 +4605,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -4483,6 +4628,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4505,6 +4651,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4534,11 +4681,13 @@
               "unless"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4564,6 +4713,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4624,6 +4774,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4652,6 +4803,7 @@
               "none"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -4709,6 +4861,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           }
         ]
@@ -4733,21 +4886,25 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "address",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4793,6 +4950,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4819,6 +4977,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4845,6 +5004,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           }
         ]
@@ -4867,6 +5027,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4891,16 +5052,19 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "address",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4943,6 +5107,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -4971,6 +5136,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -4995,6 +5161,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -5019,11 +5186,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5048,16 +5217,19 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5082,6 +5254,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5104,6 +5277,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5128,6 +5302,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5152,6 +5327,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5179,6 +5355,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5203,6 +5380,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5227,6 +5405,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5253,6 +5432,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5277,6 +5457,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5301,6 +5482,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5325,6 +5507,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5359,6 +5542,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5383,6 +5567,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5407,6 +5592,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5431,6 +5617,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5455,6 +5642,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5479,6 +5667,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5503,6 +5692,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5530,6 +5720,7 @@
               "http"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -5605,11 +5796,13 @@
               "unless"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5635,6 +5828,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5667,6 +5861,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -5692,21 +5887,25 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "address",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -5731,6 +5930,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -6658,6 +6858,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           }
         ]
@@ -7058,16 +7259,19 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -7266,6 +7470,7 @@
               "reject"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -7353,16 +7558,19 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -7419,6 +7627,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -7615,6 +7824,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -7657,11 +7867,13 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -7730,11 +7942,13 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -7788,6 +8002,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -7860,6 +8075,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -7893,11 +8109,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8231,6 +8449,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           }
         ]
@@ -8255,6 +8474,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8279,21 +8499,25 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": true
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -8319,6 +8543,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8368,6 +8593,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -8411,11 +8637,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8440,6 +8668,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8467,6 +8696,7 @@
               "off"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -8495,6 +8725,7 @@
               "off"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -8520,6 +8751,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           }
         ]
@@ -8572,6 +8804,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8604,16 +8837,19 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8646,16 +8882,19 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8688,16 +8927,19 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8730,6 +8972,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -8754,6 +8997,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8778,6 +9022,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8810,6 +9055,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8876,6 +9122,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8910,26 +9157,31 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -8967,6 +9219,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -8991,6 +9244,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -9017,6 +9271,7 @@
               "use-backend-name"
             ],
             "optional": true,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -9043,26 +9298,31 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -9112,11 +9372,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9141,11 +9403,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9171,11 +9435,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9201,11 +9467,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9230,6 +9498,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9254,46 +9523,55 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9328,6 +9606,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9352,6 +9631,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9385,6 +9665,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9418,6 +9699,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9463,6 +9745,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9487,6 +9770,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9511,6 +9795,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9535,6 +9820,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -9559,6 +9845,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9583,6 +9870,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9607,6 +9895,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -9631,6 +9920,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -9655,11 +9945,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9702,11 +9994,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9749,6 +10043,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9773,6 +10068,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           }
         ]
@@ -9797,6 +10093,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -9821,6 +10118,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9878,11 +10176,13 @@
               "unless"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9909,11 +10209,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -9947,16 +10249,19 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -10027,6 +10332,7 @@
               "auth [realm <realm>]"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -10053,6 +10359,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10077,6 +10384,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10110,6 +10418,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10145,6 +10454,7 @@
               "\".\""
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -10178,6 +10488,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10247,6 +10558,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "name",
             "variadic": false
           }
         ]
@@ -10280,11 +10592,13 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "address",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -10309,6 +10623,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10333,6 +10648,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10366,11 +10682,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10402,11 +10720,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10432,11 +10752,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10468,11 +10790,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10509,6 +10833,7 @@
               "binary [len <length>]"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -10609,11 +10934,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
@@ -10624,6 +10951,7 @@
               "binary [len <length>]"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -10660,6 +10988,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10692,26 +11021,31 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10789,11 +11123,13 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10836,11 +11172,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10873,11 +11211,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10910,11 +11250,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10947,11 +11289,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -10984,6 +11328,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11016,6 +11361,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11086,11 +11432,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -11123,6 +11471,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11156,6 +11505,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11189,6 +11539,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11233,6 +11584,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11265,6 +11617,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11297,6 +11650,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11319,11 +11673,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -11349,6 +11705,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11374,11 +11731,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11404,6 +11763,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11436,6 +11796,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11468,6 +11829,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11500,6 +11862,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11533,6 +11896,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11566,6 +11930,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11599,6 +11964,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11623,6 +11989,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11655,6 +12022,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11688,6 +12056,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11720,6 +12089,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11753,6 +12123,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11785,6 +12156,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11826,6 +12198,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11850,6 +12223,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11874,6 +12248,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11898,6 +12273,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11944,11 +12320,13 @@
               "off"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11974,6 +12352,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -11999,6 +12378,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12024,6 +12404,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12049,6 +12430,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12074,6 +12456,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12098,6 +12481,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12122,6 +12506,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12149,6 +12534,7 @@
               "off"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -12174,6 +12560,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12201,6 +12588,7 @@
               "off"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -12226,6 +12614,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12268,6 +12657,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12292,6 +12682,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12316,6 +12707,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12340,6 +12732,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12364,6 +12757,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12388,6 +12782,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12412,6 +12807,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12436,6 +12832,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12461,6 +12858,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12485,6 +12883,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12510,6 +12909,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12535,6 +12935,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12559,6 +12960,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12583,6 +12985,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12607,6 +13010,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12631,6 +13035,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12655,6 +13060,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12679,6 +13085,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12703,6 +13110,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12727,6 +13135,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12754,6 +13163,7 @@
               "off"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -12779,6 +13189,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12803,6 +13214,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12827,6 +13239,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12851,6 +13264,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12875,6 +13289,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12899,6 +13314,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12941,6 +13357,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -12968,6 +13385,7 @@
               "off"
             ],
             "optional": false,
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -12992,6 +13410,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13016,6 +13435,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13040,6 +13460,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13076,6 +13497,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13101,6 +13523,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13126,6 +13549,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13151,6 +13575,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13176,6 +13601,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13201,6 +13627,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13225,6 +13652,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13249,6 +13677,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13273,6 +13702,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13297,6 +13727,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13329,6 +13760,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           }
         ]
@@ -13361,21 +13793,25 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13400,6 +13836,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -13424,6 +13861,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "name",
             "variadic": false
           }
         ]
@@ -13456,16 +13894,19 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13498,6 +13939,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13529,11 +13971,13 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13561,6 +14005,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13583,6 +14028,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13607,6 +14053,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -13631,11 +14078,13 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "generic",
             "variadic": false
           },
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13660,6 +14109,7 @@
           {
             "enum": [],
             "optional": false,
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -13684,6 +14134,7 @@
           {
             "enum": [],
             "optional": true,
+            "value_kind": "path",
             "variadic": false
           }
         ]
@@ -13719,6 +14170,105 @@
       ]
     }
   },
+  "line_layout": {
+    "prefix_families": [
+      "stats",
+      "timeout",
+      "tcp-check",
+      "http-check",
+      "capture",
+      "tcp-request",
+      "tcp-response"
+    ],
+    "prefix_subcommands": {
+      "capture": [
+        "cookie",
+        "request header",
+        "response header"
+      ],
+      "http-check": [
+        "comment",
+        "connect",
+        "disable-on-404",
+        "expect",
+        "send",
+        "send-state",
+        "set-var",
+        "set-var-fmt",
+        "unset-var"
+      ],
+      "stats": [
+        "admin",
+        "auth",
+        "bind-process",
+        "enable",
+        "hide-version",
+        "http-request",
+        "maxconn",
+        "realm",
+        "refresh",
+        "scope",
+        "show-desc",
+        "show-legends",
+        "show-modules",
+        "show-node",
+        "socket",
+        "timeout",
+        "uri"
+      ],
+      "tcp-check": [
+        "comment",
+        "connect",
+        "expect",
+        "send",
+        "send-binary",
+        "send-binary-lf",
+        "send-lf",
+        "set-var",
+        "set-var-fmt",
+        "unset-var"
+      ],
+      "tcp-request": [
+        "connection",
+        "content",
+        "inspect-delay",
+        "session"
+      ],
+      "tcp-response": [
+        "content",
+        "inspect-delay"
+      ],
+      "timeout": [
+        "check",
+        "client",
+        "client-fin",
+        "connect",
+        "http-keep-alive",
+        "http-request",
+        "mail",
+        "queue",
+        "server",
+        "server-fin",
+        "tarpit",
+        "tunnel"
+      ]
+    },
+    "stats_socket_levels": [
+      "admin",
+      "operator",
+      "user"
+    ],
+    "tcp_request_phases": [
+      "connection",
+      "content",
+      "inspect-delay",
+      "session"
+    ],
+    "tcp_response_phases": [
+      "content",
+      "inspect-delay"
+    ]
+  },
   "sample_converters": {
     "add": {
       "args": [
@@ -13726,6 +14276,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "add",
       "out_type": "sint"
     },
@@ -13737,6 +14289,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 3,
+      "min_args": null,
       "name": "add_item",
       "out_type": "str"
     },
@@ -13746,6 +14300,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "and",
       "out_type": "sint"
     },
@@ -13753,6 +14309,8 @@
       "args": [],
       "contexts": [],
       "in_type": "bin",
+      "max_args": null,
+      "min_args": null,
       "name": "b64dec",
       "out_type": "str"
     },
@@ -13760,6 +14318,8 @@
       "args": [],
       "contexts": [],
       "in_type": "str",
+      "max_args": null,
+      "min_args": null,
       "name": "base64",
       "out_type": "bin"
     },
@@ -13771,6 +14331,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 3,
+      "min_args": null,
       "name": "be2dec",
       "out_type": "bin"
     },
@@ -13782,6 +14344,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 3,
+      "min_args": null,
       "name": "be2hex",
       "out_type": "bin"
     },
@@ -13789,6 +14353,8 @@
       "args": [],
       "contexts": [],
       "in_type": "bool",
+      "max_args": null,
+      "min_args": null,
       "name": "bool",
       "out_type": "sint"
     },
@@ -13799,6 +14365,8 @@
       ],
       "contexts": [],
       "in_type": "bin",
+      "max_args": 2,
+      "min_args": null,
       "name": "bytes",
       "out_type": "bin"
     },
@@ -13808,6 +14376,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 1,
+      "min_args": null,
       "name": "capture-req",
       "out_type": "str"
     },
@@ -13817,6 +14387,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 1,
+      "min_args": null,
       "name": "capture-res",
       "out_type": "str"
     },
@@ -13828,6 +14400,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 3,
+      "min_args": null,
       "name": "concat",
       "out_type": "str"
     },
@@ -13835,6 +14409,8 @@
       "args": [],
       "contexts": [],
       "in_type": "sint",
+      "max_args": null,
+      "min_args": null,
       "name": "cpl",
       "out_type": "sint"
     },
@@ -13844,6 +14420,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "crc32",
       "out_type": "bin"
     },
@@ -13853,6 +14431,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "crc32c",
       "out_type": "bin"
     },
@@ -13860,6 +14440,8 @@
       "args": [],
       "contexts": [],
       "in_type": "str",
+      "max_args": null,
+      "min_args": null,
       "name": "cut_crlf",
       "out_type": "str"
     },
@@ -13870,6 +14452,8 @@
       ],
       "contexts": [],
       "in_type": "any",
+      "max_args": 2,
+      "min_args": null,
       "name": "debug",
       "out_type": "any"
     },
@@ -13879,6 +14463,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "div",
       "out_type": "sint"
     },
@@ -13888,6 +14474,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "djb2",
       "out_type": "bin"
     },
@@ -13895,6 +14483,8 @@
       "args": [],
       "contexts": [],
       "in_type": "bool",
+      "max_args": null,
+      "min_args": null,
       "name": "even",
       "out_type": "sint"
     },
@@ -13906,6 +14496,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 3,
+      "min_args": null,
       "name": "field",
       "out_type": "str"
     },
@@ -13913,6 +14505,8 @@
       "args": [],
       "contexts": [],
       "in_type": "bool",
+      "max_args": null,
+      "min_args": null,
       "name": "fix_is_valid",
       "out_type": "bin"
     },
@@ -13922,6 +14516,8 @@
       ],
       "contexts": [],
       "in_type": "bin",
+      "max_args": 1,
+      "min_args": null,
       "name": "fix_tag_value",
       "out_type": "bin"
     },
@@ -13929,6 +14525,8 @@
       "args": [],
       "contexts": [],
       "in_type": "str",
+      "max_args": null,
+      "min_args": null,
       "name": "hex",
       "out_type": "bin"
     },
@@ -13936,6 +14534,8 @@
       "args": [],
       "contexts": [],
       "in_type": "sint",
+      "max_args": null,
+      "min_args": null,
       "name": "hex2i",
       "out_type": "str"
     },
@@ -13943,6 +14543,8 @@
       "args": [],
       "contexts": [],
       "in_type": "str",
+      "max_args": null,
+      "min_args": null,
       "name": "host_only",
       "out_type": "str"
     },
@@ -13950,6 +14552,8 @@
       "args": [],
       "contexts": [],
       "in_type": "bin",
+      "max_args": null,
+      "min_args": null,
       "name": "htonl",
       "out_type": "sint"
     },
@@ -13960,6 +14564,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "http_date",
       "out_type": "sint"
     },
@@ -13970,6 +14576,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "iif",
       "out_type": "bool"
     },
@@ -13979,6 +14587,8 @@
       ],
       "contexts": [],
       "in_type": "bool",
+      "max_args": 1,
+      "min_args": null,
       "name": "in_table",
       "out_type": "any"
     },
@@ -13989,6 +14599,8 @@
       ],
       "contexts": [],
       "in_type": "ipv4",
+      "max_args": 2,
+      "min_args": null,
       "name": "ipmask",
       "out_type": "addr"
     },
@@ -13998,6 +14610,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 1,
+      "min_args": null,
       "name": "json",
       "out_type": "str"
     },
@@ -14008,6 +14622,8 @@
       ],
       "contexts": [],
       "in_type": "any",
+      "max_args": 2,
+      "min_args": null,
       "name": "json_query",
       "out_type": "str"
     },
@@ -14018,6 +14634,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "language",
       "out_type": "str"
     },
@@ -14025,6 +14643,8 @@
       "args": [],
       "contexts": [],
       "in_type": "sint",
+      "max_args": null,
+      "min_args": null,
       "name": "length",
       "out_type": "str"
     },
@@ -14032,6 +14652,8 @@
       "args": [],
       "contexts": [],
       "in_type": "str",
+      "max_args": null,
+      "min_args": null,
       "name": "lower",
       "out_type": "str"
     },
@@ -14042,6 +14664,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "ltime",
       "out_type": "sint"
     },
@@ -14051,6 +14675,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 1,
+      "min_args": null,
       "name": "ltrim",
       "out_type": "str"
     },
@@ -14061,6 +14687,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "map",
       "out_type": "str"
     },
@@ -14071,6 +14699,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_beg",
       "out_type": "str"
     },
@@ -14081,6 +14711,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_beg_int",
       "out_type": "str"
     },
@@ -14091,6 +14723,8 @@
       ],
       "contexts": [],
       "in_type": "addr",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_beg_ip",
       "out_type": "str"
     },
@@ -14101,6 +14735,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_dir",
       "out_type": "str"
     },
@@ -14111,6 +14747,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_dir_int",
       "out_type": "str"
     },
@@ -14121,6 +14759,8 @@
       ],
       "contexts": [],
       "in_type": "addr",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_dir_ip",
       "out_type": "str"
     },
@@ -14131,6 +14771,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_dom",
       "out_type": "str"
     },
@@ -14141,6 +14783,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_dom_int",
       "out_type": "str"
     },
@@ -14151,6 +14795,8 @@
       ],
       "contexts": [],
       "in_type": "addr",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_dom_ip",
       "out_type": "str"
     },
@@ -14161,6 +14807,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_end",
       "out_type": "str"
     },
@@ -14171,6 +14819,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_end_int",
       "out_type": "str"
     },
@@ -14181,6 +14831,8 @@
       ],
       "contexts": [],
       "in_type": "addr",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_end_ip",
       "out_type": "str"
     },
@@ -14191,6 +14843,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_int",
       "out_type": "sint"
     },
@@ -14201,6 +14855,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_int_int",
       "out_type": "sint"
     },
@@ -14211,6 +14867,8 @@
       ],
       "contexts": [],
       "in_type": "addr",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_int_ip",
       "out_type": "sint"
     },
@@ -14221,6 +14879,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_ip",
       "out_type": "addr"
     },
@@ -14231,6 +14891,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_ip_int",
       "out_type": "addr"
     },
@@ -14241,6 +14903,8 @@
       ],
       "contexts": [],
       "in_type": "addr",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_ip_ip",
       "out_type": "addr"
     },
@@ -14251,6 +14915,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_reg",
       "out_type": "str"
     },
@@ -14261,6 +14927,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_reg_int",
       "out_type": "str"
     },
@@ -14271,6 +14939,8 @@
       ],
       "contexts": [],
       "in_type": "addr",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_reg_ip",
       "out_type": "str"
     },
@@ -14281,6 +14951,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_regm",
       "out_type": "str"
     },
@@ -14291,6 +14963,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_str",
       "out_type": "str"
     },
@@ -14301,6 +14975,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_str_int",
       "out_type": "str"
     },
@@ -14311,6 +14987,8 @@
       ],
       "contexts": [],
       "in_type": "addr",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_str_ip",
       "out_type": "str"
     },
@@ -14321,6 +14999,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_sub",
       "out_type": "str"
     },
@@ -14331,6 +15011,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_sub_int",
       "out_type": "str"
     },
@@ -14341,6 +15023,8 @@
       ],
       "contexts": [],
       "in_type": "addr",
+      "max_args": 2,
+      "min_args": null,
       "name": "map_sub_ip",
       "out_type": "str"
     },
@@ -14350,6 +15034,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "mod",
       "out_type": "sint"
     },
@@ -14360,6 +15046,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "mqtt_field_value",
       "out_type": "bin"
     },
@@ -14367,6 +15055,8 @@
       "args": [],
       "contexts": [],
       "in_type": "bool",
+      "max_args": null,
+      "min_args": null,
       "name": "mqtt_is_valid",
       "out_type": "bin"
     },
@@ -14376,6 +15066,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "mul",
       "out_type": "sint"
     },
@@ -14383,6 +15075,8 @@
       "args": [],
       "contexts": [],
       "in_type": "sint",
+      "max_args": null,
+      "min_args": null,
       "name": "nbsrv",
       "out_type": "str"
     },
@@ -14390,6 +15084,8 @@
       "args": [],
       "contexts": [],
       "in_type": "sint",
+      "max_args": null,
+      "min_args": null,
       "name": "neg",
       "out_type": "sint"
     },
@@ -14397,6 +15093,8 @@
       "args": [],
       "contexts": [],
       "in_type": "bool",
+      "max_args": null,
+      "min_args": null,
       "name": "not",
       "out_type": "sint"
     },
@@ -14404,6 +15102,8 @@
       "args": [],
       "contexts": [],
       "in_type": "bool",
+      "max_args": null,
+      "min_args": null,
       "name": "odd",
       "out_type": "sint"
     },
@@ -14413,6 +15113,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "or",
       "out_type": "sint"
     },
@@ -14420,6 +15122,8 @@
       "args": [],
       "contexts": [],
       "in_type": "sint",
+      "max_args": null,
+      "min_args": null,
       "name": "port_only",
       "out_type": "str"
     },
@@ -14430,6 +15134,8 @@
       ],
       "contexts": [],
       "in_type": "bin",
+      "max_args": 2,
+      "min_args": null,
       "name": "protobuf",
       "out_type": "bin"
     },
@@ -14441,6 +15147,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 3,
+      "min_args": null,
       "name": "regsub",
       "out_type": "str"
     },
@@ -14450,6 +15158,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 1,
+      "min_args": null,
       "name": "rtrim",
       "out_type": "str"
     },
@@ -14459,6 +15169,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "sdbm",
       "out_type": "bin"
     },
@@ -14472,6 +15184,8 @@
       ],
       "contexts": [],
       "in_type": "any",
+      "max_args": 5,
+      "min_args": null,
       "name": "set-var",
       "out_type": "any"
     },
@@ -14479,6 +15193,8 @@
       "args": [],
       "contexts": [],
       "in_type": "bin",
+      "max_args": null,
+      "min_args": null,
       "name": "sha1",
       "out_type": "bin"
     },
@@ -14486,6 +15202,8 @@
       "args": [],
       "contexts": [],
       "in_type": "sint",
+      "max_args": null,
+      "min_args": null,
       "name": "srv_queue",
       "out_type": "str"
     },
@@ -14495,6 +15213,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "strcmp",
       "out_type": "str"
     },
@@ -14504,6 +15224,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "sub",
       "out_type": "sint"
     },
@@ -14513,6 +15235,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_bytes_in_rate",
       "out_type": "any"
     },
@@ -14522,6 +15246,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_bytes_out_rate",
       "out_type": "any"
     },
@@ -14531,6 +15257,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_conn_cnt",
       "out_type": "any"
     },
@@ -14540,6 +15268,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_conn_cur",
       "out_type": "any"
     },
@@ -14549,6 +15279,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_conn_rate",
       "out_type": "any"
     },
@@ -14559,6 +15291,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "table_expire",
       "out_type": "any"
     },
@@ -14569,6 +15303,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "table_gpc",
       "out_type": "any"
     },
@@ -14578,6 +15314,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_gpc0",
       "out_type": "any"
     },
@@ -14587,6 +15325,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_gpc0_rate",
       "out_type": "any"
     },
@@ -14596,6 +15336,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_gpc1",
       "out_type": "any"
     },
@@ -14605,6 +15347,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_gpc1_rate",
       "out_type": "any"
     },
@@ -14615,6 +15359,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "table_gpc_rate",
       "out_type": "any"
     },
@@ -14625,6 +15371,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "table_gpt",
       "out_type": "any"
     },
@@ -14634,6 +15382,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_gpt0",
       "out_type": "any"
     },
@@ -14643,6 +15393,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_http_err_cnt",
       "out_type": "any"
     },
@@ -14652,6 +15404,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_http_err_rate",
       "out_type": "any"
     },
@@ -14661,6 +15415,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_http_fail_cnt",
       "out_type": "any"
     },
@@ -14670,6 +15426,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_http_fail_rate",
       "out_type": "any"
     },
@@ -14679,6 +15437,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_http_req_cnt",
       "out_type": "any"
     },
@@ -14688,6 +15448,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_http_req_rate",
       "out_type": "any"
     },
@@ -14698,6 +15460,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
       "name": "table_idle",
       "out_type": "any"
     },
@@ -14707,6 +15471,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_kbytes_in",
       "out_type": "any"
     },
@@ -14716,6 +15482,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_kbytes_out",
       "out_type": "any"
     },
@@ -14725,6 +15493,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_server_id",
       "out_type": "any"
     },
@@ -14734,6 +15504,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_sess_cnt",
       "out_type": "any"
     },
@@ -14743,6 +15515,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_sess_rate",
       "out_type": "any"
     },
@@ -14752,6 +15526,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_trackers",
       "out_type": "any"
     },
@@ -14759,6 +15535,8 @@
       "args": [],
       "contexts": [],
       "in_type": "bin",
+      "max_args": null,
+      "min_args": null,
       "name": "ub64dec",
       "out_type": "str"
     },
@@ -14766,6 +15544,8 @@
       "args": [],
       "contexts": [],
       "in_type": "str",
+      "max_args": null,
+      "min_args": null,
       "name": "ub64enc",
       "out_type": "bin"
     },
@@ -14776,6 +15556,8 @@
       ],
       "contexts": [],
       "in_type": "bin",
+      "max_args": 2,
+      "min_args": null,
       "name": "ungrpc",
       "out_type": "bin"
     },
@@ -14785,6 +15567,8 @@
       ],
       "contexts": [],
       "in_type": "any",
+      "max_args": 1,
+      "min_args": null,
       "name": "unset-var",
       "out_type": "any"
     },
@@ -14792,6 +15576,8 @@
       "args": [],
       "contexts": [],
       "in_type": "str",
+      "max_args": null,
+      "min_args": null,
       "name": "upper",
       "out_type": "str"
     },
@@ -14801,6 +15587,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 1,
+      "min_args": null,
       "name": "url_dec",
       "out_type": "str"
     },
@@ -14810,6 +15598,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 1,
+      "min_args": null,
       "name": "url_enc",
       "out_type": "str"
     },
@@ -14820,6 +15610,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 2,
+      "min_args": null,
       "name": "utime",
       "out_type": "sint"
     },
@@ -14831,6 +15623,8 @@
       ],
       "contexts": [],
       "in_type": "str",
+      "max_args": 3,
+      "min_args": null,
       "name": "word",
       "out_type": "str"
     },
@@ -14840,6 +15634,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "wt6",
       "out_type": "bin"
     },
@@ -14849,6 +15645,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "xor",
       "out_type": "sint"
     },
@@ -14858,6 +15656,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "xxh3",
       "out_type": "bin"
     },
@@ -14867,6 +15667,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "xxh32",
       "out_type": "bin"
     },
@@ -14876,6 +15678,8 @@
       ],
       "contexts": [],
       "in_type": "sint",
+      "max_args": 1,
+      "min_args": null,
       "name": "xxh64",
       "out_type": "bin"
     }
@@ -14908,6 +15712,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "always_false",
       "out_type": "bool"
     },
@@ -14938,6 +15744,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "always_true",
       "out_type": "bool"
     },
@@ -14970,6 +15778,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "avg_queue",
       "out_type": "sint"
     },
@@ -15000,6 +15810,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "base",
       "out_type": "str"
     },
@@ -15030,6 +15842,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "base32",
       "out_type": "sint"
     },
@@ -15060,6 +15874,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "baseq",
       "out_type": "str"
     },
@@ -15090,6 +15906,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "bc_dst",
       "out_type": "ipv4"
     },
@@ -15120,6 +15938,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "bc_dst_port",
       "out_type": "sint"
     },
@@ -15150,6 +15970,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "bc_err",
       "out_type": "sint"
     },
@@ -15180,6 +16002,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "bc_err_str",
       "out_type": "str"
     },
@@ -15210,6 +16034,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "bc_http_major",
       "out_type": "sint"
     },
@@ -15240,6 +16066,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "bc_src",
       "out_type": "ipv4"
     },
@@ -15270,6 +16098,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "bc_src_port",
       "out_type": "sint"
     },
@@ -15302,6 +16132,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "be_conn",
       "out_type": "sint"
     },
@@ -15334,6 +16166,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "be_conn_free",
       "out_type": "sint"
     },
@@ -15364,6 +16198,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "be_id",
       "out_type": "sint"
     },
@@ -15394,6 +16230,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "be_name",
       "out_type": "str"
     },
@@ -15424,6 +16262,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "be_server_timeout",
       "out_type": "sint"
     },
@@ -15456,6 +16296,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "be_sess_rate",
       "out_type": "sint"
     },
@@ -15486,6 +16328,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "be_tunnel_timeout",
       "out_type": "sint"
     },
@@ -15518,6 +16362,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "bin",
       "out_type": "bin"
     },
@@ -15550,6 +16396,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "bool",
       "out_type": "bool"
     },
@@ -15582,6 +16430,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "capture.req.hdr",
       "out_type": "str"
     },
@@ -15612,6 +16462,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "capture.req.method",
       "out_type": "str"
     },
@@ -15642,6 +16494,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "capture.req.uri",
       "out_type": "str"
     },
@@ -15672,6 +16526,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "capture.req.ver",
       "out_type": "str"
     },
@@ -15704,6 +16560,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "capture.res.hdr",
       "out_type": "str"
     },
@@ -15734,6 +16592,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "capture.res.ver",
       "out_type": "str"
     },
@@ -15766,6 +16626,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "connslots",
       "out_type": "sint"
     },
@@ -15798,6 +16660,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "cook",
       "out_type": "str"
     },
@@ -15830,6 +16694,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "cook_cnt",
       "out_type": "sint"
     },
@@ -15862,6 +16728,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "cook_val",
       "out_type": "sint"
     },
@@ -15894,6 +16762,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "cookie",
       "out_type": "str"
     },
@@ -15924,6 +16794,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "cpu_calls",
       "out_type": "sint"
     },
@@ -15954,6 +16826,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "cpu_ns_avg",
       "out_type": "sint"
     },
@@ -15984,6 +16858,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "cpu_ns_tot",
       "out_type": "sint"
     },
@@ -16014,6 +16890,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "cur_server_timeout",
       "out_type": "sint"
     },
@@ -16044,6 +16922,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "cur_tunnel_timeout",
       "out_type": "sint"
     },
@@ -16077,6 +16957,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "date",
       "out_type": "sint"
     },
@@ -16107,6 +16989,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "date_us",
       "out_type": "sint"
     },
@@ -16140,6 +17024,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "distcc_body",
       "out_type": "bin"
     },
@@ -16173,6 +17059,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "distcc_param",
       "out_type": "sint"
     },
@@ -16203,6 +17091,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "dst",
       "out_type": "ipv4"
     },
@@ -16233,6 +17123,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "dst_conn",
       "out_type": "sint"
     },
@@ -16263,6 +17155,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "dst_is_local",
       "out_type": "bool"
     },
@@ -16293,6 +17187,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "dst_port",
       "out_type": "sint"
     },
@@ -16325,6 +17221,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "env",
       "out_type": "str"
     },
@@ -16355,6 +17253,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_dst",
       "out_type": "ipv4"
     },
@@ -16385,6 +17285,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_dst_is_local",
       "out_type": "bool"
     },
@@ -16415,6 +17317,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_dst_port",
       "out_type": "sint"
     },
@@ -16445,6 +17349,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_err",
       "out_type": "sint"
     },
@@ -16475,6 +17381,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_err_str",
       "out_type": "str"
     },
@@ -16507,6 +17415,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "fc_fackets",
       "out_type": "sint"
     },
@@ -16537,6 +17447,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_http_major",
       "out_type": "sint"
     },
@@ -16569,6 +17481,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "fc_lost",
       "out_type": "sint"
     },
@@ -16599,6 +17513,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_pp_authority",
       "out_type": "str"
     },
@@ -16629,6 +17545,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_pp_unique_id",
       "out_type": "str"
     },
@@ -16659,6 +17577,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_rcvd_proxy",
       "out_type": "bool"
     },
@@ -16691,6 +17611,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "fc_reordering",
       "out_type": "sint"
     },
@@ -16723,6 +17645,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "fc_retrans",
       "out_type": "sint"
     },
@@ -16755,6 +17679,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "fc_rtt",
       "out_type": "sint"
     },
@@ -16787,6 +17713,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "fc_rttvar",
       "out_type": "sint"
     },
@@ -16819,6 +17747,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "fc_sacked",
       "out_type": "sint"
     },
@@ -16849,6 +17779,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_src",
       "out_type": "ipv4"
     },
@@ -16879,6 +17811,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_src_is_local",
       "out_type": "bool"
     },
@@ -16909,6 +17843,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fc_src_port",
       "out_type": "sint"
     },
@@ -16941,6 +17877,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "fc_unacked",
       "out_type": "sint"
     },
@@ -16971,6 +17909,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fcgi.docroot",
       "out_type": "str"
     },
@@ -17001,6 +17941,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fcgi.index",
       "out_type": "str"
     },
@@ -17031,6 +17973,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fe_client_timeout",
       "out_type": "sint"
     },
@@ -17063,6 +18007,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "fe_conn",
       "out_type": "sint"
     },
@@ -17093,6 +18039,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fe_defbe",
       "out_type": "str"
     },
@@ -17123,6 +18071,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fe_id",
       "out_type": "sint"
     },
@@ -17153,6 +18103,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "fe_name",
       "out_type": "str"
     },
@@ -17185,6 +18137,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "fe_req_rate",
       "out_type": "sint"
     },
@@ -17217,6 +18171,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "fe_sess_rate",
       "out_type": "sint"
     },
@@ -17250,6 +18206,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "hdr",
       "out_type": "str"
     },
@@ -17282,6 +18240,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "hdr_cnt",
       "out_type": "sint"
     },
@@ -17315,6 +18275,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "hdr_ip",
       "out_type": "ipv4"
     },
@@ -17348,6 +18310,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "hdr_val",
       "out_type": "sint"
     },
@@ -17378,6 +18342,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "hostname",
       "out_type": "str"
     },
@@ -17410,6 +18376,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "http_auth",
       "out_type": "bool"
     },
@@ -17442,6 +18410,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "http_auth_bearer",
       "out_type": "str"
     },
@@ -17474,6 +18444,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "http_auth_group",
       "out_type": "str"
     },
@@ -17504,6 +18476,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "http_auth_pass",
       "out_type": "str"
     },
@@ -17534,6 +18508,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "http_auth_type",
       "out_type": "str"
     },
@@ -17564,6 +18540,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "http_auth_user",
       "out_type": "str"
     },
@@ -17594,6 +18572,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "http_first_req",
       "out_type": "bool"
     },
@@ -17626,6 +18606,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "int",
       "out_type": "sint"
     },
@@ -17656,6 +18638,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "internal.htx.data",
       "out_type": "sint"
     },
@@ -17686,6 +18670,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "internal.htx.free",
       "out_type": "sint"
     },
@@ -17716,6 +18702,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "internal.htx.free_data",
       "out_type": "sint"
     },
@@ -17746,6 +18734,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "internal.htx.has_eom",
       "out_type": "bool"
     },
@@ -17776,6 +18766,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "internal.htx.nbblks",
       "out_type": "sint"
     },
@@ -17806,6 +18798,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "internal.htx.size",
       "out_type": "sint"
     },
@@ -17836,6 +18830,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "internal.htx.used",
       "out_type": "sint"
     },
@@ -17868,6 +18864,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "internal.htx_blk.data",
       "out_type": "bin"
     },
@@ -17900,6 +18898,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "internal.htx_blk.hdrname",
       "out_type": "str"
     },
@@ -17932,6 +18932,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "internal.htx_blk.hdrval",
       "out_type": "str"
     },
@@ -17964,6 +18966,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "internal.htx_blk.size",
       "out_type": "sint"
     },
@@ -17996,6 +19000,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "internal.htx_blk.start_line",
       "out_type": "str"
     },
@@ -18028,6 +19034,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "internal.htx_blk.type",
       "out_type": "str"
     },
@@ -18058,6 +19066,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "internal.strm.is_htx",
       "out_type": "bool"
     },
@@ -18090,6 +19100,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "ipv4",
       "out_type": "ipv4"
     },
@@ -18122,6 +19134,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "ipv6",
       "out_type": "ipv6"
     },
@@ -18152,6 +19166,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "last_rule_file",
       "out_type": "str"
     },
@@ -18182,6 +19198,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "last_rule_line",
       "out_type": "sint"
     },
@@ -18212,6 +19230,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "lat_ns_avg",
       "out_type": "sint"
     },
@@ -18242,6 +19262,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "lat_ns_tot",
       "out_type": "sint"
     },
@@ -18274,6 +19296,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "meth",
       "out_type": "meth"
     },
@@ -18304,6 +19328,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "method",
       "out_type": "meth"
     },
@@ -18334,6 +19360,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "nbproc",
       "out_type": "sint"
     },
@@ -18366,6 +19394,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "nbsrv",
       "out_type": "sint"
     },
@@ -18396,6 +19426,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "path",
       "out_type": "str"
     },
@@ -18426,6 +19458,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "pathq",
       "out_type": "str"
     },
@@ -18459,6 +19493,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "payload",
       "out_type": "bin"
     },
@@ -18493,6 +19529,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 3,
+      "min_args": null,
       "name": "payload_lv",
       "out_type": "bin"
     },
@@ -18523,6 +19561,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "prio_class",
       "out_type": "sint"
     },
@@ -18553,6 +19593,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "prio_offset",
       "out_type": "sint"
     },
@@ -18583,6 +19625,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "proc",
       "out_type": "sint"
     },
@@ -18613,6 +19657,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "query",
       "out_type": "str"
     },
@@ -18645,6 +19691,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "queue",
       "out_type": "sint"
     },
@@ -18677,6 +19725,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "rand",
       "out_type": "sint"
     },
@@ -18709,6 +19759,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "rdp_cookie",
       "out_type": "str"
     },
@@ -18741,6 +19793,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "rdp_cookie_cnt",
       "out_type": "sint"
     },
@@ -18771,6 +19825,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "rep_ssl_hello_type",
       "out_type": "sint"
     },
@@ -18801,6 +19857,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.body",
       "out_type": "bin"
     },
@@ -18831,6 +19889,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.body_len",
       "out_type": "sint"
     },
@@ -18863,6 +19923,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "req.body_param",
       "out_type": "bin"
     },
@@ -18893,6 +19955,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.body_size",
       "out_type": "sint"
     },
@@ -18925,6 +19989,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "req.cook",
       "out_type": "str"
     },
@@ -18957,6 +20023,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "req.cook_cnt",
       "out_type": "sint"
     },
@@ -18989,6 +20057,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "req.cook_val",
       "out_type": "sint"
     },
@@ -19022,6 +20092,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "req.fhdr",
       "out_type": "str"
     },
@@ -19054,6 +20126,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "req.fhdr_cnt",
       "out_type": "sint"
     },
@@ -19087,6 +20161,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "req.hdr",
       "out_type": "str"
     },
@@ -19119,6 +20195,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "req.hdr_cnt",
       "out_type": "sint"
     },
@@ -19152,6 +20230,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "req.hdr_ip",
       "out_type": "ipv4"
     },
@@ -19184,6 +20264,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "req.hdr_names",
       "out_type": "str"
     },
@@ -19217,6 +20299,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "req.hdr_val",
       "out_type": "sint"
     },
@@ -19247,6 +20331,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.hdrs",
       "out_type": "bin"
     },
@@ -19277,6 +20363,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.hdrs_bin",
       "out_type": "bin"
     },
@@ -19307,6 +20395,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.len",
       "out_type": "sint"
     },
@@ -19340,6 +20430,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "req.payload",
       "out_type": "bin"
     },
@@ -19374,6 +20466,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 3,
+      "min_args": null,
       "name": "req.payload_lv",
       "out_type": "bin"
     },
@@ -19404,6 +20498,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.proto_http",
       "out_type": "bool"
     },
@@ -19436,6 +20532,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "req.rdp_cookie",
       "out_type": "str"
     },
@@ -19468,6 +20566,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "req.rdp_cookie_cnt",
       "out_type": "sint"
     },
@@ -19498,6 +20598,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.ssl_alpn",
       "out_type": "str"
     },
@@ -19528,6 +20630,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.ssl_ec_ext",
       "out_type": "bool"
     },
@@ -19558,6 +20662,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.ssl_hello_type",
       "out_type": "sint"
     },
@@ -19588,6 +20694,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.ssl_sni",
       "out_type": "str"
     },
@@ -19618,6 +20726,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.ssl_st_ext",
       "out_type": "sint"
     },
@@ -19648,6 +20758,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.ssl_ver",
       "out_type": "sint"
     },
@@ -19678,6 +20790,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req.ver",
       "out_type": "str"
     },
@@ -19708,6 +20822,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req_len",
       "out_type": "sint"
     },
@@ -19738,6 +20854,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req_proto_http",
       "out_type": "bool"
     },
@@ -19768,6 +20886,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req_ssl_hello_type",
       "out_type": "sint"
     },
@@ -19798,6 +20918,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req_ssl_sni",
       "out_type": "str"
     },
@@ -19828,6 +20950,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req_ssl_ver",
       "out_type": "sint"
     },
@@ -19858,6 +20982,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "req_ver",
       "out_type": "str"
     },
@@ -19888,6 +21014,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.body",
       "out_type": "bin"
     },
@@ -19918,6 +21046,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.body_len",
       "out_type": "sint"
     },
@@ -19948,6 +21078,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.body_size",
       "out_type": "sint"
     },
@@ -19978,6 +21110,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.cache_hit",
       "out_type": "bool"
     },
@@ -20008,6 +21142,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.cache_name",
       "out_type": "str"
     },
@@ -20038,6 +21174,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.comp",
       "out_type": "bool"
     },
@@ -20068,6 +21206,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.comp_algo",
       "out_type": "str"
     },
@@ -20100,6 +21240,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "res.cook",
       "out_type": "str"
     },
@@ -20132,6 +21274,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "res.cook_cnt",
       "out_type": "sint"
     },
@@ -20164,6 +21308,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "res.cook_val",
       "out_type": "sint"
     },
@@ -20197,6 +21343,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "res.fhdr",
       "out_type": "str"
     },
@@ -20229,6 +21377,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "res.fhdr_cnt",
       "out_type": "sint"
     },
@@ -20262,6 +21412,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "res.hdr",
       "out_type": "str"
     },
@@ -20294,6 +21446,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "res.hdr_cnt",
       "out_type": "sint"
     },
@@ -20327,6 +21481,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "res.hdr_ip",
       "out_type": "ipv4"
     },
@@ -20359,6 +21515,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "res.hdr_names",
       "out_type": "str"
     },
@@ -20392,6 +21550,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "res.hdr_val",
       "out_type": "sint"
     },
@@ -20422,6 +21582,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.hdrs",
       "out_type": "bin"
     },
@@ -20452,6 +21614,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.hdrs_bin",
       "out_type": "bin"
     },
@@ -20482,6 +21646,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.len",
       "out_type": "sint"
     },
@@ -20515,6 +21681,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "res.payload",
       "out_type": "bin"
     },
@@ -20549,6 +21717,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 3,
+      "min_args": null,
       "name": "res.payload_lv",
       "out_type": "bin"
     },
@@ -20579,6 +21749,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.ssl_hello_type",
       "out_type": "sint"
     },
@@ -20609,6 +21781,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "res.ver",
       "out_type": "str"
     },
@@ -20639,6 +21813,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "resp_ver",
       "out_type": "str"
     },
@@ -20671,6 +21847,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_bytes_in_rate",
       "out_type": "sint"
     },
@@ -20703,6 +21881,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_bytes_out_rate",
       "out_type": "sint"
     },
@@ -20735,6 +21915,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_clr_gpc0",
       "out_type": "sint"
     },
@@ -20767,6 +21949,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_clr_gpc1",
       "out_type": "sint"
     },
@@ -20799,6 +21983,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_conn_cnt",
       "out_type": "sint"
     },
@@ -20831,6 +22017,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_conn_cur",
       "out_type": "sint"
     },
@@ -20863,6 +22051,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_conn_rate",
       "out_type": "sint"
     },
@@ -20895,6 +22085,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_get_gpc0",
       "out_type": "sint"
     },
@@ -20927,6 +22119,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_get_gpc1",
       "out_type": "sint"
     },
@@ -20959,6 +22153,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_get_gpt0",
       "out_type": "sint"
     },
@@ -20991,6 +22187,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_gpc0_rate",
       "out_type": "sint"
     },
@@ -21023,6 +22221,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_gpc1_rate",
       "out_type": "sint"
     },
@@ -21055,6 +22255,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_http_err_cnt",
       "out_type": "sint"
     },
@@ -21087,6 +22289,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_http_err_rate",
       "out_type": "sint"
     },
@@ -21119,6 +22323,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_http_fail_cnt",
       "out_type": "sint"
     },
@@ -21151,6 +22357,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_http_fail_rate",
       "out_type": "sint"
     },
@@ -21183,6 +22391,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_http_req_cnt",
       "out_type": "sint"
     },
@@ -21215,6 +22425,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_http_req_rate",
       "out_type": "sint"
     },
@@ -21247,6 +22459,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_inc_gpc0",
       "out_type": "sint"
     },
@@ -21279,6 +22493,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_inc_gpc1",
       "out_type": "sint"
     },
@@ -21311,6 +22527,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_kbytes_in",
       "out_type": "sint"
     },
@@ -21343,6 +22561,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_kbytes_out",
       "out_type": "sint"
     },
@@ -21375,6 +22595,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_sess_cnt",
       "out_type": "sint"
     },
@@ -21407,6 +22629,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_sess_rate",
       "out_type": "sint"
     },
@@ -21439,6 +22663,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_tracked",
       "out_type": "bool"
     },
@@ -21471,6 +22697,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc0_trackers",
       "out_type": "sint"
     },
@@ -21503,6 +22731,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_bytes_in_rate",
       "out_type": "sint"
     },
@@ -21535,6 +22765,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_bytes_out_rate",
       "out_type": "sint"
     },
@@ -21568,6 +22800,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc1_clr_gpc",
       "out_type": "sint"
     },
@@ -21600,6 +22834,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_clr_gpc0",
       "out_type": "sint"
     },
@@ -21632,6 +22868,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_clr_gpc1",
       "out_type": "sint"
     },
@@ -21664,6 +22902,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_conn_cnt",
       "out_type": "sint"
     },
@@ -21696,6 +22936,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_conn_cur",
       "out_type": "sint"
     },
@@ -21728,6 +22970,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_conn_rate",
       "out_type": "sint"
     },
@@ -21760,6 +23004,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_get_gpc0",
       "out_type": "sint"
     },
@@ -21792,6 +23038,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_get_gpc1",
       "out_type": "sint"
     },
@@ -21824,6 +23072,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_get_gpt0",
       "out_type": "sint"
     },
@@ -21856,6 +23106,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_gpc0_rate",
       "out_type": "sint"
     },
@@ -21888,6 +23140,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_gpc1_rate",
       "out_type": "sint"
     },
@@ -21920,6 +23174,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_http_err_cnt",
       "out_type": "sint"
     },
@@ -21952,6 +23208,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_http_err_rate",
       "out_type": "sint"
     },
@@ -21984,6 +23242,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_http_fail_cnt",
       "out_type": "sint"
     },
@@ -22016,6 +23276,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_http_fail_rate",
       "out_type": "sint"
     },
@@ -22048,6 +23310,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_http_req_cnt",
       "out_type": "sint"
     },
@@ -22080,6 +23344,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_http_req_rate",
       "out_type": "sint"
     },
@@ -22112,6 +23378,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_inc_gpc0",
       "out_type": "sint"
     },
@@ -22144,6 +23412,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_inc_gpc1",
       "out_type": "sint"
     },
@@ -22176,6 +23446,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_kbytes_in",
       "out_type": "sint"
     },
@@ -22208,6 +23480,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_kbytes_out",
       "out_type": "sint"
     },
@@ -22240,6 +23514,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_sess_cnt",
       "out_type": "sint"
     },
@@ -22272,6 +23548,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_sess_rate",
       "out_type": "sint"
     },
@@ -22304,6 +23582,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_tracked",
       "out_type": "bool"
     },
@@ -22336,6 +23616,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc1_trackers",
       "out_type": "sint"
     },
@@ -22368,6 +23650,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_bytes_in_rate",
       "out_type": "sint"
     },
@@ -22400,6 +23684,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_bytes_out_rate",
       "out_type": "sint"
     },
@@ -22432,6 +23718,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_clr_gpc0",
       "out_type": "sint"
     },
@@ -22464,6 +23752,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_clr_gpc1",
       "out_type": "sint"
     },
@@ -22496,6 +23786,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_conn_cnt",
       "out_type": "sint"
     },
@@ -22528,6 +23820,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_conn_cur",
       "out_type": "sint"
     },
@@ -22560,6 +23854,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_conn_rate",
       "out_type": "sint"
     },
@@ -22592,6 +23888,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_get_gpc0",
       "out_type": "sint"
     },
@@ -22624,6 +23922,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_get_gpc1",
       "out_type": "sint"
     },
@@ -22656,6 +23956,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_get_gpt0",
       "out_type": "sint"
     },
@@ -22688,6 +23990,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_gpc0_rate",
       "out_type": "sint"
     },
@@ -22720,6 +24024,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_gpc1_rate",
       "out_type": "sint"
     },
@@ -22752,6 +24058,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_http_err_cnt",
       "out_type": "sint"
     },
@@ -22784,6 +24092,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_http_err_rate",
       "out_type": "sint"
     },
@@ -22816,6 +24126,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_http_fail_cnt",
       "out_type": "sint"
     },
@@ -22848,6 +24160,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_http_fail_rate",
       "out_type": "sint"
     },
@@ -22880,6 +24194,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_http_req_cnt",
       "out_type": "sint"
     },
@@ -22912,6 +24228,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_http_req_rate",
       "out_type": "sint"
     },
@@ -22944,6 +24262,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_inc_gpc0",
       "out_type": "sint"
     },
@@ -22976,6 +24296,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_inc_gpc1",
       "out_type": "sint"
     },
@@ -23008,6 +24330,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_kbytes_in",
       "out_type": "sint"
     },
@@ -23040,6 +24364,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_kbytes_out",
       "out_type": "sint"
     },
@@ -23072,6 +24398,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_sess_cnt",
       "out_type": "sint"
     },
@@ -23104,6 +24432,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_sess_rate",
       "out_type": "sint"
     },
@@ -23136,6 +24466,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_tracked",
       "out_type": "bool"
     },
@@ -23168,6 +24500,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "sc2_trackers",
       "out_type": "sint"
     },
@@ -23201,6 +24535,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_bytes_in_rate",
       "out_type": "sint"
     },
@@ -23234,6 +24570,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_bytes_out_rate",
       "out_type": "sint"
     },
@@ -23268,6 +24606,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 3,
+      "min_args": null,
       "name": "sc_clr_gpc",
       "out_type": "sint"
     },
@@ -23301,6 +24641,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_clr_gpc0",
       "out_type": "sint"
     },
@@ -23334,6 +24676,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_clr_gpc1",
       "out_type": "sint"
     },
@@ -23367,6 +24711,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_conn_cnt",
       "out_type": "sint"
     },
@@ -23400,6 +24746,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_conn_cur",
       "out_type": "sint"
     },
@@ -23433,6 +24781,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_conn_rate",
       "out_type": "sint"
     },
@@ -23467,6 +24817,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 3,
+      "min_args": null,
       "name": "sc_get_gpc",
       "out_type": "sint"
     },
@@ -23500,6 +24852,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_get_gpc0",
       "out_type": "sint"
     },
@@ -23533,6 +24887,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_get_gpc1",
       "out_type": "sint"
     },
@@ -23567,6 +24923,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 3,
+      "min_args": null,
       "name": "sc_get_gpt",
       "out_type": "sint"
     },
@@ -23600,6 +24958,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_get_gpt0",
       "out_type": "sint"
     },
@@ -23633,6 +24993,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_gpc0_rate",
       "out_type": "sint"
     },
@@ -23666,6 +25028,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_gpc1_rate",
       "out_type": "sint"
     },
@@ -23700,6 +25064,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 3,
+      "min_args": null,
       "name": "sc_gpc_rate",
       "out_type": "sint"
     },
@@ -23733,6 +25099,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_http_err_cnt",
       "out_type": "sint"
     },
@@ -23766,6 +25134,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_http_err_rate",
       "out_type": "sint"
     },
@@ -23799,6 +25169,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_http_fail_cnt",
       "out_type": "sint"
     },
@@ -23832,6 +25204,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_http_fail_rate",
       "out_type": "sint"
     },
@@ -23865,6 +25239,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_http_req_cnt",
       "out_type": "sint"
     },
@@ -23898,6 +25274,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_http_req_rate",
       "out_type": "sint"
     },
@@ -23932,6 +25310,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 3,
+      "min_args": null,
       "name": "sc_inc_gpc",
       "out_type": "sint"
     },
@@ -23965,6 +25345,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_inc_gpc0",
       "out_type": "sint"
     },
@@ -23998,6 +25380,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_inc_gpc1",
       "out_type": "sint"
     },
@@ -24031,6 +25415,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_kbytes_in",
       "out_type": "sint"
     },
@@ -24064,6 +25450,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_kbytes_out",
       "out_type": "sint"
     },
@@ -24097,6 +25485,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_sess_cnt",
       "out_type": "sint"
     },
@@ -24130,6 +25520,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_sess_rate",
       "out_type": "sint"
     },
@@ -24163,6 +25555,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_tracked",
       "out_type": "bool"
     },
@@ -24196,6 +25590,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "sc_trackers",
       "out_type": "sint"
     },
@@ -24228,6 +25624,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "scook",
       "out_type": "str"
     },
@@ -24260,6 +25658,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "scook_cnt",
       "out_type": "sint"
     },
@@ -24292,6 +25692,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "scook_val",
       "out_type": "sint"
     },
@@ -24325,6 +25727,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "shdr",
       "out_type": "str"
     },
@@ -24357,6 +25761,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "shdr_cnt",
       "out_type": "sint"
     },
@@ -24390,6 +25796,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "shdr_ip",
       "out_type": "ipv4"
     },
@@ -24423,6 +25831,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "shdr_val",
       "out_type": "sint"
     },
@@ -24453,6 +25863,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "so_id",
       "out_type": "sint"
     },
@@ -24483,6 +25895,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "so_name",
       "out_type": "str"
     },
@@ -24513,6 +25927,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "src",
       "out_type": "ipv4"
     },
@@ -24545,6 +25961,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_bytes_in_rate",
       "out_type": "sint"
     },
@@ -24577,6 +25995,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_bytes_out_rate",
       "out_type": "sint"
     },
@@ -24610,6 +26030,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "src_clr_gpc",
       "out_type": "sint"
     },
@@ -24642,6 +26064,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_clr_gpc0",
       "out_type": "sint"
     },
@@ -24674,6 +26098,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_clr_gpc1",
       "out_type": "sint"
     },
@@ -24706,6 +26132,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_conn_cnt",
       "out_type": "sint"
     },
@@ -24738,6 +26166,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_conn_cur",
       "out_type": "sint"
     },
@@ -24770,6 +26200,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_conn_rate",
       "out_type": "sint"
     },
@@ -24803,6 +26235,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "src_get_gpc",
       "out_type": "sint"
     },
@@ -24835,6 +26269,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_get_gpc0",
       "out_type": "sint"
     },
@@ -24867,6 +26303,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_get_gpc1",
       "out_type": "sint"
     },
@@ -24900,6 +26338,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "src_get_gpt",
       "out_type": "sint"
     },
@@ -24932,6 +26372,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_get_gpt0",
       "out_type": "sint"
     },
@@ -24964,6 +26406,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_gpc0_rate",
       "out_type": "sint"
     },
@@ -24996,6 +26440,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_gpc1_rate",
       "out_type": "sint"
     },
@@ -25029,6 +26475,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "src_gpc_rate",
       "out_type": "sint"
     },
@@ -25061,6 +26509,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_http_err_cnt",
       "out_type": "sint"
     },
@@ -25093,6 +26543,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_http_err_rate",
       "out_type": "sint"
     },
@@ -25125,6 +26577,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_http_fail_cnt",
       "out_type": "sint"
     },
@@ -25157,6 +26611,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_http_fail_rate",
       "out_type": "sint"
     },
@@ -25189,6 +26645,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_http_req_cnt",
       "out_type": "sint"
     },
@@ -25221,6 +26679,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_http_req_rate",
       "out_type": "sint"
     },
@@ -25254,6 +26714,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "src_inc_gpc",
       "out_type": "sint"
     },
@@ -25286,6 +26748,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_inc_gpc0",
       "out_type": "sint"
     },
@@ -25318,6 +26782,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_inc_gpc1",
       "out_type": "sint"
     },
@@ -25348,6 +26814,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "src_is_local",
       "out_type": "bool"
     },
@@ -25380,6 +26848,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_kbytes_in",
       "out_type": "sint"
     },
@@ -25412,6 +26882,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_kbytes_out",
       "out_type": "sint"
     },
@@ -25442,6 +26914,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "src_port",
       "out_type": "sint"
     },
@@ -25474,6 +26948,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_sess_cnt",
       "out_type": "sint"
     },
@@ -25506,6 +26982,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_sess_rate",
       "out_type": "sint"
     },
@@ -25538,6 +27016,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "src_updt_conn_cnt",
       "out_type": "sint"
     },
@@ -25570,6 +27050,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "srv_conn",
       "out_type": "sint"
     },
@@ -25602,6 +27084,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "srv_conn_free",
       "out_type": "sint"
     },
@@ -25632,6 +27116,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "srv_id",
       "out_type": "sint"
     },
@@ -25664,6 +27150,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "srv_is_up",
       "out_type": "bool"
     },
@@ -25696,6 +27184,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "srv_iweight",
       "out_type": "sint"
     },
@@ -25726,6 +27216,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "srv_name",
       "out_type": "str"
     },
@@ -25758,6 +27250,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "srv_queue",
       "out_type": "sint"
     },
@@ -25790,6 +27284,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "srv_sess_rate",
       "out_type": "sint"
     },
@@ -25822,6 +27318,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "srv_uweight",
       "out_type": "sint"
     },
@@ -25854,6 +27352,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "srv_weight",
       "out_type": "sint"
     },
@@ -25884,6 +27384,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "status",
       "out_type": "sint"
     },
@@ -25914,6 +27416,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "stopping",
       "out_type": "bool"
     },
@@ -25946,6 +27450,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "str",
       "out_type": "str"
     },
@@ -25978,6 +27484,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_avl",
       "out_type": "sint"
     },
@@ -26010,6 +27518,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "table_cnt",
       "out_type": "sint"
     },
@@ -26040,6 +27550,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "thread",
       "out_type": "sint"
     },
@@ -26070,6 +27582,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "unique-id",
       "out_type": "str"
     },
@@ -26100,6 +27614,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "url",
       "out_type": "str"
     },
@@ -26130,6 +27646,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "url32",
       "out_type": "sint"
     },
@@ -26160,6 +27678,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "url_ip",
       "out_type": "ipv4"
     },
@@ -26193,6 +27713,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "url_param",
       "out_type": "str"
     },
@@ -26223,6 +27745,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "url_port",
       "out_type": "sint"
     },
@@ -26256,6 +27780,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "urlp",
       "out_type": "str"
     },
@@ -26289,6 +27815,8 @@
         false
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "urlp_val",
       "out_type": "sint"
     },
@@ -26321,6 +27849,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 1,
+      "min_args": null,
       "name": "uuid",
       "out_type": "str"
     },
@@ -26354,6 +27884,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 2,
+      "min_args": null,
       "name": "var",
       "out_type": "any"
     },
@@ -26384,6 +27916,8 @@
         true
       ],
       "in_type": "",
+      "max_args": 0,
+      "min_args": null,
       "name": "wait_end",
       "out_type": "bool"
     }
@@ -27447,6 +28981,7 @@
       "definition_kind": null,
       "fixed_slots": [
         {
+          "address_policy": "bind",
           "port": "optional",
           "role": "address"
         }
@@ -27467,10 +29002,12 @@
       "definition_kind": "server",
       "fixed_slots": [
         {
+          "address_policy": null,
           "port": null,
           "role": "name"
         },
         {
+          "address_policy": "server",
           "port": "optional",
           "role": "address"
         }

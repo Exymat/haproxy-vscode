@@ -46,6 +46,21 @@ describe("argumentEnumUtils", () => {
     expect(docEnumValueNames(schemaKw)).toEqual(["tcp"]);
   });
 
+  it("enumNamesForSlot uses value_kind enum without doc parameter heuristics", () => {
+    const schemaKw = mockSchemaKw({
+      argument_model: {
+        min_args: 1,
+        max_args: 1,
+        slots: [{ value_kind: "enum", enum: ["roundrobin"] }],
+      },
+      arguments: [{ parameter: "<name>", description: "", values: [] }],
+    });
+    expect(enumNamesForSlot(undefined, schemaKw, 0)).toEqual([]);
+    expect(
+      enumNamesForSlot({ enum: ["roundrobin"] }, schemaKw, 0).map((n) => n.toLowerCase()),
+    ).toContain("roundrobin");
+  });
+
   it("enumNamesForSlot merges signature and doc enums", () => {
     const slot: ArgumentSlot = { enum: ["TCP", "HTTP"] };
     const schemaKw = mockSchemaKw({

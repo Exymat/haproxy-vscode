@@ -11,6 +11,7 @@ import {
 import { conditionalStartIndex } from "./directiveUtils";
 import { ParsedLine } from "./parser";
 import { FixedSlotSpec, HaproxySchema, optionsWithValueSet, StatementRule } from "./schema";
+import { findStatementRule } from "./statementLayout";
 
 const DIAG_SOURCE = "haproxy";
 
@@ -63,26 +64,14 @@ function pushAddressResult(
   diagnostics.push(makeDiagnostic(line, tokenIndex, result.message, code));
 }
 
-function findStatementRule(schema: HaproxySchema, line: ParsedLine): StatementRule | undefined {
-  const t0 = line.tokens[0]?.text.toLowerCase();
-  if (!t0) {
-    return undefined;
-  }
-  for (const rule of schema.statement_rules) {
-    if (rule.prefix === "no" && t0 === "no") {
-      continue;
-    }
-    if (rule.prefix && rule.prefix !== t0) {
-      continue;
-    }
-    if (rule.keyword.toLowerCase() === t0) {
-      return rule;
-    }
-  }
-  return undefined;
-}
-
 function policyForSlot(rule: StatementRule, spec: FixedSlotSpec, token: string): PortAddressPolicy {
+  if (spec.address_policy && spec.address_policy in ADDRESS_POLICIES) {
+    const named = spec.address_policy as AddressPolicyName;
+    if (named === "bind" && token.startsWith("/")) {
+      return { ...ADDRESS_POLICIES.bind, portMandatory: false };
+    }
+    return ADDRESS_POLICIES[named];
+  }
   if (rule.kind === "bind") {
     return token.startsWith("/")
       ? { ...ADDRESS_POLICIES.bind, portMandatory: false }

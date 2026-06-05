@@ -33,7 +33,16 @@ export function docEnumValueNames(schemaKw: SchemaKeyword | undefined): string[]
   return values;
 }
 
-function shouldUseDocEnumHints(parameter: string | undefined): boolean {
+function shouldUseDocEnumHints(
+  parameter: string | undefined,
+  valueKind: string | undefined,
+): boolean {
+  if (valueKind === "enum") {
+    return true;
+  }
+  if (valueKind && valueKind !== "generic") {
+    return false;
+  }
   if (!parameter) {
     return false;
   }
@@ -75,7 +84,8 @@ export function enumNamesForSlot(
   const param =
     schemaKw?.arguments?.[position] ??
     (position === 0 ? schemaKw?.arguments?.find((p) => p?.parameter === "<algorithm>") : undefined);
-  if (!shouldUseDocEnumHints(param?.parameter)) {
+  const slotKind = slot?.value_kind ?? schemaKw?.argument_model?.slots?.[position]?.value_kind;
+  if (!shouldUseDocEnumHints(param?.parameter, slotKind)) {
     return [];
   }
   const fromDoc = docEnumValueNames(schemaKw);
@@ -97,7 +107,12 @@ export function enumNamesForArgumentPosition(
   }
 
   const langParam = langKw?.arguments?.[position];
-  if (langParam && shouldUseDocEnumHints(langParam.parameter) && langParam.values.length >= 2) {
+  const slotKind = schemaKw?.argument_model?.slots?.[position]?.value_kind;
+  if (
+    langParam &&
+    shouldUseDocEnumHints(langParam.parameter, slotKind) &&
+    langParam.values.length >= 2
+  ) {
     return langParam.values.map((value) => value.name.split("(", 1)[0]);
   }
 

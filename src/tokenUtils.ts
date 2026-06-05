@@ -1,15 +1,5 @@
 import { ParsedLine, ParsedToken } from "./parser";
 
-export const PREFIX_FAMILIES = [
-  "stats",
-  "timeout",
-  "tcp-check",
-  "http-check",
-  "capture",
-  "tcp-request",
-  "tcp-response",
-];
-
 export function isWordToken(token: string): boolean {
   return /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(token);
 }
@@ -160,19 +150,25 @@ export function resolveSubcommandSpan(
   line: ParsedLine,
   allowed: Set<string>,
   prefix: string,
+  explicitSubcommands?: Set<string>,
 ): { start: number; end: number; subcommand: string; matched: boolean } | null {
   const prefixLower = prefix.toLowerCase();
   if (line.tokens[0]?.text.toLowerCase() !== prefixLower || line.tokens.length < 2) {
     return null;
   }
 
-  const subcommands = new Set<string>();
-  const needle = `${prefixLower} `;
-  for (const keyword of allowed) {
-    if (keyword.startsWith(needle)) {
-      subcommands.add(keyword.slice(needle.length));
-    }
-  }
+  const subcommands =
+    explicitSubcommands ??
+    (() => {
+      const fromAllowed = new Set<string>();
+      const needle = `${prefixLower} `;
+      for (const keyword of allowed) {
+        if (keyword.startsWith(needle)) {
+          fromAllowed.add(keyword.slice(needle.length));
+        }
+      }
+      return fromAllowed;
+    })();
   if (subcommands.size === 0) {
     return null;
   }

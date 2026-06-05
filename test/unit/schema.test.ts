@@ -7,10 +7,14 @@ import {
   namedDefaultsKeywordSet,
   noPrefixKeywordSet,
   optionsWithValueSet,
+  prefixFamilies,
+  prefixSubcommandSet,
   sectionKeywordSet,
   sectionNames,
   statsSocketLevelSet,
-  tcpRulePhaseSet,
+  tcpRequestPhaseSet,
+  tcpResponsePhaseSet,
+  allTcpRulePhases,
 } from "../../src/schema";
 import { resetVscodeMock } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
@@ -59,10 +63,15 @@ describe("schema helpers", () => {
     expect(namedDefaultsKeywordSet(schema).has("acl")).toBe(true);
   });
 
-  it("collects tcp rule phases from keywords", () => {
-    const phases = tcpRulePhaseSet(schema);
+  it("collects tcp rule phases from line_layout", () => {
+    const phases = tcpRequestPhaseSet(schema);
     expect(phases.has("connection")).toBe(true);
     expect(phases.has("content")).toBe(true);
+  });
+
+  it("exposes prefix families from line_layout", () => {
+    expect(prefixFamilies(schema)).toContain("stats");
+    expect(prefixSubcommandSet(schema, "stats").has("socket")).toBe(true);
   });
 
   it("caches optionsWithValueSet per group", () => {
@@ -92,6 +101,28 @@ describe("schema helpers", () => {
   });
 
   it("exposes stats socket levels", () => {
-    expect(statsSocketLevelSet()).toEqual(new Set(["user", "operator", "admin"]));
+    expect(statsSocketLevelSet(schema)).toEqual(new Set(["admin", "operator", "user"]));
+  });
+
+  it("falls back when line_layout metadata is absent", () => {
+    const bare = structuredClone(schema);
+    bare.line_layout = {};
+    expect(prefixSubcommandSet(bare, "stats").size).toBeGreaterThan(0);
+    expect(tcpRequestPhaseSet(bare).size).toBeGreaterThan(0);
+    expect(tcpResponsePhaseSet(bare).size).toBeGreaterThan(0);
+  });
+
+  it("uses legacy tcp phase scan when layout phases are missing", () => {
+    const bare = structuredClone(schema);
+    bare.line_layout = { prefix_families: bare.line_layout?.prefix_families };
+    expect(allTcpRulePhases(bare).has("content")).toBe(true);
+  });
+
+  it("uses explicit options_with_value from keyword_groups", () => {
+    expect(optionsWithValueSet(schema, "options").has("http-no-delay")).toBe(true);
+  });
+
+  it("combines layout tcp phases via allTcpRulePhases", () => {
+    expect(allTcpRulePhases(schema).has("content")).toBe(true);
   });
 });
