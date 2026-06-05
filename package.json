@@ -143,7 +143,7 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "package": "vsce package",
-    "compile": "tsc -p ./",
+    "compile": "tsc -p ./ && npm run sync:active-grammar -- 3.2",
     "watch": "tsc -watch -p ./",
     "verify:highlight": "node scripts/verify-highlight.mjs ../haproxy_git/haproxy-3.2/tests/conf",
     "verify:conf": "node scripts/validate-conf.mjs ../haproxy_git/haproxy-3.2/tests/conf",

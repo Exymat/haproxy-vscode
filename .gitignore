@@ -13,3 +13,4 @@ out/
 
 # Build / test artifacts (regenerate with npm run compile / npm test)
 scripts/compare-haproxy-c-report.json
+syntaxes/haproxy-active.tmLanguage.json
