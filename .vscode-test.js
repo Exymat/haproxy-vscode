@@ -6,5 +6,6 @@ module.exports = defineConfig({
   launchArgs: ["--disable-extensions"],
   mocha: {
     timeout: 30000,
+    require: ["./out/test/integration/suite/preload.js"],
   },
 });

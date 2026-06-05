@@ -1,8 +1,8 @@
 import * as assert from "node:assert";
-import * as path from "node:path";
 import * as vscode from "vscode";
 
-const FIXTURE_PATH = path.resolve(__dirname, "../../../../test/integration/fixtures/sample.cfg");
+import { haproxyDiagnostics, openFixture } from "./helpers";
+
 const EXTENSION_ID = "Exymat.haproxy-config";
 
 suite("Extension activation", () => {
@@ -23,10 +23,7 @@ suite("Language features on sample.cfg", () => {
   let doc: vscode.TextDocument;
 
   suiteSetup(async () => {
-    const uri = vscode.Uri.file(FIXTURE_PATH);
-    doc = await vscode.workspace.openTextDocument(uri);
-    await vscode.window.showTextDocument(doc);
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    doc = await openFixture("sample.cfg");
   });
 
   test("document language is haproxy", () => {
@@ -34,8 +31,9 @@ suite("Language features on sample.cfg", () => {
   });
 
   test("no diagnostics on valid sample config", () => {
-    const diags = vscode.languages.getDiagnostics(doc.uri);
-    const errors = diags.filter((d) => d.severity === vscode.DiagnosticSeverity.Error);
+    const errors = haproxyDiagnostics(vscode.languages.getDiagnostics(doc.uri)).filter(
+      (d) => d.severity === vscode.DiagnosticSeverity.Error,
+    );
     assert.strictEqual(
       errors.length,
       0,

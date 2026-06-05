@@ -1,0 +1,10 @@
+{
+  "haproxy.version": "3.2",
+  "haproxy.diagnostics.debounceMs": 100,
+  "haproxy.diagnostics.enabled": true,
+  "haproxy.diagnostics.deprecatedWarnings": true,
+  "haproxy.diagnostics.maxLines": 4000,
+  "haproxy.format.enabled": true,
+  "haproxy.format.indent": "spaces-4",
+  "haproxy.format.insertBlankLineBetweenSections": true
+}
