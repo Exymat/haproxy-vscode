@@ -13,7 +13,7 @@ import {
   keywordsForSection,
 } from "./documentContext";
 import { HaproxyLanguageData } from "./languageData";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema, modifierPrefixSet } from "./schema";
 
 function markdownDoc(description: string, docsUrl?: string): vscode.MarkdownString {
   const md = new vscode.MarkdownString();
@@ -156,7 +156,9 @@ export function provideCompletionItems(
   if (ctx.kind === "directive-argument") {
     const sectionKeywords = keywordsForSection(data, ctx.line.section);
     const allowed = new Set(sectionKeywords.map((kw) => kw.name.toLowerCase()));
-    const directive = resolveDirective(ctx.line, allowed);
+    const directive = resolveDirective(ctx.line, allowed, {
+      modifierPrefixes: modifierPrefixSet(schema),
+    });
     if (!directive.matched) {
       return [];
     }

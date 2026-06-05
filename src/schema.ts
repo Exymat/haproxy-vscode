@@ -83,6 +83,102 @@ export interface HaproxySchema {
 
 const schemaCache = new Map<HaproxyVersion, HaproxySchema>();
 const sectionKeywordCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
+const optionsWithValueCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
+
+const VALUE_OPTION_HINTS = [
+  "-file",
+  "-path",
+  "-pass",
+  "-list",
+  "-addr",
+  "-port",
+  "-net",
+  "-opts",
+  "-prefer",
+  "-name",
+  "-tag",
+  "-format",
+  "-header",
+  "-backend",
+  "-server",
+  "-conn",
+  "-delay",
+  "-limit",
+  "-inter",
+  "-key",
+] as const;
+
+const VALUE_OPTION_EXACT = new Set([
+  "crt",
+  "name",
+  "alpn",
+  "ciphers",
+  "ciphersuites",
+  "curves",
+  "npn",
+  "proto",
+  "verify",
+  "verifyhost",
+  "sni",
+  "mss",
+  "nbconn",
+  "nice",
+  "uid",
+  "gid",
+  "group",
+  "interface",
+  "namespace",
+  "thread",
+  "process",
+  "shards",
+  "sigalgs",
+  "addr",
+  "path",
+  "command",
+  "redir",
+  "resolvers",
+  "weight",
+  "port",
+  "mode",
+  "level",
+  "label",
+  "id",
+  "ws",
+  "shard",
+  "hash-key",
+  "monitor",
+  "description",
+  "agent-port",
+  "agent-inter",
+  "agent-send",
+  "pool-max-conn",
+  "pool-low-conn",
+  "pool-purge-delay",
+  "pool-conn-name",
+  "log-proto",
+  "log-bufsize",
+  "max-reuse",
+  "slowstart",
+  "maxqueue",
+  "minconn",
+  "maxconn",
+  "quic-cc-algo",
+  "severity-output",
+  "tls-ticket-keys",
+  "client-sigalgs",
+  "proxy-v2-options",
+  "send-proxy-v2",
+  "default-crt",
+  "ca-verify-file",
+  "ca-sign-file",
+  "ca-sign-pass",
+  "crl-file",
+  "crt-list",
+  "crt-ignore-err",
+  "ca-ignore-err",
+]);
+
+const STATS_SOCKET_LEVELS = new Set(["user", "operator", "admin"]);
 
 export function clearSchemaCache(): void {
   schemaCache.clear();
@@ -104,8 +200,61 @@ export function noPrefixKeywordSet(schema: HaproxySchema): Set<string> {
   return new Set((schema.tokens.no_prefix_keywords ?? []).map((k) => k.toLowerCase()));
 }
 
+export function modifierPrefixSet(schema: HaproxySchema): Set<string> {
+  return new Set((schema.tokens.modifiers ?? []).map((k) => k.toLowerCase()));
+}
+
+export function conditionalTokenSet(schema: HaproxySchema): Set<string> {
+  return new Set((schema.tokens.conditionals ?? []).map((k) => k.toLowerCase()));
+}
+
 export function namedDefaultsKeywordSet(schema: HaproxySchema): Set<string> {
   return new Set((schema.tokens.named_defaults_keywords ?? []).map((k) => k.toLowerCase()));
+}
+
+export function tcpRulePhaseSet(schema: HaproxySchema): Set<string> {
+  const phases = new Set<string>();
+  for (const name of Object.keys(schema.keywords)) {
+    for (const prefix of ["tcp-request", "tcp-response"]) {
+      const needle = `${prefix} `;
+      if (name.startsWith(needle)) {
+        phases.add(name.slice(needle.length).toLowerCase());
+      }
+    }
+  }
+  return phases;
+}
+
+function optionTakesValue(option: string): boolean {
+  const lower = option.toLowerCase();
+  if (VALUE_OPTION_EXACT.has(lower)) {
+    return true;
+  }
+  return VALUE_OPTION_HINTS.some((hint) => lower.includes(hint));
+}
+
+export function optionsWithValueSet(schema: HaproxySchema, groupName: string): Set<string> {
+  let perSchema = optionsWithValueCache.get(schema);
+  if (!perSchema) {
+    perSchema = new Map();
+    optionsWithValueCache.set(schema, perSchema);
+  }
+  const cached = perSchema.get(groupName);
+  if (cached) {
+    return cached;
+  }
+  const result = new Set<string>();
+  for (const option of schema.keyword_groups[groupName] ?? []) {
+    if (optionTakesValue(option)) {
+      result.add(option.toLowerCase());
+    }
+  }
+  perSchema.set(groupName, result);
+  return result;
+}
+
+export function statsSocketLevelSet(): Set<string> {
+  return STATS_SOCKET_LEVELS;
 }
 
 export function sectionKeywordSet(schema: HaproxySchema, section: string | null): Set<string> {

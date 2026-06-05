@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { DeprecatedIndex } from "./deprecatedIndex";
 import { ParsedLine } from "./parser";
-import { HaproxySchema, noPrefixKeywordSet, sectionKeywordSet } from "./schema";
+import { HaproxySchema, modifierPrefixSet, noPrefixKeywordSet, sectionKeywordSet } from "./schema";
 import {
   actionTokenIndex,
   normalizeActionName,
@@ -34,7 +34,7 @@ export function deprecatedLineDiagnostics(
   allowed: Set<string>,
   noPrefix: Set<string>
 ): vscode.Diagnostic[] {
-  const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefix);
+  const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefix, modifierPrefixSet(schema));
   if (!match.matched) {
     return [];
   }

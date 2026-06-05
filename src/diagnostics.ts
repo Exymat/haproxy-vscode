@@ -10,18 +10,22 @@ import { aclNameDiagnostics, sectionHeaderDiagnostics } from "./sectionDiagnosti
 import { statementDiagnostics } from "./statementDiagnostics";
 import { getParsedDocument } from "./parseCache";
 import { ParsedLine } from "./parser";
-import { HaproxySchema, noPrefixKeywordSet, sectionKeywordSet } from "./schema";
+import {
+  conditionalTokenSet,
+  HaproxySchema,
+  modifierPrefixSet,
+  noPrefixKeywordSet,
+  sectionKeywordSet,
+  statsSocketLevelSet,
+  tcpRulePhaseSet,
+} from "./schema";
 import {
   actionTokenIndex,
-  BALANCE_ALGORITHMS,
-  BIND_LEVEL_VALUES,
   isLikelyValue,
-  MODE_VALUES,
   normalizeActionName,
   PREFIX_FAMILIES,
   resolveLongestDirectiveMatch,
   resolveSubcommandSpan,
-  TCP_RULE_PHASES,
   tcpPhaseIndex,
 } from "./tokenUtils";
 
@@ -110,9 +114,10 @@ function topLevelDiagnostics(
   line: ParsedLine,
   schema: HaproxySchema,
   allowed: Set<string>,
-  noPrefix: Set<string>
+  noPrefix: Set<string>,
+  modifierPrefixes: Set<string>
 ): vscode.Diagnostic[] {
-  const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefix);
+  const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefix, modifierPrefixes);
   if (match.matched) {
     return [];
   }
@@ -176,6 +181,9 @@ function topLevelDiagnostics(
 function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   const groups = schema.keyword_groups;
+  const conditionals = conditionalTokenSet(schema);
+  const tcpPhases = tcpRulePhaseSet(schema);
+  const statsSocketLevels = statsSocketLevelSet();
   const t0 = line.tokens[0]?.text.toLowerCase();
   const t1 = line.tokens[1]?.text.toLowerCase();
 
@@ -210,7 +218,7 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
     const allowedCriteria = new Set(
       [...(groups.acl_criteria ?? []), ...(groups.sample_fetches ?? [])].map((v) => v.toLowerCase())
     );
-    if (!isLikelyValue(criterion) && !allowedCriteria.has(criterion)) {
+    if (!isLikelyValue(criterion, conditionals) && !allowedCriteria.has(criterion)) {
       diagnostics.push(
         makeDiagnostic(
           diagRange(line, 2),
@@ -232,7 +240,7 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
       const val = line.tokens[i].text.toLowerCase().replace(/\*$/, "");
       if (val === "level" && i + 1 < line.tokens.length) {
         const levelValue = line.tokens[i + 1].text.toLowerCase();
-        if (!BIND_LEVEL_VALUES.has(levelValue)) {
+        if (!statsSocketLevels.has(levelValue)) {
           diagnostics.push(
             makeDiagnostic(
               diagRange(line, i + 1),
@@ -248,10 +256,10 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
     return diagnostics;
   }
 
-  const phaseIdx = tcpPhaseIndex(line);
+  const phaseIdx = tcpPhaseIndex(line, tcpPhases);
   if (phaseIdx !== null) {
     const phase = line.tokens[phaseIdx].text.toLowerCase();
-    if (!TCP_RULE_PHASES.has(phase)) {
+    if (!tcpPhases.has(phase)) {
       diagnostics.push(
         makeDiagnostic(
           diagRange(line, phaseIdx),
@@ -348,7 +356,8 @@ export function computeDiagnostics(
 
     const allowed = sectionKeywordSet(schema, line.section);
     const noPrefix = noPrefixKeywordSet(schema);
-    const topDiags = topLevelDiagnostics(line, schema, allowed, noPrefix);
+    const modifierPrefixes = modifierPrefixSet(schema);
+    const topDiags = topLevelDiagnostics(line, schema, allowed, noPrefix, modifierPrefixes);
     diagnostics.push(...topDiags);
     if (topDiags.length === 0) {
       diagnostics.push(...statementDiagnostics(line, schema));

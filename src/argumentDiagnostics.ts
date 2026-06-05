@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { enumNamesForSlot } from "./argumentEnumUtils";
 import { argumentTokenIndices } from "./directiveUtils";
 import { ParsedLine } from "./parser";
-import { HaproxySchema, SchemaKeyword } from "./schema";
+import { conditionalTokenSet, HaproxySchema, modifierPrefixSet, SchemaKeyword } from "./schema";
 import {
   isLikelyValue,
   PREFIX_FAMILIES,
@@ -106,7 +106,13 @@ export function argumentModelDiagnostics(
   allowed: Set<string>,
   noPrefixKeywords?: Set<string>
 ): vscode.Diagnostic[] {
-  const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefixKeywords);
+  const match = resolveLongestDirectiveMatch(
+    line,
+    allowed,
+    4,
+    noPrefixKeywords,
+    modifierPrefixSet(schema)
+  );
   if (!match.matched) {
     return [];
   }
@@ -134,18 +140,19 @@ export function argumentModelDiagnostics(
   }
 
   const argIndices = argumentTokenIndices(line, match.end);
+  const conditionals = conditionalTokenSet(schema);
   const diagnostics: vscode.Diagnostic[] = [];
 
   if (keyword === "cookie") {
-    return cookieArgumentDiagnostics(line, match, argIndices);
+    return cookieArgumentDiagnostics(line, match, argIndices, conditionals);
   }
 
   if (keyword === "balance") {
-    return balanceArgumentDiagnostics(line, match, argIndices, model, schemaKw);
+    return balanceArgumentDiagnostics(line, match, argIndices, model, schemaKw, conditionals);
   }
 
   if (keyword === "option mysql-check") {
-    return mysqlCheckOptionDiagnostics(line, match, argIndices);
+    return mysqlCheckOptionDiagnostics(line, match, argIndices, conditionals);
   }
 
   if (argIndices.length < model.min_args && !allowsMissingArgs(schemaKw, model)) {
@@ -185,7 +192,7 @@ export function argumentModelDiagnostics(
 
     const lower = value.toLowerCase();
     const base = lower.split("(", 1)[0];
-    if (isLikelyValue(lower)) {
+    if (isLikelyValue(lower, conditionals)) {
       continue;
     }
     const allowedSet = new Set(allowedValues);
@@ -207,7 +214,8 @@ export function argumentModelDiagnostics(
 function cookieArgumentDiagnostics(
   line: ParsedLine,
   match: { end: number },
-  argIndices: number[]
+  argIndices: number[],
+  conditionals: Set<string>
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   if (argIndices.length === 0) {
@@ -226,7 +234,7 @@ function cookieArgumentDiagnostics(
   for (let pos = 1; pos < argIndices.length; pos += 1) {
     const tokenIdx = argIndices[pos];
     const value = line.tokens[tokenIdx].text.toLowerCase();
-    if (!COOKIE_MODES.has(value) && !isLikelyValue(value)) {
+    if (!COOKIE_MODES.has(value) && !isLikelyValue(value, conditionals)) {
       diagnostics.push(
         makeArgDiagnostic(
           line,
@@ -245,7 +253,8 @@ function balanceArgumentDiagnostics(
   match: { end: number },
   argIndices: number[],
   model: ArgumentModel,
-  schemaKw: SchemaKeyword | undefined
+  schemaKw: SchemaKeyword | undefined,
+  conditionals: Set<string>
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   if (argIndices.length === 0) {
@@ -259,7 +268,7 @@ function balanceArgumentDiagnostics(
   if (
     allowedAlgorithms.length > 0 &&
     !allowedAlgorithms.includes(algo) &&
-    !isLikelyValue(algo)
+    !isLikelyValue(algo, conditionals)
   ) {
     diagnostics.push(
       makeArgDiagnostic(
@@ -288,7 +297,8 @@ function balanceArgumentDiagnostics(
 function mysqlCheckOptionDiagnostics(
   line: ParsedLine,
   match: { end: number },
-  argIndices: number[]
+  argIndices: number[],
+  conditionals: Set<string>
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   if (argIndices.length === 0) {
@@ -325,7 +335,7 @@ function mysqlCheckOptionDiagnostics(
   }
 
   const mode = first;
-  if (mode !== "post-41" && mode !== "pre-41" && !isLikelyValue(mode)) {
+  if (mode !== "post-41" && mode !== "pre-41" && !isLikelyValue(mode, conditionals)) {
     diagnostics.push(
       makeArgDiagnostic(
         line,

@@ -10,8 +10,7 @@ import {
 } from "./addressFormat";
 import { conditionalStartIndex } from "./directiveUtils";
 import { ParsedLine } from "./parser";
-import { FixedSlotSpec, HaproxySchema, StatementRule } from "./schema";
-import { BIND_OPTIONS_WITH_VALUE, SERVER_OPTIONS_WITH_VALUE } from "./tokenUtils";
+import { FixedSlotSpec, HaproxySchema, optionsWithValueSet, StatementRule } from "./schema";
 
 const DIAG_SOURCE = "haproxy";
 
@@ -159,18 +158,22 @@ function validateFixedSlots(line: ParsedLine, rule: StatementRule): vscode.Diagn
   return diagnostics;
 }
 
-function optionValuePolicy(rule: StatementRule, option: string): PortAddressPolicy | null {
+function optionValuePolicy(
+  rule: StatementRule,
+  option: string,
+  optionsWithValue: Set<string> | null
+): PortAddressPolicy | null {
   const lower = option.toLowerCase();
   if (rule.kind === "server") {
     const named = SERVER_ADDRESS_OPTION_POLICIES[lower];
     if (named) {
       return ADDRESS_POLICIES[named];
     }
-    if (SERVER_OPTIONS_WITH_VALUE.has(lower)) {
+    if (optionsWithValue?.has(lower)) {
       return null;
     }
   }
-  if (rule.kind === "bind" && BIND_OPTIONS_WITH_VALUE.has(lower)) {
+  if (rule.kind === "bind" && optionsWithValue?.has(lower)) {
     return null;
   }
   return null;
@@ -189,14 +192,10 @@ function scanNestedOptions(
   }
 
   const allowed = new Set((schema.keyword_groups[groupName] ?? []).map((v) => v.toLowerCase()));
-  const optionsWithValue =
-    rule.kind === "server"
-      ? SERVER_OPTIONS_WITH_VALUE
-      : rule.kind === "bind"
-        ? BIND_OPTIONS_WITH_VALUE
-        : null;
-  if (optionsWithValue) {
-    for (const opt of optionsWithValue) {
+  const valueOptions =
+    rule.kind === "server" || rule.kind === "bind" ? optionsWithValueSet(schema, groupName) : null;
+  if (valueOptions) {
+    for (const opt of valueOptions) {
       allowed.add(opt);
     }
   }
@@ -213,19 +212,14 @@ function scanNestedOptions(
     }
 
     if (allowed.has(opt)) {
-      const addrPolicy = optionValuePolicy(rule, opt);
+      const addrPolicy = optionValuePolicy(rule, opt, valueOptions);
       if (addrPolicy && i + 1 < condStart) {
         pushAddressResult(line, i + 1, validateHaproxyAddress(line.tokens[i + 1].text, addrPolicy), diagnostics);
         i += 2;
         continue;
       }
 
-      const takesValue =
-        rule.kind === "server"
-          ? SERVER_OPTIONS_WITH_VALUE.has(opt)
-          : rule.kind === "bind"
-            ? BIND_OPTIONS_WITH_VALUE.has(opt)
-            : false;
+      const takesValue = valueOptions?.has(opt) ?? false;
 
       if (takesValue && i + 1 < condStart) {
         const next = line.tokens[i + 1].text.toLowerCase();

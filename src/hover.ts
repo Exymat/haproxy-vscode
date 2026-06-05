@@ -14,7 +14,7 @@ import {
 } from "./directiveUtils";
 import { getDocumentContext, groupItems, keywordsForSection } from "./documentContext";
 import { findKeywordByPrefix, HaproxyLanguageData, LanguageGroupItem } from "./languageData";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema, modifierPrefixSet } from "./schema";
 import { HaproxyVersion } from "./version";
 
 function hoverMarkdown(
@@ -164,7 +164,9 @@ export function provideHover(
 
   const sectionKeywords = keywordsForSection(data, ctx.line.section);
   const allowed = new Set(sectionKeywords.map((kw) => kw.name.toLowerCase()));
-  const directive = resolveDirective(ctx.line, allowed);
+  const directive = resolveDirective(ctx.line, allowed, {
+    modifierPrefixes: modifierPrefixSet(schema),
+  });
 
   if (directive.matched && ctx.tokenIndex > directive.end) {
     const kw = getKeywordFromLanguage(data, directive.keyword);

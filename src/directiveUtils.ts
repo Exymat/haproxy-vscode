@@ -16,8 +16,18 @@ export interface ResolvedDirective {
   matched: boolean;
 }
 
-export function resolveDirective(line: ParsedLine, allowed: Set<string>): ResolvedDirective {
-  const match = resolveLongestDirectiveMatch(line, allowed);
+export function resolveDirective(
+  line: ParsedLine,
+  allowed: Set<string>,
+  options?: { noPrefixKeywords?: Set<string>; modifierPrefixes?: Set<string> }
+): ResolvedDirective {
+  const match = resolveLongestDirectiveMatch(
+    line,
+    allowed,
+    4,
+    options?.noPrefixKeywords,
+    options?.modifierPrefixes
+  );
   return {
     keyword: match.keyword,
     start: match.start,

@@ -1,135 +1,6 @@
 import { ParsedLine, ParsedToken } from "./parser";
 
-export const SERVER_OPTIONS_WITH_VALUE = new Set([
-  "addr",
-  "agent-addr",
-  "agent-inter",
-  "agent-port",
-  "agent-send",
-  "alpn",
-  "ca-file",
-  "check-alpn",
-  "check-pool-conn-name",
-  "check-proto",
-  "check-sni",
-  "ciphers",
-  "ciphersuites",
-  "client-sigalgs",
-  "cookie",
-  "crl-file",
-  "crt",
-  "curves",
-  "downinter",
-  "error-limit",
-  "fastinter",
-  "hash-key",
-  "idle-ping",
-  "init-addr",
-  "inter",
-  "log-bufsize",
-  "log-proto",
-  "max-reuse",
-  "maxconn",
-  "maxqueue",
-  "minconn",
-  "namespace",
-  "observe",
-  "on-error",
-  "on-marked-down",
-  "on-marked-up",
-  "pool-conn-name",
-  "pool-low-conn",
-  "pool-max-conn",
-  "pool-purge-delay",
-  "port",
-  "proto",
-  "proxy-v2-options",
-  "redir",
-  "resolve-net",
-  "resolve-opts",
-  "resolve-prefer",
-  "resolvers",
-  "shard",
-  "sigalgs",
-  "sni",
-  "slowstart",
-  "ssl-max-ver",
-  "ssl-min-ver",
-  "verify",
-  "verifyhost",
-  "weight",
-  "ws",
-]);
-
-export const BIND_OPTIONS_WITH_VALUE = new Set([
-  "alpn",
-  "ca-file",
-  "ca-ignore-err",
-  "ca-sign-file",
-  "ca-sign-pass",
-  "ca-verify-file",
-  "ciphers",
-  "ciphersuites",
-  "client-sigalgs",
-  "crl-file",
-  "crt",
-  "crt-ignore-err",
-  "crt-list",
-  "curves",
-  "default-crt",
-  "gid",
-  "group",
-  "guid-prefix",
-  "id",
-  "idle-ping",
-  "interface",
-  "label",
-  "level",
-  "maxconn",
-  "mode",
-  "mss",
-  "name",
-  "namespace",
-  "nbconn",
-  "nice",
-  "npn",
-  "process",
-  "proto",
-  "quic-cc-algo",
-  "severity-output",
-  "shards",
-  "sigalgs",
-  "ssl-max-ver",
-  "ssl-min-ver",
-  "thread",
-  "tls-ticket-keys",
-  "uid",
-  "user",
-  "verify",
-]);
-
-export const TCP_RULE_PHASES = new Set(["connection", "session", "content", "inspect-delay"]);
-
-export const MODE_VALUES = new Set(["http", "tcp", "log", "health", "spop", "haterm"]);
-
-export const BALANCE_ALGORITHMS = new Set([
-  "roundrobin",
-  "leastconn",
-  "first",
-  "source",
-  "uri",
-  "url_param",
-  "hdr",
-  "random",
-  "static-rr",
-  "hash",
-]);
-
-export const BIND_LEVEL_VALUES = new Set(["user", "operator", "admin"]);
-
 export const PREFIX_FAMILIES = ["stats", "timeout", "tcp-check", "http-check", "capture", "tcp-request", "tcp-response"];
-
-export const MODIFIER_PREFIXES = new Set(["no", "default"]);
 
 export function isWordToken(token: string): boolean {
   return /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(token);
@@ -143,7 +14,7 @@ export function isNumberToken(token: string): boolean {
   return /^[0-9]+(?:\.[0-9]+)?(?:[kmgt]?s|ms|m|h|d|k|%)?$/i.test(token);
 }
 
-export function isLikelyValue(token: string): boolean {
+export function isLikelyValue(token: string, conditionals?: Set<string>): boolean {
   if (!token) {
     return true;
   }
@@ -165,7 +36,7 @@ export function isLikelyValue(token: string): boolean {
   if (token.includes(".") && !isDirectivePart(token)) {
     return true;
   }
-  if (token === "if" || token === "unless") {
+  if (conditionals?.has(token.toLowerCase())) {
     return true;
   }
   return false;
@@ -196,7 +67,8 @@ export function resolveLongestDirectiveMatch(
   line: ParsedLine,
   allowed: Set<string>,
   maxParts = 4,
-  noPrefixKeywords?: Set<string>
+  noPrefixKeywords?: Set<string>,
+  modifierPrefixes?: Set<string>
 ): DirectiveMatch {
   const tokens = line.tokens;
   if (tokens.length === 0) {
@@ -204,17 +76,18 @@ export function resolveLongestDirectiveMatch(
   }
 
   if (
-    noPrefixKeywords &&
+    modifierPrefixes &&
     tokens.length >= 2 &&
-    MODIFIER_PREFIXES.has(tokens[0].text.toLowerCase())
+    modifierPrefixes.has(tokens[0].text.toLowerCase())
   ) {
     const inner = resolveLongestDirectiveMatch(
       { ...line, tokens: tokens.slice(1) },
       allowed,
       maxParts,
-      undefined
+      undefined,
+      modifierPrefixes
     );
-    if (inner.matched && noPrefixKeywords.has(inner.keyword)) {
+    if (inner.matched && noPrefixKeywords?.has(inner.keyword)) {
       return {
         start: 0,
         end: inner.end + 1,
@@ -239,7 +112,11 @@ export function resolveLongestDirectiveMatch(
   return resolveAttemptedDirectiveSpan(line, maxParts);
 }
 
-export function resolveAttemptedDirectiveSpan(line: ParsedLine, maxParts = 4): DirectiveMatch {
+export function resolveAttemptedDirectiveSpan(
+  line: ParsedLine,
+  maxParts = 4,
+  conditionals?: Set<string>
+): DirectiveMatch {
   const tokens = line.tokens;
   if (tokens.length === 0) {
     return { start: 0, end: -1, keyword: "", matched: false };
@@ -248,7 +125,7 @@ export function resolveAttemptedDirectiveSpan(line: ParsedLine, maxParts = 4): D
   let end = 0;
   while (end < tokens.length && end < maxParts) {
     const text = tokens[end].text;
-    if (end > 0 && isLikelyValue(text)) {
+    if (end > 0 && isLikelyValue(text, conditionals)) {
       break;
     }
     if (!isDirectivePart(text)) {
@@ -348,59 +225,16 @@ export function actionTokenIndex(line: ParsedLine): number | null {
   return null;
 }
 
-export function tcpPhaseIndex(line: ParsedLine): number | null {
+export function tcpPhaseIndex(line: ParsedLine, phases: Set<string>): number | null {
   const t0 = line.tokens[0]?.text.toLowerCase();
   if (t0 !== "tcp-request" && t0 !== "tcp-response") {
     return null;
   }
   if (line.tokens.length >= 2) {
     const t1 = line.tokens[1].text.toLowerCase();
-    if (TCP_RULE_PHASES.has(t1)) {
+    if (phases.has(t1)) {
       return 1;
     }
   }
   return null;
-}
-
-export function classifyValueToken(
-  token: ParsedToken,
-  options?: Set<string>
-): "number" | "string" | "operator" | "option" | "property" | null {
-  const lower = token.text.toLowerCase();
-  if (lower === "if" || lower === "unless") {
-    return "operator";
-  }
-  if (isNumberToken(token.text)) {
-    return "number";
-  }
-  if (isAddressOrPathToken(token.text)) {
-    return "string";
-  }
-  if (MODE_VALUES.has(lower) || BALANCE_ALGORITHMS.has(lower) || BIND_LEVEL_VALUES.has(lower)) {
-    return "option";
-  }
-  if (options?.has(lower)) {
-    return "option";
-  }
-  return null;
-}
-
-export function classifyArgumentToken(
-  token: ParsedToken,
-  options: Set<string>,
-  bindOptions: Set<string>,
-  serverOptions: Set<string>
-): "number" | "string" | "operator" | "option" | "property" {
-  const classified = classifyValueToken(token, options);
-  if (classified) {
-    return classified;
-  }
-  const lower = token.text.toLowerCase().replace(/\*$/, "");
-  if (bindOptions.has(lower) || serverOptions.has(lower)) {
-    return "property";
-  }
-  if (isWordToken(lower)) {
-    return "string";
-  }
-  return "string";
 }

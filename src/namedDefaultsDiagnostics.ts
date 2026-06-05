@@ -1,7 +1,12 @@
 import * as vscode from "vscode";
 
 import { ParsedLine } from "./parser";
-import { HaproxySchema, namedDefaultsKeywordSet, noPrefixKeywordSet } from "./schema";
+import {
+  HaproxySchema,
+  modifierPrefixSet,
+  namedDefaultsKeywordSet,
+  noPrefixKeywordSet,
+} from "./schema";
 import { resolveLongestDirectiveMatch } from "./tokenUtils";
 
 function diagRangeForTokens(line: ParsedLine, startIdx: number, endIdx: number): vscode.Range {
@@ -30,7 +35,7 @@ export function namedDefaultsDiagnostics(
 
   const allowed = new Set([...namedDefaults]);
   const noPrefix = noPrefixKeywordSet(schema);
-  const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefix);
+  const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefix, modifierPrefixSet(schema));
   if (!match.matched || !namedDefaults.has(match.keyword.toLowerCase())) {
     return [];
   }
