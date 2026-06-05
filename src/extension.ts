@@ -7,6 +7,7 @@ import { provideFoldingRanges } from "./folding";
 import { formatConfig } from "./formatter";
 import { promptReloadIfGrammarChanged, syncActiveGrammar } from "./grammar";
 import { provideHover } from "./hover";
+import { provideDefinition, provideReferences } from "./navigation";
 import { clearLanguageDataCache, HaproxyLanguageData, loadLanguageData } from "./languageData";
 import { clearSchemaCache, HaproxySchema, loadSchema } from "./schema";
 import { getExtensionSettings, getFormatOptions, onSettingsChanged } from "./settings";
@@ -178,6 +179,20 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.languages.registerFoldingRangeProvider(selector, {
       provideFoldingRanges(document) {
         return provideFoldingRanges(document);
+      },
+    }),
+    vscode.languages.registerDefinitionProvider(selector, {
+      async provideDefinition(document, position) {
+        const b = await ensureBundle();
+        const settings = getExtensionSettings();
+        return provideDefinition(document, position, b.schema, settings.maxDiagnosticsLines);
+      },
+    }),
+    vscode.languages.registerReferenceProvider(selector, {
+      async provideReferences(document, position, context) {
+        const b = await ensureBundle();
+        const settings = getExtensionSettings();
+        return provideReferences(document, position, context, b.schema, settings.maxDiagnosticsLines);
       },
     })
   );

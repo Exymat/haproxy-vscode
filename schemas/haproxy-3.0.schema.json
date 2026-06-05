@@ -35204,6 +35204,7 @@
   "statement_rules": [
     {
       "action_token_index": null,
+      "definition_kind": null,
       "fixed_slots": [],
       "group": "options",
       "keyword": "option",
@@ -35211,11 +35212,14 @@
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": "no",
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": 2
     },
     {
       "action_token_index": null,
+      "definition_kind": null,
       "fixed_slots": [
         {
           "port": "optional",
@@ -35228,11 +35232,14 @@
       "nested_start_index": 2,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": null
     },
     {
       "action_token_index": null,
+      "definition_kind": "server",
       "fixed_slots": [
         {
           "port": null,
@@ -35249,11 +35256,14 @@
       "nested_start_index": 3,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": 1,
       "value_token_index": null
     },
     {
       "action_token_index": 1,
+      "definition_kind": null,
       "fixed_slots": [],
       "group": "http_request_actions",
       "keyword": "http-request",
@@ -35261,11 +35271,14 @@
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": null
     },
     {
       "action_token_index": 1,
+      "definition_kind": null,
       "fixed_slots": [],
       "group": "http_response_actions",
       "keyword": "http-response",
@@ -35273,11 +35286,14 @@
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": null
     },
     {
       "action_token_index": 1,
+      "definition_kind": null,
       "fixed_slots": [],
       "group": "http_after_response_actions",
       "keyword": "http-after-response",
@@ -35285,11 +35301,14 @@
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": null
     },
     {
       "action_token_index": 2,
+      "definition_kind": null,
       "fixed_slots": [],
       "group": "tcp_request_actions",
       "keyword": "tcp-request",
@@ -35297,11 +35316,14 @@
       "nested_start_index": null,
       "phase_token_index": 1,
       "prefix": null,
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": null
     },
     {
       "action_token_index": 2,
+      "definition_kind": null,
       "fixed_slots": [],
       "group": "tcp_response_actions",
       "keyword": "tcp-response",
@@ -35309,11 +35331,14 @@
       "nested_start_index": null,
       "phase_token_index": 1,
       "prefix": null,
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": null
     },
     {
       "action_token_index": null,
+      "definition_kind": "acl",
       "fixed_slots": [],
       "group": "acl_criteria",
       "keyword": "acl",
@@ -35321,11 +35346,14 @@
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": 1,
       "value_token_index": 2
     },
     {
       "action_token_index": null,
+      "definition_kind": "filter",
       "fixed_slots": [],
       "group": "filters",
       "keyword": "filter",
@@ -35333,11 +35361,14 @@
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": 1,
       "value_token_index": 1
     },
     {
       "action_token_index": null,
+      "definition_kind": null,
       "fixed_slots": [],
       "group": null,
       "keyword": "use_backend",
@@ -35345,11 +35376,14 @@
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": "proxy-section",
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": 1
     },
     {
       "action_token_index": null,
+      "definition_kind": null,
       "fixed_slots": [],
       "group": null,
       "keyword": "use-server",
@@ -35357,11 +35391,14 @@
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": "server",
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": 1
     },
     {
       "action_token_index": null,
+      "definition_kind": null,
       "fixed_slots": [],
       "group": null,
       "keyword": "default_backend",
@@ -35369,11 +35406,14 @@
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": "proxy-section",
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": 1
     },
     {
       "action_token_index": null,
+      "definition_kind": null,
       "fixed_slots": [],
       "group": null,
       "keyword": "balance",
@@ -35381,11 +35421,14 @@
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": 1
     },
     {
       "action_token_index": null,
+      "definition_kind": null,
       "fixed_slots": [],
       "group": null,
       "keyword": "mode",
@@ -35393,7 +35436,9 @@
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
+      "reference_kind": null,
       "sections": [],
+      "symbol_name_token_index": null,
       "value_token_index": 1
     }
   ],

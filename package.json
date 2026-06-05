@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config highlighting, completion, hover docs, and schema diagnostics",
-  "version": "0.5.0",
+  "version": "0.6.1",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
@@ -155,6 +155,7 @@
     "test:format-indent": "node scripts/test-format-indent.mjs",
     "test:symbols": "node scripts/test-document-symbols.mjs",
     "test:folding": "node scripts/test-folding.mjs",
+    "test:navigation": "node scripts/test-navigation.mjs",
     "compare:haproxy": "node scripts/compare-haproxy-c.mjs",
     "generate:schema": "npm run generate:schema:3.2",
     "generate:schema:3.2": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-3.2/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-3.2.txt --out ./schemas/haproxy-3.2.schema.json --language-data-out ./schemas/haproxy-3.2.language.json --grammar-out ./syntaxes/haproxy-3.2.tmLanguage.json --grammar-template ./syntaxes/haproxy.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-3.2.json --version 3.2",
@@ -170,7 +171,7 @@
     "generate:grammar:3.0": "python -m haproxy_schema emit-grammar --schema ./schemas/haproxy-3.0.schema.json --out ./syntaxes/haproxy-3.0.tmLanguage.json --grammar-template ./syntaxes/haproxy.tmLanguage.json",
     "sync:active-grammar": "node scripts/sync-active-grammar.mjs",
     "generate:language-data": "npm run generate:schema",
-    "test": "npm run compile && npm run test:grammar-coverage && npm run test:highlight && npm run test:diagnostics && npm run test:completion && npm run test:format && npm run test:format-indent && npm run test:symbols && npm run test:folding && npm run compare:haproxy"
+    "test": "npm run compile && npm run test:grammar-coverage && npm run test:highlight && npm run test:diagnostics && npm run test:completion && npm run test:format && npm run test:format-indent && npm run test:symbols && npm run test:folding && npm run test:navigation && npm run compare:haproxy"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",

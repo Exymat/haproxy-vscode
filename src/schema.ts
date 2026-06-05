@@ -65,6 +65,9 @@ export interface StatementRule {
   prefix?: string;
   sections?: string[];
   fixed_slots?: FixedSlotSpec[];
+  reference_kind?: string;
+  definition_kind?: string;
+  symbol_name_token_index?: number;
 }
 
 export interface HaproxySchema {
