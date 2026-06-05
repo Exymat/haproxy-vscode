@@ -1,8 +1,5 @@
 # HAProxy Language Support
 
-[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/Exymat.haproxy-config?label=VS%20Code%20Marketplace)](https://marketplace.visualstudio.com/items?itemName=Exymat.haproxy-config)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/Exymat.haproxy-config?label=installs)](https://marketplace.visualstudio.com/items?itemName=Exymat.haproxy-config)
-[![Rating](https://img.shields.io/visual-studio-marketplace/r/Exymat.haproxy-config?label=rating)](https://marketplace.visualstudio.com/items?itemName=Exymat.haproxy-config)
 [![CI](https://github.com/Exymat/haproxy-vscode/actions/workflows/test.yml/badge.svg)](https://github.com/Exymat/haproxy-vscode/actions/workflows/test.yml)
 [![Coverage](https://img.shields.io/codecov/c/github/Exymat/haproxy-vscode?label=coverage)](https://app.codecov.io/gh/Exymat/haproxy-vscode)
 [![License](https://img.shields.io/github/license/Exymat/haproxy-vscode)](LICENSE)
