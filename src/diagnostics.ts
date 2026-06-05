@@ -68,6 +68,7 @@ interface SectionBlock {
 
 function parseSectionHeader(line: ParsedLine): SectionBlock | null {
   if (!line.isSectionHeader || line.tokens.length === 0) {
+    /* c8 ignore next -- runtimeModeForLine only calls this for section headers with tokens */
     return null;
   }
   const kind = line.tokens[0].text.toLowerCase();
@@ -138,6 +139,7 @@ function runtimeModeForLine(parsed: ParsedLine[]): Array<RuntimeMode | null> {
       return hit;
     }
     if (resolving.has(idx)) {
+      /* c8 ignore next -- defaults inheritance only resolves backward, so cycles are unreachable */
       return null;
     }
     resolving.add(idx);
@@ -230,6 +232,7 @@ function modeContextDiagnostic(
   mode: RuntimeMode | null,
 ): vscode.Diagnostic | null {
   if (!mode || contexts.length === 0) {
+    /* c8 ignore next -- contextDiagnostics callers already guarantee both mode and non-empty contexts */
     return null;
   }
   const normalized = contexts.map((c) => c.toLowerCase());

@@ -71,6 +71,52 @@ describe("diagnostics extended branches", () => {
     expect(diags.some((d) => d.code === "wrong-context")).toBe(true);
   });
 
+  it("does not report wrong-context for non runtime-specific contexts", () => {
+    const schema = structuredClone(bundle34.schema);
+    schema.keywords.maxconn = {
+      ...schema.keywords.maxconn,
+      contexts: ["spop"],
+    };
+    const doc = createDocument("frontend x\n    mode spop\n    maxconn 1000");
+    const diags = computeDiagnostics(doc as never, schema, {
+      languageData: bundle34.languageData,
+    });
+    expect(diags.filter((d) => d.code === "wrong-context")).toHaveLength(0);
+  });
+
+  it("reports wrong-context for HTTP-only option in tcp mode", () => {
+    const doc = createDocument("defaults\n    mode tcp\n    option httplog");
+    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+      languageData: bundle34.languageData,
+    });
+    expect(
+      diags.some((d) => d.code === "wrong-context" && d.message.includes("option httplog")),
+    ).toBe(true);
+  });
+
+  it("skips bind option context checks when no contexts are defined", () => {
+    const schema = structuredClone(bundle34.schema);
+    schema.keyword_groups.bind_options = [
+      ...(schema.keyword_groups.bind_options ?? []),
+      "test-nocontext",
+    ];
+    const doc = createDocument("frontend x\n    mode tcp\n    bind :80 test-nocontext");
+    const diags = computeDiagnostics(doc as never, schema, {
+      languageData: bundle34.languageData,
+    });
+    expect(diags.some((d) => d.code === "wrong-context")).toBe(false);
+  });
+
+  it("reports wrong-context for bind option in incompatible mode", () => {
+    const doc = createDocument("frontend x\n    mode spop\n    bind :80 idle-ping");
+    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+      languageData: bundle34.languageData,
+    });
+    expect(diags.some((d) => d.code === "wrong-context" && d.message.includes("idle-ping"))).toBe(
+      true,
+    );
+  });
+
   it("reports wrong-context with inherited mode from defaults", () => {
     const doc = createDocument(
       "defaults base\n    mode tcp\nfrontend web from base\n    capture cookie SID len 64",
