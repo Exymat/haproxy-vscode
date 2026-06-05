@@ -34,20 +34,20 @@ function runCase(name, content, expected) {
 }
 
 runCase("folds section body below header", "global\n    daemon\n    maxconn 100", [
-  { startLine: 1, endLine: 2 },
+  { startLine: 0, endLine: 2 },
 ]);
 
 runCase("multiple sections", "global\n    daemon\n\ndefaults\n    mode http", [
-  { startLine: 1, endLine: 2 },
-  { startLine: 4, endLine: 4 },
+  { startLine: 0, endLine: 2 },
+  { startLine: 3, endLine: 4 },
 ]);
 
 runCase("skips header-only section", "global\nfrontend web\n    bind :80", [
-  { startLine: 2, endLine: 2 },
+  { startLine: 1, endLine: 2 },
 ]);
 
 runCase("ignores indented backend keyword", "frontend web\n    backend foo\n    bind :80", [
-  { startLine: 1, endLine: 2 },
+  { startLine: 0, endLine: 2 },
 ]);
 
 console.log("folding tests passed: 4");

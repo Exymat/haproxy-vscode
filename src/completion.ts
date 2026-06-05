@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 
 import {
-  allArgumentValues,
-  argumentValuesForPosition,
   argumentPosition,
+  completionValuesForPosition,
+  getKeywordFromSchema,
   resolveDirective,
 } from "./directiveUtils";
 import {
@@ -161,10 +161,16 @@ export function provideCompletionItems(
       return [];
     }
     const kw = sectionKeywords.find((k) => k.name.toLowerCase() === directive.keyword.toLowerCase());
+    const schemaKw = getKeywordFromSchema(schema, directive.keyword);
     const pos = argumentPosition(ctx.tokenIndex, directive.end);
-    const values =
-      argumentValuesForPosition(kw?.arguments, pos, ctx.line, directive.end) ??
-      allArgumentValues(kw?.arguments);
+    const values = completionValuesForPosition(
+      schemaKw,
+      kw,
+      pos,
+      ctx.line,
+      directive.end,
+      directive.keyword
+    );
     return filterByPrefix(
       values.map((v) => v.name),
       partial

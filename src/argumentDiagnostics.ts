@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 
+import { enumNamesForSlot } from "./argumentEnumUtils";
 import { argumentTokenIndices } from "./directiveUtils";
 import { ParsedLine } from "./parser";
 import { HaproxySchema, SchemaKeyword } from "./schema";
@@ -77,59 +78,12 @@ function makeArgDiagnostic(
   return diagnostic;
 }
 
-function isSimpleEnumName(name: string): boolean {
-  return /^[a-z][a-z0-9_.-]*$/i.test(name);
-}
-
-function docEnumValues(schemaKw: SchemaKeyword | undefined): string[] {
-  const values: string[] = [];
-  for (const param of schemaKw?.arguments ?? []) {
-    for (const value of param.values) {
-      const base = value.name.split("(", 1)[0];
-      if (isSimpleEnumName(base)) {
-        values.push(base.toLowerCase());
-      }
-    }
-  }
-  return values;
-}
-
-function shouldUseDocEnumHints(parameter: string | undefined): boolean {
-  if (!parameter) {
-    return false;
-  }
-  const lower = parameter.toLowerCase();
-  if (lower.includes("name") || lower.includes("addr") || lower.includes("path") || lower.includes("file")) {
-    return false;
-  }
-  return lower.startsWith("<");
-}
-
 function enumValuesForSlot(
   slot: ArgumentSlot | undefined,
   schemaKw: SchemaKeyword | undefined,
   position: number
 ): string[] {
-  const fromSignature = (slot?.enum ?? []).map((v) => v.toLowerCase());
-  if (fromSignature.length > 0) {
-    const values = new Set(fromSignature);
-    for (const name of docEnumValues(schemaKw)) {
-      values.add(name);
-    }
-    return [...values];
-  }
-
-  const param =
-    schemaKw?.arguments?.[position] ??
-    (position === 0 ? schemaKw?.arguments?.find((p) => p.parameter === "<algorithm>") : undefined);
-  if (!shouldUseDocEnumHints(param?.parameter)) {
-    return [];
-  }
-  const fromDoc = docEnumValues(schemaKw);
-  if (fromDoc.length >= 2) {
-    return [...new Set(fromDoc)];
-  }
-  return [];
+  return enumNamesForSlot(slot, schemaKw, position).map((v) => v.toLowerCase());
 }
 
 function allowsMissingArgs(schemaKw: SchemaKeyword | undefined, model: ArgumentModel): boolean {

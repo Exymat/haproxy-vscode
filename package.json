@@ -143,6 +143,7 @@
     "test:highlight": "node scripts/test-highlight.mjs",
     "test:grammar-coverage": "node scripts/test-grammar-coverage.mjs",
     "test:diagnostics": "node scripts/test-diagnostics.mjs",
+    "test:completion": "node scripts/test-completion.mjs",
     "test:format": "node scripts/test-formatter.mjs",
     "test:format-indent": "node scripts/test-format-indent.mjs",
     "test:symbols": "node scripts/test-document-symbols.mjs",
@@ -158,7 +159,7 @@
     "generate:grammar:3.0": "python -m haproxy_schema emit-grammar --schema ./schemas/haproxy-3.0.schema.json --out ./syntaxes/haproxy-3.0.tmLanguage.json --grammar-template ./syntaxes/haproxy.tmLanguage.json",
     "sync:active-grammar": "node scripts/sync-active-grammar.mjs",
     "generate:language-data": "npm run generate:schema",
-    "test": "npm run compile && npm run test:grammar-coverage && npm run test:highlight && npm run test:diagnostics && npm run test:format && npm run test:format-indent && npm run test:symbols && npm run test:folding && npm run compare:haproxy"
+    "test": "npm run compile && npm run test:grammar-coverage && npm run test:highlight && npm run test:diagnostics && npm run test:completion && npm run test:format && npm run test:format-indent && npm run test:symbols && npm run test:folding && npm run compare:haproxy"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",

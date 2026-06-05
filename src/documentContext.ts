@@ -41,6 +41,29 @@ function tokenAtPosition(line: ParsedLine, character: number): { index: number; 
   return null;
 }
 
+/** Map cursor position to a token index, including whitespace before the next token. */
+function resolveTokenIndex(
+  line: ParsedLine,
+  character: number
+): { index: number; token: ParsedToken | null } {
+  const hit = tokenAtPosition(line, character);
+  if (hit) {
+    return hit;
+  }
+  for (let i = 0; i < line.tokens.length; i += 1) {
+    const tok = line.tokens[i];
+    if (character <= tok.end) {
+      break;
+    }
+    const next = line.tokens[i + 1];
+    if (!next || character < next.start) {
+      return { index: i + 1, token: null };
+    }
+  }
+  const last = Math.max(0, line.tokens.length - 1);
+  return { index: last, token: line.tokens[last] ?? null };
+}
+
 function linePrefixBeforeCursor(lineText: string, character: number): string {
   return lineText.slice(0, character);
 }
@@ -76,6 +99,9 @@ function classifyByRules(
       rule.phase_token_index ??
       1;
     if (tokenIndex >= minIdx) {
+      if (rule.kind === "directive" && rule.value_token_index !== undefined) {
+        return "directive-argument";
+      }
       return rule.kind as CompletionKind;
     }
   }
@@ -112,9 +138,9 @@ export function getDocumentContext(
   }
 
   const lineText = document.lineAt(position.line).text;
-  const hit = tokenAtPosition(line, position.character);
-  const tokenIndex = hit?.index ?? Math.max(0, line.tokens.length - 1);
-  const token = hit?.token ?? line.tokens[tokenIndex] ?? null;
+  const resolved = resolveTokenIndex(line, position.character);
+  const tokenIndex = resolved.index;
+  const token = resolved.token;
   const prefix = linePrefixBeforeCursor(lineText, position.character);
 
   const exprKind = expressionKindAt(lineText, position.character);

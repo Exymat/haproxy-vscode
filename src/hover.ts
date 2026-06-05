@@ -6,8 +6,10 @@ import {
 } from "./conditionalDirectives";
 import {
   argumentPosition,
+  documentedEnumValueNames,
   findArgumentValue,
   getKeywordFromLanguage,
+  getKeywordFromSchema,
   resolveDirective,
 } from "./directiveUtils";
 import { getDocumentContext, groupItems, keywordsForSection } from "./documentContext";
@@ -208,6 +210,11 @@ export function provideHover(
   }
 
   if (onDirectiveToken) {
+    const schemaKw = getKeywordFromSchema(schema, kw.name);
+    const documentedValues = documentedEnumValueNames(kw, schemaKw);
+    if (documentedValues.length > 0) {
+      extras.push(`**Values:** ${documentedValues.join(", ")}`);
+    }
     if (kw.signatures.length > 1) {
       extras.unshift(`**Forms:**\n${signaturesBlock(kw.signatures)}`);
       return new vscode.Hover(hoverMarkdown(kw.name, "", kw.description, extras, kw.docsUrl), range);

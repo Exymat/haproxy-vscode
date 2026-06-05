@@ -1,3 +1,9 @@
+import {
+  enumNamesForArgumentPosition,
+  EnumValue,
+  filterDirectiveKeywordParts,
+  mergeEnumValues,
+} from "./argumentEnumUtils";
 import { HaproxyLanguageData, LanguageArgumentParam, LanguageKeyword } from "./languageData";
 import { ParsedLine } from "./parser";
 import { HaproxySchema, SchemaKeyword } from "./schema";
@@ -66,6 +72,68 @@ export function findArgumentValue(
   return undefined;
 }
 
+export function isEnumPerParameter(params: LanguageArgumentParam[] | undefined): boolean {
+  if (!params || params.length <= 1) {
+    return false;
+  }
+  return params.every(
+    (param) =>
+      param.values.length === 1 &&
+      param.values[0].name.toLowerCase() === param.parameter.toLowerCase()
+  );
+}
+
+export function documentedEnumValueNames(
+  langKw: LanguageKeyword | undefined,
+  schemaKw?: SchemaKeyword | undefined
+): string[] {
+  if (isEnumPerParameter(langKw?.arguments)) {
+    return allArgumentValues(langKw?.arguments).map((value) => value.name);
+  }
+  const fromSchema = enumNamesForArgumentPosition(schemaKw, langKw, 0);
+  if (fromSchema.length > 0) {
+    return fromSchema;
+  }
+  const single = langKw?.arguments?.[0];
+  if (single && single.values.length >= 2) {
+    return single.values.map((value) => value.name);
+  }
+  return [];
+}
+
+export function completionValuesForPosition(
+  schemaKw: SchemaKeyword | undefined,
+  langKw: LanguageKeyword | undefined,
+  position: number,
+  line: ParsedLine,
+  directiveEnd: number,
+  directiveKeyword: string
+): EnumValue[] {
+  const langValues = filterDirectiveKeywordParts(
+    argumentValuesForPosition(langKw?.arguments, position, line, directiveEnd).map((value) => ({
+      name: value.name,
+      description: value.description,
+    })),
+    directiveKeyword
+  );
+  const schemaNames = enumNamesForArgumentPosition(schemaKw, langKw, position);
+  const descriptions = new Map<string, string>();
+  for (const param of langKw?.arguments ?? []) {
+    for (const value of param.values) {
+      descriptions.set(value.name.split("(", 1)[0].toLowerCase(), value.description);
+    }
+  }
+  for (const param of schemaKw?.arguments ?? []) {
+    for (const value of param.values) {
+      descriptions.set(value.name.split("(", 1)[0].toLowerCase(), value.description);
+    }
+  }
+  return filterDirectiveKeywordParts(
+    mergeEnumValues(langValues, schemaNames, descriptions),
+    directiveKeyword
+  );
+}
+
 export function argumentValuesForPosition(
   params: LanguageArgumentParam[] | undefined,
   position: number,
@@ -77,6 +145,9 @@ export function argumentValuesForPosition(
   }
   if (params.length === 1) {
     return params[0].values;
+  }
+  if (isEnumPerParameter(params)) {
+    return allArgumentValues(params);
   }
   const firstArg = line.tokens[directiveEnd + 1]?.text.toLowerCase() ?? "";
   const urlParam = params.find((p) => p.parameter === "url_param");

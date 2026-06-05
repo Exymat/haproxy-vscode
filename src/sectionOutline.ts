@@ -53,12 +53,12 @@ export interface SectionFoldRange {
   endLine: number;
 }
 
-/** Fold ranges cover section body lines; the section header line stays visible. */
+/** Fold ranges start at the section header; VS Code hides startLine+1..endLine when collapsed. */
 export function buildSectionFoldRanges(parsed: ParsedLine[], lineCount: number): SectionFoldRange[] {
   return buildSectionSymbols(parsed, lineCount)
     .filter((section) => section.endLine > section.startLine)
     .map((section) => ({
-      startLine: section.startLine + 1,
+      startLine: section.startLine,
       endLine: section.endLine,
     }));
 }

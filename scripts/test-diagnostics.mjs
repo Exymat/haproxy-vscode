@@ -133,6 +133,18 @@ const cases = [
     expectations: { total: 1, counts: { "unknown-value": 1 } },
   },
   {
+    name: "mode haterm valid on 3.4",
+    content: "frontend x\n\tmode haterm\n",
+    expectations: { total: 0, counts: {} },
+    schema: schemas["3.4"],
+  },
+  {
+    name: "mode haterm unknown on 3.2",
+    content: "frontend x\n\tmode haterm\n",
+    expectations: { total: 1, counts: { "unknown-value": 1 } },
+    schema: schemas["3.2"],
+  },
+  {
     name: "mode extra argument",
     content: "listen x\n\tmode http this-is-not-valid\n",
     expectations: { total: 1, counts: { "extra-argument": 1 } },
@@ -226,7 +238,7 @@ let failed = false;
 for (const testCase of cases) {
   process.stdout.write(`${testCase.name} ... `);
   try {
-    runCase(testCase.name, testCase.content, testCase.expectations);
+    runCase(testCase.name, testCase.content, testCase.expectations, testCase.schema);
     console.log("ok");
   } catch (error) {
     console.log("FAIL");

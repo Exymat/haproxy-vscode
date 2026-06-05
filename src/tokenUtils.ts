@@ -110,7 +110,7 @@ export const BIND_OPTIONS_WITH_VALUE = new Set([
 
 export const TCP_RULE_PHASES = new Set(["connection", "session", "content", "inspect-delay"]);
 
-export const MODE_VALUES = new Set(["http", "tcp", "log", "health"]);
+export const MODE_VALUES = new Set(["http", "tcp", "log", "health", "spop", "haterm"]);
 
 export const BALANCE_ALGORITHMS = new Set([
   "roundrobin",

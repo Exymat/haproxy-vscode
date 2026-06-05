@@ -2,7 +2,7 @@
 
 **Schema-driven language support for HAProxy configuration files** in Visual Studio Code and compatible editors.
 
-Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, and diagnostics tuned to the HAProxy release you run in production — **3.0**, **3.2**, or **3.4**.
+Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, schema-based diagnostics, document formatting, and section outline — all tuned to the HAProxy release you run in production (**3.0**, **3.2**, or **3.4**).
 
 ---
 
@@ -26,20 +26,38 @@ Completion reloads immediately when you change the configured HAProxy version.
 
 ### Inline documentation
 
-Hover any supported keyword to read summaries sourced from HAProxy’s official `configuration.txt`, with links to the upstream documentation where available.
+Hover any supported keyword to read summaries sourced from HAProxy’s official `configuration.txt`. Many entries include a **link to the upstream HAProxy documentation** for the full reference. Conditional block directives (`.if`, `.elif`, `.else`, `.endif`) are documented as well.
 
 ### Real-time diagnostics
 
 Catch common mistakes while you type:
 
-| Category    | Examples                                              |
-| ----------- | ----------------------------------------------------- |
-| Keywords    | Unknown directive, keyword used in the wrong section  |
-| Structure   | Nested `option` / parameter misuse                    |
-| Arguments   | Missing or extra arguments for known statement shapes |
-| Expressions | Invalid sample fetch / converter references           |
+| Category    | Examples                                                                 |
+| ----------- | ------------------------------------------------------------------------ |
+| Keywords    | Unknown directive, keyword used in the wrong section                     |
+| Structure   | Nested `option` / parameter misuse                                       |
+| Arguments   | Missing or extra arguments for known statement shapes                    |
+| Expressions | Invalid sample fetch / converter references, ACL-only criteria misuse    |
+| Rules       | Unknown `http-request` / `tcp-request` action, unknown `use-service` target |
 
 Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Always validate with your real binary before deploying.
+
+### Document formatting
+
+Run **Format Document** (or enable format-on-save) to normalize layout according to HAProxy’s configuration file rules:
+
+- Section headers (`global`, `frontend`, …) stay left-aligned; directives inside a section are indented consistently.
+- Comments and quoted strings are preserved; inline `#` comments stay on the same line.
+- Optional blank lines are inserted before each new section header.
+
+Indent style (4 spaces, 2 spaces, or tab) and blank-line behavior are configurable — see **Settings** below.
+
+### Outline and folding
+
+Navigate large configs with built-in structure support:
+
+- **Outline** — lists every top-level section (`frontend www`, `backend api`, …) so you can jump quickly.
+- **Folding** — collapse a section’s body while keeping its header visible.
 
 ---
 
@@ -47,7 +65,7 @@ Diagnostics are **schema-based** — they help you write valid-looking config fa
 
 1. **Install** the extension from the Marketplace (or load a `.vsix` locally).
 2. **Open** a HAProxy config (`.cfg` extension is recognized automatically).
-3. **Choose your HAProxy version** so completion, hover, diagnostics, and highlighting match your deployment (see below).
+3. **Choose your HAProxy version** so completion, hover, diagnostics, formatting, and highlighting match your deployment (see below).
 
 No extra runtime is required for day-to-day editing — schemas and grammars ship with the extension.
 
@@ -75,12 +93,15 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 
 ## Settings
 
-| Setting                          | Default | Description                                                                      |
-| -------------------------------- | ------- | -------------------------------------------------------------------------------- |
-| `haproxy.version`                | `3.2`   | HAProxy release used for completion, diagnostics, hover, and syntax highlighting |
-| `haproxy.diagnostics.enabled`    | `true`  | Turn off if opening very large `.cfg` files feels slow                           |
-| `haproxy.diagnostics.debounceMs` | `500`   | Delay after edits before recomputing diagnostics (100–5000 ms)                   |
-| `haproxy.diagnostics.maxLines`   | `4000`  | Skip diagnostics above this line count to limit memory use                       |
+| Setting                                        | Default     | Description                                                                      |
+| ---------------------------------------------- | ----------- | -------------------------------------------------------------------------------- |
+| `haproxy.version`                              | `3.2`       | HAProxy release used for completion, diagnostics, hover, and syntax highlighting |
+| `haproxy.diagnostics.enabled`                  | `true`      | Turn off if opening very large `.cfg` files feels slow                           |
+| `haproxy.diagnostics.debounceMs`               | `500`       | Delay after edits before recomputing diagnostics (100–5000 ms)                   |
+| `haproxy.diagnostics.maxLines`                 | `4000`      | Skip diagnostics above this line count to limit memory use                       |
+| `haproxy.format.enabled`                       | `true`      | Enable **Format Document** for HAProxy configs                                   |
+| `haproxy.format.indent`                        | `spaces-4`  | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                    |
+| `haproxy.format.insertBlankLineBetweenSections`| `true`      | Insert a blank line before each new section header when formatting               |
 
 The extension also raises `editor.maxTokenizationLineLength` for HAProxy files so long `server` / `bind` lines tokenize correctly.
 
@@ -151,7 +172,7 @@ Use **Run HAProxy Extension** in the Run and Debug view after compiling.
 npm test
 ```
 
-Runs grammar, highlight, and diagnostic fixture tests, plus (when `haproxy_git` is present) comparison against `haproxy -c` on upstream sample configs.
+Runs grammar, highlight, diagnostic, formatter, document-symbol, and folding fixture tests, plus (when `haproxy_git` is present) comparison against `haproxy -c` on upstream sample configs.
 
 ### Regenerating schemas
 
