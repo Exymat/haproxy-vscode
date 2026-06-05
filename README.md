@@ -1,5 +1,14 @@
 # HAProxy Language Support
 
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/Exymat.haproxy-config?label=VS%20Code%20Marketplace)](https://marketplace.visualstudio.com/items?itemName=Exymat.haproxy-config)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/Exymat.haproxy-config?label=installs)](https://marketplace.visualstudio.com/items?itemName=Exymat.haproxy-config)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/Exymat.haproxy-config?label=rating)](https://marketplace.visualstudio.com/items?itemName=Exymat.haproxy-config)
+[![CI](https://github.com/Exymat/haproxy-vscode/actions/workflows/test.yml/badge.svg)](https://github.com/Exymat/haproxy-vscode/actions/workflows/test.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/Exymat/haproxy-vscode?label=coverage)](https://app.codecov.io/gh/Exymat/haproxy-vscode)
+[![License](https://img.shields.io/github/license/Exymat/haproxy-vscode)](LICENSE)
+[![Issues](https://img.shields.io/github/issues/Exymat/haproxy-vscode)](https://github.com/Exymat/haproxy-vscode/issues)
+[![Node 24+](https://img.shields.io/badge/node-24%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+
 **Schema-driven language support for HAProxy configuration files** in Visual Studio Code and compatible editors.
 
 Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, schema-based diagnostics, **go to definition** and **find all references**, document formatting, and section outline — all tuned to the HAProxy release you run in production (**2.6**, **2.8**, **3.0**, **3.2**, or **3.4**).
