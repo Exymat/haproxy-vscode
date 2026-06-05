@@ -144,8 +144,8 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "package": "vsce package",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "compile": "tsc -p ./ && tsc -p tsconfig.integration.json && npm run sync:active-grammar -- 3.2",

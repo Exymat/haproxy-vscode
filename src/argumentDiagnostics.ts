@@ -3,7 +3,13 @@ import * as vscode from "vscode";
 import { enumNamesForSlot } from "./argumentEnumUtils";
 import { argumentTokenIndices } from "./directiveUtils";
 import { ParsedLine } from "./parser";
-import { conditionalTokenSet, HaproxySchema, modifierPrefixSet, prefixFamilies } from "./schema";
+import {
+  conditionalTokenSet,
+  HaproxySchema,
+  modifierPrefixSet,
+  prefixFamilies,
+  SchemaKeyword,
+} from "./schema";
 import { isLikelyValue, resolveLongestDirectiveMatch } from "./tokenUtils";
 
 export interface ArgumentSlot {

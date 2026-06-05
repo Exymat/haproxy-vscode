@@ -118,7 +118,10 @@ function resolveForeground(
       if (!ruleMatchesScopes(ruleScope, scopes)) {
         continue;
       }
-      const tail = ruleScope.includes(" ") ? ruleScope.split(/\s+/).pop()! : ruleScope;
+      const scopeParts = ruleScope.split(/\s+/);
+      const tail = ruleScope.includes(" ")
+        ? (scopeParts[scopeParts.length - 1] ?? ruleScope)
+        : ruleScope;
       const specificity = scopeSpecificity(tail.replace(/^source\.haproxy$/, "source.haproxy"));
       if (!best || specificity > best.specificity) {
         best = {

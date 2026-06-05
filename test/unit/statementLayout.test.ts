@@ -18,9 +18,17 @@ describe("statementLayout", () => {
 
   it("matches plain and prefixed statement rules", () => {
     const httpRule = bundle.schema.statement_rules.find((r) => r.keyword === "http-request");
-    expect(ruleMatchesLine(httpRule!, line("    http-request deny if TRUE"))).toBe(true);
+    expect(httpRule).toBeDefined();
+    if (httpRule === undefined) {
+      throw new Error("expected http-request statement rule");
+    }
+    expect(ruleMatchesLine(httpRule, line("    http-request deny if TRUE"))).toBe(true);
     const noOption = bundle.schema.statement_rules.find((r) => r.prefix === "no");
-    expect(ruleMatchesLine(noOption!, line("    no option httplog"))).toBe(true);
+    expect(noOption).toBeDefined();
+    if (noOption === undefined) {
+      throw new Error("expected no-prefix statement rule");
+    }
+    expect(ruleMatchesLine(noOption, line("    no option httplog"))).toBe(true);
   });
 
   it("finds tcp-request rule and resolves token indices from schema", () => {

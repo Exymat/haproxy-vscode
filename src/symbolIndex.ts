@@ -113,7 +113,7 @@ function siteFromToken(
   scopeKey: string | null,
   role: "definition" | "reference",
 ): SymbolSite {
-  const token = line.tokens[tokenIndex]!;
+  const token = line.tokens[tokenIndex];
   return {
     kind,
     name,
@@ -134,7 +134,10 @@ function aclReferenceAt(
   tokenIndex: number,
 ): { name: string; tokenIndex: number } | null {
   const tokens = line.tokens;
-  const token = tokens[tokenIndex]!;
+  const token = tokens[tokenIndex];
+  if (!token) {
+    return null;
+  }
 
   const prev = tokens[tokenIndex - 1]?.text.toLowerCase();
   const prev2 = tokens[tokenIndex - 2]?.text.toLowerCase();

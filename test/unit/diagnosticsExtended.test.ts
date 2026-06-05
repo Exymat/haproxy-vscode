@@ -151,8 +151,11 @@ describe("diagnostics extended branches", () => {
     });
     const wrong = diags.find((d) => d.code === "wrong-section");
     expect(wrong).toBeDefined();
-    expect(wrong!.message).toContain("not supported in section");
-    expect(wrong!.message).not.toContain("allowed in:");
+    if (wrong === undefined) {
+      throw new Error("expected wrong-section diagnostic");
+    }
+    expect(wrong.message).toContain("not supported in section");
+    expect(wrong.message).not.toContain("allowed in:");
   });
 
   it("allows option lines when section exposes option subcommands", () => {

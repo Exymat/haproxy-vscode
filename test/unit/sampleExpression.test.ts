@@ -213,7 +213,10 @@ describe("validateSampleExpressions upstream fixture", () => {
   it.runIf(hasHaproxyGit())("matches documented errors in test-sample-fetch-args.cfg", () => {
     const content = readHaproxyConf("3.2", "test-sample-fetch-args.cfg");
     expect(content).toBeDefined();
-    const lines = content!.split(/\r?\n/);
+    if (content === undefined) {
+      throw new Error("expected test-sample-fetch-args.cfg content");
+    }
+    const lines = content.split(/\r?\n/);
     const issues = lines.flatMap((line) => validateSampleExpressions(line, schema32));
     const codes = new Set(issues.map((d) => d.code));
     expect(codes).toContain("sample-missing-fetch");

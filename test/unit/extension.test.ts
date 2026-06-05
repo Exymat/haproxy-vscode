@@ -116,7 +116,10 @@ describe("extension", () => {
     await vi.runAllTimersAsync();
 
     expect(formatProvider).toBeDefined();
-    const edits = formatProvider!.provideDocumentFormattingEdits(doc);
+    if (formatProvider === undefined) {
+      throw new Error("format provider not registered");
+    }
+    const edits = formatProvider.provideDocumentFormattingEdits(doc);
     expect(edits.length).toBe(1);
     expect((edits[0] as { newText: string }).newText).toContain("bind :443");
   });

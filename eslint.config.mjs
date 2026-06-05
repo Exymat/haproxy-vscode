@@ -8,6 +8,7 @@ import vitest from "@vitest/eslint-plugin";
 const srcFiles = ["src/**/*.ts"];
 const testFiles = ["test/**/*.ts", "vitest.config.ts"];
 
+/** @type {import("eslint").Linter.RulesRecord} */
 const testRelaxedRules = {
   "@typescript-eslint/no-unsafe-assignment": "off",
   "@typescript-eslint/no-unsafe-call": "off",
@@ -50,7 +51,7 @@ export default tseslint.config(
       },
     },
     rules: {
-      "@typescript-eslint/no-require-imports": "warn",
+      "@typescript-eslint/no-require-imports": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
@@ -64,10 +65,10 @@ export default tseslint.config(
     files: testFiles,
     plugins: { vitest },
     rules: {
-      ...vitest.configs.recommended.rules,
+      .../** @type {import("eslint").Linter.RulesRecord} */ (vitest.configs.recommended.rules),
       ...testRelaxedRules,
-      "@typescript-eslint/no-non-null-assertion": "warn",
-      "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+      "@typescript-eslint/no-non-null-assertion": "error",
+      "@typescript-eslint/no-unnecessary-type-assertion": "error",
     },
     languageOptions: {
       globals: {

@@ -11,6 +11,14 @@ const bundles = {
   "3.4": loadSchemaBundle("3.4"),
 };
 
+function hoverText(hover: NonNullable<ReturnType<typeof provideHover>>): string {
+  const md = Array.isArray(hover.contents) ? hover.contents[0] : hover.contents;
+  if (md instanceof MarkdownString) {
+    return md.value;
+  }
+  return typeof md === "string" ? md : ((md as { value?: string })?.value ?? "");
+}
+
 function hoverMarkdown(
   content: string,
   lineNo: number,
@@ -28,11 +36,7 @@ function hoverMarkdown(
   if (!hover) {
     return "";
   }
-  const md = Array.isArray(hover.contents) ? hover.contents[0] : hover.contents;
-  if (md instanceof MarkdownString) {
-    return md.value;
-  }
-  return typeof md === "string" ? md : ((md as { value?: string })?.value ?? "");
+  return hoverText(hover);
 }
 
 describe("provideHover", () => {
@@ -90,7 +94,10 @@ describe("provideHover", () => {
       bundle.schema,
     );
     expect(hover).not.toBeNull();
-    const text = (hover!.contents as MarkdownString).value;
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    const text = hoverText(hover);
     expect(text.toLowerCase()).toContain(".if");
   });
 
@@ -173,7 +180,10 @@ describe("provideHover", () => {
     };
     const col = "    backlog 128".indexOf("128");
     const hover = provideHover(doc as never, { line: 1, character: col }, data, bundle.schema);
-    const text = (hover!.contents as MarkdownString).value;
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    const text = hoverText(hover);
     expect(text).toContain("Parameter:");
     expect(text).toContain("Maximum number of pending connections.");
   });
@@ -216,7 +226,10 @@ describe("provideHover", () => {
       bundle.languageData,
       bundle.schema,
     );
-    const text = (hover!.contents as MarkdownString).value;
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    const text = hoverText(hover);
     expect(text).toContain("option httplog");
   });
 
@@ -230,7 +243,10 @@ describe("provideHover", () => {
       bundle.languageData,
       bundle.schema,
     );
-    const text = (hover!.contents as MarkdownString).value;
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    const text = hoverText(hover);
     expect(text.toLowerCase()).toContain("beg");
   });
 
@@ -269,7 +285,10 @@ describe("provideHover", () => {
       bundle.languageData,
       bundle.schema,
     );
-    const text = (hover!.contents as MarkdownString).value;
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    const text = hoverText(hover);
     expect(text.toLowerCase()).toContain("base");
   });
 
@@ -304,7 +323,10 @@ describe("provideHover", () => {
       bundle.languageData,
       bundle.schema,
     );
-    const text = (hover!.contents as MarkdownString).value;
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    const text = hoverText(hover);
     expect(text.toLowerCase()).toContain("beg");
   });
 });
