@@ -11,6 +11,8 @@ export type CompletionKind =
   | "directive"
   | "directive-argument"
   | "option"
+  | "bind"
+  | "server"
   | "http-request"
   | "http-response"
   | "http-after-response"

@@ -60,6 +60,40 @@ describe("provideHover", () => {
     expect(text.length).toBeGreaterThan(0);
   });
 
+  it("documents bind line options from section 5.1", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    bind :443 ssl",
+      1,
+      "    bind :443 ssl".indexOf("ssl"),
+      "3.4",
+    );
+    expect(text.toLowerCase()).toContain("ssl");
+    expect(text).not.toMatch(/\bbind\b.*\bbind\b/s);
+  });
+
+  it("documents server line options from section 5.2", () => {
+    const text = hoverMarkdown(
+      "backend api\n    server s1 127.0.0.1:80 check",
+      1,
+      "    server s1 127.0.0.1:80 check".indexOf("check"),
+      "3.4",
+    );
+    expect(text.toLowerCase()).toContain("check");
+    expect(text.toLowerCase()).not.toContain("**server**");
+    expect(text).toContain("Valid in modes:");
+  });
+
+  it("shows mode-context metadata for keyword hovers", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    capture cookie SID len 64",
+      1,
+      "    capture cookie SID len 64".indexOf("cookie"),
+      "3.4",
+    );
+    expect(text).toContain("Valid in modes:");
+    expect(text.toLowerCase()).toContain("http");
+  });
+
   it("documents http-request actions", () => {
     const text = hoverMarkdown(
       "frontend web\n    http-request deny",

@@ -1,4 +1,815 @@
 {
+  "keyword_group_contexts": {
+    "bind_options": {
+      "idle-ping": [
+        "tcp",
+        "http",
+        "log"
+      ]
+    },
+    "options": {
+      "abortonclose": [
+        "tcp",
+        "http"
+      ],
+      "accept-unsafe-violations-in-http-request": [
+        "http"
+      ],
+      "accept-unsafe-violations-in-http-response": [
+        "http"
+      ],
+      "allbackups": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "checkcache": [
+        "http"
+      ],
+      "clitcpka": [
+        "tcp",
+        "http"
+      ],
+      "contstats": [
+        "tcp",
+        "http"
+      ],
+      "disable-h2-upgrade": [
+        "http"
+      ],
+      "dontlog-normal": [
+        "tcp",
+        "http"
+      ],
+      "dontlognull": [
+        "tcp",
+        "http"
+      ],
+      "external-check": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "forwardfor": [
+        "http"
+      ],
+      "h1-case-adjust-bogus-client": [
+        "http"
+      ],
+      "h1-case-adjust-bogus-server": [
+        "http"
+      ],
+      "http-buffer-request": [
+        "http"
+      ],
+      "http-drop-request-trailers": [
+        "http"
+      ],
+      "http-drop-response-trailers": [
+        "http"
+      ],
+      "http-ignore-probes": [
+        "http"
+      ],
+      "http-keep-alive": [
+        "http"
+      ],
+      "http-no-delay": [
+        "http"
+      ],
+      "http-pretend-keepalive": [
+        "http"
+      ],
+      "http-restrict-req-hdr-names": [
+        "http"
+      ],
+      "http-server-close": [
+        "http"
+      ],
+      "http-use-proxy-header": [
+        "http"
+      ],
+      "httpchk": [
+        "tcp",
+        "http"
+      ],
+      "httpclose": [
+        "http"
+      ],
+      "httplog": [
+        "http"
+      ],
+      "httpslog": [
+        "http"
+      ],
+      "idle-close-on-response": [
+        "http"
+      ],
+      "independent-streams": [
+        "tcp",
+        "http"
+      ],
+      "ldap-check": [
+        "tcp"
+      ],
+      "log-health-checks": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "log-separate-errors": [
+        "tcp",
+        "http"
+      ],
+      "logasap": [
+        "tcp",
+        "http"
+      ],
+      "mysql-check": [
+        "tcp"
+      ],
+      "nolinger": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "originalto": [
+        "http"
+      ],
+      "persist": [
+        "tcp",
+        "http"
+      ],
+      "pgsql-check user": [
+        "tcp"
+      ],
+      "prefer-last-server": [
+        "tcp",
+        "http"
+      ],
+      "redis-check": [
+        "tcp"
+      ],
+      "redispatch": [
+        "tcp",
+        "http"
+      ],
+      "smtpchk": [
+        "tcp"
+      ],
+      "socket-stats": [
+        "tcp",
+        "http"
+      ],
+      "splice-auto": [
+        "tcp",
+        "http"
+      ],
+      "splice-request": [
+        "tcp",
+        "http"
+      ],
+      "splice-response": [
+        "tcp",
+        "http"
+      ],
+      "spop-check": [
+        "tcp"
+      ],
+      "srvtcpka": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "ssl-hello-chk": [
+        "tcp",
+        "http"
+      ],
+      "tcp-check": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "tcp-smart-accept": [
+        "tcp",
+        "http"
+      ],
+      "tcp-smart-connect": [
+        "tcp",
+        "http"
+      ],
+      "tcpka": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "tcplog": [
+        "tcp",
+        "http"
+      ],
+      "transparent": [
+        "tcp",
+        "http"
+      ]
+    },
+    "server_options": {
+      "addr": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "agent-addr": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "agent-check": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "agent-inter": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "agent-port": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "agent-send": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "allow-0rtt": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "alpn": [
+        "tcp",
+        "http"
+      ],
+      "backup": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "ca-file": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "check": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "check-alpn": [
+        "tcp",
+        "http"
+      ],
+      "check-pool-conn-name": [
+        "tcp",
+        "http"
+      ],
+      "check-proto": [
+        "tcp",
+        "http"
+      ],
+      "check-reuse-pool": [
+        "tcp",
+        "http"
+      ],
+      "check-send-proxy": [
+        "tcp",
+        "http"
+      ],
+      "check-sni": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "check-ssl": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "check-via-socks4": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "ciphers": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "ciphersuites": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "client-sigalgs": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "cookie": [
+        "http"
+      ],
+      "crl-file": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "crt": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "curves": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "disabled": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "downinter": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "enabled": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "error-limit": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "fall": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "fastinter": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "force-sslv3": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "force-tlsv10": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "force-tlsv11": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "force-tlsv12": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "force-tlsv13": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "guid": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "hash-key": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "id": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "idle-ping": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "init-addr": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "init-state": [
+        "tcp",
+        "http"
+      ],
+      "inter": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "log-bufsize": [
+        "log"
+      ],
+      "log-proto": [
+        "log",
+        "ring"
+      ],
+      "max-reuse": [
+        "http",
+        "ring"
+      ],
+      "maxconn": [
+        "tcp",
+        "http"
+      ],
+      "maxqueue": [
+        "tcp",
+        "http"
+      ],
+      "minconn": [
+        "tcp",
+        "http"
+      ],
+      "namespace": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "no-agent-check": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "no-backup": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "no-check": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "no-check-reuse-pool": [
+        "tcp",
+        "http"
+      ],
+      "no-check-ssl": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "no-send-proxy": [
+        "tcp",
+        "http"
+      ],
+      "no-send-proxy-v2": [
+        "tcp",
+        "http"
+      ],
+      "no-send-proxy-v2-ssl": [
+        "tcp",
+        "http"
+      ],
+      "no-send-proxy-v2-ssl-cn": [
+        "tcp",
+        "http"
+      ],
+      "no-ssl": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "no-ssl-reuse": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "no-sslv3": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "no-tfo": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "no-tls-tickets": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "no-tlsv10": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "no-tlsv11": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "no-tlsv12": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "no-tlsv13": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "no-verifyhost": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "non-stick": [
+        "tcp",
+        "http"
+      ],
+      "npn": [
+        "tcp",
+        "http"
+      ],
+      "observe": [
+        "tcp",
+        "http"
+      ],
+      "on-error": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "on-marked-down": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "on-marked-up": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "pool-conn-name": [
+        "http"
+      ],
+      "pool-low-conn": [
+        "http"
+      ],
+      "pool-max-conn": [
+        "http"
+      ],
+      "pool-purge-delay": [
+        "http"
+      ],
+      "port": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "proto": [
+        "tcp",
+        "http"
+      ],
+      "proxy-v2-options": [
+        "tcp",
+        "http"
+      ],
+      "redir": [
+        "http"
+      ],
+      "resolve-net": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "resolve-opts": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "resolve-prefer": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "resolvers": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "rise": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "send-proxy": [
+        "tcp",
+        "http"
+      ],
+      "send-proxy-v2": [
+        "tcp",
+        "http"
+      ],
+      "send-proxy-v2-ssl": [
+        "tcp",
+        "http"
+      ],
+      "send-proxy-v2-ssl-cn": [
+        "tcp",
+        "http"
+      ],
+      "set-proxy-v2-tlv-fmt": [
+        "tcp",
+        "http"
+      ],
+      "shard": [
+        "peers"
+      ],
+      "sigalgs": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "slowstart": [
+        "tcp",
+        "http"
+      ],
+      "sni": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "socks4": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "source": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "ssl": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "ssl-max-ver": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "ssl-min-ver": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "ssl-reuse": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "stick": [
+        "tcp",
+        "http"
+      ],
+      "strict-maxconn": [
+        "tcp",
+        "http"
+      ],
+      "tcp-ut": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "tfo": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "tls-tickets": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "track": [
+        "tcp",
+        "http",
+        "log"
+      ],
+      "verify": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "verifyhost": [
+        "tcp",
+        "http",
+        "log",
+        "peers",
+        "ring"
+      ],
+      "weight": [
+        "tcp",
+        "http"
+      ],
+      "ws": [
+        "http"
+      ]
+    }
+  },
   "keyword_groups": {
     "acl_criteria": [
       "base",
@@ -1317,6 +2128,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "accepted_payload_size",
       "sections": [
         "resolvers"
@@ -1342,6 +2154,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "account-key",
       "sections": [
         "acme"
@@ -1392,6 +2205,10 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "acl",
       "sections": [
         "backend",
@@ -1421,6 +2238,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "acme-vars",
       "sections": [
         "acme"
@@ -1450,6 +2268,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "acme.scheduler",
       "sections": [
         "global"
@@ -1476,6 +2295,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "alias",
       "sections": [
         "crt-list",
@@ -1491,6 +2311,7 @@
     "allow-0rtt": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "allow-0rtt",
       "sections": [
         "crt-list"
@@ -1503,6 +2324,7 @@
     "alpn": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "alpn",
       "sections": [
         "crt-list"
@@ -1526,6 +2348,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "anonkey",
       "sections": [
         "global"
@@ -1551,6 +2374,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "backing-file",
       "sections": [
         "ring"
@@ -1581,6 +2405,10 @@
           "parameter": "<conns>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "backlog",
       "sections": [
@@ -1701,6 +2529,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "balance",
       "sections": [
         "backend",
@@ -1820,6 +2653,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "balance url_param",
       "sections": [
         "backend",
@@ -1871,6 +2709,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "bind",
       "sections": [
         "frontend",
@@ -1900,6 +2742,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "bits",
       "sections": [
         "acme"
@@ -1919,6 +2762,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "busy-polling",
       "sections": [
         "global"
@@ -1944,6 +2788,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ca-base",
       "sections": [
         "global"
@@ -1959,6 +2804,7 @@
     "ca-file": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "ca-file",
       "sections": [
         "crt-list"
@@ -1971,6 +2817,7 @@
     "ca-verify-file": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "ca-verify-file",
       "sections": [
         "crt-list"
@@ -2011,6 +2858,9 @@
           "parameter": "<length>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http"
       ],
       "name": "capture cookie",
       "sections": [
@@ -2056,6 +2906,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "capture request header",
       "sections": [
         "frontend",
@@ -2100,6 +2953,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "capture response header",
       "sections": [
         "frontend",
@@ -2126,6 +2982,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "challenge",
       "sections": [
         "acme"
@@ -2152,6 +3009,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "chroot",
       "sections": [
         "global"
@@ -2167,6 +3025,7 @@
     "ciphers": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "ciphers",
       "sections": [
         "crt-list"
@@ -2179,6 +3038,7 @@
     "ciphersuites": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "ciphersuites",
       "sections": [
         "crt-list"
@@ -2191,6 +3051,7 @@
     "client-sigalgs": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "client-sigalgs",
       "sections": [
         "crt-list"
@@ -2219,6 +3080,11 @@
           "parameter": "<count>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
       ],
       "name": "clitcpka-cnt",
       "sections": [
@@ -2254,6 +3120,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "clitcpka-idle",
       "sections": [
         "defaults",
@@ -2288,6 +3158,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "clitcpka-intvl",
       "sections": [
         "defaults",
@@ -2305,6 +3179,7 @@
     "clitimeout": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "clitimeout",
       "sections": [
         "listen"
@@ -2334,6 +3209,7 @@
           "values": []
         }
       ],
+      "contexts": [],
       "name": "close-spread-time",
       "sections": [
         "global"
@@ -2360,6 +3236,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "cluster-secret",
       "sections": [
         "global"
@@ -2391,6 +3268,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "command",
       "sections": [
         "program"
@@ -2405,6 +3283,7 @@
     "compression": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "compression",
       "sections": [
         "listen"
@@ -2438,6 +3317,9 @@
             }
           ]
         }
+      ],
+      "contexts": [
+        "http"
       ],
       "name": "compression algo",
       "sections": [
@@ -2478,6 +3360,9 @@
           ]
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "compression algo-req",
       "sections": [
         "backend",
@@ -2517,6 +3402,9 @@
           ]
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "compression algo-res",
       "sections": [
         "backend",
@@ -2545,6 +3433,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "compression direction",
       "sections": [
         "backend",
@@ -2573,6 +3464,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "compression minsize-req",
       "sections": [
         "backend",
@@ -2601,6 +3495,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "compression minsize-res",
       "sections": [
         "backend",
@@ -2622,6 +3519,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "compression offload",
       "sections": [
         "backend",
@@ -2660,6 +3560,9 @@
           ]
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "compression type",
       "sections": [
         "backend",
@@ -2688,6 +3591,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "contact",
       "sections": [
         "acme"
@@ -2703,6 +3607,7 @@
     "contimeout": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "contimeout",
       "sections": [
         "listen"
@@ -2795,6 +3700,9 @@
           ]
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "cookie",
       "sections": [
         "backend",
@@ -2852,6 +3760,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "cpu-map",
       "sections": [
         "global"
@@ -2877,6 +3786,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "cpu-policy",
       "sections": [
         "global"
@@ -2903,6 +3813,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "cpu-set",
       "sections": [
         "global"
@@ -2918,6 +3829,7 @@
     "crl-file": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "crl-file",
       "sections": [
         "crt-list"
@@ -2941,6 +3853,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "crt",
       "sections": [
         "crt-list",
@@ -2969,6 +3882,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "crt-base",
       "sections": [
         "crt-store",
@@ -2996,6 +3910,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "curves",
       "sections": [
         "acme",
@@ -3016,6 +3931,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "daemon",
       "sections": [
         "global"
@@ -3045,6 +3961,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "debug.counters",
       "sections": [
         "global"
@@ -3059,6 +3976,7 @@
     "declare": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "declare",
       "sections": [
         "listen"
@@ -3100,6 +4018,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "declare capture",
       "sections": [
         "frontend",
@@ -3126,6 +4048,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "default-bind",
       "sections": [
         "peers"
@@ -3156,6 +4079,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "default-path",
       "sections": [
         "global"
@@ -3187,6 +4111,10 @@
           "parameter": "<param*>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "default-server",
       "sections": [
@@ -3222,6 +4150,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "default_backend",
       "sections": [
         "defaults",
@@ -3249,6 +4181,11 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "description",
       "sections": [
         "backend",
@@ -3279,6 +4216,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "deviceatlas-json-file",
       "sections": [
         "global"
@@ -3304,6 +4242,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "deviceatlas-log-level",
       "sections": [
         "global"
@@ -3329,6 +4268,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "deviceatlas-properties-cookie",
       "sections": [
         "global"
@@ -3354,6 +4294,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "deviceatlas-separator",
       "sections": [
         "global"
@@ -3379,6 +4320,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "directory",
       "sections": [
         "acme"
@@ -3398,6 +4340,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "disabled",
       "sections": [
         "backend",
@@ -3439,6 +4386,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "dispatch",
       "sections": [
         "backend",
@@ -3471,6 +4422,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "dns-accept-family",
       "sections": [
         "global"
@@ -3497,6 +4449,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "docroot",
       "sections": [
         "fcgi-app"
@@ -3522,6 +4475,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "domains",
       "sections": [
         "crt-list",
@@ -3548,6 +4502,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "dynamic-cookie-key",
       "sections": [
         "backend",
@@ -3564,6 +4521,7 @@
     "ecdhe": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "ecdhe",
       "sections": [
         "crt-list"
@@ -3592,6 +4550,11 @@
           "parameter": "<emailaddr>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
       ],
       "name": "email-alert from",
       "sections": [
@@ -3627,6 +4590,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "email-alert level",
       "sections": [
         "backend",
@@ -3660,6 +4628,11 @@
           "parameter": "<mailersect>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
       ],
       "name": "email-alert mailers",
       "sections": [
@@ -3695,6 +4668,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "email-alert myhostname",
       "sections": [
         "backend",
@@ -3729,6 +4707,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "email-alert to",
       "sections": [
         "backend",
@@ -3750,6 +4733,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "enabled",
       "sections": [
         "backend",
@@ -3779,6 +4767,10 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "error-log-format",
       "sections": [
         "defaults",
@@ -3817,6 +4809,9 @@
           "parameter": "<file>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http"
       ],
       "name": "errorfile",
       "sections": [
@@ -3860,6 +4855,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "errorfiles",
       "sections": [
         "backend",
@@ -3900,6 +4898,9 @@
           "parameter": "<url>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http"
       ],
       "name": "errorloc",
       "sections": [
@@ -3942,6 +4943,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "errorloc302",
       "sections": [
         "backend",
@@ -3983,6 +4987,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "errorloc303",
       "sections": [
         "backend",
@@ -4005,6 +5012,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "expose-deprecated-directives",
       "sections": [
         "global"
@@ -4024,6 +5032,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "expose-experimental-directives",
       "sections": [
         "global"
@@ -4050,6 +5059,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "external-check",
       "sections": [
         "global"
@@ -4207,6 +5217,11 @@
           ]
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "external-check command",
       "sections": [
         "backend",
@@ -4240,6 +5255,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "external-check path",
       "sections": [
         "backend",
@@ -4267,6 +5287,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "fd-hard-limit",
       "sections": [
         "global"
@@ -4304,6 +5325,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "filter",
       "sections": [
         "backend",
@@ -4332,6 +5357,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "force-cfg-parser-pause",
       "sections": [
         "global"
@@ -4367,6 +5393,10 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "force-persist",
       "sections": [
         "backend",
@@ -4428,6 +5458,7 @@
           ]
         }
       ],
+      "contexts": [],
       "name": "format",
       "sections": [
         "ring"
@@ -4459,6 +5490,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "fullconn",
       "sections": [
         "backend",
@@ -4486,6 +5521,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "gid",
       "sections": [
         "global"
@@ -4517,6 +5553,7 @@
           "values": []
         }
       ],
+      "contexts": [],
       "name": "grace",
       "sections": [
         "global"
@@ -4549,6 +5586,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "group",
       "sections": [
         "global",
@@ -4577,6 +5615,11 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "guid",
       "sections": [
         "backend",
@@ -4598,6 +5641,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "h1-accept-payload-with-any-method",
       "sections": [
         "global"
@@ -4630,6 +5674,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "h1-case-adjust",
       "sections": [
         "global"
@@ -4656,6 +5701,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "h1-case-adjust-file",
       "sections": [
         "global"
@@ -4675,6 +5721,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "h1-do-not-close-on-insecure-transfer-encoding",
       "sections": [
         "global"
@@ -4694,6 +5741,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "h2-workaround-bogus-websocket-clients",
       "sections": [
         "global"
@@ -4725,6 +5773,7 @@
           "values": []
         }
       ],
+      "contexts": [],
       "name": "hard-stop-after",
       "sections": [
         "global"
@@ -4754,6 +5803,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "harden.reject-privileged-ports.quic",
       "sections": [
         "global"
@@ -4783,6 +5833,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "harden.reject-privileged-ports.tcp",
       "sections": [
         "global"
@@ -4815,6 +5866,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "hash-balance-factor",
       "sections": [
         "backend",
@@ -4846,6 +5901,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "hash-preserve-affinity",
       "sections": [
         "backend",
@@ -4906,6 +5964,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "hash-type",
       "sections": [
         "backend",
@@ -4939,6 +6002,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "hold",
       "sections": [
         "resolvers"
@@ -4970,6 +6034,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "http-after-response",
       "sections": [
         "backend",
@@ -4988,6 +6055,7 @@
     "http-check": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "http-check",
       "sections": [
         "listen"
@@ -5016,6 +6084,10 @@
           "parameter": "<string>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "http-check comment",
       "sections": [
@@ -5113,6 +6185,10 @@
           ]
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "http-check connect",
       "sections": [
         "backend",
@@ -5133,6 +6209,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "http-check disable-on-404",
       "sections": [
         "backend",
@@ -5187,6 +6267,10 @@
           ]
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "http-check expect",
       "sections": [
         "backend",
@@ -5226,6 +6310,10 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "http-check send",
       "sections": [
         "backend",
@@ -5246,6 +6334,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "http-check send-state",
       "sections": [
         "backend",
@@ -5278,6 +6370,10 @@
           "parameter": "<fmt>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "http-check set-var",
       "sections": [
@@ -5312,6 +6408,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "http-check set-var-fmt",
       "sections": [
         "backend",
@@ -5332,6 +6432,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "http-check unset-var",
       "sections": [
         "backend",
@@ -5377,6 +6481,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "http-err-codes",
       "sections": [
         "global"
@@ -5392,6 +6497,7 @@
     "http-error": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "http-error",
       "sections": [
         "listen"
@@ -5432,6 +6538,9 @@
           ]
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "http-error status",
       "sections": [
         "backend",
@@ -5460,6 +6569,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "http-errors",
       "sections": [
         "http-errors"
@@ -5503,6 +6613,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "http-fail-codes",
       "sections": [
         "global"
@@ -5535,6 +6646,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "http-request",
       "sections": [
         "backend",
@@ -5570,6 +6684,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "http-response",
       "sections": [
         "backend",
@@ -5604,6 +6721,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "http-reuse",
       "sections": [
         "backend",
@@ -5637,6 +6757,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "http-send-name-header",
       "sections": [
         "backend",
@@ -5664,6 +6787,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "httpclient.resolvers.disabled",
       "sections": [],
       "signatures": [
@@ -5688,6 +6812,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "httpclient.resolvers.id",
       "sections": [],
       "signatures": [
@@ -5712,6 +6837,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "httpclient.resolvers.prefer",
       "sections": [],
       "signatures": [
@@ -5736,6 +6862,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "httpclient.retries",
       "sections": [],
       "signatures": [
@@ -5760,6 +6887,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "httpclient.ssl.ca-file",
       "sections": [],
       "signatures": [
@@ -5784,6 +6912,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "httpclient.ssl.verify",
       "sections": [],
       "signatures": [
@@ -5814,6 +6943,7 @@
           "values": []
         }
       ],
+      "contexts": [],
       "name": "httpclient.timeout.connect",
       "sections": [],
       "signatures": [
@@ -5838,6 +6968,11 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "id",
       "sections": [
         "backend",
@@ -5874,6 +7009,10 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "ignore-persist",
       "sections": [
         "backend",
@@ -5900,6 +7039,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "index",
       "sections": [
         "fcgi-app"
@@ -5918,6 +7058,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "insecure-fork-wanted",
       "sections": [
         "global"
@@ -5936,6 +7077,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "insecure-setuid-wanted",
       "sections": [
         "global"
@@ -5961,6 +7103,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "issuer",
       "sections": [
         "crt-list",
@@ -5987,6 +7130,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "issuers-chain-path",
       "sections": [
         "global"
@@ -6013,6 +7157,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "key",
       "sections": [
         "crt-list",
@@ -6039,6 +7184,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "key-base",
       "sections": [
         "crt-store",
@@ -6066,6 +7212,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "keytype",
       "sections": [
         "acme"
@@ -6085,6 +7232,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "limited-quic",
       "sections": [
         "global"
@@ -6116,6 +7264,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "load",
       "sections": [
         "crt-store"
@@ -6177,6 +7326,11 @@
           ]
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "load-server-state-from-file",
       "sections": [
         "backend",
@@ -6204,6 +7358,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "localpeer",
       "sections": [
         "global"
@@ -6248,6 +7403,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "log",
       "sections": [
         "backend",
@@ -6271,6 +7427,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "log global",
       "sections": [],
       "signatures": [
@@ -6294,6 +7451,10 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "log-format",
       "sections": [
         "defaults",
@@ -6321,6 +7482,10 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "log-format-sd",
       "sections": [
         "defaults",
@@ -6348,6 +7513,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "log-send-hostname",
       "sections": [
         "global"
@@ -6385,6 +7551,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "log-stderr",
       "sections": [
         "fcgi-app"
@@ -6403,6 +7570,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "log-stderr global",
       "sections": [
         "fcgi-app"
@@ -6428,6 +7596,10 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "log-steps",
       "sections": [
         "defaults",
@@ -6456,6 +7628,11 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "log-tag",
       "sections": [
         "backend",
@@ -6503,6 +7680,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "lua-load",
       "sections": [
         "global"
@@ -6547,6 +7725,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "lua-load-per-thread",
       "sections": [
         "global"
@@ -6579,6 +7758,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "lua-prepend-path",
       "sections": [
         "global"
@@ -6617,6 +7797,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "mailer",
       "sections": [
         "mailers"
@@ -6642,6 +7823,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "map",
       "sections": [
         "acme"
@@ -6668,6 +7850,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "master-worker",
       "sections": [
         "global"
@@ -6694,6 +7877,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "max-age",
       "sections": [
         "cache"
@@ -6719,6 +7903,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "max-keep-alive-queue",
       "sections": [
         "backend",
@@ -6747,6 +7934,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "max-object-size",
       "sections": [
         "cache"
@@ -6772,6 +7960,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "max-secondary-entries",
       "sections": [
         "cache"
@@ -6797,6 +7986,10 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "max-session-srv-conns",
       "sections": [
         "defaults",
@@ -6824,6 +8017,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "max-spread-checks",
       "sections": [
         "global"
@@ -6849,6 +8043,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "maxcompcpuusage",
       "sections": [
         "global"
@@ -6874,6 +8069,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "maxcomprate",
       "sections": [
         "global"
@@ -6905,6 +8101,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "maxconn",
       "sections": [
         "defaults",
@@ -6934,6 +8134,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "maxconnrate",
       "sections": [
         "global"
@@ -6959,6 +8160,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "maxlen",
       "sections": [
         "ring"
@@ -6984,6 +8186,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "maxpipes",
       "sections": [
         "global"
@@ -7009,6 +8212,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "maxsessrate",
       "sections": [
         "global"
@@ -7034,6 +8238,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "maxsslconn",
       "sections": [
         "global"
@@ -7060,6 +8265,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "maxsslrate",
       "sections": [
         "global"
@@ -7085,6 +8291,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "maxzlibmem",
       "sections": [
         "global"
@@ -7156,6 +8363,7 @@
           ]
         }
       ],
+      "contexts": [],
       "name": "mode",
       "sections": [
         "backend",
@@ -7173,6 +8381,7 @@
     "module-load": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "module-load",
       "sections": [
         "global"
@@ -7185,6 +8394,7 @@
     "module-path": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "module-path",
       "sections": [
         "global"
@@ -7217,6 +8427,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "monitor fail",
       "sections": [
         "frontend",
@@ -7249,6 +8462,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "monitor-uri",
       "sections": [
         "defaults",
@@ -7276,6 +8492,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "mworker-max-reloads",
       "sections": [
         "global"
@@ -7320,6 +8537,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "nameserver",
       "sections": [
         "resolvers"
@@ -7334,6 +8552,7 @@
     "nbproc": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "nbproc",
       "sections": [
         "global"
@@ -7357,6 +8576,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "nbthread",
       "sections": [
         "global"
@@ -7430,6 +8650,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "no log",
       "sections": [
         "backend",
@@ -7451,6 +8676,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option abortonclose",
       "sections": [
         "backend",
@@ -7467,6 +8696,7 @@
     "no option accept-invalid-http-request": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "no option accept-invalid-http-request",
       "sections": [
         "backend",
@@ -7484,6 +8714,7 @@
     "no option accept-invalid-http-response": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "no option accept-invalid-http-response",
       "sections": [
         "backend",
@@ -7505,6 +8736,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option accept-unsafe-violations-in-http-request",
       "sections": [
         "defaults",
@@ -7525,6 +8759,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option accept-unsafe-violations-in-http-response",
       "sections": [
         "backend",
@@ -7545,6 +8782,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "no option allbackups",
       "sections": [
         "backend",
@@ -7565,6 +8807,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option checkcache",
       "sections": [
         "backend",
@@ -7585,6 +8830,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option clitcpka",
       "sections": [
         "defaults",
@@ -7605,6 +8854,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option disable-h2-upgrade",
       "sections": [
         "defaults",
@@ -7625,6 +8877,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option dontlog-normal",
       "sections": [
         "defaults",
@@ -7645,6 +8901,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option dontlognull",
       "sections": [
         "defaults",
@@ -7671,6 +8931,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "no option forwarded",
       "sections": [
         "backend",
@@ -7691,6 +8954,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "no option get-values",
       "sections": [
         "fcgi-app"
@@ -7709,6 +8973,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option h1-case-adjust-bogus-client",
       "sections": [
         "defaults",
@@ -7729,6 +8996,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option h1-case-adjust-bogus-server",
       "sections": [
         "backend",
@@ -7749,6 +9019,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option http-buffer-request",
       "sections": [
         "backend",
@@ -7770,6 +9043,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option http-drop-request-trailers",
       "sections": [
         "backend",
@@ -7789,6 +9065,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option http-drop-response-trailers",
       "sections": [
         "defaults",
@@ -7809,6 +9088,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option http-ignore-probes",
       "sections": [
         "defaults",
@@ -7829,6 +9111,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option http-keep-alive",
       "sections": [
         "backend",
@@ -7850,6 +9135,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option http-no-delay",
       "sections": [
         "backend",
@@ -7871,6 +9159,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option http-pretend-keepalive",
       "sections": [
         "backend",
@@ -7891,6 +9182,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option http-server-close",
       "sections": [
         "backend",
@@ -7912,6 +9206,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option http-use-proxy-header",
       "sections": [
         "defaults",
@@ -7932,6 +9229,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option httpclose",
       "sections": [
         "backend",
@@ -7953,6 +9253,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "no option idle-close-on-response",
       "sections": [
         "defaults",
@@ -7973,6 +9276,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option independent-streams",
       "sections": [
         "backend",
@@ -7994,6 +9301,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "no option keep-conn",
       "sections": [
         "fcgi-app"
@@ -8012,6 +9320,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "no option log-health-checks",
       "sections": [
         "backend",
@@ -8032,6 +9345,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option log-separate-errors",
       "sections": [
         "defaults",
@@ -8052,6 +9369,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option logasap",
       "sections": [
         "defaults",
@@ -8072,6 +9393,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "no option mpxs-conns",
       "sections": [
         "fcgi-app"
@@ -8090,6 +9412,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "no option nolinger",
       "sections": [
         "backend",
@@ -8111,6 +9438,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option persist",
       "sections": [
         "backend",
@@ -8131,6 +9462,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option prefer-last-server",
       "sections": [
         "backend",
@@ -8157,6 +9492,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option redispatch",
       "sections": [
         "backend",
@@ -8177,6 +9516,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option socket-stats",
       "sections": [
         "defaults",
@@ -8197,6 +9540,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option splice-auto",
       "sections": [
         "backend",
@@ -8218,6 +9565,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option splice-request",
       "sections": [
         "backend",
@@ -8239,6 +9590,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option splice-response",
       "sections": [
         "backend",
@@ -8260,6 +9615,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "no option srvtcpka",
       "sections": [
         "backend",
@@ -8280,6 +9640,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "no option start-on-reload",
       "sections": [
         "program"
@@ -8298,6 +9659,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option tcp-smart-accept",
       "sections": [
         "defaults",
@@ -8318,6 +9683,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option tcp-smart-connect",
       "sections": [
         "backend",
@@ -8338,6 +9707,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "no option transparent",
       "sections": [
         "backend",
@@ -8354,6 +9727,7 @@
     "no-alpn": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "no-alpn",
       "sections": [
         "crt-list"
@@ -8366,6 +9740,7 @@
     "no-ca-names": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "no-ca-names",
       "sections": [
         "crt-list"
@@ -8382,6 +9757,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "no-memory-trimming",
       "sections": [
         "global"
@@ -8401,6 +9777,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "no-quic",
       "sections": [
         "global"
@@ -8426,6 +9803,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "node",
       "sections": [
         "global"
@@ -8444,6 +9822,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "noepoll",
       "sections": [
         "global"
@@ -8463,6 +9842,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "noevports",
       "sections": [
         "global"
@@ -8482,6 +9862,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "nogetaddrinfo",
       "sections": [
         "global"
@@ -8500,6 +9881,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "nokqueue",
       "sections": [
         "global"
@@ -8519,6 +9901,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "nopoll",
       "sections": [
         "global"
@@ -8538,6 +9921,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "noreuseport",
       "sections": [
         "global"
@@ -8556,6 +9940,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "nosplice",
       "sections": [
         "global"
@@ -8570,6 +9955,7 @@
     "npn": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "npn",
       "sections": [
         "crt-list"
@@ -8586,6 +9972,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "numa-cpu-mapping",
       "sections": [
         "global"
@@ -8611,6 +9998,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ocsp",
       "sections": [
         "crt-list",
@@ -8637,6 +10025,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ocsp-update",
       "sections": [
         "crt-list",
@@ -8663,6 +10052,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ocsp-update.disable",
       "sections": [
         "global"
@@ -8695,6 +10085,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ocsp-update.httpproxy",
       "sections": [
         "global"
@@ -8721,6 +10112,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ocsp-update.maxdelay",
       "sections": [
         "global"
@@ -8747,6 +10139,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ocsp-update.mindelay",
       "sections": [
         "global"
@@ -8773,6 +10166,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ocsp-update.mode",
       "sections": [
         "global"
@@ -8788,6 +10182,7 @@
     "option": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "option",
       "sections": [
         "listen"
@@ -8804,6 +10199,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option abortonclose",
       "sections": [
         "backend",
@@ -8820,6 +10219,7 @@
     "option accept-invalid-http-request": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "option accept-invalid-http-request",
       "sections": [
         "backend",
@@ -8836,6 +10236,7 @@
     "option accept-invalid-http-response": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "option accept-invalid-http-response",
       "sections": [
         "backend",
@@ -8856,6 +10257,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option accept-unsafe-violations-in-http-request",
       "sections": [
         "defaults",
@@ -8876,6 +10280,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option accept-unsafe-violations-in-http-response",
       "sections": [
         "backend",
@@ -8896,6 +10303,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "option allbackups",
       "sections": [
         "backend",
@@ -8916,6 +10328,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option checkcache",
       "sections": [
         "backend",
@@ -8936,6 +10351,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option clitcpka",
       "sections": [
         "defaults",
@@ -8956,6 +10375,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option contstats",
       "sections": [
         "defaults",
@@ -8976,6 +10399,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option disable-h2-upgrade",
       "sections": [
         "defaults",
@@ -8996,6 +10422,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option dontlog-normal",
       "sections": [
         "defaults",
@@ -9016,6 +10446,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option dontlognull",
       "sections": [
         "defaults",
@@ -9036,6 +10470,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "option external-check",
       "sections": [
         "backend",
@@ -9063,6 +10502,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "option forwarded",
       "sections": [
         "backend",
@@ -9108,6 +10548,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "option forwardfor",
       "sections": [
         "backend",
@@ -9129,6 +10572,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "option get-values",
       "sections": [
         "fcgi-app"
@@ -9147,6 +10591,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option h1-case-adjust-bogus-client",
       "sections": [
         "defaults",
@@ -9167,6 +10614,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option h1-case-adjust-bogus-server",
       "sections": [
         "backend",
@@ -9187,6 +10637,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option http-buffer-request",
       "sections": [
         "backend",
@@ -9208,6 +10661,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option http-drop-request-trailers",
       "sections": [
         "backend",
@@ -9227,6 +10683,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option http-drop-response-trailers",
       "sections": [
         "defaults",
@@ -9247,6 +10706,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option http-ignore-probes",
       "sections": [
         "defaults",
@@ -9267,6 +10729,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option http-keep-alive",
       "sections": [
         "backend",
@@ -9288,6 +10753,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option http-no-delay",
       "sections": [
         "backend",
@@ -9309,6 +10777,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option http-pretend-keepalive",
       "sections": [
         "backend",
@@ -9359,6 +10830,9 @@
           ]
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "option http-restrict-req-hdr-names",
       "sections": [
         "backend",
@@ -9380,6 +10854,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option http-server-close",
       "sections": [
         "backend",
@@ -9401,6 +10878,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option http-use-proxy-header",
       "sections": [
         "defaults",
@@ -9452,6 +10932,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option httpchk",
       "sections": [
         "backend",
@@ -9476,6 +10960,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option httpclose",
       "sections": [
         "backend",
@@ -9515,6 +11002,9 @@
           ]
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "option httplog",
       "sections": [
         "defaults",
@@ -9535,6 +11025,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option httpslog",
       "sections": [
         "defaults",
@@ -9555,6 +11048,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "option idle-close-on-response",
       "sections": [
         "defaults",
@@ -9575,6 +11071,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option independent-streams",
       "sections": [
         "backend",
@@ -9596,6 +11096,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "option keep-conn",
       "sections": [
         "fcgi-app"
@@ -9614,6 +11115,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "tcp"
+      ],
       "name": "option ldap-check",
       "sections": [
         "backend",
@@ -9634,6 +11138,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "option log-health-checks",
       "sections": [
         "backend",
@@ -9654,6 +11163,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option log-separate-errors",
       "sections": [
         "defaults",
@@ -9674,6 +11187,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option logasap",
       "sections": [
         "defaults",
@@ -9701,6 +11218,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "option max-reqs",
       "sections": [
         "fcgi-app"
@@ -9719,6 +11237,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "option mpxs-conns",
       "sections": [
         "fcgi-app"
@@ -9771,6 +11290,9 @@
           ]
         }
       ],
+      "contexts": [
+        "tcp"
+      ],
       "name": "option mysql-check",
       "sections": [
         "backend",
@@ -9791,6 +11313,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "option nolinger",
       "sections": [
         "backend",
@@ -9831,6 +11358,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "option originalto",
       "sections": [
         "backend",
@@ -9852,6 +11382,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option persist",
       "sections": [
         "backend",
@@ -9885,6 +11419,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "tcp"
+      ],
       "name": "option pgsql-check user",
       "sections": [
         "backend",
@@ -9905,6 +11442,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option prefer-last-server",
       "sections": [
         "backend",
@@ -9925,6 +11466,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "tcp"
+      ],
       "name": "option redis-check",
       "sections": [
         "backend",
@@ -9957,6 +11501,10 @@
           "parameter": "<interval>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "option redispatch",
       "sections": [
@@ -9998,6 +11546,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "tcp"
+      ],
       "name": "option smtpchk",
       "sections": [
         "backend",
@@ -10019,6 +11570,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option socket-stats",
       "sections": [
         "defaults",
@@ -10039,6 +11594,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option splice-auto",
       "sections": [
         "backend",
@@ -10060,6 +11619,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option splice-request",
       "sections": [
         "backend",
@@ -10081,6 +11644,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option splice-response",
       "sections": [
         "backend",
@@ -10102,6 +11669,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "tcp"
+      ],
       "name": "option spop-check",
       "sections": [
         "backend",
@@ -10122,6 +11692,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "option srvtcpka",
       "sections": [
         "backend",
@@ -10142,6 +11717,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option ssl-hello-chk",
       "sections": [
         "backend",
@@ -10162,6 +11741,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "option start-on-reload",
       "sections": [
         "program"
@@ -10180,6 +11760,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "option tcp-check",
       "sections": [
         "backend",
@@ -10200,6 +11785,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option tcp-smart-accept",
       "sections": [
         "defaults",
@@ -10220,6 +11809,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option tcp-smart-connect",
       "sections": [
         "backend",
@@ -10240,6 +11833,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "option tcpka",
       "sections": [
         "backend",
@@ -10279,6 +11877,10 @@
           ]
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option tcplog",
       "sections": [
         "defaults",
@@ -10299,6 +11901,10 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "option transparent",
       "sections": [
         "backend",
@@ -10319,6 +11925,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "parse-resolv-conf",
       "sections": [
         "resolvers"
@@ -10344,6 +11951,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "pass-header",
       "sections": [
         "fcgi-app"
@@ -10369,6 +11977,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "path-info",
       "sections": [
         "fcgi-app"
@@ -10412,6 +12021,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "peer",
       "sections": [
         "peers"
@@ -10436,6 +12046,9 @@
           "parameter": "<name>",
           "values": []
         }
+      ],
+      "contexts": [
+        "tcp"
       ],
       "name": "persist rdp-cookie",
       "sections": [
@@ -10465,6 +12078,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "pidfile",
       "sections": [
         "global"
@@ -10484,6 +12098,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "pp2-never-send-local",
       "sections": [
         "global"
@@ -10503,6 +12118,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "prealloc-fd",
       "sections": [
         "global"
@@ -10535,6 +12151,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "presetenv",
       "sections": [
         "global"
@@ -10561,6 +12178,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "process-vary",
       "sections": [
         "cache"
@@ -10589,6 +12207,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "profiling.memory",
       "sections": [
         "global"
@@ -10618,6 +12237,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "profiling.tasks",
       "sections": [
         "global"
@@ -10644,6 +12264,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "provider-name",
       "sections": [
         "acme"
@@ -10676,6 +12297,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "quic-initial",
       "sections": [
         "defaults",
@@ -10697,6 +12321,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "quick-exit",
       "sections": [
         "global"
@@ -10715,6 +12340,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "quiet",
       "sections": [
         "global"
@@ -10730,6 +12356,7 @@
     "rate-limit": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "rate-limit",
       "sections": [
         "listen"
@@ -10758,6 +12385,10 @@
           "parameter": "<rate>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "rate-limit sessions",
       "sections": [
@@ -10804,6 +12435,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "redirect location",
       "sections": [
         "backend",
@@ -10848,6 +12482,9 @@
           "parameter": "<option>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http"
       ],
       "name": "redirect prefix",
       "sections": [
@@ -10894,6 +12531,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "redirect scheme",
       "sections": [
         "backend",
@@ -10921,6 +12561,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "resetenv",
       "sections": [
         "global"
@@ -10947,6 +12588,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "resolve_retries",
       "sections": [
         "resolvers"
@@ -10977,6 +12619,10 @@
           "parameter": "<value>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "retries",
       "sections": [
@@ -11040,6 +12686,10 @@
           ]
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "retry-on",
       "sections": [
         "backend",
@@ -11071,6 +12721,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "reuse-key",
       "sections": [
         "acme"
@@ -11086,6 +12737,7 @@
     "saml-sso-load": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "saml-sso-load",
       "sections": [
         "global"
@@ -11109,6 +12761,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "sctl",
       "sections": [
         "crt-list",
@@ -11165,6 +12818,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "server",
       "sections": [
         "backend",
@@ -11197,6 +12855,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "server-state-base",
       "sections": [
         "global"
@@ -11222,6 +12881,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "server-state-file",
       "sections": [
         "global"
@@ -11249,6 +12909,11 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "server-state-file-name",
       "sections": [
         "backend",
@@ -11306,6 +12971,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "server-template",
       "sections": [
         "backend",
@@ -11332,6 +13002,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "set-dumpable",
       "sections": [
         "global"
@@ -11363,6 +13034,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "set-param",
       "sections": [
         "fcgi-app"
@@ -11394,6 +13066,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "set-var",
       "sections": [
         "global"
@@ -11426,6 +13099,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "set-var-fmt",
       "sections": [
         "global"
@@ -11458,6 +13132,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "setcap",
       "sections": [
         "global"
@@ -11490,6 +13165,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "setenv",
       "sections": [
         "global"
@@ -11516,6 +13192,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "shards",
       "sections": [
         "peers"
@@ -11530,6 +13207,7 @@
     "sigalgs": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "sigalgs",
       "sections": [
         "crt-list"
@@ -11553,6 +13231,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "size",
       "sections": [
         "ring"
@@ -11632,6 +13311,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "source",
       "sections": [
         "backend",
@@ -11661,6 +13344,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "spread-checks",
       "sections": [
         "global"
@@ -11691,6 +13375,11 @@
           "parameter": "<count>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
       ],
       "name": "srvtcpka-cnt",
       "sections": [
@@ -11726,6 +13415,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "srvtcpka-idle",
       "sections": [
         "backend",
@@ -11760,6 +13454,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "srvtcpka-intvl",
       "sections": [
         "backend",
@@ -11777,6 +13476,7 @@
     "srvtimeout": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "srvtimeout",
       "sections": [
         "listen"
@@ -11800,6 +13500,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-bind-ciphers",
       "sections": [
         "global"
@@ -11826,6 +13527,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-bind-ciphersuites",
       "sections": [
         "global"
@@ -11852,6 +13554,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-bind-client-sigalgs",
       "sections": [
         "global"
@@ -11878,6 +13581,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-bind-curves",
       "sections": [
         "global"
@@ -11904,6 +13608,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-bind-options",
       "sections": [
         "global"
@@ -11930,6 +13635,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-bind-sigalgs",
       "sections": [
         "global"
@@ -11956,6 +13662,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-server-ciphers",
       "sections": [
         "global"
@@ -11982,6 +13689,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-server-ciphersuites",
       "sections": [
         "global"
@@ -12008,6 +13716,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-server-client-sigalgs",
       "sections": [
         "global"
@@ -12034,6 +13743,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-server-curves",
       "sections": [
         "global"
@@ -12060,6 +13770,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-server-options",
       "sections": [
         "global"
@@ -12086,6 +13797,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-default-server-sigalgs",
       "sections": [
         "global"
@@ -12112,6 +13824,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-dh-param-file",
       "sections": [
         "global"
@@ -12144,6 +13857,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-engine",
       "sections": [
         "global"
@@ -12181,6 +13895,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "ssl-f-use",
       "sections": [
         "frontend",
@@ -12201,6 +13919,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-load-extra-del-ext",
       "sections": [
         "global"
@@ -12233,6 +13952,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-load-extra-files",
       "sections": [
         "global"
@@ -12248,6 +13968,7 @@
     "ssl-max-ver": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "ssl-max-ver",
       "sections": [
         "crt-list"
@@ -12260,6 +13981,7 @@
     "ssl-min-ver": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "ssl-min-ver",
       "sections": [
         "crt-list"
@@ -12276,6 +13998,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-mode-async",
       "sections": [
         "global"
@@ -12302,6 +14025,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-propquery",
       "sections": [
         "global"
@@ -12328,6 +14052,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-provider",
       "sections": [
         "global"
@@ -12354,6 +14079,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-provider-path",
       "sections": [
         "global"
@@ -12380,6 +14106,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-security-level",
       "sections": [
         "global"
@@ -12406,6 +14133,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-server-verify",
       "sections": [
         "global"
@@ -12424,6 +14152,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "ssl-skip-self-issued-ca",
       "sections": [
         "global"
@@ -12439,6 +14168,7 @@
     "stats": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "stats",
       "sections": [
         "global"
@@ -12471,6 +14201,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "stats admin",
       "sections": [
         "backend",
@@ -12510,6 +14243,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "stats auth",
       "sections": [
         "backend",
@@ -12531,6 +14267,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "stats enable",
       "sections": [
         "backend",
@@ -12552,6 +14291,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "stats hide-version",
       "sections": [
         "backend",
@@ -12584,6 +14326,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "stats http-request",
       "sections": [
         "backend",
@@ -12611,6 +14356,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "stats maxconn",
       "sections": [
         "global"
@@ -12641,6 +14387,9 @@
           "parameter": "<realm>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http"
       ],
       "name": "stats realm",
       "sections": [
@@ -12675,6 +14424,9 @@
           "parameter": "<delay>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http"
       ],
       "name": "stats refresh",
       "sections": [
@@ -12712,6 +14464,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "stats scope",
       "sections": [
         "backend",
@@ -12740,6 +14495,9 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "stats show-desc",
       "sections": [
         "backend",
@@ -12761,6 +14519,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "stats show-legends",
       "sections": [
         "backend",
@@ -12782,6 +14543,9 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http"
+      ],
       "name": "stats show-modules",
       "sections": [
         "backend",
@@ -12815,6 +14579,9 @@
           "parameter": "<name>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http"
       ],
       "name": "stats show-node",
       "sections": [
@@ -12850,6 +14617,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "stats socket",
       "sections": [
         "global"
@@ -12875,6 +14643,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "stats timeout",
       "sections": [
         "global"
@@ -12906,6 +14675,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "stats uri",
       "sections": [
         "backend",
@@ -12934,6 +14706,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "stats-file",
       "sections": [
         "global"
@@ -12971,6 +14744,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "stick match",
       "sections": [
         "backend",
@@ -13003,6 +14780,10 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "stick on",
       "sections": [
         "backend",
@@ -13041,6 +14822,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "stick store-request",
       "sections": [
         "backend",
@@ -13078,6 +14863,10 @@
           "parameter": "<cond>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "stick store-response",
       "sections": [
@@ -13129,6 +14918,10 @@
         ]
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "stick-table type",
       "sections": [
         "backend",
@@ -13156,6 +14949,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "stress-level",
       "sections": [
         "global"
@@ -13175,6 +14969,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "strict-limits",
       "sections": [
         "global"
@@ -13217,6 +15012,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "table",
       "sections": [
         "peers"
@@ -13231,6 +15027,7 @@
     "tcp-check": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "tcp-check",
       "sections": [
         "listen"
@@ -13259,6 +15056,11 @@
           "parameter": "<string>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
       ],
       "name": "tcp-check comment",
       "sections": [
@@ -13362,6 +15164,11 @@
           ]
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "tcp-check connect",
       "sections": [
         "backend",
@@ -13411,6 +15218,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "tcp-check expect",
       "sections": [
         "backend",
@@ -13449,6 +15261,11 @@
           "parameter": "<fmt>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
       ],
       "name": "tcp-check send",
       "sections": [
@@ -13489,6 +15306,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "tcp-check send-binary",
       "sections": [
         "backend",
@@ -13527,6 +15349,11 @@
           "parameter": "<hexfmt>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
       ],
       "name": "tcp-check send-binary-lf",
       "sections": [
@@ -13567,6 +15394,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "tcp-check send-lf",
       "sections": [
         "backend",
@@ -13599,6 +15431,11 @@
           "parameter": "<fmt>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
       ],
       "name": "tcp-check set-var",
       "sections": [
@@ -13633,6 +15470,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "tcp-check set-var-fmt",
       "sections": [
         "backend",
@@ -13653,6 +15495,11 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "tcp-check unset-var",
       "sections": [
         "backend",
@@ -13669,6 +15516,7 @@
     "tcp-request": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "tcp-request",
       "sections": [
         "listen"
@@ -13704,6 +15552,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "tcp-request connection",
       "sections": [
         "defaults",
@@ -13736,6 +15588,10 @@
           "parameter": "<condition>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "tcp-request content",
       "sections": [
@@ -13771,6 +15627,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "tcp-request inspect-delay",
       "sections": [
         "backend",
@@ -13805,6 +15665,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "tcp-request session",
       "sections": [
         "defaults",
@@ -13821,6 +15685,7 @@
     "tcp-response": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "tcp-response",
       "sections": [
         "listen"
@@ -13849,6 +15714,10 @@
           "parameter": "<condition>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "tcp-response content",
       "sections": [
@@ -13883,6 +15752,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "tcp-response inspect-delay",
       "sections": [
         "backend",
@@ -13916,6 +15789,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "thread-group",
       "sections": [
         "global"
@@ -13942,6 +15816,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "thread-groups",
       "sections": [
         "global"
@@ -13968,6 +15843,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "thread-hard-limit",
       "sections": [
         "global"
@@ -14000,6 +15876,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "timeout",
       "sections": [
         "resolvers"
@@ -14031,6 +15908,11 @@
           "parameter": "<timeout>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
       ],
       "name": "timeout check",
       "sections": [
@@ -14065,6 +15947,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "timeout client",
       "sections": [
         "defaults",
@@ -14097,6 +15983,10 @@
           "parameter": "<timeout>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "timeout client-fin",
       "sections": [
@@ -14131,6 +16021,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "timeout client-hs",
       "sections": [
         "defaults",
@@ -14163,6 +16057,11 @@
           "parameter": "<timeout>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
       ],
       "name": "timeout connect",
       "sections": [
@@ -14198,6 +16097,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "timeout http-keep-alive",
       "sections": [
         "backend",
@@ -14232,6 +16134,9 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http"
+      ],
       "name": "timeout http-request",
       "sections": [
         "backend",
@@ -14260,6 +16165,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "timeout mail",
       "sections": [
         "mailers"
@@ -14290,6 +16196,10 @@
           "parameter": "<timeout>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "timeout queue",
       "sections": [
@@ -14323,6 +16233,11 @@
           "parameter": "<timeout>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
       ],
       "name": "timeout server",
       "sections": [
@@ -14358,6 +16273,11 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
       "name": "timeout server-fin",
       "sections": [
         "backend",
@@ -14390,6 +16310,9 @@
           "parameter": "<timeout>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http"
       ],
       "name": "timeout tarpit",
       "sections": [
@@ -14425,6 +16348,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "timeout tunnel",
       "sections": [
         "backend",
@@ -14452,6 +16379,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "total-max-size",
       "sections": [
         "cache"
@@ -14483,6 +16411,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "trace",
       "sections": [
         "traces"
@@ -14498,6 +16427,10 @@
     "transparent": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "transparent",
       "sections": [
         "backend",
@@ -14529,6 +16462,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.applet.zero-copy-forwarding",
       "sections": [
         "global"
@@ -14555,6 +16489,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.buffers.limit",
       "sections": [
         "global"
@@ -14581,6 +16516,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.buffers.reserve",
       "sections": [
         "global"
@@ -14607,6 +16543,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.bufsize",
       "sections": [
         "global"
@@ -14633,6 +16570,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.bufsize.small",
       "sections": [
         "global"
@@ -14648,6 +16586,7 @@
     "tune.chksize": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "tune.chksize",
       "sections": [
         "global"
@@ -14671,6 +16610,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.comp.maxlevel",
       "sections": [
         "global"
@@ -14697,6 +16637,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.disable-fast-forward",
       "sections": [
         "global"
@@ -14716,6 +16657,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.disable-zero-copy-forwarding",
       "sections": [
         "global"
@@ -14742,6 +16684,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.epoll.mask-events",
       "sections": [
         "global"
@@ -14768,6 +16711,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.events.max-events-at-once",
       "sections": [
         "global"
@@ -14787,6 +16731,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.fail-alloc",
       "sections": [
         "global"
@@ -14822,6 +16767,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.fd.edge-triggered",
       "sections": [
         "global"
@@ -14848,6 +16794,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.glitches.kill.cpu-usage",
       "sections": [
         "global"
@@ -14877,6 +16824,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h1.zero-copy-fwd-recv",
       "sections": [
         "global"
@@ -14906,6 +16854,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h1.zero-copy-fwd-send",
       "sections": [
         "global"
@@ -14932,6 +16881,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.be.glitches-threshold",
       "sections": [
         "global"
@@ -14958,6 +16908,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.be.initial-window-size",
       "sections": [
         "global"
@@ -14984,6 +16935,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.be.max-concurrent-streams",
       "sections": [
         "global"
@@ -15010,6 +16962,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.be.max-frames-at-once",
       "sections": [
         "global"
@@ -15036,6 +16989,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.be.rxbuf",
       "sections": [
         "global"
@@ -15062,6 +17016,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.fe.glitches-threshold",
       "sections": [
         "global"
@@ -15088,6 +17043,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.fe.initial-window-size",
       "sections": [
         "global"
@@ -15114,6 +17070,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.fe.max-concurrent-streams",
       "sections": [
         "global"
@@ -15140,6 +17097,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.fe.max-frames-at-once",
       "sections": [
         "global"
@@ -15166,6 +17124,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.fe.max-rst-at-once",
       "sections": [
         "global"
@@ -15192,6 +17151,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.fe.max-total-streams",
       "sections": [
         "global"
@@ -15218,6 +17178,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.fe.rxbuf",
       "sections": [
         "global"
@@ -15244,6 +17205,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.header-table-size",
       "sections": [
         "global"
@@ -15270,6 +17232,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.initial-window-size",
       "sections": [
         "global"
@@ -15300,6 +17263,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.log-errors",
       "sections": [
         "global"
@@ -15326,6 +17290,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.max-concurrent-streams",
       "sections": [
         "global"
@@ -15352,6 +17317,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.max-frame-size",
       "sections": [
         "global"
@@ -15381,6 +17347,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.h2.zero-copy-fwd-send",
       "sections": [
         "global"
@@ -15407,6 +17374,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.http.cookielen",
       "sections": [
         "global"
@@ -15433,6 +17401,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.http.logurilen",
       "sections": [
         "global"
@@ -15459,6 +17428,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.http.maxhdr",
       "sections": [
         "global"
@@ -15488,6 +17458,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.idle-pool.shared",
       "sections": [
         "global"
@@ -15514,6 +17485,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.idletimer",
       "sections": [
         "global"
@@ -15544,6 +17516,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.listener.default-shards",
       "sections": [
         "global"
@@ -15574,6 +17547,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.listener.multi-queue",
       "sections": [
         "global"
@@ -15603,6 +17577,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.lua.bool-sample-conversion",
       "sections": [
         "global"
@@ -15629,6 +17604,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.lua.burst-timeout",
       "sections": [
         "global"
@@ -15655,6 +17631,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.lua.forced-yield",
       "sections": [
         "global"
@@ -15684,6 +17661,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.lua.log.loggers",
       "sections": [
         "global"
@@ -15714,6 +17692,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.lua.log.stderr",
       "sections": [
         "global"
@@ -15740,6 +17719,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.lua.maxmem",
       "sections": [
         "global"
@@ -15766,6 +17746,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.lua.service-timeout",
       "sections": [
         "global"
@@ -15792,6 +17773,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.lua.session-timeout",
       "sections": [
         "global"
@@ -15818,6 +17800,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.lua.task-timeout",
       "sections": [
         "global"
@@ -15844,6 +17827,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.max-checks-per-thread",
       "sections": [
         "global"
@@ -15870,6 +17854,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.max-rules-at-once",
       "sections": [
         "global"
@@ -15896,6 +17881,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.maxaccept",
       "sections": [
         "global"
@@ -15922,6 +17908,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.maxpollevents",
       "sections": [
         "global"
@@ -15948,6 +17935,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.maxrewrite",
       "sections": [
         "global"
@@ -15974,6 +17962,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.memory.hot-size",
       "sections": [
         "global"
@@ -16000,6 +17989,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.notsent-lowat.client",
       "sections": [
         "global"
@@ -16026,6 +18016,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.notsent-lowat.server",
       "sections": [
         "global"
@@ -16052,6 +18043,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.pattern.cache-size",
       "sections": [
         "global"
@@ -16078,6 +18070,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.peers.max-updates-at-once",
       "sections": [
         "global"
@@ -16104,6 +18097,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.pipesize",
       "sections": [
         "global"
@@ -16130,6 +18124,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.pool-high-fd-ratio",
       "sections": [
         "global"
@@ -16156,6 +18151,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.pool-low-fd-ratio",
       "sections": [
         "global"
@@ -16185,6 +18181,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.pt.zero-copy-forwarding",
       "sections": [
         "global"
@@ -16214,6 +18211,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.cc-hystart",
       "sections": [
         "global"
@@ -16240,6 +18238,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.cc.cubic.min-losses",
       "sections": [
         "global"
@@ -16259,6 +18258,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.disable-tx-pacing",
       "sections": [
         "global"
@@ -16278,6 +18278,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.disable-udp-gso",
       "sections": [
         "global"
@@ -16293,6 +18294,7 @@
     "tune.quic.frontend.conn-tx-buffers.limit": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.frontend.conn-tx-buffers.limit",
       "sections": [
         "global"
@@ -16316,6 +18318,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.frontend.default-max-window-size",
       "sections": [
         "global"
@@ -16342,6 +18345,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.frontend.glitches-threshold",
       "sections": [
         "global"
@@ -16368,6 +18372,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.frontend.max-data-size",
       "sections": [
         "global"
@@ -16394,6 +18399,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.frontend.max-idle-timeout",
       "sections": [
         "global"
@@ -16420,6 +18426,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.frontend.max-streams-bidi",
       "sections": [
         "global"
@@ -16446,6 +18453,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.frontend.max-tx-mem",
       "sections": [
         "global"
@@ -16472,6 +18480,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.frontend.stream-data-ratio",
       "sections": [
         "global"
@@ -16498,6 +18507,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.max-frame-loss",
       "sections": [
         "global"
@@ -16524,6 +18534,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.reorder-ratio",
       "sections": [
         "global"
@@ -16550,6 +18561,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.retry-threshold",
       "sections": [
         "global"
@@ -16579,6 +18591,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.socket-owner",
       "sections": [
         "global"
@@ -16608,6 +18621,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.quic.zero-copy-fwd-send",
       "sections": [
         "global"
@@ -16634,6 +18648,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.rcvbuf.backend",
       "sections": [
         "global"
@@ -16660,6 +18675,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.rcvbuf.client",
       "sections": [
         "global"
@@ -16686,6 +18702,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.rcvbuf.frontend",
       "sections": [
         "global"
@@ -16712,6 +18729,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.rcvbuf.server",
       "sections": [
         "global"
@@ -16738,6 +18756,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.recv_enough",
       "sections": [
         "global"
@@ -16764,6 +18783,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.renice.runtime",
       "sections": [
         "global"
@@ -16790,6 +18810,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.renice.startup",
       "sections": [
         "global"
@@ -16816,6 +18837,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ring.queues",
       "sections": [
         "global"
@@ -16842,6 +18864,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.runqueue-depth",
       "sections": [
         "global"
@@ -16871,6 +18894,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.sched.low-latency",
       "sections": [
         "global"
@@ -16897,6 +18921,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.sndbuf.backend",
       "sections": [
         "global"
@@ -16923,6 +18948,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.sndbuf.client",
       "sections": [
         "global"
@@ -16949,6 +18975,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.sndbuf.frontend",
       "sections": [
         "global"
@@ -16975,6 +19002,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.sndbuf.server",
       "sections": [
         "global"
@@ -17001,6 +19029,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.cachesize",
       "sections": [
         "global"
@@ -17027,6 +19056,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.capture-buffer-size",
       "sections": [
         "global"
@@ -17053,6 +19083,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.capture-cipherlist-size",
       "sections": [
         "global"
@@ -17082,6 +19113,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.certificate-compression",
       "sections": [
         "global"
@@ -17108,6 +19140,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.default-dh-param",
       "sections": [
         "global"
@@ -17127,6 +19160,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.force-private-cache",
       "sections": [
         "global"
@@ -17153,6 +19187,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.hard-maxrecord",
       "sections": [
         "global"
@@ -17182,6 +19217,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.keylog",
       "sections": [
         "global"
@@ -17208,6 +19244,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.lifetime",
       "sections": [
         "global"
@@ -17234,6 +19271,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.maxrecord",
       "sections": [
         "global"
@@ -17260,6 +19298,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.ocsp-update.maxdelay",
       "sections": [
         "global"
@@ -17286,6 +19325,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.ocsp-update.mindelay",
       "sections": [
         "global"
@@ -17312,6 +19352,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.ssl.ssl-ctx-cache-size",
       "sections": [
         "global"
@@ -17338,6 +19379,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.stick-counters",
       "sections": [
         "global"
@@ -17364,6 +19406,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.takeover-other-tg-connections",
       "sections": [
         "global"
@@ -17379,6 +19422,7 @@
     "tune.vars.check-max-size": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "tune.vars.check-max-size",
       "sections": [
         "global"
@@ -17402,6 +19446,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.vars.global-max-size",
       "sections": [
         "global"
@@ -17428,6 +19473,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.vars.proc-max-size",
       "sections": [
         "global"
@@ -17454,6 +19500,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.vars.reqres-max-size",
       "sections": [
         "global"
@@ -17480,6 +19527,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.vars.sess-max-size",
       "sections": [
         "global"
@@ -17506,6 +19554,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.vars.txn-max-size",
       "sections": [
         "global"
@@ -17532,6 +19581,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.zlib.memlevel",
       "sections": [
         "global"
@@ -17557,6 +19607,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "tune.zlib.windowsize",
       "sections": [
         "global"
@@ -17582,6 +19633,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "uid",
       "sections": [
         "global"
@@ -17607,6 +19659,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "ulimit-n",
       "sections": [
         "global"
@@ -17637,6 +19690,10 @@
           "parameter": "<fmt>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "unique-id-format",
       "sections": [
@@ -17670,6 +19727,9 @@
           "parameter": "<name>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http"
       ],
       "name": "unique-id-header",
       "sections": [
@@ -17716,6 +19776,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "unix-bind",
       "sections": [
         "global"
@@ -17741,6 +19802,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "unsetenv",
       "sections": [
         "global"
@@ -17772,6 +19834,10 @@
           "parameter": "<name>",
           "values": []
         }
+      ],
+      "contexts": [
+        "http",
+        "tcp"
       ],
       "name": "use-fcgi-app",
       "sections": [
@@ -17818,6 +19884,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "use-server",
       "sections": [
         "backend",
@@ -17851,6 +19921,10 @@
           "values": []
         }
       ],
+      "contexts": [
+        "http",
+        "tcp"
+      ],
       "name": "use_backend",
       "sections": [
         "frontend",
@@ -17883,6 +19957,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "user",
       "sections": [
         "global",
@@ -17900,6 +19975,7 @@
     "verify": {
       "argument_model": null,
       "arguments": [],
+      "contexts": [],
       "name": "verify",
       "sections": [
         "crt-list"
@@ -17923,6 +19999,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "warn-blocked-traffic-after",
       "sections": [
         "global"
@@ -17949,6 +20026,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "wurfl-cache-size",
       "sections": [
         "global"
@@ -17974,6 +20052,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "wurfl-data-file",
       "sections": [
         "global"
@@ -18005,6 +20084,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "wurfl-information-list",
       "sections": [
         "global"
@@ -18030,6 +20110,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "wurfl-information-list-separator",
       "sections": [
         "global"
@@ -18055,6 +20136,7 @@
         ]
       },
       "arguments": [],
+      "contexts": [],
       "name": "wurfl-patch-file",
       "sections": [
         "global"
@@ -18073,6 +20155,7 @@
         "slots": []
       },
       "arguments": [],
+      "contexts": [],
       "name": "zero-warning",
       "sections": [
         "global"
@@ -39275,6 +41358,21 @@
       "keyword": "bind",
       "kind": "bind",
       "nested_start_index": 2,
+      "phase_token_index": null,
+      "prefix": null,
+      "reference_kind": null,
+      "sections": [],
+      "symbol_name_token_index": null,
+      "value_token_index": null
+    },
+    {
+      "action_token_index": null,
+      "definition_kind": null,
+      "fixed_slots": [],
+      "group": "server_options",
+      "keyword": "default-server",
+      "kind": "server",
+      "nested_start_index": 1,
       "phase_token_index": null,
       "prefix": null,
       "reference_kind": null,

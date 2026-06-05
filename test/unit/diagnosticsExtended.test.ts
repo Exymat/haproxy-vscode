@@ -63,6 +63,24 @@ describe("diagnostics extended branches", () => {
     expect(diags.some((d) => d.code === "wrong-section")).toBe(true);
   });
 
+  it("reports wrong-context for HTTP-only keyword in tcp mode", () => {
+    const doc = createDocument("listen x\n    mode tcp\n    capture cookie SID len 64");
+    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+      languageData: bundle34.languageData,
+    });
+    expect(diags.some((d) => d.code === "wrong-context")).toBe(true);
+  });
+
+  it("reports wrong-context with inherited mode from defaults", () => {
+    const doc = createDocument(
+      "defaults base\n    mode tcp\nfrontend web from base\n    capture cookie SID len 64",
+    );
+    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+      languageData: bundle34.languageData,
+    });
+    expect(diags.some((d) => d.code === "wrong-context")).toBe(true);
+  });
+
   it("allows option lines in defaults", () => {
     const doc = createDocument("defaults\n    option httplog");
     const diags = computeDiagnostics(doc as never, bundle34.schema, {

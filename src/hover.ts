@@ -12,6 +12,7 @@ import {
 import { getDocumentContext, groupItems, keywordsForSection } from "./documentContext";
 import { findKeywordByPrefix, HaproxyLanguageData, LanguageGroupItem } from "./languageData";
 import { HaproxySchema, modifierPrefixSet } from "./schema";
+import { findStatementRule } from "./statementLayout";
 import { HaproxyVersion } from "./version";
 
 function hoverMarkdown(
@@ -53,6 +54,13 @@ function signaturesBlock(signatures: string[]): string {
   return signatures.map((sig) => `- \`${sig}\``).join("\n");
 }
 
+function addContextExtra(extras: string[], contexts: string[] | undefined): void {
+  if (!contexts || contexts.length === 0) {
+    return;
+  }
+  extras.push(`**Valid in modes:** ${contexts.join(", ")}`);
+}
+
 export function provideHover(
   document: vscode.TextDocument,
   position: vscode.Position,
@@ -75,13 +83,46 @@ export function provideHover(
       getKeywordFromLanguage(data, `no option ${ctx.token.text}`);
     if (group || optKeyword) {
       const name = group?.name ?? ctx.token.text;
+      const extras: string[] = [];
+      if (optKeyword?.sections.length) {
+        extras.push(`**Valid in:** ${optKeyword.sections.join(", ")}`);
+      }
+      addContextExtra(
+        extras,
+        schema.keywords[(optKeyword?.name ?? `option ${tokenLower}`).toLowerCase()]?.contexts ??
+          schema.keyword_group_contexts?.options?.[tokenLower],
+      );
       return new vscode.Hover(
         hoverMarkdown(
           `option ${name}`,
           optKeyword?.signatures[0] ?? `option ${name}`,
           optKeyword?.description ?? group?.description ?? "",
-          optKeyword?.sections.length ? [`**Valid in:** ${optKeyword.sections.join(", ")}`] : [],
+          extras,
           optKeyword?.docsUrl ?? group?.docsUrl,
+        ),
+        range,
+      );
+    }
+  }
+
+  const lineOptionGroup =
+    ctx.kind === "bind" ? "bind_options" : ctx.kind === "server" ? "server_options" : null;
+  const lineOptionRule = lineOptionGroup ? findStatementRule(schema, ctx.line) : undefined;
+  const lineOptionStart = lineOptionRule?.nested_start_index ?? -1;
+  if (lineOptionGroup && lineOptionStart >= 0 && ctx.tokenIndex >= lineOptionStart) {
+    const group = groupItems(data, lineOptionGroup).find(
+      (g) => g.name.toLowerCase() === tokenLower,
+    );
+    if (group?.description) {
+      const extras: string[] = [];
+      addContextExtra(extras, schema.keyword_group_contexts?.[lineOptionGroup]?.[tokenLower]);
+      return new vscode.Hover(
+        hoverMarkdown(
+          group.name,
+          group.signature || group.name,
+          group.description,
+          extras,
+          group.docsUrl,
         ),
         range,
       );
@@ -199,6 +240,7 @@ export function provideHover(
   if (kw.sections.length > 0) {
     extras.push(`**Valid in:** ${kw.sections.join(", ")}`);
   }
+  addContextExtra(extras, schema.keywords[kw.name.toLowerCase()]?.contexts);
 
   if (onDirectiveToken) {
     const schemaKw = getKeywordFromSchema(schema, kw.name);

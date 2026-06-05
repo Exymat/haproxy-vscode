@@ -67,6 +67,7 @@ suite("Language features on sample.cfg", () => {
       .map((c) => (typeof c === "string" ? c : "value" in c ? c.value : ""))
       .join("");
     assert.ok(content.length > 0, "Empty hover content");
+    assert.ok(content.includes("Valid in modes:"), "Expected mode-context line in hover");
   });
 
   test("HAProxy version command is registered", async () => {

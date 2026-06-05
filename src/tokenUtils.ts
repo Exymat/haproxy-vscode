@@ -210,35 +210,3 @@ export function normalizeActionName(token: string): string {
   }
   return lower;
 }
-
-export function actionTokenIndex(line: ParsedLine): number | null {
-  const tokens = line.tokens;
-  if (tokens.length < 2) {
-    return null;
-  }
-  const t0 = tokens[0].text.toLowerCase();
-  if (t0 === "http-request" || t0 === "http-response" || t0 === "http-after-response") {
-    return 1;
-  }
-  if (t0 === "tcp-request" || t0 === "tcp-response") {
-    if (tokens.length >= 3) {
-      const t1 = tokens[1].text.toLowerCase();
-      if (t1 === "connection" || t1 === "session" || t1 === "content") {
-        return 2;
-      }
-    }
-    return 1;
-  }
-  return null;
-}
-
-export function tcpPhaseIndex(line: ParsedLine, _phases: Set<string>): number | null {
-  const t0 = line.tokens[0]?.text.toLowerCase();
-  if (t0 !== "tcp-request" && t0 !== "tcp-response") {
-    return null;
-  }
-  if (line.tokens.length < 2) {
-    return null;
-  }
-  return 1;
-}

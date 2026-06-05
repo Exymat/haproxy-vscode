@@ -36,6 +36,7 @@ export interface SchemaArgumentParam {
 export interface SchemaKeyword {
   name: string;
   sections: string[];
+  contexts?: string[];
   signatures: string[];
   sources: string[];
   argument_model?: ArgumentModel;
@@ -87,6 +88,7 @@ export interface HaproxySchema {
   sections: Record<string, SchemaSection>;
   keywords: Record<string, SchemaKeyword>;
   keyword_groups: Record<string, string[]>;
+  keyword_group_contexts?: Record<string, Record<string, string[]>>;
   statement_rules: StatementRule[];
   sample_fetches: Record<string, SampleFunction>;
   sample_converters: Record<string, SampleFunction>;
@@ -200,9 +202,20 @@ export function allTcpRulePhases(schema: HaproxySchema): Set<string> {
 function optionTakesValueFallback(option: string): boolean {
   const lower = option.toLowerCase();
   if (
-    ["crt", "name", "alpn", "addr", "path", "port", "mode", "level", "maxconn", "minconn"].includes(
-      lower,
-    )
+    [
+      "crt",
+      "name",
+      "alpn",
+      "addr",
+      "path",
+      "port",
+      "mode",
+      "level",
+      "maxconn",
+      "minconn",
+      "verify",
+      "verifyhost",
+    ].includes(lower)
   ) {
     return true;
   }
@@ -279,6 +292,7 @@ export function loadSchema(
   data.statement_rules = data.statement_rules ?? [];
   data.sample_fetches = data.sample_fetches ?? {};
   data.sample_converters = data.sample_converters ?? {};
+  data.keyword_group_contexts = data.keyword_group_contexts ?? {};
   data.line_layout = data.line_layout ?? {};
   schemaCache.set(version, data);
   return data;

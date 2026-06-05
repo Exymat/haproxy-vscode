@@ -3,7 +3,8 @@ import * as vscode from "vscode";
 import { DeprecatedIndex } from "./deprecatedIndex";
 import { ParsedLine } from "./parser";
 import { HaproxySchema, modifierPrefixSet, noPrefixKeywordSet, sectionKeywordSet } from "./schema";
-import { actionTokenIndex, normalizeActionName, resolveLongestDirectiveMatch } from "./tokenUtils";
+import { findStatementRule, resolveActionTokenIndex } from "./statementLayout";
+import { normalizeActionName, resolveLongestDirectiveMatch } from "./tokenUtils";
 
 export function documentUsesExposeDeprecatedDirectives(parsed: ParsedLine[]): boolean {
   for (const line of parsed) {
@@ -48,7 +49,8 @@ export function deprecatedLineDiagnostics(
     diagnostics.push(diagnostic);
   }
 
-  const actionIdx = actionTokenIndex(line);
+  const rule = findStatementRule(schema, line);
+  const actionIdx = resolveActionTokenIndex(rule, line);
   if (actionIdx === null) {
     return diagnostics;
   }

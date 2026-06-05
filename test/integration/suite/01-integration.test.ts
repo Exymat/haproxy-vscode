@@ -61,6 +61,12 @@ suite("Integration coverage", () => {
       );
     });
 
+    test("reports wrong-context errors", async () => {
+      const doc = await openFixture("wrong-context.cfg");
+      const diagnostics = await waitForSchemaDiagnostics(doc.uri);
+      assertDiagnosticCounts(diagnostics, { "wrong-context": 1 }, "http-only keyword in tcp mode");
+    });
+
     test("clears diagnostics when diagnostics are disabled", async () => {
       const doc = await openFixture("unknown-option.cfg");
       const before = await waitForSchemaDiagnostics(doc.uri);

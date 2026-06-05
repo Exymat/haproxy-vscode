@@ -84,6 +84,19 @@ describe("statementDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
   });
 
+  it("accepts server verify values", () => {
+    const plain = lineDiag(
+      "backend api\n    server s1 10.0.0.0:9006 check inter 1s verify none",
+      1,
+    );
+    const ssl = lineDiag(
+      "backend api\n    server s1 127.0.0.1:9001 check inter 1s ssl verify none",
+      1,
+    );
+    expect(plain.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+    expect(ssl.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
   it("returns empty for incomplete log and source lines", () => {
     expect(lineDiag("global\n    log", 1)).toEqual([]);
     expect(lineDiag("defaults\n    source", 1)).toEqual([]);

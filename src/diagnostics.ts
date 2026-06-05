@@ -43,6 +43,7 @@ const DIAG_SOURCE = "haproxy";
 type DiagCode =
   | "unknown-keyword"
   | "wrong-section"
+  | "wrong-context"
   | "unknown-option"
   | "unknown-parameter"
   | "unknown-value"
@@ -55,6 +56,114 @@ type DiagCode =
   | "deprecated-keyword"
   | "deprecated-action"
   | "named-defaults-required";
+
+type RuntimeMode = "tcp" | "http" | "log" | "spop" | "haterm";
+
+interface SectionBlock {
+  kind: string;
+  name: string | null;
+  fromDefaults: string | null;
+  explicitMode: RuntimeMode | null;
+}
+
+function parseSectionHeader(line: ParsedLine): SectionBlock | null {
+  if (!line.isSectionHeader || line.tokens.length === 0) {
+    return null;
+  }
+  const kind = line.tokens[0].text.toLowerCase();
+  let name: string | null = null;
+  let fromDefaults: string | null = null;
+  if (line.tokens[1] && line.tokens[1].text.toLowerCase() !== "from") {
+    name = line.tokens[1].text;
+  }
+  for (let i = 1; i < line.tokens.length - 1; i += 1) {
+    if (line.tokens[i].text.toLowerCase() === "from") {
+      fromDefaults = line.tokens[i + 1].text;
+      break;
+    }
+  }
+  return { kind, name, fromDefaults, explicitMode: null };
+}
+
+function isRuntimeMode(value: string): value is RuntimeMode {
+  return (
+    value === "tcp" || value === "http" || value === "log" || value === "spop" || value === "haterm"
+  );
+}
+
+function runtimeModeForLine(parsed: ParsedLine[]): Array<RuntimeMode | null> {
+  const blocks: SectionBlock[] = [];
+  const blockByLine = new Map<number, number>();
+  let currentBlock = -1;
+  for (const line of parsed) {
+    if (line.isSectionHeader) {
+      const block = parseSectionHeader(line);
+      if (block) {
+        blocks.push(block);
+        currentBlock = blocks.length - 1;
+      }
+    }
+    blockByLine.set(line.line, currentBlock);
+    const t0 = line.tokens[0]?.text.toLowerCase();
+    const t1 = line.tokens[1]?.text.toLowerCase();
+    if (currentBlock >= 0 && t0 === "mode" && t1 && isRuntimeMode(t1)) {
+      blocks[currentBlock].explicitMode = t1;
+    }
+  }
+
+  const memo = new Map<number, RuntimeMode | null>();
+  const resolving = new Set<number>();
+  const findNamedDefaultsBefore = (idx: number, name: string): number =>
+    (() => {
+      for (let i = idx - 1; i >= 0; i -= 1) {
+        if (blocks[i].kind === "defaults" && blocks[i].name === name) {
+          return i;
+        }
+      }
+      return -1;
+    })();
+  const findPreviousDefaults = (idx: number): number =>
+    (() => {
+      for (let i = idx - 1; i >= 0; i -= 1) {
+        if (blocks[i].kind === "defaults") {
+          return i;
+        }
+      }
+      return -1;
+    })();
+
+  const resolveMode = (idx: number): RuntimeMode | null => {
+    const hit = memo.get(idx);
+    if (hit !== undefined) {
+      return hit;
+    }
+    if (resolving.has(idx)) {
+      return null;
+    }
+    resolving.add(idx);
+    const block = blocks[idx];
+    let mode: RuntimeMode | null = block.explicitMode;
+    if (!block.explicitMode) {
+      let parent = -1;
+      if (block.fromDefaults) {
+        parent = findNamedDefaultsBefore(idx, block.fromDefaults);
+      } else if (block.kind !== "defaults") {
+        parent = findPreviousDefaults(idx);
+      }
+      if (parent >= 0) {
+        mode = resolveMode(parent);
+      }
+    }
+    resolving.delete(idx);
+    memo.set(idx, mode);
+    return mode;
+  };
+
+  return parsed.map((line) => {
+    const idx = blockByLine.get(line.line) ?? -1;
+    return idx >= 0 ? resolveMode(idx) : null;
+  });
+}
 
 function diagRangeForTokens(line: ParsedLine, startIdx: number, endIdx: number): vscode.Range {
   const startTok = line.tokens[startIdx];
@@ -107,6 +216,109 @@ function optionAllowedInSection(allowed: Set<string>): boolean {
     }
   }
   return false;
+}
+
+function wrongContextMessage(keyword: string, mode: RuntimeMode, contexts: string[]): string {
+  return `'${keyword}' is not supported in mode '${mode}' (allowed in: ${contexts.join(", ")})`;
+}
+
+function modeContextDiagnostic(
+  line: ParsedLine,
+  tokenIndex: number,
+  keyword: string,
+  contexts: string[],
+  mode: RuntimeMode | null,
+): vscode.Diagnostic | null {
+  if (!mode || contexts.length === 0) {
+    return null;
+  }
+  const normalized = contexts.map((c) => c.toLowerCase());
+  const modeSet = ["tcp", "http", "log"];
+  if (!normalized.some((ctx) => modeSet.includes(ctx))) {
+    return null;
+  }
+  if (normalized.includes(mode)) {
+    return null;
+  }
+  return makeDiagnostic(
+    diagRange(line, tokenIndex),
+    wrongContextMessage(keyword, mode, contexts),
+    vscode.DiagnosticSeverity.Warning,
+    "wrong-context",
+  );
+}
+
+function contextDiagnostics(
+  line: ParsedLine,
+  schema: HaproxySchema,
+  allowed: Set<string>,
+  noPrefix: Set<string>,
+  modifierPrefixes: Set<string>,
+  mode: RuntimeMode | null,
+): vscode.Diagnostic[] {
+  if (!mode || line.tokens.length === 0) {
+    return [];
+  }
+  const diagnostics: vscode.Diagnostic[] = [];
+  const t0 = line.tokens[0]?.text.toLowerCase();
+  const t1 = line.tokens[1]?.text.toLowerCase();
+
+  const top = resolveLongestDirectiveMatch(line, allowed, 4, noPrefix, modifierPrefixes);
+  if (top.matched) {
+    const kw = schema.keywords[top.keyword.toLowerCase()];
+    if (kw?.contexts?.length) {
+      const diag = modeContextDiagnostic(line, top.start, kw.name, kw.contexts, mode);
+      if (diag) {
+        diagnostics.push(diag);
+      }
+    }
+  }
+
+  if (t0 === "option" || (t0 === "no" && t1 === "option")) {
+    const idx = t0 === "option" ? 1 : 2;
+    const option = line.tokens[idx]?.text.toLowerCase();
+    if (option) {
+      const contexts = schema.keyword_group_contexts?.options?.[option];
+      if (contexts?.length) {
+        const diag = modeContextDiagnostic(line, idx, `option ${option}`, contexts, mode);
+        if (diag) {
+          diagnostics.push(diag);
+        }
+      }
+    }
+  }
+
+  if (t0 === "bind" || t0 === "server" || t0 === "default-server") {
+    const rule = findStatementRule(schema, line);
+    const groupName = rule?.group;
+    const start = rule?.nested_start_index ?? -1;
+    if (groupName && start >= 0) {
+      const groupContexts = schema.keyword_group_contexts?.[groupName] ?? {};
+      const allowedGroup = new Set(
+        (schema.keyword_groups[groupName] ?? []).map((v) => v.toLowerCase()),
+      );
+      const condStart = line.tokens.findIndex((tok) =>
+        conditionalTokenSet(schema).has(tok.text.toLowerCase()),
+      );
+      const limit = condStart >= 0 ? condStart : line.tokens.length;
+      for (let i = start; i < limit; i += 1) {
+        const option = line.tokens[i].text.toLowerCase().replace(/\*$/, "");
+        if (!allowedGroup.has(option)) {
+          continue;
+        }
+        const contexts = groupContexts[option];
+        if (!contexts?.length) {
+          continue;
+        }
+        const diag = modeContextDiagnostic(line, i, option, contexts, mode);
+        if (diag) {
+          diagnostics.push(diag);
+        }
+      }
+    }
+  }
+
+  return diagnostics;
 }
 
 function topLevelDiagnostics(
@@ -332,6 +544,7 @@ export function computeDiagnostics(
   options: ComputeDiagnosticsOptions = {},
 ): vscode.Diagnostic[] {
   const parsed = getParsedDocument(document);
+  const modesByLine = runtimeModeForLine(parsed);
   const diagnostics: vscode.Diagnostic[] = [];
   const lineTexts = Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
   const deprecatedWarnings = options.deprecatedWarnings !== false;
@@ -360,6 +573,16 @@ export function computeDiagnostics(
     diagnostics.push(...topDiags);
     if (topDiags.length === 0) {
       diagnostics.push(...statementDiagnostics(line, schema));
+      diagnostics.push(
+        ...contextDiagnostics(
+          line,
+          schema,
+          allowed,
+          noPrefix,
+          modifierPrefixes,
+          modesByLine[line.line] ?? null,
+        ),
+      );
       diagnostics.push(...unknownNestedDiagnostics(line, schema));
       diagnostics.push(...argumentModelDiagnostics(line, schema, allowed, noPrefix));
     }

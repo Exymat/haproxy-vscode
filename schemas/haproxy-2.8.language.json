@@ -883,543 +883,543 @@
     ],
     "bind_options": [
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Enforces the use of the NetScaler Client IP insertion protocol over any connection accepted by any of the TCP sockets declared on the same line. The NetScaler Client IP insertion protocol dictates the layer 3/4 addresses of the incoming connection to be used everywhere an address is used, with the only exception of \"tcp-request connection\" rules which will only see the real connection address. Logs will reflect the addresses indicated in the protocol, unless it is violated, in which case the real  address will still be used. This keyword combined with support from external components can be used as an efficient and reliable alternative to the X-Forwarded-For mechanism which is not always reliable and not even always usable. See also \"tcp-request connection expect-netscaler-cip\" for a finer-grained setting of which client is allowed to use the protocol.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-accept-netscaler-cip",
         "name": "accept-netscaler-cip",
         "rulesets": [],
-        "signature": ""
+        "signature": "accept-netscaler-cip <magic number>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Enforces the use of the PROXY protocol over any connection accepted by any of the sockets declared on the same line. Versions 1 and 2 of the PROXY protocol are supported and correctly detected. The PROXY protocol dictates the layer 3/4 addresses of the incoming connection to be used everywhere an address is used, with the only exception of \"tcp-request connection\" rules which will only see the real connection address. Logs will reflect the addresses indicated in the protocol, unless it is violated, in which case the real address will still be used. This keyword combined with support from external components can be used as an efficient and reliable alternative to the X-Forwarded-For mechanism which is not always reliable and not even always usable. See also \"tcp-request connection expect-proxy\" for a finer-grained setting of which client is allowed to use the protocol.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-accept-proxy",
         "name": "accept-proxy",
         "rulesets": [],
-        "signature": ""
+        "signature": "accept-proxy"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Allow receiving early data when using TLSv1.3. This is disabled by default, due to security considerations. Because it is vulnerable to replay attacks, you should only allow if for requests that are safe to replay, i.e. requests that are idempotent. You can use the \"wait-for-handshake\" action for any request that wouldn't be safe with early data.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-allow-0rtt",
         "name": "allow-0rtt",
         "rulesets": [],
-        "signature": ""
+        "signature": "allow-0rtt"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This enables the TLS ALPN extension and advertises the specified protocol list as supported on top of ALPN. The protocol list consists in a comma- delimited list of protocol names, for instance: \"http/1.1,http/1.0\" (without quotes). This requires that the SSL library is built with support for TLS extensions enabled (check with haproxy -vv). The ALPN extension replaces the initial NPN extension. At the protocol layer, ALPN is required to enable HTTP/2 on an HTTPS frontend and HTTP/3 on a QUIC frontend. However, when such frontends have none of \"npn\", \"alpn\" and \"no-alpn\" set, a default value of \"h2,http/1.1\" will be used for a regular HTTPS frontend, and \"h3\" for a QUIC frontend. Versions of OpenSSL prior to 1.0.2 didn't support ALPN and only supposed the now obsolete NPN extension. At the time of writing this, most browsers still support both ALPN and NPN for HTTP/2 so a fallback to NPN may still work for a while. But ALPN must be used whenever possible. Protocols not advertised are not negotiated. For example it is possible to only accept HTTP/2 connections with this:",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-alpn",
         "name": "alpn",
         "rulesets": [],
-        "signature": ""
+        "signature": "alpn <protocols>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the socket's backlog to this value. If unspecified or 0, the frontend's backlog is used instead, which generally defaults to the maxconn value.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-backlog",
         "name": "backlog",
         "rulesets": [],
-        "signature": ""
+        "signature": "backlog <backlog>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It designates a PEM file from which to load CA certificates used to verify client's certificate. It is possible to load a directory containing multiple CAs, in this case HAProxy will try to load every \".pem\", \".crt\", \".cer\", and .crl\" available in the directory, files starting with a dot are ignored.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-ca-file",
         "name": "ca-file",
         "rulesets": [],
-        "signature": ""
+        "signature": "ca-file <cafile>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. Sets a comma separated list of errorIDs to ignore during verify at depth > 0. It could be a numerical ID, or the constant name (X509_V_ERR) which is available in the OpenSSL documentation: https://www.openssl.org/docs/manmaster/man3/X509_STORE_CTX_get_error.html#ERROR-CODES It is recommended to use the constant name as the numerical value can change in new version of OpenSSL. If set to 'all', all errors are ignored. SSL handshake is not aborted if an error is ignored.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-ca-ignore-err",
         "name": "ca-ignore-err",
         "rulesets": [],
-        "signature": ""
+        "signature": "ca-ignore-err [all|<errorID>,...]"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It designates a PEM file containing both the CA certificate and the CA private key used to create and sign server's certificates. This is a mandatory setting when the dynamic generation of certificates is enabled. See 'generate-certificates' for details.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-ca-sign-file",
         "name": "ca-sign-file",
         "rulesets": [],
-        "signature": ""
+        "signature": "ca-sign-file <cafile>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It is the CA private key passphrase. This setting is optional and used only when the dynamic generation of certificates is enabled. See 'generate-certificates' for details.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-ca-sign-pass",
         "name": "ca-sign-pass",
         "rulesets": [],
-        "signature": ""
+        "signature": "ca-sign-pass <passphrase>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting designates a PEM file from which to load CA certificates used to verify client's certificate. It designates CA certificates which must not be included in CA names sent in server hello message. Typically, \"ca-file\" must be defined with intermediate certificates, and \"ca-verify-file\" with certificates to ending the chain, like root CA.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-ca-verify-file",
         "name": "ca-verify-file",
         "rulesets": [],
-        "signature": ""
+        "signature": "ca-verify-file <cafile>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It sets the string describing the list of cipher algorithms (\"cipher suite\") that are negotiated during the SSL/TLS handshake up to TLSv1.2. The format of the string is defined in \"man 1 ciphers\" from OpenSSL man pages. For background information and recommendations see e.g. (https://wiki.mozilla.org/Security/Server_Side_TLS) and (https://mozilla.github.io/server-side-tls/ssl-config-generator/). For TLSv1.3 cipher configuration, please check the \"ciphersuites\" keyword.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-ciphers",
         "name": "ciphers",
         "rulesets": [],
-        "signature": ""
+        "signature": "ciphers <ciphers>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in and OpenSSL 1.1.1 or later was used to build HAProxy. It sets the string describing the list of cipher algorithms (\"cipher suite\") that are negotiated during the TLSv1.3 handshake. The format of the string is defined in \"man 1 ciphers\" from OpenSSL man pages under the \"ciphersuites\" section. For cipher configuration for TLSv1.2 and earlier, please check the \"ciphers\" keyword. This setting might accept TLSv1.2 ciphersuites however this is an undocumented behavior and not recommended as it could be inconsistent or buggy. The default TLSv1.3 ciphersuites of OpenSSL are: \"TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256\"",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-ciphersuites",
         "name": "ciphersuites",
         "rulesets": [],
-        "signature": ""
+        "signature": "ciphersuites <ciphersuites>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It sets the string describing the list of signature algorithms related to client authentication that are negotiated . The format of the string is defined in \"man 3 SSL_CTX_set1_client_sigalgs\" from the OpenSSL man pages. It is not recommended to use this setting if no specific usecase was identified.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-client-sigalgs",
         "name": "client-sigalgs",
         "rulesets": [],
-        "signature": ""
+        "signature": "client-sigalgs <sigalgs>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It designates a PEM file from which to load certificate revocation list used to verify client's certificate. You need to provide a certificate revocation list for every certificate of your certificate authority chain.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-crl-file",
         "name": "crl-file",
         "rulesets": [],
-        "signature": ""
+        "signature": "crl-file <crlfile>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It designates a PEM file containing both the required certificates and any associated private keys. This file can be built by concatenating multiple PEM files into one (e.g. cat cert.pem key.pem > combined.pem). If your CA requires an intermediate certificate, this can also be concatenated into this file. Intermediate certificate can also be shared in a directory via \"issuers-chain-path\" directive.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-crt",
         "name": "crt",
         "rulesets": [],
-        "signature": ""
+        "signature": "crt <cert>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. Sets a comma separated list of errorIDs to ignore during verify at depth == 0. It could be a numerical ID, or the constant name (X509_V_ERR) which is available in the OpenSSL documentation: https://www.openssl.org/docs/manmaster/man3/X509_STORE_CTX_get_error.html#ERROR-CODES It is recommended to use the constant name as the numerical value can change in new version of OpenSSL. If set to 'all', all errors are ignored. SSL handshake is not aborted if an error is ignored.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-crt-ignore-err",
         "name": "crt-ignore-err",
         "rulesets": [],
-        "signature": ""
+        "signature": "crt-ignore-err <errors>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It designates a list of PEM file with an optional ssl configuration and a SNI filter per certificate, with the following format for each line :",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-crt-list",
         "name": "crt-list",
         "rulesets": [],
-        "signature": ""
+        "signature": "crt-list <file>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It sets the string describing the list of elliptic curves algorithms (\"curve suite\") that are negotiated during the SSL/TLS handshake with ECDHE. The format of the string is a colon-delimited list of curve name.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-curves",
         "name": "curves",
         "rulesets": [],
-        "signature": ""
+        "signature": "curves <curves>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-default-crt",
         "name": "default-crt",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Is an optional keyword which is supported only on certain Linux kernels. It states that a connection will only be accepted once some data arrive on it, or at worst after the first retransmit. This should be used only on protocols for which the client talks first (e.g. HTTP). It can slightly improve performance by ensuring that most of the request is already available when the connection is accepted. On the other hand, it will not be able to detect connections which don't talk. It is important to note that this option is broken in all kernels up to 2.6.31, as the connection is never accepted until the client talks. This can cause issues with front firewalls which would see an established connection while the proxy will only see it in SYN_RECV. This option is only supported on TCPv4/TCPv6 sockets and ignored by other ones.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-defer-accept",
         "name": "defer-accept",
         "rulesets": [],
-        "signature": ""
+        "signature": "defer-accept"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It sets the named curve (RFC 4492) used to generate ECDH ephemeral keys. By default, used named curve is prime256v1.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-ecdhe",
         "name": "ecdhe",
         "rulesets": [],
-        "signature": ""
+        "signature": "ecdhe <named curve>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option is only usable with the stats socket. It gives your stats socket the capability to pass listeners FD to another HAProxy process. In master-worker mode, this is not required anymore, the listeners will be passed using the internal socketpairs between the master and the workers.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-expose-fd",
         "name": "expose-fd",
         "rulesets": [],
-        "signature": ""
+        "signature": "expose-fd listeners"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of SSLv3 only on SSL connections instantiated from this listener. SSLv3 is generally less expensive than the TLS counterparts for high connection rates. This option is also available on global statement \"ssl-default-bind-options\". See also \"ssl-min-ver\" and \"ssl-max-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-force-sslv3",
         "name": "force-sslv3",
         "rulesets": [],
-        "signature": ""
+        "signature": "force-sslv3"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of TLSv1.0 only on SSL connections instantiated from this listener. This option is also available on global statement \"ssl-default-bind-options\". See also \"ssl-min-ver\" and \"ssl-max-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-force-tlsv10",
         "name": "force-tlsv10",
         "rulesets": [],
-        "signature": ""
+        "signature": "force-tlsv10"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of TLSv1.1 only on SSL connections instantiated from this listener. This option is also available on global statement \"ssl-default-bind-options\". See also \"ssl-min-ver\" and \"ssl-max-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-force-tlsv11",
         "name": "force-tlsv11",
         "rulesets": [],
-        "signature": ""
+        "signature": "force-tlsv11"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of TLSv1.2 only on SSL connections instantiated from this listener. This option is also available on global statement \"ssl-default-bind-options\". See also \"ssl-min-ver\" and \"ssl-max-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-force-tlsv12",
         "name": "force-tlsv12",
         "rulesets": [],
-        "signature": ""
+        "signature": "force-tlsv12"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of TLSv1.3 only on SSL connections instantiated from this listener. This option is also available on global statement \"ssl-default-bind-options\". See also \"ssl-min-ver\" and \"ssl-max-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-force-tlsv13",
         "name": "force-tlsv13",
         "rulesets": [],
-        "signature": ""
+        "signature": "force-tlsv13"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It enables the dynamic SSL certificates generation. A CA certificate and its private key are necessary (see 'ca-sign-file'). When HAProxy is configured as a transparent forward proxy, SSL requests generate errors because of a common name mismatch on the certificate presented to the client. With this option enabled, HAProxy will try to forge a certificate using the SNI hostname indicated by the client. This is done only if no certificate matches the SNI hostname (see 'crt-list'). If an error occurs, the default certificate is used, else the 'strict-sni' option is set. It can also be used when HAProxy is configured as a reverse proxy to ease the deployment of an architecture with many backends.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-generate-certificates",
         "name": "generate-certificates",
         "rulesets": [],
-        "signature": ""
+        "signature": "generate-certificates"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the group of the UNIX sockets to the designated system gid. It can also be set by default in the global section's \"unix-bind\" statement. Note that some platforms simply ignore this. This setting is equivalent to the \"group\" setting except that the group ID is used instead of its name. This setting is ignored by non UNIX sockets.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-gid",
         "name": "gid",
         "rulesets": [],
-        "signature": ""
+        "signature": "gid <gid>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the group of the UNIX sockets to the designated system group. It can also be set by default in the global section's \"unix-bind\" statement. Note that some platforms simply ignore this. This setting is equivalent to the \"gid\" setting except that the group name is used instead of its gid. This setting is ignored by non UNIX sockets.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-group",
         "name": "group",
         "rulesets": [],
-        "signature": ""
+        "signature": "group <group>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-guid-prefix",
         "name": "guid-prefix",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Fixes the socket ID. By default, socket IDs are automatically assigned, but sometimes it is more convenient to fix them to ease monitoring. This value must be strictly positive and unique within the listener/frontend. This option can only be used when defining only a single socket.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-id",
         "name": "id",
         "rulesets": [],
-        "signature": ""
+        "signature": "id <id>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-idle-ping",
         "name": "idle-ping",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Restricts the socket to a specific interface. When specified, only packets received from that particular interface are processed by the socket. This is currently only supported on Linux. The interface must be a primary system interface, not an aliased interface. It is also possible to bind multiple frontends to the same address if they are bound to different interfaces. Note that binding to a network interface requires root privileges. This parameter is only compatible with TCPv4/TCPv6 sockets. When specified, return traffic uses the same interface as inbound traffic, and its associated routing table, even if there are explicit routes through different interfaces configured. This can prove useful to address asymmetric routing issues when the same client IP addresses need to be able to reach frontends hosted on different interfaces.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-interface",
         "name": "interface",
         "rulesets": [],
-        "signature": ""
+        "signature": "interface <interface>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-label",
         "name": "label",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is used with the stats sockets only to restrict the nature of the commands that can be issued on the socket. It is ignored by other sockets. <level> can be one of : - \"user\" is the least privileged level; only non-sensitive stats can be read, and no change is allowed. It would make sense on systems where it is not easy to restrict access to the socket. - \"operator\" is the default level and fits most common uses. All data can be read, and only non-sensitive changes are permitted (e.g. clear max counters). - \"admin\" should be used with care, as everything is permitted (e.g. clear all counters).",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-level",
         "name": "level",
         "rulesets": [],
-        "signature": ""
+        "signature": "level <level>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Limits the sockets to this number of concurrent connections. Extraneous connections will remain in the system's backlog until a connection is released. If unspecified, the limit will be the same as the frontend's maxconn. Note that in case of port ranges or multiple addresses, the same value will be applied to each socket. This setting enables different limitations on expensive sockets, for instance SSL entries which may easily eat all memory.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-maxconn",
         "name": "maxconn",
         "rulesets": [],
-        "signature": ""
+        "signature": "maxconn <maxconn>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the octal mode used to define access permissions on the UNIX socket. It can also be set by default in the global section's \"unix-bind\" statement. Note that some platforms simply ignore this. This setting is ignored by non UNIX sockets.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-mode",
         "name": "mode",
         "rulesets": [],
-        "signature": ""
+        "signature": "mode <mode>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the TCP Maximum Segment Size (MSS) value to be advertised on incoming connections. This can be used to force a lower MSS for certain specific ports, for instance for connections passing through a VPN. Note that this relies on a kernel feature which is theoretically supported under Linux but was buggy in all versions prior to 2.6.28. It may or may not work on other operating systems. It may also not change the advertised value but change the effective size of outgoing segments. The commonly advertised value for TCPv4 over Ethernet networks is 1460 = 1500(MTU) - 40(IP+TCP). If this value is positive, it will be used as the advertised MSS. If it is negative, it will indicate by how much to reduce the incoming connection's advertised MSS for outgoing segments. This parameter is only compatible with TCP v4/v6 sockets.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-mss",
         "name": "mss",
         "rulesets": [],
-        "signature": ""
+        "signature": "mss <maxseg>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets an optional name for these sockets, which will be reported on the stats page.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-name",
         "name": "name",
         "rulesets": [],
-        "signature": ""
+        "signature": "name <name>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "On Linux, it is possible to specify which network namespace a socket will belong to. This directive makes it possible to explicitly bind a listener to a namespace different from the default one. Please refer to your operating system's documentation to find more details about network namespaces.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-namespace",
         "name": "namespace",
         "rulesets": [],
-        "signature": ""
+        "signature": "namespace <name>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-nbconn",
         "name": "nbconn",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the 'niceness' of connections initiated from the socket. Value must be in the range -1024..1024 inclusive, and defaults to zero. Positive values means that such connections are more friendly to others and easily offer their place in the scheduler. On the opposite, negative values mean that connections want to run with a higher priority than others. The difference only happens under high loads when the system is close to saturation. Negative values are appropriate for low-latency or administration services, and high values are generally recommended for CPU intensive tasks such as SSL processing or bulk transfers which are less sensible to latency. For example, it may make sense to use a positive value for an SMTP socket and a negative one for an RDP socket.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-nice",
         "name": "nice",
         "rulesets": [],
-        "signature": ""
+        "signature": "nice <nice>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Disables ALPN processing (technically speaking this sets the ALPN string to an empty string that will not be advertised). It permits to cancel a previous occurrence of an \"alpn\" setting and to disable application protocol negotiation. It may also be used to prevent a listener from negotiating ALPN with a client on an HTTPS or QUIC listener; by default, HTTPS listeners will advertise \"h2,http/1.1\" and QUIC listeners will advertise \"h3\". See also \"alpn\" bove. Note that when using \"crt-list\", a certificate may override the \"alpn\" setting and re-enable its processing.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-no-alpn",
         "name": "no-alpn",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-alpn"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It prevents from send CA names in server hello message when ca-file is used. Use \"ca-verify-file\" instead of \"ca-file\" with \"no-ca-names\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-no-ca-names",
         "name": "no-ca-names",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-ca-names"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It disables support for SSLv3 on any sockets instantiated from the listener when SSL is supported. Note that SSLv2 is forced disabled in the code and cannot be enabled using any configuration option. This option is also available on global statement \"ssl-default-bind-options\". Use \"ssl-min-ver\" and \"ssl-max-ver\" instead.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-no-sslv3",
         "name": "no-sslv3",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-sslv3"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-no-strict-sni",
         "name": "no-strict-sni",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It disables the stateless session resumption (RFC 5077 TLS Ticket extension) and force to use stateful session resumption. Stateless session resumption is more expensive in CPU usage. This option is also available on global statement \"ssl-default-bind-options\". The TLS ticket mechanism is only used up to TLS 1.2. Forward Secrecy is compromised with TLS tickets, unless ticket keys are periodically rotated (via reload or by using \"tls-ticket-keys\").",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-no-tls-tickets",
         "name": "no-tls-tickets",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-tls-tickets"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It disables support for TLSv1.0 on any sockets instantiated from the listener when SSL is supported. Note that SSLv2 is forced disabled in the code and cannot be enabled using any configuration option. This option is also available on global statement \"ssl-default-bind-options\". Use \"ssl-min-ver\" and \"ssl-max-ver\" instead.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-no-tlsv10",
         "name": "no-tlsv10",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-tlsv10"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It disables support for TLSv1.1 on any sockets instantiated from the listener when SSL is supported. Note that SSLv2 is forced disabled in the code and cannot be enabled using any configuration option. This option is also available on global statement \"ssl-default-bind-options\". Use \"ssl-min-ver\" and \"ssl-max-ver\" instead.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-no-tlsv11",
         "name": "no-tlsv11",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-tlsv11"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It disables support for TLSv1.2 on any sockets instantiated from the listener when SSL is supported. Note that SSLv2 is forced disabled in the code and cannot be enabled using any configuration option. This option is also available on global statement \"ssl-default-bind-options\". Use \"ssl-min-ver\" and \"ssl-max-ver\" instead.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-no-tlsv12",
         "name": "no-tlsv12",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-tlsv12"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It disables support for TLSv1.3 on any sockets instantiated from the listener when SSL is supported. Note that SSLv2 is forced disabled in the code and cannot be enabled using any configuration option. This option is also available on global statement \"ssl-default-bind-options\". Use \"ssl-min-ver\" and \"ssl-max-ver\" instead.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-no-tlsv13",
         "name": "no-tlsv13",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-tlsv13"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This enables the NPN TLS extension and advertises the specified protocol list as supported on top of NPN. The protocol list consists in a comma-delimited list of protocol names, for instance: \"http/1.1,http/1.0\" (without quotes). This requires that the SSL library is built with support for TLS extensions enabled (check with haproxy -vv). Note that the NPN extension has been replaced with the ALPN extension (see the \"alpn\" keyword), though this one is only available starting with OpenSSL 1.0.2. If HTTP/2 is desired on an older version of OpenSSL, NPN might still be used as most clients still support it at the time of writing this. It is possible to enable both NPN and ALPN though it probably doesn't make any sense out of testing.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-npn",
         "name": "npn",
         "rulesets": [],
-        "signature": ""
+        "signature": "npn <protocols>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Use the client's preference when selecting the cipher suite, by default the server's preference is enforced. This option is also available on global statement \"ssl-default-bind-options\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-prefer-client-ciphers",
         "name": "prefer-client-ciphers",
         "rulesets": [],
-        "signature": ""
+        "signature": "prefer-client-ciphers"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-process",
         "name": "process",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Forces the multiplexer's protocol to use for the incoming connections. It must be compatible with the mode of the frontend (TCP or HTTP). It must also be usable on the frontend side. The list of available protocols is reported in haproxy -vv. The protocols properties are reported : the mode (TCP/HTTP), the side (FE/BE), the mux name and its flags.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-proto",
         "name": "proto",
         "rulesets": [],
-        "signature": ""
+        "signature": "proto <name>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is a QUIC specific setting to select the congestion control algorithm for any connection attempts to the configured QUIC listeners. They are similar to those used by TCP.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-quic-cc-algo",
         "name": "quic-cc-algo",
         "rulesets": [],
-        "signature": ""
+        "signature": "quic-cc-algo { cubic | newreno }"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is a QUIC specific setting which forces the use of the QUIC Retry feature for all the connection attempts to the configured QUIC listeners. It consists in veryfying the peers are able to receive packets at the transport address they used to initiate a new connection, sending them a Retry packet which contains a token. This token must be sent back to the Retry packet sender, this latter being the only one to be able to validate the token. Note that QUIC Retry will always be used even if a Retry threshold was set (see \"tune.quic.retry-threshold\" setting).",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-quic-force-retry",
         "name": "quic-force-retry",
         "rulesets": [],
-        "signature": ""
+        "signature": "quic-force-retry"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-quic-socket",
         "name": "quic-socket",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is used with the stats sockets only to configure severity level output prepended to informational feedback messages. Severity level of messages can range between 0 and 7, conforming to syslog rfc5424. Valid and successful socket commands requesting data (i.e. \"show map\", \"get acl foo\" etc.) will never have a severity level prepended. It is ignored by other sockets. <format> can be one of : - \"none\" (default) no severity level is prepended to feedback messages. - \"number\" severity level is prepended as a number. - \"string\" severity level is prepended as a string following the rfc5424 convention.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-severity-output",
         "name": "severity-output",
         "rulesets": [],
-        "signature": ""
+        "signature": "severity-output <format>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "In multi-threaded mode, on operating systems supporting multiple listeners on the same IP:port, this will automatically create this number of multiple identical listeners for the same line, all bound to a fair share of the number of the threads attached to this listener. This can sometimes be useful when using very large thread counts where the in-kernel locking on a single socket starts to cause a significant overhead. In this case the incoming traffic is distributed over multiple sockets and the contention is reduced. Note that doing this can easily increase the CPU usage by making more threads work a little bit.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-shards",
         "name": "shards",
         "rulesets": [],
-        "signature": ""
+        "signature": "shards <number> | by-thread | by-group"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It sets the string describing the list of signature algorithms that are negotiated during the TLSv1.2 and TLSv1.3 handshake. The format of the string is defined in \"man 3 SSL_CTX_set1_sigalgs\" from the OpenSSL man pages. It is not recommended to use this setting unless compatibility with a middlebox is required.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-sigalgs",
         "name": "sigalgs",
         "rulesets": [],
-        "signature": ""
+        "signature": "sigalgs <sigalgs>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It enables SSL deciphering on connections instantiated from this listener. A certificate is necessary (see \"crt\" above). All contents in the buffers will appear in clear text, so that ACLs and HTTP processing will only have access to deciphered contents. SSLv3 is disabled per default, use \"ssl-min-ver SSLv3\" to enable it.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-ssl",
         "name": "ssl",
         "rulesets": [],
-        "signature": ""
+        "signature": "ssl"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of <version> or lower on SSL connections instantiated from this listener. Using this setting without \"ssl-min-ver\" can be ambiguous because the default ssl-min-ver value could change in future HAProxy versions. This option is also available on global statement \"ssl-default-bind-options\". See also \"ssl-min-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-ssl-max-ver",
         "name": "ssl-max-ver",
         "rulesets": [],
-        "signature": ""
+        "signature": "ssl-max-ver [ SSLv3 | TLSv1.0 | TLSv1.1 | TLSv1.2 | TLSv1.3 ]"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of <version> or upper on SSL connections instantiated from this listener. The default value is \"TLSv1.2\". This option is also available on global statement \"ssl-default-bind-options\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-ssl-min-ver",
         "name": "ssl-min-ver",
         "rulesets": [],
-        "signature": ""
+        "signature": "ssl-min-ver [ SSLv3 | TLSv1.0 | TLSv1.1 | TLSv1.2 | TLSv1.3 ]"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. The SSL/TLS negotiation is allow only if the client provided an SNI which match a certificate. The default certificate is not used. This option also allows to start without any certificate on a bind line, so an empty directory could be used and filled later from the stats socket. See the \"crt\" option for more information. See \"add ssl crt-list\" command in the management guide.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-strict-sni",
         "name": "strict-sni",
         "rulesets": [],
-        "signature": ""
+        "signature": "strict-sni"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the TCP User Timeout for all incoming connections instantiated from this listening socket. This option is available on Linux since version 2.6.37. It allows HAProxy to configure a timeout for sockets which contain data not receiving an acknowledgment for the configured delay. This is especially useful on long-lived connections experiencing long idle periods such as remote terminals or database connection pools, where the client and server timeouts must remain high to allow a long period of idle, but where it is important to detect that the client has disappeared in order to release all resources associated with its connection (and the server's session). The argument is a delay expressed in milliseconds by default. This only works for regular TCP connections, and is ignored for other protocols.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-tcp-ut",
         "name": "tcp-ut",
         "rulesets": [],
-        "signature": ""
+        "signature": "tcp-ut <delay>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Is an optional keyword which is supported only on Linux kernels >= 3.7. It enables TCP Fast Open on the listening socket, which means that clients which support this feature will be able to send a request and receive a response during the 3-way handshake starting from second connection, thus saving one round-trip after the first connection. This only makes sense with protocols that use high connection rates and where each round trip matters. This can possibly cause issues with many firewalls which do not accept data on SYN packets, so this option should only be enabled once well tested. This option is only supported on TCPv4/TCPv6 sockets and ignored by other ones. You may need to build HAProxy with USE_TFO=1 if your libc doesn't define TCP_FASTOPEN.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-tfo",
         "name": "tfo",
         "rulesets": [],
-        "signature": ""
+        "signature": "tfo"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This restricts the list of threads on which this listener is allowed to run. It does not enforce any of them but eliminates those which do not match. It limits the threads allowed to process incoming connections for this listener.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-thread",
         "name": "thread",
         "rulesets": [],
-        "signature": ""
+        "signature": "thread [<thread-group>/]<thread-set>[,...]"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the TLS ticket keys file to load the keys from. The keys need to be 48 or 80 bytes long, depending if aes128 or aes256 is used, encoded with base64 The first key determines the key length used for next keys: you can't mix aes128 and aes256 keys. Number of keys is specified by the TLS_TICKETS_NO build option (default 3) and at least as many keys need to be present in the file. Last TLS_TICKETS_NO keys will be used for decryption and the penultimate one for encryption. This enables easy key rotation by just appending new key to the file and reloading the process.  Keys must be periodically rotated (ex. every 12h) or Perfect Forward Secrecy is compromised. It is also a good idea to keep the keys off any permanent storage such as hard drives (hint: use tmpfs and don't swap those files). Lifetime hint can be changed using tune.ssl.timeout.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-tls-ticket-keys",
         "name": "tls-ticket-keys",
         "rulesets": [],
-        "signature": ""
+        "signature": "tls-ticket-keys <keyfile>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-tls-tickets",
         "name": "tls-tickets",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Is an optional keyword which is supported only on certain Linux kernels. It indicates that the addresses will be bound even if they do not belong to the local machine, and that packets targeting any of these addresses will be intercepted just as if the addresses were locally configured. This normally requires that IP forwarding is enabled. Caution! do not use this with the default address '*', as it would redirect any traffic for the specified port. This keyword is available only when HAProxy is built with USE_LINUX_TPROXY=1. This parameter is only compatible with TCPv4 and TCPv6 sockets, depending on kernel version. Some distribution kernels include backports of the feature, so check for support with your vendor.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-transparent",
         "name": "transparent",
         "rulesets": [],
-        "signature": ""
+        "signature": "transparent"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the owner of the UNIX sockets to the designated system uid. It can also be set by default in the global section's \"unix-bind\" statement. Note that some platforms simply ignore this. This setting is equivalent to the \"user\" setting except that the user numeric ID is used instead of its name. This setting is ignored by non UNIX sockets.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-uid",
         "name": "uid",
         "rulesets": [],
-        "signature": ""
+        "signature": "uid <uid>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the owner of the UNIX sockets to the designated system user. It can also be set by default in the global section's \"unix-bind\" statement. Note that some platforms simply ignore this. This setting is equivalent to the \"uid\" setting except that the user name is used instead of its uid. This setting is ignored by non UNIX sockets.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-user",
         "name": "user",
         "rulesets": [],
-        "signature": ""
+        "signature": "user <user>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Is an optional keyword which is supported only on most recent systems including Linux kernels >= 2.4.21. It is used to bind a socket to both IPv4 and IPv6 when it uses the default address. Doing so is sometimes necessary on systems which bind to IPv6 only by default. It has no effect on non-IPv6 sockets, and is overridden by the \"v6only\" option.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-v4v6",
         "name": "v4v6",
         "rulesets": [],
-        "signature": ""
+        "signature": "v4v6"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Is an optional keyword which is supported only on most recent systems including Linux kernels >= 2.4.21. It is used to bind a socket to IPv6 only when it uses the default address. Doing so is sometimes preferred to doing it system-wide as it is per-listener. It has no effect on non-IPv6 sockets and has precedence over the \"v4v6\" option.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-v6only",
         "name": "v6only",
         "rulesets": [],
-        "signature": ""
+        "signature": "v6only"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. If set to 'none', client certificate is not requested. This is the default. In other cases, a client certificate is requested. If the client does not provide a certificate after the request and if 'verify' is set to 'required', then the handshake is aborted, while it would have succeeded if set to 'optional'. The certificate provided by the client is always verified using CAs from 'ca-file' and optional CRLs from 'crl-file'. On verify failure the handshake is aborted, regardless of the 'verify' option, unless the error code exactly matches one of those listed with 'ca-ignore-err' or 'crt-ignore-err'.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.1-verify",
         "name": "verify",
         "rulesets": [],
-        "signature": ""
+        "signature": "verify [none|optional|required]"
       }
     ],
     "filters": [
@@ -6867,809 +6867,809 @@
     ],
     "server_options": [
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Using the \"addr\" parameter, it becomes possible to use a different IP address to send health-checks or to probe the agent-check. On some servers, it may be desirable to dedicate an IP address to specific component able to perform complex tests which are more suitable to health-checks than the application. This parameter is ignored if the \"check\" parameter is not set. See also the \"port\" parameter.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-addr",
         "name": "addr",
         "rulesets": [],
-        "signature": ""
+        "signature": "addr <ipv4|ipv6>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"agent-addr\" parameter sets address for agent check.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-agent-addr",
         "name": "agent-addr",
         "rulesets": [],
-        "signature": ""
+        "signature": "agent-addr <addr>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Enable an auxiliary agent check which is run independently of a regular health check. An agent health check is performed by making a TCP connection to the port set by the \"agent-port\" parameter and reading an ASCII string terminated by the first '\\r' or '\\n' met. The string is made of a series of words delimited by spaces, tabs or commas in any order, each consisting of :",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-agent-check",
         "name": "agent-check",
         "rulesets": [],
-        "signature": ""
+        "signature": "agent-check"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"agent-inter\" parameter sets the interval between two agent checks to <delay> milliseconds. If left unspecified, the delay defaults to 2000 ms.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-agent-inter",
         "name": "agent-inter",
         "rulesets": [],
-        "signature": ""
+        "signature": "agent-inter <delay>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"agent-port\" parameter sets the TCP port used for agent checks.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-agent-port",
         "name": "agent-port",
         "rulesets": [],
-        "signature": ""
+        "signature": "agent-port <port>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "If this option is specified, HAProxy will send the given string (verbatim) to the agent server upon connection. You could, for example, encode the backend name into this string, which would enable your agent to send different responses based on the backend. Make sure to include a '\\n' if you want to terminate your request with a newline.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-agent-send",
         "name": "agent-send",
         "rulesets": [],
-        "signature": ""
+        "signature": "agent-send <string>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Allow sending early data to the server when using TLS 1.3. Note that early data will be sent only if the client used early data, or if the backend uses \"retry-on\" with the \"0rtt-rejected\" keyword.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-allow-0rtt",
         "name": "allow-0rtt",
         "rulesets": [],
-        "signature": ""
+        "signature": "allow-0rtt"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This enables the TLS ALPN extension and advertises the specified protocol list as supported on top of ALPN. The protocol list consists in a comma- delimited list of protocol names, for instance: \"http/1.1,http/1.0\" (without quotes). This requires that the SSL library is built with support for TLS extensions enabled (check with haproxy -vv). The ALPN extension replaces the initial NPN extension. ALPN is required to connect to HTTP/2 servers. Versions of OpenSSL prior to 1.0.2 didn't support ALPN and only supposed the now obsolete NPN extension. If both HTTP/2 and HTTP/1.1 are expected to be supported, both versions can be advertised, in order of preference, like below :",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-alpn",
         "name": "alpn",
         "rulesets": [],
-        "signature": ""
+        "signature": "alpn <protocols>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "When \"backup\" is present on a server line, the server is only used in load balancing when all other non-backup servers are unavailable. Requests coming with a persistence cookie referencing the server will always be served though. By default, only the first operational backup server is used, unless the \"allbackups\" option is set in the backend. See also the \"no-backup\" and \"allbackups\" options.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-backup",
         "name": "backup",
         "rulesets": [],
-        "signature": ""
+        "signature": "backup"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It designates a PEM file from which to load CA certificates used to verify server's certificate. It is possible to load a directory containing multiple CAs, in this case HAProxy will try to load every \".pem\", \".crt\", \".cer\", and .crl\" available in the directory, files starting with a dot are ignored.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-ca-file",
         "name": "ca-file",
         "rulesets": [],
-        "signature": ""
+        "signature": "ca-file <cafile>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enables health checks on a server: - when not set, no health checking is performed, and the server is always considered available. - when set and no other check method is configured, the server is considered available when a connection can be established at the highest configured transport layer. This means TCP by default, or SSL/TLS when \"ssl\" or \"check-ssl\" are set, both possibly combined with connection prefixes such as a PROXY protocol header when \"send-proxy\" or \"check-send-proxy\" are set. This behavior is slightly different for dynamic servers, read the following paragraphs for more details. - when set and an application-level health check is defined, the application-level exchanges are performed on top of the configured transport layer and the server is considered available if all of the exchanges succeed.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-check",
         "name": "check",
         "rulesets": [],
-        "signature": ""
+        "signature": "check"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Defines which protocols to advertise with ALPN. The protocol list consists in a comma-delimited list of protocol names, for instance: \"http/1.1,http/1.0\" (without quotes). If it is not set, the server ALPN is used.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-check-alpn",
         "name": "check-alpn",
         "rulesets": [],
-        "signature": ""
+        "signature": "check-alpn <protocols>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-check-pool-conn-name",
         "name": "check-pool-conn-name",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Forces the multiplexer's protocol to use for the server's health-check connections. It must be compatible with the health-check type (TCP or HTTP). It must also be usable on the backend side. The list of available protocols is reported in haproxy -vv. The protocols properties are reported : the mode (TCP/HTTP), the side (FE/BE), the mux name and its flags.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-check-proto",
         "name": "check-proto",
         "rulesets": [],
-        "signature": ""
+        "signature": "check-proto <name>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-check-reuse-pool",
         "name": "check-reuse-pool",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option forces emission of a PROXY protocol line with outgoing health checks, regardless of whether the server uses send-proxy or not for the normal traffic. By default, the PROXY protocol is enabled for health checks if it is already enabled for normal traffic and if no \"port\" nor \"addr\" directive is present. However, if such a directive is present, the \"check-send-proxy\" option needs to be used to force the use of the protocol. See also the \"send-proxy\" option for more information.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-check-send-proxy",
         "name": "check-send-proxy",
         "rulesets": [],
-        "signature": ""
+        "signature": "check-send-proxy"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option allows you to specify the SNI to be used when doing health checks over SSL. It is only possible to use a string to set <sni>. If you want to set a SNI for proxied traffic, see \"sni\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-check-sni",
         "name": "check-sni",
         "rulesets": [],
-        "signature": ""
+        "signature": "check-sni <sni>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option forces encryption of all health checks over SSL, regardless of whether the server uses SSL or not for the normal traffic. This is generally used when an explicit \"port\" or \"addr\" directive is specified and SSL health checks are not inherited. It is important to understand that this option inserts an SSL transport layer below the checks, so that a simple TCP connect check becomes an SSL connect, which replaces the old ssl-hello-chk. The most common use is to send HTTPS checks by combining \"httpchk\" with SSL checks. All SSL settings are common to health checks and traffic (e.g. ciphers). See the \"ssl\" option for more information and \"no-check-ssl\" to disable this option.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-check-ssl",
         "name": "check-ssl",
         "rulesets": [],
-        "signature": ""
+        "signature": "check-ssl"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enables outgoing health checks using upstream socks4 proxy. By default, the health checks won't go through socks tunnel even it was enabled for normal traffic.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-check-via-socks4",
         "name": "check-via-socks4",
         "rulesets": [],
-        "signature": ""
+        "signature": "check-via-socks4"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. This option sets the string describing the list of cipher algorithms that is negotiated during the SSL/TLS handshake with the server. The format of the string is defined in \"man 1 ciphers\" from OpenSSL man pages. For background information and recommendations see e.g. (https://wiki.mozilla.org/Security/Server_Side_TLS) and (https://mozilla.github.io/server-side-tls/ssl-config-generator/). For TLSv1.3 cipher configuration, please check the \"ciphersuites\" keyword.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-ciphers",
         "name": "ciphers",
         "rulesets": [],
-        "signature": ""
+        "signature": "ciphers <ciphers>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in and OpenSSL 1.1.1 or later was used to build HAProxy. This option sets the string describing the list of cipher algorithms that is negotiated during the TLS 1.3 handshake with the server. The format of the string is defined in \"man 1 ciphers\" from OpenSSL man pages under the \"ciphersuites\" section. For cipher configuration for TLSv1.2 and earlier, please check the \"ciphers\" keyword.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-ciphersuites",
         "name": "ciphersuites",
         "rulesets": [],
-        "signature": ""
+        "signature": "ciphersuites <ciphersuites>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-client-sigalgs",
         "name": "client-sigalgs",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"cookie\" parameter sets the cookie value assigned to the server to <value>. This value will be checked in incoming requests, and the first operational server possessing the same value will be selected. In return, in cookie insertion or rewrite modes, this value will be assigned to the cookie sent to the client. There is nothing wrong in having several servers sharing the same cookie value, and it is in fact somewhat common between normal and backup servers. See also the \"cookie\" keyword in backend section.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-cookie",
         "name": "cookie",
         "rulesets": [],
-        "signature": ""
+        "signature": "cookie <value>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It designates a PEM file from which to load certificate revocation list used to verify server's certificate.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-crl-file",
         "name": "crl-file",
         "rulesets": [],
-        "signature": ""
+        "signature": "crl-file <crlfile>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It designates a PEM file from which to load both a certificate and the associated private key. This file can be built by concatenating both PEM files into one. This certificate will be sent if the server send a client certificate request.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-crt",
         "name": "crt",
         "rulesets": [],
-        "signature": ""
+        "signature": "crt <cert>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-curves",
         "name": "curves",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"disabled\" keyword starts the server in the \"disabled\" state. That means that it is marked down in maintenance mode, and no connection other than the ones allowed by persist mode will reach it. It is very well suited to setup new servers, because normal traffic will never reach them, while it is still possible to test the service by making use of the force-persist mechanism.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-disabled",
         "name": "disabled",
         "rulesets": [],
-        "signature": ""
+        "signature": "disabled"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"inter\" parameter sets the interval between two consecutive health checks to <delay> milliseconds. If left unspecified, the delay defaults to 2000 ms. It is also possible to use \"fastinter\" and \"downinter\" to optimize delays between checks depending on the server state :",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-downinter",
         "name": "downinter",
         "rulesets": [],
-        "signature": ""
+        "signature": "downinter <delay>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as 'server' setting to reset any 'disabled' setting which would have been inherited from 'default-server' directive as default value. It may also be used as 'default-server' setting to reset any previous 'default-server' 'disabled' setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-enabled",
         "name": "enabled",
         "rulesets": [],
-        "signature": ""
+        "signature": "enabled"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "If health observing is enabled, the \"error-limit\" parameter specifies the number of consecutive errors that triggers event selected by the \"on-error\" option. By default it is set to 10 consecutive errors.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-error-limit",
         "name": "error-limit",
         "rulesets": [],
-        "signature": ""
+        "signature": "error-limit <count>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"fall\" parameter states that a server will be considered as dead after <count> consecutive unsuccessful health checks. This value defaults to 3 if unspecified. See also the \"check\", \"inter\" and \"rise\" parameters.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-fall",
         "name": "fall",
         "rulesets": [],
-        "signature": ""
+        "signature": "fall <count>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"inter\" parameter sets the interval between two consecutive health checks to <delay> milliseconds. If left unspecified, the delay defaults to 2000 ms. It is also possible to use \"fastinter\" and \"downinter\" to optimize delays between checks depending on the server state :",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-fastinter",
         "name": "fastinter",
         "rulesets": [],
-        "signature": ""
+        "signature": "fastinter <delay>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of SSLv3 only when SSL is used to communicate with the server. SSLv3 is generally less expensive than the TLS counterparts for high connection rates. This option is also available on global statement \"ssl-default-server-options\". See also \"ssl-min-ver\" and ssl-max-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-force-sslv3",
         "name": "force-sslv3",
         "rulesets": [],
-        "signature": ""
+        "signature": "force-sslv3"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of TLSv1.0 only when SSL is used to communicate with the server. This option is also available on global statement \"ssl-default-server-options\". See also \"ssl-min-ver\" and ssl-max-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-force-tlsv10",
         "name": "force-tlsv10",
         "rulesets": [],
-        "signature": ""
+        "signature": "force-tlsv10"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of TLSv1.1 only when SSL is used to communicate with the server. This option is also available on global statement \"ssl-default-server-options\". See also \"ssl-min-ver\" and ssl-max-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-force-tlsv11",
         "name": "force-tlsv11",
         "rulesets": [],
-        "signature": ""
+        "signature": "force-tlsv11"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of TLSv1.2 only when SSL is used to communicate with the server. This option is also available on global statement \"ssl-default-server-options\". See also \"ssl-min-ver\" and ssl-max-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-force-tlsv12",
         "name": "force-tlsv12",
         "rulesets": [],
-        "signature": ""
+        "signature": "force-tlsv12"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of TLSv1.3 only when SSL is used to communicate with the server. This option is also available on global statement \"ssl-default-server-options\". See also \"ssl-min-ver\" and ssl-max-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-force-tlsv13",
         "name": "force-tlsv13",
         "rulesets": [],
-        "signature": ""
+        "signature": "force-tlsv13"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-guid",
         "name": "guid",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-hash-key",
         "name": "hash-key",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Set a persistent ID for the server. This ID must be positive and unique for the proxy. An unused ID will automatically be assigned if unset. The first assigned value will be 1. This ID is currently only returned in statistics.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-id",
         "name": "id",
         "rulesets": [],
-        "signature": ""
+        "signature": "id <value>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-idle-ping",
         "name": "idle-ping",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Indicate in what order the server's address should be resolved upon startup if it uses an FQDN. Attempts are made to resolve the address by applying in turn each of the methods mentioned in the comma-delimited list. The first method which succeeds is used. If the end of the list is reached without finding a working method, an error is thrown. Method \"last\" suggests to pick the address which appears in the state file (see \"server-state-file\"). Method \"libc\" uses the libc's internal resolver (gethostbyname() or getaddrinfo() depending on the operating system and build options). Method \"none\" specifically indicates that the server should start without any valid IP address in a down state. It can be useful to ignore some DNS issues upon startup, waiting for the situation to get fixed later. Finally, an IP address (IPv4 or IPv6) may be provided. It can be the currently known address of the server (e.g. filled by a configuration generator), or the address of a dummy server used to catch old sessions and present them with a decent error message for example. When the \"first\" load balancing algorithm is used, this IP address could point to a fake server used to trigger the creation of new instances on the fly. This option defaults to \"last,libc\" indicating that the previous address found in the state file (if any) is used first, otherwise the libc's resolver is used. This ensures continued compatibility with the historic behavior. When using internal resolvers, it is generally recommended to either disable libc-based resolution, or make it explicit (see section 5.3 for more details).",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-init-addr",
         "name": "init-addr",
         "rulesets": [],
-        "signature": ""
+        "signature": "init-addr {last | libc | none | <ip>},[...]*"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-init-state",
         "name": "init-state",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"inter\" parameter sets the interval between two consecutive health checks to <delay> milliseconds. If left unspecified, the delay defaults to 2000 ms. It is also possible to use \"fastinter\" and \"downinter\" to optimize delays between checks depending on the server state :",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-inter",
         "name": "inter",
         "rulesets": [],
-        "signature": ""
+        "signature": "inter <delay>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-log-bufsize",
         "name": "log-bufsize",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"log-proto\" specifies the protocol used to forward event messages to a server configured in a ring section. Possible values are \"legacy\" and \"octet-count\" corresponding respectively to \"Non-transparent-framing\" and \"Octet counting\" in rfc6587. \"legacy\" is the default.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-log-proto",
         "name": "log-proto",
         "rulesets": [],
-        "signature": ""
+        "signature": "log-proto <logproto>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"max-reuse\" argument indicates the HTTP connection processors that they should not reuse a server connection more than this number of times to send new requests. Permitted values are -1 (the default), which disables this limit, or any positive value. Value zero will effectively disable keep-alive. This is only used to work around certain server bugs which cause them to leak resources over time. The argument is not necessarily respected by the lower layers as there might be technical limitations making it impossible to enforce. At least HTTP/2 connections to servers will respect it.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-max-reuse",
         "name": "max-reuse",
         "rulesets": [],
-        "signature": ""
+        "signature": "max-reuse <count>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"maxconn\" parameter specifies the maximal number of concurrent connections that will be sent to this server. If the number of incoming concurrent connections goes higher than this value, they will be queued, waiting for a slot to be released. This parameter is very important as it can save fragile servers from going down under extreme loads. If a \"minconn\" parameter is specified, the limit becomes dynamic. The default value is \"0\" which means unlimited. See also the \"minconn\" and \"maxqueue\" parameters, and the backend's \"fullconn\" keyword.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-maxconn",
         "name": "maxconn",
         "rulesets": [],
-        "signature": ""
+        "signature": "maxconn <maxconn>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"maxqueue\" parameter specifies the maximal number of connections which will wait in the queue for this server. If this limit is reached, next requests will be redispatched to other servers instead of indefinitely waiting to be served. This will break persistence but may allow people to quickly re-log in when the server they try to connect to is dying. Some load balancing algorithms such as leastconn take this into account and accept to add requests into a server's queue up to this value if it is explicitly set to a value greater than zero, which often allows to better smooth the load when dealing with single-digit maxconn values. The default value is \"0\" which means the queue is unlimited. See also the \"maxconn\" and \"minconn\" parameters and \"balance leastconn\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-maxqueue",
         "name": "maxqueue",
         "rulesets": [],
-        "signature": ""
+        "signature": "maxqueue <maxqueue>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "When the \"minconn\" parameter is set, the maxconn limit becomes a dynamic limit following the backend's load. The server will always accept at least <minconn> connections, never more than <maxconn>, and the limit will be on the ramp between both values when the backend has less than <fullconn> concurrent connections. This makes it possible to limit the load on the server during normal loads, but push it further for important loads without overloading the server during exceptional loads. See also the \"maxconn\" and \"maxqueue\" parameters, as well as the \"fullconn\" backend keyword.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-minconn",
         "name": "minconn",
         "rulesets": [],
-        "signature": ""
+        "signature": "minconn <minconn>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "On Linux, it is possible to specify which network namespace a socket will belong to. This directive makes it possible to explicitly bind a server to a namespace different from the default one. Please refer to your operating system's documentation to find more details about network namespaces.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-namespace",
         "name": "namespace",
         "rulesets": [],
-        "signature": ""
+        "signature": "namespace <name>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"agent-check\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"agent-check\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-agent-check",
         "name": "no-agent-check",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-agent-check"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"backup\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"backup\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-backup",
         "name": "no-backup",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-backup"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"check\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"check\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-check",
         "name": "no-check",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-check"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-check-reuse-pool",
         "name": "no-check-reuse-pool",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-check-send-proxy",
         "name": "no-check-send-proxy",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"check-ssl\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"check-ssl\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-check-ssl",
         "name": "no-check-ssl",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-check-ssl"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"send-proxy\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"send-proxy\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-send-proxy",
         "name": "no-send-proxy",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-send-proxy"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"send-proxy-v2\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"send-proxy-v2\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-send-proxy-v2",
         "name": "no-send-proxy-v2",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-send-proxy-v2"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"send-proxy-v2-ssl\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"send-proxy-v2-ssl\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-send-proxy-v2-ssl",
         "name": "no-send-proxy-v2-ssl",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-send-proxy-v2-ssl"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"send-proxy-v2-ssl-cn\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"send-proxy-v2-ssl-cn\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-send-proxy-v2-ssl-cn",
         "name": "no-send-proxy-v2-ssl-cn",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-send-proxy-v2-ssl-cn"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"ssl\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"ssl\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-ssl",
         "name": "no-ssl",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-ssl"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option disables SSL session reuse when SSL is used to communicate with the server. It will force the server to perform a full handshake for every new connection. It's probably only useful for benchmarking, troubleshooting, and for paranoid users.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-ssl-reuse",
         "name": "no-ssl-reuse",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-ssl-reuse"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option disables support for SSLv3 when SSL is used to communicate with the server. Note that SSLv2 is disabled in the code and cannot be enabled using any configuration option. Use \"ssl-min-ver\" and \"ssl-max-ver\" instead.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-sslv3",
         "name": "no-sslv3",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-sslv3"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"tfo\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"tfo\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-tfo",
         "name": "no-tfo",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-tfo"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. It disables the stateless session resumption (RFC 5077 TLS Ticket extension) and force to use stateful session resumption. Stateless session resumption is more expensive in CPU usage for servers. This option is also available on global statement \"ssl-default-server-options\". The TLS ticket mechanism is only used up to TLS 1.2. Forward Secrecy is compromised with TLS tickets, unless ticket keys are periodically rotated (via reload or by using \"tls-ticket-keys\").",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-tls-tickets",
         "name": "no-tls-tickets",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-tls-tickets"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option disables support for TLSv1.0 when SSL is used to communicate with the server. Note that SSLv2 is disabled in the code and cannot be enabled using any configuration option. TLSv1 is more expensive than SSLv3 so it often makes sense to disable it when communicating with local servers. This option is also available on global statement \"ssl-default-server-options\". Use \"ssl-min-ver\" and \"ssl-max-ver\" instead.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-tlsv10",
         "name": "no-tlsv10",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-tlsv10"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option disables support for TLSv1.1 when SSL is used to communicate with the server. Note that SSLv2 is disabled in the code and cannot be enabled using any configuration option. TLSv1 is more expensive than SSLv3 so it often makes sense to disable it when communicating with local servers. This option is also available on global statement \"ssl-default-server-options\". Use \"ssl-min-ver\" and \"ssl-max-ver\" instead.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-tlsv11",
         "name": "no-tlsv11",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-tlsv11"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option disables support for TLSv1.2 when SSL is used to communicate with the server. Note that SSLv2 is disabled in the code and cannot be enabled using any configuration option. TLSv1 is more expensive than SSLv3 so it often makes sense to disable it when communicating with local servers. This option is also available on global statement \"ssl-default-server-options\". Use \"ssl-min-ver\" and \"ssl-max-ver\" instead.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-tlsv12",
         "name": "no-tlsv12",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-tlsv12"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option disables support for TLSv1.3 when SSL is used to communicate with the server. Note that SSLv2 is disabled in the code and cannot be enabled using any configuration option. TLSv1 is more expensive than SSLv3 so it often makes sense to disable it when communicating with local servers. This option is also available on global statement \"ssl-default-server-options\". Use \"ssl-min-ver\" and \"ssl-max-ver\" instead.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-no-tlsv13",
         "name": "no-tlsv13",
         "rulesets": [],
-        "signature": ""
+        "signature": "no-tlsv13"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Never add connections allocated to this sever to a stick-table. This may be used in conjunction with backup to ensure that stick-table persistence is disabled for backup servers.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-non-stick",
         "name": "non-stick",
         "rulesets": [],
-        "signature": ""
+        "signature": "non-stick"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This enables the NPN TLS extension and advertises the specified protocol list as supported on top of NPN. The protocol list consists in a comma-delimited list of protocol names, for instance: \"http/1.1,http/1.0\" (without quotes). This requires that the SSL library is built with support for TLS extensions enabled (check with haproxy -vv). Note that the NPN extension has been replaced with the ALPN extension (see the \"alpn\" keyword), though this one is only available starting with OpenSSL 1.0.2.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-npn",
         "name": "npn",
         "rulesets": [],
-        "signature": ""
+        "signature": "npn <protocols>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enables health adjusting based on observing communication with the server. By default this functionality is disabled and enabling it also requires to enable health checks. There are two supported modes: \"layer4\" and \"layer7\". In layer4 mode, only successful/unsuccessful tcp connections are significant. In layer7, which is only allowed for http proxies, responses received from server are verified, like valid/wrong http code, unparsable headers, a timeout, etc. Valid status codes include 100 to 499, 501 and 505.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-observe",
         "name": "observe",
         "rulesets": [],
-        "signature": ""
+        "signature": "observe <mode>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Select what should happen when enough consecutive errors are detected. Currently, four modes are available: - fastinter: force fastinter - fail-check: simulate a failed check, also forces fastinter (default) - sudden-death: simulate a pre-fatal failed health check, one more failed check will mark a server down, forces fastinter - mark-down: mark the server immediately down and force fastinter",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-on-error",
         "name": "on-error",
         "rulesets": [],
-        "signature": ""
+        "signature": "on-error <mode>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Modify what occurs when a server is marked down. Currently one action is available: - shutdown-sessions: Shutdown peer sessions. When this setting is enabled, all connections to the server are immediately terminated when the server goes down. It might be used if the health check detects more complex cases than a simple connection status, and long timeouts would cause the service to remain unresponsive for too long a time. For instance, a health check might detect that a database is stuck and that there's no chance to reuse existing connections anymore. Connections killed this way are logged with a 'D' termination code (for \"Down\").",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-on-marked-down",
         "name": "on-marked-down",
         "rulesets": [],
-        "signature": ""
+        "signature": "on-marked-down <action>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Modify what occurs when a server is marked up. Currently one action is available: - shutdown-backup-sessions: Shutdown sessions on all backup servers. This is done only if the server is not in backup state and if it is not disabled (it must have an effective weight > 0). This can be used sometimes to force an active server to take all the traffic back after recovery when dealing with long sessions (e.g. LDAP, SQL, ...). Doing this can cause more trouble than it tries to solve (e.g. incomplete transactions), so use this feature with extreme care. Sessions killed because a server comes up are logged with an 'U' termination code (for \"Up\").",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-on-marked-up",
         "name": "on-marked-up",
         "rulesets": [],
-        "signature": ""
+        "signature": "on-marked-up <action>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-pool-conn-name",
         "name": "pool-conn-name",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Set a low threshold on the number of idling connections for a server, below which a thread will not try to steal a connection from another thread. This can be useful to improve CPU usage patterns in scenarios involving many very fast servers, in order to ensure all threads will keep a few idle connections all the time instead of letting them accumulate over one thread and migrating them from thread to thread. Typical values of twice the number of threads seem to show very good performance already with sub-millisecond response times. The default is zero, indicating that any idle connection can be used at any time. It is the recommended setting for normal use. This only applies to connections that can be shared according to the same principles as those applying to \"http-reuse\". In case connection sharing between threads would be disabled via \"tune.idle-pool.shared\", it can become very important to use this setting to make sure each thread always has a few connections, or the connection reuse rate will decrease as thread count increases.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-pool-low-conn",
         "name": "pool-low-conn",
         "rulesets": [],
-        "signature": ""
+        "signature": "pool-low-conn <max>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Set the maximum number of idling connections for a server. -1 means unlimited connections, 0 means no idle connections. The default is -1. When idle connections are enabled, orphaned idle connections which do not belong to any client session anymore are moved to a dedicated pool so that they remain usable by future clients. This only applies to connections that can be shared according to the same principles as those applying to \"http-reuse\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-pool-max-conn",
         "name": "pool-max-conn",
         "rulesets": [],
-        "signature": ""
+        "signature": "pool-max-conn <max>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the delay to start purging idle connections. Each <delay> interval, half of the idle connections are closed. 0 means we don't keep any idle connection. The default is 5s.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-pool-purge-delay",
         "name": "pool-purge-delay",
         "rulesets": [],
-        "signature": ""
+        "signature": "pool-purge-delay <delay>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Using the \"port\" parameter, it becomes possible to use a different port to send health-checks or to probe the agent-check. On some servers, it may be desirable to dedicate a port to a specific component able to perform complex tests which are more suitable to health-checks than the application. It is common to run a simple script in inetd for instance. This parameter is ignored if the \"check\" parameter is not set. See also the \"addr\" parameter.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-port",
         "name": "port",
         "rulesets": [],
-        "signature": ""
+        "signature": "port <port>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Forces the multiplexer's protocol to use for the outgoing connections to this server. It must be compatible with the mode of the backend (TCP or HTTP). It must also be usable on the backend side. The list of available protocols is reported in haproxy -vv.The protocols properties are reported : the mode (TCP/HTTP), the side (FE/BE), the mux name and its flags.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-proto",
         "name": "proto",
         "rulesets": [],
-        "signature": ""
+        "signature": "proto <name>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"proxy-v2-options\" parameter add options to send in PROXY protocol version 2 when \"send-proxy-v2\" is used. Options available are:",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-proxy-v2-options",
         "name": "proxy-v2-options",
         "rulesets": [],
-        "signature": ""
+        "signature": "proxy-v2-options <option>[,<option>]*"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"redir\" parameter enables the redirection mode for all GET and HEAD requests addressing this server. This means that instead of having HAProxy forward the request to the server, it will send an \"HTTP 302\" response with the \"Location\" header composed of this prefix immediately followed by the requested URI beginning at the leading '/' of the path component. That means that no trailing slash should be used after <prefix>. All invalid requests will be rejected, and all non-GET or HEAD requests will be normally served by the server. Note that since the response is completely forged, no header mangling nor cookie insertion is possible in the response. However, cookies in requests are still analyzed, making this solution completely usable to direct users to a remote location in case of local disaster. Main use consists in increasing bandwidth for static servers by having the clients directly connect to them. Note: never use a relative location here, it would cause a loop between the client and HAProxy!",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-redir",
         "name": "redir",
         "rulesets": [],
-        "signature": ""
+        "signature": "redir <prefix>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option prioritizes the choice of an ip address matching a network. This is useful with clouds to prefer a local ip. In some cases, a cloud high availability service can be announced with many ip addresses on many different datacenters. The latency between datacenter is not negligible, so this patch permits to prefer a local datacenter. If no address matches the configured network, another address is selected.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-resolve-net",
         "name": "resolve-net",
         "rulesets": [],
-        "signature": ""
+        "signature": "resolve-net <network>[,<network[,...]]"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Comma separated list of options to apply to DNS resolution linked to this server.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-resolve-opts",
         "name": "resolve-opts",
         "rulesets": [],
-        "signature": ""
+        "signature": "resolve-opts <option>,<option>,..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "When DNS resolution is enabled for a server and multiple IP addresses from different families are returned, HAProxy will prefer using an IP address from the family mentioned in the \"resolve-prefer\" parameter. Available families: \"ipv4\" and \"ipv6\"",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-resolve-prefer",
         "name": "resolve-prefer",
         "rulesets": [],
-        "signature": ""
+        "signature": "resolve-prefer <family>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Points to an existing \"resolvers\" section to resolve current server's hostname. It is often recommended to disable libc-based resolution when using resolvers, though exceptions exist (see section 5.3.1). In any case it is a good practice to explicitly specify \"init-addr\" when using resolvers in order not to overlook this element.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-resolvers",
         "name": "resolvers",
         "rulesets": [],
-        "signature": ""
+        "signature": "resolvers <id>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"rise\" parameter states that a server will be considered as operational after <count> consecutive successful health checks. This value defaults to 2 if unspecified. See also the \"check\", \"inter\" and \"fall\" parameters.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-rise",
         "name": "rise",
         "rulesets": [],
-        "signature": ""
+        "signature": "rise <count>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"send-proxy\" parameter enforces use of the PROXY protocol over any connection established to this server. The PROXY protocol informs the other end about the layer 3/4 addresses of the incoming connection, so that it can know the client's address or the public address it accessed to, whatever the upper layer protocol. For connections accepted by an \"accept-proxy\" or \"accept-netscaler-cip\" listener, the advertised address will be used. Only TCPv4 and TCPv6 address families are supported. Other families such as Unix sockets, will report an UNKNOWN family. Servers using this option can fully be chained to another instance of HAProxy listening with an \"accept-proxy\" setting. This setting must not be used if the server isn't aware of the protocol. When health checks are sent to the server, the PROXY protocol is automatically used when this option is set, unless there is an explicit \"port\" or \"addr\" directive, in which case an explicit \"check-send-proxy\" directive would also be needed to use the PROXY protocol.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-send-proxy",
         "name": "send-proxy",
         "rulesets": [],
-        "signature": ""
+        "signature": "send-proxy"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"send-proxy-v2\" parameter enforces use of the PROXY protocol version 2 over any connection established to this server. The PROXY protocol informs the other end about the layer 3/4 addresses of the incoming connection, so that it can know the client's address or the public address it accessed to, whatever the upper layer protocol. It also send ALPN information if an alpn have been negotiated. This setting must not be used if the server isn't aware of this version of the protocol. See also the \"no-send-proxy-v2\" option of this section and send-proxy\" option of the \"bind\" keyword.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-send-proxy-v2",
         "name": "send-proxy-v2",
         "rulesets": [],
-        "signature": ""
+        "signature": "send-proxy-v2"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"send-proxy-v2-ssl\" parameter enforces use of the PROXY protocol version 2 over any connection established to this server. The PROXY protocol informs the other end about the layer 3/4 addresses of the incoming connection, so that it can know the client's address or the public address it accessed to, whatever the upper layer protocol. In addition, the SSL information extension of the PROXY protocol is added to the PROXY protocol header. This setting must not be used if the server isn't aware of this version of the protocol.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-send-proxy-v2-ssl",
         "name": "send-proxy-v2-ssl",
         "rulesets": [],
-        "signature": ""
+        "signature": "send-proxy-v2-ssl"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"send-proxy-v2-ssl\" parameter enforces use of the PROXY protocol version 2 over any connection established to this server. The PROXY protocol informs the other end about the layer 3/4 addresses of the incoming connection, so that it can know the client's address or the public address it accessed to, whatever the upper layer protocol. In addition, the SSL information extension of the PROXY protocol, along along with the Common Name from the subject of the client certificate (if any), is added to the PROXY protocol header. This setting must not be used if the server isn't aware of this version of the protocol. See also the \"no-send-proxy-v2-ssl-cn\" option of this section and the \"send-proxy-v2\" option of the \"bind\" keyword.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-send-proxy-v2-ssl-cn",
         "name": "send-proxy-v2-ssl-cn",
         "rulesets": [],
-        "signature": ""
+        "signature": "send-proxy-v2-ssl-cn"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-set-proxy-v2-tlv-fmt",
         "name": "set-proxy-v2-tlv-fmt",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This parameter in used only in the context of stick-tables synchronisation with peers protocol. The \"shard\" parameter identifies the peers which will receive all the stick-table updates for keys with this shard as distribution hash. The accepted values are 0 up to \"shards\" parameter value specified in the \"peers\" section. 0 value is the default value meaning that the peer will receive all the key updates. Greater values than \"shards\" will be ignored. This is also the case for any value provided to the local peer.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-shard",
         "name": "shard",
         "rulesets": [],
-        "signature": ""
+        "signature": "shard <shard>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-sigalgs",
         "name": "sigalgs",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"slowstart\" parameter for a server accepts a value in milliseconds which indicates after how long a server which has just come back up will run at full speed. Just as with every other time-based parameter, it can be entered in any other explicit unit among { us, ms, s, m, h, d }. The speed grows linearly from 0 to 100% during this time. The limitation applies to two parameters :",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-slowstart",
         "name": "slowstart",
         "rulesets": [],
-        "signature": ""
+        "signature": "slowstart <start_time_in_ms>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"sni\" parameter evaluates the sample fetch expression, converts it to a string and uses the result as the host name sent in the SNI TLS extension to the server. A typical use case is to send the SNI received from the client in a bridged TCP/SSL scenario, using the \"ssl_fc_sni\" sample fetch for the expression. THIS MUST NOT BE USED FOR HTTPS, where req.hdr(host) should be used instead, since SNI in HTTPS must always match the Host field and clients are allowed to use different host names over the same connection). If \"verify required\" is set (which is the recommended setting), the resulting name will also be matched against the server certificate's names. See the \"verify\" directive for more details. If you want to set a SNI for health checks, see the \"check-sni\" directive for more details.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-sni",
         "name": "sni",
         "rulesets": [],
-        "signature": ""
+        "signature": "sni <expression>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enables upstream socks4 tunnel for outgoing connections to the server. Using this option won't force the health check to go via socks4 by default. You will have to use the keyword \"check-via-socks4\" to enable it.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-socks4",
         "name": "socks4",
         "rulesets": [],
-        "signature": ""
+        "signature": "socks4 <addr>:<port>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"source\" parameter sets the source address which will be used when connecting to the server. It follows the exact same parameters and principle as the backend \"source\" keyword, except that it only applies to the server referencing it. Please consult the \"source\" keyword for details.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-source",
         "name": "source",
         "rulesets": [],
-        "signature": ""
+        "signature": "source <addr>[:<pl>[-<ph>]] [usesrc { <addr2>[:<port2>] | client | clientip } ]"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enables SSL ciphering on outgoing connections to the server. It is critical to verify server certificates using \"verify\" when using SSL to connect to servers, otherwise the communication is prone to trivial man in the-middle attacks rendering SSL useless. When this option is used, health checks are automatically sent in SSL too unless there is a \"port\" or an \"addr\" directive indicating the check should be sent to a different location. See the \"no-ssl\" to disable \"ssl\" option and \"check-ssl\" option to force SSL health checks.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-ssl",
         "name": "ssl",
         "rulesets": [],
-        "signature": ""
+        "signature": "ssl"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of <version> or lower when SSL is used to communicate with the server. This option is also available on global statement \"ssl-default-server-options\". See also \"ssl-min-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-ssl-max-ver",
         "name": "ssl-max-ver",
         "rulesets": [],
-        "signature": ""
+        "signature": "ssl-max-ver [ SSLv3 | TLSv1.0 | TLSv1.1 | TLSv1.2 | TLSv1.3 ]"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enforces use of <version> or upper when SSL is used to communicate with the server. This option is also available on global statement \"ssl-default-server-options\". See also \"ssl-max-ver\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-ssl-min-ver",
         "name": "ssl-min-ver",
         "rulesets": [],
-        "signature": ""
+        "signature": "ssl-min-ver [ SSLv3 | TLSv1.0 | TLSv1.1 | TLSv1.2 | TLSv1.3 ]"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"no-ssl-reuse\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"no-ssl-reuse\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-ssl-reuse",
         "name": "ssl-reuse",
         "rulesets": [],
-        "signature": ""
+        "signature": "ssl-reuse"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"non-stick\" setting which would have been inherited from \"default-server\" directive as default value. It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"non-stick\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-stick",
         "name": "stick",
         "rulesets": [],
-        "signature": ""
+        "signature": "stick"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-strict-maxconn",
         "name": "strict-maxconn",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Sets the TCP User Timeout for all outgoing connections to this server. This option is available on Linux since version 2.6.37. It allows HAProxy to configure a timeout for sockets which contain data not receiving an acknowledgment for the configured delay. This is especially useful on long-lived connections experiencing long idle periods such as remote terminals or database connection pools, where the client and server timeouts must remain high to allow a long period of idle, but where it is important to detect that the server has disappeared in order to release all resources associated with its connection (and the client's session). One typical use case is also to force dead server connections to die when health checks are too slow or during a soft reload since health checks are then disabled. The argument is a delay expressed in milliseconds by default. This only works for regular TCP connections, and is ignored for other protocols.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-tcp-ut",
         "name": "tcp-ut",
         "rulesets": [],
-        "signature": ""
+        "signature": "tcp-ut <delay>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enables using TCP fast open when connecting to servers, on systems that support it (currently only the Linux kernel >= 4.11). See the \"tfo\" bind option for more information about TCP fast open. Please note that when using tfo, you should also use the \"conn-failure\", \"empty-response\" and \"response-timeout\" keywords for \"retry-on\", or HAProxy won't be able to retry the connection on failure. See also \"no-tfo\".",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-tfo",
         "name": "tfo",
         "rulesets": [],
-        "signature": ""
+        "signature": "tfo"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option may be used as \"server\" setting to reset any \"no-tls-tickets\" setting which would have been inherited from \"default-server\" directive as default value. The TLS ticket mechanism is only used up to TLS 1.2. Forward Secrecy is compromised with TLS tickets, unless ticket keys are periodically rotated (via reload or by using \"tls-ticket-keys\"). It may also be used as \"default-server\" setting to reset any previous \"default-server\" \"no-tls-tickets\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-tls-tickets",
         "name": "tls-tickets",
         "rulesets": [],
-        "signature": ""
+        "signature": "tls-tickets"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option enables ability to set the current state of the server by tracking another one. It is possible to track a server which itself tracks another server, provided that at the end of the chain, a server has health checks enabled. If <backend> is omitted the current one is used. If disable-on-404 is used, it has to be enabled on both proxies.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-track",
         "name": "track",
         "rulesets": [],
-        "signature": ""
+        "signature": "track [<backend>/]<server>"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-usesrc",
         "name": "usesrc",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in. If set to 'none', server certificate is not verified. In the other case, The certificate provided by the server is verified using CAs from 'ca-file' and optional CRLs from 'crl-file' after having checked that the names provided in the certificate's subject and subjectAlternateNames attributes match either the name passed using the \"sni\" directive, or if not provided, the static host name passed using the \"verifyhost\" directive. When no name is found, the certificate's names are ignored. For this reason, without SNI it's important to use \"verifyhost\". On verification failure the handshake is aborted. It is critically important to verify server certificates when using SSL to connect to servers, otherwise the communication is prone to trivial man-in-the-middle attacks rendering SSL totally useless. Unless \"ssl_server_verify\" appears in the global section, \"verify\" is set to \"required\" by default.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-verify",
         "name": "verify",
         "rulesets": [],
-        "signature": ""
+        "signature": "verify [none|required]"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This setting is only available when support for OpenSSL was built in, and only takes effect if 'verify required' is also specified. This directive sets a default static hostname to check the server's certificate against when no SNI was used to connect to the server. If SNI is not used, this is the only way to enable hostname verification. This static hostname, when set, will also be used for health checks (which cannot provide an SNI value). If none of the hostnames in the certificate match the specified hostname, the handshake is aborted. The hostnames in the server-provided certificate may include wildcards. See also \"verify\", \"sni\" and \"no-verifyhost\" options.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-verifyhost",
         "name": "verifyhost",
         "rulesets": [],
-        "signature": ""
+        "signature": "verifyhost <hostname>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "The \"weight\" parameter is used to adjust the server's weight relative to other servers. All servers will receive a load proportional to their weight relative to the sum of all weights, so the higher the weight, the higher the load. The default weight is 1, and the maximal value is 256. A value of 0 means the server will not participate in load-balancing but will still accept persistent connections. If this parameter is used to distribute the load according to server's capacity, it is recommended to start with values which can both grow and shrink, for instance between 10 and 100 to leave enough room above and below for later adjustments.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-weight",
         "name": "weight",
         "rulesets": [],
-        "signature": ""
+        "signature": "weight <weight>"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This option allows to configure the protocol used when relaying websocket streams. This is most notably useful when using an HTTP/2 backend without the support for H2 websockets through the RFC8441.",
+        "docsUrl": "https://docs.haproxy.org/2.8/configuration.html#5.2-ws",
         "name": "ws",
         "rulesets": [],
-        "signature": ""
+        "signature": "ws { auto | h1 | h2 }"
       }
     ],
     "services": [],

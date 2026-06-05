@@ -1,5 +1,4 @@
 import {
-  actionTokenIndex,
   isAddressOrPathToken,
   isDirectivePart,
   isLikelyValue,
@@ -11,7 +10,6 @@ import {
   resolveDirectiveSpan,
   resolveLongestDirectiveMatch,
   resolveSubcommandSpan,
-  tcpPhaseIndex,
 } from "../../src/tokenUtils";
 import { prefixFamilies } from "../../src/schema";
 import { parseDocument } from "../../src/parser";
@@ -132,21 +130,6 @@ describe("tokenUtils", () => {
   it("normalizeActionName strips parenthetical suffix", () => {
     expect(normalizeActionName("set-var(txn.path)")).toBe("set-var");
     expect(normalizeActionName("deny")).toBe("deny");
-  });
-
-  it("actionTokenIndex finds http and tcp rule actions", () => {
-    expect(actionTokenIndex(parsedLine("    http-request deny if TRUE"))).toBe(1);
-    expect(actionTokenIndex(parsedLine("    tcp-request content accept if TRUE"))).toBe(2);
-    expect(actionTokenIndex(parsedLine("    tcp-response content reject if TRUE"))).toBe(2);
-    expect(actionTokenIndex(parsedLine("global"))).toBeNull();
-  });
-
-  it("tcpPhaseIndex finds tcp phase token index", () => {
-    const phases = new Set(["content", "session"]);
-    expect(tcpPhaseIndex(parsedLine("    tcp-request content accept if TRUE"), phases)).toBe(1);
-    expect(tcpPhaseIndex(parsedLine("    tcp-request notreal if TRUE"), phases)).toBe(1);
-    expect(tcpPhaseIndex(parsedLine("    mode http"), phases)).toBeNull();
-    expect(tcpPhaseIndex(parsedLine("    tcp-request"), phases)).toBeNull();
   });
 
   it("reads prefix families from schema line_layout", () => {
