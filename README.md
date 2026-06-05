@@ -12,6 +12,8 @@ Open any `.cfg` file and get syntax highlighting, context-aware completion, inli
 
 Colorization is generated from HAProxy’s own keyword inventory (`haproxy -dKall`), not hand-maintained lists. Sections, directives, ACLs, sample expressions, and related constructs are scoped consistently across large configs.
 
+![Syntax highlighting for sections, directives, and expressions](docs/images/syntax-highlight.png)
+
 ### Intelligent completion
 
 Suggestions follow where you are in the file:
@@ -24,9 +26,13 @@ Suggestions follow where you are in the file:
 
 Completion reloads immediately when you change the configured HAProxy version.
 
+![Context-aware completion for section directives](docs/images/completion-directives.png)
+
 ### Inline documentation
 
 Hover any supported keyword to read summaries sourced from HAProxy’s official `configuration.txt`. Many entries include a **link to the upstream HAProxy documentation** for the full reference. Conditional block directives (`.if`, `.elif`, `.else`, `.endif`) are documented as well.
+
+![Hover documentation with signature and upstream doc link](docs/images/hover-documentation.png)
 
 ### Real-time diagnostics
 
@@ -41,6 +47,8 @@ Catch common mistakes while you type:
 | Rules       | Unknown or **deprecated** `http-request` / `tcp-request` action, unknown `use-service` target |
 
 Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Always validate with your real binary before deploying.
+
+![Wrong-section diagnostic with inline directive help](docs/images/diagnostics-wrong-section.png)
 
 ### Document formatting
 
@@ -93,6 +101,8 @@ Schemas for **2.6** and **2.8** are generated from the legacy `configuration.txt
 
 Completion, diagnostics, and hover update as soon as the setting changes. Syntax highlighting switches the active TextMate grammar; if colors do not refresh, use **Developer: Reload Window** when prompted.
 
+![Quick-pick to select the HAProxy release](docs/images/version-select.png)
+
 ---
 
 ## Settings
@@ -109,6 +119,8 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 | `haproxy.format.insertBlankLineBetweenSections`| `true`      | Insert a blank line before each new section header when formatting               |
 
 The extension also raises `editor.maxTokenizationLineLength` for HAProxy files so long `server` / `bind` lines tokenize correctly.
+
+![Extension settings in the VS Code Settings UI](docs/images/settings.png)
 
 ---
 
