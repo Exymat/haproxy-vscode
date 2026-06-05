@@ -1,7 +1,7 @@
 # HAProxy Language Support
 
 [![CI](https://github.com/Exymat/haproxy-vscode/actions/workflows/test.yml/badge.svg)](https://github.com/Exymat/haproxy-vscode/actions/workflows/test.yml)
-[![Coverage](https://img.shields.io/codecov/c/github/Exymat/haproxy-vscode?label=coverage)](https://app.codecov.io/gh/Exymat/haproxy-vscode)
+[![Coverage](https://codecov.io/gh/Exymat/haproxy-vscode/branch/main/graph/badge.svg)](https://codecov.io/gh/Exymat/haproxy-vscode)
 [![License](https://img.shields.io/github/license/Exymat/haproxy-vscode)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/Exymat/haproxy-vscode)](https://github.com/Exymat/haproxy-vscode/issues)
 [![Node 24+](https://img.shields.io/badge/node-24%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
