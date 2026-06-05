@@ -2,7 +2,7 @@
 
 **Schema-driven language support for HAProxy configuration files** in Visual Studio Code and compatible editors.
 
-Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, schema-based diagnostics, document formatting, and section outline — all tuned to the HAProxy release you run in production (**2.6**, **2.8**, **3.0**, **3.2**, or **3.4**).
+Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, schema-based diagnostics, **go to definition** and **find all references**, document formatting, and section outline — all tuned to the HAProxy release you run in production (**2.6**, **2.8**, **3.0**, **3.2**, or **3.4**).
 
 ---
 
@@ -23,6 +23,7 @@ Suggestions follow where you are in the file:
 - **`option` / `default-server` values**, HTTP/TCP rule actions, ACL criteria
 - **`bind` and `server` parameters**, stick-table keys, filter/trace arguments
 - **Sample fetches and converters** inside expressions
+- **Enum argument values** where the schema defines allowed choices (e.g. `mode tcp|http`)
 
 Completion reloads immediately when you change the configured HAProxy version.
 
@@ -66,6 +67,20 @@ Navigate large configs with built-in structure support:
 
 - **Outline** — lists every top-level section (`frontend www`, `backend api`, …) so you can jump quickly.
 - **Folding** — collapse a section’s body while keeping its header visible.
+
+### Go to definition and find references
+
+Jump across related config with standard editor navigation (**Go to Definition**, **Go to References**, peek view):
+
+- **Frontends / backends / listen** — `use_backend`, `default_backend`, and section headers link to the matching proxy section
+- **ACLs** — definitions and uses in `if` / `unless` conditions within the same section (including negated forms like `!is_api`)
+- **Servers** — `server` lines and `use-server` references inside a backend or listen
+- **Defaults profiles** — `defaults … from <profile>` links to the named profile
+- **Filters, cache, userlist, resolvers, peers** — section and statement definitions indexed from the schema
+
+![Find references for a backend used from a frontend](docs/images/febe-findreferences.png)
+
+![Go to definition and references for ACL definitions and uses](docs/images/acl-findreferences.png)
 
 ---
 
@@ -193,7 +208,7 @@ Use **Run HAProxy Extension** in the Run and Debug view after compiling.
 npm test
 ```
 
-Runs grammar, highlight, diagnostic, formatter, document-symbol, and folding fixture tests, plus (when `haproxy_git` is present) comparison against `haproxy -c` on upstream sample configs.
+Runs grammar, highlight, diagnostic, completion, formatter, document-symbol, folding, and navigation fixture tests, plus (when `haproxy_git` is present) comparison against `haproxy -c` on upstream sample configs.
 
 ### Regenerating schemas
 
