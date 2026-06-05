@@ -45,14 +45,14 @@ Hover any supported keyword to read summaries sourced from HAProxy’s official 
 
 Catch common mistakes while you type:
 
-| Category    | Examples                                                                                      |
-| ----------- | --------------------------------------------------------------------------------------------- |
-| Keywords    | Unknown directive, keyword used in the wrong section, **deprecated** keyword                  |
+| Category    | Examples                                                                                                                |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Keywords    | Unknown directive, keyword used in the wrong section, **deprecated** keyword                                            |
 | Structure   | Nested `option` / parameter misuse; keywords marked `(!)` in anonymous `defaults`; modifier-prefixed directives/actions |
-| Arguments   | Missing or extra arguments for known statement shapes                                         |
-| Expressions | Invalid sample fetch / converter references, ACL-only criteria misuse                         |
-| Context     | Mode-aware `wrong-context` checks for directives/options that only apply to specific modes    |
-| Rules       | Unknown or **deprecated** `http-request` / `tcp-request` action, unknown `use-service` target |
+| Arguments   | Missing or extra arguments for known statement shapes                                                                   |
+| Expressions | Invalid sample fetch / converter references, ACL-only criteria misuse                                                   |
+| Context     | Mode-aware `wrong-context` checks for directives/options that only apply to specific modes                              |
+| Rules       | Unknown or **deprecated** `http-request` / `tcp-request` action, unknown `use-service` target                           |
 
 Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Context checks use the effective runtime mode inferred from your section/config flow, but you should still validate with your real binary before deploying.
 
