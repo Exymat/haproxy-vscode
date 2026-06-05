@@ -37,7 +37,7 @@ Completion reloads immediately when you change the configured HAProxy version.
 
 ### Inline documentation
 
-Hover any supported keyword to read summaries sourced from HAProxy’s official `configuration.txt`. Many entries include a **link to the upstream HAProxy documentation** for the full reference. Conditional block directives (`.if`, `.elif`, `.else`, `.endif`) are documented as well.
+Hover any supported keyword to read summaries sourced from HAProxy’s official `configuration.txt`. Many entries include a **link to the upstream HAProxy documentation** for the full reference. Conditional block directives (`.if`, `.elif`, `.else`, `.endif`) are documented as well, and mode-scoped keywords/options show context hints such as **Valid in modes: tcp, http, log** when available.
 
 ![Hover documentation with signature and upstream doc link](docs/images/hover-documentation.png)
 
@@ -48,12 +48,13 @@ Catch common mistakes while you type:
 | Category    | Examples                                                                                      |
 | ----------- | --------------------------------------------------------------------------------------------- |
 | Keywords    | Unknown directive, keyword used in the wrong section, **deprecated** keyword                  |
-| Structure   | Nested `option` / parameter misuse; keywords marked `(!)` in anonymous `defaults`             |
+| Structure   | Nested `option` / parameter misuse; keywords marked `(!)` in anonymous `defaults`; modifier-prefixed directives/actions |
 | Arguments   | Missing or extra arguments for known statement shapes                                         |
 | Expressions | Invalid sample fetch / converter references, ACL-only criteria misuse                         |
+| Context     | Mode-aware `wrong-context` checks for directives/options that only apply to specific modes    |
 | Rules       | Unknown or **deprecated** `http-request` / `tcp-request` action, unknown `use-service` target |
 
-Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Always validate with your real binary before deploying.
+Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Context checks use the effective runtime mode inferred from your section/config flow, but you should still validate with your real binary before deploying.
 
 ![Wrong-section diagnostic with inline directive help](docs/images/diagnostics-wrong-section.png)
 
