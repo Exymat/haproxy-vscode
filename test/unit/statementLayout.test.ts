@@ -61,10 +61,16 @@ describe("statementLayout", () => {
 
   it("handles multi-word rule prefixes", () => {
     expect(
-      ruleMatchesLine({ keyword: "option", prefix: "no option" } as never, line("    no option httplog")),
+      ruleMatchesLine(
+        { keyword: "option", prefix: "no option" } as never,
+        line("    no option httplog"),
+      ),
     ).toBe(true);
     expect(
-      ruleMatchesLine({ keyword: "x", prefix: "no option extra" } as never, line("    no option httplog")),
+      ruleMatchesLine(
+        { keyword: "x", prefix: "no option extra" } as never,
+        line("    no option httplog"),
+      ),
     ).toBe(false);
   });
 

@@ -24,7 +24,10 @@ export function ruleMatchesLine(rule: StatementRule, line: ParsedLine | ParsedTo
   return t0 === rule.keyword.toLowerCase();
 }
 
-export function findStatementRule(schema: HaproxySchema, line: ParsedLine): StatementRule | undefined {
+export function findStatementRule(
+  schema: HaproxySchema,
+  line: ParsedLine,
+): StatementRule | undefined {
   for (const rule of schema.statement_rules ?? []) {
     if (ruleMatchesLine(rule, line)) {
       return rule;
@@ -33,7 +36,10 @@ export function findStatementRule(schema: HaproxySchema, line: ParsedLine): Stat
   return undefined;
 }
 
-export function resolveActionTokenIndex(rule: StatementRule | undefined, line: ParsedLine): number | null {
+export function resolveActionTokenIndex(
+  rule: StatementRule | undefined,
+  line: ParsedLine,
+): number | null {
   if (rule?.action_token_index !== undefined) {
     if (rule.action_token_index >= line.tokens.length) {
       return null;
@@ -43,7 +49,10 @@ export function resolveActionTokenIndex(rule: StatementRule | undefined, line: P
   return legacyActionTokenIndex(line);
 }
 
-export function resolvePhaseTokenIndex(rule: StatementRule | undefined, line: ParsedLine): number | null {
+export function resolvePhaseTokenIndex(
+  rule: StatementRule | undefined,
+  line: ParsedLine,
+): number | null {
   if (rule?.phase_token_index !== undefined) {
     if (rule.phase_token_index >= line.tokens.length) {
       return null;

@@ -143,12 +143,7 @@ function topLevelDiagnostics(
 
   const prefix = line.tokens[0]?.text.toLowerCase();
   if (prefix && prefixFamilies(schema).includes(prefix)) {
-    const sub = resolveSubcommandSpan(
-      line,
-      allowed,
-      prefix,
-      prefixSubcommandSet(schema, prefix),
-    );
+    const sub = resolveSubcommandSpan(line, allowed, prefix, prefixSubcommandSet(schema, prefix));
     if (sub && !sub.matched) {
       return [
         makeDiagnostic(

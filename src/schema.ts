@@ -154,7 +154,10 @@ export function namedDefaultsKeywordSet(schema: HaproxySchema): Set<string> {
   return new Set((schema.tokens.named_defaults_keywords ?? []).map((k) => k.toLowerCase()));
 }
 
-export function tcpRulePhaseSet(schema: HaproxySchema, kind: "tcp-request" | "tcp-response"): Set<string> {
+export function tcpRulePhaseSet(
+  schema: HaproxySchema,
+  kind: "tcp-request" | "tcp-response",
+): Set<string> {
   const fromLayout =
     kind === "tcp-request"
       ? schema.line_layout?.tcp_request_phases
@@ -197,22 +200,15 @@ export function allTcpRulePhases(schema: HaproxySchema): Set<string> {
 function optionTakesValueFallback(option: string): boolean {
   const lower = option.toLowerCase();
   if (
-    [
-      "crt",
-      "name",
-      "alpn",
-      "addr",
-      "path",
-      "port",
-      "mode",
-      "level",
-      "maxconn",
-      "minconn",
-    ].includes(lower)
+    ["crt", "name", "alpn", "addr", "path", "port", "mode", "level", "maxconn", "minconn"].includes(
+      lower,
+    )
   ) {
     return true;
   }
-  return ["-file", "-path", "-addr", "-port", "-name", "-inter"].some((hint) => lower.includes(hint));
+  return ["-file", "-path", "-addr", "-port", "-name", "-inter"].some((hint) =>
+    lower.includes(hint),
+  );
 }
 
 export function optionsWithValueSet(schema: HaproxySchema, groupName: string): Set<string> {
