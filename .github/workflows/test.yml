@@ -35,7 +35,12 @@ jobs:
         run: npm run test:coverage
 
       - name: Integration tests
+        run: xvfb-run -a npm run test:integration
+        if: runner.os == 'Linux'
+
+      - name: Integration tests
         run: npm run test:integration
+        if: runner.os != 'Linux'
 
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest'

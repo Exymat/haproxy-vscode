@@ -375,7 +375,7 @@ describe("coverage line gaps", () => {
     }
   });
 
-  it("covers CI gaps without upstream haproxy_git fixtures", () => {
+  it("covers extension edge cases", () => {
     expect(extractAclConditionSpans('log-format "%{+Q}o %t"')).toEqual([]);
     expect(validateAclConditions("deny if { base_beg(/api) }", bundle.schema)).toEqual([]);
     expect(validateAclConditions("deny if { req.hdr(host }", bundle.schema).length).toBeGreaterThan(

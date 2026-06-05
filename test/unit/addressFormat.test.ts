@@ -4,7 +4,6 @@ import {
   looksLikeAddressToken,
   validateHaproxyAddress,
 } from "../../src/addressFormat";
-import { hasHaproxyGit, readHaproxyConf } from "../helpers/haproxyGit";
 
 describe("validateHaproxyAddress", () => {
   it("rejects empty addresses", () => {
@@ -196,12 +195,7 @@ describe("looksLikeAddressToken", () => {
 });
 
 describe("ports.cfg expectations", () => {
-  it.runIf(hasHaproxyGit())("documents bind and log errors from upstream ports.cfg", () => {
-    const content = readHaproxyConf("3.2", "ports.cfg");
-    expect(content).toBeDefined();
-    expect(content).toContain("missing port specification in ':'");
-    expect(content).toContain("port range not permitted here");
-
+  it("documents bind and log address messages from golden ports.cfg", () => {
     expect(validateHaproxyAddress(":", ADDRESS_POLICIES.bind).message).toContain("missing port");
     expect(validateHaproxyAddress("127.0.0.1:10001-10010", ADDRESS_POLICIES.log).message).toContain(
       "port range not permitted",

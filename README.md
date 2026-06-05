@@ -177,13 +177,15 @@ Found a false positive, missing completion, or wrong hover text? Open an issue o
 
 ## Contributing
 
-Development involves two repositories:
+The extension repo is **self-contained for CI**: unit and integration tests use bundled schemas under `schemas/` and config snippets under `test/fixtures/`. No sibling checkout is required to run `npm test` or `npm run test:coverage`.
+
+Schema generation and upstream config corpus validation live in the companion [**haproxy-schema**](https://github.com/Exymat/haproxy-schema) repository. Optional monorepo checkouts are only for regeneration and extended local validation:
 
 ```
 parent/
-  haproxy-vscode/     # this extension
+  haproxy-vscode/     # this extension (CI runs here)
   haproxy-schema/     # schema & grammar generator (python -m haproxy_schema)
-  haproxy_git/        # optional: upstream HAProxy trees for regeneration & tests
+  haproxy_git/        # optional: upstream HAProxy trees for regeneration & test:upstream
     haproxy-2.6/
     haproxy-2.8/
     haproxy-3.0/
@@ -216,13 +218,13 @@ npm run format    # auto-fix formatting
 npm test
 ```
 
-Runs Vitest unit tests and VS Code Extension Development Host integration tests. For coverage only:
+Runs Vitest unit tests and VS Code Extension Development Host integration tests. Tests load bundled schemas and fixtures from `test/fixtures/` (including curated upstream snippets in `test/fixtures/golden/`). For coverage only:
 
 ```powershell
 npm run test:coverage
 ```
 
-For the full local validation suite (grammar check, upstream `haproxy_git` scans, `haproxy -c` comparison):
+For extended local validation (grammar check, full upstream scans, `haproxy -c` comparison) when sibling repos are present:
 
 ```powershell
 npm run test:all
@@ -233,6 +235,12 @@ Optional upstream-only scripts (require sibling `haproxy_git/`):
 ```powershell
 npm run test:upstream
 npm run compare:haproxy
+```
+
+To run schema pytest plus extension tests from a monorepo layout:
+
+```powershell
+.\haproxy-schema\scripts\test-all.ps1
 ```
 
 ### Regenerating schemas
@@ -253,11 +261,7 @@ npm run generate:dkall:2.8
 npm run generate:dkall:3.2
 ```
 
-See [**haproxy-schema** README](https://github.com/Exymat/haproxy-schema) for `dkall` generation, binary installation, and pytest details. Run both test suites from a parent directory with:
-
-```powershell
-.\haproxy-schema\scripts\test-all.ps1
-```
+See [**haproxy-schema** README](https://github.com/Exymat/haproxy-schema) for `dkall` generation, binary installation, pytest, and upstream golden-config validation.
 
 ### Packaging
 
