@@ -1,12 +1,15 @@
 import * as vscode from "vscode";
 
 import { provideCompletionItems } from "./completion";
+import { provideDocumentSymbols } from "./documentSymbols";
 import { computeDiagnostics } from "./diagnostics";
+import { provideFoldingRanges } from "./folding";
+import { formatConfig } from "./formatter";
 import { promptReloadIfGrammarChanged, syncActiveGrammar } from "./grammar";
 import { provideHover } from "./hover";
 import { clearLanguageDataCache, HaproxyLanguageData, loadLanguageData } from "./languageData";
 import { clearSchemaCache, HaproxySchema, loadSchema } from "./schema";
-import { getExtensionSettings, onSettingsChanged } from "./settings";
+import { getExtensionSettings, getFormatOptions, onSettingsChanged } from "./settings";
 import { registerVersionStatusBar } from "./statusBar";
 import { getConfiguredVersion, HaproxyVersion, onVersionConfigurationChanged } from "./version";
 
@@ -148,6 +151,30 @@ export function activate(context: vscode.ExtensionContext): void {
       async provideHover(document, position) {
         const b = await ensureBundle();
         return provideHover(document, position, b.languageData, b.schema);
+      },
+    }),
+    vscode.languages.registerDocumentFormattingEditProvider(selector, {
+      provideDocumentFormattingEdits(document) {
+        const settings = getExtensionSettings();
+        if (!settings.formatEnabled) {
+          return [];
+        }
+        const formatted = formatConfig(document.getText(), getFormatOptions(settings));
+        const fullRange = new vscode.Range(
+          document.positionAt(0),
+          document.positionAt(document.getText().length)
+        );
+        return [vscode.TextEdit.replace(fullRange, formatted)];
+      },
+    }),
+    vscode.languages.registerDocumentSymbolProvider(selector, {
+      provideDocumentSymbols(document) {
+        return provideDocumentSymbols(document);
+      },
+    }),
+    vscode.languages.registerFoldingRangeProvider(selector, {
+      provideFoldingRanges(document) {
+        return provideFoldingRanges(document);
       },
     })
   );

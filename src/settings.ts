@@ -1,11 +1,33 @@
 import * as vscode from "vscode";
 
+import { formatConfig, FormatOptions } from "./formatter";
+import {
+  FormatIndent,
+  formatIndentToOptions,
+  isFormatIndent,
+  legacyFormatIndent,
+} from "./formatIndent";
+
 const SECTION = "haproxy";
 
 export interface HaproxyExtensionSettings {
   diagnosticsEnabled: boolean;
   diagnosticsDebounceMs: number;
   maxDiagnosticsLines: number;
+  formatEnabled: boolean;
+  formatIndent: FormatIndent;
+  formatInsertBlankLineBetweenSections: boolean;
+}
+
+function readFormatIndent(config: vscode.WorkspaceConfiguration): FormatIndent {
+  const indent = config.get<string>("format.indent");
+  if (indent && isFormatIndent(indent)) {
+    return indent;
+  }
+  return legacyFormatIndent(
+    config.get<string>("format.indentStyle", "spaces"),
+    config.get<number>("format.indentSize", 4)
+  );
 }
 
 export function getExtensionSettings(): HaproxyExtensionSettings {
@@ -14,6 +36,19 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
     diagnosticsEnabled: config.get<boolean>("diagnostics.enabled", true),
     diagnosticsDebounceMs: Math.max(100, config.get<number>("diagnostics.debounceMs", 500)),
     maxDiagnosticsLines: Math.max(100, config.get<number>("diagnostics.maxLines", 4000)),
+    formatEnabled: config.get<boolean>("format.enabled", true),
+    formatIndent: readFormatIndent(config),
+    formatInsertBlankLineBetweenSections: config.get<boolean>(
+      "format.insertBlankLineBetweenSections",
+      true
+    ),
+  };
+}
+
+export function getFormatOptions(settings: HaproxyExtensionSettings = getExtensionSettings()): FormatOptions {
+  return {
+    ...formatIndentToOptions(settings.formatIndent),
+    insertBlankLineBetweenSections: settings.formatInsertBlankLineBetweenSections,
   };
 }
 

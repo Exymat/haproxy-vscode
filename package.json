@@ -72,6 +72,31 @@
           "default": 4000,
           "minimum": 100,
           "description": "Skip diagnostics above this line count to protect editor memory."
+        },
+        "haproxy.format.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable document formatting for HAProxy configs (Format Document)."
+        },
+        "haproxy.format.indent": {
+          "type": "string",
+          "enum": [
+            "spaces-4",
+            "spaces-2",
+            "tab"
+          ],
+          "enumDescriptions": [
+            "Four spaces per indent level (recommended; common HAProxy style).",
+            "Two spaces per indent level.",
+            "Tab character per indent level. Not recommended: tabs copy-paste poorly per HAProxy documentation."
+          ],
+          "default": "spaces-4",
+          "markdownDescription": "Indentation for directives inside a section. Section headers stay left-aligned.\n\nPer HAProxy configuration manual §2.1: use tabs or 2–4 spaces; spaces are preferred because tabs do not copy-paste well. The **tab** option is provided for compatibility but is not recommended."
+        },
+        "haproxy.format.insertBlankLineBetweenSections": {
+          "type": "boolean",
+          "default": true,
+          "description": "Insert a blank line before each new section header."
         }
       }
     },
@@ -118,6 +143,10 @@
     "test:highlight": "node scripts/test-highlight.mjs",
     "test:grammar-coverage": "node scripts/test-grammar-coverage.mjs",
     "test:diagnostics": "node scripts/test-diagnostics.mjs",
+    "test:format": "node scripts/test-formatter.mjs",
+    "test:format-indent": "node scripts/test-format-indent.mjs",
+    "test:symbols": "node scripts/test-document-symbols.mjs",
+    "test:folding": "node scripts/test-folding.mjs",
     "compare:haproxy": "node scripts/compare-haproxy-c.mjs",
     "generate:schema": "npm run generate:schema:3.2",
     "generate:schema:3.2": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-3.2/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-3.2.txt --out ./schemas/haproxy-3.2.schema.json --language-data-out ./schemas/haproxy-3.2.language.json --grammar-out ./syntaxes/haproxy-3.2.tmLanguage.json --grammar-template ./syntaxes/haproxy.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-3.2.json --version 3.2",
@@ -129,7 +158,7 @@
     "generate:grammar:3.0": "python -m haproxy_schema emit-grammar --schema ./schemas/haproxy-3.0.schema.json --out ./syntaxes/haproxy-3.0.tmLanguage.json --grammar-template ./syntaxes/haproxy.tmLanguage.json",
     "sync:active-grammar": "node scripts/sync-active-grammar.mjs",
     "generate:language-data": "npm run generate:schema",
-    "test": "npm run compile && npm run test:grammar-coverage && npm run test:highlight && npm run test:diagnostics && npm run compare:haproxy"
+    "test": "npm run compile && npm run test:grammar-coverage && npm run test:highlight && npm run test:diagnostics && npm run test:format && npm run test:format-indent && npm run test:symbols && npm run test:folding && npm run compare:haproxy"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",

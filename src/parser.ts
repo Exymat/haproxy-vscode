@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-const SECTION_HEADERS = new Set([
+export const SECTION_HEADERS = new Set([
   "global",
   "defaults",
   "frontend",
@@ -33,7 +33,7 @@ export interface ParsedLine {
   isSectionHeader: boolean;
 }
 
-function tokenizeLine(line: string): ParsedToken[] {
+export function tokenizeLine(line: string): ParsedToken[] {
   const tokens: ParsedToken[] = [];
   let i = 0;
   let tokenStart = -1;
