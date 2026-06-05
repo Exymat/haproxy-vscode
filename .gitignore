@@ -16,3 +16,4 @@ scripts/compare-haproxy-c-report.json
 syntaxes/haproxy-active.tmLanguage.json
 coverage/
 .vscode-test/
+.nvmrc
