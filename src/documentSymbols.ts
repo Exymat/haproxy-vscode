@@ -12,7 +12,12 @@ export function provideDocumentSymbols(document: vscode.TextDocument): vscode.Do
       symbol.detail,
       vscode.SymbolKind.Namespace,
       new vscode.Range(symbol.startLine, 0, symbol.endLine, endLineText.length),
-      new vscode.Range(symbol.startLine, symbol.selectionStart, symbol.startLine, symbol.selectionEnd)
+      new vscode.Range(
+        symbol.startLine,
+        symbol.selectionStart,
+        symbol.startLine,
+        symbol.selectionEnd,
+      ),
     );
   });
 }

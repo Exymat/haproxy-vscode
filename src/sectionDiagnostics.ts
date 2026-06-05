@@ -16,9 +16,13 @@ function makeError(
   line: ParsedLine,
   tokenIndex: number,
   message: string,
-  code: string
+  code: string,
 ): vscode.Diagnostic {
-  const diagnostic = new vscode.Diagnostic(diagRange(line, tokenIndex), message, vscode.DiagnosticSeverity.Error);
+  const diagnostic = new vscode.Diagnostic(
+    diagRange(line, tokenIndex),
+    message,
+    vscode.DiagnosticSeverity.Error,
+  );
   diagnostic.source = DIAG_SOURCE;
   diagnostic.code = code;
   return diagnostic;
@@ -41,8 +45,8 @@ export function sectionHeaderDiagnostics(line: ParsedLine): vscode.Diagnostic[] 
           line,
           1,
           `character '${bad}' is not permitted in '${section}' name '${name}'`,
-          "invalid-name"
-        )
+          "invalid-name",
+        ),
       );
     }
   }
@@ -59,8 +63,8 @@ export function sectionHeaderDiagnostics(line: ParsedLine): vscode.Diagnostic[] 
             line,
             i,
             "please use the 'bind' keyword for listening addresses",
-            "legacy-bind-syntax"
-          )
+            "legacy-bind-syntax",
+          ),
         );
         return diagnostics;
       }
@@ -80,11 +84,6 @@ export function aclNameDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
     return [];
   }
   return [
-    makeError(
-      line,
-      1,
-      `character '${bad}' is not permitted in acl name '${name}'`,
-      "invalid-name"
-    ),
+    makeError(line, 1, `character '${bad}' is not permitted in acl name '${name}'`, "invalid-name"),
   ];
 }

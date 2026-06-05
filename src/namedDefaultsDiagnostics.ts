@@ -17,7 +17,7 @@ function diagRangeForTokens(line: ParsedLine, startIdx: number, endIdx: number):
 
 export function namedDefaultsDiagnostics(
   line: ParsedLine,
-  schema: HaproxySchema
+  schema: HaproxySchema,
 ): vscode.Diagnostic[] {
   if (
     line.tokens.length === 0 ||
@@ -43,7 +43,7 @@ export function namedDefaultsDiagnostics(
   const diagnostic = new vscode.Diagnostic(
     diagRangeForTokens(line, match.start, match.end),
     `'${match.keyword}' is only supported in named defaults sections, not anonymous defaults`,
-    vscode.DiagnosticSeverity.Warning
+    vscode.DiagnosticSeverity.Warning,
   );
   diagnostic.source = "haproxy";
   diagnostic.code = "named-defaults-required";

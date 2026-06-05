@@ -29,7 +29,7 @@ export async function setConfiguredVersion(version: HaproxyVersion): Promise<voi
 }
 
 export function onVersionConfigurationChanged(
-  listener: (version: HaproxyVersion) => void
+  listener: (version: HaproxyVersion) => void,
 ): vscode.Disposable {
   return vscode.workspace.onDidChangeConfiguration((event) => {
     if (event.affectsConfiguration(`${CONFIG_SECTION}.${CONFIG_VERSION}`)) {

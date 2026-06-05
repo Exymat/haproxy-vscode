@@ -60,10 +60,13 @@ export function activate(context: vscode.ExtensionContext): void {
       return;
     }
     const b = await ensureBundle();
-    diagnostics.set(document.uri, computeDiagnostics(document, b.schema, {
-      languageData: b.languageData,
-      deprecatedWarnings: settings.deprecatedWarnings,
-    }));
+    diagnostics.set(
+      document.uri,
+      computeDiagnostics(document, b.schema, {
+        languageData: b.languageData,
+        deprecatedWarnings: settings.deprecatedWarnings,
+      }),
+    );
   };
 
   const scheduleDiagnostics = (document: vscode.TextDocument): void => {
@@ -85,7 +88,7 @@ export function activate(context: vscode.ExtensionContext): void {
       setTimeout(() => {
         pendingDiagnostics.delete(key);
         void runDiagnostics(document);
-      }, settings.diagnosticsDebounceMs)
+      }, settings.diagnosticsDebounceMs),
     );
   };
 
@@ -126,7 +129,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     onSettingsChanged(() => {
       refreshAllDocuments();
-    })
+    }),
   );
 
   setImmediate(() => {
@@ -149,7 +152,7 @@ export function activate(context: vscode.ExtensionContext): void {
         },
       },
       " ",
-      "\t"
+      "\t",
     ),
     vscode.languages.registerHoverProvider(selector, {
       async provideHover(document, position) {
@@ -166,7 +169,7 @@ export function activate(context: vscode.ExtensionContext): void {
         const formatted = formatConfig(document.getText(), getFormatOptions(settings));
         const fullRange = new vscode.Range(
           document.positionAt(0),
-          document.positionAt(document.getText().length)
+          document.positionAt(document.getText().length),
         );
         return [vscode.TextEdit.replace(fullRange, formatted)];
       },
@@ -192,9 +195,15 @@ export function activate(context: vscode.ExtensionContext): void {
       async provideReferences(document, position, context) {
         const b = await ensureBundle();
         const settings = getExtensionSettings();
-        return provideReferences(document, position, context, b.schema, settings.maxDiagnosticsLines);
+        return provideReferences(
+          document,
+          position,
+          context,
+          b.schema,
+          settings.maxDiagnosticsLines,
+        );
       },
-    })
+    }),
   );
 }
 

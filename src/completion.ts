@@ -38,7 +38,7 @@ export function provideCompletionItems(
   document: vscode.TextDocument,
   position: vscode.Position,
   data: HaproxyLanguageData,
-  schema: HaproxySchema
+  schema: HaproxySchema,
 ): vscode.CompletionItem[] {
   const ctx = getDocumentContext(document, position, schema);
   if (!ctx) {
@@ -68,7 +68,7 @@ export function provideCompletionItems(
       if (optKeyword?.description || group?.description) {
         item.documentation = markdownDoc(
           optKeyword?.description ?? group?.description ?? "",
-          optKeyword?.docsUrl ?? group?.docsUrl
+          optKeyword?.docsUrl ?? group?.docsUrl,
         );
       }
       return item;
@@ -162,7 +162,9 @@ export function provideCompletionItems(
     if (!directive.matched) {
       return [];
     }
-    const kw = sectionKeywords.find((k) => k.name.toLowerCase() === directive.keyword.toLowerCase());
+    const kw = sectionKeywords.find(
+      (k) => k.name.toLowerCase() === directive.keyword.toLowerCase(),
+    );
     const schemaKw = getKeywordFromSchema(schema, directive.keyword);
     const pos = argumentPosition(ctx.tokenIndex, directive.end);
     const values = completionValuesForPosition(
@@ -171,11 +173,11 @@ export function provideCompletionItems(
       pos,
       ctx.line,
       directive.end,
-      directive.keyword
+      directive.keyword,
     );
     return filterByPrefix(
       values.map((v) => v.name),
-      partial
+      partial,
     ).map((name) => {
       const value = values.find((v) => v.name === name);
       const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Value);
@@ -202,11 +204,9 @@ export function provideCompletionItems(
     .map((kw) => {
       const item = new vscode.CompletionItem(kw.name, vscode.CompletionItemKind.Keyword);
       item.detail =
-        kw.signatures.length > 1 ? `${kw.signatures.length} forms` : kw.signatures[0] ?? kw.name;
+        kw.signatures.length > 1 ? `${kw.signatures.length} forms` : (kw.signatures[0] ?? kw.name);
       const sigList =
-        kw.signatures.length > 1
-          ? kw.signatures.map((s) => `- \`${s}\``).join("\n")
-          : "";
+        kw.signatures.length > 1 ? kw.signatures.map((s) => `- \`${s}\``).join("\n") : "";
       const doc = sigList ? `${kw.description}\n\n${sigList}` : kw.description;
       item.documentation = markdownDoc(doc, kw.docsUrl);
       return item;

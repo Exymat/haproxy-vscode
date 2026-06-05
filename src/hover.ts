@@ -1,9 +1,6 @@
 import * as vscode from "vscode";
 
-import {
-  conditionalBlocksDocsUrl,
-  lookupConditionalDirective,
-} from "./conditionalDirectives";
+import { conditionalBlocksDocsUrl, lookupConditionalDirective } from "./conditionalDirectives";
 import {
   argumentPosition,
   documentedEnumValueNames,
@@ -22,7 +19,7 @@ function hoverMarkdown(
   signature: string,
   description: string,
   extras: string[],
-  docsUrl?: string
+  docsUrl?: string,
 ): vscode.MarkdownString {
   const md = new vscode.MarkdownString();
   md.appendMarkdown(`**${title}**`);
@@ -53,12 +50,6 @@ function findGroupItem(data: HaproxyLanguageData, name: string): LanguageGroupIt
 }
 
 function signaturesBlock(signatures: string[]): string {
-  if (signatures.length === 0) {
-    return "";
-  }
-  if (signatures.length === 1) {
-    return signatures[0];
-  }
   return signatures.map((sig) => `- \`${sig}\``).join("\n");
 }
 
@@ -66,19 +57,14 @@ export function provideHover(
   document: vscode.TextDocument,
   position: vscode.Position,
   data: HaproxyLanguageData,
-  schema: HaproxySchema
+  schema: HaproxySchema,
 ): vscode.Hover | null {
   const ctx = getDocumentContext(document, position, schema);
   if (!ctx || !ctx.token) {
     return null;
   }
 
-  const range = new vscode.Range(
-    ctx.line.line,
-    ctx.token.start,
-    ctx.line.line,
-    ctx.token.end
-  );
+  const range = new vscode.Range(ctx.line.line, ctx.token.start, ctx.line.line, ctx.token.end);
 
   const tokenLower = ctx.token.text.toLowerCase();
 
@@ -95,9 +81,9 @@ export function provideHover(
           optKeyword?.signatures[0] ?? `option ${name}`,
           optKeyword?.description ?? group?.description ?? "",
           optKeyword?.sections.length ? [`**Valid in:** ${optKeyword.sections.join(", ")}`] : [],
-          optKeyword?.docsUrl ?? group?.docsUrl
+          optKeyword?.docsUrl ?? group?.docsUrl,
         ),
-        range
+        range,
       );
     }
   }
@@ -118,7 +104,7 @@ export function provideHover(
       }
       return new vscode.Hover(
         hoverMarkdown(group.name, group.signature, group.description, extras, group.docsUrl),
-        range
+        range,
       );
     }
   }
@@ -132,16 +118,19 @@ export function provideHover(
         conditional.signature,
         conditional.description,
         [],
-        conditionalBlocksDocsUrl(version)
+        conditionalBlocksDocsUrl(version),
       ),
-      range
+      range,
     );
   }
 
   if (ctx.kind === "acl-criterion" && ctx.tokenIndex >= 2) {
     const group = findGroupItem(data, ctx.token.text);
     if (group) {
-      return new vscode.Hover(hoverMarkdown(group.name, group.signature, group.description, []), range);
+      return new vscode.Hover(
+        hoverMarkdown(group.name, group.signature, group.description, []),
+        range,
+      );
     }
   }
 
@@ -157,7 +146,7 @@ export function provideHover(
     if (group) {
       return new vscode.Hover(
         hoverMarkdown(group.name, group.signature, group.description, []),
-        range
+        range,
       );
     }
   }
@@ -181,7 +170,7 @@ export function provideHover(
       }
       return new vscode.Hover(
         hoverMarkdown(argValue.name, "", argValue.description, extras, kw?.docsUrl),
-        range
+        range,
       );
     }
   }
@@ -199,7 +188,7 @@ export function provideHover(
     if (group) {
       return new vscode.Hover(
         hoverMarkdown(group.name, group.signature, group.description, [], group.docsUrl),
-        range
+        range,
       );
     }
     return null;
@@ -219,11 +208,14 @@ export function provideHover(
     }
     if (kw.signatures.length > 1) {
       extras.unshift(`**Forms:**\n${signaturesBlock(kw.signatures)}`);
-      return new vscode.Hover(hoverMarkdown(kw.name, "", kw.description, extras, kw.docsUrl), range);
+      return new vscode.Hover(
+        hoverMarkdown(kw.name, "", kw.description, extras, kw.docsUrl),
+        range,
+      );
     }
     return new vscode.Hover(
       hoverMarkdown(kw.name, kw.signatures[0] ?? kw.name, kw.description, extras, kw.docsUrl),
-      range
+      range,
     );
   }
 
@@ -236,6 +228,6 @@ export function provideHover(
 
   return new vscode.Hover(
     hoverMarkdown(kw.name, kw.signatures[0] ?? kw.name, kw.description, extras, kw.docsUrl),
-    range
+    range,
   );
 }

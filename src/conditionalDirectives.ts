@@ -10,7 +10,8 @@ const CONDITIONAL_BLOCK_DOCS: ConditionalDirectiveInfo[] = [
   {
     name: ".if",
     signature: ".if <condition>",
-    description: "Start a nested conditional block. The following lines are included only when the expression is true.",
+    description:
+      "Start a nested conditional block. The following lines are included only when the expression is true.",
   },
   {
     name: ".elif",

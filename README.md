@@ -39,12 +39,12 @@ Hover any supported keyword to read summaries sourced from HAProxy’s official 
 
 Catch common mistakes while you type:
 
-| Category    | Examples                                                                 |
-| ----------- | ------------------------------------------------------------------------ |
-| Keywords    | Unknown directive, keyword used in the wrong section, **deprecated** keyword |
-| Structure   | Nested `option` / parameter misuse; keywords marked `(!)` in anonymous `defaults` |
-| Arguments   | Missing or extra arguments for known statement shapes                    |
-| Expressions | Invalid sample fetch / converter references, ACL-only criteria misuse    |
+| Category    | Examples                                                                                      |
+| ----------- | --------------------------------------------------------------------------------------------- |
+| Keywords    | Unknown directive, keyword used in the wrong section, **deprecated** keyword                  |
+| Structure   | Nested `option` / parameter misuse; keywords marked `(!)` in anonymous `defaults`             |
+| Arguments   | Missing or extra arguments for known statement shapes                                         |
+| Expressions | Invalid sample fetch / converter references, ACL-only criteria misuse                         |
 | Rules       | Unknown or **deprecated** `http-request` / `tcp-request` action, unknown `use-service` target |
 
 Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Always validate with your real binary before deploying.
@@ -122,16 +122,16 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 
 ## Settings
 
-| Setting                                        | Default     | Description                                                                      |
-| ---------------------------------------------- | ----------- | -------------------------------------------------------------------------------- |
-| `haproxy.version`                              | `3.2`       | HAProxy release used for completion, diagnostics, hover, and syntax highlighting |
-| `haproxy.diagnostics.enabled`                  | `true`      | Turn off if opening very large `.cfg` files feels slow                           |
-| `haproxy.diagnostics.debounceMs`               | `500`       | Delay after edits before recomputing diagnostics (100–5000 ms)                   |
-| `haproxy.diagnostics.maxLines`                 | `4000`      | Skip diagnostics above this line count to limit memory use                       |
-| `haproxy.diagnostics.deprecatedWarnings`       | `true`      | Warn on directives and rule actions marked `(deprecated)` in the official docs. Warnings are suppressed when `global` contains `expose-deprecated-directives`. |
-| `haproxy.format.enabled`                       | `true`      | Enable **Format Document** for HAProxy configs                                   |
-| `haproxy.format.indent`                        | `spaces-4`  | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                    |
-| `haproxy.format.insertBlankLineBetweenSections`| `true`      | Insert a blank line before each new section header when formatting               |
+| Setting                                         | Default    | Description                                                                                                                                                    |
+| ----------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `haproxy.version`                               | `3.2`      | HAProxy release used for completion, diagnostics, hover, and syntax highlighting                                                                               |
+| `haproxy.diagnostics.enabled`                   | `true`     | Turn off if opening very large `.cfg` files feels slow                                                                                                         |
+| `haproxy.diagnostics.debounceMs`                | `500`      | Delay after edits before recomputing diagnostics (100–5000 ms)                                                                                                 |
+| `haproxy.diagnostics.maxLines`                  | `4000`     | Skip diagnostics above this line count to limit memory use                                                                                                     |
+| `haproxy.diagnostics.deprecatedWarnings`        | `true`     | Warn on directives and rule actions marked `(deprecated)` in the official docs. Warnings are suppressed when `global` contains `expose-deprecated-directives`. |
+| `haproxy.format.enabled`                        | `true`     | Enable **Format Document** for HAProxy configs                                                                                                                 |
+| `haproxy.format.indent`                         | `spaces-4` | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                                                                                                  |
+| `haproxy.format.insertBlankLineBetweenSections` | `true`     | Insert a blank line before each new section header when formatting                                                                                             |
 
 The extension also raises `editor.maxTokenizationLineLength` for HAProxy files so long `server` / `bind` lines tokenize correctly.
 
@@ -141,8 +141,8 @@ The extension also raises `editor.maxTokenizationLineLength` for HAProxy files s
 
 ## Commands
 
-| Command                             | Description                          |
-| ----------------------------------- | ------------------------------------ |
+| Command                             | Description                                    |
+| ----------------------------------- | ---------------------------------------------- |
 | **HAProxy: Select HAProxy Version** | Quick-pick between 2.6, 2.8, 3.0, 3.2, and 3.4 |
 
 ---
@@ -204,11 +204,36 @@ npm run compile
 
 Use **Run HAProxy Extension** in the Run and Debug view after compiling.
 
+Lint and format (enforced in CI):
+
+```powershell
+npm run lint
+npm run format:check
+npm run format    # auto-fix formatting
+```
+
 ```powershell
 npm test
 ```
 
-Runs grammar, highlight, diagnostic, completion, formatter, document-symbol, folding, and navigation fixture tests, plus (when `haproxy_git` is present) comparison against `haproxy -c` on upstream sample configs.
+Runs Vitest unit tests and VS Code Extension Development Host integration tests. For coverage only:
+
+```powershell
+npm run test:coverage
+```
+
+For the full local validation suite (grammar check, upstream `haproxy_git` scans, `haproxy -c` comparison):
+
+```powershell
+npm run test:all
+```
+
+Optional upstream-only scripts (require sibling `haproxy_git/`):
+
+```powershell
+npm run test:upstream
+npm run compare:haproxy
+```
 
 ### Regenerating schemas
 

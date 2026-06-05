@@ -8,7 +8,7 @@ import { validateSampleExpressions } from "./sampleExpression";
 export function expressionDiagnostics(
   line: ParsedLine,
   lineText: string,
-  schema: HaproxySchema
+  schema: HaproxySchema,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   const expressionIssues = [
@@ -20,8 +20,8 @@ export function expressionDiagnostics(
       new vscode.Diagnostic(
         new vscode.Range(line.line, issue.start, line.line, issue.end),
         issue.message,
-        vscode.DiagnosticSeverity.Error
-      )
+        vscode.DiagnosticSeverity.Error,
+      ),
     );
     const last = diagnostics[diagnostics.length - 1];
     last.source = issue.source;

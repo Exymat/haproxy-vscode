@@ -110,7 +110,6 @@ export function extractExpressionSpans(lineText: string): ExpressionSpan[] {
       break;
     }
     const start = pct + 2;
-    idx = pct + 2;
     const end = lineText.indexOf("]", start);
     if (end < 0) {
       spans.push({ text: lineText.slice(start), start });
@@ -151,7 +150,10 @@ interface ParsedArgList {
   error?: SampleDiagnostic;
 }
 
-function parseOneArg(text: string, pos: number): { arg: string; start: number; end: number } | { error: SampleDiagnostic } {
+function parseOneArg(
+  text: string,
+  pos: number,
+): { arg: string; start: number; end: number } | { error: SampleDiagnostic } {
   const start = pos;
   let squote = false;
   let dquote = false;
@@ -207,7 +209,7 @@ function parseArgList(
   spanStart: number,
   argTypes: string[],
   minArgs: number,
-  missingCode: SampleDiagCode = "sample-fetch-args"
+  missingCode: SampleDiagCode = "sample-fetch-args",
 ): ParsedArgList {
   pos = skipSpace(text, pos);
   if (pos >= text.length || text[pos] !== "(") {
@@ -221,7 +223,7 @@ function parseArgList(
           spanStart + pos,
           spanStart + pos + 1,
           `expected type '${expected}' at position 1, but got nothing`,
-          missingCode
+          missingCode,
         ),
       };
     }
@@ -243,7 +245,7 @@ function parseArgList(
           spanStart + open + 1,
           spanStart + pos,
           `expected type '${expected}' at position 1, but got nothing`,
-          missingCode
+          missingCode,
         ),
       };
     }
@@ -251,7 +253,7 @@ function parseArgList(
   }
 
   let index = 0;
-  while (pos <= text.length) {
+  while (true) {
     const parsed = parseOneArg(text, pos);
     if ("error" in parsed) {
       return { args, end: pos, hadParens: true, error: parsed.error };
@@ -271,7 +273,7 @@ function parseArgList(
       parsed.arg,
       spanStart + parsed.start,
       spanStart + parsed.end,
-      index + 1
+      index + 1,
     );
     if (argIssue) {
       return { args, end: parsed.end, hadParens: true, error: argIssue };
@@ -284,12 +286,7 @@ function parseArgList(
         args,
         end: pos,
         hadParens: true,
-        error: issue(
-          spanStart + open,
-          spanStart + text.length,
-          "expected ')'",
-          "sample-syntax"
-        ),
+        error: issue(spanStart + open, spanStart + text.length, "expected ')'", "sample-syntax"),
       };
     }
     if (text[pos] === ")") {
@@ -303,36 +300,15 @@ function parseArgList(
             spanStart + pos,
             spanStart + pos + 1,
             `missing arguments (got ${index}/${minArgs}), type '${expected}' expected`,
-            "sample-fetch-args"
+            "sample-fetch-args",
           ),
         };
       }
       return { args, end: pos + 1, hadParens: true };
     }
-    if (text[pos] !== ",") {
-      const word = text.slice(pos).trim();
-      return {
-        args,
-        end: pos,
-        hadParens: true,
-        error: issue(
-          spanStart + pos,
-          spanStart + pos + Math.max(1, word.length),
-          word ? `expected ')' before '${word}'` : "expected ')'",
-          "sample-syntax"
-        ),
-      };
-    }
     pos++;
     pos = skipSpace(text, pos);
   }
-
-  return {
-    args,
-    end: pos,
-    hadParens: true,
-    error: issue(spanStart + open, spanStart + text.length, "expected ')'", "sample-syntax"),
-  };
 }
 
 function validateArgValue(
@@ -340,7 +316,7 @@ function validateArgValue(
   text: string,
   start: number,
   end: number,
-  position: number
+  position: number,
 ): SampleDiagnostic | undefined {
   const norm = argType.toLowerCase();
   if (!text.trim()) {
@@ -348,7 +324,7 @@ function validateArgValue(
       start,
       end,
       `expected type '${argType}' at position ${position}, but got nothing`,
-      "sample-fetch-args"
+      "sample-fetch-args",
     );
   }
   if (INTEGER_ARG.test(norm)) {
@@ -357,7 +333,7 @@ function validateArgValue(
         start,
         end,
         `failed to parse '${text}' as type '${norm.includes("signed") ? "integer" : "integer"}' at position ${position}`,
-        "sample-fetch-args"
+        "sample-fetch-args",
       );
     }
     return undefined;
@@ -368,7 +344,7 @@ function validateArgValue(
         start,
         end,
         `failed to parse '${text}' as type 'IPv4 mask' at position ${position}`,
-        "sample-converter-args"
+        "sample-converter-args",
       );
     }
     return undefined;
@@ -379,7 +355,7 @@ function validateArgValue(
         start,
         end,
         `failed to parse '${text}' as type 'IPv6 mask' at position ${position}`,
-        "sample-converter-args"
+        "sample-converter-args",
       );
     }
     return undefined;
@@ -387,7 +363,12 @@ function validateArgValue(
   return undefined;
 }
 
-function issue(start: number, end: number, message: string, code: SampleDiagCode): SampleDiagnostic {
+function issue(
+  start: number,
+  end: number,
+  message: string,
+  code: SampleDiagCode,
+): SampleDiagnostic {
   return { start, end: Math.max(end, start + 1), message, code, source: DIAG_SOURCE };
 }
 
@@ -395,9 +376,8 @@ function validateFetchArgs(
   name: string,
   spec: SampleFunction,
   parsed: ParsedArgList,
-  spanStart: number
+  _spanStart: number,
 ): SampleDiagnostic | undefined {
-  const minArgs = FETCH_MIN_ARGS[name] ?? 0;
   const maxArgs = spec.args.length;
 
   if (maxArgs === 0 && parsed.hadParens && parsed.args.length > 0) {
@@ -406,7 +386,7 @@ function validateFetchArgs(
       first.start,
       first.end,
       `fetch method '${name}' : expected ')' before '${first.text}'`,
-      "sample-fetch-args"
+      "sample-fetch-args",
     );
   }
 
@@ -422,7 +402,7 @@ function validateFetchArgs(
         lenArg.start,
         lenArg.end,
         `invalid args in fetch method 'payload_lv' : payload length must be > 0`,
-        "sample-fetch-args"
+        "sample-fetch-args",
       );
     }
   }
@@ -433,26 +413,7 @@ function validateFetchArgs(
       extra.start,
       extra.end,
       `fetch method '${name}' : unexpected argument`,
-      "sample-fetch-args"
-    );
-  }
-
-  if (!parsed.hadParens && minArgs > 0) {
-    return issue(
-      spanStart,
-      spanStart + name.length,
-      `fetch method '${name}' : expected type '${spec.args[0]}' at position 1, but got nothing`,
-      "sample-fetch-args"
-    );
-  }
-
-  if (parsed.hadParens && parsed.args.length < minArgs) {
-    const expected = spec.args[parsed.args.length] ?? spec.args[0] ?? "argument";
-    return issue(
-      spanStart + parsed.end - 1,
-      spanStart + parsed.end,
-      `missing arguments (got ${parsed.args.length}/${minArgs}), type '${expected}' expected`,
-      "sample-fetch-args"
+      "sample-fetch-args",
     );
   }
 
@@ -463,9 +424,8 @@ function validateConverterArgs(
   name: string,
   spec: SampleFunction,
   parsed: ParsedArgList,
-  nameStart: number
+  _nameStart: number,
 ): SampleDiagnostic | undefined {
-  const minArgs = CONV_MIN_ARGS[name] ?? 0;
   const maxArgs = spec.args.length;
 
   if (maxArgs === 0 && parsed.hadParens && parsed.args.length > 0) {
@@ -473,40 +433,12 @@ function validateConverterArgs(
       parsed.args[0].start,
       parsed.args[0].end,
       `converter '${name}' does not support any args`,
-      "sample-converter-args"
+      "sample-converter-args",
     );
   }
 
   if (parsed.error) {
     return parsed.error;
-  }
-
-  if (name === "map" && parsed.args.length >= 2 && !parsed.args[0].text.trim()) {
-    return issue(
-      parsed.args[0].start,
-      parsed.args[1].end,
-      `invalid args in converter 'map' : map file name is empty`,
-      "sample-converter-args"
-    );
-  }
-
-  if (!parsed.hadParens && minArgs > 0) {
-    return issue(
-      nameStart,
-      nameStart + name.length,
-      `expected type '${spec.args[0]}' at position 1, but got nothing`,
-      "sample-converter-args"
-    );
-  }
-
-  if (parsed.hadParens && parsed.args.length < minArgs) {
-    const expected = spec.args[parsed.args.length] ?? spec.args[0] ?? "argument";
-    return issue(
-      parsed.args.length > 0 ? parsed.args[parsed.args.length - 1].end : parsed.end - 1,
-      parsed.end,
-      `missing arguments (got ${parsed.args.length}/${minArgs}), type '${expected}' expected`,
-      "sample-converter-args"
-    );
   }
 
   if (parsed.args.length > maxArgs && maxArgs > 0) {
@@ -515,7 +447,7 @@ function validateConverterArgs(
       extra.start,
       extra.end,
       `converter '${name}' : unexpected argument`,
-      "sample-converter-args"
+      "sample-converter-args",
     );
   }
 
@@ -525,15 +457,8 @@ function validateConverterArgs(
 function lookupSample(
   name: string,
   table: Record<string, SampleFunction>,
-  groups: string[] | undefined
 ): SampleFunction | undefined {
-  if (table[name]) {
-    return table[name];
-  }
-  if (groups?.includes(name)) {
-    return { name, args: [], out_type: "any" };
-  }
-  return undefined;
+  return table[name];
 }
 
 export function validateExpressionBody(
@@ -542,7 +467,7 @@ export function validateExpressionBody(
   fetches: Record<string, SampleFunction>,
   converters: Record<string, SampleFunction>,
   fetchNames: Set<string>,
-  convNames: Set<string>
+  convNames: Set<string>,
 ): SampleDiagnostic[] {
   const issues: SampleDiagnostic[] = [];
   let pos = 0;
@@ -551,14 +476,12 @@ export function validateExpressionBody(
 
   if (!id.name) {
     if (body.trimStart().startsWith("(")) {
-      issues.push(
-        issue(spanStart, spanStart + 1, "missing fetch method", "sample-missing-fetch")
-      );
+      issues.push(issue(spanStart, spanStart + 1, "missing fetch method", "sample-missing-fetch"));
     }
     return issues;
   }
 
-  const fetchSpec = lookupSample(id.name, fetches, undefined);
+  const fetchSpec = lookupSample(id.name, fetches);
   if (!fetchSpec && !fetchNames.has(id.name)) {
     if (id.name.startsWith("wurfl-")) {
       return issues;
@@ -568,8 +491,8 @@ export function validateExpressionBody(
         spanStart,
         spanStart + id.name.length,
         `unknown fetch method '${id.name}'`,
-        "sample-unknown-fetch"
-      )
+        "sample-unknown-fetch",
+      ),
     );
     return issues;
   }
@@ -599,8 +522,8 @@ export function validateExpressionBody(
           lastConv
             ? `missing comma after converter '${lastConv}'`
             : "missing comma after fetch keyword",
-          "sample-syntax"
-        )
+          "sample-syntax",
+        ),
       );
       return issues;
     }
@@ -616,15 +539,15 @@ export function validateExpressionBody(
     pos = convId.end;
     lastConv = convId.name;
 
-    const convSpec = lookupSample(convId.name, converters, undefined);
+    const convSpec = lookupSample(convId.name, converters);
     if (!convSpec && !convNames.has(convId.name)) {
       issues.push(
         issue(
           spanStart + (convId.end - convId.name.length),
           spanStart + convId.end,
           `unknown converter '${convId.name}'`,
-          "sample-unknown-converter"
-        )
+          "sample-unknown-converter",
+        ),
       );
       return issues;
     }
@@ -637,8 +560,8 @@ export function validateExpressionBody(
           spanStart + (convId.end - convId.name.length),
           spanStart + convId.end,
           `converter '${convId.name}' cannot be applied`,
-          "sample-converter-cast"
-        )
+          "sample-converter-cast",
+        ),
       );
       return issues;
     }
@@ -650,7 +573,7 @@ export function validateExpressionBody(
       spanStart,
       cspec.args,
       CONV_MIN_ARGS[convId.name] ?? 0,
-      "sample-converter-args"
+      "sample-converter-args",
     );
     const convArgIssue = validateConverterArgs(convId.name, cspec, parsedConv, convStart);
     if (convArgIssue) {
@@ -668,8 +591,8 @@ export function validateExpressionBody(
         spanStart + pos,
         spanStart + Math.min(pos + 8, body.length),
         `unexpected token '${body.slice(pos, pos + 8)}'`,
-        "sample-syntax"
-      )
+        "sample-syntax",
+      ),
     );
   }
 
@@ -678,7 +601,7 @@ export function validateExpressionBody(
 
 export function validateSampleExpressions(
   lineText: string,
-  schema: HaproxySchema
+  schema: HaproxySchema,
 ): SampleDiagnostic[] {
   const fetches = schema.sample_fetches ?? {};
   const converters = schema.sample_converters ?? {};
@@ -694,7 +617,7 @@ export function validateSampleExpressions(
   const issues: SampleDiagnostic[] = [];
   for (const span of extractExpressionSpans(lineText)) {
     issues.push(
-      ...validateExpressionBody(span.text, span.start, fetches, converters, fetchNames, convNames)
+      ...validateExpressionBody(span.text, span.start, fetches, converters, fetchNames, convNames),
     );
   }
   return issues;

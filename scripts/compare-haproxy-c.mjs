@@ -147,7 +147,7 @@ for (const file of files) {
     const firstHa = haproxy.lines[0];
     const skippable =
       /unable to stat SSL|Couldn't open the ca-file|Couldn't open the crt-file|lua-load|lua_load|failed to load lua|Cannot load lua/i.test(
-        haproxy.raw
+        haproxy.raw,
       );
     if (firstHa && !extLines.includes(firstHa) && !skippable) {
       entry.issues.push({
@@ -161,7 +161,7 @@ for (const file of files) {
   if (!haproxy.ok && extLines.length === 0) {
     const skippable =
       /unable to stat SSL|Couldn't open the ca-file|Couldn't open the crt-file|lua-load|lua_load|failed to load lua|Cannot load lua/i.test(
-        haproxy.raw
+        haproxy.raw,
       );
     if (!skippable) {
       entry.issues.push({
@@ -191,10 +191,15 @@ for (const r of drift) {
       console.log(`    haproxy lines: ${r.haproxyLines.join(", ")}`);
     }
     if (issue.haproxyRaw) {
-      console.log(`    haproxy: ${issue.haproxyRaw.split("\n").find((l) => l.includes("ALERT") || l.includes("parsing")) ?? ""}`);
+      console.log(
+        `    haproxy: ${issue.haproxyRaw.split("\n").find((l) => l.includes("ALERT") || l.includes("parsing")) ?? ""}`,
+      );
     }
     if (r.extensionCount && issue.kind === "extension-only") {
-      const detail = extensionDiagnosticsDetail(join(confDir, r.file), readFileSync(join(confDir, r.file), "utf-8"));
+      const detail = extensionDiagnosticsDetail(
+        join(confDir, r.file),
+        readFileSync(join(confDir, r.file), "utf-8"),
+      );
       for (const d of detail.slice(0, 8)) {
         console.log(`    L${d.line} [${d.code}] ${d.message}`);
       }

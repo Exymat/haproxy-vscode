@@ -1,0 +1,46 @@
+import { parseDocument } from "../../src/parser";
+import { buildSectionFoldRanges } from "../../src/sectionOutline";
+import { createDocument } from "../helpers/document";
+
+function runCase(
+  name: string,
+  content: string,
+  expected: Array<{ startLine: number; endLine: number }>,
+) {
+  const doc = createDocument(content);
+  const parsed = parseDocument({
+    lineCount: doc.lineCount,
+    lineAt(lineNo: number) {
+      return { text: content.split(/\r?\n/)[lineNo] ?? "" };
+    },
+  } as never);
+  const actual = buildSectionFoldRanges(parsed, doc.lineCount);
+  expect(actual, name).toEqual(expected);
+}
+
+describe("folding", () => {
+  it("folds section body below header", () => {
+    runCase("folds section body below header", "global\n    daemon\n    maxconn 100", [
+      { startLine: 0, endLine: 2 },
+    ]);
+  });
+
+  it("multiple sections", () => {
+    runCase("multiple sections", "global\n    daemon\n\ndefaults\n    mode http", [
+      { startLine: 0, endLine: 2 },
+      { startLine: 3, endLine: 4 },
+    ]);
+  });
+
+  it("skips header-only section", () => {
+    runCase("skips header-only section", "global\nfrontend web\n    bind :80", [
+      { startLine: 1, endLine: 2 },
+    ]);
+  });
+
+  it("ignores indented backend keyword", () => {
+    runCase("ignores indented backend keyword", "frontend web\n    backend foo\n    bind :80", [
+      { startLine: 0, endLine: 2 },
+    ]);
+  });
+});

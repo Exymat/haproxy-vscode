@@ -282,7 +282,7 @@ export function sectionKeywordSet(schema: HaproxySchema, section: string | null)
 
 export function loadSchema(
   context: vscode.ExtensionContext,
-  version: HaproxyVersion = DEFAULT_HAPROXY_VERSION
+  version: HaproxyVersion = DEFAULT_HAPROXY_VERSION,
 ): HaproxySchema {
   const cached = schemaCache.get(version);
   if (cached) {

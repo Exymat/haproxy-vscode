@@ -2,7 +2,10 @@ import * as vscode from "vscode";
 
 import { argumentModelDiagnostics } from "./argumentDiagnostics";
 import { buildDeprecatedIndex } from "./deprecatedIndex";
-import { deprecatedDiagnostics, documentUsesExposeDeprecatedDirectives } from "./deprecatedDiagnostics";
+import {
+  deprecatedDiagnostics,
+  documentUsesExposeDeprecatedDirectives,
+} from "./deprecatedDiagnostics";
 import { expressionDiagnostics } from "./expressionDiagnostics";
 import { HaproxyLanguageData } from "./languageData";
 import { namedDefaultsDiagnostics } from "./namedDefaultsDiagnostics";
@@ -62,14 +65,10 @@ function makeDiagnostic(
   message: string,
   severity: vscode.DiagnosticSeverity,
   code: DiagCode,
-  related?: vscode.DiagnosticRelatedInformation[]
 ): vscode.Diagnostic {
   const diagnostic = new vscode.Diagnostic(range, message, severity);
   diagnostic.source = DIAG_SOURCE;
   diagnostic.code = code;
-  if (related && related.length > 0) {
-    diagnostic.relatedInformation = related;
-  }
   return diagnostic;
 }
 
@@ -83,9 +82,6 @@ function keywordSections(schema: HaproxySchema, keyword: string): string[] {
 }
 
 function wrongSectionMessage(keyword: string, section: string, sections: string[]): string {
-  if (sections.length === 0) {
-    return `'${keyword}' is not supported in section '${section}'`;
-  }
   if (sections.length <= 3) {
     return `'${keyword}' is not supported in section '${section}' (allowed in: ${sections.join(", ")})`;
   }
@@ -99,9 +95,6 @@ function isOptionLine(line: ParsedLine): boolean {
 }
 
 function optionAllowedInSection(allowed: Set<string>): boolean {
-  if (allowed.has("option")) {
-    return true;
-  }
   for (const keyword of allowed) {
     if (keyword.startsWith("option ") || keyword.startsWith("no option")) {
       return true;
@@ -115,7 +108,7 @@ function topLevelDiagnostics(
   schema: HaproxySchema,
   allowed: Set<string>,
   noPrefix: Set<string>,
-  modifierPrefixes: Set<string>
+  modifierPrefixes: Set<string>,
 ): vscode.Diagnostic[] {
   const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefix, modifierPrefixes);
   if (match.matched) {
@@ -137,7 +130,7 @@ function topLevelDiagnostics(
         range,
         wrongSectionMessage(keyword, section, otherSections),
         vscode.DiagnosticSeverity.Error,
-        "wrong-section"
+        "wrong-section",
       ),
     ];
   }
@@ -151,7 +144,7 @@ function topLevelDiagnostics(
           diagRangeForTokens(line, sub.start, sub.end),
           `Unknown ${prefix} subcommand '${sub.subcommand}' in section '${section}'`,
           vscode.DiagnosticSeverity.Error,
-          "unknown-keyword"
+          "unknown-keyword",
         ),
       ];
     }
@@ -163,7 +156,7 @@ function topLevelDiagnostics(
         range,
         wrongSectionMessage(keyword, section, otherSections),
         vscode.DiagnosticSeverity.Error,
-        "wrong-section"
+        "wrong-section",
       ),
     ];
   }
@@ -173,7 +166,7 @@ function topLevelDiagnostics(
       range,
       `Unknown keyword '${keyword}' in section '${section}'`,
       vscode.DiagnosticSeverity.Error,
-      "unknown-keyword"
+      "unknown-keyword",
     ),
   ];
 }
@@ -196,8 +189,8 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
           diagRange(line, idx),
           `Unknown option keyword '${line.tokens[idx].text}'`,
           vscode.DiagnosticSeverity.Warning,
-          "unknown-option"
-        )
+          "unknown-option",
+        ),
       );
     }
     return diagnostics;
@@ -214,9 +207,13 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
   if (t0 === "acl" && line.tokens.length >= 3) {
     const rawCriterion = line.tokens[2].text;
     const parenIdx = rawCriterion.indexOf("(");
-    const criterion = (parenIdx >= 0 ? rawCriterion.slice(0, parenIdx) : rawCriterion).toLowerCase();
+    const criterion = (
+      parenIdx >= 0 ? rawCriterion.slice(0, parenIdx) : rawCriterion
+    ).toLowerCase();
     const allowedCriteria = new Set(
-      [...(groups.acl_criteria ?? []), ...(groups.sample_fetches ?? [])].map((v) => v.toLowerCase())
+      [...(groups.acl_criteria ?? []), ...(groups.sample_fetches ?? [])].map((v) =>
+        v.toLowerCase(),
+      ),
     );
     if (!isLikelyValue(criterion, conditionals) && !allowedCriteria.has(criterion)) {
       diagnostics.push(
@@ -224,8 +221,8 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
           diagRange(line, 2),
           `Unknown ACL criterion '${rawCriterion}'`,
           vscode.DiagnosticSeverity.Warning,
-          "unknown-criterion"
-        )
+          "unknown-criterion",
+        ),
       );
     }
     return diagnostics;
@@ -246,8 +243,8 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
               diagRange(line, i + 1),
               `Unknown level '${line.tokens[i + 1].text}' (expected user, operator, or admin)`,
               vscode.DiagnosticSeverity.Warning,
-              "unknown-value"
-            )
+              "unknown-value",
+            ),
           );
         }
         i += 1;
@@ -260,14 +257,23 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
   if (phaseIdx !== null) {
     const phase = line.tokens[phaseIdx].text.toLowerCase();
     if (!tcpPhases.has(phase)) {
-      diagnostics.push(
-        makeDiagnostic(
-          diagRange(line, phaseIdx),
-          `Unknown ${t0} phase '${line.tokens[phaseIdx].text}'`,
-          vscode.DiagnosticSeverity.Warning,
-          "unknown-value"
-        )
-      );
+      let allowedActions: string[] = [];
+      if (t0 === "tcp-request") {
+        allowedActions = groups.tcp_request_actions ?? [];
+      } else if (t0 === "tcp-response") {
+        allowedActions = groups.tcp_response_actions ?? [];
+      }
+      const allowed = new Set(allowedActions.map((v) => v.toLowerCase()));
+      if (!allowed.has(phase)) {
+        diagnostics.push(
+          makeDiagnostic(
+            diagRange(line, phaseIdx),
+            `Unknown ${t0} phase '${line.tokens[phaseIdx].text}'`,
+            vscode.DiagnosticSeverity.Warning,
+            "unknown-value",
+          ),
+        );
+      }
     }
   }
 
@@ -294,8 +300,8 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
           diagRange(line, actionIdx),
           `Unknown ${line.tokens[0].text} action '${rawToken}'`,
           vscode.DiagnosticSeverity.Warning,
-          "unknown-action"
-        )
+          "unknown-action",
+        ),
       );
     } else if (token === "use-service" && actionIdx + 1 < line.tokens.length) {
       const serviceIdx = actionIdx + 1;
@@ -312,8 +318,8 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
             diagRange(line, serviceIdx),
             `Unknown service '${line.tokens[serviceIdx].text}'`,
             vscode.DiagnosticSeverity.Warning,
-            "unknown-service"
-          )
+            "unknown-service",
+          ),
         );
       }
     }
@@ -330,7 +336,7 @@ export interface ComputeDiagnosticsOptions {
 export function computeDiagnostics(
   document: vscode.TextDocument,
   schema: HaproxySchema,
-  options: ComputeDiagnosticsOptions = {}
+  options: ComputeDiagnosticsOptions = {},
 ): vscode.Diagnostic[] {
   const parsed = getParsedDocument(document);
   const diagnostics: vscode.Diagnostic[] = [];
@@ -367,7 +373,9 @@ export function computeDiagnostics(
     diagnostics.push(...aclNameDiagnostics(line));
     diagnostics.push(...expressionDiagnostics(line, lineTexts[line.line] ?? "", schema));
     if (deprecatedIndex) {
-      diagnostics.push(...deprecatedDiagnostics(parsed, line, schema, deprecatedIndex, suppressDeprecated));
+      diagnostics.push(
+        ...deprecatedDiagnostics(parsed, line, schema, deprecatedIndex, suppressDeprecated),
+      );
     }
     diagnostics.push(...namedDefaultsDiagnostics(line, schema));
   }

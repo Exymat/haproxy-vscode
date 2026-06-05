@@ -232,7 +232,7 @@ export function findTokenOnLine(lineTokens, lineNo, text) {
   if (matches.length !== 1) {
     const found = matches.map((token) => `"${token.text}"→${token.displayScope}`).join(", ");
     throw new Error(
-      `line ${lineNo}: expected 1 token "${text}", found ${matches.length}${found ? `: ${found}` : ""}`
+      `line ${lineNo}: expected 1 token "${text}", found ${matches.length}${found ? `: ${found}` : ""}`,
     );
   }
   return matches[0];

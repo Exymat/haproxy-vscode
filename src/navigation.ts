@@ -12,7 +12,7 @@ import {
 function siteToLocation(document: vscode.TextDocument, site: SymbolSite): vscode.Location {
   return new vscode.Location(
     document.uri,
-    new vscode.Range(site.line, site.start, site.line, site.end)
+    new vscode.Range(site.line, site.start, site.line, site.end),
   );
 }
 
@@ -20,7 +20,7 @@ export function provideDefinition(
   document: vscode.TextDocument,
   position: vscode.Position,
   schema: HaproxySchema,
-  maxLines: number
+  maxLines: number,
 ): vscode.Location | vscode.Location[] | null {
   const index = getSymbolIndex(document, schema, maxLines);
   if (!index) {
@@ -49,7 +49,7 @@ export function provideReferences(
   position: vscode.Position,
   context: vscode.ReferenceContext,
   schema: HaproxySchema,
-  maxLines: number
+  maxLines: number,
 ): vscode.Location[] {
   const index = getSymbolIndex(document, schema, maxLines);
   if (!index) {

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { formatConfig, FormatOptions } from "./formatter";
+import { FormatOptions } from "./formatter";
 import {
   FormatIndent,
   formatIndentToOptions,
@@ -27,7 +27,7 @@ function readFormatIndent(config: vscode.WorkspaceConfiguration): FormatIndent {
   }
   return legacyFormatIndent(
     config.get<string>("format.indentStyle", "spaces"),
-    config.get<number>("format.indentSize", 4)
+    config.get<number>("format.indentSize", 4),
   );
 }
 
@@ -41,13 +41,15 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
     formatIndent: readFormatIndent(config),
     formatInsertBlankLineBetweenSections: config.get<boolean>(
       "format.insertBlankLineBetweenSections",
-      true
+      true,
     ),
     deprecatedWarnings: config.get<boolean>("diagnostics.deprecatedWarnings", true),
   };
 }
 
-export function getFormatOptions(settings: HaproxyExtensionSettings = getExtensionSettings()): FormatOptions {
+export function getFormatOptions(
+  settings: HaproxyExtensionSettings = getExtensionSettings(),
+): FormatOptions {
   return {
     ...formatIndentToOptions(settings.formatIndent),
     insertBlankLineBetweenSections: settings.formatInsertBlankLineBetweenSections,

@@ -64,7 +64,7 @@ function printIssues(label, rel, lineResults, bucket, maxPerFile) {
       }
       const col = token.startIndex + 1;
       console.log(
-        `  ${rel}:${line.lineNo}:${col} "${token.text}" scope=${token.displayScope} color=${token.color}`
+        `  ${rel}:${line.lineNo}:${col} "${token.text}" scope=${token.displayScope} color=${token.color}`,
       );
       shown += 1;
     }
@@ -128,7 +128,9 @@ function printScopeSummary(fileResults) {
     }
   }
   console.log("\n--- Unscoped token samples (grammar gaps) ---\n");
-  for (const [text, count] of [...unscopedByText.entries()].sort((a, b) => b[1] - a[1]).slice(0, 40)) {
+  for (const [text, count] of [...unscopedByText.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 40)) {
     console.log(`  ${count}x  "${text}"`);
   }
   if (coloredByScope.size > 0) {
@@ -143,7 +145,7 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.help || !options.path) {
     console.error(
-      "Usage: node scripts/verify-highlight.mjs <conf-directory-or-file> [--json] [--summary] [--max=N] [--fail-on-uncolored]"
+      "Usage: node scripts/verify-highlight.mjs <conf-directory-or-file> [--json] [--summary] [--max=N] [--fail-on-uncolored]",
     );
     process.exit(options.help ? 0 : 1);
   }
@@ -176,8 +178,8 @@ async function main() {
           })),
         },
         null,
-        2
-      )
+        2,
+      ),
     );
   } else {
     printHumanReport(absPath, fileResults, options.maxPerFile);

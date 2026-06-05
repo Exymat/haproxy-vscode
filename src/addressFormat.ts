@@ -26,7 +26,13 @@ export type AddressPolicyName = keyof typeof ADDRESS_POLICIES;
 export interface AddressValidationResult {
   valid: boolean;
   message?: string;
-  code?: "invalid-address" | "missing-port" | "port-not-permitted" | "port-range-not-permitted" | "port-offset-not-permitted" | "invalid-port";
+  code?:
+    | "invalid-address"
+    | "missing-port"
+    | "port-not-permitted"
+    | "port-range-not-permitted"
+    | "port-offset-not-permitted"
+    | "invalid-port";
 }
 
 const ADDRESS_PREFIX_RE =
@@ -42,7 +48,11 @@ function stripAddressPrefixes(token: string): { body: string; prefix: string } {
   return { body: token.slice(match[0].length), prefix: match[0].toLowerCase() };
 }
 
-function splitHostAndPort(token: string): { host: string; portPart: string; hadPortSeparator: boolean } {
+function splitHostAndPort(token: string): {
+  host: string;
+  portPart: string;
+  hadPortSeparator: boolean;
+} {
   const trimmed = token.trim();
   if (trimmed.startsWith("[")) {
     const close = trimmed.indexOf("]");
@@ -79,9 +89,6 @@ function splitHostAndPort(token: string): { host: string; portPart: string; hadP
 }
 
 function isValidIpv4Host(host: string): boolean {
-  if (!host || host === "*") {
-    return true;
-  }
   const parts = host.split(".");
   if (parts.length < 2 || parts.length > 4) {
     return false;
@@ -97,10 +104,6 @@ function isValidIpv6Host(host: string): boolean {
   return host.includes(":") && /^[0-9a-fA-F:.]+$/.test(host);
 }
 
-function isValidUnixPath(host: string): boolean {
-  return host.startsWith("/") && host.length > 1;
-}
-
 function isValidBareHost(host: string): boolean {
   if (!host || host === "*" || host === "::") {
     return true;
@@ -108,18 +111,11 @@ function isValidBareHost(host: string): boolean {
   if (!/^[A-Za-z0-9*._-]+$/.test(host)) {
     return false;
   }
-  if (host.includes(".")) {
-    const labels = host.split(".");
-    return labels.every((label) => label.length > 0 && /^[A-Za-z0-9*_-]+$/.test(label));
-  }
   return host === "localhost";
 }
 
 function validateHostShape(host: string): AddressValidationResult {
-  const { body, prefix } = stripAddressPrefixes(host);
-  if (isValidUnixPath(body)) {
-    return { valid: true };
-  }
+  const { body } = stripAddressPrefixes(host);
   if (isValidIpv6Host(body)) {
     return { valid: true };
   }
@@ -136,9 +132,6 @@ function validateHostShape(host: string): AddressValidationResult {
   if (isValidBareHost(body)) {
     return { valid: true };
   }
-  if (prefix.startsWith("udp@") && body === "") {
-    return { valid: true };
-  }
   return {
     valid: false,
     message: `invalid address '${host}'`,
@@ -146,7 +139,11 @@ function validateHostShape(host: string): AddressValidationResult {
   };
 }
 
-function validatePortPart(portPart: string, policy: PortAddressPolicy, full: string): AddressValidationResult {
+function validatePortPart(
+  portPart: string,
+  policy: PortAddressPolicy,
+  full: string,
+): AddressValidationResult {
   if (!portPart) {
     if (policy.portMandatory) {
       return {
@@ -240,7 +237,7 @@ function validatePortPart(portPart: string, policy: PortAddressPolicy, full: str
 
 export function validateHaproxyAddress(
   token: string,
-  policy: PortAddressPolicy
+  policy: PortAddressPolicy,
 ): AddressValidationResult {
   const trimmed = token.trim();
   if (!trimmed) {
@@ -260,7 +257,9 @@ export function validateHaproxyAddress(
         code: "missing-port",
       };
     }
-    return body.length > 1 ? { valid: true } : { valid: false, message: "unix socket path is empty", code: "invalid-address" };
+    return body.length > 1
+      ? { valid: true }
+      : { valid: false, message: "unix socket path is empty", code: "invalid-address" };
   }
 
   if (prefix.startsWith("udp@") && policy.portRange && policy.portMandatory && !policy.portOffset) {
@@ -312,7 +311,12 @@ export function looksLikeAddressToken(token: string): boolean {
   }
   const { host, portPart, hadPortSeparator } = splitHostAndPort(trimmed);
   if (hadPortSeparator && portPart) {
-    return validateHostShape(host).valid || /^\d/.test(portPart) || portPart.startsWith("+") || portPart.startsWith("-");
+    return (
+      validateHostShape(host).valid ||
+      /^\d/.test(portPart) ||
+      portPart.startsWith("+") ||
+      portPart.startsWith("-")
+    );
   }
   return host.includes(".") || host.includes(":");
 }

@@ -7,7 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const extensionRoot = join(__dirname, "..");
 const schemaRoot = resolve(extensionRoot, "..", "haproxy-schema");
 const schemaPath = join(extensionRoot, "schemas", "haproxy-3.2.schema.json");
-const templatePath = join(extensionRoot, "syntaxes", "haproxy.tmLanguage.json");
+const _templatePath = join(extensionRoot, "syntaxes", "haproxy.tmLanguage.json");
 
 const env = {
   ...process.env,
@@ -16,14 +16,8 @@ const env = {
 
 const result = spawnSync(
   "python",
-  [
-    "-m",
-    "haproxy_schema",
-    "check-grammar",
-    "--schema",
-    schemaPath,
-  ],
-  { cwd: extensionRoot, env, encoding: "utf-8" }
+  ["-m", "haproxy_schema", "check-grammar", "--schema", schemaPath],
+  { cwd: extensionRoot, env, encoding: "utf-8" },
 );
 
 if (result.stdout) {

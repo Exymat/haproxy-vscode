@@ -3,7 +3,9 @@ import { FormatOptions } from "./formatter";
 /** Indent style for directives inside a section (section headers stay left-aligned). */
 export type FormatIndent = "spaces-4" | "spaces-2" | "tab";
 
-export function formatIndentToOptions(indent: FormatIndent): Pick<FormatOptions, "indentStyle" | "indentSize"> {
+export function formatIndentToOptions(
+  indent: FormatIndent,
+): Pick<FormatOptions, "indentStyle" | "indentSize"> {
   switch (indent) {
     case "spaces-2":
       return { indentStyle: "spaces", indentSize: 2 };

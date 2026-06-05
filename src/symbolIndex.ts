@@ -56,9 +56,6 @@ function isTopLevelSectionHeader(entry: ParsedLine): boolean {
 }
 
 function ruleMatchesLine(rule: StatementRule, tokens: ParsedToken[]): boolean {
-  if (tokens.length === 0) {
-    return false;
-  }
   const t0 = tokens[0].text.toLowerCase();
   if (rule.prefix) {
     const parts = rule.prefix.split(/\s+/);
@@ -96,7 +93,7 @@ function symbolNameTokenIndex(rule: StatementRule): number | null {
 function addSite(
   definitions: Map<string, SymbolSite[]>,
   references: SymbolSite[],
-  site: SymbolSite
+  site: SymbolSite,
 ): void {
   const key = symbolKey(site.kind, site.name, site.scopeKey);
   if (site.role === "definition") {
@@ -114,7 +111,7 @@ function siteFromToken(
   line: ParsedLine,
   tokenIndex: number,
   scopeKey: string | null,
-  role: "definition" | "reference"
+  role: "definition" | "reference",
 ): SymbolSite | null {
   const token = line.tokens[tokenIndex];
   if (!token) {
@@ -137,7 +134,7 @@ function proxyScopeKey(sectionType: string, sectionName: string): string {
 
 function aclReferenceAt(
   line: ParsedLine,
-  tokenIndex: number
+  tokenIndex: number,
 ): { name: string; tokenIndex: number } | null {
   const tokens = line.tokens;
   const token = tokens[tokenIndex];
@@ -162,7 +159,11 @@ function aclReferenceAt(
   return null;
 }
 
-function collectAclReferences(line: ParsedLine, scopeKey: string | null, references: SymbolSite[]): void {
+function collectAclReferences(
+  line: ParsedLine,
+  scopeKey: string | null,
+  references: SymbolSite[],
+): void {
   if (!scopeKey) {
     return;
   }
@@ -187,12 +188,8 @@ function collectAclReferences(line: ParsedLine, scopeKey: string | null, referen
 function collectSectionHeaderSites(
   line: ParsedLine,
   definitions: Map<string, SymbolSite[]>,
-  references: SymbolSite[]
+  references: SymbolSite[],
 ): void {
-  if (!isTopLevelSectionHeader(line) || line.tokens.length < 1) {
-    return;
-  }
-
   const sectionType = line.tokens[0].text.toLowerCase();
   const defKind = SECTION_DEFINITION_KINDS[sectionType];
   if (!defKind || line.tokens.length < 2) {
@@ -233,7 +230,7 @@ function collectStatementRuleSites(
   rules: StatementRule[],
   scopeKey: string | null,
   definitions: Map<string, SymbolSite[]>,
-  references: SymbolSite[]
+  references: SymbolSite[],
 ): void {
   if (line.isSectionHeader || line.tokens.length === 0) {
     return;
@@ -270,7 +267,7 @@ function collectStatementRuleSites(
             line,
             idx,
             effectiveScopeKey(kind, scopeKey),
-            "reference"
+            "reference",
           );
           if (site) {
             addSite(definitions, references, site);
@@ -317,7 +314,7 @@ export function buildSymbolIndex(parsed: ParsedLine[], schema: HaproxySchema): S
 export function getSymbolIndex(
   document: vscode.TextDocument,
   schema: HaproxySchema,
-  maxLines: number
+  maxLines: number,
 ): SymbolIndex | null {
   if (document.lineCount > maxLines) {
     return null;
@@ -346,7 +343,7 @@ function tokenAtPosition(line: ParsedLine, character: number): number | null {
 
 function resolveSectionHeaderSymbol(
   line: ParsedLine,
-  tokenIndex: number
+  tokenIndex: number,
 ): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
   if (!isTopLevelSectionHeader(line) || line.tokens.length < 2) {
     return null;
@@ -375,7 +372,7 @@ function resolveStatementRuleSymbol(
   line: ParsedLine,
   tokenIndex: number,
   rules: StatementRule[],
-  scopeKey: string | null
+  scopeKey: string | null,
 ): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
   for (const rule of rules) {
     if (!ruleMatchesLine(rule, line.tokens)) {
@@ -425,7 +422,7 @@ function resolveStatementRuleSymbol(
 export function resolveSymbolAtPosition(
   document: vscode.TextDocument,
   position: vscode.Position,
-  schema: HaproxySchema
+  schema: HaproxySchema,
 ): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
   const parsed = getParsedDocument(document);
   const line = parsed[position.line];
@@ -461,7 +458,7 @@ export function findDefinitions(
   index: SymbolIndex,
   kind: SymbolKind,
   name: string,
-  scopeKey: string | null
+  scopeKey: string | null,
 ): SymbolSite[] {
   return index.definitions.get(symbolKey(kind, name, scopeKey)) ?? [];
 }
@@ -470,15 +467,14 @@ export function findReferences(
   index: SymbolIndex,
   kind: SymbolKind,
   name: string,
-  scopeKey: string | null
+  scopeKey: string | null,
 ): SymbolSite[] {
-  const key = symbolKey(kind, name, scopeKey);
   const lower = name.toLowerCase();
   const refs = index.references.filter(
     (site) =>
       site.kind === kind &&
       site.name.toLowerCase() === lower &&
-      (site.scopeKey ?? "") === (scopeKey ?? "")
+      (site.scopeKey ?? "") === (scopeKey ?? ""),
   );
   return refs;
 }
@@ -487,7 +483,7 @@ export function findAllSites(
   index: SymbolIndex,
   kind: SymbolKind,
   name: string,
-  scopeKey: string | null
+  scopeKey: string | null,
 ): SymbolSite[] {
   const defs = findDefinitions(index, kind, name, scopeKey);
   const refs = findReferences(index, kind, name, scopeKey);

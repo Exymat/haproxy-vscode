@@ -31,7 +31,10 @@ export interface DocumentContext {
   prefix: string;
 }
 
-function tokenAtPosition(line: ParsedLine, character: number): { index: number; token: ParsedToken } | null {
+function tokenAtPosition(
+  line: ParsedLine,
+  character: number,
+): { index: number; token: ParsedToken } | null {
   for (let i = 0; i < line.tokens.length; i += 1) {
     const tok = line.tokens[i];
     if (character >= tok.start && character <= tok.end) {
@@ -44,7 +47,7 @@ function tokenAtPosition(line: ParsedLine, character: number): { index: number; 
 /** Map cursor position to a token index, including whitespace before the next token. */
 function resolveTokenIndex(
   line: ParsedLine,
-  character: number
+  character: number,
 ): { index: number; token: ParsedToken | null } {
   const hit = tokenAtPosition(line, character);
   if (hit) {
@@ -86,7 +89,7 @@ function ruleMatchesLine(rule: StatementRule, tokens: ParsedToken[]): boolean {
 function classifyByRules(
   rules: StatementRule[],
   line: ParsedLine,
-  tokenIndex: number
+  tokenIndex: number,
 ): CompletionKind | null {
   for (const rule of rules) {
     if (!ruleMatchesLine(rule, line.tokens)) {
@@ -124,7 +127,7 @@ function expressionKindAt(lineText: string, character: number): CompletionKind |
 export function getDocumentContext(
   document: vscode.TextDocument,
   position: vscode.Position,
-  schema: HaproxySchema
+  schema: HaproxySchema,
 ): DocumentContext | null {
   const parsed = getParsedDocument(document);
   const line = parsed[position.line];
@@ -167,7 +170,10 @@ export function getDocumentContext(
   return { line, lineText, tokenIndex, token, kind: "directive", prefix };
 }
 
-export function keywordsForSection(data: HaproxyLanguageData, section: string | null): LanguageKeyword[] {
+export function keywordsForSection(
+  data: HaproxyLanguageData,
+  section: string | null,
+): LanguageKeyword[] {
   if (!section) {
     return [];
   }
@@ -176,7 +182,7 @@ export function keywordsForSection(data: HaproxyLanguageData, section: string | 
 
 export function groupItems(
   data: HaproxyLanguageData,
-  groupName: string
+  groupName: string,
 ): HaproxyLanguageData["groups"][string] {
   return data.groups[groupName] ?? [];
 }

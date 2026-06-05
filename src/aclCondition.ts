@@ -34,11 +34,11 @@ function isAclOnlyCriterion(
   name: string,
   schema: HaproxySchema,
   fetchNames: Set<string>,
-  fetches: Record<string, import("./schema").SampleFunction>
+  fetches: Record<string, import("./schema").SampleFunction>,
 ): boolean {
   const lower = name.toLowerCase();
   const inAcl = (schema.keyword_groups.acl_criteria ?? []).some(
-    (criterion) => criterion.toLowerCase() === lower
+    (criterion) => criterion.toLowerCase() === lower,
   );
   if (!inAcl) {
     return false;
@@ -125,10 +125,7 @@ function findExprEnd(text: string, openParen: number): number {
 }
 
 /** Validate only sample-fetch subexpressions inside an ACL condition (not -m / eq / predefined ACLs). */
-export function validateAclConditions(
-  lineText: string,
-  schema: HaproxySchema
-): SampleDiagnostic[] {
+export function validateAclConditions(lineText: string, schema: HaproxySchema): SampleDiagnostic[] {
   const fetches = schema.sample_fetches ?? {};
   const converters = schema.sample_converters ?? {};
   const fetchNames = new Set(Object.keys(fetches));
@@ -159,8 +156,8 @@ export function validateAclConditions(
             fetches,
             converters,
             fetchNames,
-            convNames
-          )
+            convNames,
+          ),
         );
         pos = end;
         continue;
@@ -187,8 +184,8 @@ export function validateAclConditions(
             fetches,
             converters,
             fetchNames,
-            convNames
-          )
+            convNames,
+          ),
         );
         pos = end;
         continue;
@@ -202,8 +199,8 @@ export function validateAclConditions(
             fetches,
             converters,
             fetchNames,
-            convNames
-          )
+            convNames,
+          ),
         );
       }
       pos = id.end;

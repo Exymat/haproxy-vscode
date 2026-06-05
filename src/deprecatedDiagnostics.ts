@@ -3,11 +3,7 @@ import * as vscode from "vscode";
 import { DeprecatedIndex } from "./deprecatedIndex";
 import { ParsedLine } from "./parser";
 import { HaproxySchema, modifierPrefixSet, noPrefixKeywordSet, sectionKeywordSet } from "./schema";
-import {
-  actionTokenIndex,
-  normalizeActionName,
-  resolveLongestDirectiveMatch,
-} from "./tokenUtils";
+import { actionTokenIndex, normalizeActionName, resolveLongestDirectiveMatch } from "./tokenUtils";
 
 export function documentUsesExposeDeprecatedDirectives(parsed: ParsedLine[]): boolean {
   for (const line of parsed) {
@@ -32,7 +28,7 @@ export function deprecatedLineDiagnostics(
   schema: HaproxySchema,
   index: DeprecatedIndex,
   allowed: Set<string>,
-  noPrefix: Set<string>
+  noPrefix: Set<string>,
 ): vscode.Diagnostic[] {
   const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefix, modifierPrefixSet(schema));
   if (!match.matched) {
@@ -45,7 +41,7 @@ export function deprecatedLineDiagnostics(
     const diagnostic = new vscode.Diagnostic(
       diagRangeForTokens(line, match.start, match.end),
       `'${match.keyword}' is deprecated in HAProxy ${schema.version}`,
-      vscode.DiagnosticSeverity.Warning
+      vscode.DiagnosticSeverity.Warning,
     );
     diagnostic.source = "haproxy";
     diagnostic.code = "deprecated-keyword";
@@ -67,7 +63,7 @@ export function deprecatedLineDiagnostics(
   const diagnostic = new vscode.Diagnostic(
     diagRange(line, actionIdx),
     `'${rawAction}' is a deprecated ${ruleset} action in HAProxy ${schema.version}`,
-    vscode.DiagnosticSeverity.Warning
+    vscode.DiagnosticSeverity.Warning,
   );
   diagnostic.source = "haproxy";
   diagnostic.code = "deprecated-action";
@@ -85,7 +81,7 @@ export function deprecatedDiagnostics(
   line: ParsedLine,
   schema: HaproxySchema,
   index: DeprecatedIndex,
-  suppress: boolean
+  suppress: boolean,
 ): vscode.Diagnostic[] {
   if (suppress || line.tokens.length === 0 || line.isSectionHeader) {
     return [];

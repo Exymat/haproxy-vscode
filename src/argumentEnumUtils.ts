@@ -20,6 +20,9 @@ export function normalizeEnumDisplayName(name: string): string {
 export function docEnumValueNames(schemaKw: SchemaKeyword | undefined): string[] {
   const values: string[] = [];
   for (const param of schemaKw?.arguments ?? []) {
+    if (!param) {
+      continue;
+    }
     for (const value of param.values) {
       const base = value.name.split("(", 1)[0];
       if (isSimpleEnumName(base)) {
@@ -35,7 +38,12 @@ function shouldUseDocEnumHints(parameter: string | undefined): boolean {
     return false;
   }
   const lower = parameter.toLowerCase();
-  if (lower.includes("name") || lower.includes("addr") || lower.includes("path") || lower.includes("file")) {
+  if (
+    lower.includes("name") ||
+    lower.includes("addr") ||
+    lower.includes("path") ||
+    lower.includes("file")
+  ) {
     return false;
   }
   return lower.startsWith("<");
@@ -44,7 +52,7 @@ function shouldUseDocEnumHints(parameter: string | undefined): boolean {
 export function enumNamesForSlot(
   slot: ArgumentSlot | undefined,
   schemaKw: SchemaKeyword | undefined,
-  position: number
+  position: number,
 ): string[] {
   const fromSignature = (slot?.enum ?? []).map((value) => normalizeEnumDisplayName(value));
   if (fromSignature.length > 0) {
@@ -66,7 +74,7 @@ export function enumNamesForSlot(
 
   const param =
     schemaKw?.arguments?.[position] ??
-    (position === 0 ? schemaKw?.arguments?.find((p) => p.parameter === "<algorithm>") : undefined);
+    (position === 0 ? schemaKw?.arguments?.find((p) => p?.parameter === "<algorithm>") : undefined);
   if (!shouldUseDocEnumHints(param?.parameter)) {
     return [];
   }
@@ -80,7 +88,7 @@ export function enumNamesForSlot(
 export function enumNamesForArgumentPosition(
   schemaKw: SchemaKeyword | undefined,
   langKw: LanguageKeyword | undefined,
-  position: number
+  position: number,
 ): string[] {
   const slot = schemaKw?.argument_model?.slots?.[position];
   const fromSlot = enumNamesForSlot(slot, schemaKw, position);
@@ -96,9 +104,16 @@ export function enumNamesForArgumentPosition(
   return [];
 }
 
+export function enumDescriptionsForKeyword(
+  langKw: LanguageKeyword | undefined,
+  schemaKw: SchemaKeyword | undefined,
+): Map<string, string> {
+  return descriptionMap(langKw, schemaKw);
+}
+
 function descriptionMap(
   langKw: LanguageKeyword | undefined,
-  schemaKw: SchemaKeyword | undefined
+  schemaKw: SchemaKeyword | undefined,
 ): Map<string, string> {
   const map = new Map<string, string>();
   const addParam = (param: SchemaArgumentParam | LanguageArgumentParam): void => {
@@ -118,7 +133,7 @@ function descriptionMap(
 
 export function filterDirectiveKeywordParts(
   values: EnumValue[],
-  directiveKeyword: string
+  directiveKeyword: string,
 ): EnumValue[] {
   const parts = new Set(directiveKeyword.toLowerCase().split(/\s+/));
   return values.filter((value) => !parts.has(value.name.toLowerCase()));
@@ -127,7 +142,7 @@ export function filterDirectiveKeywordParts(
 export function mergeEnumValues(
   langValues: EnumValue[],
   schemaNames: string[],
-  descriptions: Map<string, string>
+  descriptions: Map<string, string>,
 ): EnumValue[] {
   const merged = new Map<string, EnumValue>();
   for (const value of langValues) {

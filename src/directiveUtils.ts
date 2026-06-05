@@ -1,4 +1,5 @@
 import {
+  enumDescriptionsForKeyword,
   enumNamesForArgumentPosition,
   EnumValue,
   filterDirectiveKeywordParts,
@@ -19,14 +20,14 @@ export interface ResolvedDirective {
 export function resolveDirective(
   line: ParsedLine,
   allowed: Set<string>,
-  options?: { noPrefixKeywords?: Set<string>; modifierPrefixes?: Set<string> }
+  options?: { noPrefixKeywords?: Set<string>; modifierPrefixes?: Set<string> },
 ): ResolvedDirective {
   const match = resolveLongestDirectiveMatch(
     line,
     allowed,
     4,
     options?.noPrefixKeywords,
-    options?.modifierPrefixes
+    options?.modifierPrefixes,
   );
   return {
     keyword: match.keyword,
@@ -66,7 +67,7 @@ function normalizeValueName(token: string): string {
 
 export function findArgumentValue(
   params: LanguageArgumentParam[] | undefined,
-  tokenText: string
+  tokenText: string,
 ): { name: string; description: string; parameter: string } | undefined {
   if (!params) {
     return undefined;
@@ -89,13 +90,13 @@ export function isEnumPerParameter(params: LanguageArgumentParam[] | undefined):
   return params.every(
     (param) =>
       param.values.length === 1 &&
-      param.values[0].name.toLowerCase() === param.parameter.toLowerCase()
+      param.values[0].name.toLowerCase() === param.parameter.toLowerCase(),
   );
 }
 
 export function documentedEnumValueNames(
   langKw: LanguageKeyword | undefined,
-  schemaKw?: SchemaKeyword | undefined
+  schemaKw?: SchemaKeyword,
 ): string[] {
   if (isEnumPerParameter(langKw?.arguments)) {
     return allArgumentValues(langKw?.arguments).map((value) => value.name);
@@ -117,30 +118,20 @@ export function completionValuesForPosition(
   position: number,
   line: ParsedLine,
   directiveEnd: number,
-  directiveKeyword: string
+  directiveKeyword: string,
 ): EnumValue[] {
   const langValues = filterDirectiveKeywordParts(
     argumentValuesForPosition(langKw?.arguments, position, line, directiveEnd).map((value) => ({
       name: value.name,
       description: value.description,
     })),
-    directiveKeyword
+    directiveKeyword,
   );
   const schemaNames = enumNamesForArgumentPosition(schemaKw, langKw, position);
-  const descriptions = new Map<string, string>();
-  for (const param of langKw?.arguments ?? []) {
-    for (const value of param.values) {
-      descriptions.set(value.name.split("(", 1)[0].toLowerCase(), value.description);
-    }
-  }
-  for (const param of schemaKw?.arguments ?? []) {
-    for (const value of param.values) {
-      descriptions.set(value.name.split("(", 1)[0].toLowerCase(), value.description);
-    }
-  }
+  const descriptions = enumDescriptionsForKeyword(langKw, schemaKw);
   return filterDirectiveKeywordParts(
     mergeEnumValues(langValues, schemaNames, descriptions),
-    directiveKeyword
+    directiveKeyword,
   );
 }
 
@@ -148,7 +139,7 @@ export function argumentValuesForPosition(
   params: LanguageArgumentParam[] | undefined,
   position: number,
   line: ParsedLine,
-  directiveEnd: number
+  directiveEnd: number,
 ): LanguageArgumentParam["values"] {
   if (!params || params.length === 0) {
     return [];
@@ -163,7 +154,9 @@ export function argumentValuesForPosition(
   const urlParam = params.find((p) => p.parameter === "url_param");
   const algorithm = params.find((p) => p.parameter === "<algorithm>" || p.parameter === "");
   if (firstArg === "url_param" && urlParam) {
-    return position <= 0 ? [{ name: "url_param", description: urlParam.description }] : urlParam.values;
+    return position <= 0
+      ? [{ name: "url_param", description: urlParam.description }]
+      : urlParam.values;
   }
   if (algorithm && algorithm.values.length > 0) {
     return algorithm.values;
@@ -172,7 +165,9 @@ export function argumentValuesForPosition(
   return slot?.values ?? [];
 }
 
-export function allArgumentValues(params: LanguageArgumentParam[] | undefined): LanguageArgumentParam["values"] {
+export function allArgumentValues(
+  params: LanguageArgumentParam[] | undefined,
+): LanguageArgumentParam["values"] {
   if (!params) {
     return [];
   }
@@ -193,11 +188,14 @@ export function allArgumentValues(params: LanguageArgumentParam[] | undefined): 
 
 export function getKeywordFromLanguage(
   data: HaproxyLanguageData,
-  keyword: string
+  keyword: string,
 ): LanguageKeyword | undefined {
   return data.keywords[keyword.toLowerCase()];
 }
 
-export function getKeywordFromSchema(schema: HaproxySchema, keyword: string): SchemaKeyword | undefined {
+export function getKeywordFromSchema(
+  schema: HaproxySchema,
+  keyword: string,
+): SchemaKeyword | undefined {
   return schema.keywords[keyword.toLowerCase()];
 }

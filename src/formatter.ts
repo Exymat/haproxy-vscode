@@ -76,9 +76,6 @@ function appendComment(line: string, commentSuffix: string | null): string {
 }
 
 function isSectionHeaderLine(tokens: { text: string }[]): boolean {
-  if (tokens.length === 0) {
-    return false;
-  }
   return SECTION_HEADERS.has(tokens[0].text.toLowerCase());
 }
 
@@ -95,7 +92,10 @@ function lastNonEmptyLine(lines: string[]): string | undefined {
   return undefined;
 }
 
-export function formatConfig(text: string, options: FormatOptions = DEFAULT_FORMAT_OPTIONS): string {
+export function formatConfig(
+  text: string,
+  options: FormatOptions = DEFAULT_FORMAT_OPTIONS,
+): string {
   const lineEnding = detectLineEnding(text);
   const hasTrailingNewline = text.endsWith("\n") || text.endsWith("\r\n");
   const indent = indentPrefix(options);
@@ -119,10 +119,6 @@ export function formatConfig(text: string, options: FormatOptions = DEFAULT_FORM
     }
 
     const tokens = tokenizeLine(code);
-    if (tokens.length === 0) {
-      outputLines.push(commentSuffix ? commentSuffix : "");
-      continue;
-    }
 
     if (isSectionHeaderLine(tokens)) {
       if (options.insertBlankLineBetweenSections && outputLines.length > 0) {

@@ -1,0 +1,116 @@
+import { computeDiagnostics } from "../../src/diagnostics";
+import { parseDocument } from "../../src/parser";
+import { statementDiagnostics } from "../../src/statementDiagnostics";
+import { createDocument } from "../helpers/document";
+import { loadSchemaBundle } from "../helpers/schema";
+
+const bundle = loadSchemaBundle("3.4");
+
+function lineDiag(content: string, lineNo: number) {
+  const doc = createDocument(content);
+  const line = parseDocument(doc as never)[lineNo];
+  return statementDiagnostics(line, bundle.schema);
+}
+
+describe("statementDiagnostics", () => {
+  it("validates log target addresses", () => {
+    const diags = lineDiag("global\n    log not-an-address local0", 1);
+    expect(diags.some((d) => d.code === "invalid-address")).toBe(true);
+  });
+
+  it("skips known log targets", () => {
+    expect(lineDiag("global\n    log stdout local0", 1)).toEqual([]);
+    expect(lineDiag("global\n    log @log local0", 1)).toEqual([]);
+    expect(lineDiag("global\n    log /var/log/haproxy.log local0", 1)).toEqual([]);
+  });
+
+  it("validates source addresses", () => {
+    const diags = lineDiag("defaults\n    source not-an-address", 1);
+    expect(diags.some((d) => d.code === "invalid-address")).toBe(true);
+  });
+
+  it("validates tcp-check and http-check addr parameters", () => {
+    const tcp = lineDiag("backend api\n    tcp-check connect addr bad", 1);
+    expect(tcp.some((d) => d.code === "invalid-address")).toBe(true);
+    const http = lineDiag("backend api\n    http-check connect addr bad", 1);
+    expect(http.some((d) => d.code === "invalid-address")).toBe(true);
+  });
+
+  it("reports missing server arguments and reserved names", () => {
+    const missing = lineDiag("backend api\n    server s1", 1);
+    expect(missing.some((d) => d.code === "missing-argument")).toBe(true);
+
+    const reserved = lineDiag("backend api\n    server check 127.0.0.1:80", 1);
+    expect(reserved.some((d) => d.code === "reserved-name")).toBe(true);
+  });
+
+  it("reports unknown server parameters", () => {
+    const diags = lineDiag("backend api\n    server s1 127.0.0.1:80 notreal", 1);
+    expect(diags.some((d) => d.code === "unknown-parameter")).toBe(true);
+  });
+
+  it("validates server option address values", () => {
+    const diags = lineDiag("backend api\n    server s1 127.0.0.1:80 source bad", 1);
+    expect(diags.some((d) => d.code === "invalid-address")).toBe(true);
+  });
+
+  it("is invoked from computeDiagnostics for server lines", () => {
+    const doc = createDocument("backend api\n    server s1 127.0.0.1:80 notreal");
+    const diags = computeDiagnostics(doc as never, bundle.schema, {
+      languageData: bundle.languageData,
+    });
+    expect(diags.some((d) => d.code === "unknown-parameter")).toBe(true);
+  });
+
+  it("returns empty for unrelated directives", () => {
+    expect(lineDiag("defaults\n    mode http", 1)).toEqual([]);
+    expect(lineDiag("global\n    daemon", 1)).toEqual([]);
+  });
+
+  it("validates bind addresses and unix sockets", () => {
+    const bad = lineDiag("frontend web\n    bind bad-address:80", 1);
+    expect(bad.some((d) => d.code === "invalid-address")).toBe(true);
+    const unix = lineDiag("frontend web\n    bind /tmp/haproxy.sock", 1);
+    expect(unix.filter((d) => d.code === "invalid-address")).toHaveLength(0);
+  });
+
+  it("skips placeholder server addresses", () => {
+    const diags = lineDiag("backend api\n    server s1 /var/run/app.sock", 1);
+    expect(diags.filter((d) => d.code === "invalid-address")).toHaveLength(0);
+  });
+
+  it("ignores numeric server options in nested scan", () => {
+    const diags = lineDiag("backend api\n    server s1 127.0.0.1:80 inter 2s", 1);
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
+  it("returns empty for incomplete log and source lines", () => {
+    expect(lineDiag("global\n    log", 1)).toEqual([]);
+    expect(lineDiag("defaults\n    source", 1)).toEqual([]);
+    expect(lineDiag("backend api\n    tcp-check connect", 1)).toEqual([]);
+  });
+
+  it("returns empty for lines without statement rules", () => {
+    expect(lineDiag("global\n    # comment", 1)).toEqual([]);
+  });
+
+  it("skips empty nested option tokens", () => {
+    const diags = lineDiag("backend api\n    server s1 127.0.0.1:80  inter 2s", 1);
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
+  it("returns empty for rules without option groups", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.statement_rules = [
+      {
+        keyword: "custom",
+        kind: "directive",
+        fixed_slots: [{ role: "name" }],
+        nested_start_index: 2,
+      },
+    ];
+    const doc = createDocument("backend api\n    custom name");
+    const line = parseDocument(doc as never)[1];
+    expect(statementDiagnostics(line, schema)).toEqual([]);
+  });
+});

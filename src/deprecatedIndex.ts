@@ -17,7 +17,10 @@ export interface DeprecatedIndex {
   actions: Set<string>;
 }
 
-const indexCache = new WeakMap<HaproxySchema, Map<HaproxyLanguageData | undefined, DeprecatedIndex>>();
+const indexCache = new WeakMap<
+  HaproxySchema,
+  Map<HaproxyLanguageData | undefined, DeprecatedIndex>
+>();
 
 function signatureIsDeprecated(signatures: string[]): boolean {
   return signatures.some((signature) => DEPRECATED_MARK.test(signature));
@@ -25,7 +28,7 @@ function signatureIsDeprecated(signatures: string[]): boolean {
 
 export function buildDeprecatedIndex(
   schema: HaproxySchema,
-  languageData?: HaproxyLanguageData
+  languageData?: HaproxyLanguageData,
 ): DeprecatedIndex {
   let perSchema = indexCache.get(schema);
   if (!perSchema) {

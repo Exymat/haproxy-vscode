@@ -1,6 +1,14 @@
 import { ParsedLine, ParsedToken } from "./parser";
 
-export const PREFIX_FAMILIES = ["stats", "timeout", "tcp-check", "http-check", "capture", "tcp-request", "tcp-response"];
+export const PREFIX_FAMILIES = [
+  "stats",
+  "timeout",
+  "tcp-check",
+  "http-check",
+  "capture",
+  "tcp-request",
+  "tcp-response",
+];
 
 export function isWordToken(token: string): boolean {
   return /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(token);
@@ -68,7 +76,7 @@ export function resolveLongestDirectiveMatch(
   allowed: Set<string>,
   maxParts = 4,
   noPrefixKeywords?: Set<string>,
-  modifierPrefixes?: Set<string>
+  modifierPrefixes?: Set<string>,
 ): DirectiveMatch {
   const tokens = line.tokens;
   if (tokens.length === 0) {
@@ -85,7 +93,7 @@ export function resolveLongestDirectiveMatch(
       allowed,
       maxParts,
       undefined,
-      modifierPrefixes
+      modifierPrefixes,
     );
     if (inner.matched && noPrefixKeywords?.has(inner.keyword)) {
       return {
@@ -115,7 +123,7 @@ export function resolveLongestDirectiveMatch(
 export function resolveAttemptedDirectiveSpan(
   line: ParsedLine,
   maxParts = 4,
-  conditionals?: Set<string>
+  conditionals?: Set<string>,
 ): DirectiveMatch {
   const tokens = line.tokens;
   if (tokens.length === 0) {
@@ -151,7 +159,7 @@ export function resolveAttemptedDirectiveSpan(
 export function resolveSubcommandSpan(
   line: ParsedLine,
   allowed: Set<string>,
-  prefix: string
+  prefix: string,
 ): { start: number; end: number; subcommand: string; matched: boolean } | null {
   const prefixLower = prefix.toLowerCase();
   if (line.tokens[0]?.text.toLowerCase() !== prefixLower || line.tokens.length < 2) {
@@ -189,7 +197,10 @@ export function resolveSubcommandSpan(
   };
 }
 
-export function resolveDirectiveSpan(line: ParsedLine, allowed: Set<string>): { start: number; end: number } {
+export function resolveDirectiveSpan(
+  line: ParsedLine,
+  allowed: Set<string>,
+): { start: number; end: number } {
   const match = resolveLongestDirectiveMatch(line, allowed);
   return { start: match.start, end: match.end };
 }
@@ -225,16 +236,13 @@ export function actionTokenIndex(line: ParsedLine): number | null {
   return null;
 }
 
-export function tcpPhaseIndex(line: ParsedLine, phases: Set<string>): number | null {
+export function tcpPhaseIndex(line: ParsedLine, _phases: Set<string>): number | null {
   const t0 = line.tokens[0]?.text.toLowerCase();
   if (t0 !== "tcp-request" && t0 !== "tcp-response") {
     return null;
   }
-  if (line.tokens.length >= 2) {
-    const t1 = line.tokens[1].text.toLowerCase();
-    if (phases.has(t1)) {
-      return 1;
-    }
+  if (line.tokens.length < 2) {
+    return null;
   }
-  return null;
+  return 1;
 }

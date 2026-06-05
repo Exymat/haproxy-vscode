@@ -2,7 +2,6 @@ import * as vscode from "vscode";
 
 import {
   getConfiguredVersion,
-  HaproxyVersion,
   onVersionConfigurationChanged,
   setConfiguredVersion,
   SUPPORTED_HAPROXY_VERSIONS,
@@ -22,7 +21,8 @@ export function registerVersionStatusBar(context: vscode.ExtensionContext): void
   const refresh = (): void => {
     const version = getConfiguredVersion();
     item.text = `$(versions) HAProxy ${version}`;
-    item.tooltip = "Click to change HAProxy version used for completion, diagnostics, and highlighting";
+    item.tooltip =
+      "Click to change HAProxy version used for completion, diagnostics, and highlighting";
     if (isHaproxyEditor(vscode.window.activeTextEditor)) {
       item.show();
     } else {
@@ -32,7 +32,7 @@ export function registerVersionStatusBar(context: vscode.ExtensionContext): void
 
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(() => refresh()),
-    onVersionConfigurationChanged(() => refresh())
+    onVersionConfigurationChanged(() => refresh()),
   );
 
   context.subscriptions.push(
@@ -46,12 +46,12 @@ export function registerVersionStatusBar(context: vscode.ExtensionContext): void
         {
           title: "HAProxy version",
           placeHolder: "Select HAProxy release for completion, diagnostics, and highlighting",
-        }
+        },
       );
       if (picked && picked.label !== current) {
-        await setConfiguredVersion(picked.label as HaproxyVersion);
+        await setConfiguredVersion(picked.label);
       }
-    })
+    }),
   );
 
   refresh();

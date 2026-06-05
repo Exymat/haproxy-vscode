@@ -24,7 +24,12 @@ export function buildSectionSymbols(parsed: ParsedLine[], lineCount: number): Se
 
     const sectionType = entry.tokens[0].text.toLowerCase();
     const sectionName =
-      entry.tokens.length > 1 ? entry.tokens.slice(1).map((token) => token.text).join(" ") : undefined;
+      entry.tokens.length > 1
+        ? entry.tokens
+            .slice(1)
+            .map((token) => token.text)
+            .join(" ")
+        : undefined;
     const name = sectionName ? `${sectionType} ${sectionName}` : sectionType;
 
     let endLine = lineCount - 1;
@@ -54,7 +59,10 @@ export interface SectionFoldRange {
 }
 
 /** Fold ranges start at the section header; VS Code hides startLine+1..endLine when collapsed. */
-export function buildSectionFoldRanges(parsed: ParsedLine[], lineCount: number): SectionFoldRange[] {
+export function buildSectionFoldRanges(
+  parsed: ParsedLine[],
+  lineCount: number,
+): SectionFoldRange[] {
   return buildSectionSymbols(parsed, lineCount)
     .filter((section) => section.endLine > section.startLine)
     .map((section) => ({

@@ -4,11 +4,7 @@ import { enumNamesForSlot } from "./argumentEnumUtils";
 import { argumentTokenIndices } from "./directiveUtils";
 import { ParsedLine } from "./parser";
 import { conditionalTokenSet, HaproxySchema, modifierPrefixSet, SchemaKeyword } from "./schema";
-import {
-  isLikelyValue,
-  PREFIX_FAMILIES,
-  resolveLongestDirectiveMatch,
-} from "./tokenUtils";
+import { isLikelyValue, PREFIX_FAMILIES, resolveLongestDirectiveMatch } from "./tokenUtils";
 
 export interface ArgumentSlot {
   optional?: boolean;
@@ -70,7 +66,7 @@ function makeArgDiagnostic(
   tokenIndex: number,
   message: string,
   code: ArgDiagCode,
-  severity: vscode.DiagnosticSeverity = vscode.DiagnosticSeverity.Warning
+  severity: vscode.DiagnosticSeverity = vscode.DiagnosticSeverity.Warning,
 ): vscode.Diagnostic {
   const diagnostic = new vscode.Diagnostic(diagRange(line, tokenIndex), message, severity);
   diagnostic.source = "haproxy";
@@ -81,15 +77,12 @@ function makeArgDiagnostic(
 function enumValuesForSlot(
   slot: ArgumentSlot | undefined,
   schemaKw: SchemaKeyword | undefined,
-  position: number
+  position: number,
 ): string[] {
   return enumNamesForSlot(slot, schemaKw, position).map((v) => v.toLowerCase());
 }
 
 function allowsMissingArgs(schemaKw: SchemaKeyword | undefined, model: ArgumentModel): boolean {
-  if (model.min_args === 0) {
-    return true;
-  }
   const signatures = schemaKw?.signatures ?? [];
   if (signatures.length > 1) {
     return true;
@@ -104,14 +97,14 @@ export function argumentModelDiagnostics(
   line: ParsedLine,
   schema: HaproxySchema,
   allowed: Set<string>,
-  noPrefixKeywords?: Set<string>
+  noPrefixKeywords?: Set<string>,
 ): vscode.Diagnostic[] {
   const match = resolveLongestDirectiveMatch(
     line,
     allowed,
     4,
     noPrefixKeywords,
-    modifierPrefixSet(schema)
+    modifierPrefixSet(schema),
   );
   if (!match.matched) {
     return [];
@@ -134,7 +127,7 @@ export function argumentModelDiagnostics(
   }
 
   const schemaKw = schema.keywords[keyword];
-  const model = schemaKw?.argument_model as ArgumentModel | undefined;
+  const model = schemaKw?.argument_model;
   if (!model || model.max_args === null || model.max_args === undefined) {
     return [];
   }
@@ -163,8 +156,8 @@ export function argumentModelDiagnostics(
         match.end,
         `'${keyword}' expects at least ${model.min_args} argument(s) (${missing} missing)`,
         "missing-argument",
-        vscode.DiagnosticSeverity.Error
-      )
+        vscode.DiagnosticSeverity.Error,
+      ),
     );
   }
 
@@ -180,8 +173,8 @@ export function argumentModelDiagnostics(
           line,
           tokenIdx,
           `'${keyword}' accepts at most ${model.max_args} argument(s); '${value}' is unexpected`,
-          "extra-argument"
-        )
+          "extra-argument",
+        ),
       );
       continue;
     }
@@ -202,8 +195,8 @@ export function argumentModelDiagnostics(
           line,
           tokenIdx,
           `Unknown value '${value}' for '${keyword}' (expected: ${formatEnumHint(allowedValues)})`,
-          "unknown-value"
-        )
+          "unknown-value",
+        ),
       );
     }
   }
@@ -215,7 +208,7 @@ function cookieArgumentDiagnostics(
   line: ParsedLine,
   match: { end: number },
   argIndices: number[],
-  conditionals: Set<string>
+  conditionals: Set<string>,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   if (argIndices.length === 0) {
@@ -225,8 +218,8 @@ function cookieArgumentDiagnostics(
         match.end,
         "'cookie' expects a cookie name",
         "missing-argument",
-        vscode.DiagnosticSeverity.Error
-      )
+        vscode.DiagnosticSeverity.Error,
+      ),
     );
     return diagnostics;
   }
@@ -240,8 +233,8 @@ function cookieArgumentDiagnostics(
           line,
           tokenIdx,
           `Unknown cookie modifier '${line.tokens[tokenIdx].text}'`,
-          "unknown-value"
-        )
+          "unknown-value",
+        ),
       );
     }
   }
@@ -254,7 +247,7 @@ function balanceArgumentDiagnostics(
   argIndices: number[],
   model: ArgumentModel,
   schemaKw: SchemaKeyword | undefined,
-  conditionals: Set<string>
+  conditionals: Set<string>,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   if (argIndices.length === 0) {
@@ -275,8 +268,8 @@ function balanceArgumentDiagnostics(
         line,
         algoIdx,
         `Unknown balance algorithm '${line.tokens[algoIdx].text}' (expected: ${formatEnumHint(allowedAlgorithms)})`,
-        "unknown-value"
-      )
+        "unknown-value",
+      ),
     );
   }
 
@@ -287,8 +280,8 @@ function balanceArgumentDiagnostics(
         line,
         extra,
         `'balance' accepts at most ${model.max_args} argument(s)`,
-        "extra-argument"
-      )
+        "extra-argument",
+      ),
     );
   }
   return diagnostics;
@@ -298,7 +291,7 @@ function mysqlCheckOptionDiagnostics(
   line: ParsedLine,
   match: { end: number },
   argIndices: number[],
-  conditionals: Set<string>
+  conditionals: Set<string>,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   if (argIndices.length === 0) {
@@ -313,8 +306,8 @@ function mysqlCheckOptionDiagnostics(
           argIndices[0],
           "option mysql-check user expects a username",
           "missing-argument",
-          vscode.DiagnosticSeverity.Error
-        )
+          vscode.DiagnosticSeverity.Error,
+        ),
       );
     }
     const modeIdx = argIndices.length >= 3 ? argIndices[2] : argIndices[1];
@@ -326,8 +319,8 @@ function mysqlCheckOptionDiagnostics(
             line,
             modeIdx,
             `Unknown mysql-check mode '${line.tokens[modeIdx].text}' (expected: post-41, pre-41)`,
-            "unknown-value"
-          )
+            "unknown-value",
+          ),
         );
       }
     }
@@ -341,8 +334,8 @@ function mysqlCheckOptionDiagnostics(
         line,
         argIndices[0],
         `Unknown value '${line.tokens[argIndices[0]].text}' for 'option mysql-check' (expected: user, post-41, pre-41)`,
-        "unknown-value"
-      )
+        "unknown-value",
+      ),
     );
   }
   return diagnostics;

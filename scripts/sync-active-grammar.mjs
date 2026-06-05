@@ -14,4 +14,6 @@ if (!existsSync(src)) {
   process.exit(1);
 }
 copyFileSync(src, dst);
-console.log(`Synced ${readFileSync(dst, "utf-8").split("\n").length} lines from haproxy-${version} to haproxy-active.tmLanguage.json`);
+console.log(
+  `Synced ${readFileSync(dst, "utf-8").split("\n").length} lines from haproxy-${version} to haproxy-active.tmLanguage.json`,
+);

@@ -15,7 +15,10 @@ export function activeGrammarPath(extensionPath: string): string {
 }
 
 /** Copy version-specific grammar to the path referenced by package.json. Returns true if the file changed. */
-export function syncActiveGrammar(context: vscode.ExtensionContext, version: HaproxyVersion): boolean {
+export function syncActiveGrammar(
+  context: vscode.ExtensionContext,
+  version: HaproxyVersion,
+): boolean {
   const src = grammarPathForVersion(context.extensionPath, version);
   const dst = activeGrammarPath(context.extensionPath);
   if (!fs.existsSync(src)) {
@@ -39,7 +42,7 @@ export async function promptReloadIfGrammarChanged(changed: boolean): Promise<vo
   }
   const choice = await vscode.window.showInformationMessage(
     "HAProxy version changed; reload the window to refresh syntax highlighting.",
-    "Reload Window"
+    "Reload Window",
   );
   if (choice === "Reload Window") {
     await vscode.commands.executeCommand("workbench.action.reloadWindow");

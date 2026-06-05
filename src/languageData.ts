@@ -47,7 +47,7 @@ export function clearLanguageDataCache(): void {
 
 export function loadLanguageData(
   context: vscode.ExtensionContext,
-  version: HaproxyVersion = DEFAULT_HAPROXY_VERSION
+  version: HaproxyVersion = DEFAULT_HAPROXY_VERSION,
 ): HaproxyLanguageData {
   const cached = languageDataCache.get(version);
   if (cached) {
@@ -62,7 +62,7 @@ export function loadLanguageData(
 
 export function findKeywordByPrefix(
   data: HaproxyLanguageData,
-  prefix: string
+  prefix: string,
 ): LanguageKeyword | undefined {
   const lower = prefix.toLowerCase();
   if (data.keywords[lower]) {
