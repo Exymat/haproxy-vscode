@@ -17,7 +17,7 @@ import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 
 function parsedLine(content: string) {
-  return parseDocument(createDocument(content) as never)[content.includes("\n") ? 1 : 0];
+  return parseDocument(createDocument(content))[content.includes("\n") ? 1 : 0];
 }
 
 describe("tokenUtils", () => {

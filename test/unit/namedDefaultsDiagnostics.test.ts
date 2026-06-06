@@ -7,7 +7,7 @@ const schema34 = loadSchema("3.4");
 
 function diagnosticCodes(content: string, lineNo = 1): string[] {
   const doc = createDocument(content);
-  const parsed = parseDocument(doc as never);
+  const parsed = parseDocument(doc);
   return namedDefaultsDiagnostics(parsed[lineNo], schema34).map((d) => d.code as string);
 }
 
@@ -36,7 +36,7 @@ describe("namedDefaultsDiagnostics", () => {
     const schema = structuredClone(schema34);
     schema.tokens.named_defaults_keywords = [];
     const doc = createDocument("defaults\n    acl is_api path -m beg /api");
-    const parsed = parseDocument(doc as never);
+    const parsed = parseDocument(doc);
     expect(namedDefaultsDiagnostics(parsed[1], schema)).toEqual([]);
   });
 });

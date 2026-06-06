@@ -32,7 +32,7 @@ export function runDiagnostics(
   version: SupportedVersion = DEFAULT_VERSION,
   overrides: Record<string, unknown> = {},
 ) {
-  return computeDiagnostics(doc as never, schemaForCase, diagnosticOptions(version, overrides));
+  return computeDiagnostics(doc, schemaForCase, diagnosticOptions(version, overrides));
 }
 
 export function runDiagnosticCase(

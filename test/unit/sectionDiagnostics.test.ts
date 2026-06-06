@@ -4,13 +4,13 @@ import { createDocument } from "../helpers/document";
 
 function headerDiagnosticCodes(content: string, lineNo = 0): string[] {
   const doc = createDocument(content);
-  const parsed = parseDocument(doc as never);
+  const parsed = parseDocument(doc);
   return sectionHeaderDiagnostics(parsed[lineNo]).map((d) => d.code as string);
 }
 
 function aclDiagnosticCodes(content: string, lineNo = 1): string[] {
   const doc = createDocument(content);
-  const parsed = parseDocument(doc as never);
+  const parsed = parseDocument(doc);
   return aclNameDiagnostics(parsed[lineNo]).map((d) => d.code as string);
 }
 

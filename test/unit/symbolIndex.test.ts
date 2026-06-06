@@ -11,7 +11,7 @@ function pos(line: number, character: number) {
 }
 
 function doc(content: string): TextDocument {
-  return createDocument(content) as unknown as TextDocument;
+  return createDocument(content);
 }
 
 describe("symbolIndex extended", () => {

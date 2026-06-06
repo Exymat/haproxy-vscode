@@ -24,7 +24,7 @@ function hoverMarkdown(content: string, lineNo: number, character: number, versi
   const doc = createDocument(content);
   const bundle = bundles[version];
   const hover = provideHover(
-    doc as never,
+    doc,
     { line: lineNo, character } as never,
     bundle.languageData,
     bundle.schema,
@@ -42,7 +42,7 @@ describe("provideHover", () => {
   it("returns null when context is missing", () => {
     const doc = createDocument("");
     const hover = provideHover(
-      doc as never,
+      doc,
       { line: 0, character: 0 } as never,
       bundles["3.4"].languageData,
       bundles["3.4"].schema,
@@ -118,7 +118,7 @@ describe("provideHover", () => {
       prefix: "    .if",
     });
     const hover = provideHover(
-      doc as never,
+      doc,
       { line: 1, character: 5 } as never,
       bundle.languageData,
       bundle.schema,
@@ -209,12 +209,7 @@ describe("provideHover", () => {
       ],
     };
     const col = "    backlog 128".indexOf("128");
-    const hover = provideHover(
-      doc as never,
-      { line: 1, character: col } as never,
-      data,
-      bundle.schema,
-    );
+    const hover = provideHover(doc, { line: 1, character: col } as never, data, bundle.schema);
     if (hover === null) {
       throw new Error("expected hover");
     }
@@ -256,7 +251,7 @@ describe("provideHover", () => {
       prefix: "    no option httplog",
     });
     const hover = provideHover(
-      doc as never,
+      doc,
       { line: 1, character: httplogStart + 2 } as never,
       bundle.languageData,
       bundle.schema,
@@ -273,7 +268,7 @@ describe("provideHover", () => {
     const bundle = bundles["3.4"];
     const begCol = "    acl test path -m beg".indexOf("beg");
     const hover = provideHover(
-      doc as never,
+      doc,
       { line: 1, character: begCol + 1 } as never,
       bundle.languageData,
       bundle.schema,
@@ -315,7 +310,7 @@ describe("provideHover", () => {
       end: 0,
     });
     const hover = provideHover(
-      doc as never,
+      doc,
       { line: 1, character: baseCol + 1 } as never,
       bundle.languageData,
       bundle.schema,
@@ -353,7 +348,7 @@ describe("provideHover", () => {
     });
     vi.spyOn(languageData, "findKeywordByPrefix").mockReturnValue(undefined);
     const hover = provideHover(
-      doc as never,
+      doc,
       { line: 1, character: begCol + 1 } as never,
       bundle.languageData,
       bundle.schema,

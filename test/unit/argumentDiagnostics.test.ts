@@ -9,7 +9,7 @@ const bundle = loadSchemaBundle("3.4");
 
 function argDiags(content: string, lineNo: number) {
   const doc = createDocument(content);
-  const line = parseDocument(doc as never)[lineNo];
+  const line = parseDocument(doc)[lineNo];
   const allowed = sectionKeywordSet(bundle.schema, line.section);
   return argumentModelDiagnostics(line, bundle.schema, allowed);
 }
@@ -75,7 +75,7 @@ describe("argumentDiagnostics", () => {
 
   it("is wired through computeDiagnostics", () => {
     const doc = createDocument("defaults\n    mode bogus");
-    const diags = computeDiagnostics(doc as never, bundle.schema, {
+    const diags = computeDiagnostics(doc, bundle.schema, {
       languageData: bundle.languageData,
     });
     expect(diags.some((d) => d.code === "unknown-value")).toBe(true);

@@ -56,7 +56,7 @@ function runCase(
   }) => void,
 ) {
   const doc = createDocument(content);
-  const parsed = parseDocument(doc as never);
+  const parsed = parseDocument(doc);
   const index = buildSymbolIndex(parsed, schema);
   checks({ doc, index });
 }

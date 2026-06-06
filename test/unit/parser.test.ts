@@ -19,14 +19,14 @@ describe("tokenizeLine", () => {
 
   it("parses anonymous defaults section header", () => {
     const doc = createDocument("defaults\n    maxconn 100");
-    const parsed = parseDocument(doc as never);
+    const parsed = parseDocument(doc);
     expect(parsed[0].anonymousDefaults).toBe(true);
     expect(parsed[1].anonymousDefaults).toBe(true);
   });
 
   it("parses named defaults without anonymous flag", () => {
     const doc = createDocument("defaults my-profile\n    maxconn 100");
-    const parsed = parseDocument(doc as never);
+    const parsed = parseDocument(doc);
     expect(parsed[0].anonymousDefaults).toBe(false);
   });
 });

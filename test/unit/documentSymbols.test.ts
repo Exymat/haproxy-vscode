@@ -8,7 +8,7 @@ function runCase(
   expected: Array<{ name: string; startLine: number; endLine: number }>,
 ) {
   const doc = createDocument(content);
-  const parsed = parseDocument(doc as never);
+  const parsed = parseDocument(doc);
   const symbols = buildSectionSymbols(parsed, doc.lineCount);
   const actual = symbols.map((symbol) => ({
     name: symbol.name,

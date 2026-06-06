@@ -13,7 +13,7 @@ function pos(line: number, character: number) {
 describe("provideDocumentSymbols", () => {
   it("returns vscode document symbols for sections", () => {
     const doc = createDocument("global\n    daemon\n\ndefaults\n    mode http");
-    const symbols = provideDocumentSymbols(doc as never);
+    const symbols = provideDocumentSymbols(doc);
     expect(symbols.map((s) => s.name)).toEqual(["global", "defaults"]);
     expect(symbols[0].kind).toBe(1);
   });
@@ -24,7 +24,7 @@ describe("provideFoldingRanges", () => {
     const doc = createDocument(
       "frontend web\n    bind :80\nbackend api\n    server s1 127.0.0.1:8080",
     );
-    const ranges = provideFoldingRanges(doc as never);
+    const ranges = provideFoldingRanges(doc);
     expect(ranges.length).toBeGreaterThan(0);
     expect(ranges[0].start).toBe(0);
   });
@@ -47,7 +47,7 @@ describe("provideDefinition", () => {
       "backend api\n    server s1 127.0.0.1:8080\nfrontend web\n    use_backend api",
     );
     const useBackendCol = "    use_backend api".indexOf("api");
-    const location = provideDefinition(doc as never, pos(3, useBackendCol), schema, 4000);
+    const location = provideDefinition(doc, pos(3, useBackendCol), schema, 4000);
     expect(location).not.toBeNull();
     expect(Array.isArray(location)).toBe(false);
     expect((location as { range: { start: { line: number } } }).range.start.line).toBe(0);
@@ -58,7 +58,7 @@ describe("provideDefinition", () => {
       "backend api\n    server s1 127.0.0.1:8080\nbackend api\n    server s2 127.0.0.1:8081\nfrontend web\n    use_backend api",
     );
     const useBackendCol = "    use_backend api".indexOf("api");
-    const locations = provideDefinition(doc as never, pos(5, useBackendCol), schema, 4000);
+    const locations = provideDefinition(doc, pos(5, useBackendCol), schema, 4000);
     expect(Array.isArray(locations)).toBe(true);
     expect((locations as unknown[]).length).toBe(2);
   });
@@ -79,7 +79,7 @@ describe("provideReferences", () => {
     );
     const useBackendCol = "    use_backend api".indexOf("api");
     const refs = provideReferences(
-      doc as never,
+      doc,
       pos(3, useBackendCol),
       { includeDeclaration: true },
       schema,
@@ -94,7 +94,7 @@ describe("provideReferences", () => {
     );
     const useBackendCol = "    use_backend api".indexOf("api");
     const refs = provideReferences(
-      doc as never,
+      doc,
       pos(3, useBackendCol),
       { includeDeclaration: false },
       schema,

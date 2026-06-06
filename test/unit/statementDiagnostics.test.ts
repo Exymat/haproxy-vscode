@@ -8,7 +8,7 @@ const bundle = loadSchemaBundle("3.4");
 
 function lineDiag(content: string, lineNo: number) {
   const doc = createDocument(content);
-  const line = parseDocument(doc as never)[lineNo];
+  const line = parseDocument(doc)[lineNo];
   return statementDiagnostics(line, bundle.schema);
 }
 
@@ -56,7 +56,7 @@ describe("statementDiagnostics", () => {
 
   it("is invoked from computeDiagnostics for server lines", () => {
     const doc = createDocument("backend api\n    server s1 127.0.0.1:80 notreal");
-    const diags = computeDiagnostics(doc as never, bundle.schema, {
+    const diags = computeDiagnostics(doc, bundle.schema, {
       languageData: bundle.languageData,
     });
     expect(diags.some((d) => d.code === "unknown-parameter")).toBe(true);
@@ -153,7 +153,7 @@ describe("statementDiagnostics", () => {
       },
     ];
     const doc = createDocument("backend api\n    custom name");
-    const line = parseDocument(doc as never)[1];
+    const line = parseDocument(doc)[1];
     expect(statementDiagnostics(line, schema)).toEqual([]);
   });
 });

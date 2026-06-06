@@ -16,7 +16,7 @@ function createLine(text: string, lineNumber: number): TextLine {
     } as Range,
     firstNonWhitespaceCharacterIndex: text.search(/\S|$/),
     isEmptyOrWhitespace: text.trim().length === 0,
-  } as TextLine;
+  };
 }
 
 export function createDocument(content: string, uri = "file:///test.cfg"): MockTextDocument {

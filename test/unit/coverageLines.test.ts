@@ -73,7 +73,7 @@ describe("coverage line gaps", () => {
       ],
     };
     const optionDiags = computeDiagnostics(
-      createDocument("defaults\n    option nonsense") as never,
+      createDocument("defaults\n    option nonsense"),
       custom,
       {
         languageData: bundle.languageData,
@@ -82,7 +82,7 @@ describe("coverage line gaps", () => {
     expect(optionDiags.filter((d) => d.code === "unknown-keyword")).toHaveLength(0);
 
     const blockedOption = computeDiagnostics(
-      createDocument("global\n    option httplog") as never,
+      createDocument("global\n    option httplog"),
       bundle.schema,
       {
         languageData: bundle.languageData,
@@ -97,24 +97,16 @@ describe("coverage line gaps", () => {
       ...fewSections.keywords.mode,
       sections: ["defaults", "frontend"],
     };
-    const fewSectionDiags = computeDiagnostics(
-      createDocument("global\n    mode") as never,
-      fewSections,
-      {
-        languageData: bundle.languageData,
-      },
-    );
+    const fewSectionDiags = computeDiagnostics(createDocument("global\n    mode"), fewSections, {
+      languageData: bundle.languageData,
+    });
     expect(fewSectionDiags.find((d) => d.code === "wrong-section")?.message).toContain(
       "allowed in:",
     );
 
-    const preSection = computeDiagnostics(
-      createDocument("    mode\nglobal") as never,
-      bundle.schema,
-      {
-        languageData: bundle.languageData,
-      },
-    );
+    const preSection = computeDiagnostics(createDocument("    mode\nglobal"), bundle.schema, {
+      languageData: bundle.languageData,
+    });
     expect(preSection.some((d) => d.code === "wrong-section")).toBe(true);
   });
 

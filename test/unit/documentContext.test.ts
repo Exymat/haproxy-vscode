@@ -12,7 +12,7 @@ const { schema, languageData } = loadSchemaBundle("3.4");
 
 function ctx(content: string, lineNo: number, character: number) {
   const doc = createDocument(content);
-  return getDocumentContext(doc as never, { line: lineNo, character } as never, schema);
+  return getDocumentContext(doc, { line: lineNo, character } as never, schema);
 }
 
 describe("documentContext", () => {
@@ -130,7 +130,7 @@ describe("documentContext", () => {
       },
     ];
     const doc = createDocument("defaults\n    no option special");
-    const hit = getDocumentContext(doc as never, { line: 1, character: 20 } as never, customSchema);
+    const hit = getDocumentContext(doc, { line: 1, character: 20 } as never, customSchema);
     expect(hit?.kind).toBe("directive-argument");
   });
 

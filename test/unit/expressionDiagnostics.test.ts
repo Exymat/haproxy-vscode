@@ -9,7 +9,7 @@ describe("expressionDiagnostics", () => {
   it("reports invalid sample expressions with source and code", () => {
     const content = "frontend web\n    http-request add-header n %[not_a_fetch]";
     const doc = createDocument(content);
-    const line = parseDocument(doc as never)[1];
+    const line = parseDocument(doc)[1];
     const lineText = doc.lineAt(1).text;
     const diags = expressionDiagnostics(line, lineText, schema);
     expect(diags.length).toBeGreaterThan(0);
@@ -22,7 +22,7 @@ describe("expressionDiagnostics", () => {
   it("includes acl condition validation issues", () => {
     const content = "frontend web\n    http-request deny if { not_a_fetch() }";
     const doc = createDocument(content);
-    const line = parseDocument(doc as never)[1];
+    const line = parseDocument(doc)[1];
     const diags = expressionDiagnostics(line, doc.lineAt(1).text, schema);
     expect(diags.some((d) => String(d.code).includes("sample"))).toBe(true);
   });

@@ -12,13 +12,13 @@ describe("diagnostics extended branches", () => {
       return;
     }
     const doc = createDocument(`global\n    ${macros[0]} foo bar`);
-    const diags = computeDiagnostics(doc as never, schema, { languageData: bundle34.languageData });
+    const diags = computeDiagnostics(doc, schema, { languageData: bundle34.languageData });
     expect(diags.every((d) => d.code !== "unknown-keyword")).toBe(true);
   });
 
   it("reports unknown stats socket level", () => {
     const doc = createDocument("global\n    stats socket /tmp/haproxy level bogus");
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.some((d) => d.code === "unknown-value")).toBe(true);
@@ -26,7 +26,7 @@ describe("diagnostics extended branches", () => {
 
   it("reports unknown http-request action", () => {
     const doc = createDocument("frontend x\n    bind :80\n    http-request notreal if TRUE");
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.some((d) => d.code === "unknown-action")).toBe(true);
@@ -36,7 +36,7 @@ describe("diagnostics extended branches", () => {
     const doc = createDocument(
       "frontend x\n    bind :80\n    http-request use-service missing-service if TRUE",
     );
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     const serviceDiag = diags.find((d) => d.code === "unknown-service");
@@ -49,7 +49,7 @@ describe("diagnostics extended branches", () => {
 
   it("flags invalid tcp-request content phase via statement rules", () => {
     const doc = createDocument("frontend x\n    tcp-request inspect-delay 5s if TRUE");
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.length).toBeGreaterThanOrEqual(0);
@@ -57,7 +57,7 @@ describe("diagnostics extended branches", () => {
 
   it("reports wrong-section with allowed sections list", () => {
     const doc = createDocument("frontend x\n    external-check");
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.some((d) => d.code === "wrong-section")).toBe(true);
@@ -65,7 +65,7 @@ describe("diagnostics extended branches", () => {
 
   it("reports wrong-context for HTTP-only keyword in tcp mode", () => {
     const doc = createDocument("listen x\n    mode tcp\n    capture cookie SID len 64");
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.some((d) => d.code === "wrong-context")).toBe(true);
@@ -78,7 +78,7 @@ describe("diagnostics extended branches", () => {
       contexts: ["spop"],
     };
     const doc = createDocument("frontend x\n    mode spop\n    maxconn 1000");
-    const diags = computeDiagnostics(doc as never, schema, {
+    const diags = computeDiagnostics(doc, schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.filter((d) => d.code === "wrong-context")).toHaveLength(0);
@@ -86,7 +86,7 @@ describe("diagnostics extended branches", () => {
 
   it("reports wrong-context for HTTP-only option in tcp mode", () => {
     const doc = createDocument("defaults\n    mode tcp\n    option httplog");
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(
@@ -101,7 +101,7 @@ describe("diagnostics extended branches", () => {
       "test-nocontext",
     ];
     const doc = createDocument("frontend x\n    mode tcp\n    bind :80 test-nocontext");
-    const diags = computeDiagnostics(doc as never, schema, {
+    const diags = computeDiagnostics(doc, schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.some((d) => d.code === "wrong-context")).toBe(false);
@@ -109,7 +109,7 @@ describe("diagnostics extended branches", () => {
 
   it("reports wrong-context for bind option in incompatible mode", () => {
     const doc = createDocument("frontend x\n    mode spop\n    bind :80 idle-ping");
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.some((d) => d.code === "wrong-context" && d.message.includes("idle-ping"))).toBe(
@@ -121,7 +121,7 @@ describe("diagnostics extended branches", () => {
     const doc = createDocument(
       "defaults base\n    mode tcp\nfrontend web from base\n    capture cookie SID len 64",
     );
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.some((d) => d.code === "wrong-context")).toBe(true);
@@ -129,7 +129,7 @@ describe("diagnostics extended branches", () => {
 
   it("allows option lines in defaults", () => {
     const doc = createDocument("defaults\n    option httplog");
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.filter((d) => d.code === "unknown-keyword")).toHaveLength(0);
@@ -142,7 +142,7 @@ describe("diagnostics extended branches", () => {
       sections: ["frontend"],
     };
     const doc = createDocument("frontend x\n    tcp-request notreal if TRUE");
-    const diags = computeDiagnostics(doc as never, schema, {
+    const diags = computeDiagnostics(doc, schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.some((d) => d.code === "unknown-value")).toBe(true);
@@ -150,7 +150,7 @@ describe("diagnostics extended branches", () => {
 
   it("suppresses deprecated warnings with expose-deprecated-directives", () => {
     const doc = createDocument("global\n    expose-deprecated-directives\n    master-worker");
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
       deprecatedWarnings: true,
     });
@@ -159,7 +159,7 @@ describe("diagnostics extended branches", () => {
 
   it("reports unknown tcp-response phase", () => {
     const doc = createDocument("listen x\n    tcp-response notreal if TRUE");
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(
@@ -169,7 +169,7 @@ describe("diagnostics extended branches", () => {
 
   it("reports unknown tcp-response and http-after-response actions", () => {
     const tcp = createDocument("listen x\n    tcp-response content notreal-action");
-    const tcpDiags = computeDiagnostics(tcp as never, bundle34.schema, {
+    const tcpDiags = computeDiagnostics(tcp, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(
@@ -177,7 +177,7 @@ describe("diagnostics extended branches", () => {
     ).toBe(true);
 
     const after = createDocument("frontend x\n    http-after-response notreal-action");
-    const afterDiags = computeDiagnostics(after as never, bundle34.schema, {
+    const afterDiags = computeDiagnostics(after, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     expect(
@@ -193,14 +193,14 @@ describe("diagnostics extended branches", () => {
     const doc = createDocument(
       "frontend x\n    bind :80\n    http-request use-service missing if TRUE",
     );
-    const diags = computeDiagnostics(doc as never, schema, { languageData: bundle34.languageData });
+    const diags = computeDiagnostics(doc, schema, { languageData: bundle34.languageData });
     expect(diags.some((d) => d.code === "unknown-service")).toBe(true);
   });
 
   it("reports wrong-section before any section header", () => {
     const schema = structuredClone(bundle34.schema);
     const doc = createDocument("    mode http\nglobal\n    maxconn 100");
-    const diags = computeDiagnostics(doc as never, schema, {
+    const diags = computeDiagnostics(doc, schema, {
       languageData: bundle34.languageData,
     });
     expect(diags.some((d) => d.code === "wrong-section" || d.code === "unknown-keyword")).toBe(
@@ -210,7 +210,7 @@ describe("diagnostics extended branches", () => {
 
   it("reports wrong-section for keywords with many allowed sections", () => {
     const doc = createDocument("global\n    mode");
-    const diags = computeDiagnostics(doc as never, bundle34.schema, {
+    const diags = computeDiagnostics(doc, bundle34.schema, {
       languageData: bundle34.languageData,
     });
     const wrong = diags.find((d) => d.code === "wrong-section");
@@ -229,7 +229,7 @@ describe("diagnostics extended branches", () => {
       keywords: schema.sections.defaults.keywords.filter((kw) => kw !== "option"),
     };
     const doc = createDocument("defaults\n    option httplog");
-    const diags = computeDiagnostics(doc as never, schema, { languageData: bundle34.languageData });
+    const diags = computeDiagnostics(doc, schema, { languageData: bundle34.languageData });
     expect(diags.filter((d) => d.code === "unknown-keyword")).toHaveLength(0);
   });
 });

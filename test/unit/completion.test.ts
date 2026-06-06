@@ -19,7 +19,7 @@ function completionLabels(
   const doc = createDocument(content);
   const bundle = bundles[version];
   const items = provideCompletionItems(
-    doc as never,
+    doc,
     { line: lineNo, character } as never,
     bundle.languageData,
     bundle.schema,
@@ -31,7 +31,7 @@ function hoverText(content: string, lineNo: number, character: number, version: 
   const doc = createDocument(content);
   const bundle = bundles[version];
   const hover = provideHover(
-    doc as never,
+    doc,
     { line: lineNo, character } as never,
     bundle.languageData,
     bundle.schema,
@@ -46,7 +46,7 @@ function hoverText(content: string, lineNo: number, character: number, version: 
 function contextKind(content: string, lineNo: number, character: number, version: TestVersion) {
   const doc = createDocument(content);
   const bundle = bundles[version];
-  const ctx = getDocumentContext(doc as never, { line: lineNo, character } as never, bundle.schema);
+  const ctx = getDocumentContext(doc, { line: lineNo, character } as never, bundle.schema);
   return ctx?.kind ?? null;
 }
 
