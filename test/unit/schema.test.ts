@@ -3,6 +3,7 @@ import {
   clearSchemaCache,
   conditionalTokenSet,
   loadSchema,
+  loadSchemaAsync,
   modifierPrefixSet,
   namedDefaultsKeywordSet,
   noPrefixKeywordSet,
@@ -40,6 +41,14 @@ describe("loadSchema", () => {
     clearSchemaCache();
     const after = loadSchema(context as never, "3.4");
     expect(after).not.toBe(before);
+  });
+
+  it("loads and caches schema asynchronously by version", async () => {
+    const context = mockExtensionContext();
+    const first = await loadSchemaAsync(context as never, "3.2");
+    const second = await loadSchemaAsync(context as never, "3.2");
+    expect(first).toBe(second);
+    expect(first.version).toBe("3.2");
   });
 });
 
@@ -125,6 +134,17 @@ describe("schema helpers", () => {
   it("uses explicit bind/server *_with_value metadata", () => {
     expect(optionsWithValueSet(schema, "bind_options").has("crt")).toBe(true);
     expect(optionsWithValueSet(schema, "server_options").has("cookie")).toBe(true);
+  });
+
+  it("falls back to suffix heuristics when *_with_value is absent", () => {
+    const bare = structuredClone(schema);
+    delete bare.keyword_groups.bind_options_with_value;
+    bare.keyword_groups.bind_options = ["ca-file", "strict-sni", "sni"];
+
+    const values = optionsWithValueSet(bare, "bind_options");
+    expect(values.has("ca-file")).toBe(true);
+    expect(values.has("strict-sni")).toBe(false);
+    expect(values.has("sni")).toBe(false);
   });
 
   it("combines layout tcp phases via allTcpRulePhases", () => {

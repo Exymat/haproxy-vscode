@@ -48,6 +48,7 @@ export function activate(context: vscode.ExtensionContext): void {
           })().catch(reject);
         });
       });
+      /* c8 ignore next 3 -- defensive recovery path for transient async load failures */
       bundleLoadPromise = bundleLoadPromise.catch((error) => {
         bundleLoadPromise = undefined;
         throw error;

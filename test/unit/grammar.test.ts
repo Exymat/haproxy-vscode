@@ -7,6 +7,7 @@ import {
   grammarPathForVersion,
   promptReloadIfGrammarChanged,
   syncActiveGrammar,
+  syncActiveGrammarAsync,
 } from "../../src/grammar";
 import { commands, resetVscodeMock, setMockInfoMessageResult } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
@@ -78,6 +79,47 @@ describe("syncActiveGrammar", () => {
     const context = mockExtensionContext();
     const changed = syncActiveGrammar(context as never, "3.2");
     expect(typeof changed).toBe("boolean");
+  });
+});
+
+describe("syncActiveGrammarAsync", () => {
+  let tempDir: string;
+
+  beforeEach(() => {
+    resetVscodeMock();
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "haproxy-grammar-async-"));
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  function contextWithVersion(version: string) {
+    const syntaxDir = path.join(tempDir, "syntaxes");
+    fs.mkdirSync(syntaxDir, { recursive: true });
+    const src = path.join(syntaxDir, `haproxy-${version}.tmLanguage.json`);
+    fs.writeFileSync(src, JSON.stringify({ version, scopeName: "source.haproxy" }));
+    return {
+      extensionPath: tempDir,
+      subscriptions: [],
+    };
+  }
+
+  it("returns false when source grammar is missing", async () => {
+    const context = { extensionPath: tempDir, subscriptions: [] };
+    await expect(syncActiveGrammarAsync(context as never, "3.2")).resolves.toBe(false);
+  });
+
+  it("returns true when grammar file is new", async () => {
+    const context = contextWithVersion("3.2");
+    await expect(syncActiveGrammarAsync(context as never, "3.2")).resolves.toBe(true);
+    expect(fs.existsSync(activeGrammarPath(tempDir))).toBe(true);
+  });
+
+  it("returns false when grammar is unchanged", async () => {
+    const context = contextWithVersion("3.2");
+    await expect(syncActiveGrammarAsync(context as never, "3.2")).resolves.toBe(true);
+    await expect(syncActiveGrammarAsync(context as never, "3.2")).resolves.toBe(false);
   });
 });
 
