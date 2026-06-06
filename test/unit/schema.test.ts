@@ -1,3 +1,7 @@
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
 import {
   buildPrefixSubcommands,
   clearSchemaCache,
@@ -10,6 +14,7 @@ import {
   optionsWithValueSet,
   prefixFamilies,
   prefixSubcommandSet,
+  sampleExpressionNameSets,
   sectionKeywordSet,
   sectionNames,
   statsSocketLevelSet,
@@ -149,5 +154,72 @@ describe("schema helpers", () => {
 
   it("combines layout tcp phases via allTcpRulePhases", () => {
     expect(allTcpRulePhases(schema).has("content")).toBe(true);
+  });
+
+  it("falls back for missing token arrays and missing sections", () => {
+    const bare = structuredClone(schema);
+    bare.tokens = {};
+    expect(noPrefixKeywordSet(bare)).toEqual(new Set());
+    expect(modifierPrefixSet(bare)).toEqual(new Set());
+    expect(conditionalTokenSet(bare)).toEqual(new Set());
+    expect(namedDefaultsKeywordSet(bare)).toEqual(new Set());
+    expect(sectionKeywordSet(bare, "nonexistent")).toEqual(new Set());
+  });
+
+  it("covers sample expression and stats fallback branches", () => {
+    const bare = structuredClone(schema);
+    bare.sample_fetches = {};
+    bare.sample_converters = {};
+    bare.keyword_groups.sample_fetches = ["hdr"];
+    bare.keyword_groups.sample_converters = ["lower"];
+    bare.line_layout = {};
+    const sets = sampleExpressionNameSets(bare);
+    expect(sets.fetchNames.has("hdr")).toBe(true);
+    expect(sets.convNames.has("lower")).toBe(true);
+    expect(statsSocketLevelSet(bare)).toEqual(new Set(["user", "operator", "admin"]));
+  });
+
+  it("handles missing sample maps and unknown option groups", () => {
+    const bare = structuredClone(schema);
+    bare.sample_fetches = undefined as never;
+    bare.sample_converters = undefined as never;
+    bare.keyword_groups.sample_fetches = undefined as never;
+    bare.keyword_groups.sample_converters = undefined as never;
+    expect(sampleExpressionNameSets(bare).fetchNames.size).toBe(0);
+    expect(sampleExpressionNameSets(bare).convNames.size).toBe(0);
+    expect(optionsWithValueSet(bare, "nonexistent_group")).toEqual(new Set());
+  });
+
+  it("falls back to default prefix families without line layout", () => {
+    const bare = structuredClone(schema);
+    bare.line_layout = undefined;
+    expect(prefixFamilies(bare)).toContain("stats");
+  });
+
+  it("normalizes missing schema collections via loadSchema", () => {
+    clearSchemaCache();
+    const tempRoot = mkdtempSync(join(tmpdir(), "haproxy-schema-test-"));
+    const schemasDir = join(tempRoot, "schemas");
+    mkdirSync(schemasDir, { recursive: true });
+    writeFileSync(
+      join(schemasDir, "haproxy-3.4.schema.json"),
+      JSON.stringify({
+        version: "3.4",
+        sections: {},
+        keywords: {},
+        keyword_groups: {},
+        tokens: {},
+      }),
+      "utf-8",
+    );
+
+    const loaded = loadSchema({ extensionPath: tempRoot } as never, "3.4");
+    expect(loaded.statement_rules).toEqual([]);
+    expect(loaded.sample_fetches).toEqual({});
+    expect(loaded.sample_converters).toEqual({});
+    expect(loaded.keyword_group_contexts).toEqual({});
+    expect(loaded.line_layout).toEqual({});
+
+    rmSync(tempRoot, { recursive: true, force: true });
   });
 });

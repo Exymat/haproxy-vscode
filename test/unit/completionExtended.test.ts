@@ -1,5 +1,6 @@
 import { provideCompletionItems } from "../../src/completion";
 import * as documentContext from "../../src/documentContext";
+import * as directiveUtils from "../../src/directiveUtils";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 
@@ -139,5 +140,243 @@ describe("completion extended", () => {
     const col = content.split("\n")[1].indexOf("extra");
     const labels = completionLabels(content, 1, col);
     expect(labels).toEqual([]);
+  });
+
+  it("handles directive argument completion when schema keyword is missing", () => {
+    const doc = createDocument("defaults\n    mode ");
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      kind: "directive-argument",
+      tokenIndex: 2,
+      line: {
+        line: 1,
+        text: "    mode ",
+        indent: 4,
+        section: "defaults",
+        tokens: [
+          { text: "mode", start: 4, end: 8 },
+          { text: "http", start: 9, end: 13 },
+        ],
+      },
+    } as never);
+    vi.spyOn(documentContext, "keywordsForSection").mockReturnValue([]);
+    vi.spyOn(directiveUtils, "resolveDirective").mockReturnValue({
+      matched: true,
+      start: 0,
+      end: 0,
+      keyword: "madeup-directive",
+    });
+    vi.spyOn(directiveUtils, "getKeywordFromSchema").mockReturnValue(undefined);
+    vi.spyOn(directiveUtils, "argumentPosition").mockReturnValue(0);
+    vi.spyOn(directiveUtils, "completionValuesForPosition").mockReturnValue([
+      { name: "alpha", description: "alpha value" },
+    ]);
+
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: 9 } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0].detail).toBe("argument");
+  });
+
+  it("builds keyword docs when description and signatures are empty", () => {
+    const doc = createDocument("frontend web\n    ");
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      kind: "directive",
+      tokenIndex: 0,
+      line: {
+        line: 1,
+        text: "    ",
+        indent: 4,
+        section: "frontend",
+        tokens: [],
+      },
+    } as never);
+    vi.spyOn(documentContext, "keywordsForSection").mockReturnValue([
+      {
+        name: "fake-keyword",
+        signatures: [],
+        description: "",
+        docsUrl: undefined,
+        arguments: [],
+      },
+    ] as never);
+
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: 4 } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0].detail).toBe("fake-keyword");
+  });
+
+  it("builds option documentation from fallback no-option keyword", () => {
+    const doc = createDocument("defaults\n    option legacy");
+    const originalGroupItems = documentContext.groupItems;
+    const data = structuredClone(bundle.languageData);
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      kind: "option",
+      tokenIndex: 1,
+      line: {
+        line: 1,
+        text: "    option legacy",
+        indent: 4,
+        section: "defaults",
+        tokens: [
+          { text: "option", start: 4, end: 10 },
+          { text: "legacy", start: 11, end: 17 },
+        ],
+      },
+    } as never);
+    vi.spyOn(documentContext, "groupItems").mockImplementation((data, group) => {
+      if (group === "options") {
+        return [{ name: "legacy", description: "Legacy option", rulesets: [] }] as never;
+      }
+      return originalGroupItems(data, group);
+    });
+    data.keywords["option legacy"] = undefined as never;
+    data.keywords["no option legacy"] = {
+      name: "no option legacy",
+      signatures: ["no option legacy"],
+      sections: ["defaults"],
+      description: "Disable legacy mode",
+      docsUrl: "https://example.test/legacy",
+      arguments: [],
+    };
+
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: 17 } as never,
+      data,
+      bundle.schema,
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0].documentation).toBeDefined();
+  });
+
+  it("supports expression-converter completion group", () => {
+    const content = "frontend web\n    http-request set-header X %[path:";
+    const doc = createDocument(content);
+    const originalGroupItems = documentContext.groupItems;
+    const data = structuredClone(bundle.languageData);
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      kind: "expression-converter",
+      tokenIndex: 0,
+      line: {
+        line: 1,
+        text: "    http-request set-header X %[path:lower",
+        indent: 4,
+        section: "frontend",
+        tokens: [],
+      },
+    } as never);
+    vi.spyOn(documentContext, "groupItems").mockImplementation((data, group) => {
+      if (group === "sample_converters") {
+        return [{ name: "lower", description: "to lower", rulesets: [] }] as never;
+      }
+      return originalGroupItems(data, group);
+    });
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: content.split("\n")[1].length } as never,
+      data,
+      bundle.schema,
+    );
+    expect(items.map((i) => i.label)).toContain("lower");
+  });
+
+  it("uses option group description/docs when language keyword docs are missing", () => {
+    const doc = createDocument("defaults\n    option grouped");
+    const originalGroupItems = documentContext.groupItems;
+    const data = structuredClone(bundle.languageData);
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      kind: "option",
+      tokenIndex: 1,
+      line: {
+        line: 1,
+        text: "    option grouped",
+        indent: 4,
+        section: "defaults",
+        tokens: [
+          { text: "option", start: 4, end: 10 },
+          { text: "grouped", start: 11, end: 18 },
+        ],
+      },
+    } as never);
+    vi.spyOn(documentContext, "groupItems").mockImplementation((d, group) => {
+      if (group === "options") {
+        return [
+          {
+            name: "grouped",
+            description: "Group-only description",
+            docsUrl: "https://example.test/grouped",
+            rulesets: [],
+          },
+        ] as never;
+      }
+      return originalGroupItems(d, group);
+    });
+    data.keywords["option grouped"] = {
+      name: "option grouped",
+      signatures: ["option grouped"],
+      sections: ["defaults"],
+      description: "",
+      docsUrl: undefined,
+      arguments: [],
+    } as never;
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: 18 } as never,
+      data,
+      bundle.schema,
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0].documentation).toBeDefined();
+  });
+
+  it("uses option keyword description/docs when available", () => {
+    const doc = createDocument("defaults\n    option directdoc");
+    const originalGroupItems = documentContext.groupItems;
+    const data = structuredClone(bundle.languageData);
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      kind: "option",
+      tokenIndex: 1,
+      line: {
+        line: 1,
+        text: "    option directdoc",
+        indent: 4,
+        section: "defaults",
+        tokens: [
+          { text: "option", start: 4, end: 10 },
+          { text: "directdoc", start: 11, end: 20 },
+        ],
+      },
+    } as never);
+    vi.spyOn(documentContext, "groupItems").mockImplementation((d, group) => {
+      if (group === "options") {
+        return [{ name: "directdoc", description: "", rulesets: [] }] as never;
+      }
+      return originalGroupItems(d, group);
+    });
+    data.keywords["option directdoc"] = {
+      name: "option directdoc",
+      signatures: ["option directdoc"],
+      sections: ["defaults"],
+      description: "Keyword description",
+      docsUrl: "https://example.test/directdoc",
+      arguments: [],
+    };
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: 20 } as never,
+      data,
+      bundle.schema,
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0].documentation).toBeDefined();
   });
 });

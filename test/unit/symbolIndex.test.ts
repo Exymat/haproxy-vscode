@@ -146,4 +146,76 @@ describe("symbolIndex extended", () => {
     const document = doc("frontend web\n    http-request deny if");
     expect(resolveSymbolAtPosition(document, pos(1, 30), schema)).toBeNull();
   });
+
+  it("handles prefixed statement rules without keyword match", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = [
+      {
+        keyword: "set-var",
+        kind: "http-request",
+        prefix: "http-request",
+        definition_kind: "acl",
+        value_token_index: 2,
+      },
+    ];
+    const parsed = parseDocument(doc("frontend web\n    http-request deny"));
+    const index = buildSymbolIndex(parsed, customSchema);
+    expect(index.definitions.size).toBe(1);
+  });
+
+  it("resolveSymbolAtPosition returns null when no statement rules exist", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = undefined as never;
+    const document = doc("backend api\n    server s1 127.0.0.1:80");
+    const col = "    server s1".indexOf("s1");
+    expect(resolveSymbolAtPosition(document, pos(1, col), customSchema)).toBeNull();
+  });
+
+  it("buildSymbolIndex handles undefined statement rules", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = undefined as never;
+    const parsed = parseDocument(doc("frontend web\n    acl blocked path_beg /admin"));
+    const index = buildSymbolIndex(parsed, customSchema);
+    expect(index.references.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it("resolveSymbolAtPosition keeps null scope in non-proxy sections", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = [
+      {
+        keyword: "use_backend",
+        kind: "directive",
+        reference_kind: "proxy-section",
+        value_token_index: 1,
+      },
+    ];
+    const document = doc("global\n    use_backend api");
+    const col = "    use_backend api".indexOf("api");
+    expect(resolveSymbolAtPosition(document, pos(1, col), customSchema)).toEqual({
+      kind: "proxy-section",
+      name: "api",
+      scopeKey: null,
+    });
+  });
+
+  it("buildSymbolIndex skips references when statement rule token is missing", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = [
+      {
+        keyword: "use_backend",
+        kind: "directive",
+        reference_kind: "proxy-section",
+        value_token_index: 1,
+      },
+    ];
+    const parsed = parseDocument(doc("frontend web\n    use_backend"));
+    const index = buildSymbolIndex(parsed, customSchema);
+    expect(index.references).toEqual([]);
+  });
+
+  it("resolveSymbolAtPosition ignores malformed section headers", () => {
+    const document = doc("frontend web extra\n    bind :80");
+    const col = "frontend web extra".indexOf("extra");
+    expect(resolveSymbolAtPosition(document, pos(0, col), schema)).toBeNull();
+  });
 });

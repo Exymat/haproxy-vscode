@@ -55,6 +55,29 @@ describe("argumentEnumUtils", () => {
     expect(docEnumValueNames(schemaKw)).toEqual([]);
   });
 
+  it("docEnumValueNames ignores explicit undefined params", () => {
+    const schemaKw = mockSchemaKw({
+      arguments: [undefined] as unknown as SchemaKeyword["arguments"],
+    });
+    expect(docEnumValueNames(schemaKw)).toEqual([]);
+  });
+
+  it("enumNamesForSlot ignores non-simple parameter value names", () => {
+    const schemaKw = mockSchemaKw({
+      arguments: [
+        {
+          parameter: "<mode>",
+          description: "",
+          values: [
+            { name: "tcp", description: "" },
+            { name: "bad value", description: "" },
+          ],
+        },
+      ],
+    });
+    expect(enumNamesForSlot(undefined, schemaKw, 0)).toEqual([]);
+  });
+
   it("enumNamesForSlot uses value_kind enum without doc parameter heuristics", () => {
     const schemaKw = mockSchemaKw({
       argument_model: {
@@ -169,6 +192,34 @@ describe("argumentEnumUtils", () => {
     expect(names).toEqual(["foo"]);
   });
 
+  it("enumNamesForSlot returns lowercase fallback when doc source has no matching param value", () => {
+    const names = enumNamesForSlot(
+      { enum: ["HTTP"] },
+      mockSchemaKw({
+        arguments: [
+          { parameter: "<a>", description: "", values: [{ name: "tcp", description: "" }] },
+          { parameter: "<b>", description: "", values: [{ name: "grpc", description: "" }] },
+        ],
+      }),
+      1,
+    );
+    expect(names.map((n) => n.toLowerCase())).toContain("tcp");
+  });
+
+  it("enumNamesForSlot keeps lowercase fallback when doc source entry has no param match", () => {
+    const names = enumNamesForSlot(
+      { enum: ["HTTP"] },
+      mockSchemaKw({
+        arguments: [
+          { parameter: "<first>", description: "", values: [{ name: "spop", description: "" }] },
+          { parameter: "<second>", description: "", values: [{ name: "grpc", description: "" }] },
+        ],
+      }),
+      1,
+    );
+    expect(names).toContain("spop");
+  });
+
   it("enumNamesForArgumentPosition prefers slot enums", () => {
     const balanceSchema = schema.keywords.balance;
     const balanceLang = {
@@ -241,5 +292,23 @@ describe("argumentEnumUtils", () => {
     );
     expect(map.get("http")).toBe("HTTP mode");
     expect(map.get("tcp")).toBe("TCP mode");
+  });
+
+  it("enumDescriptionsForKeyword supports missing language and schema keywords", () => {
+    expect(enumDescriptionsForKeyword(undefined, undefined).size).toBe(0);
+    expect(
+      enumDescriptionsForKeyword(
+        {
+          name: "mode",
+          arguments: [{ parameter: "<mode>", values: [{ name: "http", description: "HTTP" }] }],
+        } as never,
+        undefined,
+      ).get("http"),
+    ).toBe("HTTP");
+    expect(
+      enumDescriptionsForKeyword(undefined, {
+        arguments: [{ parameter: "<mode>", values: [{ name: "tcp", description: "TCP" }] }],
+      } as never).get("tcp"),
+    ).toBe("TCP");
   });
 });

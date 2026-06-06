@@ -359,4 +359,199 @@ describe("provideHover", () => {
     const text = hoverText(hover);
     expect(text.toLowerCase()).toContain("beg");
   });
+
+  it("returns null when option token has no known docs", () => {
+    const doc = createDocument("defaults\n    option mystery");
+    const bundle = bundles["3.4"];
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      line: {
+        line: 1,
+        section: "defaults",
+        tokens: [
+          { text: "option", start: 4, end: 10 },
+          { text: "mystery", start: 11, end: 18 },
+        ],
+        isSectionHeader: false,
+        anonymousDefaults: false,
+      },
+      lineText: "    option mystery",
+      tokenIndex: 1,
+      token: { text: "mystery", start: 11, end: 18 },
+      kind: "option",
+      prefix: "    option mystery",
+    });
+    expect(
+      provideHover(doc, { line: 1, character: 12 } as never, bundle.languageData, bundle.schema),
+    ).toBeNull();
+  });
+
+  it("documents line options even without explicit signature", () => {
+    const doc = createDocument("frontend web\n    bind :443 ssl");
+    const bundle = bundles["3.4"];
+    const data = structuredClone(bundle.languageData);
+    data.groups.bind_options = [
+      {
+        name: "ssl",
+        description: "Enable TLS.",
+        docsUrl: undefined,
+        rulesets: [],
+      } as never,
+    ];
+    const sslCol = "    bind :443 ssl".indexOf("ssl");
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      line: {
+        line: 1,
+        section: "frontend",
+        tokens: [
+          { text: "bind", start: 4, end: 8 },
+          { text: ":443", start: 9, end: 13 },
+          { text: "ssl", start: sslCol, end: sslCol + 3 },
+        ],
+        isSectionHeader: false,
+        anonymousDefaults: false,
+      },
+      lineText: "    bind :443 ssl",
+      tokenIndex: 2,
+      token: { text: "ssl", start: sslCol, end: sslCol + 3 },
+      kind: "bind",
+      prefix: "    bind :443 ssl",
+    });
+    const hover = provideHover(
+      doc,
+      { line: 1, character: sslCol + 1 } as never,
+      data,
+      bundle.schema,
+    );
+    expect(hover).not.toBeNull();
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    expect(hoverText(hover)).toContain("ssl");
+  });
+
+  it("returns null for unknown acl criterion token", () => {
+    const doc = createDocument("frontend web\n    acl test unknown");
+    const bundle = bundles["3.4"];
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      line: {
+        line: 1,
+        section: "frontend",
+        tokens: [
+          { text: "acl", start: 4, end: 7 },
+          { text: "test", start: 8, end: 12 },
+          { text: "unknown", start: 13, end: 20 },
+        ],
+        isSectionHeader: false,
+        anonymousDefaults: false,
+      },
+      lineText: "    acl test unknown",
+      tokenIndex: 2,
+      token: { text: "unknown", start: 13, end: 20 },
+      kind: "acl-criterion",
+      prefix: "    acl test unknown",
+    });
+    vi.spyOn(languageData, "findKeywordByPrefix").mockReturnValue(undefined);
+    vi.spyOn(directiveUtils, "resolveDirective").mockReturnValue({
+      matched: false,
+      keyword: "",
+      start: 0,
+      end: 0,
+    });
+    expect(
+      provideHover(doc, { line: 1, character: 15 } as never, bundle.languageData, bundle.schema),
+    ).toBeNull();
+  });
+
+  it("documents argument value without parameter/keyword extras", () => {
+    const doc = createDocument("defaults\n    mode custom");
+    const bundle = bundles["3.4"];
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      line: {
+        line: 1,
+        section: "defaults",
+        tokens: [
+          { text: "mode", start: 4, end: 8 },
+          { text: "custom", start: 9, end: 15 },
+        ],
+        isSectionHeader: false,
+        anonymousDefaults: false,
+      },
+      lineText: "    mode custom",
+      tokenIndex: 1,
+      token: { text: "custom", start: 9, end: 15 },
+      kind: "directive-argument",
+      prefix: "    mode custom",
+    });
+    vi.spyOn(directiveUtils, "resolveDirective").mockReturnValue({
+      matched: true,
+      keyword: "mode",
+      start: 0,
+      end: 0,
+    });
+    vi.spyOn(directiveUtils, "findArgumentValue").mockReturnValue({
+      name: "custom",
+      description: "HTTP mode",
+      parameter: "",
+    });
+    vi.spyOn(directiveUtils, "getKeywordFromLanguage").mockReturnValue(undefined);
+    const hover = provideHover(
+      doc,
+      { line: 1, character: "    mode custom".indexOf("custom") + 1 } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    expect(hover).not.toBeNull();
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    const text = hoverText(hover);
+    expect(text).toContain("HTTP mode");
+    expect(text).not.toContain("**Parameter:**");
+    expect(text).not.toContain("**Directive:**");
+  });
+
+  it("falls back to directive name when keyword signatures are missing", () => {
+    const doc = createDocument("defaults\n    mode");
+    const bundle = bundles["3.4"];
+    const data = structuredClone(bundle.languageData);
+    data.keywords.mode = {
+      ...data.keywords.mode,
+      signatures: [],
+      sections: [],
+      description: "",
+      arguments: [],
+    };
+    const hover = provideHover(doc, { line: 1, character: 7 } as never, data, bundle.schema);
+    expect(hover).not.toBeNull();
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    const text = hoverText(hover);
+    expect(text.toLowerCase()).toContain("mode");
+    expect(text).not.toContain("**Valid in:**");
+  });
+
+  it("uses generic argument label when parameter name is empty", () => {
+    const doc = createDocument("defaults\n    backlog 128");
+    const bundle = bundles["3.4"];
+    const data = structuredClone(bundle.languageData);
+    data.keywords.backlog = {
+      ...data.keywords.backlog,
+      arguments: [
+        {
+          description: "Pending queue length.",
+          parameter: "",
+          values: [],
+        },
+      ],
+    };
+    const col = "    backlog 128".indexOf("128");
+    const hover = provideHover(doc, { line: 1, character: col } as never, data, bundle.schema);
+    expect(hover).not.toBeNull();
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    const text = hoverText(hover);
+    expect(text).toContain("**Parameter:** argument");
+  });
 });

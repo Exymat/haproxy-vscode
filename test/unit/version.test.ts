@@ -75,4 +75,11 @@ describe("version", () => {
     triggerMockConfigurationChange("haproxy.version");
     expect(listener).toHaveBeenCalledWith("3.0");
   });
+
+  it("ignores unrelated configuration changes", () => {
+    const listener = vi.fn();
+    onVersionConfigurationChanged(listener);
+    triggerMockConfigurationChange("editor.tabSize");
+    expect(listener).not.toHaveBeenCalled();
+  });
 });
