@@ -119,7 +119,12 @@ describe("schema helpers", () => {
   });
 
   it("uses explicit options_with_value from keyword_groups", () => {
-    expect(optionsWithValueSet(schema, "options").has("http-no-delay")).toBe(true);
+    expect(optionsWithValueSet(schema, "options").has("httplog")).toBe(true);
+  });
+
+  it("uses explicit bind/server *_with_value metadata", () => {
+    expect(optionsWithValueSet(schema, "bind_options").has("crt")).toBe(true);
+    expect(optionsWithValueSet(schema, "server_options").has("cookie")).toBe(true);
   });
 
   it("combines layout tcp phases via allTcpRulePhases", () => {

@@ -97,6 +97,11 @@ describe("statementDiagnostics", () => {
     expect(ssl.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
   });
 
+  it("accepts server cookie values", () => {
+    const diags = lineDiag("backend api\n    server s1 127.0.0.1:80 cookie app01 check", 1);
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
   it("returns empty for incomplete log and source lines", () => {
     expect(lineDiag("global\n    log", 1)).toEqual([]);
     expect(lineDiag("defaults\n    source", 1)).toEqual([]);

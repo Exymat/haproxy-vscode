@@ -201,24 +201,6 @@ export function allTcpRulePhases(schema: HaproxySchema): Set<string> {
 
 function optionTakesValueFallback(option: string): boolean {
   const lower = option.toLowerCase();
-  if (
-    [
-      "crt",
-      "name",
-      "alpn",
-      "addr",
-      "path",
-      "port",
-      "mode",
-      "level",
-      "maxconn",
-      "minconn",
-      "verify",
-      "verifyhost",
-    ].includes(lower)
-  ) {
-    return true;
-  }
   return ["-file", "-path", "-addr", "-port", "-name", "-inter"].some((hint) =>
     lower.includes(hint),
   );
@@ -234,8 +216,9 @@ export function optionsWithValueSet(schema: HaproxySchema, groupName: string): S
   if (cached) {
     return cached;
   }
-  const explicit = schema.keyword_groups.options_with_value;
-  if (groupName === "options" && explicit?.length) {
+  const explicitKey = `${groupName}_with_value`;
+  const explicit = schema.keyword_groups[explicitKey] ?? [];
+  if (explicit.length > 0) {
     const result = new Set(explicit.map((v) => v.toLowerCase()));
     perSchema.set(groupName, result);
     return result;
