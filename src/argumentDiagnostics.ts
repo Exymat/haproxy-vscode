@@ -147,11 +147,22 @@ export function argumentModelDiagnostics(
   }
 
   if (keyword === "balance") {
-    return balanceArgumentDiagnostics(line, match, argIndices, model, schemaKw, conditionals);
+    return balanceArgumentDiagnostics(
+      line,
+      match,
+      argIndices,
+      model,
+      schemaKw,
+      schema,
+      conditionals,
+    );
   }
 
   if (keyword === "option mysql-check") {
     return mysqlCheckOptionDiagnostics(line, match, argIndices, conditionals);
+  }
+  if (keyword === "http-send-name-header") {
+    return httpSendNameHeaderDiagnostics(line, argIndices, schema.version);
   }
 
   if (argIndices.length < model.min_args && !allowsMissingArgs(schemaKw, model)) {
@@ -253,6 +264,7 @@ function balanceArgumentDiagnostics(
   argIndices: number[],
   model: ArgumentModel,
   schemaKw: SchemaKeyword | undefined,
+  schema: HaproxySchema,
   conditionals: Set<string>,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
@@ -277,6 +289,65 @@ function balanceArgumentDiagnostics(
         "unknown-value",
       ),
     );
+  }
+
+  if (algo === "url_param") {
+    const variant = schema.keywords["balance url_param"];
+    const variantModel = variant?.argument_model;
+    if (!variantModel || variantModel.max_args === null || variantModel.max_args === undefined) {
+      return diagnostics;
+    }
+    const variantArgs = argIndices.slice(1);
+    if (variantArgs.length < variantModel.min_args && !allowsMissingArgs(variant, variantModel)) {
+      const missing = variantModel.min_args - variantArgs.length;
+      diagnostics.push(
+        makeArgDiagnostic(
+          line,
+          algoIdx,
+          `'balance url_param' expects at least ${variantModel.min_args} argument(s) (${missing} missing)`,
+          "missing-argument",
+          vscode.DiagnosticSeverity.Error,
+        ),
+      );
+      return diagnostics;
+    }
+    for (let pos = 0; pos < variantArgs.length; pos += 1) {
+      const tokenIdx = variantArgs[pos];
+      const slot = variantModel.slots[pos];
+      const value = line.tokens[tokenIdx].text;
+      const allowedValues = enumValuesForSlot(slot, variant, pos);
+      if (variantModel.max_args !== null && pos >= variantModel.max_args) {
+        diagnostics.push(
+          makeArgDiagnostic(
+            line,
+            tokenIdx,
+            `'balance url_param' accepts at most ${variantModel.max_args} argument(s); '${value}' is unexpected`,
+            "extra-argument",
+          ),
+        );
+        continue;
+      }
+      if (allowedValues.length === 0) {
+        continue;
+      }
+      const lower = value.toLowerCase();
+      const base = lower.split("(", 1)[0];
+      if (isLikelyValue(lower, conditionals)) {
+        continue;
+      }
+      const allowedSet = new Set(allowedValues);
+      if (!allowedSet.has(lower) && !allowedSet.has(base)) {
+        diagnostics.push(
+          makeArgDiagnostic(
+            line,
+            tokenIdx,
+            `Unknown value '${value}' for 'balance url_param' (expected: ${formatEnumHint(allowedValues)})`,
+            "unknown-value",
+          ),
+        );
+      }
+    }
+    return diagnostics;
   }
 
   if (argIndices.length > model.max_args!) {
@@ -345,4 +416,31 @@ function mysqlCheckOptionDiagnostics(
     );
   }
   return diagnostics;
+}
+
+function httpSendNameHeaderDiagnostics(
+  line: ParsedLine,
+  argIndices: number[],
+  version: string,
+): vscode.Diagnostic[] {
+  if (Number.parseFloat(version) < 3.4) {
+    return [];
+  }
+  if (argIndices.length === 0) {
+    return [];
+  }
+  const firstIdx = argIndices[0];
+  const name = line.tokens[firstIdx].text;
+  if (name.toLowerCase() !== "host") {
+    return [];
+  }
+  return [
+    makeArgDiagnostic(
+      line,
+      firstIdx,
+      "'host' cannot be used for 'http-send-name-header'",
+      "unknown-value",
+      vscode.DiagnosticSeverity.Error,
+    ),
+  ];
 }

@@ -1,0 +1,68 @@
+name: HAProxy Parity
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "HAProxy version to test"
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - "2.6"
+          - "2.8"
+          - "3.0"
+          - "3.2"
+          - "3.4"
+  schedule:
+    - cron: "0 3 * * *"
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ["2.6", "2.8", "3.0", "3.2", "3.4"]
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile extension
+        run: npm run compile
+
+      - name: Clone upstream HAProxy source (version branch)
+        run: |
+          mkdir -p haproxy_git
+          git clone --depth 1 --branch "${{ matrix.version }}" https://github.com/haproxy/haproxy.git "haproxy_git/haproxy-${{ matrix.version }}"
+
+      - name: Pull HAProxy Docker image
+        run: docker pull "haproxy:${{ matrix.version }}-trixie"
+
+      - name: Compare diagnostics with haproxy -c (tests/conf + examples)
+        env:
+          HAPROXY_DOCKER_CMD: docker
+        run: |
+          mkdir -p reports
+          status=0
+          node scripts/compare-haproxy-c.mjs "./haproxy_git/haproxy-${{ matrix.version }}/tests/conf" "./reports/compare-haproxy-c-${{ matrix.version }}-tests-conf.json" --version "${{ matrix.version }}" --runtime docker || status=1
+          node scripts/compare-haproxy-c.mjs "./haproxy_git/haproxy-${{ matrix.version }}/examples" "./reports/compare-haproxy-c-${{ matrix.version }}-examples.json" --version "${{ matrix.version }}" --runtime docker || status=1
+          exit $status
+
+      - name: Upload parity reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: haproxy-parity-${{ matrix.version }}
+          path: |
+            ./reports/compare-haproxy-c-${{ matrix.version }}-tests-conf.json
+            ./reports/compare-haproxy-c-${{ matrix.version }}-examples.json

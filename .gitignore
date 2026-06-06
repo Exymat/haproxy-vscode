@@ -17,3 +17,4 @@ syntaxes/haproxy-active.tmLanguage.json
 coverage/
 .vscode-test/
 .nvmrc
+scripts/reports/*

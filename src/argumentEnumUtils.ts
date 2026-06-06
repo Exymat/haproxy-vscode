@@ -33,6 +33,20 @@ export function docEnumValueNames(schemaKw: SchemaKeyword | undefined): string[]
   return values;
 }
 
+function docEnumValueNamesForParameter(param: SchemaArgumentParam | undefined): string[] {
+  const values: string[] = [];
+  if (!param) {
+    return values;
+  }
+  for (const value of param.values) {
+    const base = value.name.split("(", 1)[0];
+    if (isSimpleEnumName(base)) {
+      values.push(base.toLowerCase());
+    }
+  }
+  return values;
+}
+
 function shouldUseDocEnumHints(
   parameter: string | undefined,
   valueKind: string | undefined,
@@ -63,10 +77,17 @@ export function enumNamesForSlot(
   schemaKw: SchemaKeyword | undefined,
   position: number,
 ): string[] {
+  const paramAtPosition =
+    schemaKw?.arguments?.[position] ??
+    (position === 0 ? schemaKw?.arguments?.find((p) => p?.parameter === "<algorithm>") : undefined);
   const fromSignature = (slot?.enum ?? []).map((value) => normalizeEnumDisplayName(value));
   if (fromSignature.length > 0) {
     const values = new Set(fromSignature.map((v) => v.toLowerCase()));
-    for (const name of docEnumValueNames(schemaKw)) {
+    const shouldMergeAllDocEnums = !(schemaKw?.name === "balance url_param" && position > 0);
+    const docNames = shouldMergeAllDocEnums
+      ? docEnumValueNames(schemaKw)
+      : docEnumValueNamesForParameter(paramAtPosition);
+    for (const name of docNames) {
       values.add(name);
     }
     return [...values].map((lower) => {
@@ -74,21 +95,18 @@ export function enumNamesForSlot(
       if (fromSig) {
         return fromSig;
       }
-      const fromDoc = (schemaKw?.arguments ?? [])
-        .flatMap((param) => param.values)
-        .find((value) => value.name.split("(", 1)[0].toLowerCase() === lower);
+      const fromDoc = (paramAtPosition?.values ?? []).find(
+        (value) => value.name.split("(", 1)[0].toLowerCase() === lower,
+      );
       return fromDoc?.name.split("(", 1)[0] ?? lower;
     });
   }
 
-  const param =
-    schemaKw?.arguments?.[position] ??
-    (position === 0 ? schemaKw?.arguments?.find((p) => p?.parameter === "<algorithm>") : undefined);
   const slotKind = slot?.value_kind ?? schemaKw?.argument_model?.slots?.[position]?.value_kind;
-  if (!shouldUseDocEnumHints(param?.parameter, slotKind)) {
+  if (!shouldUseDocEnumHints(paramAtPosition?.parameter, slotKind)) {
     return [];
   }
-  const fromDoc = docEnumValueNames(schemaKw);
+  const fromDoc = docEnumValueNamesForParameter(paramAtPosition);
   if (fromDoc.length >= 2) {
     return [...new Set(fromDoc)];
   }

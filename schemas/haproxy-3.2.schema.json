@@ -2309,15 +2309,19 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "flags"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "operator"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -2677,29 +2681,17 @@
         "min_args": 1,
         "slots": [
           {
-            "enum": [
-              "first",
-              "hash",
-              "hdr",
-              "leastconn",
-              "log-hash",
-              "random",
-              "rdp-cookie",
-              "roundrobin",
-              "source",
-              "static-rr",
-              "sticky",
-              "uri",
-              "url_param"
-            ],
+            "enum": [],
             "optional": false,
-            "value_kind": "generic",
+            "value_kind": "name",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "check_post"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -3753,21 +3745,27 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "rewrite | insert | prefix"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "indirect"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "nocache"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -3846,9 +3844,11 @@
         "min_args": 2,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "auto:"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -3858,9 +3858,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "/<thread-set>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -4116,9 +4118,11 @@
         "min_args": 2,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "request | response"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -5175,9 +5179,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "preserve-env"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -6232,27 +6238,35 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "default"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "port <expr>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "addr <ip>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "send-proxy"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -6356,15 +6370,19 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "min-recv <int>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "comment <msg>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -6414,21 +6432,27 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "meth <method>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "{ uri <uri> | uri-lf <fmt> }>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "ver <version>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -6579,9 +6603,11 @@
         "min_args": 1,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "+-"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -6643,9 +6669,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "content-type <type>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -6711,9 +6739,11 @@
         "min_args": 1,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "+-"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -7028,9 +7058,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "none|required"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -7374,9 +7406,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "crt <filename>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -7507,21 +7541,27 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "len <length>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "format <format>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "sample <ranges>:<sample_size>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -7661,15 +7701,19 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "len <length>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "format <format>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -7966,9 +8010,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "no-exit-on-failure"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -8647,9 +8693,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              ":port"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -10141,9 +10189,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "off | on"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -10168,9 +10218,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "on | off"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -10201,9 +10253,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              ":port"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -10282,9 +10336,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "on | off"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -10618,9 +10674,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "proto"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -10646,21 +10704,27 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "except <network>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "header <name>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "if-none"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -11107,9 +11171,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "clf"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -11379,9 +11445,11 @@
         "min_args": 1,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "user <username> [ { post-41 | pre-41 }"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -11462,15 +11530,19 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "except <network>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "header <name>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -11982,9 +12054,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "clf"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -12539,9 +12613,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "code <code>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -12587,9 +12663,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "code <code>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -12635,9 +12713,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "code <code>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -12767,9 +12847,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "space-delimited list of keywords"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -12910,15 +12992,19 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "/<path>"
+            ],
             "optional": false,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              ":[port"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": true
           },
           {
@@ -13075,9 +13161,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              ":<port>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -13118,9 +13206,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "on | off | libs"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -13379,15 +13469,20 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              ":<port>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "interface <name>",
+              "usesrc { <addr2>[:<port2>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -13973,9 +14068,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "algo <comma-separated list of algorithms>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -14249,9 +14346,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "none|required"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -14854,9 +14953,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "table <table>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -14896,9 +14997,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "table <table>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -14932,9 +15035,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "table <table>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -14974,9 +15079,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "table <table>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -15028,9 +15135,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "expire <expire>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -15205,33 +15314,43 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "default"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "port <expr>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "addr <ip>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "send-proxy"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "via-socks4"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -15312,15 +15431,19 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "min-recv <int>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "comment <msg>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -15372,9 +15495,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "comment <msg>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -15416,9 +15541,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "comment <msg>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -15460,9 +15587,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "comment <msg>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -15504,9 +15633,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "comment <msg>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -16753,9 +16884,11 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "experimental"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -16883,9 +17016,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "experimental"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -19874,27 +20009,35 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "prefix <prefix>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "mode <mode>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "user <user>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "uid <uid>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -20073,9 +20216,11 @@
             "variadic": false
           },
           {
-            "enum": [],
+            "enum": [
+              "password|insecure-password <password>"
+            ],
             "optional": true,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           }
         ]
@@ -20133,142 +20278,6 @@
       ],
       "sources": [
         "dkall",
-        "doc"
-      ]
-    },
-    "wurfl-cache-size": {
-      "argument_model": {
-        "max_args": 1,
-        "min_args": 1,
-        "slots": [
-          {
-            "enum": [],
-            "optional": false,
-            "value_kind": "generic",
-            "variadic": false
-          }
-        ]
-      },
-      "arguments": [],
-      "contexts": [],
-      "name": "wurfl-cache-size",
-      "sections": [
-        "global"
-      ],
-      "signatures": [
-        "wurfl-cache-size <size>"
-      ],
-      "sources": [
-        "doc"
-      ]
-    },
-    "wurfl-data-file": {
-      "argument_model": {
-        "max_args": 1,
-        "min_args": 1,
-        "slots": [
-          {
-            "enum": [],
-            "optional": false,
-            "value_kind": "path",
-            "variadic": false
-          }
-        ]
-      },
-      "arguments": [],
-      "contexts": [],
-      "name": "wurfl-data-file",
-      "sections": [
-        "global"
-      ],
-      "signatures": [
-        "wurfl-data-file <file path>"
-      ],
-      "sources": [
-        "doc"
-      ]
-    },
-    "wurfl-information-list": {
-      "argument_model": {
-        "max_args": 2,
-        "min_args": 1,
-        "slots": [
-          {
-            "enum": [],
-            "optional": true,
-            "value_kind": "generic",
-            "variadic": false
-          },
-          {
-            "enum": [],
-            "optional": false,
-            "value_kind": "generic",
-            "variadic": false
-          }
-        ]
-      },
-      "arguments": [],
-      "contexts": [],
-      "name": "wurfl-information-list",
-      "sections": [
-        "global"
-      ],
-      "signatures": [
-        "wurfl-information-list [<capability>]*"
-      ],
-      "sources": [
-        "doc"
-      ]
-    },
-    "wurfl-information-list-separator": {
-      "argument_model": {
-        "max_args": 1,
-        "min_args": 1,
-        "slots": [
-          {
-            "enum": [],
-            "optional": false,
-            "value_kind": "generic",
-            "variadic": false
-          }
-        ]
-      },
-      "arguments": [],
-      "contexts": [],
-      "name": "wurfl-information-list-separator",
-      "sections": [
-        "global"
-      ],
-      "signatures": [
-        "wurfl-information-list-separator <char>"
-      ],
-      "sources": [
-        "doc"
-      ]
-    },
-    "wurfl-patch-file": {
-      "argument_model": {
-        "max_args": 1,
-        "min_args": 0,
-        "slots": [
-          {
-            "enum": [],
-            "optional": true,
-            "value_kind": "path",
-            "variadic": false
-          }
-        ]
-      },
-      "arguments": [],
-      "contexts": [],
-      "name": "wurfl-patch-file",
-      "sections": [
-        "global"
-      ],
-      "signatures": [
-        "wurfl-patch-file [<file path>]"
-      ],
-      "sources": [
         "doc"
       ]
     },
@@ -41101,11 +41110,6 @@
         "unsetenv",
         "user",
         "warn-blocked-traffic-after",
-        "wurfl-cache-size",
-        "wurfl-data-file",
-        "wurfl-information-list",
-        "wurfl-information-list-separator",
-        "wurfl-patch-file",
         "zero-warning",
         "module-path",
         "module-load",

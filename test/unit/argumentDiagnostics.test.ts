@@ -6,12 +6,20 @@ import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 
 const bundle = loadSchemaBundle("3.4");
+const bundle32 = loadSchemaBundle("3.2");
 
 function argDiags(content: string, lineNo: number) {
   const doc = createDocument(content);
   const line = parseDocument(doc)[lineNo];
   const allowed = sectionKeywordSet(bundle.schema, line.section);
   return argumentModelDiagnostics(line, bundle.schema, allowed);
+}
+
+function argDiagsForBundle(content: string, lineNo: number, schema: (typeof bundle)["schema"]) {
+  const doc = createDocument(content);
+  const line = parseDocument(doc)[lineNo];
+  const allowed = sectionKeywordSet(schema, line.section);
+  return argumentModelDiagnostics(line, schema, allowed);
 }
 
 describe("argumentDiagnostics", () => {
@@ -56,6 +64,16 @@ describe("argumentDiagnostics", () => {
     expect(extra.some((d) => d.code === "extra-argument")).toBe(true);
   });
 
+  it("accepts balance url_param forms", () => {
+    expect(argDiags("backend x\n    balance url_param foo", 1)).toEqual([]);
+    expect(argDiags("backend x\n    balance url_param foo check_post", 1)).toEqual([]);
+  });
+
+  it("reports invalid trailing value for balance url_param", () => {
+    const diags = argDiags("backend x\n    balance url_param foo nope", 1);
+    expect(diags.some((d) => d.code === "unknown-value")).toBe(true);
+  });
+
   it("reports mysql-check user and mode issues", () => {
     const missingUser = argDiags("defaults\n    option mysql-check user", 1);
     expect(missingUser.some((d) => d.code === "missing-argument")).toBe(true);
@@ -94,6 +112,20 @@ describe("argumentDiagnostics", () => {
   it("returns early for empty mysql-check arguments", () => {
     const diags = argDiags("defaults\n    option mysql-check", 1);
     expect(diags).toEqual([]);
+  });
+
+  it("rejects host for http-send-name-header", () => {
+    const diags = argDiags("listen l1\n    http-send-name-header host", 1);
+    expect(diags.some((d) => d.code === "unknown-value")).toBe(true);
+  });
+
+  it("accepts host for http-send-name-header on pre-3.4 schemas", () => {
+    const diags = argDiagsForBundle(
+      "listen l1\n    http-send-name-header host",
+      1,
+      bundle32.schema,
+    );
+    expect(diags.some((d) => d.code === "unknown-value")).toBe(false);
   });
 
   it("allows zero-argument directives with min_args 0", () => {
