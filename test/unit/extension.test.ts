@@ -72,7 +72,9 @@ describe("extension", () => {
     await vi.runAllTimersAsync();
 
     const collection = getLastDiagnosticCollection();
-    expect(collection?.set).toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(collection?.set).toHaveBeenCalled();
+    });
   });
 
   it("skips diagnostics when disabled", async () => {
@@ -194,7 +196,9 @@ describe("extension", () => {
     changeListeners[changeListeners.length - 1]({ document: doc });
     await vi.advanceTimersByTimeAsync(200);
 
-    expect(collection?.set).toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(collection?.set).toHaveBeenCalled();
+    });
     vi.restoreAllMocks();
   });
 });

@@ -5,11 +5,18 @@ import { HaproxySchema } from "./schema";
 import { validateAclConditions } from "./aclCondition";
 import { validateSampleExpressions } from "./sampleExpression";
 
+function mightContainExpressionSyntax(lineText: string): boolean {
+  return lineText.includes("%[") || lineText.includes("{");
+}
+
 export function expressionDiagnostics(
   line: ParsedLine,
   lineText: string,
   schema: HaproxySchema,
 ): vscode.Diagnostic[] {
+  if (!mightContainExpressionSyntax(lineText)) {
+    return [];
+  }
   const diagnostics: vscode.Diagnostic[] = [];
   const expressionIssues = [
     ...validateSampleExpressions(lineText, schema),

@@ -550,6 +550,8 @@ export function computeDiagnostics(
   const modesByLine = runtimeModeForLine(parsed);
   const diagnostics: vscode.Diagnostic[] = [];
   const lineTexts = Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
+  const noPrefix = noPrefixKeywordSet(schema);
+  const modifierPrefixes = modifierPrefixSet(schema);
   const deprecatedWarnings = options.deprecatedWarnings !== false;
   const deprecatedIndex = deprecatedWarnings
     ? buildDeprecatedIndex(schema, options.languageData)
@@ -570,8 +572,6 @@ export function computeDiagnostics(
     }
 
     const allowed = sectionKeywordSet(schema, line.section);
-    const noPrefix = noPrefixKeywordSet(schema);
-    const modifierPrefixes = modifierPrefixSet(schema);
     const topDiags = topLevelDiagnostics(line, schema, allowed, noPrefix, modifierPrefixes);
     diagnostics.push(...topDiags);
     if (topDiags.length === 0) {

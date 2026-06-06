@@ -99,6 +99,14 @@ export interface HaproxySchema {
 const schemaCache = new Map<HaproxyVersion, HaproxySchema>();
 const sectionKeywordCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
 const optionsWithValueCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
+const noPrefixKeywordCache = new WeakMap<HaproxySchema, Set<string>>();
+const modifierPrefixCache = new WeakMap<HaproxySchema, Set<string>>();
+const conditionalTokenCache = new WeakMap<HaproxySchema, Set<string>>();
+const namedDefaultsKeywordCache = new WeakMap<HaproxySchema, Set<string>>();
+const sampleExpressionNameCache = new WeakMap<
+  HaproxySchema,
+  { fetchNames: Set<string>; convNames: Set<string> }
+>();
 
 const FALLBACK_PREFIX_FAMILIES = [
   "stats",
@@ -140,20 +148,63 @@ export function buildPrefixSubcommands(keywords: Iterable<string>, prefix: strin
   return subs;
 }
 
+function tokenSetFromSchema(
+  schema: HaproxySchema,
+  cache: WeakMap<HaproxySchema, Set<string>>,
+  values: string[] | undefined,
+): Set<string> {
+  const cached = cache.get(schema);
+  if (cached) {
+    return cached;
+  }
+  const result = new Set((values ?? []).map((v) => v.toLowerCase()));
+  cache.set(schema, result);
+  return result;
+}
+
 export function noPrefixKeywordSet(schema: HaproxySchema): Set<string> {
-  return new Set((schema.tokens.no_prefix_keywords ?? []).map((k) => k.toLowerCase()));
+  return tokenSetFromSchema(schema, noPrefixKeywordCache, schema.tokens.no_prefix_keywords);
 }
 
 export function modifierPrefixSet(schema: HaproxySchema): Set<string> {
-  return new Set((schema.tokens.modifiers ?? []).map((k) => k.toLowerCase()));
+  return tokenSetFromSchema(schema, modifierPrefixCache, schema.tokens.modifiers);
 }
 
 export function conditionalTokenSet(schema: HaproxySchema): Set<string> {
-  return new Set((schema.tokens.conditionals ?? []).map((k) => k.toLowerCase()));
+  return tokenSetFromSchema(schema, conditionalTokenCache, schema.tokens.conditionals);
 }
 
 export function namedDefaultsKeywordSet(schema: HaproxySchema): Set<string> {
-  return new Set((schema.tokens.named_defaults_keywords ?? []).map((k) => k.toLowerCase()));
+  return tokenSetFromSchema(
+    schema,
+    namedDefaultsKeywordCache,
+    schema.tokens.named_defaults_keywords,
+  );
+}
+
+export function sampleExpressionNameSets(schema: HaproxySchema): {
+  fetchNames: Set<string>;
+  convNames: Set<string>;
+} {
+  const cached = sampleExpressionNameCache.get(schema);
+  if (cached) {
+    return cached;
+  }
+  const fetchNames = new Set(
+    Object.keys(schema.sample_fetches ?? {}).map((name) => name.toLowerCase()),
+  );
+  const convNames = new Set(
+    Object.keys(schema.sample_converters ?? {}).map((name) => name.toLowerCase()),
+  );
+  for (const name of schema.keyword_groups.sample_fetches ?? []) {
+    fetchNames.add(name.toLowerCase());
+  }
+  for (const name of schema.keyword_groups.sample_converters ?? []) {
+    convNames.add(name.toLowerCase());
+  }
+  const result = { fetchNames, convNames };
+  sampleExpressionNameCache.set(schema, result);
+  return result;
 }
 
 export function tcpRulePhaseSet(
@@ -271,16 +322,35 @@ export function loadSchema(
   }
   const schemaPath = path.join(context.extensionPath, "schemas", `haproxy-${version}.schema.json`);
   const raw = fs.readFileSync(schemaPath, "utf-8");
-  const data = JSON.parse(raw) as HaproxySchema;
-  data.statement_rules = data.statement_rules ?? [];
-  data.sample_fetches = data.sample_fetches ?? {};
-  data.sample_converters = data.sample_converters ?? {};
-  data.keyword_group_contexts = data.keyword_group_contexts ?? {};
-  data.line_layout = data.line_layout ?? {};
+  const data = normalizeSchemaData(JSON.parse(raw) as HaproxySchema);
+  schemaCache.set(version, data);
+  return data;
+}
+
+export async function loadSchemaAsync(
+  context: vscode.ExtensionContext,
+  version: HaproxyVersion = DEFAULT_HAPROXY_VERSION,
+): Promise<HaproxySchema> {
+  const cached = schemaCache.get(version);
+  if (cached) {
+    return cached;
+  }
+  const schemaPath = path.join(context.extensionPath, "schemas", `haproxy-${version}.schema.json`);
+  const raw = await fs.promises.readFile(schemaPath, "utf-8");
+  const data = normalizeSchemaData(JSON.parse(raw) as HaproxySchema);
   schemaCache.set(version, data);
   return data;
 }
 
 export function sectionNames(schema: HaproxySchema): string[] {
   return Object.keys(schema.sections).sort();
+}
+
+function normalizeSchemaData(data: HaproxySchema): HaproxySchema {
+  data.statement_rules = data.statement_rules ?? [];
+  data.sample_fetches = data.sample_fetches ?? {};
+  data.sample_converters = data.sample_converters ?? {};
+  data.keyword_group_contexts = data.keyword_group_contexts ?? {};
+  data.line_layout = data.line_layout ?? {};
+  return data;
 }

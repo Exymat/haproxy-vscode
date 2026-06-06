@@ -1,4 +1,4 @@
-import { HaproxySchema } from "./schema";
+import { HaproxySchema, sampleExpressionNameSets } from "./schema";
 import { ExpressionSpan, SampleDiagnostic, validateExpressionBody } from "./sampleExpression";
 
 function findClosingBrace(lineText: string, open: number): number {
@@ -43,7 +43,7 @@ function isAclOnlyCriterion(
   if (!inAcl) {
     return false;
   }
-  if (fetchNames.has(name) || fetchNames.has(lower) || fetches[name] || fetches[lower]) {
+  if (fetchNames.has(lower) || fetches[name] || fetches[lower]) {
     return false;
   }
   return true;
@@ -128,14 +128,7 @@ function findExprEnd(text: string, openParen: number): number {
 export function validateAclConditions(lineText: string, schema: HaproxySchema): SampleDiagnostic[] {
   const fetches = schema.sample_fetches ?? {};
   const converters = schema.sample_converters ?? {};
-  const fetchNames = new Set(Object.keys(fetches));
-  const convNames = new Set(Object.keys(converters));
-  for (const name of schema.keyword_groups.sample_fetches ?? []) {
-    fetchNames.add(name);
-  }
-  for (const name of schema.keyword_groups.sample_converters ?? []) {
-    convNames.add(name);
-  }
+  const { fetchNames, convNames } = sampleExpressionNameSets(schema);
 
   const issues: SampleDiagnostic[] = [];
   for (const span of extractAclConditionSpans(lineText)) {

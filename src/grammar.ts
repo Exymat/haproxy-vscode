@@ -36,6 +36,33 @@ export function syncActiveGrammar(
   return true;
 }
 
+/** Async variant of syncActiveGrammar to avoid blocking the extension host during activation. */
+export async function syncActiveGrammarAsync(
+  context: vscode.ExtensionContext,
+  version: HaproxyVersion,
+): Promise<boolean> {
+  const src = grammarPathForVersion(context.extensionPath, version);
+  const dst = activeGrammarPath(context.extensionPath);
+  try {
+    await fs.promises.access(src, fs.constants.F_OK);
+  } catch {
+    return false;
+  }
+  const next = await fs.promises.readFile(src);
+  let current: Buffer | undefined;
+  try {
+    current = await fs.promises.readFile(dst);
+  } catch {
+    // Destination file might not exist yet.
+  }
+  if (current?.equals(next)) {
+    return false;
+  }
+  await fs.promises.mkdir(path.dirname(dst), { recursive: true });
+  await fs.promises.writeFile(dst, next);
+  return true;
+}
+
 export async function promptReloadIfGrammarChanged(changed: boolean): Promise<void> {
   if (!changed) {
     return;

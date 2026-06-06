@@ -60,6 +60,21 @@ export function loadLanguageData(
   return data;
 }
 
+export async function loadLanguageDataAsync(
+  context: vscode.ExtensionContext,
+  version: HaproxyVersion = DEFAULT_HAPROXY_VERSION,
+): Promise<HaproxyLanguageData> {
+  const cached = languageDataCache.get(version);
+  if (cached) {
+    return cached;
+  }
+  const filePath = path.join(context.extensionPath, "schemas", `haproxy-${version}.language.json`);
+  const raw = await fs.promises.readFile(filePath, "utf-8");
+  const data = JSON.parse(raw) as HaproxyLanguageData;
+  languageDataCache.set(version, data);
+  return data;
+}
+
 export function findKeywordByPrefix(
   data: HaproxyLanguageData,
   prefix: string,

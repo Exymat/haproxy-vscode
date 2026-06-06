@@ -5,11 +5,11 @@ import { provideDocumentSymbols } from "./documentSymbols";
 import { computeDiagnostics } from "./diagnostics";
 import { provideFoldingRanges } from "./folding";
 import { formatConfig } from "./formatter";
-import { promptReloadIfGrammarChanged, syncActiveGrammar } from "./grammar";
+import { promptReloadIfGrammarChanged, syncActiveGrammarAsync } from "./grammar";
 import { provideHover } from "./hover";
 import { provideDefinition, provideReferences } from "./navigation";
-import { clearLanguageDataCache, HaproxyLanguageData, loadLanguageData } from "./languageData";
-import { clearSchemaCache, HaproxySchema, loadSchema } from "./schema";
+import { clearLanguageDataCache, HaproxyLanguageData, loadLanguageDataAsync } from "./languageData";
+import { clearSchemaCache, HaproxySchema, loadSchemaAsync } from "./schema";
 import { getExtensionSettings, getFormatOptions, onSettingsChanged } from "./settings";
 import { registerVersionStatusBar } from "./statusBar";
 import { getConfiguredVersion, HaproxyVersion, onVersionConfigurationChanged } from "./version";
@@ -35,16 +35,22 @@ export function activate(context: vscode.ExtensionContext): void {
       return Promise.resolve(bundle);
     }
     if (!bundleLoadPromise) {
-      bundleLoadPromise = new Promise((resolve) => {
+      bundleLoadPromise = new Promise((resolve, reject) => {
         setImmediate(() => {
-          const version = getConfiguredVersion();
-          bundle = {
-            version,
-            schema: loadSchema(context, version),
-            languageData: loadLanguageData(context, version),
-          };
-          resolve(bundle);
+          void (async () => {
+            const version = getConfiguredVersion();
+            bundle = {
+              version,
+              schema: await loadSchemaAsync(context, version),
+              languageData: await loadLanguageDataAsync(context, version),
+            };
+            resolve(bundle);
+          })().catch(reject);
         });
+      });
+      bundleLoadPromise = bundleLoadPromise.catch((error) => {
+        bundleLoadPromise = undefined;
+        throw error;
       });
     }
     return bundleLoadPromise;
@@ -105,7 +111,7 @@ export function activate(context: vscode.ExtensionContext): void {
     bundleLoadPromise = undefined;
     const b = await ensureBundle();
     if (syncGrammar) {
-      const grammarChanged = syncActiveGrammar(context, b.version);
+      const grammarChanged = await syncActiveGrammarAsync(context, b.version);
       await promptReloadIfGrammarChanged(grammarChanged);
     }
     refreshAllDocuments();
@@ -133,9 +139,9 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   setImmediate(() => {
-    void ensureBundle().then((b) => {
-      const grammarChanged = syncActiveGrammar(context, b.version);
-      void promptReloadIfGrammarChanged(grammarChanged);
+    void ensureBundle().then(async (b) => {
+      const grammarChanged = await syncActiveGrammarAsync(context, b.version);
+      await promptReloadIfGrammarChanged(grammarChanged);
     });
     refreshAllDocuments();
   });

@@ -1,9 +1,15 @@
 .vscode/**
+.github/**
 src/**
 scripts/**
+test/**
+out/test/**
 **/*.ts
 **/*.map
 tsconfig.json
+tsconfig*.json
+vitest.config.ts
+eslint.config.mjs
 package-lock.json
 .npmrc
 .gitignore
