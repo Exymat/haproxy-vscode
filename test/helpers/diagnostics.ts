@@ -46,7 +46,7 @@ export function runDiagnosticCase(
   const diagnostics = runDiagnostics(doc, schemaForCase, version);
   const byCode = new Map<string, number>();
   for (const diag of diagnostics) {
-    const code = diag.code ?? "unknown";
+    const code = String(diag.code ?? "unknown");
     byCode.set(code, (byCode.get(code) ?? 0) + 1);
   }
 

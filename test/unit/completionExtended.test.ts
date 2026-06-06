@@ -9,7 +9,7 @@ function completionLabels(content: string, lineNo: number, character: number) {
   const doc = createDocument(content);
   const items = provideCompletionItems(
     doc as never,
-    { line: lineNo, character },
+    { line: lineNo, character } as never,
     bundle.languageData,
     bundle.schema,
   );

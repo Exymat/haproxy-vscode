@@ -1,4 +1,6 @@
 import { activate, deactivate } from "../../src/extension";
+import * as grammar from "../../src/grammar";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getLastDiagnosticCollection,
   getRegisteredCommand,
@@ -109,7 +111,7 @@ describe("extension", () => {
     vi.spyOn(languages, "registerDocumentFormattingEditProvider").mockImplementation(
       (_selector, provider) => {
         formatProvider = provider as typeof formatProvider;
-        return { dispose: () => {} };
+        return { provider, dispose: () => {} };
       },
     );
 
@@ -136,6 +138,29 @@ describe("extension", () => {
     await vi.runAllTimersAsync();
 
     expect(getRegisteredCommand("haproxy.selectVersion")).toBeDefined();
+  });
+
+  it("runs grammar sync and reload prompt on version change", async () => {
+    const syncSpy = vi.spyOn(grammar, "syncActiveGrammarAsync").mockResolvedValue(true);
+    const promptSpy = vi.spyOn(grammar, "promptReloadIfGrammarChanged").mockResolvedValue();
+    setMockConfig("haproxy", "version", "3.2");
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    syncSpy.mockClear();
+    promptSpy.mockClear();
+
+    setMockConfig("haproxy", "version", "3.4");
+    triggerMockConfigurationChange("haproxy.version");
+    await vi.runAllTimersAsync();
+
+    await vi.waitFor(() => {
+      expect(syncSpy).toHaveBeenCalled();
+      expect(promptSpy).toHaveBeenCalledWith(true);
+    });
+
+    syncSpy.mockRestore();
+    promptSpy.mockRestore();
   });
 
   it("skips runDiagnostics for non-haproxy language after scheduling", async () => {

@@ -67,32 +67,32 @@ describe("extension providers", () => {
 
     vi.spyOn(languages, "registerCompletionItemProvider").mockImplementation((_s, provider) => {
       capturedProviders.completion = provider;
-      return { dispose: () => {} };
+      return { provider, dispose: () => {} };
     });
     vi.spyOn(languages, "registerHoverProvider").mockImplementation((_s, provider) => {
       capturedProviders.hover = provider;
-      return { dispose: () => {} };
+      return { provider, dispose: () => {} };
     });
     vi.spyOn(languages, "registerDefinitionProvider").mockImplementation((_s, provider) => {
       capturedProviders.definition = provider;
-      return { dispose: () => {} };
+      return { provider, dispose: () => {} };
     });
     vi.spyOn(languages, "registerReferenceProvider").mockImplementation((_s, provider) => {
       capturedProviders.references = provider;
-      return { dispose: () => {} };
+      return { provider, dispose: () => {} };
     });
     vi.spyOn(languages, "registerDocumentSymbolProvider").mockImplementation((_s, provider) => {
       capturedProviders.symbols = provider;
-      return { dispose: () => {} };
+      return { provider, dispose: () => {} };
     });
     vi.spyOn(languages, "registerFoldingRangeProvider").mockImplementation((_s, provider) => {
       capturedProviders.folding = provider;
-      return { dispose: () => {} };
+      return { provider, dispose: () => {} };
     });
     vi.spyOn(languages, "registerDocumentFormattingEditProvider").mockImplementation(
       (_s, provider) => {
         capturedProviders.format = provider;
-        return { dispose: () => {} };
+        return { provider, dispose: () => {} };
       },
     );
   });

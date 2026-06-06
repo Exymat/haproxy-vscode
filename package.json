@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config highlighting, completion, hover docs, and schema diagnostics",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
@@ -144,6 +144,9 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "package": "vsce package",
+    "typecheck": "tsc -p ./ --noEmit",
+    "typecheck:test": "tsc -p tsconfig.test.json --noEmit",
+    "typecheck:all": "npm run typecheck && npm run typecheck:test",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix --max-warnings 0",
     "format": "prettier --write .",

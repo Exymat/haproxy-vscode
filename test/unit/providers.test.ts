@@ -7,7 +7,7 @@ import { loadSchema } from "../helpers/schema";
 const schema = loadSchema("3.2");
 
 function pos(line: number, character: number) {
-  return { line, character };
+  return { line, character } as never;
 }
 
 describe("provideDocumentSymbols", () => {

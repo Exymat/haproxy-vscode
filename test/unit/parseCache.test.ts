@@ -20,7 +20,7 @@ describe("getParsedDocument", () => {
   it("reparses when document version changes", () => {
     const doc = createDocument("defaults\n    mode http");
     const first = getParsedDocument(doc as never);
-    doc.version = 2;
+    (doc as unknown as { version: number }).version = 2;
     const second = getParsedDocument(doc as never);
     expect(second).not.toBe(first);
     expect(parseDocument(doc as never)).toEqual(second);

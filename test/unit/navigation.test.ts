@@ -13,16 +13,16 @@ import { createDocument } from "../helpers/document";
 const schema = loadSchema("3.2");
 
 function pos(line: number, character: number) {
-  return { line, character };
+  return { line, character } as never;
 }
 
 function assertDef(
   index: ReturnType<typeof buildSymbolIndex>,
-  kind: string,
+  kind: Parameters<typeof findDefinitions>[1],
   name: string,
   scopeKey: string | null,
   line: number,
-  start: number | string,
+  start: number,
 ) {
   const defs = findDefinitions(index, kind, name, scopeKey);
   const hit = defs.find((d) => d.line === line && d.start === start);
@@ -31,7 +31,7 @@ function assertDef(
 
 function assertRefCount(
   index: ReturnType<typeof buildSymbolIndex>,
-  kind: string,
+  kind: Parameters<typeof findAllSites>[1],
   name: string,
   scopeKey: string | null,
   count: number,
@@ -42,7 +42,7 @@ function assertRefCount(
 
 function assertResolve(
   doc: ReturnType<typeof createDocument>,
-  position: { line: number; character: number },
+  position: never,
   expected: { kind: string; name: string; scopeKey: string | null } | null,
 ) {
   expect(resolveSymbolAtPosition(doc as never, position, schema)).toEqual(expected);

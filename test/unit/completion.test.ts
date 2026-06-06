@@ -2,36 +2,37 @@ import { provideCompletionItems } from "../../src/completion";
 import { getDocumentContext } from "../../src/documentContext";
 import { provideHover } from "../../src/hover";
 import { createDocument } from "../helpers/document";
-import { loadSchemaBundle, type SupportedVersion } from "../helpers/schema";
+import { loadSchemaBundle } from "../helpers/schema";
 
 const bundles = {
   "3.2": loadSchemaBundle("3.2"),
   "3.4": loadSchemaBundle("3.4"),
 };
+type TestVersion = keyof typeof bundles;
 
 function completionLabels(
   content: string,
   lineNo: number,
   character: number,
-  version: SupportedVersion,
+  version: TestVersion,
 ) {
   const doc = createDocument(content);
   const bundle = bundles[version];
   const items = provideCompletionItems(
     doc as never,
-    { line: lineNo, character },
+    { line: lineNo, character } as never,
     bundle.languageData,
     bundle.schema,
   );
   return items.map((item) => item.label).sort();
 }
 
-function hoverText(content: string, lineNo: number, character: number, version: SupportedVersion) {
+function hoverText(content: string, lineNo: number, character: number, version: TestVersion) {
   const doc = createDocument(content);
   const bundle = bundles[version];
   const hover = provideHover(
     doc as never,
-    { line: lineNo, character },
+    { line: lineNo, character } as never,
     bundle.languageData,
     bundle.schema,
   );
@@ -46,11 +47,11 @@ function contextKind(
   content: string,
   lineNo: number,
   character: number,
-  version: SupportedVersion,
+  version: TestVersion,
 ) {
   const doc = createDocument(content);
   const bundle = bundles[version];
-  const ctx = getDocumentContext(doc as never, { line: lineNo, character }, bundle.schema);
+  const ctx = getDocumentContext(doc as never, { line: lineNo, character } as never, bundle.schema);
   return ctx?.kind ?? null;
 }
 

@@ -23,7 +23,7 @@ const bundle = loadSchemaBundle("3.4");
 const schema32 = loadSchema("3.2");
 
 function pos(line: number, character: number) {
-  return { line, character };
+  return { line, character } as never;
 }
 
 describe("coverage line gaps", () => {
