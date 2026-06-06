@@ -40,11 +40,11 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
         run: npm run compile
 
-      - name: Clone upstream HAProxy source (version branch)
+      - name: Clone upstream HAProxy source (version repo)
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
         run: |
           mkdir -p haproxy_git
-          git clone --depth 1 --branch "${{ matrix.version }}" https://github.com/haproxy/haproxy.git "haproxy_git/haproxy-${{ matrix.version }}"
+          git clone --depth 1 "http://git.haproxy.org/git/haproxy-${{ matrix.version }}.git" "haproxy_git/haproxy-${{ matrix.version }}"
 
       - name: Pull HAProxy Docker image
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
