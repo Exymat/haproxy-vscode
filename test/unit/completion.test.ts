@@ -43,12 +43,7 @@ function hoverText(content: string, lineNo: number, character: number, version: 
   return typeof md === "string" ? md : ((md as { value?: string })?.value ?? "");
 }
 
-function contextKind(
-  content: string,
-  lineNo: number,
-  character: number,
-  version: TestVersion,
-) {
+function contextKind(content: string, lineNo: number, character: number, version: TestVersion) {
   const doc = createDocument(content);
   const bundle = bundles[version];
   const ctx = getDocumentContext(doc as never, { line: lineNo, character } as never, bundle.schema);

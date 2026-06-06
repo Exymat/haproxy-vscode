@@ -20,12 +20,7 @@ function hoverText(hover: NonNullable<ReturnType<typeof provideHover>>): string 
   return typeof md === "string" ? md : ((md as { value?: string })?.value ?? "");
 }
 
-function hoverMarkdown(
-  content: string,
-  lineNo: number,
-  character: number,
-  version: TestVersion,
-) {
+function hoverMarkdown(content: string, lineNo: number, character: number, version: TestVersion) {
   const doc = createDocument(content);
   const bundle = bundles[version];
   const hover = provideHover(
@@ -214,7 +209,12 @@ describe("provideHover", () => {
       ],
     };
     const col = "    backlog 128".indexOf("128");
-    const hover = provideHover(doc as never, { line: 1, character: col } as never, data, bundle.schema);
+    const hover = provideHover(
+      doc as never,
+      { line: 1, character: col } as never,
+      data,
+      bundle.schema,
+    );
     if (hover === null) {
       throw new Error("expected hover");
     }
