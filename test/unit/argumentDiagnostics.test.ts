@@ -22,6 +22,19 @@ function argDiagsForBundle(content: string, lineNo: number, schema: (typeof bund
   return argumentModelDiagnostics(line, schema, allowed);
 }
 
+function argDiagsForBundleWithAllowed(
+  content: string,
+  lineNo: number,
+  schema: (typeof bundle)["schema"],
+  adjustAllowed: (allowed: Set<string>) => void,
+) {
+  const doc = createDocument(content);
+  const line = parseDocument(doc)[lineNo];
+  const allowed = sectionKeywordSet(schema, line.section);
+  adjustAllowed(allowed);
+  return argumentModelDiagnostics(line, schema, allowed);
+}
+
 describe("argumentDiagnostics", () => {
   it("reports missing mode argument", () => {
     const diags = argDiags("defaults\n    mode", 1);
@@ -72,6 +85,74 @@ describe("argumentDiagnostics", () => {
   it("reports invalid trailing value for balance url_param", () => {
     const diags = argDiags("backend x\n    balance url_param foo nope", 1);
     expect(diags.some((d) => d.code === "unknown-value")).toBe(true);
+  });
+
+  it("reports missing required argument for balance url_param variant", () => {
+    const schemaWithRequiredVariantArg = structuredClone(bundle.schema);
+    const variant = schemaWithRequiredVariantArg.keywords["balance url_param"];
+    if (!variant?.argument_model) {
+      throw new Error("Expected balance url_param argument model in test schema");
+    }
+    variant.argument_model.min_args = 1;
+    variant.argument_model.slots = [{}, {}];
+    variant.signatures = ["balance url_param <name>"];
+
+    const diags = argDiagsForBundleWithAllowed(
+      "backend x\n    balance url_param",
+      1,
+      schemaWithRequiredVariantArg,
+      (allowed) => allowed.delete("balance url_param"),
+    );
+    expect(diags.some((d) => d.code === "missing-argument")).toBe(true);
+  });
+
+  it("reports extra argument for balance url_param variant", () => {
+    const diags = argDiagsForBundleWithAllowed(
+      "backend x\n    balance url_param foo check_post trailing",
+      1,
+      bundle.schema,
+      (allowed) => allowed.delete("balance url_param"),
+    );
+    expect(diags.some((d) => d.code === "extra-argument")).toBe(true);
+  });
+
+  it("returns early when balance url_param variant model is unavailable", () => {
+    const schemaWithoutVariant = structuredClone(bundle.schema);
+    delete schemaWithoutVariant.keywords["balance url_param"];
+
+    const diags = argDiagsForBundleWithAllowed(
+      "backend x\n    balance url_param foo",
+      1,
+      schemaWithoutVariant,
+      (allowed) => allowed.delete("balance url_param"),
+    );
+    expect(diags).toEqual([]);
+  });
+
+  it("handles balance url_param conditional and unknown trailing values", () => {
+    const schemaWithVariantEnum = structuredClone(bundle.schema);
+    const variant = schemaWithVariantEnum.keywords["balance url_param"];
+    if (!variant?.argument_model) {
+      throw new Error("Expected balance url_param argument model in test schema");
+    }
+    variant.argument_model.max_args = 2;
+    variant.argument_model.slots = [{ enum: ["foo"] }, { enum: ["check_post", "len"] }];
+
+    const conditional = argDiagsForBundleWithAllowed(
+      "backend x\n    balance url_param foo 1",
+      1,
+      schemaWithVariantEnum,
+      (allowed) => allowed.delete("balance url_param"),
+    );
+    expect(conditional).toEqual([]);
+
+    const unknown = argDiagsForBundleWithAllowed(
+      "backend x\n    balance url_param foo nope",
+      1,
+      bundle.schema,
+      (allowed) => allowed.delete("balance url_param"),
+    );
+    expect(unknown.some((d) => d.code === "unknown-value")).toBe(true);
   });
 
   it("reports mysql-check user and mode issues", () => {
@@ -125,6 +206,16 @@ describe("argumentDiagnostics", () => {
       1,
       bundle32.schema,
     );
+    expect(diags.some((d) => d.code === "unknown-value")).toBe(false);
+  });
+
+  it("returns no diagnostics for empty http-send-name-header args on 3.4+", () => {
+    const diags = argDiags("listen l1\n    http-send-name-header", 1);
+    expect(diags).toEqual([]);
+  });
+
+  it("accepts non-host header names for http-send-name-header", () => {
+    const diags = argDiags("listen l1\n    http-send-name-header x-backend-name", 1);
     expect(diags.some((d) => d.code === "unknown-value")).toBe(false);
   });
 

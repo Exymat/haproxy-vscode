@@ -46,6 +46,15 @@ describe("argumentEnumUtils", () => {
     expect(docEnumValueNames(schemaKw)).toEqual(["tcp"]);
   });
 
+  it("docEnumValueNames skips undefined argument entries", () => {
+    const argumentsWithHole: SchemaKeyword["arguments"] = [];
+    argumentsWithHole[1] = { parameter: "<mode>", description: "", values: [] };
+    const schemaKw = mockSchemaKw({
+      arguments: argumentsWithHole,
+    });
+    expect(docEnumValueNames(schemaKw)).toEqual([]);
+  });
+
   it("enumNamesForSlot uses value_kind enum without doc parameter heuristics", () => {
     const schemaKw = mockSchemaKw({
       argument_model: {
@@ -146,6 +155,18 @@ describe("argumentEnumUtils", () => {
       "roundrobin",
       "leastconn",
     ]);
+  });
+
+  it("enumNamesForSlot handles missing parameter entry for balance url_param variant", () => {
+    const names = enumNamesForSlot(
+      { enum: ["foo"] },
+      mockSchemaKw({
+        name: "balance url_param",
+        arguments: [],
+      }),
+      1,
+    );
+    expect(names).toEqual(["foo"]);
   });
 
   it("enumNamesForArgumentPosition prefers slot enums", () => {
