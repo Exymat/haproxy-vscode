@@ -209,7 +209,7 @@ npm install
 npm run compile
 ```
 
-`compile` also refreshes `syntaxes/haproxy-active.tmLanguage.json` (gitignored; copied from the default grammar `haproxy-3.2.tmLanguage.json`).
+`compile` only builds TypeScript. HAProxy version-specific schema/language data is loaded at extension startup from `haproxy.version` (default `3.2`), and grammar switching is handled by the extension when the version changes.
 
 Use **Run HAProxy Extension** in the Run and Debug view after compiling.
 
@@ -256,11 +256,11 @@ Set `PYTHONPATH` to the **haproxy-schema** repo root, then from `haproxy-vscode/
 
 ```powershell
 $env:PYTHONPATH = (Resolve-Path "..\haproxy-schema").Path
-npm run generate:schema:3.2
+npm run generate:schema
 npm run compile
 ```
 
-Replace `3.2` with any supported version (`2.6`, `2.8`, `3.0`, `3.4`, …) as needed. After regenerating a non-default grammar, run `npm run sync:active-grammar -- <version>` if you want local highlight tests to use that version. To refresh keyword dumps (requires a DEBUG build of the matching HAProxy binary in `haproxy_git/`):
+`generate:schema` regenerates every supported version (`2.6`, `2.8`, `3.0`, `3.2`, `3.4`). You can still regenerate one specific version with `npm run generate:schema:<version>`. To refresh keyword dumps (requires a DEBUG build of the matching HAProxy binary in `haproxy_git/`):
 
 ```powershell
 npm run generate:dkall:2.6
