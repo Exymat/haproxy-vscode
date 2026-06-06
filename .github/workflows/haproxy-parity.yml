@@ -15,9 +15,6 @@ on:
           - "3.0"
           - "3.2"
           - "3.4"
-  schedule:
-    - cron: "0 3 * * *"
-
 jobs:
   parity:
     runs-on: ubuntu-latest
@@ -25,30 +22,36 @@ jobs:
       fail-fast: false
       matrix:
         version: ["2.6", "2.8", "3.0", "3.2", "3.4"]
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
 
     steps:
       - uses: actions/checkout@v4
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
 
       - uses: actions/setup-node@v4
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
         with:
           node-version: 24
 
       - name: Install dependencies
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
         run: npm ci
 
       - name: Compile extension
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
         run: npm run compile
 
       - name: Clone upstream HAProxy source (version branch)
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
         run: |
           mkdir -p haproxy_git
           git clone --depth 1 --branch "${{ matrix.version }}" https://github.com/haproxy/haproxy.git "haproxy_git/haproxy-${{ matrix.version }}"
 
       - name: Pull HAProxy Docker image
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
         run: docker pull "haproxy:${{ matrix.version }}-trixie"
 
       - name: Compare diagnostics with haproxy -c (tests/conf + examples)
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
         env:
           HAPROXY_DOCKER_CMD: docker
         run: |
@@ -59,7 +62,7 @@ jobs:
           exit $status
 
       - name: Upload parity reports
-        if: always()
+        if: ${{ always() && (github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version) }}
         uses: actions/upload-artifact@v4
         with:
           name: haproxy-parity-${{ matrix.version }}
