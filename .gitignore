@@ -4,7 +4,6 @@ node_modules/
 Thumbs.db
 .npmrc
 .vscode/**
-package-lock.json
 dkall.output
 *.cpuprofile
 
