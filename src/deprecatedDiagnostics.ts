@@ -1,43 +1,14 @@
 import * as vscode from "vscode";
 
+import { DiagnosticContext, LineDiagnosticMemo } from "./diagnosticContext";
+import { diagRange, diagRangeForMatch, diagRangeForTokens } from "./diagnosticUtils";
 import { DeprecatedIndex } from "./deprecatedIndex";
 import { ParsedLine } from "./parser";
-import { HaproxySchema, modifierPrefixSet, noPrefixKeywordSet, sectionKeywordSet } from "./schema";
-import { findStatementRule, resolveActionTokenIndex } from "./statementLayout";
-import { normalizeActionName, resolveLongestDirectiveMatch } from "./tokenUtils";
+import { HaproxySchema } from "./schema";
+import { resolveActionTokenIndex } from "./statementLayout";
+import { normalizeActionName } from "./tokenUtils";
 
-export function documentUsesExposeDeprecatedDirectives(parsed: ParsedLine[]): boolean {
-  for (const line of parsed) {
-    if (line.section !== "global" || line.tokens.length === 0) {
-      continue;
-    }
-    if (line.tokens[0].text.toLowerCase() === "expose-deprecated-directives") {
-      return true;
-    }
-  }
-  return false;
-}
-
-function diagRangeForTokens(line: ParsedLine, startIdx: number, endIdx: number): vscode.Range {
-  const startTok = line.tokens[startIdx];
-  const endTok = line.tokens[endIdx];
-  return new vscode.Range(line.line, startTok.start, line.line, endTok.end);
-}
-
-function diagRangeForMatch(
-  line: ParsedLine,
-  tokenIndex: number,
-  startOffset: number,
-  length: number,
-): vscode.Range {
-  const token = line.tokens[tokenIndex];
-  return new vscode.Range(
-    line.line,
-    token.start + startOffset,
-    line.line,
-    token.start + startOffset + length,
-  );
-}
+export { documentUsesExposeDeprecatedDirectives } from "./deprecatedUtils";
 
 function stripSampleArgs(raw: string): string {
   const parenIndex = raw.indexOf("(");
@@ -53,14 +24,13 @@ function sampleRefsInToken(tokenText: string): Array<{ name: string; start: numb
   return refs;
 }
 
-export function deprecatedLineDiagnostics(
+function deprecatedLineDiagnostics(
   line: ParsedLine,
   schema: HaproxySchema,
   index: DeprecatedIndex,
-  allowed: Set<string>,
-  noPrefix: Set<string>,
+  memo: LineDiagnosticMemo,
 ): vscode.Diagnostic[] {
-  const match = resolveLongestDirectiveMatch(line, allowed, 4, noPrefix, modifierPrefixSet(schema));
+  const match = memo.directiveMatch;
   if (!match.matched) {
     return [];
   }
@@ -119,7 +89,7 @@ export function deprecatedLineDiagnostics(
     }
   }
 
-  const rule = findStatementRule(schema, line);
+  const rule = memo.statementRule;
   const actionIdx = resolveActionTokenIndex(rule, line);
   if (actionIdx === null) {
     return diagnostics;
@@ -143,22 +113,15 @@ export function deprecatedLineDiagnostics(
   return diagnostics;
 }
 
-function diagRange(line: ParsedLine, tokenIndex: number): vscode.Range {
-  const token = line.tokens[tokenIndex];
-  return new vscode.Range(line.line, token.start, line.line, token.end);
-}
-
 export function deprecatedDiagnostics(
-  parsed: ParsedLine[],
+  ctx: DiagnosticContext,
   line: ParsedLine,
-  schema: HaproxySchema,
+  memo: LineDiagnosticMemo,
   index: DeprecatedIndex,
   suppress: boolean,
 ): vscode.Diagnostic[] {
   if (suppress || line.tokens.length === 0 || line.isSectionHeader) {
     return [];
   }
-  const allowed = sectionKeywordSet(schema, line.section);
-  const noPrefix = noPrefixKeywordSet(schema);
-  return deprecatedLineDiagnostics(line, schema, index, allowed, noPrefix);
+  return deprecatedLineDiagnostics(line, ctx.schema, index, memo);
 }

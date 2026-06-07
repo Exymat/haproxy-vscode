@@ -1,5 +1,6 @@
 import { activate, deactivate } from "../../src/extension";
 import * as grammar from "../../src/grammar";
+import * as schema from "../../src/schema";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getLastDiagnosticCollection,
@@ -9,6 +10,7 @@ import {
   resetVscodeMock,
   setMockConfig,
   triggerMockConfigurationChange,
+  window,
   workspace,
 } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
@@ -225,5 +227,49 @@ describe("extension", () => {
       expect(collection?.set).toHaveBeenCalled();
     });
     vi.restoreAllMocks();
+  });
+
+  it("shows error and skips providers when bundle load fails", async () => {
+    vi.spyOn(schema, "loadSchemaAsync").mockRejectedValue(new Error("missing schema"));
+    const doc = haproxyDocument("frontend web\n    bind :80");
+    mockTextDocuments.push(doc);
+    setMockConfig("haproxy", "diagnostics.debounceMs", 100);
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    expect(window.showErrorMessage).toHaveBeenCalledWith(
+      expect.stringContaining("HAProxy extension failed to load schema"),
+    );
+
+    const collection = getLastDiagnosticCollection();
+    expect(collection?.set).toHaveBeenCalledWith(doc.uri, []);
+  });
+
+  it("clears pending diagnostic timers on deactivate", async () => {
+    const doc = haproxyDocument("defaults\n    mode http");
+    mockTextDocuments.push(doc);
+    setMockConfig("haproxy", "diagnostics.debounceMs", 5000);
+
+    const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
+    activate(mockExtensionContext() as never);
+    deactivate();
+
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+    clearTimeoutSpy.mockRestore();
+  });
+
+  it("skips reload when bundle load fails after version change", async () => {
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    vi.spyOn(schema, "loadSchemaAsync").mockRejectedValue(new Error("missing schema"));
+    setMockConfig("haproxy", "version", "3.4");
+    triggerMockConfigurationChange("haproxy.version");
+    await vi.runAllTimersAsync();
+
+    expect(window.showErrorMessage).toHaveBeenCalledWith(
+      expect.stringContaining("HAProxy extension failed to load schema"),
+    );
   });
 });

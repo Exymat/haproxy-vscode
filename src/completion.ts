@@ -57,10 +57,12 @@ export function provideCompletionItems(
   }
 
   if (ctx.kind === "option") {
-    const options = groupItems(data, "options").map((g) => g.name);
+    const optionItems = groupItems(data, "options");
+    const optionsByName = new Map(optionItems.map((g) => [g.name, g]));
+    const options = optionItems.map((g) => g.name);
     return filterByPrefix(options, partial).map((name) => {
       const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Value);
-      const group = groupItems(data, "options").find((g) => g.name === name);
+      const group = optionsByName.get(name);
       item.detail = "option";
       const optKeyword =
         data.keywords[`option ${name}`.toLowerCase()] ??
@@ -110,10 +112,12 @@ export function provideCompletionItems(
 
   const actionKind = actionGroupForKind(ctx.kind);
   if (actionKind) {
-    const actions = groupItems(data, actionKind).map((g) => g.name);
+    const actionItems = groupItems(data, actionKind);
+    const actionsByName = new Map(actionItems.map((g) => [g.name, g]));
+    const actions = actionItems.map((g) => g.name);
     return filterByPrefix(actions, partial).map((name) => {
       const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Keyword);
-      const group = groupItems(data, actionKind).find((g) => g.name === name);
+      const group = actionsByName.get(name);
       item.detail = ctx.kind;
       if (group?.description) {
         item.documentation = markdownDoc(group.description, group.docsUrl);
@@ -175,11 +179,12 @@ export function provideCompletionItems(
       directive.end,
       directive.keyword,
     );
+    const valuesByName = new Map(values.map((v) => [v.name, v]));
     return filterByPrefix(
       values.map((v) => v.name),
       partial,
     ).map((name) => {
-      const value = values.find((v) => v.name === name);
+      const value = valuesByName.get(name);
       const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Value);
       item.detail = kw?.name ?? "argument";
       if (value?.description) {

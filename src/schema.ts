@@ -111,6 +111,10 @@ const sampleExpressionNameCache = new WeakMap<
   HaproxySchema,
   { fetchNames: Set<string>; convNames: Set<string> }
 >();
+const prefixSubcommandCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
+const tcpRequestPhaseCache = new WeakMap<HaproxySchema, Set<string>>();
+const tcpResponsePhaseCache = new WeakMap<HaproxySchema, Set<string>>();
+const statsSocketLevelCache = new WeakMap<HaproxySchema, Set<string>>();
 
 const FALLBACK_PREFIX_FAMILIES = [
   "stats",
@@ -133,11 +137,22 @@ export function prefixFamilies(schema: HaproxySchema): string[] {
 }
 
 export function prefixSubcommandSet(schema: HaproxySchema, prefix: string): Set<string> {
-  const fromLayout = schema.line_layout?.prefix_subcommands?.[prefix.toLowerCase()];
-  if (fromLayout) {
-    return new Set(fromLayout.map((v) => v.toLowerCase()));
+  const key = prefix.toLowerCase();
+  let perSchema = prefixSubcommandCache.get(schema);
+  if (!perSchema) {
+    perSchema = new Map();
+    prefixSubcommandCache.set(schema, perSchema);
   }
-  return buildPrefixSubcommands(Object.keys(schema.keywords), prefix);
+  const cached = perSchema.get(key);
+  if (cached) {
+    return cached;
+  }
+  const fromLayout = schema.line_layout?.prefix_subcommands?.[key];
+  const result = fromLayout
+    ? new Set(fromLayout.map((v) => v.toLowerCase()))
+    : buildPrefixSubcommands(Object.keys(schema.keywords), prefix);
+  perSchema.set(key, result);
+  return result;
 }
 
 export function buildPrefixSubcommands(keywords: Iterable<string>, prefix: string): Set<string> {
@@ -215,14 +230,20 @@ export function tcpRulePhaseSet(
   schema: HaproxySchema,
   kind: "tcp-request" | "tcp-response",
 ): Set<string> {
+  const cache = kind === "tcp-request" ? tcpRequestPhaseCache : tcpResponsePhaseCache;
+  const cached = cache.get(schema);
+  if (cached) {
+    return cached;
+  }
   const fromLayout =
     kind === "tcp-request"
       ? schema.line_layout?.tcp_request_phases
       : schema.line_layout?.tcp_response_phases;
-  if (fromLayout) {
-    return new Set(fromLayout.map((v) => v.toLowerCase()));
-  }
-  return buildPrefixSubcommands(Object.keys(schema.keywords), kind);
+  const result = fromLayout
+    ? new Set(fromLayout.map((v) => v.toLowerCase()))
+    : buildPrefixSubcommands(Object.keys(schema.keywords), kind);
+  cache.set(schema, result);
+  return result;
 }
 
 export function tcpRequestPhaseSet(schema: HaproxySchema): Set<string> {
@@ -289,8 +310,14 @@ export function optionsWithValueSet(schema: HaproxySchema, groupName: string): S
 }
 
 export function statsSocketLevelSet(schema: HaproxySchema): Set<string> {
+  const cached = statsSocketLevelCache.get(schema);
+  if (cached) {
+    return cached;
+  }
   const levels = schema.line_layout?.stats_socket_levels ?? [...FALLBACK_STATS_SOCKET_LEVELS];
-  return new Set(levels.map((v) => v.toLowerCase()));
+  const result = new Set(levels.map((v) => v.toLowerCase()));
+  statsSocketLevelCache.set(schema, result);
+  return result;
 }
 
 export function sectionKeywordSet(schema: HaproxySchema, section: string | null): Set<string> {
@@ -325,10 +352,17 @@ export function loadSchema(
     return cached;
   }
   const schemaPath = path.join(context.extensionPath, "schemas", `haproxy-${version}.schema.json`);
-  const raw = fs.readFileSync(schemaPath, "utf-8");
-  const data = normalizeSchemaData(JSON.parse(raw) as HaproxySchema);
-  schemaCache.set(version, data);
-  return data;
+  try {
+    const raw = fs.readFileSync(schemaPath, "utf-8");
+    const data = normalizeSchemaData(JSON.parse(raw) as HaproxySchema);
+    schemaCache.set(version, data);
+    return data;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to load HAProxy schema for ${version} from ${schemaPath}: ${message}`, {
+      cause: error,
+    });
+  }
 }
 
 export async function loadSchemaAsync(
@@ -340,10 +374,17 @@ export async function loadSchemaAsync(
     return cached;
   }
   const schemaPath = path.join(context.extensionPath, "schemas", `haproxy-${version}.schema.json`);
-  const raw = await fs.promises.readFile(schemaPath, "utf-8");
-  const data = normalizeSchemaData(JSON.parse(raw) as HaproxySchema);
-  schemaCache.set(version, data);
-  return data;
+  try {
+    const raw = await fs.promises.readFile(schemaPath, "utf-8");
+    const data = normalizeSchemaData(JSON.parse(raw) as HaproxySchema);
+    schemaCache.set(version, data);
+    return data;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to load HAProxy schema for ${version} from ${schemaPath}: ${message}`, {
+      cause: error,
+    });
+  }
 }
 
 export function sectionNames(schema: HaproxySchema): string[] {

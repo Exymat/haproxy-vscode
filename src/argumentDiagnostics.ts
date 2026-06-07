@@ -2,27 +2,18 @@ import * as vscode from "vscode";
 
 import { enumNamesForSlot } from "./argumentEnumUtils";
 import { argumentTokenIndices } from "./directiveUtils";
+import { LineDiagnosticMemo } from "./diagnosticContext";
+import { diagRange, DIAG_SOURCE } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
 import {
+  ArgumentModel,
+  ArgumentSlot,
   conditionalTokenSet,
   HaproxySchema,
-  modifierPrefixSet,
   prefixFamilies,
   SchemaKeyword,
 } from "./schema";
-import { isLikelyValue, resolveLongestDirectiveMatch } from "./tokenUtils";
-
-export interface ArgumentSlot {
-  optional?: boolean;
-  variadic?: boolean;
-  enum?: string[];
-}
-
-export interface ArgumentModel {
-  min_args: number;
-  max_args: number | null;
-  slots: ArgumentSlot[];
-}
+import { isLikelyValue } from "./tokenUtils";
 
 const COOKIE_MODES = new Set([
   "indirect",
@@ -52,11 +43,6 @@ const SKIP_KEYWORDS = new Set([
   "http-check",
   "tcp-check",
 ]);
-
-function diagRange(line: ParsedLine, tokenIndex: number): vscode.Range {
-  const tok = line.tokens[tokenIndex];
-  return new vscode.Range(line.line, tok.start, line.line, tok.end);
-}
 
 function formatEnumHint(values: string[]): string {
   if (values.length <= 6) {
@@ -111,7 +97,7 @@ function makeArgDiagnostic(
   severity: vscode.DiagnosticSeverity = vscode.DiagnosticSeverity.Warning,
 ): vscode.Diagnostic {
   const diagnostic = new vscode.Diagnostic(diagRange(line, tokenIndex), message, severity);
-  diagnostic.source = "haproxy";
+  diagnostic.source = DIAG_SOURCE;
   diagnostic.code = code;
   return diagnostic;
 }
@@ -138,16 +124,10 @@ function allowsMissingArgs(schemaKw: SchemaKeyword | undefined, model: ArgumentM
 export function argumentModelDiagnostics(
   line: ParsedLine,
   schema: HaproxySchema,
-  allowed: Set<string>,
+  memo: LineDiagnosticMemo,
   noPrefixKeywords?: Set<string>,
 ): vscode.Diagnostic[] {
-  const match = resolveLongestDirectiveMatch(
-    line,
-    allowed,
-    4,
-    noPrefixKeywords,
-    modifierPrefixSet(schema),
-  );
+  const match = memo.directiveMatch;
   if (!match.matched) {
     return [];
   }

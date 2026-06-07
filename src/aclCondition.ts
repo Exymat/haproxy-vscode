@@ -1,34 +1,6 @@
 import { HaproxySchema, sampleExpressionNameSets } from "./schema";
+import { findClosingBrace, findExprEnd, readIdentifier, skipSpace } from "./expressionParsing";
 import { ExpressionSpan, SampleDiagnostic, validateExpressionBody } from "./sampleExpression";
-
-function findClosingBrace(lineText: string, open: number): number {
-  let depth = 0;
-  let squote = false;
-  let dquote = false;
-  for (let i = open; i < lineText.length; i++) {
-    const ch = lineText[i];
-    if (ch === '"' && !squote) {
-      dquote = !dquote;
-      continue;
-    }
-    if (ch === "'" && !dquote) {
-      squote = !squote;
-      continue;
-    }
-    if (squote || dquote) {
-      continue;
-    }
-    if (ch === "{") {
-      depth++;
-    } else if (ch === "}") {
-      depth--;
-      if (depth === 0) {
-        return i;
-      }
-    }
-  }
-  return -1;
-}
 
 function isAclOnlyCriterion(
   name: string,
@@ -71,57 +43,6 @@ export function extractAclConditionSpans(lineText: string): ExpressionSpan[] {
     idx = close + 1;
   }
   return spans;
-}
-
-const ID_START = /[a-zA-Z_]/;
-const ID_BODY = /[a-zA-Z0-9_.-]/;
-
-function skipSpace(text: string, pos: number): number {
-  while (pos < text.length && /\s/.test(text[pos])) {
-    pos += 1;
-  }
-  return pos;
-}
-
-function readIdentifier(text: string, pos: number): { name: string; end: number } {
-  pos = skipSpace(text, pos);
-  if (pos >= text.length || !ID_START.test(text[pos])) {
-    return { name: "", end: pos };
-  }
-  let end = pos + 1;
-  while (end < text.length && ID_BODY.test(text[end])) {
-    end += 1;
-  }
-  return { name: text.slice(pos, end), end };
-}
-
-function findExprEnd(text: string, openParen: number): number {
-  let depth = 0;
-  let squote = false;
-  let dquote = false;
-  for (let i = openParen; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '"' && !squote) {
-      dquote = !dquote;
-      continue;
-    }
-    if (ch === "'" && !dquote) {
-      squote = !squote;
-      continue;
-    }
-    if (squote || dquote) {
-      continue;
-    }
-    if (ch === "(") {
-      depth++;
-    } else if (ch === ")") {
-      depth--;
-      if (depth === 0) {
-        return i + 1;
-      }
-    }
-  }
-  return text.length;
 }
 
 /** Validate only sample-fetch subexpressions inside an ACL condition (not -m / eq / predefined ACLs). */

@@ -1,8 +1,10 @@
 import * as vscode from "vscode";
 
 import { getParsedDocument } from "./parseCache";
-import { ParsedLine, ParsedToken } from "./parser";
+import { ParsedLine } from "./parser";
+import { isTopLevelSectionHeader } from "./sectionUtils";
 import { HaproxySchema, StatementRule } from "./schema";
+import { ruleMatchesLine } from "./statementLayout";
 
 export type SymbolKind =
   | "proxy-section"
@@ -50,22 +52,6 @@ function effectiveScopeKey(kind: SymbolKind, scopeKey: string | null): string | 
 }
 
 const indexCache = new WeakMap<vscode.TextDocument, { version: number; index: SymbolIndex }>();
-
-function isTopLevelSectionHeader(entry: ParsedLine): boolean {
-  return entry.isSectionHeader && entry.tokens.length > 0 && entry.tokens[0].start === 0;
-}
-
-function ruleMatchesLine(rule: StatementRule, tokens: ParsedToken[]): boolean {
-  const t0 = tokens[0].text.toLowerCase();
-  if (rule.prefix) {
-    const parts = rule.prefix.split(/\s+/);
-    if (parts.length === 1) {
-      return t0 === parts[0] && tokens[1]?.text.toLowerCase() === rule.keyword;
-    }
-    return false;
-  }
-  return t0 === rule.keyword;
-}
 
 export function symbolKey(kind: SymbolKind, name: string, scopeKey: string | null): string {
   const lower = name.toLowerCase();

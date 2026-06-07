@@ -5,6 +5,9 @@ import { isConditionalOrStatusDirective } from "./conditionalDirectives";
 import { getParsedDocument } from "./parseCache";
 import { ParsedLine, ParsedToken } from "./parser";
 import { HaproxySchema, sectionNames, StatementRule } from "./schema";
+import { ruleMatchesLine } from "./statementLayout";
+
+const keywordsForSectionCache = new WeakMap<HaproxyLanguageData, Map<string, LanguageKeyword[]>>();
 
 export type CompletionKind =
   | "section"
@@ -71,21 +74,6 @@ function resolveTokenIndex(
 
 function linePrefixBeforeCursor(lineText: string, character: number): string {
   return lineText.slice(0, character);
-}
-
-function ruleMatchesLine(rule: StatementRule, tokens: ParsedToken[]): boolean {
-  if (tokens.length === 0) {
-    return false;
-  }
-  const t0 = tokens[0].text.toLowerCase();
-  if (rule.prefix) {
-    const parts = rule.prefix.split(/\s+/);
-    if (parts.length === 1) {
-      return t0 === parts[0] && tokens[1]?.text.toLowerCase() === rule.keyword;
-    }
-    return false;
-  }
-  return t0 === rule.keyword;
 }
 
 function classifyByRules(
@@ -179,7 +167,18 @@ export function keywordsForSection(
   if (!section) {
     return [];
   }
-  return Object.values(data.keywords).filter((kw) => kw.sections.includes(section));
+  let perData = keywordsForSectionCache.get(data);
+  if (!perData) {
+    perData = new Map();
+    keywordsForSectionCache.set(data, perData);
+  }
+  const cached = perData.get(section);
+  if (cached) {
+    return cached;
+  }
+  const result = Object.values(data.keywords).filter((kw) => kw.sections.includes(section));
+  perData.set(section, result);
+  return result;
 }
 
 export function groupItems(

@@ -9,11 +9,10 @@ import {
   validateHaproxyAddress,
 } from "./addressFormat";
 import { conditionalStartIndex } from "./directiveUtils";
+import { diagRange, DIAG_SOURCE } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
 import { FixedSlotSpec, HaproxySchema, optionsWithValueSet, StatementRule } from "./schema";
 import { findStatementRule } from "./statementLayout";
-
-const DIAG_SOURCE = "haproxy";
 
 type StmtDiagCode =
   | "invalid-address"
@@ -32,11 +31,6 @@ const SERVER_ADDRESS_OPTION_POLICIES: Record<string, AddressPolicyName> = {
   usesrc: "serverUsesrc",
   socks4: "serverSocks4",
 };
-
-function diagRange(line: ParsedLine, tokenIndex: number): vscode.Range {
-  const tok = line.tokens[tokenIndex];
-  return new vscode.Range(line.line, tok.start, line.line, tok.end);
-}
 
 function makeDiagnostic(
   line: ParsedLine,

@@ -11,8 +11,8 @@ import {
 import { computeDiagnostics } from "../../src/diagnostics";
 import { validateSampleExpressions } from "../../src/sampleExpression";
 import { parseDocument } from "../../src/parser";
-import { sectionKeywordSet } from "../../src/schema";
 import { statementDiagnostics } from "../../src/statementDiagnostics";
+import { buildLineDiagnosticMemo } from "../helpers/lineMemo";
 import * as symbolIndex from "../../src/symbolIndex";
 import { buildSymbolIndex } from "../../src/symbolIndex";
 import { isLikelyValue } from "../../src/tokenUtils";
@@ -384,7 +384,7 @@ describe("coverage line gaps", () => {
       argumentModelDiagnostics(
         balanceLine,
         bundle.schema,
-        sectionKeywordSet(bundle.schema, balanceLine.section),
+        buildLineDiagnosticMemo(balanceLine, bundle.schema),
       ),
     ).toEqual([]);
 
@@ -393,7 +393,7 @@ describe("coverage line gaps", () => {
       argumentModelDiagnostics(
         cpuPolicyLine,
         bundle.schema,
-        sectionKeywordSet(bundle.schema, cpuPolicyLine.section),
+        buildLineDiagnosticMemo(cpuPolicyLine, bundle.schema),
       ).filter((d) => d.code === "missing-argument"),
     ).toHaveLength(0);
 
@@ -402,7 +402,7 @@ describe("coverage line gaps", () => {
       argumentModelDiagnostics(
         modeLine,
         bundle.schema,
-        sectionKeywordSet(bundle.schema, modeLine.section),
+        buildLineDiagnosticMemo(modeLine, bundle.schema),
       ).filter((d) => d.code === "unknown-value"),
     ).toHaveLength(0);
     expect(isLikelyValue("127.0.0.1:8080")).toBe(true);

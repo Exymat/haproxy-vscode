@@ -2,6 +2,14 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.8.2
+
+- Faster diagnostics and completion on large configs — per-line directive lookups are memoized and schema-derived keyword sets are cached.
+- Section outline and folding built in a single pass for quicker updates on configs with many sections.
+- Clear error notification when schema or language data fails to load, instead of silently disabling features.
+- Pending diagnostics cancelled when a document is closed or the extension deactivates.
+- `#` comments highlighted only at the start of a line — inline `#` in values (URLs, headers, etc.) is no longer mis-styled as a comment.
+
 ## 0.8.1
 
 - Refreshed keyword data and grammars for all supported versions (2.6–3.4).

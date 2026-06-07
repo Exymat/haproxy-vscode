@@ -1,4 +1,5 @@
 import { activate, deactivate } from "../../src/extension";
+import * as schema from "../../src/schema";
 import {
   getLastDiagnosticCollection,
   languages,
@@ -151,6 +152,48 @@ describe("extension providers", () => {
     );
     expect(symbols.provideDocumentSymbols(doc)).toBeDefined();
     expect(folding.provideFoldingRanges(doc)).toBeDefined();
+  });
+
+  it("returns empty results when bundle load fails", async () => {
+    vi.spyOn(schema, "loadSchemaAsync").mockRejectedValue(new Error("missing schema"));
+    const doc = haproxyDocument("defaults\n    mode http");
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    const completion = capturedProviders.completion as {
+      provideCompletionItems: (
+        doc: unknown,
+        pos: { line: number; character: number },
+      ) => Promise<unknown>;
+    };
+    const hover = capturedProviders.hover as {
+      provideHover: (doc: unknown, pos: { line: number; character: number }) => Promise<unknown>;
+    };
+    const definition = capturedProviders.definition as {
+      provideDefinition: (
+        doc: unknown,
+        pos: { line: number; character: number },
+      ) => Promise<unknown>;
+    };
+    const references = capturedProviders.references as {
+      provideReferences: (
+        doc: unknown,
+        pos: { line: number; character: number },
+        ctx: { includeDeclaration: boolean },
+      ) => Promise<unknown>;
+    };
+
+    expect(await completion.provideCompletionItems(doc, { line: 1, character: 4 })).toEqual([]);
+    expect(await hover.provideHover(doc, { line: 1, character: 4 })).toBeNull();
+    expect(await definition.provideDefinition(doc, { line: 1, character: 4 })).toBeNull();
+    expect(
+      await references.provideReferences(
+        doc,
+        { line: 1, character: 4 },
+        { includeDeclaration: true },
+      ),
+    ).toEqual([]);
   });
 
   it("returns no format edits when formatting disabled", async () => {

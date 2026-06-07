@@ -269,6 +269,7 @@ export const window = {
   showInformationMessage(_message: string, ...actions: string[]) {
     return Promise.resolve(lastInfoMessageResult ?? actions[0]);
   },
+  showErrorMessage: vi.fn().mockResolvedValue(undefined),
   showQuickPick(items: Array<{ label: string; picked?: boolean }>, _options?: unknown) {
     lastQuickPickItems = items;
     return Promise.resolve(lastQuickPickResult);

@@ -1,7 +1,13 @@
+import * as fs from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
 import {
   clearLanguageDataCache,
   findKeywordByPrefix,
   loadLanguageData,
+  loadLanguageDataAsync,
 } from "../../src/languageData";
 import { resetVscodeMock } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
@@ -29,6 +35,41 @@ describe("loadLanguageData", () => {
     const after = loadLanguageData(context as never, "3.4");
     expect(after).not.toBe(before);
     expect(after.version).toBe("3.4");
+  });
+
+  it("throws when language data file is missing", () => {
+    expect(() => loadLanguageData({ extensionPath: "/nonexistent" } as never, "3.4")).toThrow(
+      /Failed to load HAProxy language data for 3\.4/,
+    );
+  });
+
+  it("throws when async language data load fails", async () => {
+    await expect(
+      loadLanguageDataAsync({ extensionPath: "/nonexistent" } as never, "3.4"),
+    ).rejects.toThrow(/Failed to load HAProxy language data for 3\.4/);
+  });
+
+  it("wraps non-Error throws from async language data load", async () => {
+    const context = mockExtensionContext();
+    const readSpy = vi.spyOn(fs.promises, "readFile").mockRejectedValue("async-boom");
+    await expect(loadLanguageDataAsync(context as never, "3.4")).rejects.toThrow(
+      /Failed to load HAProxy language data.*async-boom/,
+    );
+    readSpy.mockRestore();
+  });
+
+  it("throws when sync language data file contains invalid JSON", () => {
+    clearLanguageDataCache();
+    const tempRoot = mkdtempSync(join(tmpdir(), "haproxy-language-error-"));
+    const schemasDir = join(tempRoot, "schemas");
+    mkdirSync(schemasDir, { recursive: true });
+    writeFileSync(join(schemasDir, "haproxy-3.4.language.json"), "{not-json", "utf-8");
+
+    expect(() => loadLanguageData({ extensionPath: tempRoot } as never, "3.4")).toThrow(
+      /Failed to load HAProxy language data for 3\.4/,
+    );
+
+    rmSync(tempRoot, { recursive: true, force: true });
   });
 });
 

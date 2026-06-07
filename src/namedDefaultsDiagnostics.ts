@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 
+import { diagRangeForTokens, DIAG_SOURCE } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
 import {
   HaproxySchema,
@@ -8,12 +9,6 @@ import {
   noPrefixKeywordSet,
 } from "./schema";
 import { resolveLongestDirectiveMatch } from "./tokenUtils";
-
-function diagRangeForTokens(line: ParsedLine, startIdx: number, endIdx: number): vscode.Range {
-  const startTok = line.tokens[startIdx];
-  const endTok = line.tokens[endIdx];
-  return new vscode.Range(line.line, startTok.start, line.line, endTok.end);
-}
 
 export function namedDefaultsDiagnostics(
   line: ParsedLine,
@@ -45,7 +40,7 @@ export function namedDefaultsDiagnostics(
     `'${match.keyword}' is only supported in named defaults sections, not anonymous defaults`,
     vscode.DiagnosticSeverity.Warning,
   );
-  diagnostic.source = "haproxy";
+  diagnostic.source = DIAG_SOURCE;
   diagnostic.code = "named-defaults-required";
   return [diagnostic];
 }

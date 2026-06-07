@@ -1,32 +1,10 @@
 import * as vscode from "vscode";
 
 import { findInvalidNameChar, looksLikeListenAddress } from "./nameValidation";
+import { makeError } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
 
-const DIAG_SOURCE = "haproxy";
-
 const NAMED_SECTIONS = new Set(["frontend", "backend", "listen", "defaults", "peers", "userlist"]);
-
-function diagRange(line: ParsedLine, tokenIndex: number): vscode.Range {
-  const tok = line.tokens[tokenIndex];
-  return new vscode.Range(line.line, tok.start, line.line, tok.end);
-}
-
-function makeError(
-  line: ParsedLine,
-  tokenIndex: number,
-  message: string,
-  code: string,
-): vscode.Diagnostic {
-  const diagnostic = new vscode.Diagnostic(
-    diagRange(line, tokenIndex),
-    message,
-    vscode.DiagnosticSeverity.Error,
-  );
-  diagnostic.source = DIAG_SOURCE;
-  diagnostic.code = code;
-  return diagnostic;
-}
 
 export function sectionHeaderDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
   if (!line.isSectionHeader || line.tokens.length < 2) {

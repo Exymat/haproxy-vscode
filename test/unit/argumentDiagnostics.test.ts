@@ -3,6 +3,7 @@ import { computeDiagnostics } from "../../src/diagnostics";
 import { parseDocument } from "../../src/parser";
 import { sectionKeywordSet } from "../../src/schema";
 import { createDocument } from "../helpers/document";
+import { buildLineDiagnosticMemo } from "../helpers/lineMemo";
 import { loadSchemaBundle } from "../helpers/schema";
 
 const bundle = loadSchemaBundle("3.4");
@@ -12,14 +13,18 @@ function argDiags(content: string, lineNo: number) {
   const doc = createDocument(content);
   const line = parseDocument(doc)[lineNo];
   const allowed = sectionKeywordSet(bundle.schema, line.section);
-  return argumentModelDiagnostics(line, bundle.schema, allowed);
+  return argumentModelDiagnostics(
+    line,
+    bundle.schema,
+    buildLineDiagnosticMemo(line, bundle.schema, allowed),
+  );
 }
 
 function argDiagsForBundle(content: string, lineNo: number, schema: (typeof bundle)["schema"]) {
   const doc = createDocument(content);
   const line = parseDocument(doc)[lineNo];
   const allowed = sectionKeywordSet(schema, line.section);
-  return argumentModelDiagnostics(line, schema, allowed);
+  return argumentModelDiagnostics(line, schema, buildLineDiagnosticMemo(line, schema, allowed));
 }
 
 function argDiagsForBundleWithAllowed(
@@ -32,7 +37,7 @@ function argDiagsForBundleWithAllowed(
   const line = parseDocument(doc)[lineNo];
   const allowed = sectionKeywordSet(schema, line.section);
   adjustAllowed(allowed);
-  return argumentModelDiagnostics(line, schema, allowed);
+  return argumentModelDiagnostics(line, schema, buildLineDiagnosticMemo(line, schema, allowed));
 }
 
 describe("argumentDiagnostics", () => {

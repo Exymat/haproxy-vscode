@@ -54,10 +54,18 @@ export function loadLanguageData(
     return cached;
   }
   const filePath = path.join(context.extensionPath, "schemas", `haproxy-${version}.language.json`);
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const data = JSON.parse(raw) as HaproxyLanguageData;
-  languageDataCache.set(version, data);
-  return data;
+  try {
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const data = JSON.parse(raw) as HaproxyLanguageData;
+    languageDataCache.set(version, data);
+    return data;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Failed to load HAProxy language data for ${version} from ${filePath}: ${message}`,
+      { cause: error },
+    );
+  }
 }
 
 export async function loadLanguageDataAsync(
@@ -69,10 +77,18 @@ export async function loadLanguageDataAsync(
     return cached;
   }
   const filePath = path.join(context.extensionPath, "schemas", `haproxy-${version}.language.json`);
-  const raw = await fs.promises.readFile(filePath, "utf-8");
-  const data = JSON.parse(raw) as HaproxyLanguageData;
-  languageDataCache.set(version, data);
-  return data;
+  try {
+    const raw = await fs.promises.readFile(filePath, "utf-8");
+    const data = JSON.parse(raw) as HaproxyLanguageData;
+    languageDataCache.set(version, data);
+    return data;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Failed to load HAProxy language data for ${version} from ${filePath}: ${message}`,
+      { cause: error },
+    );
+  }
 }
 
 export function findKeywordByPrefix(

@@ -23,8 +23,23 @@ interface ExtensionBundle {
 const pendingDiagnostics = new Map<string, NodeJS.Timeout>();
 let bundle: ExtensionBundle | undefined;
 let bundleLoadPromise: Promise<ExtensionBundle> | undefined;
+let bundleLoadError: Error | undefined;
+let bundleErrorShown = false;
+let cachedSettings = getExtensionSettings();
+
+function refreshCachedSettings(): void {
+  cachedSettings = getExtensionSettings();
+}
+
+function clearPendingDiagnostics(): void {
+  for (const timer of pendingDiagnostics.values()) {
+    clearTimeout(timer);
+  }
+  pendingDiagnostics.clear();
+}
 
 export function activate(context: vscode.ExtensionContext): void {
+  refreshCachedSettings();
   registerVersionStatusBar(context);
 
   const diagnostics = vscode.languages.createDiagnosticCollection("haproxy");
@@ -33,6 +48,9 @@ export function activate(context: vscode.ExtensionContext): void {
   const ensureBundle = (): Promise<ExtensionBundle> => {
     if (bundle) {
       return Promise.resolve(bundle);
+    }
+    if (bundleLoadError) {
+      return Promise.reject(bundleLoadError);
     }
     if (!bundleLoadPromise) {
       bundleLoadPromise = new Promise((resolve, reject) => {
@@ -51,14 +69,28 @@ export function activate(context: vscode.ExtensionContext): void {
       /* c8 ignore next 3 -- defensive recovery path for transient async load failures */
       bundleLoadPromise = bundleLoadPromise.catch((error) => {
         bundleLoadPromise = undefined;
-        throw error;
+        bundleLoadError = error instanceof Error ? error : new Error(String(error));
+        throw bundleLoadError;
       });
     }
     return bundleLoadPromise;
   };
 
+  const safeEnsureBundle = async (): Promise<ExtensionBundle | undefined> => {
+    try {
+      return await ensureBundle();
+    } catch (error) {
+      if (!bundleErrorShown) {
+        bundleErrorShown = true;
+        const message = error instanceof Error ? error.message : String(error);
+        void vscode.window.showErrorMessage(`HAProxy extension failed to load schema: ${message}`);
+      }
+      return undefined;
+    }
+  };
+
   const runDiagnostics = async (document: vscode.TextDocument): Promise<void> => {
-    const settings = getExtensionSettings();
+    const settings = cachedSettings;
     if (!settings.diagnosticsEnabled || document.languageId !== "haproxy") {
       return;
     }
@@ -66,7 +98,11 @@ export function activate(context: vscode.ExtensionContext): void {
       diagnostics.set(document.uri, []);
       return;
     }
-    const b = await ensureBundle();
+    const b = await safeEnsureBundle();
+    if (!b) {
+      diagnostics.set(document.uri, []);
+      return;
+    }
     diagnostics.set(
       document.uri,
       computeDiagnostics(document, b.schema, {
@@ -80,7 +116,7 @@ export function activate(context: vscode.ExtensionContext): void {
     if (document.languageId !== "haproxy") {
       return;
     }
-    const settings = getExtensionSettings();
+    const settings = cachedSettings;
     if (!settings.diagnosticsEnabled) {
       diagnostics.delete(document.uri);
       return;
@@ -110,7 +146,12 @@ export function activate(context: vscode.ExtensionContext): void {
     clearLanguageDataCache();
     bundle = undefined;
     bundleLoadPromise = undefined;
-    const b = await ensureBundle();
+    bundleLoadError = undefined;
+    bundleErrorShown = false;
+    const b = await safeEnsureBundle();
+    if (!b) {
+      return;
+    }
     if (syncGrammar) {
       const grammarChanged = await syncActiveGrammarAsync(context, b.version);
       await promptReloadIfGrammarChanged(grammarChanged);
@@ -135,12 +176,16 @@ export function activate(context: vscode.ExtensionContext): void {
       void reloadBundle(true);
     }),
     onSettingsChanged(() => {
+      refreshCachedSettings();
       refreshAllDocuments();
     }),
   );
 
   setImmediate(() => {
-    void ensureBundle().then(async (b) => {
+    void safeEnsureBundle().then(async (b) => {
+      if (!b) {
+        return;
+      }
       const grammarChanged = await syncActiveGrammarAsync(context, b.version);
       await promptReloadIfGrammarChanged(grammarChanged);
     });
@@ -154,7 +199,10 @@ export function activate(context: vscode.ExtensionContext): void {
       selector,
       {
         async provideCompletionItems(document, position) {
-          const b = await ensureBundle();
+          const b = await safeEnsureBundle();
+          if (!b) {
+            return [];
+          }
           return provideCompletionItems(document, position, b.languageData, b.schema);
         },
       },
@@ -163,20 +211,24 @@ export function activate(context: vscode.ExtensionContext): void {
     ),
     vscode.languages.registerHoverProvider(selector, {
       async provideHover(document, position) {
-        const b = await ensureBundle();
+        const b = await safeEnsureBundle();
+        if (!b) {
+          return null;
+        }
         return provideHover(document, position, b.languageData, b.schema);
       },
     }),
     vscode.languages.registerDocumentFormattingEditProvider(selector, {
       provideDocumentFormattingEdits(document) {
-        const settings = getExtensionSettings();
+        const settings = cachedSettings;
         if (!settings.formatEnabled) {
           return [];
         }
-        const formatted = formatConfig(document.getText(), getFormatOptions(settings));
+        const text = document.getText();
+        const formatted = formatConfig(text, getFormatOptions(settings));
         const fullRange = new vscode.Range(
           document.positionAt(0),
-          document.positionAt(document.getText().length),
+          document.positionAt(text.length),
         );
         return [vscode.TextEdit.replace(fullRange, formatted)];
       },
@@ -193,15 +245,21 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.languages.registerDefinitionProvider(selector, {
       async provideDefinition(document, position) {
-        const b = await ensureBundle();
-        const settings = getExtensionSettings();
+        const b = await safeEnsureBundle();
+        if (!b) {
+          return null;
+        }
+        const settings = cachedSettings;
         return provideDefinition(document, position, b.schema, settings.maxDiagnosticsLines);
       },
     }),
     vscode.languages.registerReferenceProvider(selector, {
       async provideReferences(document, position, context) {
-        const b = await ensureBundle();
-        const settings = getExtensionSettings();
+        const b = await safeEnsureBundle();
+        if (!b) {
+          return [];
+        }
+        const settings = cachedSettings;
         return provideReferences(
           document,
           position,
@@ -215,6 +273,9 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {
+  clearPendingDiagnostics();
   bundle = undefined;
   bundleLoadPromise = undefined;
+  bundleLoadError = undefined;
+  bundleErrorShown = false;
 }

@@ -1,4 +1,5 @@
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import * as fs from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -55,6 +56,41 @@ describe("loadSchema", () => {
     expect(first).toBe(second);
     expect(first.version).toBe("3.2");
   });
+
+  it("throws when schema file is missing", () => {
+    expect(() => loadSchema({ extensionPath: "/nonexistent" } as never, "3.4")).toThrow(
+      /Failed to load HAProxy schema for 3\.4/,
+    );
+  });
+
+  it("throws when async schema load fails", async () => {
+    await expect(
+      loadSchemaAsync({ extensionPath: "/nonexistent" } as never, "3.4"),
+    ).rejects.toThrow(/Failed to load HAProxy schema for 3\.4/);
+  });
+
+  it("wraps non-Error throws from async schema load", async () => {
+    const context = mockExtensionContext();
+    const readSpy = vi.spyOn(fs.promises, "readFile").mockRejectedValue("async-boom");
+    await expect(loadSchemaAsync(context as never, "3.4")).rejects.toThrow(
+      /Failed to load HAProxy schema.*async-boom/,
+    );
+    readSpy.mockRestore();
+  });
+
+  it("throws when sync schema file contains invalid JSON", () => {
+    clearSchemaCache();
+    const tempRoot = mkdtempSync(join(tmpdir(), "haproxy-schema-error-"));
+    const schemasDir = join(tempRoot, "schemas");
+    mkdirSync(schemasDir, { recursive: true });
+    writeFileSync(join(schemasDir, "haproxy-3.4.schema.json"), "{not-json", "utf-8");
+
+    expect(() => loadSchema({ extensionPath: tempRoot } as never, "3.4")).toThrow(
+      /Failed to load HAProxy schema for 3\.4/,
+    );
+
+    rmSync(tempRoot, { recursive: true, force: true });
+  });
 });
 
 describe("schema helpers", () => {
@@ -85,7 +121,10 @@ describe("schema helpers", () => {
 
   it("exposes prefix families from line_layout", () => {
     expect(prefixFamilies(schema)).toContain("stats");
-    expect(prefixSubcommandSet(schema, "stats").has("socket")).toBe(true);
+    const first = prefixSubcommandSet(schema, "stats");
+    const second = prefixSubcommandSet(schema, "stats");
+    expect(first).toBe(second);
+    expect(first.has("socket")).toBe(true);
   });
 
   it("caches optionsWithValueSet per group", () => {

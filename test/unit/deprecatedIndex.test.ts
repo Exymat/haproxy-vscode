@@ -38,7 +38,6 @@ describe("deprecatedIndex", () => {
         in_type: "str",
         out_type: "str",
         max_args: 0,
-        min_args: null,
       },
     };
     const data = structuredClone(bundle.languageData);
