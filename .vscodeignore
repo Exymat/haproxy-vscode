@@ -3,6 +3,7 @@
 src/**
 scripts/**
 test/**
+coverage/**
 out/test/**
 **/*.ts
 **/*.map
