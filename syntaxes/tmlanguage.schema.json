@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TextMate Grammar",
+  "type": "object",
+  "required": [
+    "name",
+    "scopeName",
+    "patterns",
+    "repository"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "scopeName": {
+      "type": "string"
+    },
+    "fileTypes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "firstLineMatch": {
+      "type": "string"
+    },
+    "foldingStartMarker": {
+      "type": "string"
+    },
+    "foldingStopMarker": {
+      "type": "string"
+    },
+    "patterns": {
+      "$ref": "#/$defs/patternList"
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/ruleContainer"
+      }
+    },
+    "injections": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/ruleContainer"
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "patternList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/pattern"
+      }
+    },
+    "captures": {
+      "type": "object",
+      "patternProperties": {
+        "^[0-9]+$": {
+          "$ref": "#/$defs/capture"
+        }
+      },
+      "additionalProperties": false
+    },
+    "capture": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "patterns": {
+          "$ref": "#/$defs/patternList"
+        }
+      },
+      "additionalProperties": true
+    },
+    "ruleContainer": {
+      "type": "object",
+      "properties": {
+        "patterns": {
+          "$ref": "#/$defs/patternList"
+        }
+      },
+      "additionalProperties": true
+    },
+    "pattern": {
+      "type": "object",
+      "properties": {
+        "include": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "contentName": {
+          "type": "string"
+        },
+        "match": {
+          "type": "string"
+        },
+        "begin": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        },
+        "captures": {
+          "$ref": "#/$defs/captures"
+        },
+        "beginCaptures": {
+          "$ref": "#/$defs/captures"
+        },
+        "endCaptures": {
+          "$ref": "#/$defs/captures"
+        },
+        "patterns": {
+          "$ref": "#/$defs/patternList"
+        },
+        "applyEndPatternLast": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

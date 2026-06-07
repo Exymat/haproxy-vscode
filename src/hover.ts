@@ -50,6 +50,57 @@ function findGroupItem(data: HaproxyLanguageData, name: string): LanguageGroupIt
   return undefined;
 }
 
+function findGroupItemIn(
+  data: HaproxyLanguageData,
+  groupName: string,
+  name: string,
+): LanguageGroupItem | undefined {
+  const lower = name.toLowerCase();
+  return groupItems(data, groupName).find((item) => item.name.toLowerCase() === lower);
+}
+
+function sampleTokenCandidates(tokenText: string, cursorOffset: number): string[] {
+  const candidates: string[] = [];
+  const seen = new Set<string>();
+
+  const push = (value: string | undefined): void => {
+    if (!value) {
+      return;
+    }
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return;
+    }
+    const lower = trimmed.toLowerCase();
+    if (seen.has(lower)) {
+      return;
+    }
+    seen.add(lower);
+    candidates.push(trimmed);
+  };
+
+  push(tokenText);
+
+  const exact = tokenText.match(/^[\w.-]+/);
+  push(exact?.[0]);
+
+  const clamped = Math.max(0, Math.min(cursorOffset, tokenText.length - 1));
+  const isIdent = (ch: string | undefined) => Boolean(ch && /[\w.-]/.test(ch));
+  if (isIdent(tokenText[clamped])) {
+    let start = clamped;
+    let end = clamped + 1;
+    while (start > 0 && isIdent(tokenText[start - 1])) {
+      start -= 1;
+    }
+    while (end < tokenText.length && isIdent(tokenText[end])) {
+      end += 1;
+    }
+    push(tokenText.slice(start, end));
+  }
+
+  return candidates;
+}
+
 function signaturesBlock(signatures: string[]): string {
   return signatures.map((sig) => `- \`${sig}\``).join("\n");
 }
@@ -73,6 +124,7 @@ export function provideHover(
   }
 
   const range = new vscode.Range(ctx.line.line, ctx.token.start, ctx.line.line, ctx.token.end);
+  const cursorOffset = position.character - ctx.token.start;
 
   const tokenLower = ctx.token.text.toLowerCase();
 
@@ -166,12 +218,33 @@ export function provideHover(
   }
 
   if (ctx.kind === "acl-criterion" && ctx.tokenIndex >= 2) {
-    const group = findGroupItem(data, ctx.token.text);
-    if (group) {
-      return new vscode.Hover(
-        hoverMarkdown(group.name, group.signature, group.description, []),
-        range,
-      );
+    for (const candidate of sampleTokenCandidates(ctx.token.text, cursorOffset)) {
+      const group =
+        findGroupItemIn(data, "sample_fetches", candidate) ??
+        findGroupItemIn(data, "acl_criteria", candidate) ??
+        findGroupItem(data, candidate);
+      if (group) {
+        return new vscode.Hover(
+          hoverMarkdown(group.name, group.signature, group.description, [], group.docsUrl),
+          range,
+        );
+      }
+    }
+  }
+
+  if (ctx.kind === "expression-fetch" || ctx.kind === "expression-converter") {
+    for (const candidate of sampleTokenCandidates(ctx.token.text, cursorOffset)) {
+      const group =
+        (ctx.kind === "expression-fetch"
+          ? findGroupItemIn(data, "sample_fetches", candidate)
+          : findGroupItemIn(data, "sample_converters", candidate)) ??
+        findGroupItem(data, candidate);
+      if (group) {
+        return new vscode.Hover(
+          hoverMarkdown(group.name, group.signature, group.description, [], group.docsUrl),
+          range,
+        );
+      }
     }
   }
 

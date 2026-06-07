@@ -141,6 +141,79 @@ describe("provideHover", () => {
     expect(text.toLowerCase()).toContain("path");
   });
 
+  it("documents parenthesized sample fetches in acl criteria", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    acl test req.hdr(host) -m found",
+      1,
+      "    acl test req.hdr(host)".indexOf("req.hdr") + 2,
+      "3.4",
+    );
+    expect(text.toLowerCase()).toContain("req.hdr");
+    expect(text.toLowerCase()).not.toContain("**acl**");
+  });
+
+  it("prefers sample fetch docs over bare acl criterion entries", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    acl test hdr_cnt(host) eq 1",
+      1,
+      "    acl test hdr_cnt(host)".indexOf("hdr_cnt") + 2,
+      "3.4",
+    );
+    expect(text.toLowerCase()).toContain("hdr_cnt");
+    expect(text.toLowerCase()).toContain("deprecated");
+    expect(text.toLowerCase()).toContain("returns an integer value");
+  });
+
+  it("documents req.hdr_cnt with the upstream anchor", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    acl test req.hdr_cnt(host) eq 1",
+      1,
+      "    acl test req.hdr_cnt(host)".indexOf("req.hdr_cnt") + 3,
+      "3.4",
+    );
+    expect(text).toContain("req.hdr_cnt");
+    expect(text).toContain("Returns an integer value");
+    expect(text).toContain("https://docs.haproxy.org/3.4/configuration.html#req.hdr_cnt");
+    expect(text).not.toContain("#7.3-req.hdr_cnt");
+  });
+
+  it("documents sample fetches inside expressions", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    http-request set-header X-Test %[req.hdr(host)]",
+      1,
+      "    http-request set-header X-Test %[req.hdr(host)]".indexOf("req.hdr") + 2,
+      "3.4",
+    );
+    expect(text.toLowerCase()).toContain("req.hdr");
+    expect(text.toLowerCase()).toContain("returns");
+  });
+
+  it("ignores whitespace-only sample token candidates", () => {
+    const doc = createDocument("frontend web\n    http-request set-header X-Test %[   ]");
+    const bundle = bundles["3.4"];
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      line: {
+        line: 1,
+        section: "frontend",
+        tokens: [{ text: "   ", start: 40, end: 43 }],
+        isSectionHeader: false,
+        anonymousDefaults: false,
+      },
+      lineText: "    http-request set-header X-Test %[   ]",
+      tokenIndex: 0,
+      token: { text: "   ", start: 40, end: 43 },
+      kind: "expression-fetch",
+      prefix: "    http-request set-header X-Test %[   ]",
+    });
+    const hover = provideHover(
+      doc,
+      { line: 1, character: 41 } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    expect(hover).toBeNull();
+  });
+
   it("documents acl flags", () => {
     const text = hoverMarkdown(
       "frontend web\n    acl test path -m beg /",

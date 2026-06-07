@@ -17,3 +17,4 @@ coverage/
 .vscode-test/
 .nvmrc
 scripts/reports/*
+scripts/compare-haproxy-c-*-report.json

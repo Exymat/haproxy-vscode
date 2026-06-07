@@ -65,6 +65,42 @@ function formatEnumHint(values: string[]): string {
   return `${values.slice(0, 6).join(", ")}, ...`;
 }
 
+function isKeywordValuePair(
+  slot: ArgumentSlot | undefined,
+  nextSlot: ArgumentSlot | undefined,
+): boolean {
+  return Boolean(
+    slot?.optional &&
+    (slot.enum?.length ?? 0) > 0 &&
+    nextSlot?.optional &&
+    !(nextSlot.enum?.length ?? 0),
+  );
+}
+
+function skipOptionalSlotGroup(model: ArgumentModel, slotIdx: number): number {
+  const slot = model.slots[slotIdx];
+  let next = slotIdx + 1;
+  if (isKeywordValuePair(slot, model.slots[next])) {
+    next += 1;
+  }
+  return next;
+}
+
+function matchesLaterEnumSlot(
+  model: ArgumentModel,
+  slotIdx: number,
+  lower: string,
+  schemaKw: SchemaKeyword | undefined,
+): boolean {
+  for (let idx = slotIdx + 1; idx < model.slots.length; idx += 1) {
+    const allowedValues = enumValuesForSlot(model.slots[idx], schemaKw, idx);
+    if (allowedValues.length > 0 && new Set(allowedValues).has(lower)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 type ArgDiagCode = "extra-argument" | "missing-argument" | "unknown-value";
 
 function makeArgDiagnostic(
@@ -134,9 +170,6 @@ export function argumentModelDiagnostics(
 
   const schemaKw = schema.keywords[keyword];
   const model = schemaKw?.argument_model;
-  if (!model || model.max_args === null || model.max_args === undefined) {
-    return [];
-  }
 
   const argIndices = argumentTokenIndices(line, match.end);
   const conditionals = conditionalTokenSet(schema);
@@ -147,6 +180,9 @@ export function argumentModelDiagnostics(
   }
 
   if (keyword === "balance") {
+    if (!model || model.max_args === null || model.max_args === undefined) {
+      return [];
+    }
     return balanceArgumentDiagnostics(
       line,
       match,
@@ -165,6 +201,10 @@ export function argumentModelDiagnostics(
     return httpSendNameHeaderDiagnostics(line, argIndices, schema.version);
   }
 
+  if (!model || model.max_args === null || model.max_args === undefined) {
+    return [];
+  }
+
   if (argIndices.length < model.min_args && !allowsMissingArgs(schemaKw, model)) {
     const missing = model.min_args - argIndices.length;
     diagnostics.push(
@@ -178,41 +218,86 @@ export function argumentModelDiagnostics(
     );
   }
 
+  let slotIdx = 0;
   for (let pos = 0; pos < argIndices.length; pos += 1) {
     const tokenIdx = argIndices[pos];
-    const slot = model.slots[pos];
     const value = line.tokens[tokenIdx].text;
-    const allowedValues = enumValuesForSlot(slot, schemaKw, pos);
+    const lower = value.toLowerCase();
+    const base = lower.split("(", 1)[0];
+    let placed = false;
 
-    if (pos >= model.max_args) {
+    while (slotIdx < model.slots.length) {
+      const slot = model.slots[slotIdx];
+      const allowedValues = enumValuesForSlot(slot, schemaKw, slotIdx);
+
+      if (allowedValues.length > 0) {
+        const allowedSet = new Set(allowedValues);
+        const matches = allowedSet.has(lower) || allowedSet.has(base);
+        if (!matches) {
+          if (slot.optional) {
+            if (isKeywordValuePair(slot, model.slots[slotIdx + 1])) {
+              slotIdx = skipOptionalSlotGroup(model, slotIdx);
+              continue;
+            }
+            if (matchesLaterEnumSlot(model, slotIdx, lower, schemaKw)) {
+              slotIdx += 1;
+              continue;
+            }
+            if (!isLikelyValue(lower, conditionals)) {
+              diagnostics.push(
+                makeArgDiagnostic(
+                  line,
+                  tokenIdx,
+                  `Unknown value '${value}' for '${keyword}' (expected: ${formatEnumHint(allowedValues)})`,
+                  "unknown-value",
+                ),
+              );
+            }
+            placed = true;
+            slotIdx += 1;
+            break;
+          }
+          if (!isLikelyValue(lower, conditionals)) {
+            diagnostics.push(
+              makeArgDiagnostic(
+                line,
+                tokenIdx,
+                `Unknown value '${value}' for '${keyword}' (expected: ${formatEnumHint(allowedValues)})`,
+                "unknown-value",
+              ),
+            );
+          }
+          placed = true;
+          slotIdx += 1;
+          break;
+        }
+      }
+
+      if (
+        slot.optional &&
+        allowedValues.length === 0 &&
+        matchesLaterEnumSlot(model, slotIdx, lower, schemaKw)
+      ) {
+        slotIdx += 1;
+        continue;
+      }
+
+      if (slotIdx >= model.max_args) {
+        break;
+      }
+
+      placed = true;
+      slotIdx += 1;
+      break;
+    }
+
+    if (!placed) {
       diagnostics.push(
         makeArgDiagnostic(
           line,
           tokenIdx,
           `'${keyword}' accepts at most ${model.max_args} argument(s); '${value}' is unexpected`,
           "extra-argument",
-        ),
-      );
-      continue;
-    }
-
-    if (allowedValues.length === 0) {
-      continue;
-    }
-
-    const lower = value.toLowerCase();
-    const base = lower.split("(", 1)[0];
-    if (isLikelyValue(lower, conditionals)) {
-      continue;
-    }
-    const allowedSet = new Set(allowedValues);
-    if (!allowedSet.has(lower) && !allowedSet.has(base)) {
-      diagnostics.push(
-        makeArgDiagnostic(
-          line,
-          tokenIdx,
-          `Unknown value '${value}' for '${keyword}' (expected: ${formatEnumHint(allowedValues)})`,
-          "unknown-value",
         ),
       );
     }

@@ -15,6 +15,8 @@ const ACTION_GROUP_KEYS = [
 export interface DeprecatedIndex {
   keywords: Set<string>;
   actions: Set<string>;
+  sampleFetches: Set<string>;
+  sampleConverters: Set<string>;
 }
 
 const indexCache = new WeakMap<
@@ -66,7 +68,34 @@ export function buildDeprecatedIndex(
     }
   }
 
-  const index: DeprecatedIndex = { keywords, actions };
+  const sampleFetches = new Set<string>();
+  for (const [name, sample] of Object.entries(schema.sample_fetches ?? {})) {
+    if (sample.deprecated || DEPRECATED_MARK.test(sample.signature ?? "")) {
+      sampleFetches.add(name.toLowerCase());
+    }
+  }
+
+  const sampleConverters = new Set<string>();
+  for (const [name, sample] of Object.entries(schema.sample_converters ?? {})) {
+    if (sample.deprecated || DEPRECATED_MARK.test(sample.signature ?? "")) {
+      sampleConverters.add(name.toLowerCase());
+    }
+  }
+
+  if (languageData) {
+    for (const item of languageData.groups.sample_fetches ?? []) {
+      if (DEPRECATED_MARK.test(item.signature)) {
+        sampleFetches.add(item.name.toLowerCase());
+      }
+    }
+    for (const item of languageData.groups.sample_converters ?? []) {
+      if (DEPRECATED_MARK.test(item.signature)) {
+        sampleConverters.add(item.name.toLowerCase());
+      }
+    }
+  }
+
+  const index: DeprecatedIndex = { keywords, actions, sampleFetches, sampleConverters };
   perSchema.set(languageData, index);
   return index;
 }

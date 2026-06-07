@@ -51,6 +51,10 @@ export interface SampleFunction {
   contexts?: boolean[];
   min_args?: number;
   max_args?: number | null;
+  signature?: string;
+  description?: string;
+  chapter?: string;
+  deprecated?: boolean;
 }
 
 export interface FixedSlotSpec {

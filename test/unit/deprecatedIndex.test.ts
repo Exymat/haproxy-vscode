@@ -22,4 +22,37 @@ describe("deprecatedIndex", () => {
     const index = buildDeprecatedIndex(bundle.schema, data);
     expect(index.actions).toEqual(new Set());
   });
+
+  it("indexes deprecated sample converters from schema and language data", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.sample_converters = {
+      ...schema.sample_converters,
+      legacy_conv: {
+        name: "legacy_conv",
+        signature: "legacy_conv()",
+        deprecated: true,
+        args: [],
+        chapter: "7.3.1",
+        contexts: [],
+        description: "",
+        in_type: "str",
+        out_type: "str",
+        max_args: 0,
+        min_args: null,
+      },
+    };
+    const data = structuredClone(bundle.languageData);
+    data.groups.sample_converters = [
+      ...(data.groups.sample_converters ?? []),
+      {
+        name: "lang_conv",
+        description: "",
+        signature: "lang_conv() (deprecated)",
+        rulesets: [],
+      },
+    ];
+    const index = buildDeprecatedIndex(schema, data);
+    expect(index.sampleConverters.has("legacy_conv")).toBe(true);
+    expect(index.sampleConverters.has("lang_conv")).toBe(true);
+  });
 });

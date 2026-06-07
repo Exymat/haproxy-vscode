@@ -2,6 +2,15 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.8.1
+
+- Refreshed keyword data and grammars for all supported versions (2.6–3.4).
+- Warnings for deprecated sample fetches and converters in ACL criteria and inline expressions (e.g. `hdr_cnt()`).
+- Hover documentation for sample fetches inside ACL criteria and `{ }` expressions; prefers fetch docs over bare ACL criterion entries.
+- Improved argument validation for optional keyword/value groups — `log` with `ring@`, `len`, and `format`; fewer false positives on multi-signature directives like `bind`.
+- `bind` — validates each comma-separated address separately.
+- `log-profile` section recognized; `tcp-request inspect-delay` no longer flagged as unknown.
+
 ## 0.8.0
 
 - Refreshed keyword data for all supported versions (2.6–3.4): improved hover text, argument validation, and completion.

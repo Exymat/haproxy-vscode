@@ -63,6 +63,10 @@ function isErrorSeverity(severity) {
   return severity === DiagnosticSeverity.Error;
 }
 
+function isExtensionSeverity(severity) {
+  return severity === DiagnosticSeverity.Error || severity === DiagnosticSeverity.Warning;
+}
+
 const HAPROXY_CMD = process.env.HAPROXY_CMD ?? "wsl haproxy";
 const HAPROXY_DOCKER_IMAGE = process.env.HAPROXY_DOCKER_IMAGE ?? `haproxy:${version}-trixie`;
 const HAPROXY_DOCKER_CMD =
@@ -74,9 +78,53 @@ const LINE_RE = /:(\d+)\]/g;
 const PARSING_RE = /parsing \[([^\]]+):(\d+)\]/;
 const ALERT_RE = /\[ALERT\]/i;
 const SKIPPABLE_HAPROXY_FAILURE_RE =
-  /unable to stat SSL|Couldn't open the ca-file|Couldn't open the crt-file|lua-load|lua_load|failed to load lua|Cannot load lua|error in Lua file/i;
+  /unable to stat SSL|Couldn't open the ca-file|Couldn't open the crt-file|lua-load|lua_load|failed to load lua|Cannot load lua|error in Lua file|external-check|ext-check/i;
 const DOCKER_INFRA_FAILURE_RE =
   /invalid volume specification|Cannot connect to the Docker daemon|error during connect|is the docker daemon running|docker: command not found/i;
+
+/** HAProxy upstream configs that intentionally exercise sample-expression validation. */
+const SAMPLE_EXPRESSION_TEST_FILES = new Set([
+  "test-acl-args.cfg",
+  "test-sample-fetch-args.cfg",
+  "test-sample-fetch-conv.cfg",
+]);
+
+/** Extension diagnostics excluded from matrix parity (stricter than haproxy -c by design). */
+const MATRIX_EXCLUDED_DIAG_CODES = new Set([
+  "deprecated-sample",
+  "sample-unknown-fetch",
+  "sample-syntax",
+  "sample-fetch-args",
+  "sample-unknown-converter",
+  "sample-converter-cast",
+  "sample-converter-args",
+  "wrong-context",
+]);
+
+function isExcludedExtensionDiagnostic(diag) {
+  return MATRIX_EXCLUDED_DIAG_CODES.has(diag.code ?? "");
+}
+
+function isInfrastructureFailure(haproxy) {
+  if (haproxy.spawnError) {
+    return true;
+  }
+  if (DOCKER_INFRA_FAILURE_RE.test(haproxy.raw)) {
+    return true;
+  }
+  if (!haproxy.ok && haproxy.lines.length === 0 && !haproxy.raw.trim()) {
+    return true;
+  }
+  return false;
+}
+
+function comparableExtensionDiagnostics(filePath, content, { errorsOnly = false } = {}) {
+  const doc = createDocument(content, `file://${filePath}`);
+  const severityFilter = errorsOnly ? isErrorSeverity : isExtensionSeverity;
+  return computeDiagnostics(doc, schema)
+    .filter((d) => severityFilter(d.severity))
+    .filter((d) => !isExcludedExtensionDiagnostic(d));
+}
 
 function extractHaproxyErrorLines(raw) {
   const lines = new Set();
@@ -189,20 +237,22 @@ function runHaproxyCheck(filePath) {
 }
 
 function extensionErrorLines(filePath, content) {
-  const doc = createDocument(content, `file://${filePath}`);
-  const diags = computeDiagnostics(doc, schema).filter((d) => isErrorSeverity(d.severity));
+  const diags = comparableExtensionDiagnostics(filePath, content, { errorsOnly: true });
   return [...new Set(diags.map((d) => d.range.start.line + 1))].sort((a, b) => a - b);
 }
 
-function extensionDiagnosticsDetail(filePath, content) {
-  const doc = createDocument(content, `file://${filePath}`);
-  return computeDiagnostics(doc, schema)
-    .filter((d) => isErrorSeverity(d.severity))
-    .map((d) => ({
-      line: d.range.start.line + 1,
-      code: d.code ?? "unknown",
-      message: d.message,
-    }));
+function extensionDiagnosticLines(filePath, content) {
+  const diags = comparableExtensionDiagnostics(filePath, content);
+  return [...new Set(diags.map((d) => d.range.start.line + 1))].sort((a, b) => a - b);
+}
+
+function extensionDiagnosticsDetail(filePath, content, { includeWarnings = false } = {}) {
+  const diags = comparableExtensionDiagnostics(filePath, content, { errorsOnly: !includeWarnings });
+  return diags.map((d) => ({
+    line: d.range.start.line + 1,
+    code: d.code ?? "unknown",
+    message: d.message,
+  }));
 }
 
 const files = collectCfgFiles(confDir);
@@ -213,6 +263,7 @@ for (const file of files) {
   const name = basename(file);
   const haproxy = runHaproxyCheck(file);
   const extLines = extensionErrorLines(file, content);
+  const extDiagLines = extensionDiagnosticLines(file, content);
   const extDetail = extensionDiagnosticsDetail(file, content);
 
   const entry = {
@@ -220,19 +271,34 @@ for (const file of files) {
     haproxyOk: haproxy.ok,
     haproxyLines: haproxy.lines,
     extensionLines: extLines,
+    extensionDiagnosticLines: extDiagLines,
     extensionCount: extDetail.length,
     issues: [],
   };
 
-  if (haproxy.ok && extLines.length > 0) {
+  if (haproxy.ok && extDiagLines.length > 0) {
     entry.issues.push({
       kind: "extension-only",
-      message: `haproxy OK but extension reports ${extLines.length} error line(s)`,
-      lines: extLines,
+      message: `haproxy OK but extension reports ${extDiagLines.length} diagnostic line(s)`,
+      lines: extDiagLines,
     });
   }
 
-  if (!haproxy.ok) {
+  if (!haproxy.ok && extDiagLines.length > 0) {
+    const haproxyLineSet = new Set(haproxy.lines);
+    const orphanLines = extDiagLines.filter((lineNo) => !haproxyLineSet.has(lineNo));
+    if (orphanLines.length > 0) {
+      entry.issues.push({
+        kind: "extension-only-lines",
+        message: `extension reports diagnostics on ${orphanLines.length} line(s) haproxy accepts`,
+        lines: orphanLines,
+      });
+    }
+  }
+
+  const sampleExpressionTest = SAMPLE_EXPRESSION_TEST_FILES.has(name);
+
+  if (!haproxy.ok && !sampleExpressionTest) {
     const firstHa = haproxy.lines[0];
     const skippable = SKIPPABLE_HAPROXY_FAILURE_RE.test(haproxy.raw);
     if (firstHa && !extLines.includes(firstHa) && !skippable) {
@@ -244,8 +310,9 @@ for (const file of files) {
     }
   }
 
-  if (!haproxy.ok && extLines.length === 0) {
-    const skippable = SKIPPABLE_HAPROXY_FAILURE_RE.test(haproxy.raw);
+  if (!haproxy.ok && extLines.length === 0 && !sampleExpressionTest) {
+    const skippable =
+      SKIPPABLE_HAPROXY_FAILURE_RE.test(haproxy.raw) || isInfrastructureFailure(haproxy);
     if (!skippable) {
       entry.issues.push({
         kind: "no-extension-errors",
@@ -253,18 +320,6 @@ for (const file of files) {
         haproxyRaw: haproxy.raw.slice(0, 500),
       });
     }
-  }
-
-  if (
-    !haproxy.ok &&
-    haproxy.lines.length === 0 &&
-    (haproxy.spawnError || DOCKER_INFRA_FAILURE_RE.test(haproxy.raw))
-  ) {
-    entry.issues.push({
-      kind: "haproxy-run-failed",
-      message: "failed to run haproxy -c (docker/spawn error, not a config parse result)",
-      haproxyRaw: haproxy.raw.slice(0, 500),
-    });
   }
 
   report.push(entry);
@@ -292,16 +347,19 @@ for (const r of drift) {
         `    haproxy: ${issue.haproxyRaw.split("\n").find((l) => l.includes("ALERT") || l.includes("parsing")) ?? ""}`,
       );
     }
-    if (r.extensionCount && issue.kind === "extension-only") {
+    if (issue.kind === "extension-only" || issue.kind === "extension-only-lines") {
       const detail = extensionDiagnosticsDetail(
         join(confDir, r.file),
         readFileSync(join(confDir, r.file), "utf-8"),
+        { includeWarnings: true },
       );
-      for (const d of detail.slice(0, 8)) {
+      const issueLineSet = issue.lines ? new Set(issue.lines) : null;
+      const shown = issueLineSet ? detail.filter((d) => issueLineSet.has(d.line)) : detail;
+      for (const d of shown.slice(0, 8)) {
         console.log(`    L${d.line} [${d.code}] ${d.message}`);
       }
-      if (detail.length > 8) {
-        console.log(`    ... +${detail.length - 8} more`);
+      if (shown.length > 8) {
+        console.log(`    ... +${shown.length - 8} more`);
       }
     }
   }

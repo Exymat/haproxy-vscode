@@ -55,6 +55,7 @@ type DiagCode =
   | "missing-argument"
   | "deprecated-keyword"
   | "deprecated-action"
+  | "deprecated-sample"
   | "named-defaults-required";
 
 type RuntimeMode = "tcp" | "http" | "log" | "spop" | "haterm";
@@ -471,6 +472,13 @@ function unknownNestedDiagnostics(line: ParsedLine, schema: HaproxySchema): vsco
         i += 1;
       }
     }
+    return diagnostics;
+  }
+
+  if (
+    (t0 === "tcp-request" || t0 === "tcp-response") &&
+    line.tokens[1]?.text.toLowerCase() === "inspect-delay"
+  ) {
     return diagnostics;
   }
 

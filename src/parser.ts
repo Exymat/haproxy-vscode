@@ -18,6 +18,7 @@ export const SECTION_HEADERS = new Set([
   "crt-store",
   "traces",
   "acme",
+  "log-profile",
 ]);
 
 export interface ParsedToken {

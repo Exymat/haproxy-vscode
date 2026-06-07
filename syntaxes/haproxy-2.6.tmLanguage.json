@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "$schema": "./tmlanguage.schema.json",
   "name": "HAProxy 2.6",
   "scopeName": "source.haproxy",
   "patterns": [
@@ -29,6 +29,15 @@
     },
     {
       "include": "#sample-fetches"
+    },
+    {
+      "include": "#sample-function-calls"
+    },
+    {
+      "include": "#acl-expressions"
+    },
+    {
+      "include": "#sample-expressions"
     },
     {
       "include": "#rule-actions"
@@ -62,6 +71,18 @@
     },
     {
       "include": "#numbers"
+    },
+    {
+      "include": "#acl-flags"
+    },
+    {
+      "include": "#comparison-operators"
+    },
+    {
+      "include": "#condition-keywords"
+    },
+    {
+      "include": "#boolean-literals"
     },
     {
       "include": "#enums"
@@ -162,7 +183,7 @@
           }
         },
         {
-          "match": "(?m)^(?:\\t| )*((?:http\\-errors|resolvers|fcgi\\-app|userlist|crt\\-list|mailers|program|peers|cache|ring))\\s+(\\S+)",
+          "match": "(?m)^(?:\\t| )*((?:http\\-errors|resolvers|userlist|crt\\-list|fcgi\\-app|mailers|program|peers|cache|ring))\\s+(\\S+)",
           "captures": {
             "1": {
               "name": "entity.name.type.section.haproxy"
@@ -174,7 +195,7 @@
         },
         {
           "name": "entity.name.type.section.haproxy",
-          "match": "(?m)^(?:\\t| )*((?:http\\-errors|resolvers|fcgi\\-app|defaults|userlist|crt\\-list|frontend|mailers|backend|program|listen|global|peers|cache|ring))\\b"
+          "match": "(?m)^(?:\\t| )*((?:http\\-errors|resolvers|userlist|crt\\-list|frontend|fcgi\\-app|defaults|mailers|program|backend|global|listen|peers|cache|ring))\\b"
         }
       ]
     },
@@ -190,12 +211,23 @@
       "patterns": [
         {
           "name": "keyword.other.directive.haproxy",
-          "match": "\\b(?:tune\\.quic\\.frontend\\.conn\\-tx\\-buffers\\.limit|h2\\-workaround\\-bogus\\-websocket\\-clients|tune\\.quic\\.frontend\\.max\\-streams\\-bidi|harden\\.reject\\-privileged\\-ports\\.quic|tune\\.quic\\.frontend\\.max\\-idle\\-timeout|harden\\.reject\\-privileged\\-ports\\.tcp|h1\\-accept\\-payload\\-with\\-any\\-method|tune\\.ssl\\.capture\\-cipherlist\\-size|ssl\\-default\\-server\\-ciphersuites|tune\\.peers\\.max\\-updates\\-at\\-once|tune\\.h2\\.max\\-concurrent\\-streams|expose\\-experimental\\-directives|ssl\\-default\\-bind\\-ciphersuites|deviceatlas\\-properties\\-cookie|tune\\.ssl\\.force\\-private\\-cache|tune\\.ssl\\.capture\\-buffer\\-size|tune\\.ssl\\.ssl\\-ctx\\-cache\\-size|load\\-server\\-state\\-from\\-file|tune\\.h2\\.initial\\-window\\-size|httpclient\\.resolvers\\.prefer|ssl\\-default\\-server\\-ciphers|ssl\\-default\\-server\\-options|tune\\.vars\\.global\\-max\\-size|tune\\.vars\\.reqres\\-max\\-size|tune\\.listener\\.multi\\-queue|tune\\.quic\\.retry\\-threshold|tune\\.h2\\.header\\-table\\-size|tune\\.ssl\\.default\\-dh\\-param|ssl\\-default\\-bind\\-options|ssl\\-default\\-bind\\-ciphers|tune\\.vars\\.check\\-max\\-size|tune\\.lua\\.session\\-timeout|tune\\.lua\\.service\\-timeout|tune\\.ssl\\.hard\\-maxrecord|tune\\.quic\\.reorder\\-ratio|tune\\.pool\\-high\\-fd\\-ratio|ssl\\-skip\\-self\\-issued\\-ca|httpclient\\.resolvers\\.id|tune\\.vars\\.proc\\-max\\-size|tune\\.vars\\.sess\\-max\\-size|ssl\\-default\\-bind\\-curves|tune\\.pattern\\.cache\\-size|httpclient\\.ssl\\.ca\\-file|tune\\.h2\\.max\\-frame\\-size|server\\-state\\-file\\-name|ssl\\-load\\-extra\\-del\\-ext|insecure\\-setuid\\-wanted|tune\\.vars\\.txn\\-max\\-size|tune\\.sched\\.low\\-latency|tune\\.pool\\-low\\-fd\\-ratio|tune\\.fd\\.edge\\-triggered|deviceatlas\\-separator|max\\-session\\-srv\\-conns|max\\-secondary\\-entries|tune\\.lua\\.task\\-timeout|accepted_payload_size|http\\-send\\-name\\-header|deviceatlas\\-json\\-file|tune\\.idle\\-pool\\.shared|httpclient\\.ssl\\.verify|tune\\.lua\\.forced\\-yield|deviceatlas\\-log\\-level|tune\\.zlib\\.windowsize|max\\-keep\\-alive\\-queue|pp2\\-never\\-send\\-local|insecure\\-fork\\-wanted|ssl\\-load\\-extra\\-files|tune\\.buffers\\.reserve|tune\\.http\\.cookielen|tune\\.runqueue\\-depth|h1\\-case\\-adjust\\-file|http\\-after\\-response|lua\\-load\\-per\\-thread|mworker\\-max\\-reloads|tune\\.http\\.logurilen|hash\\-balance\\-factor|tune\\.sndbuf\\.client|dynamic\\-cookie\\-key|tune\\.comp\\.maxlevel|tune\\.ssl\\.maxrecord|tune\\.maxpollevents|tune\\.rcvbuf\\.server|no\\-memory\\-trimming|tune\\.sndbuf\\.server|issuers\\-chain\\-path|tune\\.buffers\\.limit|tune\\.zlib\\.memlevel|tune\\.rcvbuf\\.client|tune\\.ssl\\.cachesize|ssl\\-dh\\-param\\-file|ssl\\-server\\-verify|close\\-spread\\-time|max\\-spread\\-checks|ssl\\-provider\\-path|parse\\-resolv\\-conf|tune\\.ssl\\.lifetime|server\\-state\\-base|log\\-send\\-hostname|lua\\-prepend\\-path|unique\\-id\\-header|error\\-log\\-format|profiling\\.memory|tune\\.recv_enough|unique\\-id\\-format|tune\\.http\\.maxhdr|numa\\-cpu\\-mapping|max\\-object\\-size|resolve_retries|default_backend|hard\\-stop\\-after|tune\\.maxrewrite|server\\-template|maxcompcpuusage|tune\\.lua\\.maxmem|tune\\.fail\\-alloc|profiling\\.tasks|tune\\.ssl\\.keylog|tune\\.idletimer|clitcpka\\-intvl|ssl\\-mode\\-async|total\\-max\\-size|srvtcpka\\-intvl|default\\-server|ignore\\-persist|cluster\\-secret|tune\\.maxaccept|saml\\-sso\\-load|strict\\-limits|log\\-format\\-sd|spread\\-checks|fd\\-hard\\-limit|clitcpka\\-idle|nogetaddrinfo|ssl\\-propquery|force\\-persist|thread\\-groups|srvtcpka\\-idle|tune\\.pipesize|master\\-worker|http\\-response|tcp\\-response|set\\-dumpable|http\\-request|srvtcpka\\-cnt|bind\\-process|thread\\-group|zero\\-warning|backing\\-file|default\\-bind|default\\-path|process\\-vary|busy\\-polling|clitcpka\\-cnt|tune\\.bufsize|use\\-fcgi\\-app|pass\\-header|use_backend|maxsessrate|log\\-forward|maxcomprate|description|maxconnrate|module\\-path|module\\-load|noreuseport|monitor\\-uri|errorloc302|http\\-errors|errorloc303|compression|tcp\\-request|srvtimeout|contimeout|maxsslconn|http\\-error|maxsslrate|use\\-server|errorfiles|nameserver|maxzlibmem|dgram\\-bind|http\\-check|rate\\-limit|clitimeout|log\\-stderr|http\\-reuse|ssl\\-engine|set\\-param|errorfile|hash\\-type|presetenv|localpeer|unix\\-bind|path\\-info|noevports|retry\\-on|dispatch|nokqueue|maxpipes|fullconn|unsetenv|ulimit\\-n|nbthread|userlist|errorloc|crt\\-base|resetenv|nosplice|command|mailers|docroot|ca\\-base|declare|timeout|balance|pidfile|cpu\\-map|log\\-tag|program|max\\-age|retries|noepoll|chroot|mailer|filter|setenv|nopoll|daemon|maxlen|format|option|stats|quiet|grace|table|peers|index|size|ring|hold|mode|node|peer|acl)\\b"
+          "match": "\\b(?:tune\\.quic\\.frontend\\.conn\\-tx\\-buffers\\.limit|h2\\-workaround\\-bogus\\-websocket\\-clients|tune\\.quic\\.frontend\\.max\\-idle\\-timeout|tune\\.quic\\.frontend\\.max\\-streams\\-bidi|harden\\.reject\\-privileged\\-ports\\.quic|harden\\.reject\\-privileged\\-ports\\.tcp|h1\\-accept\\-payload\\-with\\-any\\-method|tune\\.ssl\\.capture\\-cipherlist\\-size|ssl\\-default\\-server\\-ciphersuites|expose\\-experimental\\-directives|tune\\.h2\\.max\\-concurrent\\-streams|tune\\.peers\\.max\\-updates\\-at\\-once|deviceatlas\\-properties\\-cookie|ssl\\-default\\-bind\\-ciphersuites|tune\\.ssl\\.force\\-private\\-cache|tune\\.ssl\\.capture\\-buffer\\-size|tune\\.ssl\\.ssl\\-ctx\\-cache\\-size|load\\-server\\-state\\-from\\-file|httpclient\\.resolvers\\.prefer|tune\\.h2\\.initial\\-window\\-size|ssl\\-default\\-server\\-ciphers|ssl\\-default\\-server\\-options|tune\\.vars\\.global\\-max\\-size|tune\\.listener\\.multi\\-queue|tune\\.vars\\.reqres\\-max\\-size|tune\\.ssl\\.default\\-dh\\-param|tune\\.h2\\.header\\-table\\-size|tune\\.quic\\.retry\\-threshold|ssl\\-default\\-bind\\-ciphers|tune\\.lua\\.service\\-timeout|tune\\.lua\\.session\\-timeout|tune\\.vars\\.check\\-max\\-size|ssl\\-default\\-bind\\-options|tune\\.quic\\.reorder\\-ratio|tune\\.pattern\\.cache\\-size|ssl\\-skip\\-self\\-issued\\-ca|tune\\.ssl\\.hard\\-maxrecord|tune\\.vars\\.proc\\-max\\-size|tune\\.vars\\.sess\\-max\\-size|tune\\.pool\\-high\\-fd\\-ratio|httpclient\\.resolvers\\.id|ssl\\-default\\-bind\\-curves|server\\-state\\-file\\-name|tune\\.pool\\-low\\-fd\\-ratio|tune\\.fd\\.edge\\-triggered|tune\\.h2\\.max\\-frame\\-size|httpclient\\.ssl\\.ca\\-file|insecure\\-setuid\\-wanted|tune\\.vars\\.txn\\-max\\-size|tune\\.sched\\.low\\-latency|ssl\\-load\\-extra\\-del\\-ext|tune\\.lua\\.task\\-timeout|max\\-session\\-srv\\-conns|http\\-send\\-name\\-header|deviceatlas\\-json\\-file|deviceatlas\\-separator|httpclient\\.ssl\\.verify|tune\\.lua\\.forced\\-yield|deviceatlas\\-log\\-level|max\\-secondary\\-entries|accepted_payload_size|tune\\.idle\\-pool\\.shared|ssl\\-load\\-extra\\-files|tune\\.zlib\\.windowsize|max\\-keep\\-alive\\-queue|pp2\\-never\\-send\\-local|insecure\\-fork\\-wanted|tune\\.buffers\\.reserve|mworker\\-max\\-reloads|hash\\-balance\\-factor|http\\-after\\-response|tune\\.http\\.cookielen|lua\\-load\\-per\\-thread|tune\\.http\\.logurilen|tune\\.runqueue\\-depth|h1\\-case\\-adjust\\-file|dynamic\\-cookie\\-key|tune\\.buffers\\.limit|issuers\\-chain\\-path|tune\\.comp\\.maxlevel|tune\\.ssl\\.maxrecord|tune\\.sndbuf\\.client|tune\\.ssl\\.cachesize|tune\\.rcvbuf\\.server|tune\\.maxpollevents|tune\\.rcvbuf\\.client|tune\\.zlib\\.memlevel|no\\-memory\\-trimming|tune\\.sndbuf\\.server|tune\\.ssl\\.lifetime|max\\-spread\\-checks|parse\\-resolv\\-conf|ssl\\-provider\\-path|ssl\\-server\\-verify|close\\-spread\\-time|ssl\\-dh\\-param\\-file|server\\-state\\-base|log\\-send\\-hostname|tune\\.http\\.maxhdr|profiling\\.memory|lua\\-prepend\\-path|error\\-log\\-format|numa\\-cpu\\-mapping|unique\\-id\\-header|tune\\.recv_enough|unique\\-id\\-format|tune\\.fail\\-alloc|tune\\.maxrewrite|resolve_retries|hard\\-stop\\-after|profiling\\.tasks|server\\-template|default_backend|tune\\.lua\\.maxmem|max\\-object\\-size|tune\\.ssl\\.keylog|maxcompcpuusage|clitcpka\\-intvl|tune\\.maxaccept|ssl\\-mode\\-async|tune\\.idletimer|ignore\\-persist|srvtcpka\\-intvl|default\\-server|cluster\\-secret|total\\-max\\-size|strict\\-limits|fd\\-hard\\-limit|http\\-response|nogetaddrinfo|srvtcpka\\-idle|spread\\-checks|thread\\-groups|log\\-format\\-sd|saml\\-sso\\-load|tune\\.pipesize|ssl\\-propquery|force\\-persist|master\\-worker|clitcpka\\-idle|busy\\-polling|bind\\-process|process\\-vary|zero\\-warning|tune\\.bufsize|clitcpka\\-cnt|backing\\-file|tcp\\-response|srvtcpka\\-cnt|default\\-bind|use\\-fcgi\\-app|set\\-dumpable|http\\-request|thread\\-group|default\\-path|monitor\\-uri|maxcomprate|pass\\-header|tcp\\-request|http\\-errors|module\\-load|maxsessrate|module\\-path|errorloc303|log\\-forward|noreuseport|errorloc302|use_backend|compression|maxconnrate|description|maxsslrate|contimeout|srvtimeout|nameserver|http\\-reuse|log\\-stderr|clitimeout|errorfiles|use\\-server|http\\-error|http\\-check|maxsslconn|rate\\-limit|maxzlibmem|ssl\\-engine|dgram\\-bind|noevports|path\\-info|errorfile|localpeer|unix\\-bind|hash\\-type|presetenv|set\\-param|ulimit\\-n|userlist|errorloc|nosplice|resetenv|nokqueue|dispatch|maxpipes|crt\\-base|unsetenv|nbthread|fullconn|retry\\-on|ca\\-base|pidfile|balance|program|cpu\\-map|max\\-age|log\\-tag|mailers|declare|command|retries|docroot|noepoll|timeout|nopoll|chroot|setenv|daemon|filter|maxlen|option|format|mailer|grace|stats|quiet|index|table|peers|ring|size|hold|mode|node|peer|acl)\\b"
         }
       ]
     },
     "directives-with-values": {
       "patterns": [
+        {
+          "match": "\\b((?:harden\\.reject\\-privileged\\-ports\\.quic|harden\\.reject\\-privileged\\-ports\\.tcp|tune\\.listener\\.multi\\-queue|tune\\.fd\\.edge\\-triggered|tune\\.sched\\.low\\-latency|tune\\.idle\\-pool\\.shared|profiling\\.memory|tune\\.ssl\\.keylog|process\\-vary))\\s+((?:disabled|enabled|FALSE|false|true|TRUE|off|on))\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "constant.language.boolean.haproxy"
+            }
+          }
+        },
         {
           "match": "\\b(bind)\\s+(\\S+)(?:\\s+(.*))?$",
           "captures": {
@@ -327,7 +359,7 @@
           }
         },
         {
-          "match": "\\b(balance)\\s+((?:roundrobin|static\\-rr|leastconn|url_param|random|source|first|hash|uri))\\b",
+          "match": "\\b(balance)\\s+((?:roundrobin|static\\-rr|url_param|leastconn|source|random|first|hash|uri))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -375,7 +407,7 @@
           }
         },
         {
-          "match": "\\b(compression)\\s+((?:offload|type|algo))\\b",
+          "match": "\\b(compression)\\s+((?:offload|algo|type))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -419,7 +451,7 @@
           }
         },
         {
-          "match": "\\b(http\\-check)\\s+((?:disable\\-on\\-404|set\\-var\\-fmt|send\\-state|unset\\-var|connect|set\\-var|comment|expect|send))\\b",
+          "match": "\\b(http\\-check)\\s+((?:disable\\-on\\-404|set\\-var\\-fmt|send\\-state|unset\\-var|comment|set\\-var|connect|expect|send))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -474,7 +506,7 @@
           }
         },
         {
-          "match": "\\b(no)\\s+((?:option\\ accept\\-invalid\\-http\\-response|option\\ accept\\-invalid\\-http\\-request|option\\ h1\\-case\\-adjust\\-bogus\\-client|option\\ h1\\-case\\-adjust\\-bogus\\-server|option\\ http\\-pretend\\-keepalive|option\\ idle\\-close\\-on\\-response|option\\ http\\-use\\-proxy\\-header|option\\ http\\-buffer\\-request|option\\ log\\-separate\\-errors|option\\ independent\\-streams|option\\ prefer\\-last\\-server|option\\ disable\\-h2\\-upgrade|option\\ http\\-ignore\\-probes|option\\ http\\-server\\-close|option\\ log\\-health\\-checks|option\\ tcp\\-smart\\-connect|option\\ tcp\\-smart\\-accept|option\\ start\\-on\\-reload|option\\ splice\\-response|option\\ http\\-keep\\-alive|option\\ splice\\-request|option\\ dontlog\\-normal|option\\ http\\-no\\-delay|option\\ socket\\-stats|option\\ abortonclose|option\\ transparent|option\\ splice\\-auto|option\\ dontlognull|option\\ redispatch|option\\ get\\-values|option\\ allbackups|option\\ checkcache|option\\ mpxs\\-conns|option\\ keep\\-conn|option\\ httpclose|option\\ nolinger|option\\ srvtcpka|option\\ clitcpka|option\\ persist|option\\ logasap|log))\\b",
+          "match": "\\b(no)\\s+((?:option\\ accept\\-invalid\\-http\\-response|option\\ h1\\-case\\-adjust\\-bogus\\-client|option\\ accept\\-invalid\\-http\\-request|option\\ h1\\-case\\-adjust\\-bogus\\-server|option\\ http\\-pretend\\-keepalive|option\\ idle\\-close\\-on\\-response|option\\ http\\-use\\-proxy\\-header|option\\ independent\\-streams|option\\ http\\-buffer\\-request|option\\ log\\-separate\\-errors|option\\ disable\\-h2\\-upgrade|option\\ http\\-ignore\\-probes|option\\ prefer\\-last\\-server|option\\ log\\-health\\-checks|option\\ http\\-server\\-close|option\\ tcp\\-smart\\-connect|option\\ tcp\\-smart\\-accept|option\\ splice\\-response|option\\ start\\-on\\-reload|option\\ http\\-keep\\-alive|option\\ dontlog\\-normal|option\\ splice\\-request|option\\ http\\-no\\-delay|option\\ socket\\-stats|option\\ abortonclose|option\\ transparent|option\\ splice\\-auto|option\\ dontlognull|option\\ redispatch|option\\ allbackups|option\\ get\\-values|option\\ checkcache|option\\ mpxs\\-conns|option\\ httpclose|option\\ keep\\-conn|option\\ srvtcpka|option\\ clitcpka|option\\ nolinger|option\\ logasap|option\\ persist|log))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -518,7 +550,7 @@
           }
         },
         {
-          "match": "\\b(stats)\\s+((?:hide\\-version|show\\-legends|http\\-request|show\\-modules|bind\\-process|show\\-desc|show\\-node|refresh|timeout|maxconn|enable|socket|realm|admin|scope|auth|uri))\\b",
+          "match": "\\b(stats)\\s+((?:show\\-modules|show\\-legends|bind\\-process|http\\-request|hide\\-version|show\\-desc|show\\-node|refresh|maxconn|timeout|socket|enable|admin|scope|realm|auth|uri))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -551,7 +583,7 @@
           }
         },
         {
-          "match": "\\b(tcp\\-check)\\s+((?:send\\-binary\\-lf|set\\-var\\-fmt|send\\-binary|unset\\-var|connect|set\\-var|comment|send\\-lf|expect|send))\\b",
+          "match": "\\b(tcp\\-check)\\s+((?:send\\-binary\\-lf|set\\-var\\-fmt|send\\-binary|unset\\-var|send\\-lf|comment|set\\-var|connect|expect|send))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -573,7 +605,7 @@
           }
         },
         {
-          "match": "\\b(timeout)\\s+((?:http\\-keep\\-alive|http\\-request|server\\-fin|client\\-fin|connect|tunnel|tarpit|server|client|queue|check|mail))\\b",
+          "match": "\\b(timeout)\\s+((?:http\\-keep\\-alive|http\\-request|client\\-fin|server\\-fin|connect|client|server|tunnel|tarpit|queue|check|mail))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -588,7 +620,7 @@
     "rule-actions": {
       "patterns": [
         {
-          "match": "\\b(http\\-request)\\s+((?:set\\-priority\\-offset|wait\\-for\\-handshake|set\\-priority\\-class|disable\\-l7\\-retry|send\\-spoe\\-group|replace\\-header|replace\\-value|replace\\-pathq|wait\\-for\\-body|set\\-log\\-level|normalize\\-uri|set\\-src\\-port|replace\\-path|set\\-dst\\-port|silent\\-drop|sc\\-inc\\-gpc1|replace\\-uri|use\\-service|set\\-timeout|sc\\-set\\-gpt0|set\\-var\\-fmt|strict\\-mode|sc\\-inc\\-gpc0|sc\\-set\\-gpt|do\\-resolve|early\\-hint|set\\-method|set\\-header|del\\-header|sc\\-inc\\-gpc|add\\-header|unset\\-var|track\\-sc0|track\\-sc1|set\\-query|cache\\-use|track\\-sc2|set\\-pathq|set\\-mark|redirect|set\\-path|track\\-sc|set\\-nice|set\\-map|capture|set\\-dst|set\\-tos|del\\-map|del\\-acl|set\\-uri|add\\-acl|set\\-src|set\\-var|reject|tarpit|return|allow|auth|deny))\\b",
+          "match": "\\b(http\\-request)\\s+((?:set\\-priority\\-offset|set\\-priority\\-class|wait\\-for\\-handshake|disable\\-l7\\-retry|send\\-spoe\\-group|replace\\-header|normalize\\-uri|set\\-log\\-level|wait\\-for\\-body|replace\\-value|replace\\-pathq|set\\-src\\-port|replace\\-path|set\\-dst\\-port|set\\-timeout|sc\\-inc\\-gpc1|sc\\-set\\-gpt0|set\\-var\\-fmt|strict\\-mode|silent\\-drop|sc\\-inc\\-gpc0|use\\-service|replace\\-uri|sc\\-set\\-gpt|sc\\-inc\\-gpc|set\\-method|del\\-header|set\\-header|early\\-hint|add\\-header|do\\-resolve|track\\-sc2|set\\-pathq|set\\-query|track\\-sc0|track\\-sc1|unset\\-var|cache\\-use|set\\-path|redirect|set\\-mark|track\\-sc|set\\-nice|del\\-acl|set\\-uri|del\\-map|set\\-var|add\\-acl|set\\-dst|set\\-map|capture|set\\-tos|set\\-src|reject|return|tarpit|allow|auth|deny))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -599,7 +631,7 @@
           }
         },
         {
-          "match": "\\b(http\\-response)\\s+((?:send\\-spoe\\-group|replace\\-header|replace\\-value|wait\\-for\\-body|set\\-log\\-level|silent\\-drop|sc\\-inc\\-gpc1|sc\\-set\\-gpt0|set\\-var\\-fmt|strict\\-mode|sc\\-inc\\-gpc0|cache\\-store|sc\\-set\\-gpt|set\\-header|del\\-header|sc\\-inc\\-gpc|set\\-status|add\\-header|unset\\-var|track\\-sc0|track\\-sc1|track\\-sc2|set\\-mark|redirect|track\\-sc|set\\-nice|set\\-map|capture|set\\-tos|del\\-map|del\\-acl|add\\-acl|set\\-var|return|allow|deny))\\b",
+          "match": "\\b(http\\-response)\\s+((?:send\\-spoe\\-group|replace\\-header|set\\-log\\-level|wait\\-for\\-body|replace\\-value|sc\\-inc\\-gpc1|sc\\-set\\-gpt0|cache\\-store|set\\-var\\-fmt|strict\\-mode|silent\\-drop|sc\\-inc\\-gpc0|sc\\-set\\-gpt|sc\\-inc\\-gpc|del\\-header|set\\-status|set\\-header|add\\-header|track\\-sc2|track\\-sc0|unset\\-var|track\\-sc1|redirect|set\\-mark|track\\-sc|set\\-nice|del\\-acl|del\\-map|set\\-var|add\\-acl|set\\-map|capture|set\\-tos|return|allow|deny))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -610,7 +642,7 @@
           }
         },
         {
-          "match": "\\b(http\\-after\\-response)\\s+((?:replace\\-header|replace\\-value|set\\-log\\-level|sc\\-inc\\-gpc1|sc\\-set\\-gpt0|set\\-var\\-fmt|strict\\-mode|sc\\-inc\\-gpc0|sc\\-set\\-gpt|set\\-header|del\\-header|sc\\-inc\\-gpc|set\\-status|add\\-header|unset\\-var|set\\-map|capture|del\\-map|del\\-acl|set\\-var|allow))\\b",
+          "match": "\\b(http\\-after\\-response)\\s+((?:replace\\-header|set\\-log\\-level|replace\\-value|sc\\-inc\\-gpc1|sc\\-set\\-gpt0|set\\-var\\-fmt|strict\\-mode|sc\\-inc\\-gpc0|sc\\-set\\-gpt|sc\\-inc\\-gpc|del\\-header|set\\-status|set\\-header|add\\-header|unset\\-var|del\\-acl|del\\-map|set\\-var|set\\-map|capture|allow))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -621,32 +653,7 @@
           }
         },
         {
-          "match": "\\b(tcp\\-request)\\s+((?:inspect\\-delay|connection|content|session))\\s+((?:expect\\-netscaler\\-cip|set\\-priority\\-offset|set\\-priority\\-class|send\\-spoe\\-group|inspect\\-delay|set\\-log\\-level|expect\\-proxy|set\\-src\\-port|set\\-dst\\-port|silent\\-drop|sc\\-inc\\-gpc1|use\\-service|sc\\-set\\-gpt0|set\\-var\\-fmt|switch\\-mode|sc\\-inc\\-gpc0|sc\\-set\\-gpt|do\\-resolve|sc\\-inc\\-gpc|unset\\-var|track\\-sc0|track\\-sc1|track\\-sc2|set\\-mark|set\\-nice|set\\-dst|capture|set\\-tos|set\\-src|set\\-var|reject|accept))\\b",
-          "captures": {
-            "1": {
-              "name": "keyword.other.directive.haproxy"
-            },
-            "2": {
-              "name": "keyword.other.directive.haproxy"
-            },
-            "3": {
-              "name": "keyword.other.directive.haproxy"
-            }
-          }
-        },
-        {
-          "match": "\\b(tcp\\-request)\\s+((?:inspect\\-delay|connection|content|session))\\b",
-          "captures": {
-            "1": {
-              "name": "keyword.other.directive.haproxy"
-            },
-            "2": {
-              "name": "keyword.other.directive.haproxy"
-            }
-          }
-        },
-        {
-          "match": "\\b(tcp\\-response)\\s+((?:inspect\\-delay|connection|content|session))\\s+((?:send\\-spoe\\-group|set\\-log\\-level|silent\\-drop|set\\-var\\-fmt|sc\\-inc\\-gpc1|sc\\-set\\-gpt0|sc\\-inc\\-gpc0|sc\\-set\\-gpt|sc\\-inc\\-gpc|unset\\-var|set\\-mark|set\\-nice|set\\-tos|set\\-var|accept|reject|close))\\b",
+          "match": "\\b(tcp\\-request)\\s+((?:inspect\\-delay|connection|session|content))\\s+((?:expect\\-netscaler\\-cip|set\\-priority\\-offset|set\\-priority\\-class|send\\-spoe\\-group|set\\-log\\-level|inspect\\-delay|set\\-src\\-port|set\\-dst\\-port|expect\\-proxy|sc\\-inc\\-gpc1|switch\\-mode|sc\\-set\\-gpt0|set\\-var\\-fmt|silent\\-drop|sc\\-inc\\-gpc0|use\\-service|sc\\-set\\-gpt|sc\\-inc\\-gpc|do\\-resolve|track\\-sc2|track\\-sc0|unset\\-var|track\\-sc1|set\\-mark|set\\-nice|set\\-var|set\\-dst|capture|set\\-tos|set\\-src|reject|accept))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -660,7 +667,32 @@
           }
         },
         {
-          "match": "\\b(tcp\\-response)\\s+((?:inspect\\-delay|connection|content|session))\\b",
+          "match": "\\b(tcp\\-request)\\s+((?:inspect\\-delay|connection|session|content))\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(tcp\\-response)\\s+((?:inspect\\-delay|connection|session|content))\\s+((?:send\\-spoe\\-group|set\\-log\\-level|set\\-var\\-fmt|silent\\-drop|sc\\-inc\\-gpc1|sc\\-inc\\-gpc0|sc\\-set\\-gpt0|sc\\-set\\-gpt|sc\\-inc\\-gpc|unset\\-var|set\\-mark|set\\-nice|set\\-tos|set\\-var|reject|accept|close))\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "3": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(tcp\\-response)\\s+((?:inspect\\-delay|connection|session|content))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -683,14 +715,14 @@
         },
         {
           "name": "keyword.other.directive.haproxy",
-          "match": "\\b(?:expect\\-netscaler\\-cip|set\\-priority\\-offset|wait\\-for\\-handshake|set\\-priority\\-class|disable\\-l7\\-retry|send\\-spoe\\-group|replace\\-header|replace\\-value|inspect\\-delay|replace\\-pathq|wait\\-for\\-body|set\\-log\\-level|normalize\\-uri|expect\\-proxy|set\\-src\\-port|replace\\-path|set\\-dst\\-port|silent\\-drop|sc\\-inc\\-gpc1|replace\\-uri|use\\-service|set\\-timeout|sc\\-set\\-gpt0|set\\-var\\-fmt|strict\\-mode|switch\\-mode|sc\\-inc\\-gpc0|cache\\-store|sc\\-set\\-gpt|do\\-resolve|early\\-hint|set\\-method|set\\-header|del\\-header|set\\-status|sc\\-inc\\-gpc|add\\-header|unset\\-var|track\\-sc0|track\\-sc1|set\\-query|cache\\-use|track\\-sc2|set\\-pathq|set\\-mark|redirect|set\\-path|track\\-sc|set\\-nice|set\\-map|set\\-dst|capture|set\\-tos|del\\-map|del\\-acl|set\\-uri|add\\-acl|set\\-src|set\\-var|reject|accept|tarpit|return|allow|close|auth|deny)\\b"
+          "match": "\\b(?:expect\\-netscaler\\-cip|set\\-priority\\-offset|set\\-priority\\-class|wait\\-for\\-handshake|disable\\-l7\\-retry|send\\-spoe\\-group|replace\\-header|normalize\\-uri|set\\-log\\-level|wait\\-for\\-body|inspect\\-delay|replace\\-value|replace\\-pathq|set\\-src\\-port|replace\\-path|set\\-dst\\-port|expect\\-proxy|set\\-timeout|sc\\-inc\\-gpc1|switch\\-mode|sc\\-set\\-gpt0|cache\\-store|set\\-var\\-fmt|strict\\-mode|silent\\-drop|sc\\-inc\\-gpc0|use\\-service|replace\\-uri|sc\\-set\\-gpt|sc\\-inc\\-gpc|set\\-method|del\\-header|set\\-status|set\\-header|early\\-hint|add\\-header|do\\-resolve|track\\-sc2|set\\-pathq|set\\-query|track\\-sc0|track\\-sc1|unset\\-var|cache\\-use|set\\-path|redirect|set\\-mark|track\\-sc|set\\-nice|set\\-uri|del\\-acl|del\\-map|set\\-var|add\\-acl|set\\-dst|set\\-map|capture|set\\-tos|set\\-src|reject|return|tarpit|accept|close|allow|auth|deny)\\b"
         }
       ]
     },
     "check-actions": {
       "patterns": [
         {
-          "match": "\\b(tcp\\-check)\\s+((?:send\\-binary\\-lf|set\\-var\\-fmt|send\\-binary|unset\\-var|connect|set\\-var|comment|send\\-lf|send))\\b",
+          "match": "\\b(tcp\\-check)\\s+((?:send\\-binary\\-lf|set\\-var\\-fmt|send\\-binary|unset\\-var|send\\-lf|comment|set\\-var|connect|send))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -701,7 +733,7 @@
           }
         },
         {
-          "match": "\\b(http\\-check)\\s+((?:disable\\-on\\-404|set\\-var\\-fmt|send\\-state|unset\\-var|connect|set\\-var|comment|send))\\b",
+          "match": "\\b(http\\-check)\\s+((?:disable\\-on\\-404|set\\-var\\-fmt|send\\-state|unset\\-var|comment|set\\-var|connect|send))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -712,7 +744,7 @@
           }
         },
         {
-          "match": "\\b(expect)\\s+(!)?\\s*((?:unique\\-id\\-counters|unique\\-id\\-id|http\\-version|rstring|lstring|comment|binary|header|method|string|status|cookie|proto|bytes|alpn|body|proc|uuid|sess|rand|date|ssl|src|npn|uri|hdr|dst|env|var|fe|be))\\b",
+          "match": "\\b(expect)\\s+(!)?\\s*((?:unique\\-id\\-counters|unique\\-id\\-id|http\\-version|rstring|lstring|comment|binary|method|status|header|string|cookie|proto|bytes|alpn|rand|sess|date|proc|uuid|body|npn|dst|hdr|env|src|var|uri|ssl|fe|be))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -759,7 +791,7 @@
     "single-arg-directives": {
       "patterns": [
         {
-          "match": "\\b(?:(?:tune\\.quic\\.frontend\\.conn\\-tx\\-buffers\\.limit|tune\\.quic\\.frontend\\.max\\-streams\\-bidi|harden\\.reject\\-privileged\\-ports\\.quic|tune\\.quic\\.frontend\\.max\\-idle\\-timeout|harden\\.reject\\-privileged\\-ports\\.tcp|tune\\.ssl\\.capture\\-cipherlist\\-size|ssl\\-default\\-server\\-ciphersuites|tune\\.peers\\.max\\-updates\\-at\\-once|tune\\.h2\\.max\\-concurrent\\-streams|ssl\\-default\\-bind\\-ciphersuites|deviceatlas\\-properties\\-cookie|tune\\.ssl\\.capture\\-buffer\\-size|tune\\.ssl\\.ssl\\-ctx\\-cache\\-size|load\\-server\\-state\\-from\\-file|tune\\.h2\\.initial\\-window\\-size|httpclient\\.resolvers\\.prefer|ssl\\-default\\-server\\-ciphers|tune\\.vars\\.global\\-max\\-size|tune\\.vars\\.reqres\\-max\\-size|tune\\.listener\\.multi\\-queue|tune\\.quic\\.retry\\-threshold|tune\\.h2\\.header\\-table\\-size|tune\\.ssl\\.default\\-dh\\-param|ssl\\-default\\-bind\\-ciphers|tune\\.lua\\.session\\-timeout|tune\\.lua\\.service\\-timeout|tune\\.ssl\\.hard\\-maxrecord|tune\\.quic\\.reorder\\-ratio|tune\\.pool\\-high\\-fd\\-ratio|httpclient\\.resolvers\\.id|tune\\.vars\\.proc\\-max\\-size|tune\\.vars\\.sess\\-max\\-size|ssl\\-default\\-bind\\-curves|tune\\.pattern\\.cache\\-size|httpclient\\.ssl\\.ca\\-file|tune\\.h2\\.max\\-frame\\-size|tune\\.vars\\.txn\\-max\\-size|tune\\.sched\\.low\\-latency|tune\\.pool\\-low\\-fd\\-ratio|deviceatlas\\-separator|max\\-session\\-srv\\-conns|max\\-secondary\\-entries|tune\\.lua\\.task\\-timeout|accepted_payload_size|deviceatlas\\-json\\-file|tune\\.idle\\-pool\\.shared|tune\\.lua\\.forced\\-yield|deviceatlas\\-log\\-level|tune\\.zlib\\.windowsize|max\\-keep\\-alive\\-queue|tune\\.buffers\\.reserve|tune\\.http\\.cookielen|tune\\.runqueue\\-depth|h1\\-case\\-adjust\\-file|lua\\-load\\-per\\-thread|mworker\\-max\\-reloads|tune\\.http\\.logurilen|hash\\-balance\\-factor|tune\\.sndbuf\\.client|dynamic\\-cookie\\-key|tune\\.comp\\.maxlevel|tune\\.ssl\\.maxrecord|tune\\.maxpollevents|tune\\.rcvbuf\\.server|tune\\.sndbuf\\.server|issuers\\-chain\\-path|tune\\.buffers\\.limit|tune\\.zlib\\.memlevel|tune\\.rcvbuf\\.client|tune\\.ssl\\.cachesize|ssl\\-dh\\-param\\-file|server\\-state\\-file|close\\-spread\\-time|max\\-spread\\-checks|ssl\\-provider\\-path|tune\\.ssl\\.lifetime|server\\-state\\-base|unique\\-id\\-header|error\\-log\\-format|profiling\\.memory|tune\\.recv_enough|unique\\-id\\-format|tune\\.http\\.maxhdr|max\\-object\\-size|resolve_retries|hard\\-stop\\-after|tune\\.maxrewrite|maxcompcpuusage|profiling\\.tasks|tune\\.ssl\\.keylog|tune\\.idletimer|clitcpka\\-intvl|total\\-max\\-size|srvtcpka\\-intvl|cluster\\-secret|tune\\.maxaccept|log\\-format\\-sd|spread\\-checks|fd\\-hard\\-limit|clitcpka\\-idle|ssl\\-propquery|thread\\-groups|srvtcpka\\-idle|tune\\.pipesize|srvtcpka\\-cnt|ssl\\-provider|backing\\-file|default\\-path|process\\-vary|clitcpka\\-cnt|tune\\.bufsize|use\\-fcgi\\-app|pass\\-header|maxsessrate|log\\-forward|maxcomprate|description|maxconnrate|monitor\\-uri|http\\-errors|log\\-format|maxsslconn|maxsslrate|maxzlibmem|dgram\\-bind|http\\-reuse|localpeer|path\\-info|dispatch|maxpipes|fullconn|ulimit\\-n|nbthread|userlist|lua\\-load|crt\\-base|mailers|docroot|ca\\-base|pidfile|maxconn|backlog|cpu\\-map|log\\-tag|program|max\\-age|retries|chroot|maxlen|format|grace|peers|index|size|ring|node|uid|gid|id))\\s+(\\S+)",
+          "match": "\\b(?:(?:tune\\.quic\\.frontend\\.conn\\-tx\\-buffers\\.limit|tune\\.quic\\.frontend\\.max\\-idle\\-timeout|tune\\.quic\\.frontend\\.max\\-streams\\-bidi|harden\\.reject\\-privileged\\-ports\\.quic|harden\\.reject\\-privileged\\-ports\\.tcp|tune\\.ssl\\.capture\\-cipherlist\\-size|ssl\\-default\\-server\\-ciphersuites|tune\\.h2\\.max\\-concurrent\\-streams|tune\\.peers\\.max\\-updates\\-at\\-once|deviceatlas\\-properties\\-cookie|ssl\\-default\\-bind\\-ciphersuites|tune\\.ssl\\.capture\\-buffer\\-size|tune\\.ssl\\.ssl\\-ctx\\-cache\\-size|load\\-server\\-state\\-from\\-file|httpclient\\.resolvers\\.prefer|tune\\.h2\\.initial\\-window\\-size|ssl\\-default\\-server\\-ciphers|tune\\.vars\\.global\\-max\\-size|tune\\.listener\\.multi\\-queue|tune\\.vars\\.reqres\\-max\\-size|tune\\.ssl\\.default\\-dh\\-param|tune\\.h2\\.header\\-table\\-size|tune\\.quic\\.retry\\-threshold|ssl\\-default\\-bind\\-ciphers|tune\\.lua\\.service\\-timeout|tune\\.lua\\.session\\-timeout|tune\\.quic\\.reorder\\-ratio|tune\\.pattern\\.cache\\-size|tune\\.ssl\\.hard\\-maxrecord|tune\\.vars\\.proc\\-max\\-size|tune\\.vars\\.sess\\-max\\-size|tune\\.pool\\-high\\-fd\\-ratio|httpclient\\.resolvers\\.id|ssl\\-default\\-bind\\-curves|tune\\.pool\\-low\\-fd\\-ratio|tune\\.h2\\.max\\-frame\\-size|httpclient\\.ssl\\.ca\\-file|tune\\.vars\\.txn\\-max\\-size|tune\\.sched\\.low\\-latency|tune\\.lua\\.task\\-timeout|max\\-session\\-srv\\-conns|deviceatlas\\-json\\-file|deviceatlas\\-separator|tune\\.lua\\.forced\\-yield|deviceatlas\\-log\\-level|max\\-secondary\\-entries|accepted_payload_size|tune\\.idle\\-pool\\.shared|tune\\.zlib\\.windowsize|max\\-keep\\-alive\\-queue|tune\\.buffers\\.reserve|mworker\\-max\\-reloads|hash\\-balance\\-factor|tune\\.http\\.cookielen|lua\\-load\\-per\\-thread|tune\\.http\\.logurilen|tune\\.runqueue\\-depth|h1\\-case\\-adjust\\-file|dynamic\\-cookie\\-key|tune\\.buffers\\.limit|issuers\\-chain\\-path|tune\\.comp\\.maxlevel|tune\\.ssl\\.maxrecord|tune\\.sndbuf\\.client|tune\\.ssl\\.cachesize|tune\\.rcvbuf\\.server|tune\\.maxpollevents|tune\\.rcvbuf\\.client|tune\\.zlib\\.memlevel|tune\\.sndbuf\\.server|tune\\.ssl\\.lifetime|max\\-spread\\-checks|server\\-state\\-file|ssl\\-provider\\-path|close\\-spread\\-time|ssl\\-dh\\-param\\-file|server\\-state\\-base|tune\\.http\\.maxhdr|profiling\\.memory|error\\-log\\-format|unique\\-id\\-header|tune\\.recv_enough|unique\\-id\\-format|tune\\.maxrewrite|resolve_retries|hard\\-stop\\-after|profiling\\.tasks|max\\-object\\-size|tune\\.ssl\\.keylog|maxcompcpuusage|clitcpka\\-intvl|tune\\.maxaccept|tune\\.idletimer|srvtcpka\\-intvl|cluster\\-secret|total\\-max\\-size|fd\\-hard\\-limit|srvtcpka\\-idle|spread\\-checks|thread\\-groups|log\\-format\\-sd|tune\\.pipesize|ssl\\-propquery|clitcpka\\-idle|ssl\\-provider|process\\-vary|tune\\.bufsize|clitcpka\\-cnt|backing\\-file|srvtcpka\\-cnt|use\\-fcgi\\-app|default\\-path|monitor\\-uri|maxcomprate|pass\\-header|http\\-errors|maxsessrate|log\\-forward|maxconnrate|description|maxsslrate|http\\-reuse|log\\-format|maxsslconn|maxzlibmem|dgram\\-bind|path\\-info|localpeer|ulimit\\-n|userlist|dispatch|maxpipes|crt\\-base|nbthread|fullconn|lua\\-load|ca\\-base|pidfile|program|backlog|cpu\\-map|maxconn|max\\-age|log\\-tag|mailers|retries|docroot|chroot|cookie|maxlen|format|grace|index|peers|ring|size|node|gid|uid|id))\\s+(\\S+)",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
@@ -775,14 +807,25 @@
       "patterns": [
         {
           "name": "keyword.other.directive.haproxy",
-          "match": "\\b(?:clear\\-cookie|set\\-cookie|drop\\-query|location|scheme|prefix|code)\\b"
+          "match": "\\b(?:clear\\-cookie|drop\\-query|set\\-cookie|location|scheme|prefix|code)\\b"
         }
       ]
     },
     "bind-param-pairs": {
       "patterns": [
         {
-          "match": "\\b(check\\-pool\\-conn\\-name|accept\\-netscaler\\-cip|pool\\-purge\\-delay|proxy\\-v2\\-options|severity\\-output|tls\\-ticket\\-keys|resolve\\-prefer|pool\\-conn\\-name|crt\\-ignore\\-err|client\\-sigalgs|ca\\-verify\\-file|pool\\-max\\-conn|pool\\-low\\-conn|send\\-proxy\\-v2|ca\\-ignore\\-err|quic\\-cc\\-algo|ca\\-sign\\-pass|resolve\\-opts|ciphersuites|ca\\-sign\\-file|log\\-bufsize|error\\-limit|resolve\\-net|agent\\-inter|no\\-ca\\-names|default\\-crt|agent\\-addr|agent\\-send|agent\\-port|verifyhost|interface|log\\-proto|resolvers|slowstart|max\\-reuse|init\\-addr|namespace|maxqueue|crt\\-list|crl\\-file|hash\\-key|ca\\-file|ciphers|process(?!-)|maxconn|minconn|sigalgs|nbconn|shards|verify|weight|curves|thread|level|shard|redir|label|proto|group|alpn|name|addr|port|mode|nice|uid|gid|mss|crt|npn|sni|id|ws)\\s+(\\S+)",
+          "match": "\\b(name)\\s+(?!%\\[|\\[)(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.option.haproxy"
+            },
+            "2": {
+              "name": "string.unquoted.haproxy"
+            }
+          }
+        },
+        {
+          "match": "\\b(accept\\-netscaler\\-cip|check\\-pool\\-conn\\-name|proxy\\-v2\\-options|pool\\-purge\\-delay|tls\\-ticket\\-keys|severity\\-output|resolve\\-prefer|crt\\-ignore\\-err|client\\-sigalgs|pool\\-conn\\-name|ca\\-verify\\-file|pool\\-low\\-conn|pool\\-max\\-conn|ca\\-ignore\\-err|send\\-proxy\\-v2|resolve\\-opts|ca\\-sign\\-pass|quic\\-cc\\-algo|ciphersuites|ca\\-sign\\-file|resolve\\-net|no\\-ca\\-names|default\\-crt|agent\\-inter|error\\-limit|log\\-bufsize|agent\\-addr|agent\\-port|verifyhost|agent\\-send|slowstart|resolvers|namespace|max\\-reuse|log\\-proto|interface|init\\-addr|maxqueue|crl\\-file|crt\\-list|hash\\-key|process(?!-)|ca\\-file|sigalgs|maxconn|minconn|ciphers|verify|nbconn|shards|thread|weight|curves|level|shard|group|redir|proto|label|nice|addr|port|mode|alpn|mss|npn|gid|uid|sni|crt|id|ws)\\s+(\\S+)",
           "captures": {
             "1": {
               "name": "keyword.other.option.haproxy"
@@ -820,7 +863,7 @@
         },
         {
           "name": "keyword.other.option.haproxy",
-          "match": "\\b(?:no\\-send\\-proxy\\-v2\\-ssl\\-cn|prefer\\-client\\-ciphers|generate\\-certificates|no\\-send\\-proxy\\-v2\\-ssl|send\\-proxy\\-v2\\-ssl\\-cn|set\\-proxy\\-v2\\-tlv\\-fmt|no\\-check\\-reuse\\-pool|no\\-check\\-send\\-proxy|send\\-proxy\\-v2\\-ssl|no\\-send\\-proxy\\-v2|quic\\-force\\-retry|check\\-via\\-socks4|check\\-send\\-proxy|check\\-reuse\\-pool|no\\-agent\\-check|no\\-tls\\-tickets|strict\\-maxconn|on\\-marked\\-down|no\\-strict\\-sni|no\\-send\\-proxy|defer\\-accept|no\\-ssl\\-reuse|force\\-tlsv13|force\\-tlsv11|force\\-tlsv10|on\\-marked\\-up|force\\-tlsv12|no\\-check\\-ssl|tls\\-tickets|agent\\-check|check\\-proto|quic\\-socket|transparent|guid\\-prefix|force\\-sslv3|ssl\\-max\\-ver|ssl\\-min\\-ver|init\\-state|strict\\-sni|check\\-alpn|allow\\-0rtt|no\\-backup|no\\-tlsv12|non\\-stick|no\\-tlsv10|idle\\-ping|no\\-tlsv11|expose\\-fd|ssl\\-reuse|downinter|check\\-ssl|no\\-tlsv13|fastinter|check\\-sni|on\\-error|no\\-check|disabled|no\\-sslv3|no\\-alpn|enabled|backlog|observe|v6only|tcp\\-ut|socks4|usesrc|no\\-ssl|no\\-tfo|source|backup|cookie|inter|ecdhe|track|stick|check|fall|user|guid|rise|v4v6|tfo|ssl)\\b"
+          "match": "\\b(?:no\\-send\\-proxy\\-v2\\-ssl\\-cn|generate\\-certificates|prefer\\-client\\-ciphers|set\\-proxy\\-v2\\-tlv\\-fmt|no\\-send\\-proxy\\-v2\\-ssl|send\\-proxy\\-v2\\-ssl\\-cn|no\\-check\\-send\\-proxy|no\\-check\\-reuse\\-pool|send\\-proxy\\-v2\\-ssl|no\\-send\\-proxy\\-v2|check\\-reuse\\-pool|check\\-via\\-socks4|quic\\-force\\-retry|check\\-send\\-proxy|on\\-marked\\-down|strict\\-maxconn|no\\-tls\\-tickets|no\\-agent\\-check|no\\-send\\-proxy|no\\-strict\\-sni|force\\-tlsv12|no\\-ssl\\-reuse|no\\-check\\-ssl|force\\-tlsv11|force\\-tlsv13|force\\-tlsv10|on\\-marked\\-up|defer\\-accept|ssl\\-max\\-ver|transparent|guid\\-prefix|ssl\\-min\\-ver|check\\-proto|agent\\-check|force\\-sslv3|quic\\-socket|tls\\-tickets|allow\\-0rtt|strict\\-sni|check\\-alpn|init\\-state|check\\-ssl|check\\-sni|no\\-tlsv10|fastinter|ssl\\-reuse|no\\-tlsv11|expose\\-fd|downinter|no\\-tlsv13|no\\-backup|non\\-stick|idle\\-ping|no\\-tlsv12|on\\-error|no\\-sslv3|no\\-check|disabled|no\\-alpn|backlog|enabled|observe|no\\-ssl|cookie|no\\-tfo|v6only|source|usesrc|tcp\\-ut|backup|socks4|inter|stick|track|check|ecdhe|fall|v4v6|rise|guid|user|tfo|ssl)\\b"
         }
       ]
     },
@@ -880,11 +923,78 @@
       "patterns": [
         {
           "name": "storage.type",
-          "match": "\\b(?:internal\\.htx_blk\\.start_line|internal\\.htx_blk\\.hdrname|internal\\.htx_blk\\.hdrval|internal\\.htx\\.free_data|internal\\.htx_blk\\.data|internal\\.htx_blk\\.size|internal\\.htx_blk\\.type|internal\\.htx\\.has_eom|internal\\.strm\\.is_htx|internal\\.htx\\.nbblks|capture\\.req\\.method|req\\.ssl_hello_type|res\\.ssl_hello_type|req\\.rdp_cookie_cnt|internal\\.htx\\.data|internal\\.htx\\.size|internal\\.htx\\.free|internal\\.htx\\.used|capture\\.req\\.ver|capture\\.req\\.hdr|capture\\.res\\.hdr|capture\\.res\\.ver|capture\\.req\\.uri|res\\.cache_name|req\\.proto_http|req\\.payload_lv|req\\.rdp_cookie|req\\.ssl_ec_ext|res\\.payload_lv|req\\.ssl_st_ext|req\\.body_param|res\\.cache_hit|res\\.body_size|res\\.comp_algo|req\\.hdr_names|req\\.body_size|res\\.hdr_names|req\\.ssl_alpn|req\\.hdrs_bin|fcgi\\.docroot|req\\.cook_val|res\\.fhdr_cnt|res\\.cook_cnt|res\\.body_len|req\\.body_len|res\\.hdrs_bin|res\\.cook_val|req\\.cook_cnt|req\\.fhdr_cnt|res\\.hdr_val|res\\.hdr_cnt|req\\.payload|req\\.ssl_sni|req\\.ssl_ver|req\\.hdr_cnt|res\\.payload|req\\.hdr_val|req\\.hdr_ip|fcgi\\.index|res\\.hdr_ip|req\\.body|res\\.fhdr|req\\.fhdr|res\\.body|res\\.hdrs|res\\.comp|req\\.cook|res\\.cook|req\\.hdrs|req\\.len|res\\.ver|req\\.ver|req\\.hdr|res\\.len|res\\.hdr)\\b"
+          "match": "\\b(?:internal\\.htx_blk\\.start_line|internal\\.htx_blk\\.hdrname|internal\\.htx_blk\\.hdrval|internal\\.htx\\.free_data|internal\\.htx_blk\\.type|internal\\.htx_blk\\.size|internal\\.htx_blk\\.data|internal\\.htx\\.has_eom|internal\\.strm\\.is_htx|internal\\.htx\\.nbblks|capture\\.req\\.method|req\\.ssl_hello_type|req\\.rdp_cookie_cnt|res\\.ssl_hello_type|internal\\.htx\\.free|internal\\.htx\\.used|internal\\.htx\\.data|internal\\.htx\\.size|capture\\.req\\.ver|capture\\.res\\.ver|capture\\.req\\.hdr|capture\\.res\\.hdr|capture\\.req\\.uri|req\\.proto_http|req\\.rdp_cookie|req\\.ssl_st_ext|res\\.payload_lv|req\\.payload_lv|req\\.ssl_ec_ext|req\\.body_param|res\\.cache_name|res\\.cache_hit|res\\.body_size|res\\.hdr_names|res\\.comp_algo|req\\.body_size|req\\.hdr_names|req\\.body_len|req\\.cook_cnt|req\\.fhdr_cnt|res\\.fhdr_cnt|res\\.cook_cnt|res\\.cook_val|req\\.ssl_alpn|res\\.body_len|res\\.hdrs_bin|req\\.cook_val|fcgi\\.docroot|req\\.hdrs_bin|req\\.ssl_ver|req\\.ssl_sni|req\\.hdr_cnt|res\\.payload|res\\.hdr_cnt|req\\.payload|res\\.hdr_val|req\\.hdr_val|res\\.hdr_ip|fcgi\\.index|req\\.hdr_ip|res\\.comp|res\\.fhdr|req\\.cook|req\\.hdrs|res\\.cook|res\\.hdrs|req\\.fhdr|req\\.body|res\\.body|res\\.len|req\\.ver|req\\.len|res\\.hdr|req\\.hdr|res\\.ver)\\b"
         },
         {
           "name": "storage.type",
-          "match": "\\b[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]+)+(?:\\([^)]*\\))?"
+          "match": "\\b(?:(?:internal\\.htx_blk\\.start_line|internal\\.htx_blk\\.hdrname|internal\\.htx_blk\\.hdrval|internal\\.htx\\.free_data|internal\\.htx_blk\\.type|internal\\.htx_blk\\.size|internal\\.htx_blk\\.data|internal\\.strm\\.is_htx|table_http_fail_rate|table_bytes_out_rate|internal\\.htx\\.has_eom|table_http_req_rate|table_http_fail_cnt|internal\\.htx\\.nbblks|table_bytes_in_rate|table_http_err_rate|sc2_bytes_out_rate|req\\.ssl_hello_type|cur_server_timeout|res\\.ssl_hello_type|sc1_bytes_out_rate|sc0_http_fail_rate|sc1_http_fail_rate|cur_tunnel_timeout|req\\.rdp_cookie_cnt|capture\\.req\\.method|src_http_fail_rate|table_http_req_cnt|sc0_bytes_out_rate|rep_ssl_hello_type|sc2_http_fail_rate|table_http_err_cnt|req_ssl_hello_type|src_bytes_out_rate|internal\\.htx\\.used|sc_bytes_out_rate|sc1_http_fail_cnt|sc2_http_req_rate|internal\\.htx\\.data|sc0_http_req_rate|src_updt_conn_cnt|sc1_http_req_rate|sc1_http_err_rate|sc0_http_fail_cnt|be_tunnel_timeout|internal\\.htx\\.free|sc0_http_err_rate|sc1_bytes_in_rate|src_bytes_in_rate|internal\\.htx\\.size|sc2_http_err_rate|sc0_bytes_in_rate|sc_http_fail_rate|sc2_bytes_in_rate|sc2_http_fail_cnt|fe_client_timeout|be_server_timeout|src_http_fail_cnt|src_http_err_rate|src_http_req_rate|sc1_http_req_cnt|mqtt_field_value|sc0_http_err_cnt|sc_bytes_in_rate|sc_http_err_rate|sc_http_req_rate|sc2_http_err_cnt|http_auth_bearer|sc0_http_req_cnt|src_http_req_cnt|table_kbytes_out|sc_http_fail_cnt|sc1_http_err_cnt|sc2_http_req_cnt|src_http_err_cnt|table_gpc1_rate|fc_dst_is_local|capture\\.req\\.uri|capture\\.res\\.hdr|fc_pp_authority|capture\\.req\\.ver|fc_pp_unique_id|table_conn_rate|capture\\.req\\.hdr|sc_http_req_cnt|table_kbytes_in|table_server_id|capture\\.res\\.ver|table_gpc0_rate|fc_src_is_local|sc_http_err_cnt|table_sess_rate|http_auth_group|req\\.payload_lv|http_auth_pass|http_auth_user|req\\.rdp_cookie|last_rule_file|table_conn_cnt|req\\.ssl_st_ext|table_sess_cnt|req\\.body_param|sc1_kbytes_out|sc0_kbytes_out|req\\.ssl_ec_ext|last_rule_line|table_gpc_rate|sc2_kbytes_out|table_trackers|http_auth_type|req\\.proto_http|res\\.payload_lv|http_first_req|rdp_cookie_cnt|src_kbytes_out|table_conn_cur|res\\.cache_name|req_proto_http|res\\.cache_hit|res\\.hdr_names|sc1_conn_rate|res\\.comp_algo|mqtt_is_valid|sc2_sess_rate|req\\.hdr_names|req\\.body_size|sc1_kbytes_in|sc_kbytes_out|fix_tag_value|fc_reordering|sc0_sess_rate|sc0_gpc0_rate|src_conn_rate|sc2_gpc1_rate|sc2_conn_rate|sc0_gpc1_rate|sc1_sess_rate|sc2_kbytes_in|sc2_gpc0_rate|sc0_kbytes_in|sc1_gpc0_rate|src_gpc0_rate|sc0_conn_rate|srv_sess_rate|src_kbytes_in|bc_http_major|src_gpc1_rate|fc_rcvd_proxy|src_sess_rate|srv_conn_free|fc_http_major|res\\.body_size|sc1_gpc1_rate|req\\.cook_cnt|sc2_clr_gpc1|sc0_clr_gpc0|src_get_gpt0|sc1_inc_gpc0|req\\.cook_val|sc2_sess_cnt|src_clr_gpc1|fix_is_valid|sc_conn_rate|res\\.hdrs_bin|sc1_get_gpc1|src_get_gpc0|sc0_inc_gpc1|res\\.fhdr_cnt|sc0_trackers|res\\.cook_val|be_conn_free|sc1_inc_gpc1|sc0_get_gpt0|src_gpc_rate|sc1_clr_gpc1|sc1_get_gpc0|sc2_get_gpt0|src_clr_gpc0|src_sess_cnt|sc2_inc_gpc1|fe_sess_rate|fcgi\\.docroot|res\\.body_len|dst_is_local|src_is_local|sc2_get_gpc0|sc_kbytes_in|sc2_inc_gpc0|sc0_clr_gpc1|req\\.body_len|sc0_conn_cur|be_sess_rate|sc1_conn_cur|src_conn_cur|sc2_conn_cur|sc0_get_gpc1|sc2_clr_gpc0|sc1_trackers|sc_sess_rate|sc0_sess_cnt|sc2_conn_cnt|src_get_gpc1|sc0_inc_gpc0|sc_gpc0_rate|always_false|sc1_conn_cnt|src_inc_gpc1|sc2_trackers|req\\.fhdr_cnt|sc1_get_gpt0|sc_gpc1_rate|table_expire|req\\.ssl_alpn|sc1_clr_gpc0|sc0_conn_cnt|sc0_get_gpc0|distcc_param|src_inc_gpc0|req\\.hdrs_bin|sc2_get_gpc1|res\\.cook_cnt|sc1_sess_cnt|src_conn_cnt|fe_req_rate|sc_sess_cnt|req_ssl_sni|fc_src_port|map_str_int|map_dom_int|req\\.hdr_cnt|res\\.payload|sc_conn_cur|sc_inc_gpc1|map_dir_int|sc1_tracked|req\\.hdr_val|bc_dst_port|map_sub_int|sc0_tracked|srv_iweight|map_beg_int|sc_conn_cnt|sc2_tracked|sc_clr_gpc0|src_clr_gpc|sc_get_gpc0|sc1_clr_gpc|sc_get_gpt0|req_ssl_ver|src_inc_gpc|src_get_gpc|prio_offset|req\\.ssl_ver|always_true|res\\.hdr_cnt|sc_inc_gpc0|req\\.ssl_sni|fc_dst_port|sc_clr_gpc1|res\\.hdr_val|map_int_int|map_end_int|sc_gpc_rate|srv_uweight|map_reg_int|src_get_gpt|sc_trackers|distcc_body|req\\.payload|sc_get_gpc1|bc_src_port|sc_inc_gpc|table_gpt0|table_gpc1|res\\.hdr_ip|map_end_ip|sc_get_gpc|map_str_ip|map_int_ip|map_sub_ip|req\\.hdr_ip|sc_get_gpt|fc_retrans|cpu_ns_tot|lat_ns_tot|fc_unacked|bc_err_str|sc_tracked|table_idle|fc_fackets|map_reg_ip|lat_ns_avg|map_beg_ip|json_query|sc_clr_gpc|map_ip_int|table_gpc0|prio_class|srv_weight|map_dir_ip|rdp_cookie|payload_lv|fc_err_str|cpu_ns_avg|map_dom_ip|fcgi\\.index|srv_is_up|srv_queue|map_ip_ip|http_date|table_avl|host_only|scook_cnt|url_param|scook_val|avg_queue|table_gpt|table_cnt|fc_rttvar|cpu_calls|table_gpc|connslots|port_only|fc_sacked|http_auth|dst_conn|protobuf|stopping|srv_conn|urlp_val|in_table|res\\.body|wait_end|cook_val|src_port|resp_ver|res\\.cook|url_port|shdr_val|req\\.hdrs|shdr_cnt|req\\.fhdr|srv_name|map_regm|hostname|res\\.comp|add_item|res\\.hdrs|res\\.fhdr|req\\.cook|dst_port|language|cut_crlf|cook_cnt|req\\.body|fe_defbe|map_str|fe_conn|map_dir|map_beg|ub64dec|hdr_cnt|map_reg|map_dom|map_int|req\\.len|be_conn|url_dec|fc_lost|res\\.hdr|ub64enc|date_us|req_ver|so_name|req\\.ver|url_enc|hdr_val|shdr_ip|map_sub|fe_name|res\\.len|payload|be_name|map_end|res\\.ver|req\\.hdr|req_len|be2dec|fc_dst|base32|bc_err|base64|regsub|status|fc_src|fc_rtt|ipmask|strcmp|method|b64dec|url_ip|be2hex|length|map_ip|nbproc|crc32c|bc_dst|hdr_ip|bc_src|srv_id|fc_err|cookie|thread|concat|ungrpc|upper|utime|url32|pathq|fe_id|queue|htonl|be_id|lower|xxh64|field|ltime|baseq|bytes|ltrim|nbsrv|so_id|rtrim|debug|xxh32|hex2i|query|scook|crc32|rand|even|ipv4|sdbm|meth|djb2|proc|json|path|urlp|date|shdr|xxh3|word|bool|cook|base|ipv6|uuid|sha1|odd|env|var|url|not|map|str|sub|dst|bin|hex|add|int|src|neg|mul|cpl|iif|and|mod|wt6|xor|div|hdr|or))\\b"
+        },
+        {
+          "name": "storage.type",
+          "match": "(?<=,)\\s*[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]+)*\\b"
+        },
+        {
+          "name": "storage.type",
+          "match": "\\b[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]+)+\\b"
+        }
+      ]
+    },
+    "sample-function-calls": {
+      "patterns": [
+        {
+          "begin": "\\b((?:internal\\.htx_blk\\.start_line|internal\\.htx_blk\\.hdrname|internal\\.htx_blk\\.hdrval|internal\\.htx\\.free_data|internal\\.htx_blk\\.type|internal\\.htx_blk\\.size|internal\\.htx_blk\\.data|internal\\.strm\\.is_htx|table_http_fail_rate|table_bytes_out_rate|internal\\.htx\\.has_eom|table_http_req_rate|table_http_fail_cnt|internal\\.htx\\.nbblks|table_bytes_in_rate|table_http_err_rate|sc2_bytes_out_rate|req\\.ssl_hello_type|cur_server_timeout|res\\.ssl_hello_type|sc1_bytes_out_rate|sc0_http_fail_rate|sc1_http_fail_rate|cur_tunnel_timeout|req\\.rdp_cookie_cnt|capture\\.req\\.method|src_http_fail_rate|table_http_req_cnt|sc0_bytes_out_rate|rep_ssl_hello_type|sc2_http_fail_rate|table_http_err_cnt|req_ssl_hello_type|src_bytes_out_rate|internal\\.htx\\.used|sc_bytes_out_rate|sc1_http_fail_cnt|sc2_http_req_rate|internal\\.htx\\.data|sc0_http_req_rate|src_updt_conn_cnt|sc1_http_req_rate|sc1_http_err_rate|sc0_http_fail_cnt|be_tunnel_timeout|internal\\.htx\\.free|sc0_http_err_rate|sc1_bytes_in_rate|src_bytes_in_rate|internal\\.htx\\.size|sc2_http_err_rate|sc0_bytes_in_rate|sc_http_fail_rate|sc2_bytes_in_rate|sc2_http_fail_cnt|fe_client_timeout|be_server_timeout|src_http_fail_cnt|src_http_err_rate|src_http_req_rate|sc1_http_req_cnt|mqtt_field_value|sc0_http_err_cnt|sc_bytes_in_rate|sc_http_err_rate|sc_http_req_rate|sc2_http_err_cnt|http_auth_bearer|sc0_http_req_cnt|src_http_req_cnt|table_kbytes_out|sc_http_fail_cnt|sc1_http_err_cnt|sc2_http_req_cnt|src_http_err_cnt|table_gpc1_rate|fc_dst_is_local|capture\\.req\\.uri|capture\\.res\\.hdr|fc_pp_authority|capture\\.req\\.ver|fc_pp_unique_id|table_conn_rate|capture\\.req\\.hdr|sc_http_req_cnt|table_kbytes_in|table_server_id|capture\\.res\\.ver|table_gpc0_rate|fc_src_is_local|sc_http_err_cnt|table_sess_rate|http_auth_group|req\\.payload_lv|http_auth_pass|http_auth_user|req\\.rdp_cookie|last_rule_file|table_conn_cnt|req\\.ssl_st_ext|table_sess_cnt|req\\.body_param|sc1_kbytes_out|sc0_kbytes_out|req\\.ssl_ec_ext|last_rule_line|table_gpc_rate|sc2_kbytes_out|table_trackers|http_auth_type|req\\.proto_http|res\\.payload_lv|http_first_req|rdp_cookie_cnt|src_kbytes_out|table_conn_cur|res\\.cache_name|req_proto_http|res\\.cache_hit|res\\.hdr_names|sc1_conn_rate|res\\.comp_algo|mqtt_is_valid|sc2_sess_rate|req\\.hdr_names|req\\.body_size|sc1_kbytes_in|sc_kbytes_out|fix_tag_value|fc_reordering|sc0_sess_rate|sc0_gpc0_rate|src_conn_rate|sc2_gpc1_rate|sc2_conn_rate|sc0_gpc1_rate|sc1_sess_rate|sc2_kbytes_in|sc2_gpc0_rate|sc0_kbytes_in|sc1_gpc0_rate|src_gpc0_rate|sc0_conn_rate|srv_sess_rate|src_kbytes_in|bc_http_major|src_gpc1_rate|fc_rcvd_proxy|src_sess_rate|srv_conn_free|fc_http_major|res\\.body_size|sc1_gpc1_rate|req\\.cook_cnt|sc2_clr_gpc1|sc0_clr_gpc0|src_get_gpt0|sc1_inc_gpc0|req\\.cook_val|sc2_sess_cnt|src_clr_gpc1|fix_is_valid|sc_conn_rate|res\\.hdrs_bin|sc1_get_gpc1|src_get_gpc0|sc0_inc_gpc1|res\\.fhdr_cnt|sc0_trackers|res\\.cook_val|be_conn_free|sc1_inc_gpc1|sc0_get_gpt0|src_gpc_rate|sc1_clr_gpc1|sc1_get_gpc0|sc2_get_gpt0|src_clr_gpc0|src_sess_cnt|sc2_inc_gpc1|fe_sess_rate|fcgi\\.docroot|res\\.body_len|dst_is_local|src_is_local|sc2_get_gpc0|sc_kbytes_in|sc2_inc_gpc0|sc0_clr_gpc1|req\\.body_len|sc0_conn_cur|be_sess_rate|sc1_conn_cur|src_conn_cur|sc2_conn_cur|sc0_get_gpc1|sc2_clr_gpc0|sc1_trackers|sc_sess_rate|sc0_sess_cnt|sc2_conn_cnt|src_get_gpc1|sc0_inc_gpc0|sc_gpc0_rate|always_false|sc1_conn_cnt|src_inc_gpc1|sc2_trackers|req\\.fhdr_cnt|sc1_get_gpt0|sc_gpc1_rate|table_expire|req\\.ssl_alpn|sc1_clr_gpc0|sc0_conn_cnt|sc0_get_gpc0|distcc_param|src_inc_gpc0|req\\.hdrs_bin|sc2_get_gpc1|res\\.cook_cnt|sc1_sess_cnt|src_conn_cnt|fe_req_rate|sc_sess_cnt|req_ssl_sni|fc_src_port|map_str_int|map_dom_int|req\\.hdr_cnt|res\\.payload|sc_conn_cur|sc_inc_gpc1|map_dir_int|sc1_tracked|req\\.hdr_val|bc_dst_port|map_sub_int|sc0_tracked|srv_iweight|map_beg_int|sc_conn_cnt|sc2_tracked|sc_clr_gpc0|src_clr_gpc|sc_get_gpc0|sc1_clr_gpc|sc_get_gpt0|req_ssl_ver|src_inc_gpc|src_get_gpc|prio_offset|req\\.ssl_ver|always_true|res\\.hdr_cnt|sc_inc_gpc0|req\\.ssl_sni|fc_dst_port|sc_clr_gpc1|res\\.hdr_val|map_int_int|map_end_int|sc_gpc_rate|srv_uweight|map_reg_int|src_get_gpt|sc_trackers|distcc_body|req\\.payload|sc_get_gpc1|bc_src_port|sc_inc_gpc|table_gpt0|table_gpc1|res\\.hdr_ip|map_end_ip|sc_get_gpc|map_str_ip|map_int_ip|map_sub_ip|req\\.hdr_ip|sc_get_gpt|fc_retrans|cpu_ns_tot|lat_ns_tot|fc_unacked|bc_err_str|sc_tracked|table_idle|fc_fackets|map_reg_ip|lat_ns_avg|map_beg_ip|json_query|sc_clr_gpc|map_ip_int|table_gpc0|prio_class|srv_weight|map_dir_ip|rdp_cookie|payload_lv|fc_err_str|cpu_ns_avg|map_dom_ip|fcgi\\.index|srv_is_up|srv_queue|map_ip_ip|http_date|table_avl|host_only|scook_cnt|url_param|scook_val|avg_queue|table_gpt|table_cnt|fc_rttvar|cpu_calls|table_gpc|connslots|port_only|fc_sacked|http_auth|dst_conn|protobuf|stopping|srv_conn|urlp_val|in_table|res\\.body|wait_end|cook_val|src_port|resp_ver|res\\.cook|url_port|shdr_val|req\\.hdrs|shdr_cnt|req\\.fhdr|srv_name|map_regm|hostname|res\\.comp|add_item|res\\.hdrs|res\\.fhdr|req\\.cook|dst_port|language|cut_crlf|cook_cnt|req\\.body|fe_defbe|map_str|fe_conn|map_dir|map_beg|ub64dec|hdr_cnt|map_reg|map_dom|map_int|req\\.len|be_conn|url_dec|fc_lost|res\\.hdr|ub64enc|date_us|req_ver|so_name|req\\.ver|url_enc|hdr_val|shdr_ip|map_sub|fe_name|res\\.len|payload|be_name|map_end|res\\.ver|req\\.hdr|req_len|be2dec|fc_dst|base32|bc_err|base64|regsub|status|fc_src|fc_rtt|ipmask|strcmp|method|b64dec|url_ip|be2hex|length|map_ip|nbproc|crc32c|bc_dst|hdr_ip|bc_src|srv_id|fc_err|cookie|thread|concat|ungrpc|upper|utime|url32|pathq|fe_id|queue|htonl|be_id|lower|xxh64|field|ltime|baseq|bytes|ltrim|nbsrv|so_id|rtrim|debug|xxh32|hex2i|query|scook|crc32|rand|even|ipv4|sdbm|meth|djb2|proc|json|path|urlp|date|shdr|xxh3|word|bool|cook|base|ipv6|uuid|sha1|odd|env|var|url|not|map|str|sub|dst|bin|hex|add|int|src|neg|mul|cpl|iif|and|mod|wt6|xor|div|hdr|or))\\s*(\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type"
+            },
+            "2": {
+              "name": "keyword.other.modifier.haproxy"
+            }
+          },
+          "end": "\\)",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.other.modifier.haproxy"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#strings"
+            },
+            {
+              "include": "#sample-function-calls"
+            },
+            {
+              "include": "#sample-fetches"
+            },
+            {
+              "include": "#acl-flags"
+            },
+            {
+              "include": "#comparison-operators"
+            },
+            {
+              "include": "#condition-keywords"
+            },
+            {
+              "include": "#boolean-literals"
+            },
+            {
+              "include": "#numbers"
+            },
+            {
+              "include": "#enums"
+            },
+            {
+              "include": "#filenames"
+            },
+            {
+              "include": "#punctuation"
+            },
+            {
+              "include": "#identifiers"
+            }
+          ]
         }
       ]
     },
@@ -900,11 +1010,213 @@
         }
       ]
     },
+    "acl-flags": {
+      "patterns": [
+        {
+          "name": "storage.modifier.acl.haproxy",
+          "match": "(?<!\\S)--?[A-Za-z][\\w-]*\\b"
+        }
+      ]
+    },
+    "comparison-operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.comparison.haproxy",
+          "match": "\\b(?:lt|ne|gt|ge|le|eq)\\b"
+        }
+      ]
+    },
+    "acl-expressions": {
+      "patterns": [
+        {
+          "name": "meta.group.expression.haproxy",
+          "begin": "\\{",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.other.modifier.haproxy"
+            }
+          },
+          "end": "\\}",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.other.modifier.haproxy"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#strings"
+            },
+            {
+              "include": "#sample-function-calls"
+            },
+            {
+              "include": "#sample-fetches"
+            },
+            {
+              "include": "#acl-flags"
+            },
+            {
+              "include": "#comparison-operators"
+            },
+            {
+              "include": "#condition-keywords"
+            },
+            {
+              "include": "#boolean-literals"
+            },
+            {
+              "include": "#numbers"
+            },
+            {
+              "include": "#enums"
+            },
+            {
+              "include": "#modifiers"
+            },
+            {
+              "include": "#filenames"
+            },
+            {
+              "include": "#punctuation"
+            },
+            {
+              "include": "#identifiers"
+            }
+          ]
+        }
+      ]
+    },
+    "sample-expressions": {
+      "patterns": [
+        {
+          "name": "meta.embedded.sample-expression.haproxy",
+          "begin": "%\\[",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.other.modifier.haproxy"
+            }
+          },
+          "end": "\\]",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.other.modifier.haproxy"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#strings"
+            },
+            {
+              "include": "#sample-function-calls"
+            },
+            {
+              "include": "#sample-fetches"
+            },
+            {
+              "include": "#acl-flags"
+            },
+            {
+              "include": "#comparison-operators"
+            },
+            {
+              "include": "#condition-keywords"
+            },
+            {
+              "include": "#boolean-literals"
+            },
+            {
+              "include": "#numbers"
+            },
+            {
+              "include": "#enums"
+            },
+            {
+              "include": "#filenames"
+            },
+            {
+              "include": "#punctuation"
+            },
+            {
+              "include": "#identifiers"
+            }
+          ]
+        },
+        {
+          "name": "meta.embedded.sample-expression.haproxy",
+          "begin": "\\[",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.other.modifier.haproxy"
+            }
+          },
+          "end": "\\]",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.other.modifier.haproxy"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#strings"
+            },
+            {
+              "include": "#sample-function-calls"
+            },
+            {
+              "include": "#sample-fetches"
+            },
+            {
+              "include": "#acl-flags"
+            },
+            {
+              "include": "#comparison-operators"
+            },
+            {
+              "include": "#condition-keywords"
+            },
+            {
+              "include": "#boolean-literals"
+            },
+            {
+              "include": "#numbers"
+            },
+            {
+              "include": "#enums"
+            },
+            {
+              "include": "#filenames"
+            },
+            {
+              "include": "#punctuation"
+            },
+            {
+              "include": "#identifiers"
+            }
+          ]
+        }
+      ]
+    },
+    "condition-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.conditional.haproxy",
+          "match": "\\b(?:if|unless)\\b"
+        }
+      ]
+    },
+    "boolean-literals": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.haproxy",
+          "match": "\\b(?:disabled|enabled|FALSE|false|true|TRUE|off|on)\\b"
+        }
+      ]
+    },
     "enums": {
       "patterns": [
         {
           "name": "storage.type",
-          "match": "\\b(?:accept\\-invalid\\-http\\-response|h1\\-case\\-adjust\\-bogus\\-client|accept\\-invalid\\-http\\-request|http\\-restrict\\-req\\-hdr\\-names|h1\\-case\\-adjust\\-bogus\\-server|idle\\-close\\-on\\-response|http\\-pretend\\-keepalive|http\\-use\\-proxy\\-header|log\\-separate\\-errors|independent\\-streams|http\\-buffer\\-request|prefer\\-last\\-server|http\\-ignore\\-probes|disable\\-h2\\-upgrade|unique\\-id\\-counters|log\\-health\\-checks|http\\-server\\-close|tcp\\-smart\\-connect|tcp\\-smart\\-accept|proxy\\-v2\\-options|start\\-on\\-reload|splice\\-response|http\\-keep\\-alive|dontlog\\-normal|splice\\-request|external\\-check|http\\-no\\-delay|send\\-proxy\\-v2|ssl\\-hello\\-chk|accept\\-proxy|socket\\-stats|abortonclose|clear\\-cookie|unique\\-id\\-id|http\\-version|redis\\-check|dontlognull|transparent|mysql\\-check|splice\\-auto|drop\\-query|forwardfor|ldap\\-check|checkcache|set\\-cookie|send\\-proxy|mpxs\\-conns|originalto|allbackups|spop\\-check|redispatch|get\\-values|roundrobin|contstats|leastconn|url_param|keep\\-conn|static\\-rr|tcp\\-check|httpclose|httpslog|srvtcpka|nolinger|location|max\\-reqs|clitcpka|httplog|lstring|logasap|comment|smtpchk|rstring|persist|httpchk|warning|local6|v6only|scheme|status|local4|local1|local0|notice|string|health|local2|tcplog|header|source|local5|v4only|binary|random|prefix|local7|local3|method|unless|cookie|FALSE|first|false|bytes|alert|tcpka|proto|emerg|debug|hash|date|crit|alpn|body|TRUE|uuid|rand|true|info|proc|http|sess|code|hdr|src|npn|dst|tcp|var|uri|env|ssl|err|be|if|fe)\\b"
+          "match": "\\b(?:accept\\-invalid\\-http\\-response|http\\-restrict\\-req\\-hdr\\-names|h1\\-case\\-adjust\\-bogus\\-client|h1\\-case\\-adjust\\-bogus\\-server|accept\\-invalid\\-http\\-request|http\\-pretend\\-keepalive|idle\\-close\\-on\\-response|http\\-use\\-proxy\\-header|log\\-separate\\-errors|independent\\-streams|http\\-buffer\\-request|prefer\\-last\\-server|http\\-ignore\\-probes|unique\\-id\\-counters|disable\\-h2\\-upgrade|http\\-server\\-close|tcp\\-smart\\-connect|log\\-health\\-checks|proxy\\-v2\\-options|tcp\\-smart\\-accept|http\\-keep\\-alive|start\\-on\\-reload|splice\\-response|splice\\-request|external\\-check|dontlog\\-normal|ssl\\-hello\\-chk|http\\-no\\-delay|send\\-proxy\\-v2|abortonclose|accept\\-proxy|http\\-version|socket\\-stats|unique\\-id\\-id|clear\\-cookie|redis\\-check|mysql\\-check|splice\\-auto|transparent|dontlognull|forwardfor|set\\-cookie|send\\-proxy|mpxs\\-conns|originalto|roundrobin|spop\\-check|ldap\\-check|get\\-values|checkcache|allbackups|drop\\-query|redispatch|tcp\\-check|leastconn|static\\-rr|httpclose|url_param|contstats|keep\\-conn|max\\-reqs|location|httpslog|clitcpka|srvtcpka|nolinger|rstring|comment|httpchk|httplog|smtpchk|lstring|warning|persist|logasap|v4only|local0|local7|local1|local3|cookie|local6|method|local5|local4|health|v6only|binary|source|tcplog|notice|header|random|prefix|scheme|status|local2|string|first|bytes|alert|emerg|debug|proto|tcpka|info|rand|crit|hash|uuid|http|code|body|alpn|proc|sess|date|env|tcp|src|var|npn|dst|hdr|err|uri|ssl|fe|be)\\b"
         }
       ]
     },
@@ -918,18 +1230,6 @@
     },
     "expressions": {
       "patterns": [
-        {
-          "name": "string.unquoted.haproxy",
-          "match": "\\{[^}]*\\}"
-        },
-        {
-          "name": "string.unquoted.haproxy",
-          "match": "%\\[[^\\]]*\\]"
-        },
-        {
-          "name": "string.unquoted.haproxy",
-          "match": "\\[[^\\]]*\\]"
-        },
         {
           "name": "constant.character.escape.haproxy",
           "match": "\\\\[\\s\"\\\\]"

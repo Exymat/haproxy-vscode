@@ -157,6 +157,20 @@ const cases: Array<{
     version: "3.4",
   },
   {
+    name: "deprecated acl sample fetch alias hdr_cnt",
+    content: "frontend x\n\tacl bad hdr_cnt(host) eq 1\n",
+    expectations: { total: 1, counts: { "deprecated-sample": 1 }, severity: 1 },
+    schema: schemas["3.4"],
+    version: "3.4",
+  },
+  {
+    name: "deprecated sample fetch inside inline expression",
+    content: "frontend x\n\thttp-request set-header X-Test %[hdr_cnt(host)]\n",
+    expectations: { total: 1, counts: { "deprecated-sample": 1 }, severity: 1 },
+    schema: schemas["3.4"],
+    version: "3.4",
+  },
+  {
     name: "expose-deprecated-directives suppresses deprecated warnings",
     content: "global\n\texpose-deprecated-directives\n\tmaster-worker\n",
     expectations: { total: 0 },

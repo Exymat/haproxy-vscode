@@ -9,6 +9,11 @@ const SCOPES = {
   label: "entity.name.type.class.proxy.haproxy",
   acl: "entity.other.attribute-name.acl.haproxy",
   reference: "entity.name.type.proxy.haproxy",
+  condition: "keyword.control.conditional.haproxy",
+  boolean: "constant.language.boolean.haproxy",
+  aclFlag: "storage.modifier.acl.haproxy",
+  comparison: "keyword.operator.comparison.haproxy",
+  storage: "storage.type",
 };
 
 const NAME_SCOPE_EXPECTATIONS = [
@@ -40,5 +45,33 @@ describe("highlight", () => {
       const token = findTokenOnLine(lineTokens, line, text);
       expect(token.displayScope).toBe(scope);
     }
+  });
+
+  it("scopes ACL flags, conditionals, comparisons, and booleans explicitly", async () => {
+    const aclContent = readFileSync(join(fixturesDir, "hapee-acl-snippet.cfg"), "utf-8");
+    const aclTokens = await tokenizeDocument(aclContent);
+
+    expect(findTokenOnLine(aclTokens, 2, "if").displayScope).toBe(SCOPES.condition);
+    expect(findTokenOnLine(aclTokens, 2, "-m").displayScope).toBe(SCOPES.aclFlag);
+    expect(findTokenOnLine(aclTokens, 5, "eq").displayScope).toBe(SCOPES.comparison);
+
+    const directivesContent = readFileSync(join(fixturesDir, "grammar-directives.cfg"), "utf-8");
+    const directiveTokens = await tokenizeDocument(directivesContent);
+    expect(findTokenOnLine(directiveTokens, 4, "on").displayScope).toBe(SCOPES.boolean);
+  });
+
+  it("tokenizes nested sample fetch and converter expressions", async () => {
+    const aclContent = readFileSync(join(fixturesDir, "hapee-acl-snippet.cfg"), "utf-8");
+    const aclTokens = await tokenizeDocument(aclContent);
+    expect(findTokenOnLine(aclTokens, 3, "req.hdr").displayScope).toBe(SCOPES.storage);
+    expect(findTokenOnLine(aclTokens, 4, "var").displayScope).toBe(SCOPES.storage);
+
+    const convContent = readFileSync(
+      join(fixturesDir, "golden", "test-sample-fetch-conv.cfg"),
+      "utf-8",
+    );
+    const convTokens = await tokenizeDocument(convContent);
+    expect(findTokenOnLine(convTokens, 15, "hdr").displayScope).toBe(SCOPES.storage);
+    expect(findTokenOnLine(convTokens, 18, "ipmask").displayScope).toBe(SCOPES.storage);
   });
 });

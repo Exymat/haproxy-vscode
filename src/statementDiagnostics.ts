@@ -125,7 +125,16 @@ function validateFixedSlots(line: ParsedLine, rule: StatementRule): vscode.Diagn
         continue;
       }
       const policy = policyForSlot(rule, spec, token);
-      pushAddressResult(line, tokenIdx, validateHaproxyAddress(token, policy), diagnostics);
+      const addressParts =
+        rule.kind === "bind"
+          ? token
+              .split(",")
+              .map((part) => part.trim())
+              .filter((part) => part.length > 0)
+          : [token];
+      for (const part of addressParts) {
+        pushAddressResult(line, tokenIdx, validateHaproxyAddress(part, policy), diagnostics);
+      }
     }
   }
 
@@ -235,7 +244,12 @@ function logLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
   }
   const target = line.tokens[1].text;
   const lower = target.toLowerCase();
-  if (LOG_ADDRESS_SKIP.has(lower) || lower.startsWith("@") || target.startsWith("/")) {
+  if (
+    LOG_ADDRESS_SKIP.has(lower) ||
+    lower.startsWith("@") ||
+    lower.startsWith("ring@") ||
+    target.startsWith("/")
+  ) {
     return [];
   }
   const diagnostics: vscode.Diagnostic[] = [];

@@ -228,4 +228,58 @@ describe("argumentDiagnostics", () => {
     const diags = argDiags("global\n    description", 1);
     expect(diags.filter((d) => d.code === "missing-argument")).toHaveLength(0);
   });
+
+  it("accepts syslog facility on log address form", () => {
+    const diags = argDiags("frontend f1\n    log 127.0.0.1 local0", 1);
+    expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
+  });
+
+  it("accepts log len format optional groups", () => {
+    const diags = argDiags("frontend f1\n    log ring@buf len 2048 format raw local0", 1);
+    expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
+  });
+
+  it("skips optional enum slots when a later slot matches", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.sections.defaults.keywords = [...schema.sections.defaults.keywords, "test-kw"];
+    schema.keywords["test-kw"] = {
+      name: "test-kw",
+      sections: ["defaults"],
+      contexts: [],
+      signatures: [],
+      sources: [],
+      arguments: [],
+      argument_model: {
+        min_args: 1,
+        max_args: 2,
+        slots: [
+          { enum: ["unused"], optional: true },
+          { enum: ["alpha", "beta"], optional: false },
+        ],
+      },
+    };
+    const diags = argDiagsForBundle("defaults\n    test-kw alpha", 1, schema);
+    expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
+  });
+
+  it("returns early when balance keyword has no argument model", () => {
+    const schema = structuredClone(bundle.schema);
+    delete schema.keywords.balance.argument_model;
+    const diags = argDiagsForBundle("defaults\n    balance roundrobin", 1, schema);
+    expect(diags).toEqual([]);
+  });
+
+  it("reports extra argument when slot index reaches max_args with open slots", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.mode.argument_model = {
+      min_args: 1,
+      max_args: 1,
+      slots: [
+        { enum: ["http", "tcp", "health"], optional: false },
+        { enum: [], optional: true },
+      ],
+    };
+    const diags = argDiagsForBundle("defaults\n    mode http extra", 1, schema);
+    expect(diags.some((d) => d.code === "extra-argument")).toBe(true);
+  });
 });
