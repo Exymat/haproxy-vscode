@@ -3244,574 +3244,574 @@
     "sample_converters": [
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-add",
         "name": "add",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-add_item",
         "name": "add_item",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-and",
         "name": "and",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-b64dec",
         "name": "b64dec",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-base64",
         "name": "base64",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-be2dec",
         "name": "be2dec",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-be2hex",
         "name": "be2hex",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-bool",
         "name": "bool",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-bytes",
         "name": "bytes",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-capture-req",
         "name": "capture-req",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-capture-res",
         "name": "capture-res",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-concat",
         "name": "concat",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-cpl",
         "name": "cpl",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-crc32",
         "name": "crc32",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-crc32c",
         "name": "crc32c",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-cut_crlf",
         "name": "cut_crlf",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-debug",
         "name": "debug",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-div",
         "name": "div",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-djb2",
         "name": "djb2",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-even",
         "name": "even",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-field",
         "name": "field",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-fix_is_valid",
         "name": "fix_is_valid",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-fix_tag_value",
         "name": "fix_tag_value",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-hex",
         "name": "hex",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-hex2i",
         "name": "hex2i",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-host_only",
         "name": "host_only",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-htonl",
         "name": "htonl",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-http_date",
         "name": "http_date",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-iif",
         "name": "iif",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-in_table",
         "name": "in_table",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-ipmask",
         "name": "ipmask",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-json",
         "name": "json",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-json_query",
         "name": "json_query",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-language",
         "name": "language",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-length",
         "name": "length",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-lower",
         "name": "lower",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-ltime",
         "name": "ltime",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-ltrim",
         "name": "ltrim",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map",
         "name": "map",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_beg",
         "name": "map_beg",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_beg_int",
         "name": "map_beg_int",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_beg_ip",
         "name": "map_beg_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_dir",
         "name": "map_dir",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_dir_int",
         "name": "map_dir_int",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_dir_ip",
         "name": "map_dir_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_dom",
         "name": "map_dom",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_dom_int",
         "name": "map_dom_int",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_dom_ip",
         "name": "map_dom_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_end",
         "name": "map_end",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_end_int",
         "name": "map_end_int",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_end_ip",
         "name": "map_end_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_int",
         "name": "map_int",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_int_int",
         "name": "map_int_int",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_int_ip",
         "name": "map_int_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_ip",
         "name": "map_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_ip_int",
         "name": "map_ip_int",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_ip_ip",
         "name": "map_ip_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_reg",
         "name": "map_reg",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_reg_int",
         "name": "map_reg_int",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_reg_ip",
         "name": "map_reg_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_regm",
         "name": "map_regm",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_str",
         "name": "map_str",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_str_int",
         "name": "map_str_int",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_str_ip",
         "name": "map_str_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_sub",
         "name": "map_sub",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_sub_int",
         "name": "map_sub_int",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-map_sub_ip",
         "name": "map_sub_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-mod",
         "name": "mod",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-mqtt_field_value",
         "name": "mqtt_field_value",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-mqtt_is_valid",
         "name": "mqtt_is_valid",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-mul",
         "name": "mul",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-nbsrv",
         "name": "nbsrv",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-neg",
         "name": "neg",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-not",
         "name": "not",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-odd",
         "name": "odd",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-or",
         "name": "or",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-port_only",
         "name": "port_only",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-protobuf",
         "name": "protobuf",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-regsub",
         "name": "regsub",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-rtrim",
         "name": "rtrim",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-sdbm",
         "name": "sdbm",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "This is used to set the contents of a variable. The variable is declared inline.",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-set-var",
         "name": "set-var",
         "rulesets": [
           "http-request",
@@ -3826,245 +3826,245 @@
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-sha1",
         "name": "sha1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-srv_queue",
         "name": "srv_queue",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-strcmp",
         "name": "strcmp",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-sub",
         "name": "sub",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_bytes_in_rate",
         "name": "table_bytes_in_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_bytes_out_rate",
         "name": "table_bytes_out_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_conn_cnt",
         "name": "table_conn_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_conn_cur",
         "name": "table_conn_cur",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_conn_rate",
         "name": "table_conn_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_expire",
         "name": "table_expire",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_gpc",
         "name": "table_gpc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_gpc0",
         "name": "table_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_gpc0_rate",
         "name": "table_gpc0_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_gpc1",
         "name": "table_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_gpc1_rate",
         "name": "table_gpc1_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_gpc_rate",
         "name": "table_gpc_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_gpt",
         "name": "table_gpt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_gpt0",
         "name": "table_gpt0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_http_err_cnt",
         "name": "table_http_err_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_http_err_rate",
         "name": "table_http_err_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_http_fail_cnt",
         "name": "table_http_fail_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_http_fail_rate",
         "name": "table_http_fail_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_http_req_cnt",
         "name": "table_http_req_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_http_req_rate",
         "name": "table_http_req_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_idle",
         "name": "table_idle",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_kbytes_in",
         "name": "table_kbytes_in",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_kbytes_out",
         "name": "table_kbytes_out",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_server_id",
         "name": "table_server_id",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_sess_cnt",
         "name": "table_sess_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_sess_rate",
         "name": "table_sess_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-table_trackers",
         "name": "table_trackers",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-ub64dec",
         "name": "ub64dec",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-ub64enc",
         "name": "ub64enc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-ungrpc",
         "name": "ungrpc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "This is used to unset a variable. See above for details about <var-name>.",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-unset-var",
         "name": "unset-var",
         "rulesets": [
           "http-request",
@@ -4079,70 +4079,70 @@
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-upper",
         "name": "upper",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-url_dec",
         "name": "url_dec",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-url_enc",
         "name": "url_enc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-utime",
         "name": "utime",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-word",
         "name": "word",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-wt6",
         "name": "wt6",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-xor",
         "name": "xor",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-xxh3",
         "name": "xxh3",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-xxh32",
         "name": "xxh32",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.1-xxh64",
         "name": "xxh64",
         "rulesets": [],
         "signature": ""
@@ -4151,2555 +4151,2555 @@
     "sample_fetches": [
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-always_false",
         "name": "always_false",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-always_true",
         "name": "always_true",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-avg_queue",
         "name": "avg_queue",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-base",
         "name": "base",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-base32",
         "name": "base32",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-baseq",
         "name": "baseq",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-bc_dst",
         "name": "bc_dst",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-bc_dst_port",
         "name": "bc_dst_port",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-bc_err",
         "name": "bc_err",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-bc_err_str",
         "name": "bc_err_str",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-bc_http_major",
         "name": "bc_http_major",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-bc_src",
         "name": "bc_src",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-bc_src_port",
         "name": "bc_src_port",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-be_conn",
         "name": "be_conn",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-be_conn_free",
         "name": "be_conn_free",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-be_id",
         "name": "be_id",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-be_name",
         "name": "be_name",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-be_server_timeout",
         "name": "be_server_timeout",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-be_sess_rate",
         "name": "be_sess_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-be_tunnel_timeout",
         "name": "be_tunnel_timeout",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-bin",
         "name": "bin",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-bool",
         "name": "bool",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-capture.req.hdr",
         "name": "capture.req.hdr",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-capture.req.method",
         "name": "capture.req.method",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-capture.req.uri",
         "name": "capture.req.uri",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-capture.req.ver",
         "name": "capture.req.ver",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-capture.res.hdr",
         "name": "capture.res.hdr",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-capture.res.ver",
         "name": "capture.res.ver",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-connslots",
         "name": "connslots",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-cook",
         "name": "cook",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-cook_cnt",
         "name": "cook_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-cook_val",
         "name": "cook_val",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-cookie",
         "name": "cookie",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-cpu_calls",
         "name": "cpu_calls",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-cpu_ns_avg",
         "name": "cpu_ns_avg",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-cpu_ns_tot",
         "name": "cpu_ns_tot",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-cur_server_timeout",
         "name": "cur_server_timeout",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-cur_tunnel_timeout",
         "name": "cur_tunnel_timeout",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-date",
         "name": "date",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-date_us",
         "name": "date_us",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-distcc_body",
         "name": "distcc_body",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-distcc_param",
         "name": "distcc_param",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-dst",
         "name": "dst",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-dst_conn",
         "name": "dst_conn",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-dst_is_local",
         "name": "dst_is_local",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-dst_port",
         "name": "dst_port",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-env",
         "name": "env",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_dst",
         "name": "fc_dst",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_dst_is_local",
         "name": "fc_dst_is_local",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_dst_port",
         "name": "fc_dst_port",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_err",
         "name": "fc_err",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_err_str",
         "name": "fc_err_str",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_fackets",
         "name": "fc_fackets",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_http_major",
         "name": "fc_http_major",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_lost",
         "name": "fc_lost",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_pp_authority",
         "name": "fc_pp_authority",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_pp_unique_id",
         "name": "fc_pp_unique_id",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_rcvd_proxy",
         "name": "fc_rcvd_proxy",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_reordering",
         "name": "fc_reordering",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_retrans",
         "name": "fc_retrans",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_rtt",
         "name": "fc_rtt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_rttvar",
         "name": "fc_rttvar",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_sacked",
         "name": "fc_sacked",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_src",
         "name": "fc_src",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_src_is_local",
         "name": "fc_src_is_local",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_src_port",
         "name": "fc_src_port",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fc_unacked",
         "name": "fc_unacked",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fcgi.docroot",
         "name": "fcgi.docroot",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fcgi.index",
         "name": "fcgi.index",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fe_client_timeout",
         "name": "fe_client_timeout",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fe_conn",
         "name": "fe_conn",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fe_defbe",
         "name": "fe_defbe",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fe_id",
         "name": "fe_id",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fe_name",
         "name": "fe_name",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fe_req_rate",
         "name": "fe_req_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-fe_sess_rate",
         "name": "fe_sess_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-hdr",
         "name": "hdr",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-hdr_cnt",
         "name": "hdr_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-hdr_ip",
         "name": "hdr_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-hdr_val",
         "name": "hdr_val",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-hostname",
         "name": "hostname",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-http_auth",
         "name": "http_auth",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-http_auth_bearer",
         "name": "http_auth_bearer",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-http_auth_group",
         "name": "http_auth_group",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-http_auth_pass",
         "name": "http_auth_pass",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-http_auth_type",
         "name": "http_auth_type",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-http_auth_user",
         "name": "http_auth_user",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-http_first_req",
         "name": "http_first_req",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-int",
         "name": "int",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx.data",
         "name": "internal.htx.data",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx.free",
         "name": "internal.htx.free",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx.free_data",
         "name": "internal.htx.free_data",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx.has_eom",
         "name": "internal.htx.has_eom",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx.nbblks",
         "name": "internal.htx.nbblks",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx.size",
         "name": "internal.htx.size",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx.used",
         "name": "internal.htx.used",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx_blk.data",
         "name": "internal.htx_blk.data",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx_blk.hdrname",
         "name": "internal.htx_blk.hdrname",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx_blk.hdrval",
         "name": "internal.htx_blk.hdrval",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx_blk.size",
         "name": "internal.htx_blk.size",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx_blk.start_line",
         "name": "internal.htx_blk.start_line",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.htx_blk.type",
         "name": "internal.htx_blk.type",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-internal.strm.is_htx",
         "name": "internal.strm.is_htx",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-ipv4",
         "name": "ipv4",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-ipv6",
         "name": "ipv6",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-last_rule_file",
         "name": "last_rule_file",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-last_rule_line",
         "name": "last_rule_line",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-lat_ns_avg",
         "name": "lat_ns_avg",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-lat_ns_tot",
         "name": "lat_ns_tot",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-meth",
         "name": "meth",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-method",
         "name": "method",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-nbproc",
         "name": "nbproc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-nbsrv",
         "name": "nbsrv",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-path",
         "name": "path",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-pathq",
         "name": "pathq",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-payload",
         "name": "payload",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-payload_lv",
         "name": "payload_lv",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-prio_class",
         "name": "prio_class",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-prio_offset",
         "name": "prio_offset",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-proc",
         "name": "proc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-query",
         "name": "query",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-queue",
         "name": "queue",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-rand",
         "name": "rand",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-rdp_cookie",
         "name": "rdp_cookie",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-rdp_cookie_cnt",
         "name": "rdp_cookie_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-rep_ssl_hello_type",
         "name": "rep_ssl_hello_type",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.body",
         "name": "req.body",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.body_len",
         "name": "req.body_len",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.body_param",
         "name": "req.body_param",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.body_size",
         "name": "req.body_size",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.cook",
         "name": "req.cook",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.cook_cnt",
         "name": "req.cook_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.cook_val",
         "name": "req.cook_val",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.fhdr",
         "name": "req.fhdr",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.fhdr_cnt",
         "name": "req.fhdr_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.hdr",
         "name": "req.hdr",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.hdr_cnt",
         "name": "req.hdr_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.hdr_ip",
         "name": "req.hdr_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.hdr_names",
         "name": "req.hdr_names",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.hdr_val",
         "name": "req.hdr_val",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.hdrs",
         "name": "req.hdrs",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.hdrs_bin",
         "name": "req.hdrs_bin",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.len",
         "name": "req.len",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.payload",
         "name": "req.payload",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.payload_lv",
         "name": "req.payload_lv",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.proto_http",
         "name": "req.proto_http",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.rdp_cookie",
         "name": "req.rdp_cookie",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.rdp_cookie_cnt",
         "name": "req.rdp_cookie_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.ssl_alpn",
         "name": "req.ssl_alpn",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.ssl_ec_ext",
         "name": "req.ssl_ec_ext",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.ssl_hello_type",
         "name": "req.ssl_hello_type",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.ssl_sni",
         "name": "req.ssl_sni",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.ssl_st_ext",
         "name": "req.ssl_st_ext",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.ssl_ver",
         "name": "req.ssl_ver",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req.ver",
         "name": "req.ver",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req_len",
         "name": "req_len",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req_proto_http",
         "name": "req_proto_http",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req_ssl_hello_type",
         "name": "req_ssl_hello_type",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req_ssl_sni",
         "name": "req_ssl_sni",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req_ssl_ver",
         "name": "req_ssl_ver",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-req_ver",
         "name": "req_ver",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.body",
         "name": "res.body",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.body_len",
         "name": "res.body_len",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.body_size",
         "name": "res.body_size",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.cache_hit",
         "name": "res.cache_hit",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.cache_name",
         "name": "res.cache_name",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.comp",
         "name": "res.comp",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.comp_algo",
         "name": "res.comp_algo",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.cook",
         "name": "res.cook",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.cook_cnt",
         "name": "res.cook_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.cook_val",
         "name": "res.cook_val",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.fhdr",
         "name": "res.fhdr",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.fhdr_cnt",
         "name": "res.fhdr_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.hdr",
         "name": "res.hdr",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.hdr_cnt",
         "name": "res.hdr_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.hdr_ip",
         "name": "res.hdr_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.hdr_names",
         "name": "res.hdr_names",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.hdr_val",
         "name": "res.hdr_val",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.hdrs",
         "name": "res.hdrs",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.hdrs_bin",
         "name": "res.hdrs_bin",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.len",
         "name": "res.len",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.payload",
         "name": "res.payload",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.payload_lv",
         "name": "res.payload_lv",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.ssl_hello_type",
         "name": "res.ssl_hello_type",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-res.ver",
         "name": "res.ver",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-resp_ver",
         "name": "resp_ver",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_bytes_in_rate",
         "name": "sc0_bytes_in_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_bytes_out_rate",
         "name": "sc0_bytes_out_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_clr_gpc0",
         "name": "sc0_clr_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_clr_gpc1",
         "name": "sc0_clr_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_conn_cnt",
         "name": "sc0_conn_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_conn_cur",
         "name": "sc0_conn_cur",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_conn_rate",
         "name": "sc0_conn_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_get_gpc0",
         "name": "sc0_get_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_get_gpc1",
         "name": "sc0_get_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_get_gpt0",
         "name": "sc0_get_gpt0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_gpc0_rate",
         "name": "sc0_gpc0_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_gpc1_rate",
         "name": "sc0_gpc1_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_http_err_cnt",
         "name": "sc0_http_err_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_http_err_rate",
         "name": "sc0_http_err_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_http_fail_cnt",
         "name": "sc0_http_fail_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_http_fail_rate",
         "name": "sc0_http_fail_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_http_req_cnt",
         "name": "sc0_http_req_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_http_req_rate",
         "name": "sc0_http_req_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_inc_gpc0",
         "name": "sc0_inc_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_inc_gpc1",
         "name": "sc0_inc_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_kbytes_in",
         "name": "sc0_kbytes_in",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_kbytes_out",
         "name": "sc0_kbytes_out",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_sess_cnt",
         "name": "sc0_sess_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_sess_rate",
         "name": "sc0_sess_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_tracked",
         "name": "sc0_tracked",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc0_trackers",
         "name": "sc0_trackers",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_bytes_in_rate",
         "name": "sc1_bytes_in_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_bytes_out_rate",
         "name": "sc1_bytes_out_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_clr_gpc",
         "name": "sc1_clr_gpc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_clr_gpc0",
         "name": "sc1_clr_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_clr_gpc1",
         "name": "sc1_clr_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_conn_cnt",
         "name": "sc1_conn_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_conn_cur",
         "name": "sc1_conn_cur",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_conn_rate",
         "name": "sc1_conn_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_get_gpc0",
         "name": "sc1_get_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_get_gpc1",
         "name": "sc1_get_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_get_gpt0",
         "name": "sc1_get_gpt0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_gpc0_rate",
         "name": "sc1_gpc0_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_gpc1_rate",
         "name": "sc1_gpc1_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_http_err_cnt",
         "name": "sc1_http_err_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_http_err_rate",
         "name": "sc1_http_err_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_http_fail_cnt",
         "name": "sc1_http_fail_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_http_fail_rate",
         "name": "sc1_http_fail_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_http_req_cnt",
         "name": "sc1_http_req_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_http_req_rate",
         "name": "sc1_http_req_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_inc_gpc0",
         "name": "sc1_inc_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_inc_gpc1",
         "name": "sc1_inc_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_kbytes_in",
         "name": "sc1_kbytes_in",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_kbytes_out",
         "name": "sc1_kbytes_out",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_sess_cnt",
         "name": "sc1_sess_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_sess_rate",
         "name": "sc1_sess_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_tracked",
         "name": "sc1_tracked",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc1_trackers",
         "name": "sc1_trackers",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_bytes_in_rate",
         "name": "sc2_bytes_in_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_bytes_out_rate",
         "name": "sc2_bytes_out_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_clr_gpc0",
         "name": "sc2_clr_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_clr_gpc1",
         "name": "sc2_clr_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_conn_cnt",
         "name": "sc2_conn_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_conn_cur",
         "name": "sc2_conn_cur",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_conn_rate",
         "name": "sc2_conn_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_get_gpc0",
         "name": "sc2_get_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_get_gpc1",
         "name": "sc2_get_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_get_gpt0",
         "name": "sc2_get_gpt0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_gpc0_rate",
         "name": "sc2_gpc0_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_gpc1_rate",
         "name": "sc2_gpc1_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_http_err_cnt",
         "name": "sc2_http_err_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_http_err_rate",
         "name": "sc2_http_err_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_http_fail_cnt",
         "name": "sc2_http_fail_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_http_fail_rate",
         "name": "sc2_http_fail_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_http_req_cnt",
         "name": "sc2_http_req_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_http_req_rate",
         "name": "sc2_http_req_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_inc_gpc0",
         "name": "sc2_inc_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_inc_gpc1",
         "name": "sc2_inc_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_kbytes_in",
         "name": "sc2_kbytes_in",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_kbytes_out",
         "name": "sc2_kbytes_out",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_sess_cnt",
         "name": "sc2_sess_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_sess_rate",
         "name": "sc2_sess_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_tracked",
         "name": "sc2_tracked",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc2_trackers",
         "name": "sc2_trackers",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_bytes_in_rate",
         "name": "sc_bytes_in_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_bytes_out_rate",
         "name": "sc_bytes_out_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_clr_gpc",
         "name": "sc_clr_gpc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_clr_gpc0",
         "name": "sc_clr_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_clr_gpc1",
         "name": "sc_clr_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_conn_cnt",
         "name": "sc_conn_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_conn_cur",
         "name": "sc_conn_cur",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_conn_rate",
         "name": "sc_conn_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_get_gpc",
         "name": "sc_get_gpc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_get_gpc0",
         "name": "sc_get_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_get_gpc1",
         "name": "sc_get_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_get_gpt",
         "name": "sc_get_gpt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_get_gpt0",
         "name": "sc_get_gpt0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_gpc0_rate",
         "name": "sc_gpc0_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_gpc1_rate",
         "name": "sc_gpc1_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_gpc_rate",
         "name": "sc_gpc_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_http_err_cnt",
         "name": "sc_http_err_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_http_err_rate",
         "name": "sc_http_err_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_http_fail_cnt",
         "name": "sc_http_fail_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_http_fail_rate",
         "name": "sc_http_fail_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_http_req_cnt",
         "name": "sc_http_req_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_http_req_rate",
         "name": "sc_http_req_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_inc_gpc",
         "name": "sc_inc_gpc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_inc_gpc0",
         "name": "sc_inc_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_inc_gpc1",
         "name": "sc_inc_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_kbytes_in",
         "name": "sc_kbytes_in",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_kbytes_out",
         "name": "sc_kbytes_out",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_sess_cnt",
         "name": "sc_sess_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_sess_rate",
         "name": "sc_sess_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_tracked",
         "name": "sc_tracked",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-sc_trackers",
         "name": "sc_trackers",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-scook",
         "name": "scook",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-scook_cnt",
         "name": "scook_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-scook_val",
         "name": "scook_val",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-shdr",
         "name": "shdr",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-shdr_cnt",
         "name": "shdr_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-shdr_ip",
         "name": "shdr_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-shdr_val",
         "name": "shdr_val",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-so_id",
         "name": "so_id",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-so_name",
         "name": "so_name",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src",
         "name": "src",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_bytes_in_rate",
         "name": "src_bytes_in_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_bytes_out_rate",
         "name": "src_bytes_out_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_clr_gpc",
         "name": "src_clr_gpc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_clr_gpc0",
         "name": "src_clr_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_clr_gpc1",
         "name": "src_clr_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_conn_cnt",
         "name": "src_conn_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_conn_cur",
         "name": "src_conn_cur",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_conn_rate",
         "name": "src_conn_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_get_gpc",
         "name": "src_get_gpc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_get_gpc0",
         "name": "src_get_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_get_gpc1",
         "name": "src_get_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_get_gpt",
         "name": "src_get_gpt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_get_gpt0",
         "name": "src_get_gpt0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_gpc0_rate",
         "name": "src_gpc0_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_gpc1_rate",
         "name": "src_gpc1_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_gpc_rate",
         "name": "src_gpc_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_http_err_cnt",
         "name": "src_http_err_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_http_err_rate",
         "name": "src_http_err_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_http_fail_cnt",
         "name": "src_http_fail_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_http_fail_rate",
         "name": "src_http_fail_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_http_req_cnt",
         "name": "src_http_req_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_http_req_rate",
         "name": "src_http_req_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_inc_gpc",
         "name": "src_inc_gpc",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_inc_gpc0",
         "name": "src_inc_gpc0",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_inc_gpc1",
         "name": "src_inc_gpc1",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_is_local",
         "name": "src_is_local",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_kbytes_in",
         "name": "src_kbytes_in",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_kbytes_out",
         "name": "src_kbytes_out",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_port",
         "name": "src_port",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_sess_cnt",
         "name": "src_sess_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_sess_rate",
         "name": "src_sess_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-src_updt_conn_cnt",
         "name": "src_updt_conn_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-srv_conn",
         "name": "srv_conn",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-srv_conn_free",
         "name": "srv_conn_free",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-srv_id",
         "name": "srv_id",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-srv_is_up",
         "name": "srv_is_up",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-srv_iweight",
         "name": "srv_iweight",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-srv_name",
         "name": "srv_name",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-srv_queue",
         "name": "srv_queue",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-srv_sess_rate",
         "name": "srv_sess_rate",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-srv_uweight",
         "name": "srv_uweight",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-srv_weight",
         "name": "srv_weight",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-status",
         "name": "status",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-stopping",
         "name": "stopping",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-str",
         "name": "str",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-table_avl",
         "name": "table_avl",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-table_cnt",
         "name": "table_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-thread",
         "name": "thread",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-unique-id",
         "name": "unique-id",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-url",
         "name": "url",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-url32",
         "name": "url32",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-url_ip",
         "name": "url_ip",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-url_param",
         "name": "url_param",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-url_port",
         "name": "url_port",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-urlp",
         "name": "urlp",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-urlp_val",
         "name": "urlp_val",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-uuid",
         "name": "uuid",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-var",
         "name": "var",
         "rulesets": [],
         "signature": ""
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3-wait_end",
         "name": "wait_end",
         "rulesets": [],
         "signature": ""

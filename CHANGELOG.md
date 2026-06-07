@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.8.0
+
+- Refreshed keyword data for all supported versions (2.6–3.4): improved hover text, argument validation, and completion.
+- `balance url_param` — variant-specific argument checks and enum suggestions (no longer mixed with other balance algorithms).
+- `http-send-name-header` — flags `host` as an invalid value (3.4+).
+
 ## 0.7.3
 
 - No user-facing changes.

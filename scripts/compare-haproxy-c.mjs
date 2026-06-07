@@ -65,7 +65,8 @@ function isErrorSeverity(severity) {
 
 const HAPROXY_CMD = process.env.HAPROXY_CMD ?? "wsl haproxy";
 const HAPROXY_DOCKER_IMAGE = process.env.HAPROXY_DOCKER_IMAGE ?? `haproxy:${version}-trixie`;
-const HAPROXY_DOCKER_CMD = process.env.HAPROXY_DOCKER_CMD ?? "docker";
+const HAPROXY_DOCKER_CMD =
+  process.env.HAPROXY_DOCKER_CMD ?? (process.platform === "win32" ? "wsl docker" : "docker");
 const confDir = resolve(positional[0] ?? defaultConfDir);
 const reportPath = positional[1] ?? join(__dirname, `compare-haproxy-c-${version}-report.json`);
 
@@ -74,6 +75,35 @@ const PARSING_RE = /parsing \[([^\]]+):(\d+)\]/;
 const ALERT_RE = /\[ALERT\]/i;
 const SKIPPABLE_HAPROXY_FAILURE_RE =
   /unable to stat SSL|Couldn't open the ca-file|Couldn't open the crt-file|lua-load|lua_load|failed to load lua|Cannot load lua|error in Lua file/i;
+const DOCKER_INFRA_FAILURE_RE =
+  /invalid volume specification|Cannot connect to the Docker daemon|error during connect|is the docker daemon running|docker: command not found/i;
+
+function extractHaproxyErrorLines(raw) {
+  const lines = new Set();
+  const parsing = PARSING_RE.exec(raw);
+  if (parsing) {
+    lines.add(Number.parseInt(parsing[2], 10));
+  }
+  LINE_RE.lastIndex = 0;
+  let m;
+  while ((m = LINE_RE.exec(raw)) !== null) {
+    lines.add(Number.parseInt(m[1], 10));
+  }
+  return [...lines].sort((a, b) => a - b);
+}
+
+function interpretHaproxyCheck(status, raw, spawnError) {
+  if (spawnError) {
+    return { ok: false, lines: [], raw, spawnError: true };
+  }
+  if (/Configuration file has no error/i.test(raw)) {
+    return { ok: true, lines: [], raw };
+  }
+  if (status === 0 && !ALERT_RE.test(raw)) {
+    return { ok: true, lines: [], raw };
+  }
+  return { ok: false, lines: extractHaproxyErrorLines(raw), raw };
+}
 
 function collectCfgFiles(dir) {
   const files = [];
@@ -114,7 +144,8 @@ function dockerMountPath(hostDir, dockerCmd) {
   if (dockerCmd[0]?.toLowerCase() === "wsl") {
     return wslPath(hostDir);
   }
-  return hostDir;
+  // Docker Desktop on Windows accepts forward slashes in volume sources.
+  return hostDir.replace(/\\/g, "/");
 }
 
 function runHaproxyCheck(filePath) {
@@ -135,22 +166,12 @@ function runHaproxyCheck(filePath) {
       "-f",
       `${mountPath}/${fileName}`,
     ];
-    const res = spawnSync(dockerCmd[0], [...dockerCmd.slice(1), ...args], { encoding: "utf-8" });
-    const raw = `${res.stdout ?? ""}${res.stderr ?? ""}`;
-    if (res.status === 0 || !ALERT_RE.test(raw)) {
-      return { ok: true, lines: [], raw };
-    }
-    const lines = new Set();
-    let m;
-    const parsing = PARSING_RE.exec(raw);
-    if (parsing) {
-      lines.add(Number.parseInt(parsing[2], 10));
-    }
-    LINE_RE.lastIndex = 0;
-    while ((m = LINE_RE.exec(raw)) !== null) {
-      lines.add(Number.parseInt(m[1], 10));
-    }
-    return { ok: false, lines: [...lines].sort((a, b) => a - b), raw };
+    const res = spawnSync(dockerCmd[0], [...dockerCmd.slice(1), ...args], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const raw = `${res.stdout ?? ""}${res.stderr ?? ""}${res.error?.message ?? ""}`.trim();
+    return interpretHaproxyCheck(res.status, raw, Boolean(res.error));
   }
 
   const cfgPath = process.platform === "win32" ? wslPath(filePath) : filePath;
@@ -159,23 +180,11 @@ function runHaproxyCheck(filePath) {
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "pipe"],
     });
-    return { ok: true, lines: [], raw };
+    return interpretHaproxyCheck(0, raw, false);
   } catch (error) {
-    const raw = (error.stdout ?? "") + (error.stderr ?? "") + (error.message ?? "");
-    if (/Configuration file has no error/i.test(raw) || !ALERT_RE.test(raw)) {
-      return { ok: true, lines: [], raw };
-    }
-    const lines = new Set();
-    let m;
-    const parsing = PARSING_RE.exec(raw);
-    if (parsing) {
-      lines.add(Number.parseInt(parsing[2], 10));
-    }
-    LINE_RE.lastIndex = 0;
-    while ((m = LINE_RE.exec(raw)) !== null) {
-      lines.add(Number.parseInt(m[1], 10));
-    }
-    return { ok: false, lines: [...lines].sort((a, b) => a - b), raw };
+    const raw = `${error.stdout ?? ""}${error.stderr ?? ""}${error.message ?? ""}`.trim();
+    const status = typeof error.status === "number" ? error.status : 1;
+    return interpretHaproxyCheck(status, raw, false);
   }
 }
 
@@ -244,6 +253,18 @@ for (const file of files) {
         haproxyRaw: haproxy.raw.slice(0, 500),
       });
     }
+  }
+
+  if (
+    !haproxy.ok &&
+    haproxy.lines.length === 0 &&
+    (haproxy.spawnError || DOCKER_INFRA_FAILURE_RE.test(haproxy.raw))
+  ) {
+    entry.issues.push({
+      kind: "haproxy-run-failed",
+      message: "failed to run haproxy -c (docker/spawn error, not a config parse result)",
+      haproxyRaw: haproxy.raw.slice(0, 500),
+    });
   }
 
   report.push(entry);
