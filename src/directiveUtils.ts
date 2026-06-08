@@ -5,9 +5,15 @@ import {
   filterDirectiveKeywordParts,
   mergeEnumValues,
 } from "./argumentEnumUtils";
-import { HaproxyLanguageData, LanguageArgumentParam, LanguageKeyword } from "./languageData";
+import { HaproxyLanguageData, LanguageArgumentParam } from "./languageData";
+import {
+  ResolvedLanguageKeyword,
+  ResolvedSchemaKeyword,
+  resolveLanguageKeyword,
+  resolveSchemaKeyword,
+} from "./keywordVariant";
 import { ParsedLine } from "./parser";
-import { HaproxySchema, SchemaKeyword } from "./schema";
+import { HaproxySchema } from "./schema";
 import { resolveLongestDirectiveMatch } from "./tokenUtils";
 
 export interface ResolvedDirective {
@@ -95,8 +101,8 @@ export function isEnumPerParameter(params: LanguageArgumentParam[] | undefined):
 }
 
 export function documentedEnumValueNames(
-  langKw: LanguageKeyword | undefined,
-  schemaKw?: SchemaKeyword,
+  langKw: ResolvedLanguageKeyword | undefined,
+  schemaKw?: ResolvedSchemaKeyword,
 ): string[] {
   if (isEnumPerParameter(langKw?.arguments)) {
     return allArgumentValues(langKw?.arguments).map((value) => value.name);
@@ -113,8 +119,8 @@ export function documentedEnumValueNames(
 }
 
 export function completionValuesForPosition(
-  schemaKw: SchemaKeyword | undefined,
-  langKw: LanguageKeyword | undefined,
+  schemaKw: ResolvedSchemaKeyword | undefined,
+  langKw: ResolvedLanguageKeyword | undefined,
   position: number,
   line: ParsedLine,
   directiveEnd: number,
@@ -189,13 +195,15 @@ export function allArgumentValues(
 export function getKeywordFromLanguage(
   data: HaproxyLanguageData,
   keyword: string,
-): LanguageKeyword | undefined {
-  return data.keywords[keyword.toLowerCase()];
+  section?: string | null,
+): ResolvedLanguageKeyword | undefined {
+  return resolveLanguageKeyword(data.keywords[keyword.toLowerCase()], section);
 }
 
 export function getKeywordFromSchema(
   schema: HaproxySchema,
   keyword: string,
-): SchemaKeyword | undefined {
-  return schema.keywords[keyword.toLowerCase()];
+  section?: string | null,
+): ResolvedSchemaKeyword | undefined {
+  return resolveSchemaKeyword(schema.keywords[keyword.toLowerCase()], section);
 }

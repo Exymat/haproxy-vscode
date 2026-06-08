@@ -270,7 +270,24 @@ describe("argumentDiagnostics", () => {
   it("returns early when balance keyword has no argument model", () => {
     const schema = structuredClone(bundle.schema);
     delete schema.keywords.balance.argument_model;
-    const diags = argDiagsForBundle("defaults\n    balance roundrobin", 1, schema);
+    for (const variant of schema.keywords.balance.variants ?? []) {
+      delete variant.argument_model;
+    }
+    const diags = argDiagsForBundle("defaults\n    balance bogus", 1, schema);
+    expect(diags).toEqual([]);
+  });
+
+  it("returns early when balance keyword has null max_args", () => {
+    const schema = structuredClone(bundle.schema);
+    delete schema.keywords.balance.argument_model;
+    for (const variant of schema.keywords.balance.variants ?? []) {
+      variant.argument_model = {
+        min_args: 1,
+        max_args: null,
+        slots: [{ enum: ["roundrobin"] }],
+      };
+    }
+    const diags = argDiagsForBundle("defaults\n    balance bogus", 1, schema);
     expect(diags).toEqual([]);
   });
 
@@ -285,6 +302,29 @@ describe("argumentDiagnostics", () => {
       ],
     };
     const diags = argDiagsForBundle("defaults\n    mode http extra", 1, schema);
+    expect(diags.some((d) => d.code === "extra-argument")).toBe(true);
+  });
+
+  it("stops placing args once max_args is reached after skipping optional slots", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.sections.defaults.keywords = [...schema.sections.defaults.keywords, "test-kw"];
+    schema.keywords["test-kw"] = {
+      name: "test-kw",
+      sections: ["defaults"],
+      contexts: [],
+      signatures: [],
+      sources: [],
+      arguments: [],
+      argument_model: {
+        min_args: 1,
+        max_args: 1,
+        slots: [
+          { enum: [], optional: true },
+          { enum: ["alpha", "beta"], optional: false },
+        ],
+      },
+    };
+    const diags = argDiagsForBundle("defaults\n    test-kw alpha", 1, schema);
     expect(diags.some((d) => d.code === "extra-argument")).toBe(true);
   });
 });

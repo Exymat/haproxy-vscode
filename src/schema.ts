@@ -33,12 +33,22 @@ export interface SchemaArgumentParam {
   values: SchemaArgumentValue[];
 }
 
+export interface SchemaKeywordVariant {
+  chapter: string;
+  sections: string[];
+  contexts?: string[];
+  signatures: string[];
+  argument_model?: ArgumentModel;
+  arguments?: SchemaArgumentParam[];
+}
+
 export interface SchemaKeyword {
   name: string;
   sections: string[];
   contexts?: string[];
   signatures: string[];
   sources: string[];
+  variants?: SchemaKeywordVariant[];
   argument_model?: ArgumentModel;
   arguments?: SchemaArgumentParam[];
 }

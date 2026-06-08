@@ -2,6 +2,13 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.8.3
+
+- Section-aware documentation for keywords that differ by context (`bind`, `log`, `server`, `description`, and many others) — hover, completion, and argument checks now match the current section instead of merging every manual chapter into one entry.
+- Hover shows the section-specific signature and doc link (e.g. `bind` in a frontend vs. peers vs. log-forward section).
+- Refreshed keyword data and grammars for all supported versions (2.6-3.4).
+- Fewer false missing-argument warnings on directives with multiple optional signatures.
+
 ## 0.8.2
 
 - Faster diagnostics and completion on large configs — per-line directive lookups are memoized and schema-derived keyword sets are cached.
@@ -12,7 +19,7 @@ All notable user-facing changes to **HAProxy Language Support**.
 
 ## 0.8.1
 
-- Refreshed keyword data and grammars for all supported versions (2.6–3.4).
+- Refreshed keyword data and grammars for all supported versions (2.6-3.4).
 - Warnings for deprecated sample fetches and converters in ACL criteria and inline expressions (e.g. `hdr_cnt()`).
 - Hover documentation for sample fetches inside ACL criteria and `{ }` expressions; prefers fetch docs over bare ACL criterion entries.
 - Improved argument validation for optional keyword/value groups — `log` with `ring@`, `len`, and `format`; fewer false positives on multi-signature directives like `bind`.
@@ -21,7 +28,7 @@ All notable user-facing changes to **HAProxy Language Support**.
 
 ## 0.8.0
 
-- Refreshed keyword data for all supported versions (2.6–3.4): improved hover text, argument validation, and completion.
+- Refreshed keyword data for all supported versions (2.6-3.4): improved hover text, argument validation, and completion.
 - `balance url_param` — variant-specific argument checks and enum suggestions (no longer mixed with other balance algorithms).
 - `http-send-name-header` — flags `host` as an invalid value (3.4+).
 

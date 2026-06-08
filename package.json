@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config highlighting, completion, hover docs, and schema diagnostics",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
@@ -99,7 +99,7 @@
             "Tab character per indent level. Not recommended: tabs copy-paste poorly per HAProxy documentation."
           ],
           "default": "spaces-4",
-          "markdownDescription": "Indentation for directives inside a section. Section headers stay left-aligned.\n\nPer HAProxy configuration manual §2.1: use tabs or 2–4 spaces; spaces are preferred because tabs do not copy-paste well. The **tab** option is provided for compatibility but is not recommended."
+          "markdownDescription": "Indentation for directives inside a section. Section headers stay left-aligned.\n\nPer HAProxy configuration manual §2.1: use tabs or 2-4 spaces; spaces are preferred because tabs do not copy-paste well. The **tab** option is provided for compatibility but is not recommended."
         },
         "haproxy.format.insertBlankLineBetweenSections": {
           "type": "boolean",

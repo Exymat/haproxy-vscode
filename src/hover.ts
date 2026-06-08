@@ -11,6 +11,7 @@ import {
 } from "./directiveUtils";
 import { getDocumentContext, groupItems, keywordsForSection } from "./documentContext";
 import { findKeywordByPrefix, HaproxyLanguageData, LanguageGroupItem } from "./languageData";
+import { resolveLanguageKeyword } from "./keywordVariant";
 import { HaproxySchema, modifierPrefixSet } from "./schema";
 import { findStatementRule } from "./statementLayout";
 import { HaproxyVersion } from "./version";
@@ -131,8 +132,8 @@ export function provideHover(
   if (ctx.kind === "option" && ctx.tokenIndex >= 1) {
     const group = groupItems(data, "options").find((g) => g.name.toLowerCase() === tokenLower);
     const optKeyword =
-      getKeywordFromLanguage(data, `option ${ctx.token.text}`) ??
-      getKeywordFromLanguage(data, `no option ${ctx.token.text}`);
+      getKeywordFromLanguage(data, `option ${ctx.token.text}`, ctx.line.section) ??
+      getKeywordFromLanguage(data, `no option ${ctx.token.text}`, ctx.line.section);
     if (group || optKeyword) {
       const name = group?.name ?? ctx.token.text;
       const extras: string[] = [];
@@ -141,8 +142,8 @@ export function provideHover(
       }
       addContextExtra(
         extras,
-        schema.keywords[(optKeyword?.name ?? `option ${tokenLower}`).toLowerCase()]?.contexts ??
-          schema.keyword_group_contexts?.options?.[tokenLower],
+        getKeywordFromSchema(schema, optKeyword?.name ?? `option ${tokenLower}`, ctx.line.section)
+          ?.contexts ?? schema.keyword_group_contexts?.options?.[tokenLower],
       );
       return new vscode.Hover(
         hoverMarkdown(
@@ -272,7 +273,7 @@ export function provideHover(
   });
 
   if (directive.matched && ctx.tokenIndex > directive.end) {
-    const kw = getKeywordFromLanguage(data, directive.keyword);
+    const kw = getKeywordFromLanguage(data, directive.keyword, ctx.line.section);
     const argValue = findArgumentValue(kw?.arguments, ctx.token.text);
     if (argValue) {
       const extras: string[] = [];
@@ -294,8 +295,9 @@ export function provideHover(
     .map((t) => t.text)
     .join(" ");
   const kw =
-    (directive.matched ? getKeywordFromLanguage(data, directive.keyword) : undefined) ??
-    findKeywordByPrefix(data, combined);
+    (directive.matched
+      ? getKeywordFromLanguage(data, directive.keyword, ctx.line.section)
+      : undefined) ?? resolveLanguageKeyword(findKeywordByPrefix(data, combined), ctx.line.section);
 
   if (!kw) {
     const group = findGroupItem(data, ctx.token.text);
@@ -313,10 +315,10 @@ export function provideHover(
   if (kw.sections.length > 0) {
     extras.push(`**Valid in:** ${kw.sections.join(", ")}`);
   }
-  addContextExtra(extras, schema.keywords[kw.name.toLowerCase()]?.contexts);
+  addContextExtra(extras, getKeywordFromSchema(schema, kw.name, ctx.line.section)?.contexts);
 
   if (onDirectiveToken) {
-    const schemaKw = getKeywordFromSchema(schema, kw.name);
+    const schemaKw = getKeywordFromSchema(schema, kw.name, ctx.line.section);
     const documentedValues = documentedEnumValueNames(kw, schemaKw);
     if (documentedValues.length > 0) {
       extras.push(`**Values:** ${documentedValues.join(", ")}`);

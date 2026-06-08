@@ -13,6 +13,7 @@ import {
   keywordsForSection,
 } from "./documentContext";
 import { HaproxyLanguageData } from "./languageData";
+import { resolveLanguageKeyword } from "./keywordVariant";
 import { HaproxySchema, modifierPrefixSet } from "./schema";
 
 function markdownDoc(description: string, docsUrl?: string): vscode.MarkdownString {
@@ -166,10 +167,11 @@ export function provideCompletionItems(
     if (!directive.matched) {
       return [];
     }
-    const kw = sectionKeywords.find(
-      (k) => k.name.toLowerCase() === directive.keyword.toLowerCase(),
+    const kw = resolveLanguageKeyword(
+      sectionKeywords.find((k) => k.name.toLowerCase() === directive.keyword.toLowerCase()),
+      ctx.line.section,
     );
-    const schemaKw = getKeywordFromSchema(schema, directive.keyword);
+    const schemaKw = getKeywordFromSchema(schema, directive.keyword, ctx.line.section);
     const pos = argumentPosition(ctx.tokenIndex, directive.end);
     const values = completionValuesForPosition(
       schemaKw,
@@ -195,7 +197,9 @@ export function provideCompletionItems(
   }
 
   const section = ctx.line.section;
-  const keywords = keywordsForSection(data, section);
+  const keywords = keywordsForSection(data, section)
+    .map((kw) => resolveLanguageKeyword(kw, section))
+    .filter((kw): kw is NonNullable<typeof kw> => Boolean(kw));
   const existing = new Set(ctx.line.tokens.map((t) => t.text.toLowerCase()));
 
   return keywords

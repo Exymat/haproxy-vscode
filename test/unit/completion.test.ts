@@ -84,6 +84,21 @@ describe("completion and hover", () => {
     expect(text).not.toContain("haterm");
   });
 
+  it("bind directive completion uses the section-specific variant", () => {
+    const doc = createDocument("frontend web\n    bi");
+    const bundle = bundles["3.4"];
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: "    bi".length } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    const bind = items.find((item) => item.label === "bind");
+    expect(bind).toBeDefined();
+    expect(bind?.detail).toContain("<port_range>");
+    expect(bind?.detail).not.toContain(":port [param*]");
+  });
+
   it.each([
     {
       directive: "http-reuse ",

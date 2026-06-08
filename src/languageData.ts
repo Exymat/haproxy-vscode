@@ -23,6 +23,16 @@ export interface LanguageArgumentParam {
   values: LanguageArgumentValue[];
 }
 
+export interface LanguageKeywordVariant {
+  chapter: string;
+  sections: string[];
+  signatures: string[];
+  description: string;
+  docsUrl: string;
+  arguments?: LanguageArgumentParam[];
+  contexts?: string[];
+}
+
 export interface LanguageKeyword {
   name: string;
   sections: string[];
@@ -30,6 +40,7 @@ export interface LanguageKeyword {
   description: string;
   docsUrl: string;
   arguments?: LanguageArgumentParam[];
+  variants?: LanguageKeywordVariant[];
 }
 
 export interface HaproxyLanguageData {

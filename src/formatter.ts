@@ -7,7 +7,7 @@ import { SECTION_HEADERS, tokenizeLine } from "./parser";
  */
 export interface FormatOptions {
   indentStyle: "spaces" | "tab";
-  /** Doc recommends 2–4 spaces when not using tabs. */
+  /** Doc recommends 2-4 spaces when not using tabs. */
   indentSize: number;
   insertBlankLineBetweenSections: boolean;
 }

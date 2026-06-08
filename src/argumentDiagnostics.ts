@@ -5,13 +5,13 @@ import { argumentTokenIndices } from "./directiveUtils";
 import { LineDiagnosticMemo } from "./diagnosticContext";
 import { diagRange, DIAG_SOURCE } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
+import { ResolvedSchemaKeyword, resolveSchemaKeyword } from "./keywordVariant";
 import {
   ArgumentModel,
   ArgumentSlot,
   conditionalTokenSet,
   HaproxySchema,
   prefixFamilies,
-  SchemaKeyword,
 } from "./schema";
 import { isLikelyValue } from "./tokenUtils";
 
@@ -76,7 +76,7 @@ function matchesLaterEnumSlot(
   model: ArgumentModel,
   slotIdx: number,
   lower: string,
-  schemaKw: SchemaKeyword | undefined,
+  schemaKw: ResolvedSchemaKeyword | undefined,
 ): boolean {
   for (let idx = slotIdx + 1; idx < model.slots.length; idx += 1) {
     const allowedValues = enumValuesForSlot(model.slots[idx], schemaKw, idx);
@@ -104,14 +104,18 @@ function makeArgDiagnostic(
 
 function enumValuesForSlot(
   slot: ArgumentSlot | undefined,
-  schemaKw: SchemaKeyword | undefined,
+  schemaKw: ResolvedSchemaKeyword | undefined,
   position: number,
 ): string[] {
   return enumNamesForSlot(slot, schemaKw, position).map((v) => v.toLowerCase());
 }
 
-function allowsMissingArgs(schemaKw: SchemaKeyword | undefined, model: ArgumentModel): boolean {
-  const signatures = schemaKw?.signatures ?? [];
+function allowsMissingArgs(
+  schemaKw: ResolvedSchemaKeyword | undefined,
+  model: ArgumentModel,
+  allSignatures: string[] | undefined,
+): boolean {
+  const signatures = allSignatures ?? schemaKw?.signatures ?? [];
   if (signatures.length > 1) {
     return true;
   }
@@ -148,7 +152,8 @@ export function argumentModelDiagnostics(
     return [];
   }
 
-  const schemaKw = schema.keywords[keyword];
+  const fullKeyword = schema.keywords[keyword];
+  const schemaKw = resolveSchemaKeyword(fullKeyword, line.section);
   const model = schemaKw?.argument_model;
 
   const argIndices = argumentTokenIndices(line, match.end);
@@ -185,7 +190,10 @@ export function argumentModelDiagnostics(
     return [];
   }
 
-  if (argIndices.length < model.min_args && !allowsMissingArgs(schemaKw, model)) {
+  if (
+    argIndices.length < model.min_args &&
+    !allowsMissingArgs(schemaKw, model, fullKeyword?.signatures)
+  ) {
     const missing = model.min_args - argIndices.length;
     diagnostics.push(
       makeArgDiagnostic(
@@ -328,7 +336,7 @@ function balanceArgumentDiagnostics(
   match: { end: number },
   argIndices: number[],
   model: ArgumentModel,
-  schemaKw: SchemaKeyword | undefined,
+  schemaKw: ResolvedSchemaKeyword | undefined,
   schema: HaproxySchema,
   conditionals: Set<string>,
 ): vscode.Diagnostic[] {
@@ -363,7 +371,10 @@ function balanceArgumentDiagnostics(
       return diagnostics;
     }
     const variantArgs = argIndices.slice(1);
-    if (variantArgs.length < variantModel.min_args && !allowsMissingArgs(variant, variantModel)) {
+    if (
+      variantArgs.length < variantModel.min_args &&
+      !allowsMissingArgs(variant, variantModel, variant?.signatures)
+    ) {
       const missing = variantModel.min_args - variantArgs.length;
       diagnostics.push(
         makeArgDiagnostic(

@@ -175,6 +175,7 @@ describe("provideHover", () => {
     expect(text).toContain("Returns an integer value");
     expect(text).toContain("https://docs.haproxy.org/3.4/configuration.html#req.hdr_cnt");
     expect(text).not.toContain("#7.3-req.hdr_cnt");
+    expect(text).not.toContain("#7.3.6-req.hdr_cnt");
   });
 
   it("documents sample fetches inside expressions", () => {
@@ -261,10 +262,11 @@ describe("provideHover", () => {
     expect(text32).not.toContain("haterm");
   });
 
-  it("documents multi-signature directives", () => {
+  it("shows section-specific signatures instead of merged cross-chapter forms", () => {
     const text = hoverMarkdown("frontend web\n    bind", 1, "    bind".indexOf("bind"), "3.4");
-    expect(text).toContain("Forms");
     expect(text).toContain("bind");
+    expect(text).not.toContain("Forms");
+    expect(text).toContain("#4.2-bind");
   });
 
   it("documents argument parameter descriptions", () => {
@@ -601,7 +603,48 @@ describe("provideHover", () => {
     }
     const text = hoverText(hover);
     expect(text.toLowerCase()).toContain("mode");
-    expect(text).not.toContain("**Valid in:**");
+  });
+
+  it("shows multiple signature forms on directive hover", () => {
+    const doc = createDocument("defaults\n    multi-sig");
+    const bundle = bundles["3.4"];
+    const data = structuredClone(bundle.languageData);
+    data.keywords["multi-sig"] = {
+      name: "multi-sig",
+      sections: ["defaults"],
+      signatures: ["multi-sig <a>", "multi-sig <b>"],
+      description: "Keyword with multiple forms.",
+      docsUrl: "https://docs.haproxy.org/3.4/configuration.html#multi-sig",
+    };
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      line: {
+        line: 1,
+        section: "defaults",
+        tokens: [{ text: "multi-sig", start: 4, end: 13 }],
+        isSectionHeader: false,
+        anonymousDefaults: false,
+      },
+      lineText: "    multi-sig",
+      tokenIndex: 0,
+      token: { text: "multi-sig", start: 4, end: 13 },
+      kind: "directive",
+      prefix: "    multi-sig",
+    });
+    vi.spyOn(directiveUtils, "resolveDirective").mockReturnValue({
+      matched: true,
+      keyword: "multi-sig",
+      start: 0,
+      end: 0,
+    });
+    const hover = provideHover(doc, { line: 1, character: 5 } as never, data, bundle.schema);
+    expect(hover).not.toBeNull();
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    const text = hoverText(hover);
+    expect(text).toContain("**Forms:**");
+    expect(text).toContain("multi-sig <a>");
+    expect(text).toContain("multi-sig <b>");
   });
 
   it("uses generic argument label when parameter name is empty", () => {
