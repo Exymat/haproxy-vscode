@@ -83,7 +83,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (isStale()) {
               return;
             }
-            reject(error);
+            reject(error instanceof Error ? error : new Error(String(error)));
           });
         });
       });
