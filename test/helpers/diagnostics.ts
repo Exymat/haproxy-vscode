@@ -1,5 +1,6 @@
 import { computeDiagnostics } from "../../src/diagnostics";
 import type { HaproxySchema } from "../../src/schema";
+import { formatDiagnosticCode } from "./diagnosticFormat";
 import { createDocument, type MockTextDocument } from "./document";
 import { loadAllLanguageData, loadAllSchemas, type SupportedVersion } from "./schema";
 
@@ -46,7 +47,7 @@ export function runDiagnosticCase(
   const diagnostics = runDiagnostics(doc, schemaForCase, version);
   const byCode = new Map<string, number>();
   for (const diag of diagnostics) {
-    const code = String(diag.code ?? "unknown");
+    const code = formatDiagnosticCode(diag.code);
     byCode.set(code, (byCode.get(code) ?? 0) + 1);
   }
 
@@ -56,7 +57,9 @@ export function runDiagnosticCase(
       throw new Error(
         `${name}: expected ${count} '${code}' diagnostic(s), got ${actual}\n` +
           diagnostics
-            .map((d) => `  L${d.range.start.line + 1}: [${d.code}] ${d.message}`)
+            .map(
+              (d) => `  L${d.range.start.line + 1}: [${formatDiagnosticCode(d.code)}] ${d.message}`,
+            )
             .join("\n"),
       );
     }
@@ -67,15 +70,19 @@ export function runDiagnosticCase(
   if (diagnostics.length !== expectedTotal) {
     throw new Error(
       `${name}: expected ${expectedTotal} total diagnostic(s), got ${diagnostics.length}\n` +
-        diagnostics.map((d) => `  L${d.range.start.line + 1}: [${d.code}] ${d.message}`).join("\n"),
+        diagnostics
+          .map(
+            (d) => `  L${d.range.start.line + 1}: [${formatDiagnosticCode(d.code)}] ${d.message}`,
+          )
+          .join("\n"),
     );
   }
 
   if (expectations.severity !== undefined) {
     for (const diag of diagnostics) {
-      if (diag.severity !== expectations.severity) {
+      if (Number(diag.severity) !== expectations.severity) {
         throw new Error(
-          `${name}: expected severity ${expectations.severity}, got ${diag.severity} for ${diag.message}`,
+          `${name}: expected severity ${expectations.severity}, got ${Number(diag.severity)} for ${diag.message}`,
         );
       }
     }

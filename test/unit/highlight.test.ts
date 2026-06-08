@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -29,14 +30,17 @@ describe("highlight", () => {
   it.each([
     { label: "fixture snippet scoped", file: "test-stats-head.cfg" },
     { label: "grammar directives fixture", file: "grammar-directives.cfg" },
-  ])("$label is fully scoped", async ({ file }) => {
-    const content = readFileSync(join(fixturesDir, file), "utf-8");
-    const { lineResults } = await analyzeDocument(content);
-    const unscoped = lineResults.flatMap((line) =>
-      line.unscoped.map((t) => ({ ...t, lineNo: line.lineNo })),
-    );
-    expect(unscoped).toEqual([]);
-  });
+  ] as const satisfies ReadonlyArray<{ label: string; file: string }>)(
+    "$label is fully scoped",
+    async ({ file }) => {
+      const content = readFileSync(join(fixturesDir, file), "utf-8");
+      const { lineResults } = await analyzeDocument(content);
+      const unscoped = lineResults.flatMap((line) =>
+        line.unscoped.map((t) => ({ ...t, lineNo: line.lineNo })),
+      );
+      expect(unscoped).toEqual([]);
+    },
+  );
 
   it("name scope fixture", async () => {
     const content = readFileSync(join(fixturesDir, "name-scopes.cfg"), "utf-8");

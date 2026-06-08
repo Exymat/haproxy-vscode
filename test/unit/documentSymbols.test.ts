@@ -15,7 +15,7 @@ function runCase(
     startLine: symbol.startLine,
     endLine: symbol.endLine,
   }));
-  expect(actual, name).toEqual(expected);
+  expect(actual).toEqual(expected);
 }
 
 describe("document symbols", () => {

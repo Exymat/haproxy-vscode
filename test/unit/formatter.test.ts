@@ -1,7 +1,19 @@
-import { formatConfig, splitLineAtComment, DEFAULT_FORMAT_OPTIONS } from "../../src/formatter";
+import { describe, expect, it } from "vitest";
+
+import {
+  formatConfig,
+  splitLineAtComment,
+  DEFAULT_FORMAT_OPTIONS,
+  type FormatOptions,
+} from "../../src/formatter";
 
 describe("formatter", () => {
-  const cases = [
+  const cases: Array<{
+    name: string;
+    input: string;
+    expected: string;
+    options?: FormatOptions;
+  }> = [
     {
       name: "section headers left-aligned with normalized spacing",
       input: "     frontend         foo\n     mode             http",
@@ -103,7 +115,12 @@ describe("formatter", () => {
       code: 'set-var(txn.x) "a#b"',
       comment: "# trailing",
     },
-  ])("splitLineAtComment: $name", ({ line, code, comment }) => {
+  ] as const satisfies ReadonlyArray<{
+    name: string;
+    line: string;
+    code: string;
+    comment: string;
+  }>)("splitLineAtComment: $name", ({ line, code, comment }) => {
     const split = splitLineAtComment(line);
     expect(split.code).toBe(code);
     expect(split.commentSuffix).toBe(comment);

@@ -359,12 +359,11 @@ describe("coverage line gaps", () => {
 
     const bindLine = parseDocument(createDocument("frontend web\n    bind :80 name s1"))[1];
     const bindRule = bundle.schema.statement_rules.find((r) => r.kind === "bind");
-    if (bindRule?.fixed_slots?.length) {
-      const bindSchema = structuredClone(bundle.schema);
-      const bindOnly = bindSchema.statement_rules.filter((r) => r.kind === "bind");
-      bindSchema.statement_rules = bindOnly;
-      expect(statementDiagnostics(bindLine, bindSchema).length).toBeGreaterThanOrEqual(0);
-    }
+    expect(bindRule?.fixed_slots?.length ?? 0).toBeGreaterThan(0);
+    const bindSchema = structuredClone(bundle.schema);
+    const bindOnly = bindSchema.statement_rules.filter((r) => r.kind === "bind");
+    bindSchema.statement_rules = bindOnly;
+    expect(statementDiagnostics(bindLine, bindSchema).length).toBeGreaterThanOrEqual(0);
   });
 
   it("covers extension edge cases", () => {

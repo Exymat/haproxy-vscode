@@ -15,7 +15,7 @@ function runCase(
     },
   } as never);
   const actual = buildSectionFoldRanges(parsed, doc.lineCount);
-  expect(actual, name).toEqual(expected);
+  expect(actual).toEqual(expected);
 }
 
 describe("folding", () => {

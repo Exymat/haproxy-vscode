@@ -87,7 +87,7 @@ describe("documentContext", () => {
       { content: "defaults\n    mode http", line: 1, token: "http", kind: "directive-argument" },
     ];
     for (const { content, line, token, kind } of cases) {
-      expect(ctx(content, line, colAt(content, line, token))?.kind, content).toBe(kind);
+      expect(ctx(content, line, colAt(content, line, token))?.kind).toBe(kind);
     }
   });
 

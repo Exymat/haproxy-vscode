@@ -1,3 +1,5 @@
+import { describe, it } from "vitest";
+
 import { computeDiagnostics } from "../../src/diagnostics";
 import { createDocument } from "../helpers/document";
 import { listGoldenFixtures, readFixture, readGoldenFixture } from "../helpers/fixtures";

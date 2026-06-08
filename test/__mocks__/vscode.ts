@@ -214,7 +214,7 @@ export const workspace = {
         const value = configValues.get(`${section}.${key}`);
         return (value !== undefined ? value : defaultValue) as T;
       },
-      async update(key: string, value: unknown, _target?: number) {
+      update(key: string, value: unknown, _target?: number) {
         configValues.set(`${section}.${key}`, value);
       },
     };
@@ -321,7 +321,7 @@ export const commands = {
     registeredCommands.set(name, handler);
     return { dispose: () => {} };
   },
-  executeCommand: vi.fn(async () => undefined),
+  executeCommand: vi.fn(() => Promise.resolve(undefined)),
 };
 
 export function createMockExtensionContext(extensionPath: string) {

@@ -1,5 +1,6 @@
 import { expressionDiagnostics } from "../../src/expressionDiagnostics";
 import { parseDocument } from "../../src/parser";
+import { formatDiagnosticCode } from "../helpers/diagnosticFormat";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 
@@ -24,6 +25,6 @@ describe("expressionDiagnostics", () => {
     const doc = createDocument(content);
     const line = parseDocument(doc)[1];
     const diags = expressionDiagnostics(line, doc.lineAt(1).text, schema);
-    expect(diags.some((d) => String(d.code).includes("sample"))).toBe(true);
+    expect(diags.some((d) => formatDiagnosticCode(d.code).includes("sample"))).toBe(true);
   });
 });

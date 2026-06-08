@@ -26,7 +26,7 @@ function assertDef(
 ) {
   const defs = findDefinitions(index, kind, name, scopeKey);
   const hit = defs.find((d) => d.line === line && d.start === start);
-  expect(hit, `expected definition ${kind}/${name} at line ${line} col ${start}`).toBeDefined();
+  expect(hit).toBeDefined();
 }
 
 function assertRefCount(
@@ -37,7 +37,7 @@ function assertRefCount(
   count: number,
 ) {
   const sites = findAllSites(index, kind, name, scopeKey);
-  expect(sites.length, `expected ${count} sites for ${kind}/${name}`).toBe(count);
+  expect(sites.length).toBe(count);
 }
 
 function assertResolve(

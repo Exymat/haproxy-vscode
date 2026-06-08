@@ -1,13 +1,38 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-
-// CJS packages loaded in the Vitest Node environment.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { Registry } = require("vscode-textmate");
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { loadWASM, createOnigScanner, createOnigString } = require("vscode-oniguruma");
+import { createOnigScanner, createOnigString, loadWASM } from "vscode-oniguruma";
+import {
+  Registry,
+  type IGrammar,
+  type IRawGrammar,
+  type IToken,
+  type StateStack,
+} from "vscode-textmate";
 
 const extensionRoot = join(__dirname, "..", "..");
+
+interface TokenColorRule {
+  scope: string | string[];
+  settings?: { foreground?: string };
+}
+
+interface ExtensionPackageJson {
+  configurationDefaults?: {
+    "editor.tokenColorCustomizations"?: {
+      textMateRules?: TokenColorRule[];
+    };
+    "[haproxy]"?: {
+      "editor.tokenColorCustomizations"?: {
+        textMateRules?: TokenColorRule[];
+      };
+      editor?: {
+        tokenColorCustomizations?: {
+          textMateRules?: TokenColorRule[];
+        };
+      };
+    };
+  };
+}
 
 let wasmReady = false;
 
@@ -21,11 +46,10 @@ export async function initTextMate(): Promise<void> {
   wasmReady = true;
 }
 
-export function loadColorRules(): Array<{
-  scope: string | string[];
-  settings?: { foreground?: string };
-}> {
-  const pkg = JSON.parse(readFileSync(join(extensionRoot, "package.json"), "utf-8"));
+export function loadColorRules(): TokenColorRule[] {
+  const pkg = JSON.parse(
+    readFileSync(join(extensionRoot, "package.json"), "utf-8"),
+  ) as ExtensionPackageJson;
   const defaults = pkg.configurationDefaults ?? {};
   const topLevel = defaults["editor.tokenColorCustomizations"]?.textMateRules ?? [];
   if (topLevel.length > 0) {
@@ -67,17 +91,17 @@ function ruleMatchesScopes(ruleScope: string, scopes: string[]): boolean {
   return true;
 }
 
-export function loadGrammarObject(): Record<string, unknown> {
+export function loadGrammarObject(): IRawGrammar {
   const activePath = join(extensionRoot, "syntaxes", "haproxy-active.tmLanguage.json");
   const fallbackPath = join(extensionRoot, "syntaxes", "haproxy-3.2.tmLanguage.json");
   const grammarPath = existsSync(activePath) ? activePath : fallbackPath;
   const raw = readFileSync(grammarPath, "utf-8").replace(/^\uFEFF/, "");
-  const grammar = JSON.parse(raw) as Record<string, unknown>;
+  const grammar = JSON.parse(raw) as IRawGrammar & { $schema?: string };
   delete grammar.$schema;
   return grammar;
 }
 
-export async function createHaproxyGrammar() {
+export async function createHaproxyGrammar(): Promise<IGrammar> {
   await initTextMate();
   const registry = new Registry({
     theme: {
@@ -88,6 +112,7 @@ export async function createHaproxyGrammar() {
       createOnigScanner,
       createOnigString,
     }),
+    loadGrammar: () => Promise.resolve(null),
   });
   return registry.addGrammar(loadGrammarObject());
 }
@@ -108,10 +133,7 @@ function hasHaproxyScope(scopes: string[]): boolean {
   return scopes.some((s) => s !== "source.haproxy");
 }
 
-function resolveForeground(
-  scopes: string[],
-  colorRules: Array<{ scope: string | string[]; settings?: { foreground?: string } }>,
-) {
+function resolveForeground(scopes: string[], colorRules: TokenColorRule[]) {
   let best: { color: string | null; specificity: number } | null = null;
   for (const rule of colorRules) {
     for (const ruleScope of normalizeRuleScopes(rule.scope)) {
@@ -149,9 +171,9 @@ interface ClassifiedToken {
 
 function classifyToken(
   lineText: string,
-  token: { startIndex: number; scopes: string[] },
+  token: IToken,
   nextStart: number,
-  colorRules: Array<{ scope: string | string[]; settings?: { foreground?: string } }>,
+  colorRules: TokenColorRule[],
 ): ClassifiedToken | null {
   const text = lineText.slice(token.startIndex, nextStart);
   if (isWhitespaceToken(text)) {
@@ -173,7 +195,7 @@ export async function analyzeDocument(content: string) {
   const grammar = await createHaproxyGrammar();
   const colorRules = loadColorRules();
   const lines = content.split(/\r?\n/);
-  let ruleStack: unknown = null;
+  let ruleStack: StateStack | null = null;
   const lineResults: Array<{
     lineNo: number;
     lineText: string;
@@ -216,7 +238,7 @@ export async function tokenizeDocument(content: string) {
   const grammar = await createHaproxyGrammar();
   const colorRules = loadColorRules();
   const lines = content.split(/\r?\n/);
-  let ruleStack: unknown = null;
+  let ruleStack: StateStack | null = null;
   const lineTokens: Array<{ lineNo: number; lineText: string; tokens: ClassifiedToken[] }> = [];
 
   for (let lineNo = 0; lineNo < lines.length; lineNo += 1) {

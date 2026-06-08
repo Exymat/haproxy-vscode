@@ -180,7 +180,7 @@ describe("extension", () => {
     expect(collection?.set).not.toHaveBeenCalled();
   });
 
-  it("clears pending diagnostics timer on document close", async () => {
+  it("clears pending diagnostics timer on document close", () => {
     const doc = haproxyDocument("defaults\n    mode http");
     mockTextDocuments.push(doc);
     setMockConfig("haproxy", "diagnostics.debounceMs", 500);
@@ -250,7 +250,7 @@ describe("extension", () => {
     });
   });
 
-  it("clears pending diagnostic timers on deactivate", async () => {
+  it("clears pending diagnostic timers on deactivate", () => {
     const doc = haproxyDocument("defaults\n    mode http");
     mockTextDocuments.push(doc);
     setMockConfig("haproxy", "diagnostics.debounceMs", 5000);

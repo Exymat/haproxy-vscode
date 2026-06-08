@@ -41,9 +41,9 @@ describe("version", () => {
     let capturedTarget: number | undefined;
     vi.spyOn(workspace, "getConfiguration").mockReturnValue({
       get: baseConfig.get.bind(baseConfig),
-      update: async (key: string, value: unknown, target?: number) => {
+      update: (key: string, value: unknown, target?: number) => {
         capturedTarget = target;
-        return baseConfig.update(key, value, target);
+        baseConfig.update(key, value, target);
       },
     });
 
@@ -58,9 +58,9 @@ describe("version", () => {
     let capturedTarget: number | undefined;
     vi.spyOn(workspace, "getConfiguration").mockReturnValue({
       get: baseConfig.get.bind(baseConfig),
-      update: async (key: string, value: unknown, target?: number) => {
+      update: (key: string, value: unknown, target?: number) => {
         capturedTarget = target;
-        return baseConfig.update(key, value, target);
+        baseConfig.update(key, value, target);
       },
     });
 

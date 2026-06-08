@@ -1,5 +1,6 @@
 // @ts-check
 import js from "@eslint/js";
+import { defineConfig } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -9,23 +10,13 @@ const srcFiles = ["src/**/*.ts"];
 const testFiles = ["test/**/*.ts", "vitest.config.ts"];
 
 /** @type {import("eslint").Linter.RulesRecord} */
-const testRelaxedRules = {
-  "@typescript-eslint/no-unsafe-assignment": "off",
-  "@typescript-eslint/no-unsafe-call": "off",
-  "@typescript-eslint/no-unsafe-member-access": "off",
-  "@typescript-eslint/no-unsafe-return": "off",
-  "@typescript-eslint/no-unsafe-argument": "off",
-  "@typescript-eslint/no-unsafe-enum-comparison": "off",
-  "@typescript-eslint/require-await": "off",
-  "@typescript-eslint/no-base-to-string": "off",
-  "@typescript-eslint/restrict-template-expressions": "off",
+const testRuleOverrides = {
   "vitest/no-mocks-import": "off",
+  // Helpers such as runCase and runDiagnosticCase wrap assertions in nested callbacks.
   "vitest/expect-expect": "off",
-  "vitest/valid-expect": "off",
-  "vitest/no-conditional-expect": "off",
 };
 
-export default tseslint.config(
+export default defineConfig(
   {
     ignores: [
       "out/**",
@@ -66,7 +57,7 @@ export default tseslint.config(
     plugins: { vitest },
     rules: {
       .../** @type {import("eslint").Linter.RulesRecord} */ (vitest.configs.recommended.rules),
-      ...testRelaxedRules,
+      ...testRuleOverrides,
       "@typescript-eslint/no-non-null-assertion": "error",
       "@typescript-eslint/no-unnecessary-type-assertion": "error",
     },
@@ -76,6 +67,18 @@ export default tseslint.config(
         ...vitest.environments.env.globals,
         ...globals.mocha,
       },
+    },
+  },
+  {
+    files: ["test/integration/**/*.ts"],
+    rules: {
+      "vitest/expect-expect": [
+        "error",
+        {
+          assertFunctionNames: ["expect", "assert", "assertDiagnosticCounts"],
+          additionalTestBlockFunctions: ["test"],
+        },
+      ],
     },
   },
   {

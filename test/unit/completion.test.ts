@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { provideCompletionItems } from "../../src/completion";
 import { getDocumentContext } from "../../src/documentContext";
 import { provideHover } from "../../src/hover";
@@ -99,7 +101,7 @@ describe("completion and hover", () => {
     expect(bind?.detail).not.toContain(":port [param*]");
   });
 
-  it.each([
+  const completionCases = [
     {
       directive: "http-reuse ",
       section: "defaults",
@@ -137,16 +139,21 @@ describe("completion and hover", () => {
       expected: [],
       forbidden: ["algo", "acl"],
     },
-  ])("$directive completions", ({ directive, section, expected, forbidden }) => {
-    const content = `${section}\n    ${directive}`;
-    const testLine = 1;
-    const cursor = content.split("\n")[1].length;
-    const labels = completionLabels(content, testLine, cursor, "3.4");
-    for (const name of expected) {
-      expect(labels, `${directive.trim()} completions`).toContain(name);
-    }
-    for (const name of forbidden) {
-      expect(labels, `${directive.trim()} should not suggest ${name}`).not.toContain(name);
-    }
-  });
+  ] as const;
+
+  it.each(completionCases)(
+    "$directive completions",
+    ({ directive, section, expected, forbidden }) => {
+      const content = `${section}\n    ${directive}`;
+      const testLine = 1;
+      const cursor = content.split("\n")[1].length;
+      const labels = completionLabels(content, testLine, cursor, "3.4");
+      for (const name of expected) {
+        expect(labels).toContain(name);
+      }
+      for (const name of forbidden) {
+        expect(labels).not.toContain(name);
+      }
+    },
+  );
 });

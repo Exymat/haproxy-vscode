@@ -40,11 +40,8 @@ describe("diagnostics extended branches", () => {
       languageData: bundle34.languageData,
     });
     const serviceDiag = diags.find((d) => d.code === "unknown-service");
-    if ((bundle34.schema.keyword_groups.services ?? []).length === 0) {
-      expect(serviceDiag).toBeUndefined();
-    } else {
-      expect(serviceDiag).toBeDefined();
-    }
+    const hasServices = (bundle34.schema.keyword_groups.services ?? []).length > 0;
+    expect(serviceDiag !== undefined).toBe(hasServices);
   });
 
   it("flags invalid tcp-request content phase via statement rules", () => {
