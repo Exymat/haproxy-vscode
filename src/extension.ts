@@ -25,7 +25,16 @@ let bundle: ExtensionBundle | undefined;
 let bundleLoadPromise: Promise<ExtensionBundle> | undefined;
 let bundleLoadError: Error | undefined;
 let bundleErrorShown = false;
+let bundleGeneration = 0;
 let cachedSettings = getExtensionSettings();
+
+function invalidateBundleLoad(): void {
+  bundleGeneration += 1;
+  bundle = undefined;
+  bundleLoadPromise = undefined;
+  bundleLoadError = undefined;
+  bundleErrorShown = false;
+}
 
 function refreshCachedSettings(): void {
   cachedSettings = getExtensionSettings();
@@ -53,21 +62,36 @@ export function activate(context: vscode.ExtensionContext): void {
       return Promise.reject(bundleLoadError);
     }
     if (!bundleLoadPromise) {
+      const generation = bundleGeneration;
+      const isStale = (): boolean => generation !== bundleGeneration;
       bundleLoadPromise = new Promise((resolve, reject) => {
         setImmediate(() => {
           void (async () => {
             const version = getConfiguredVersion();
-            bundle = {
+            const loaded = {
               version,
               schema: await loadSchemaAsync(context, version),
               languageData: await loadLanguageDataAsync(context, version),
             };
-            resolve(bundle);
-          })().catch(reject);
+            if (isStale()) {
+              return;
+            }
+            bundle = loaded;
+            resolve(loaded);
+          })().catch((error) => {
+            /* c8 ignore next 3 -- stale load discarded after deactivate/reload */
+            if (isStale()) {
+              return;
+            }
+            reject(error);
+          });
         });
       });
-      /* c8 ignore next 3 -- defensive recovery path for transient async load failures */
+      /* c8 ignore next 4 -- defensive recovery path for transient async load failures */
       bundleLoadPromise = bundleLoadPromise.catch((error) => {
+        if (isStale()) {
+          throw error;
+        }
         bundleLoadPromise = undefined;
         bundleLoadError = error instanceof Error ? error : new Error(String(error));
         throw bundleLoadError;
@@ -144,10 +168,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const reloadBundle = async (syncGrammar: boolean): Promise<void> => {
     clearSchemaCache();
     clearLanguageDataCache();
-    bundle = undefined;
-    bundleLoadPromise = undefined;
-    bundleLoadError = undefined;
-    bundleErrorShown = false;
+    invalidateBundleLoad();
     const b = await safeEnsureBundle();
     if (!b) {
       return;
@@ -274,8 +295,5 @@ export function activate(context: vscode.ExtensionContext): void {
 
 export function deactivate(): void {
   clearPendingDiagnostics();
-  bundle = undefined;
-  bundleLoadPromise = undefined;
-  bundleLoadError = undefined;
-  bundleErrorShown = false;
+  invalidateBundleLoad();
 }

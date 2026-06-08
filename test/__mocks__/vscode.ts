@@ -151,6 +151,7 @@ export function resetVscodeMock(): void {
   lastQuickPickItems = undefined;
   lastQuickPickResult = undefined;
   lastInfoMessageResult = undefined;
+  window.showErrorMessage.mockClear();
 }
 
 export function setMockActiveTextEditor(editor: typeof mockActiveTextEditor): void {

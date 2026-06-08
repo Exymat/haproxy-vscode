@@ -238,12 +238,16 @@ describe("extension", () => {
     activate(mockExtensionContext() as never);
     await vi.runAllTimersAsync();
 
-    expect(window.showErrorMessage).toHaveBeenCalledWith(
-      expect.stringContaining("HAProxy extension failed to load schema"),
-    );
+    await vi.waitFor(() => {
+      expect(window.showErrorMessage).toHaveBeenCalledWith(
+        expect.stringContaining("HAProxy extension failed to load schema"),
+      );
+    });
 
     const collection = getLastDiagnosticCollection();
-    expect(collection?.set).toHaveBeenCalledWith(doc.uri, []);
+    await vi.waitFor(() => {
+      expect(collection?.set).toHaveBeenCalledWith(doc.uri, []);
+    });
   });
 
   it("clears pending diagnostic timers on deactivate", async () => {
