@@ -6,6 +6,7 @@ describe("docsUrl", () => {
   it("builds chapter-keyword anchors for configuration keywords", () => {
     expect(docsAnchor("mode", "4.2")).toBe("4.2-mode");
     expect(docsAnchor("option httplog", "4.2")).toBe("4.2-option%20httplog");
+    expect(docsAnchor("hdr_cnt(<name>)", "7.3.6")).toBe("7.3.6-hdr_cnt%28%3Cname%3E%29");
   });
 
   it("builds bare keyword anchors for sample fetches and converters", () => {

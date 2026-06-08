@@ -1,7 +1,9 @@
 /** Fragment id for a keyword, aligned with haproxy-dconv anchor rules. */
 export function docsAnchor(keyword: string, chapter?: string): string {
   const anchor = chapter ? `${chapter}-${keyword}` : keyword;
-  return encodeURIComponent(anchor);
+  return encodeURIComponent(anchor).replace(/[!'()*]/g, (char) =>
+    `%${char.charCodeAt(0).toString(16).toUpperCase()}`,
+  );
 }
 
 export function configurationDocsUrl(version: string, keyword: string, chapter?: string): string {

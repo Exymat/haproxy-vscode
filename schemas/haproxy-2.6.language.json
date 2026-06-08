@@ -1462,7 +1462,7 @@
     "http_after_response_actions": [
       {
         "description": "This appends an HTTP header field whose name is specified in <name> and whose value is defined by <fmt> which follows the log-format rules (see Custom Log Format in section 8.2.4). This is particularly useful to pass connection-specific information to the server (e.g. the client's SSL certificate), or to combine several headers into one. This rule is not final, so it is possible to add other similar rules. Note that header addition is performed immediately, so one rule might reuse the resulting header from a previous rule.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-add-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20add-header",
         "name": "add-header",
         "rulesets": [
           "http-request",
@@ -1473,7 +1473,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and lets the request pass the check. No further \"http-request\" rules are evaluated for the current section.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-allow",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20allow",
         "name": "allow",
         "rulesets": [
           "http-request",
@@ -1484,7 +1484,7 @@
       },
       {
         "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Please check section 7.3 (Fetching samples) and \"capture request header\" for more information.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-capture",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20capture",
         "name": "capture",
         "rulesets": [
           "http-request",
@@ -1496,7 +1496,7 @@
       },
       {
         "description": "This is used to delete an entry from an ACL. The ACL must be loaded from a file (even a dummy empty file). The file name of the ACL to be updated is passed between parentheses. It takes one argument: <key fmt>, which follows log-format rules, to collect content of the entry to delete. It is the equivalent of the \"del acl\" command from the stats socket, but can be triggered by an HTTP request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-del-acl",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20del-acl",
         "name": "del-acl",
         "rulesets": [
           "http-request",
@@ -1507,7 +1507,7 @@
       },
       {
         "description": "This removes all HTTP header fields whose name is specified in <name>. <meth> is the matching method, applied on the header name. Supported matching methods are \"str\" (exact match), \"beg\" (prefix match), \"end\" (suffix match), \"sub\" (substring match) and \"reg\" (regex match). If not specified, exact matching method is used.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-del-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20del-header",
         "name": "del-header",
         "rulesets": [
           "http-request",
@@ -1518,7 +1518,7 @@
       },
       {
         "description": "This is used to delete an entry from a MAP. The MAP must be loaded from a file (even a dummy empty file). The file name of the MAP to be updated is passed between parentheses. It takes one argument: <key fmt>, which follows log-format rules, to collect content of the entry to delete. It takes one argument: \"file name\" It is the equivalent of the \"del map\" command from the stats socket, but can be triggered by an HTTP request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-del-map",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20del-map",
         "name": "del-map",
         "rulesets": [
           "http-request",
@@ -1529,7 +1529,7 @@
       },
       {
         "description": "This matches the value of all occurrences of header field <name> against <match-regex>. Matching is performed case-sensitively. Matching values are completely replaced by <replace-fmt>. Format characters are allowed in <replace-fmt> and work like <fmt> arguments in \"http-request add-header\". Standard back-references using the backslash ('\\') followed by a number are supported.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-replace-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20replace-header",
         "name": "replace-header",
         "rulesets": [
           "http-request",
@@ -1540,7 +1540,7 @@
       },
       {
         "description": "This works like \"replace-header\" except that it matches the regex against every comma-delimited value of the header field <name> instead of the entire header. This is suited for all headers which are allowed to carry more than one value. An example could be the Accept header.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-replace-value",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20replace-value",
         "name": "replace-value",
         "rulesets": [
           "http-request",
@@ -1551,7 +1551,7 @@
       },
       {
         "description": "This actions increments the General Purpose Counter at the index <idx> of the array associated to the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPC stored at this index. This action applies only to the 'gpc' and 'gpc_rate' array data_types (and not to the legacy 'gpc0', 'gpc1', 'gpc0_rate' nor 'gpc1_rate' data_types).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc",
         "name": "sc-inc-gpc",
         "rulesets": [
           "http-request",
@@ -1566,7 +1566,7 @@
       },
       {
         "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc0",
         "name": "sc-inc-gpc0",
         "rulesets": [
           "http-request",
@@ -1581,7 +1581,7 @@
       },
       {
         "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc1",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc1",
         "name": "sc-inc-gpc1",
         "rulesets": [
           "http-request",
@@ -1596,7 +1596,7 @@
       },
       {
         "description": "This action sets the 32-bit unsigned GPT at the index <idx> of the array associated to the sticky counter designated by <sc-id> at the value of <int>/<expr>. The expected result is a boolean. If an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPT stored at this index. This action applies only to the 'gpt' array data_type (and not to the legacy 'gpt0' data-type).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-set-gpt",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-set-gpt",
         "name": "sc-set-gpt",
         "rulesets": [
           "http-request",
@@ -1611,7 +1611,7 @@
       },
       {
         "description": "This action sets the 32-bit unsigned GPT0 tag according to the sticky counter designated by <sc-id> and the value of <int>/<expr>. The expected result is a boolean. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-set-gpt0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-set-gpt0",
         "name": "sc-set-gpt0",
         "rulesets": [
           "http-request",
@@ -1625,7 +1625,7 @@
       },
       {
         "description": "This does the same as \"http-request add-header\" except that the header name is first removed if it existed. This is useful when passing security information to the server, where the header must not be manipulated by external users. Note that the new value is computed before the removal so it is possible to concatenate a value to an existing header.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-header",
         "name": "set-header",
         "rulesets": [
           "http-request",
@@ -1636,7 +1636,7 @@
       },
       {
         "description": "This is used to change the log level of the current request when a certain condition is met. Valid levels are the 8 syslog levels (see the \"log\" keyword) plus the special level \"silent\" which disables logging for this request. This rule is not final so the last matching rule wins. This rule can be useful to disable health checks coming from another equipment.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-log-level",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-log-level",
         "name": "set-log-level",
         "rulesets": [
           "http-request",
@@ -1649,7 +1649,7 @@
       },
       {
         "description": "This is used to add a new entry into a MAP. The MAP must be loaded from a file (even a dummy empty file). The file name of the MAP to be updated is passed between parentheses. It takes 2 arguments: <key fmt>, which follows log-format rules, used to collect MAP key, and <value fmt>, which follows log-format rules, used to collect content for the new entry. It performs a lookup in the MAP before insertion, to avoid duplicated (or more) values. This lookup is done by a linear search and can be expensive with large lists! It is the equivalent of the \"set map\" command from the stats socket, but can be triggered by an HTTP request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-map",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-map",
         "name": "set-map",
         "rulesets": [
           "http-request",
@@ -1660,7 +1660,7 @@
       },
       {
         "description": "This replaces the response status code with <status> which must be an integer between 100 and 999. Optionally, a custom reason text can be provided defined by <str>, or the default reason for the specified code will be used as a fallback.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-status",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-response%20set-status",
         "name": "set-status",
         "rulesets": [
           "http-response",
@@ -1670,7 +1670,7 @@
       },
       {
         "description": "This is used to set the contents of a variable. The variable is declared inline.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-var",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-var",
         "name": "set-var",
         "rulesets": [
           "http-request",
@@ -1685,7 +1685,7 @@
       },
       {
         "description": "This is used to set the contents of a variable. The variable is declared inline.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-var-fmt",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-var-fmt",
         "name": "set-var-fmt",
         "rulesets": [
           "http-request",
@@ -1700,7 +1700,7 @@
       },
       {
         "description": "This enables or disables the strict rewriting mode for following rules. It does not affect rules declared before it and it is only applicable on rules performing a rewrite on the requests. When the strict mode is enabled, any rewrite failure triggers an internal error. Otherwise, such errors are silently ignored. The purpose of the strict rewriting mode is to make some rewrites optional while others must be performed to continue the request processing.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-strict-mode",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20strict-mode",
         "name": "strict-mode",
         "rulesets": [
           "http-request",
@@ -1711,7 +1711,7 @@
       },
       {
         "description": "This is used to unset a variable. See above for details about <var-name>.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-unset-var",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20unset-var",
         "name": "unset-var",
         "rulesets": [
           "http-request",
@@ -1728,7 +1728,7 @@
     "http_request_actions": [
       {
         "description": "This is used to add a new entry into an ACL. The ACL must be loaded from a file (even a dummy empty file). The file name of the ACL to be updated is passed between parentheses. It takes one argument: <key fmt>, which follows log-format rules, to collect content of the new entry. It performs a lookup in the ACL before insertion, to avoid duplicated (or more) values. This lookup is done by a linear search and can be expensive with large lists! It is the equivalent of the \"add acl\" command from the stats socket, but can be triggered by an HTTP request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-add-acl",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20add-acl",
         "name": "add-acl",
         "rulesets": [
           "http-request",
@@ -1738,7 +1738,7 @@
       },
       {
         "description": "This appends an HTTP header field whose name is specified in <name> and whose value is defined by <fmt> which follows the log-format rules (see Custom Log Format in section 8.2.4). This is particularly useful to pass connection-specific information to the server (e.g. the client's SSL certificate), or to combine several headers into one. This rule is not final, so it is possible to add other similar rules. Note that header addition is performed immediately, so one rule might reuse the resulting header from a previous rule.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-add-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20add-header",
         "name": "add-header",
         "rulesets": [
           "http-request",
@@ -1749,7 +1749,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and lets the request pass the check. No further \"http-request\" rules are evaluated for the current section.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-allow",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20allow",
         "name": "allow",
         "rulesets": [
           "http-request",
@@ -1760,7 +1760,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and immediately responds with an HTTP 401 or 407 error code to invite the user to present a valid user name and password. No further \"http-request\" rules are evaluated. An optional \"realm\" parameter is supported, it sets the authentication realm that is returned with the response (typically the application's name).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-auth",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20auth",
         "name": "auth",
         "rulesets": [
           "http-request"
@@ -1769,7 +1769,7 @@
       },
       {
         "description": "See section 6.2 about cache setup.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-cache-use",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20cache-use",
         "name": "cache-use",
         "rulesets": [
           "http-request"
@@ -1778,7 +1778,7 @@
       },
       {
         "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Please check section 7.3 (Fetching samples) and \"capture request header\" for more information.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-capture",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20capture",
         "name": "capture",
         "rulesets": [
           "http-request",
@@ -1790,7 +1790,7 @@
       },
       {
         "description": "This is used to delete an entry from an ACL. The ACL must be loaded from a file (even a dummy empty file). The file name of the ACL to be updated is passed between parentheses. It takes one argument: <key fmt>, which follows log-format rules, to collect content of the entry to delete. It is the equivalent of the \"del acl\" command from the stats socket, but can be triggered by an HTTP request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-del-acl",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20del-acl",
         "name": "del-acl",
         "rulesets": [
           "http-request",
@@ -1801,7 +1801,7 @@
       },
       {
         "description": "This removes all HTTP header fields whose name is specified in <name>. <meth> is the matching method, applied on the header name. Supported matching methods are \"str\" (exact match), \"beg\" (prefix match), \"end\" (suffix match), \"sub\" (substring match) and \"reg\" (regex match). If not specified, exact matching method is used.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-del-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20del-header",
         "name": "del-header",
         "rulesets": [
           "http-request",
@@ -1812,7 +1812,7 @@
       },
       {
         "description": "This is used to delete an entry from a MAP. The MAP must be loaded from a file (even a dummy empty file). The file name of the MAP to be updated is passed between parentheses. It takes one argument: <key fmt>, which follows log-format rules, to collect content of the entry to delete. It takes one argument: \"file name\" It is the equivalent of the \"del map\" command from the stats socket, but can be triggered by an HTTP request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-del-map",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20del-map",
         "name": "del-map",
         "rulesets": [
           "http-request",
@@ -1823,7 +1823,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and immediately rejects the request. By default an HTTP 403 error is returned. But the response may be customized using same syntax than \"http-request return\" rules. Thus, see \"http-request return\" for details. For compatibility purpose, when no argument is defined, or only \"deny_status\", the argument \"default-errorfiles\" is implied. It means \"http-request deny [deny_status <status>]\" is an alias of \"http-request deny [status <status>] default-errorfiles\". No further \"http-request\" rules are evaluated.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-deny",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20deny",
         "name": "deny",
         "rulesets": [
           "http-request",
@@ -1833,7 +1833,7 @@
       },
       {
         "description": "This disables any attempt to retry the request if it fails for any other reason than a connection failure. This can be useful for example to make sure POST requests aren't retried on failure.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-disable-l7-retry",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20disable-l7-retry",
         "name": "disable-l7-retry",
         "rulesets": [
           "http-request"
@@ -1842,7 +1842,7 @@
       },
       {
         "description": "This action performs a DNS resolution of the output of <expr> and stores the result in the variable <var>. It uses the DNS resolvers section pointed by <resolvers>. It is possible to choose a resolution preference using the optional arguments 'ipv4' or 'ipv6'. When performing the DNS resolution, the client side connection is on pause waiting till the end of the resolution. If an IP address can be found, it is stored into <var>. If any kind of error occurs, then <var> is not set. One can use this action to discover a server IP address at run time and based on information found in the request (IE a Host header). If this action is used to find the server's IP address (using the \"set-dst\" action), then the server IP address in the backend must be set to 0.0.0.0. The do-resolve action takes an host-only parameter, any port must be removed from the string.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-do-resolve",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20do-resolve",
         "name": "do-resolve",
         "rulesets": [
           "http-request",
@@ -1852,7 +1852,7 @@
       },
       {
         "description": "This is used to build an HTTP 103 Early Hints response prior to any other one. This appends an HTTP header field to this response whose name is specified in <name> and whose value is defined by <fmt> which follows the log-format rules (see Custom Log Format in section 8.2.4). This is particularly useful to pass to the client some Link headers to preload resources required to render the HTML documents.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-early-hint",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20early-hint",
         "name": "early-hint",
         "rulesets": [
           "http-request"
@@ -1861,7 +1861,7 @@
       },
       {
         "description": "Performs normalization of the request's URI.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-normalize-uri",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20normalize-uri",
         "name": "normalize-uri",
         "rulesets": [
           "http-request"
@@ -1870,7 +1870,7 @@
       },
       {
         "description": "This performs an HTTP redirection based on a redirect rule. This is exactly the same as the \"redirect\" statement except that it inserts a redirect rule which can be processed in the middle of other \"http-request\" rules and that these rules use the \"log-format\" strings. See the \"redirect\" keyword for the rule's syntax.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-redirect",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20redirect",
         "name": "redirect",
         "rulesets": [
           "http-request",
@@ -1880,7 +1880,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and immediately closes the connection without sending any response. It acts similarly to the \"tcp-request content reject\" rules. It can be useful to force an immediate connection closure on HTTP/2 connections.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-reject",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20reject",
         "name": "reject",
         "rulesets": [
           "http-request",
@@ -1893,7 +1893,7 @@
       },
       {
         "description": "This matches the value of all occurrences of header field <name> against <match-regex>. Matching is performed case-sensitively. Matching values are completely replaced by <replace-fmt>. Format characters are allowed in <replace-fmt> and work like <fmt> arguments in \"http-request add-header\". Standard back-references using the backslash ('\\') followed by a number are supported.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-replace-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20replace-header",
         "name": "replace-header",
         "rulesets": [
           "http-request",
@@ -1904,7 +1904,7 @@
       },
       {
         "description": "This works like \"replace-header\" except that it works on the request's path component instead of a header. The path component starts at the first '/' after an optional scheme+authority and ends before the question mark. Thus, the replacement does not modify the scheme, the authority and the query-string.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-replace-path",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20replace-path",
         "name": "replace-path",
         "rulesets": [
           "http-request"
@@ -1913,7 +1913,7 @@
       },
       {
         "description": "This does the same as \"http-request replace-path\" except that the path contains the query-string if any is present. Thus, the path and the query-string are replaced.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-replace-pathq",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20replace-pathq",
         "name": "replace-pathq",
         "rulesets": [
           "http-request"
@@ -1922,7 +1922,7 @@
       },
       {
         "description": "This works like \"replace-header\" except that it works on the request's URI part instead of a header. The URI part may contain an optional scheme, authority or query string. These are considered to be part of the value that is matched against.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-replace-uri",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20replace-uri",
         "name": "replace-uri",
         "rulesets": [
           "http-request"
@@ -1931,7 +1931,7 @@
       },
       {
         "description": "This works like \"replace-header\" except that it matches the regex against every comma-delimited value of the header field <name> instead of the entire header. This is suited for all headers which are allowed to carry more than one value. An example could be the Accept header.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-replace-value",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20replace-value",
         "name": "replace-value",
         "rulesets": [
           "http-request",
@@ -1942,7 +1942,7 @@
       },
       {
         "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-return",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20return",
         "name": "return",
         "rulesets": [
           "http-request",
@@ -1952,7 +1952,7 @@
       },
       {
         "description": "This actions increments the General Purpose Counter at the index <idx> of the array associated to the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPC stored at this index. This action applies only to the 'gpc' and 'gpc_rate' array data_types (and not to the legacy 'gpc0', 'gpc1', 'gpc0_rate' nor 'gpc1_rate' data_types).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc",
         "name": "sc-inc-gpc",
         "rulesets": [
           "http-request",
@@ -1967,7 +1967,7 @@
       },
       {
         "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc0",
         "name": "sc-inc-gpc0",
         "rulesets": [
           "http-request",
@@ -1982,7 +1982,7 @@
       },
       {
         "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc1",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc1",
         "name": "sc-inc-gpc1",
         "rulesets": [
           "http-request",
@@ -1997,7 +1997,7 @@
       },
       {
         "description": "This action sets the 32-bit unsigned GPT at the index <idx> of the array associated to the sticky counter designated by <sc-id> at the value of <int>/<expr>. The expected result is a boolean. If an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPT stored at this index. This action applies only to the 'gpt' array data_type (and not to the legacy 'gpt0' data-type).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-set-gpt",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-set-gpt",
         "name": "sc-set-gpt",
         "rulesets": [
           "http-request",
@@ -2012,7 +2012,7 @@
       },
       {
         "description": "This action sets the 32-bit unsigned GPT0 tag according to the sticky counter designated by <sc-id> and the value of <int>/<expr>. The expected result is a boolean. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-set-gpt0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-set-gpt0",
         "name": "sc-set-gpt0",
         "rulesets": [
           "http-request",
@@ -2026,7 +2026,7 @@
       },
       {
         "description": "This action is used to trigger sending of a group of SPOE messages. To do so, the SPOE engine used to send messages must be defined, as well as the SPOE group to send. Of course, the SPOE engine must refer to an existing SPOE filter. If not engine name is provided on the SPOE filter line, the SPOE agent name must be used.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-send-spoe-group",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20send-spoe-group",
         "name": "send-spoe-group",
         "rulesets": [
           "http-request",
@@ -2038,7 +2038,7 @@
       },
       {
         "description": "This is used to set the destination IP address to the value of specified expression. Useful when a proxy in front of HAProxy rewrites destination IP, but provides the correct IP in a HTTP header; or you want to mask the IP for privacy. If you want to connect to the new address/port, use '0.0.0.0:0' as a server address in the backend.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-dst",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-dst",
         "name": "set-dst",
         "rulesets": [
           "http-request",
@@ -2050,7 +2050,7 @@
       },
       {
         "description": "This is used to set the destination port address to the value of specified expression. If you want to connect to the new address/port, use '0.0.0.0:0' as a server address in the backend.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-dst-port",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-dst-port",
         "name": "set-dst-port",
         "rulesets": [
           "http-request",
@@ -2062,7 +2062,7 @@
       },
       {
         "description": "This does the same as \"http-request add-header\" except that the header name is first removed if it existed. This is useful when passing security information to the server, where the header must not be manipulated by external users. Note that the new value is computed before the removal so it is possible to concatenate a value to an existing header.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-header",
         "name": "set-header",
         "rulesets": [
           "http-request",
@@ -2073,7 +2073,7 @@
       },
       {
         "description": "This is used to change the log level of the current request when a certain condition is met. Valid levels are the 8 syslog levels (see the \"log\" keyword) plus the special level \"silent\" which disables logging for this request. This rule is not final so the last matching rule wins. This rule can be useful to disable health checks coming from another equipment.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-log-level",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-log-level",
         "name": "set-log-level",
         "rulesets": [
           "http-request",
@@ -2086,7 +2086,7 @@
       },
       {
         "description": "This is used to add a new entry into a MAP. The MAP must be loaded from a file (even a dummy empty file). The file name of the MAP to be updated is passed between parentheses. It takes 2 arguments: <key fmt>, which follows log-format rules, used to collect MAP key, and <value fmt>, which follows log-format rules, used to collect content for the new entry. It performs a lookup in the MAP before insertion, to avoid duplicated (or more) values. This lookup is done by a linear search and can be expensive with large lists! It is the equivalent of the \"set map\" command from the stats socket, but can be triggered by an HTTP request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-map",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-map",
         "name": "set-map",
         "rulesets": [
           "http-request",
@@ -2097,7 +2097,7 @@
       },
       {
         "description": "This is used to set the Netfilter/IPFW MARK on all packets sent to the client to the value passed in <mark> on platforms which support it. This value is an unsigned 32 bit value which can be matched by netfilter/ipfw and by the routing table or monitoring the packets through DTrace. It can be expressed both in decimal or hexadecimal format (prefixed by \"0x\"). This can be useful to force certain packets to take a different route (for example a cheaper network path for bulk downloads). This works on Linux kernels 2.6.32 and above and requires admin privileges, as well on FreeBSD and OpenBSD.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-mark",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-mark",
         "name": "set-mark",
         "rulesets": [
           "http-request",
@@ -2111,7 +2111,7 @@
       },
       {
         "description": "This rewrites the request method with the result of the evaluation of format string <fmt>. There should be very few valid reasons for having to do so as this is more likely to break something than to fix it.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-method",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-method",
         "name": "set-method",
         "rulesets": [
           "http-request"
@@ -2120,7 +2120,7 @@
       },
       {
         "description": "This sets the \"nice\" factor of the current request being processed. It only has effect against the other requests being processed at the same time. The default value is 0, unless altered by the \"nice\" setting on the \"bind\" line. The accepted range is -1024..1024. The higher the value, the nicest the request will be. Lower values will make the request more important than other ones. This can be useful to improve the speed of some requests, or lower the priority of non-important requests. Using this setting without prior experimentation can cause some major slowdown.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-nice",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-nice",
         "name": "set-nice",
         "rulesets": [
           "http-request",
@@ -2132,7 +2132,7 @@
       },
       {
         "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-path",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-path",
         "name": "set-path",
         "rulesets": [
           "http-request"
@@ -2141,7 +2141,7 @@
       },
       {
         "description": "This does the same as \"http-request set-path\" except that the query-string is also rewritten. It may be used to remove the query-string, including the question mark (it is not possible using \"http-request set-query\").",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-pathq",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-pathq",
         "name": "set-pathq",
         "rulesets": [
           "http-request"
@@ -2150,7 +2150,7 @@
       },
       {
         "description": "This is used to set the queue priority class of the current request. The value must be a sample expression which converts to an integer in the range -2047..2047. Results outside this range will be truncated. The priority class determines the order in which queued requests are processed. Lower values have higher priority.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-priority-class",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-priority-class",
         "name": "set-priority-class",
         "rulesets": [
           "http-request",
@@ -2160,7 +2160,7 @@
       },
       {
         "description": "This is used to set the queue priority timestamp offset of the current request. The value must be a sample expression which converts to an integer in the range -524287..524287. Results outside this range will be truncated. When a request is queued, it is ordered first by the priority class, then by the current timestamp adjusted by the given offset in milliseconds. Lower values have higher priority. Note that the resulting timestamp is is only tracked with enough precision for 524,287ms (8m44s287ms). If the request is queued long enough to where the adjusted timestamp exceeds this value, it will be misidentified as highest priority. Thus it is important to set \"timeout queue\" to a value, where when combined with the offset, does not exceed this limit.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-priority-offset",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-priority-offset",
         "name": "set-priority-offset",
         "rulesets": [
           "http-request",
@@ -2170,7 +2170,7 @@
       },
       {
         "description": "This rewrites the request's query string which appears after the first question mark (\"?\") with the result of the evaluation of format string <fmt>. The part prior to the question mark is left intact. If the request doesn't contain a question mark and the new value is not empty, then one is added at the end of the URI, followed by the new value. If a question mark was present, it will never be removed even if the value is empty. This can be used to add or remove parameters from the query string.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-query",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-query",
         "name": "set-query",
         "rulesets": [
           "http-request"
@@ -2179,7 +2179,7 @@
       },
       {
         "description": "This is used to set the source IP address to the value of specified expression. Useful when a proxy in front of HAProxy rewrites source IP, but provides the correct IP in a HTTP header; or you want to mask source IP for privacy. All subsequent calls to \"src\" fetch will return this value (see example).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-src",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-src",
         "name": "set-src",
         "rulesets": [
           "http-request",
@@ -2191,7 +2191,7 @@
       },
       {
         "description": "This is used to set the source port address to the value of specified expression.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-src-port",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-src-port",
         "name": "set-src-port",
         "rulesets": [
           "http-request",
@@ -2203,7 +2203,7 @@
       },
       {
         "description": "This action overrides the specified \"server\" or \"tunnel\" timeout for the current stream only. The timeout can be specified in millisecond or with any other unit if the number is suffixed by the unit as explained at the top of this document. It is also possible to write an expression which must returns a number interpreted as a timeout in millisecond.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-timeout",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-timeout",
         "name": "set-timeout",
         "rulesets": [
           "http-request"
@@ -2212,7 +2212,7 @@
       },
       {
         "description": "This is used to set the TOS or DSCP field value of packets sent to the client to the value passed in <tos> on platforms which support this. This value represents the whole 8 bits of the IP TOS field, and can be expressed both in decimal or hexadecimal format (prefixed by \"0x\"). Note that only the 6 higher bits are used in DSCP or TOS, and the two lower bits are always 0. This can be used to adjust some routing behavior on border routers based on some information from the request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-tos",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-tos",
         "name": "set-tos",
         "rulesets": [
           "http-request",
@@ -2226,7 +2226,7 @@
       },
       {
         "description": "This rewrites the request URI with the result of the evaluation of format string <fmt>. The scheme, authority, path and query string are all replaced at once. This can be used to rewrite hosts in front of proxies, or to perform complex modifications to the URI such as moving parts between the path and the query string. If an absolute URI is set, it will be sent as is to HTTP/1.1 servers. If it is not the desired behavior, the host, the path and/or the query string should be set separately.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-uri",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-uri",
         "name": "set-uri",
         "rulesets": [
           "http-request"
@@ -2235,7 +2235,7 @@
       },
       {
         "description": "This is used to set the contents of a variable. The variable is declared inline.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-var",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-var",
         "name": "set-var",
         "rulesets": [
           "http-request",
@@ -2250,7 +2250,7 @@
       },
       {
         "description": "This is used to set the contents of a variable. The variable is declared inline.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-var-fmt",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-var-fmt",
         "name": "set-var-fmt",
         "rulesets": [
           "http-request",
@@ -2265,7 +2265,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and makes the client-facing connection suddenly disappear using a system-dependent way that tries to prevent the client from being notified. The effect it then that the client still sees an established connection while there's none on HAProxy. The purpose is to achieve a comparable effect to \"tarpit\" except that it doesn't use any local resource at all on the machine running HAProxy. It can resist much higher loads than \"tarpit\", and slow down stronger attackers. It is important to understand the impact of using this mechanism. All stateful equipment placed between the client and HAProxy (firewalls, proxies, load balancers) will also keep the established connection for a long time and may suffer from this action. On modern Linux systems running with enough privileges, the TCP_REPAIR socket option is used to block the emission of a TCP reset. On other systems, the socket's TTL is reduced to 1 so that the TCP reset doesn't pass the first router, though it's still delivered to local networks. Do not use it unless you fully understand how it works.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-silent-drop",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20silent-drop",
         "name": "silent-drop",
         "rulesets": [
           "http-request",
@@ -2279,7 +2279,7 @@
       },
       {
         "description": "This enables or disables the strict rewriting mode for following rules. It does not affect rules declared before it and it is only applicable on rules performing a rewrite on the requests. When the strict mode is enabled, any rewrite failure triggers an internal error. Otherwise, such errors are silently ignored. The purpose of the strict rewriting mode is to make some rewrites optional while others must be performed to continue the request processing.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-strict-mode",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20strict-mode",
         "name": "strict-mode",
         "rulesets": [
           "http-request",
@@ -2290,7 +2290,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and immediately blocks the request without responding for a delay specified by \"timeout tarpit\" or \"timeout connect\" if the former is not set. After that delay, if the client is still connected, a response is returned so that the client does not suspect it has been tarpitted. Logs will report the flags \"PT\". The goal of the tarpit rule is to slow down robots during an attack when they're limited on the number of concurrent requests. It can be very efficient against very dumb robots, and will significantly reduce the load on firewalls compared to a \"deny\" rule. But when facing \"correctly\" developed robots, it can make things worse by forcing HAProxy and the front firewall to support insane number of concurrent connections. By default an HTTP error 500 is returned. But the response may be customized using same syntax than \"http-request return\" rules. Thus, see \"http-request return\" for details. For compatibility purpose, when no argument is defined, or only \"deny_status\", the argument \"default-errorfiles\" is implied. It means \"http-request tarpit [deny_status <status>]\" is an alias of \"http-request tarpit [status <status>] default-errorfiles\". No further \"http-request\" rules are evaluated.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-tarpit",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20tarpit",
         "name": "tarpit",
         "rulesets": [
           "http-request"
@@ -2306,7 +2306,7 @@
       },
       {
         "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set in MAX_SESS_STKCTR at build time (reported in haproxy -vv) which defaults to 3, so the track-sc number is between 0 and (MAX_SESS_STKCTR-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-track-sc0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20track-sc0",
         "name": "track-sc0",
         "rulesets": [
           "http-request",
@@ -2319,7 +2319,7 @@
       },
       {
         "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set in MAX_SESS_STKCTR at build time (reported in haproxy -vv) which defaults to 3, so the track-sc number is between 0 and (MAX_SESS_STKCTR-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-track-sc1",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20track-sc1",
         "name": "track-sc1",
         "rulesets": [
           "http-request",
@@ -2332,7 +2332,7 @@
       },
       {
         "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set in MAX_SESS_STKCTR at build time (reported in haproxy -vv) which defaults to 3, so the track-sc number is between 0 and (MAX_SESS_STKCTR-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-track-sc2",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20track-sc2",
         "name": "track-sc2",
         "rulesets": [
           "http-request",
@@ -2345,7 +2345,7 @@
       },
       {
         "description": "This is used to unset a variable. See above for details about <var-name>.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-unset-var",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20unset-var",
         "name": "unset-var",
         "rulesets": [
           "http-request",
@@ -2360,7 +2360,7 @@
       },
       {
         "description": "This directive executes the configured HTTP service to reply to the request and stops the evaluation of the rules. An HTTP service may choose to reply by sending any valid HTTP response or it may immediately close the connection without sending any response. Outside natives services, for instance the Prometheus exporter, it is possible to write your own services in Lua. No further \"http-request\" rules are evaluated.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-use-service",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20use-service",
         "name": "use-service",
         "rulesets": [
           "http-request",
@@ -2370,7 +2370,7 @@
       },
       {
         "description": "This will delay the processing of the request or response until one of the following conditions occurs: - The full request body is received, in which case processing proceeds",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-wait-for-body",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20wait-for-body%20time",
         "name": "wait-for-body",
         "rulesets": [
           "http-request",
@@ -2380,7 +2380,7 @@
       },
       {
         "description": "This will delay the processing of the request until the SSL handshake happened. This is mostly useful to delay processing early data until we're sure they are valid.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-wait-for-handshake",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20wait-for-handshake",
         "name": "wait-for-handshake",
         "rulesets": [
           "http-request"
@@ -2391,7 +2391,7 @@
     "http_response_actions": [
       {
         "description": "This is used to add a new entry into an ACL. The ACL must be loaded from a file (even a dummy empty file). The file name of the ACL to be updated is passed between parentheses. It takes one argument: <key fmt>, which follows log-format rules, to collect content of the new entry. It performs a lookup in the ACL before insertion, to avoid duplicated (or more) values. This lookup is done by a linear search and can be expensive with large lists! It is the equivalent of the \"add acl\" command from the stats socket, but can be triggered by an HTTP request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-add-acl",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20add-acl",
         "name": "add-acl",
         "rulesets": [
           "http-request",
@@ -2401,7 +2401,7 @@
       },
       {
         "description": "This appends an HTTP header field whose name is specified in <name> and whose value is defined by <fmt> which follows the log-format rules (see Custom Log Format in section 8.2.4). This is particularly useful to pass connection-specific information to the server (e.g. the client's SSL certificate), or to combine several headers into one. This rule is not final, so it is possible to add other similar rules. Note that header addition is performed immediately, so one rule might reuse the resulting header from a previous rule.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-add-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20add-header",
         "name": "add-header",
         "rulesets": [
           "http-request",
@@ -2412,7 +2412,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and lets the request pass the check. No further \"http-request\" rules are evaluated for the current section.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-allow",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20allow",
         "name": "allow",
         "rulesets": [
           "http-request",
@@ -2423,7 +2423,7 @@
       },
       {
         "description": "See section 6.2 about cache setup.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-cache-store",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-response%20cache-store",
         "name": "cache-store",
         "rulesets": [
           "http-response"
@@ -2432,7 +2432,7 @@
       },
       {
         "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Please check section 7.3 (Fetching samples) and \"capture request header\" for more information.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-capture",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20capture",
         "name": "capture",
         "rulesets": [
           "http-request",
@@ -2444,7 +2444,7 @@
       },
       {
         "description": "This is used to delete an entry from an ACL. The ACL must be loaded from a file (even a dummy empty file). The file name of the ACL to be updated is passed between parentheses. It takes one argument: <key fmt>, which follows log-format rules, to collect content of the entry to delete. It is the equivalent of the \"del acl\" command from the stats socket, but can be triggered by an HTTP request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-del-acl",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20del-acl",
         "name": "del-acl",
         "rulesets": [
           "http-request",
@@ -2455,7 +2455,7 @@
       },
       {
         "description": "This removes all HTTP header fields whose name is specified in <name>. <meth> is the matching method, applied on the header name. Supported matching methods are \"str\" (exact match), \"beg\" (prefix match), \"end\" (suffix match), \"sub\" (substring match) and \"reg\" (regex match). If not specified, exact matching method is used.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-del-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20del-header",
         "name": "del-header",
         "rulesets": [
           "http-request",
@@ -2466,7 +2466,7 @@
       },
       {
         "description": "This is used to delete an entry from a MAP. The MAP must be loaded from a file (even a dummy empty file). The file name of the MAP to be updated is passed between parentheses. It takes one argument: <key fmt>, which follows log-format rules, to collect content of the entry to delete. It takes one argument: \"file name\" It is the equivalent of the \"del map\" command from the stats socket, but can be triggered by an HTTP request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-del-map",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20del-map",
         "name": "del-map",
         "rulesets": [
           "http-request",
@@ -2477,7 +2477,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and immediately rejects the request. By default an HTTP 403 error is returned. But the response may be customized using same syntax than \"http-request return\" rules. Thus, see \"http-request return\" for details. For compatibility purpose, when no argument is defined, or only \"deny_status\", the argument \"default-errorfiles\" is implied. It means \"http-request deny [deny_status <status>]\" is an alias of \"http-request deny [status <status>] default-errorfiles\". No further \"http-request\" rules are evaluated.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-deny",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20deny",
         "name": "deny",
         "rulesets": [
           "http-request",
@@ -2487,7 +2487,7 @@
       },
       {
         "description": "This performs an HTTP redirection based on a redirect rule. This is exactly the same as the \"redirect\" statement except that it inserts a redirect rule which can be processed in the middle of other \"http-request\" rules and that these rules use the \"log-format\" strings. See the \"redirect\" keyword for the rule's syntax.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-redirect",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20redirect",
         "name": "redirect",
         "rulesets": [
           "http-request",
@@ -2497,7 +2497,7 @@
       },
       {
         "description": "This matches the value of all occurrences of header field <name> against <match-regex>. Matching is performed case-sensitively. Matching values are completely replaced by <replace-fmt>. Format characters are allowed in <replace-fmt> and work like <fmt> arguments in \"http-request add-header\". Standard back-references using the backslash ('\\') followed by a number are supported.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-replace-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20replace-header",
         "name": "replace-header",
         "rulesets": [
           "http-request",
@@ -2508,7 +2508,7 @@
       },
       {
         "description": "This works like \"replace-header\" except that it matches the regex against every comma-delimited value of the header field <name> instead of the entire header. This is suited for all headers which are allowed to carry more than one value. An example could be the Accept header.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-replace-value",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20replace-value",
         "name": "replace-value",
         "rulesets": [
           "http-request",
@@ -2519,7 +2519,7 @@
       },
       {
         "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-return",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20return",
         "name": "return",
         "rulesets": [
           "http-request",
@@ -2529,7 +2529,7 @@
       },
       {
         "description": "This actions increments the General Purpose Counter at the index <idx> of the array associated to the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPC stored at this index. This action applies only to the 'gpc' and 'gpc_rate' array data_types (and not to the legacy 'gpc0', 'gpc1', 'gpc0_rate' nor 'gpc1_rate' data_types).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc",
         "name": "sc-inc-gpc",
         "rulesets": [
           "http-request",
@@ -2544,7 +2544,7 @@
       },
       {
         "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc0",
         "name": "sc-inc-gpc0",
         "rulesets": [
           "http-request",
@@ -2559,7 +2559,7 @@
       },
       {
         "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc1",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc1",
         "name": "sc-inc-gpc1",
         "rulesets": [
           "http-request",
@@ -2574,7 +2574,7 @@
       },
       {
         "description": "This action sets the 32-bit unsigned GPT at the index <idx> of the array associated to the sticky counter designated by <sc-id> at the value of <int>/<expr>. The expected result is a boolean. If an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPT stored at this index. This action applies only to the 'gpt' array data_type (and not to the legacy 'gpt0' data-type).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-set-gpt",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-set-gpt",
         "name": "sc-set-gpt",
         "rulesets": [
           "http-request",
@@ -2589,7 +2589,7 @@
       },
       {
         "description": "This action sets the 32-bit unsigned GPT0 tag according to the sticky counter designated by <sc-id> and the value of <int>/<expr>. The expected result is a boolean. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-set-gpt0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-set-gpt0",
         "name": "sc-set-gpt0",
         "rulesets": [
           "http-request",
@@ -2603,7 +2603,7 @@
       },
       {
         "description": "This action is used to trigger sending of a group of SPOE messages. To do so, the SPOE engine used to send messages must be defined, as well as the SPOE group to send. Of course, the SPOE engine must refer to an existing SPOE filter. If not engine name is provided on the SPOE filter line, the SPOE agent name must be used.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-send-spoe-group",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20send-spoe-group",
         "name": "send-spoe-group",
         "rulesets": [
           "http-request",
@@ -2615,7 +2615,7 @@
       },
       {
         "description": "This does the same as \"http-request add-header\" except that the header name is first removed if it existed. This is useful when passing security information to the server, where the header must not be manipulated by external users. Note that the new value is computed before the removal so it is possible to concatenate a value to an existing header.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-header",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-header",
         "name": "set-header",
         "rulesets": [
           "http-request",
@@ -2626,7 +2626,7 @@
       },
       {
         "description": "This is used to change the log level of the current request when a certain condition is met. Valid levels are the 8 syslog levels (see the \"log\" keyword) plus the special level \"silent\" which disables logging for this request. This rule is not final so the last matching rule wins. This rule can be useful to disable health checks coming from another equipment.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-log-level",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-log-level",
         "name": "set-log-level",
         "rulesets": [
           "http-request",
@@ -2639,7 +2639,7 @@
       },
       {
         "description": "This is used to add a new entry into a MAP. The MAP must be loaded from a file (even a dummy empty file). The file name of the MAP to be updated is passed between parentheses. It takes 2 arguments: <key fmt>, which follows log-format rules, used to collect MAP key, and <value fmt>, which follows log-format rules, used to collect content for the new entry. It performs a lookup in the MAP before insertion, to avoid duplicated (or more) values. This lookup is done by a linear search and can be expensive with large lists! It is the equivalent of the \"set map\" command from the stats socket, but can be triggered by an HTTP request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-map",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-map",
         "name": "set-map",
         "rulesets": [
           "http-request",
@@ -2650,7 +2650,7 @@
       },
       {
         "description": "This is used to set the Netfilter/IPFW MARK on all packets sent to the client to the value passed in <mark> on platforms which support it. This value is an unsigned 32 bit value which can be matched by netfilter/ipfw and by the routing table or monitoring the packets through DTrace. It can be expressed both in decimal or hexadecimal format (prefixed by \"0x\"). This can be useful to force certain packets to take a different route (for example a cheaper network path for bulk downloads). This works on Linux kernels 2.6.32 and above and requires admin privileges, as well on FreeBSD and OpenBSD.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-mark",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-mark",
         "name": "set-mark",
         "rulesets": [
           "http-request",
@@ -2664,7 +2664,7 @@
       },
       {
         "description": "This sets the \"nice\" factor of the current request being processed. It only has effect against the other requests being processed at the same time. The default value is 0, unless altered by the \"nice\" setting on the \"bind\" line. The accepted range is -1024..1024. The higher the value, the nicest the request will be. Lower values will make the request more important than other ones. This can be useful to improve the speed of some requests, or lower the priority of non-important requests. Using this setting without prior experimentation can cause some major slowdown.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-nice",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-nice",
         "name": "set-nice",
         "rulesets": [
           "http-request",
@@ -2676,7 +2676,7 @@
       },
       {
         "description": "This replaces the response status code with <status> which must be an integer between 100 and 999. Optionally, a custom reason text can be provided defined by <str>, or the default reason for the specified code will be used as a fallback.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-status",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-response%20set-status",
         "name": "set-status",
         "rulesets": [
           "http-response",
@@ -2686,7 +2686,7 @@
       },
       {
         "description": "This is used to set the TOS or DSCP field value of packets sent to the client to the value passed in <tos> on platforms which support this. This value represents the whole 8 bits of the IP TOS field, and can be expressed both in decimal or hexadecimal format (prefixed by \"0x\"). Note that only the 6 higher bits are used in DSCP or TOS, and the two lower bits are always 0. This can be used to adjust some routing behavior on border routers based on some information from the request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-tos",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-tos",
         "name": "set-tos",
         "rulesets": [
           "http-request",
@@ -2700,7 +2700,7 @@
       },
       {
         "description": "This is used to set the contents of a variable. The variable is declared inline.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-var",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-var",
         "name": "set-var",
         "rulesets": [
           "http-request",
@@ -2715,7 +2715,7 @@
       },
       {
         "description": "This is used to set the contents of a variable. The variable is declared inline.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-var-fmt",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-var-fmt",
         "name": "set-var-fmt",
         "rulesets": [
           "http-request",
@@ -2730,7 +2730,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and makes the client-facing connection suddenly disappear using a system-dependent way that tries to prevent the client from being notified. The effect it then that the client still sees an established connection while there's none on HAProxy. The purpose is to achieve a comparable effect to \"tarpit\" except that it doesn't use any local resource at all on the machine running HAProxy. It can resist much higher loads than \"tarpit\", and slow down stronger attackers. It is important to understand the impact of using this mechanism. All stateful equipment placed between the client and HAProxy (firewalls, proxies, load balancers) will also keep the established connection for a long time and may suffer from this action. On modern Linux systems running with enough privileges, the TCP_REPAIR socket option is used to block the emission of a TCP reset. On other systems, the socket's TTL is reduced to 1 so that the TCP reset doesn't pass the first router, though it's still delivered to local networks. Do not use it unless you fully understand how it works.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-silent-drop",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20silent-drop",
         "name": "silent-drop",
         "rulesets": [
           "http-request",
@@ -2744,7 +2744,7 @@
       },
       {
         "description": "This enables or disables the strict rewriting mode for following rules. It does not affect rules declared before it and it is only applicable on rules performing a rewrite on the requests. When the strict mode is enabled, any rewrite failure triggers an internal error. Otherwise, such errors are silently ignored. The purpose of the strict rewriting mode is to make some rewrites optional while others must be performed to continue the request processing.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-strict-mode",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20strict-mode",
         "name": "strict-mode",
         "rulesets": [
           "http-request",
@@ -2762,7 +2762,7 @@
       },
       {
         "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set in MAX_SESS_STKCTR at build time (reported in haproxy -vv) which defaults to 3, so the track-sc number is between 0 and (MAX_SESS_STKCTR-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-track-sc0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20track-sc0",
         "name": "track-sc0",
         "rulesets": [
           "http-request",
@@ -2775,7 +2775,7 @@
       },
       {
         "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set in MAX_SESS_STKCTR at build time (reported in haproxy -vv) which defaults to 3, so the track-sc number is between 0 and (MAX_SESS_STKCTR-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-track-sc1",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20track-sc1",
         "name": "track-sc1",
         "rulesets": [
           "http-request",
@@ -2788,7 +2788,7 @@
       },
       {
         "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set in MAX_SESS_STKCTR at build time (reported in haproxy -vv) which defaults to 3, so the track-sc number is between 0 and (MAX_SESS_STKCTR-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-track-sc2",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20track-sc2",
         "name": "track-sc2",
         "rulesets": [
           "http-request",
@@ -2801,7 +2801,7 @@
       },
       {
         "description": "This is used to unset a variable. See above for details about <var-name>.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-unset-var",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20unset-var",
         "name": "unset-var",
         "rulesets": [
           "http-request",
@@ -2816,7 +2816,7 @@
       },
       {
         "description": "This will delay the processing of the request or response until one of the following conditions occurs: - The full request body is received, in which case processing proceeds",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-wait-for-body",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20wait-for-body%20time",
         "name": "wait-for-body",
         "rulesets": [
           "http-request",
@@ -7516,7 +7516,7 @@
     "tcp_request_actions": [
       {
         "description": "This is used to accept the connection. No further \"tcp-request connection\" rules are evaluated.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-accept",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-tcp-request%20connection%20accept",
         "name": "accept",
         "rulesets": [
           "tcp-request connection",
@@ -7528,7 +7528,7 @@
       },
       {
         "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Please check section 7.3 (Fetching samples) and \"capture request header\" for more information.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-capture",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20capture",
         "name": "capture",
         "rulesets": [
           "http-request",
@@ -7540,7 +7540,7 @@
       },
       {
         "description": "This action performs a DNS resolution of the output of <expr> and stores the result in the variable <var>. It uses the DNS resolvers section pointed by <resolvers>. It is possible to choose a resolution preference using the optional arguments 'ipv4' or 'ipv6'. When performing the DNS resolution, the client side connection is on pause waiting till the end of the resolution. If an IP address can be found, it is stored into <var>. If any kind of error occurs, then <var> is not set. One can use this action to discover a server IP address at run time and based on information found in the request (IE a Host header). If this action is used to find the server's IP address (using the \"set-dst\" action), then the server IP address in the backend must be set to 0.0.0.0. The do-resolve action takes an host-only parameter, any port must be removed from the string.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-do-resolve",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20do-resolve",
         "name": "do-resolve",
         "rulesets": [
           "http-request",
@@ -7550,7 +7550,7 @@
       },
       {
         "description": "This configures the client-facing connection to receive a NetScaler Client IP insertion protocol header before any byte is read from the socket.  This is equivalent to having the \"accept-netscaler-cip\" keyword on the \"bind\" line, except that using the TCP rule allows the PROXY protocol to be accepted only for certain IP address ranges using an ACL. This is convenient when multiple layers of load balancers are passed through by traffic coming from public hosts.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-expect-netscaler-cip",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-tcp-request%20connection%20expect-netscaler-cip%20layer4",
         "name": "expect-netscaler-cip",
         "rulesets": [
           "tcp-request connection"
@@ -7559,7 +7559,7 @@
       },
       {
         "description": "This configures the client-facing connection to receive a PROXY protocol header before any byte is read from the socket. This is equivalent to having the \"accept-proxy\" keyword on the \"bind\" line, except that using the TCP rule allows the PROXY protocol to be accepted only for certain IP address ranges using an ACL. This is convenient when multiple layers of load balancers are passed through by traffic coming from public hosts.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-expect-proxy",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-tcp-request%20connection%20expect-proxy%20layer4",
         "name": "expect-proxy",
         "rulesets": [
           "tcp-request connection"
@@ -7575,7 +7575,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and immediately closes the connection without sending any response. It acts similarly to the \"tcp-request content reject\" rules. It can be useful to force an immediate connection closure on HTTP/2 connections.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-reject",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20reject",
         "name": "reject",
         "rulesets": [
           "http-request",
@@ -7588,7 +7588,7 @@
       },
       {
         "description": "This actions increments the General Purpose Counter at the index <idx> of the array associated to the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPC stored at this index. This action applies only to the 'gpc' and 'gpc_rate' array data_types (and not to the legacy 'gpc0', 'gpc1', 'gpc0_rate' nor 'gpc1_rate' data_types).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc",
         "name": "sc-inc-gpc",
         "rulesets": [
           "http-request",
@@ -7603,7 +7603,7 @@
       },
       {
         "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc0",
         "name": "sc-inc-gpc0",
         "rulesets": [
           "http-request",
@@ -7618,7 +7618,7 @@
       },
       {
         "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc1",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc1",
         "name": "sc-inc-gpc1",
         "rulesets": [
           "http-request",
@@ -7633,7 +7633,7 @@
       },
       {
         "description": "This action sets the 32-bit unsigned GPT at the index <idx> of the array associated to the sticky counter designated by <sc-id> at the value of <int>/<expr>. The expected result is a boolean. If an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPT stored at this index. This action applies only to the 'gpt' array data_type (and not to the legacy 'gpt0' data-type).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-set-gpt",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-set-gpt",
         "name": "sc-set-gpt",
         "rulesets": [
           "http-request",
@@ -7648,7 +7648,7 @@
       },
       {
         "description": "This action sets the 32-bit unsigned GPT0 tag according to the sticky counter designated by <sc-id> and the value of <int>/<expr>. The expected result is a boolean. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-set-gpt0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-set-gpt0",
         "name": "sc-set-gpt0",
         "rulesets": [
           "http-request",
@@ -7662,7 +7662,7 @@
       },
       {
         "description": "This action is used to trigger sending of a group of SPOE messages. To do so, the SPOE engine used to send messages must be defined, as well as the SPOE group to send. Of course, the SPOE engine must refer to an existing SPOE filter. If not engine name is provided on the SPOE filter line, the SPOE agent name must be used.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-send-spoe-group",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20send-spoe-group",
         "name": "send-spoe-group",
         "rulesets": [
           "http-request",
@@ -7674,7 +7674,7 @@
       },
       {
         "description": "This is used to set the destination IP address to the value of specified expression. Useful when a proxy in front of HAProxy rewrites destination IP, but provides the correct IP in a HTTP header; or you want to mask the IP for privacy. If you want to connect to the new address/port, use '0.0.0.0:0' as a server address in the backend.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-dst",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-dst",
         "name": "set-dst",
         "rulesets": [
           "http-request",
@@ -7686,7 +7686,7 @@
       },
       {
         "description": "This is used to set the destination port address to the value of specified expression. If you want to connect to the new address/port, use '0.0.0.0:0' as a server address in the backend.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-dst-port",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-dst-port",
         "name": "set-dst-port",
         "rulesets": [
           "http-request",
@@ -7698,7 +7698,7 @@
       },
       {
         "description": "This is used to change the log level of the current request when a certain condition is met. Valid levels are the 8 syslog levels (see the \"log\" keyword) plus the special level \"silent\" which disables logging for this request. This rule is not final so the last matching rule wins. This rule can be useful to disable health checks coming from another equipment.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-log-level",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-log-level",
         "name": "set-log-level",
         "rulesets": [
           "http-request",
@@ -7711,7 +7711,7 @@
       },
       {
         "description": "This is used to set the Netfilter/IPFW MARK on all packets sent to the client to the value passed in <mark> on platforms which support it. This value is an unsigned 32 bit value which can be matched by netfilter/ipfw and by the routing table or monitoring the packets through DTrace. It can be expressed both in decimal or hexadecimal format (prefixed by \"0x\"). This can be useful to force certain packets to take a different route (for example a cheaper network path for bulk downloads). This works on Linux kernels 2.6.32 and above and requires admin privileges, as well on FreeBSD and OpenBSD.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-mark",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-mark",
         "name": "set-mark",
         "rulesets": [
           "http-request",
@@ -7725,7 +7725,7 @@
       },
       {
         "description": "This sets the \"nice\" factor of the current request being processed. It only has effect against the other requests being processed at the same time. The default value is 0, unless altered by the \"nice\" setting on the \"bind\" line. The accepted range is -1024..1024. The higher the value, the nicest the request will be. Lower values will make the request more important than other ones. This can be useful to improve the speed of some requests, or lower the priority of non-important requests. Using this setting without prior experimentation can cause some major slowdown.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-nice",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-nice",
         "name": "set-nice",
         "rulesets": [
           "http-request",
@@ -7737,7 +7737,7 @@
       },
       {
         "description": "This is used to set the queue priority class of the current request. The value must be a sample expression which converts to an integer in the range -2047..2047. Results outside this range will be truncated. The priority class determines the order in which queued requests are processed. Lower values have higher priority.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-priority-class",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-priority-class",
         "name": "set-priority-class",
         "rulesets": [
           "http-request",
@@ -7747,7 +7747,7 @@
       },
       {
         "description": "This is used to set the queue priority timestamp offset of the current request. The value must be a sample expression which converts to an integer in the range -524287..524287. Results outside this range will be truncated. When a request is queued, it is ordered first by the priority class, then by the current timestamp adjusted by the given offset in milliseconds. Lower values have higher priority. Note that the resulting timestamp is is only tracked with enough precision for 524,287ms (8m44s287ms). If the request is queued long enough to where the adjusted timestamp exceeds this value, it will be misidentified as highest priority. Thus it is important to set \"timeout queue\" to a value, where when combined with the offset, does not exceed this limit.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-priority-offset",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-priority-offset",
         "name": "set-priority-offset",
         "rulesets": [
           "http-request",
@@ -7757,7 +7757,7 @@
       },
       {
         "description": "This is used to set the source IP address to the value of specified expression. Useful when a proxy in front of HAProxy rewrites source IP, but provides the correct IP in a HTTP header; or you want to mask source IP for privacy. All subsequent calls to \"src\" fetch will return this value (see example).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-src",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-src",
         "name": "set-src",
         "rulesets": [
           "http-request",
@@ -7769,7 +7769,7 @@
       },
       {
         "description": "This is used to set the source port address to the value of specified expression.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-src-port",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-src-port",
         "name": "set-src-port",
         "rulesets": [
           "http-request",
@@ -7781,7 +7781,7 @@
       },
       {
         "description": "This is used to set the TOS or DSCP field value of packets sent to the client to the value passed in <tos> on platforms which support this. This value represents the whole 8 bits of the IP TOS field, and can be expressed both in decimal or hexadecimal format (prefixed by \"0x\"). Note that only the 6 higher bits are used in DSCP or TOS, and the two lower bits are always 0. This can be used to adjust some routing behavior on border routers based on some information from the request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-tos",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-tos",
         "name": "set-tos",
         "rulesets": [
           "http-request",
@@ -7795,7 +7795,7 @@
       },
       {
         "description": "This is used to set the contents of a variable. The variable is declared inline.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-var",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-var",
         "name": "set-var",
         "rulesets": [
           "http-request",
@@ -7810,7 +7810,7 @@
       },
       {
         "description": "This is used to set the contents of a variable. The variable is declared inline.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-var-fmt",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-var-fmt",
         "name": "set-var-fmt",
         "rulesets": [
           "http-request",
@@ -7825,7 +7825,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and makes the client-facing connection suddenly disappear using a system-dependent way that tries to prevent the client from being notified. The effect it then that the client still sees an established connection while there's none on HAProxy. The purpose is to achieve a comparable effect to \"tarpit\" except that it doesn't use any local resource at all on the machine running HAProxy. It can resist much higher loads than \"tarpit\", and slow down stronger attackers. It is important to understand the impact of using this mechanism. All stateful equipment placed between the client and HAProxy (firewalls, proxies, load balancers) will also keep the established connection for a long time and may suffer from this action. On modern Linux systems running with enough privileges, the TCP_REPAIR socket option is used to block the emission of a TCP reset. On other systems, the socket's TTL is reduced to 1 so that the TCP reset doesn't pass the first router, though it's still delivered to local networks. Do not use it unless you fully understand how it works.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-silent-drop",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20silent-drop",
         "name": "silent-drop",
         "rulesets": [
           "http-request",
@@ -7839,7 +7839,7 @@
       },
       {
         "description": "This action is used to perform a connection upgrade. Only HTTP upgrades are supported for now. The protocol may optionally be specified. This action is only available for a proxy with the frontend capability. The connection upgrade is immediately performed, following \"tcp-request content\" rules are not evaluated. This upgrade method should be preferred to the implicit one consisting to rely on the backend mode. When used, it is possible to set HTTP directives in a frontend without any warning. These directives will be conditionally evaluated if the HTTP upgrade is performed. However, an HTTP backend must still be selected. It remains unsupported to route an HTTP connection (upgraded or not) to a TCP server.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-switch-mode",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-tcp-request%20content%20switch-mode%20http",
         "name": "switch-mode",
         "rulesets": [
           "tcp-request content"
@@ -7848,7 +7848,7 @@
       },
       {
         "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set in MAX_SESS_STKCTR at build time (reported in haproxy -vv) which defaults to 3, so the track-sc number is between 0 and (MAX_SESS_STKCTR-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-track-sc0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20track-sc0",
         "name": "track-sc0",
         "rulesets": [
           "http-request",
@@ -7861,7 +7861,7 @@
       },
       {
         "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set in MAX_SESS_STKCTR at build time (reported in haproxy -vv) which defaults to 3, so the track-sc number is between 0 and (MAX_SESS_STKCTR-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-track-sc1",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20track-sc1",
         "name": "track-sc1",
         "rulesets": [
           "http-request",
@@ -7874,7 +7874,7 @@
       },
       {
         "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set in MAX_SESS_STKCTR at build time (reported in haproxy -vv) which defaults to 3, so the track-sc number is between 0 and (MAX_SESS_STKCTR-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-track-sc2",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20track-sc2",
         "name": "track-sc2",
         "rulesets": [
           "http-request",
@@ -7887,7 +7887,7 @@
       },
       {
         "description": "This is used to unset a variable. See above for details about <var-name>.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-unset-var",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20unset-var",
         "name": "unset-var",
         "rulesets": [
           "http-request",
@@ -7902,7 +7902,7 @@
       },
       {
         "description": "This directive executes the configured HTTP service to reply to the request and stops the evaluation of the rules. An HTTP service may choose to reply by sending any valid HTTP response or it may immediately close the connection without sending any response. Outside natives services, for instance the Prometheus exporter, it is possible to write your own services in Lua. No further \"http-request\" rules are evaluated.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-use-service",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20use-service",
         "name": "use-service",
         "rulesets": [
           "http-request",
@@ -7914,7 +7914,7 @@
     "tcp_response_actions": [
       {
         "description": "This is used to accept the connection. No further \"tcp-request connection\" rules are evaluated.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-accept",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-tcp-request%20connection%20accept",
         "name": "accept",
         "rulesets": [
           "tcp-request connection",
@@ -7926,7 +7926,7 @@
       },
       {
         "description": "This is used to immediately closes the connection with the server. No further \"tcp-response content\" rules are evaluated. The main purpose of this action is to force a connection to be finished between a client and a server after an exchange when the application protocol expects some long time outs to elapse first. The goal is to eliminate idle connections which take significant resources on servers with certain protocols.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-close",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-tcp-response%20content%20close",
         "name": "close",
         "rulesets": [
           "tcp-response content"
@@ -7935,7 +7935,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and immediately closes the connection without sending any response. It acts similarly to the \"tcp-request content reject\" rules. It can be useful to force an immediate connection closure on HTTP/2 connections.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-reject",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20reject",
         "name": "reject",
         "rulesets": [
           "http-request",
@@ -7948,7 +7948,7 @@
       },
       {
         "description": "This actions increments the General Purpose Counter at the index <idx> of the array associated to the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPC stored at this index. This action applies only to the 'gpc' and 'gpc_rate' array data_types (and not to the legacy 'gpc0', 'gpc1', 'gpc0_rate' nor 'gpc1_rate' data_types).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc",
         "name": "sc-inc-gpc",
         "rulesets": [
           "http-request",
@@ -7963,7 +7963,7 @@
       },
       {
         "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc0",
         "name": "sc-inc-gpc0",
         "rulesets": [
           "http-request",
@@ -7978,7 +7978,7 @@
       },
       {
         "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-inc-gpc1",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-inc-gpc1",
         "name": "sc-inc-gpc1",
         "rulesets": [
           "http-request",
@@ -7993,7 +7993,7 @@
       },
       {
         "description": "This action sets the 32-bit unsigned GPT at the index <idx> of the array associated to the sticky counter designated by <sc-id> at the value of <int>/<expr>. The expected result is a boolean. If an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPT stored at this index. This action applies only to the 'gpt' array data_type (and not to the legacy 'gpt0' data-type).",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-set-gpt",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-set-gpt",
         "name": "sc-set-gpt",
         "rulesets": [
           "http-request",
@@ -8008,7 +8008,7 @@
       },
       {
         "description": "This action sets the 32-bit unsigned GPT0 tag according to the sticky counter designated by <sc-id> and the value of <int>/<expr>. The expected result is a boolean. If an error occurs, this action silently fails and the actions evaluation continues.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-sc-set-gpt0",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20sc-set-gpt0",
         "name": "sc-set-gpt0",
         "rulesets": [
           "http-request",
@@ -8022,7 +8022,7 @@
       },
       {
         "description": "This action is used to trigger sending of a group of SPOE messages. To do so, the SPOE engine used to send messages must be defined, as well as the SPOE group to send. Of course, the SPOE engine must refer to an existing SPOE filter. If not engine name is provided on the SPOE filter line, the SPOE agent name must be used.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-send-spoe-group",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20send-spoe-group",
         "name": "send-spoe-group",
         "rulesets": [
           "http-request",
@@ -8034,7 +8034,7 @@
       },
       {
         "description": "This is used to change the log level of the current request when a certain condition is met. Valid levels are the 8 syslog levels (see the \"log\" keyword) plus the special level \"silent\" which disables logging for this request. This rule is not final so the last matching rule wins. This rule can be useful to disable health checks coming from another equipment.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-log-level",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-log-level",
         "name": "set-log-level",
         "rulesets": [
           "http-request",
@@ -8047,7 +8047,7 @@
       },
       {
         "description": "This is used to set the Netfilter/IPFW MARK on all packets sent to the client to the value passed in <mark> on platforms which support it. This value is an unsigned 32 bit value which can be matched by netfilter/ipfw and by the routing table or monitoring the packets through DTrace. It can be expressed both in decimal or hexadecimal format (prefixed by \"0x\"). This can be useful to force certain packets to take a different route (for example a cheaper network path for bulk downloads). This works on Linux kernels 2.6.32 and above and requires admin privileges, as well on FreeBSD and OpenBSD.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-mark",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-mark",
         "name": "set-mark",
         "rulesets": [
           "http-request",
@@ -8061,7 +8061,7 @@
       },
       {
         "description": "This sets the \"nice\" factor of the current request being processed. It only has effect against the other requests being processed at the same time. The default value is 0, unless altered by the \"nice\" setting on the \"bind\" line. The accepted range is -1024..1024. The higher the value, the nicest the request will be. Lower values will make the request more important than other ones. This can be useful to improve the speed of some requests, or lower the priority of non-important requests. Using this setting without prior experimentation can cause some major slowdown.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-nice",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-nice",
         "name": "set-nice",
         "rulesets": [
           "http-request",
@@ -8073,7 +8073,7 @@
       },
       {
         "description": "This is used to set the TOS or DSCP field value of packets sent to the client to the value passed in <tos> on platforms which support this. This value represents the whole 8 bits of the IP TOS field, and can be expressed both in decimal or hexadecimal format (prefixed by \"0x\"). Note that only the 6 higher bits are used in DSCP or TOS, and the two lower bits are always 0. This can be used to adjust some routing behavior on border routers based on some information from the request.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-tos",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-tos",
         "name": "set-tos",
         "rulesets": [
           "http-request",
@@ -8087,7 +8087,7 @@
       },
       {
         "description": "This is used to set the contents of a variable. The variable is declared inline.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-var",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-var",
         "name": "set-var",
         "rulesets": [
           "http-request",
@@ -8102,7 +8102,7 @@
       },
       {
         "description": "This is used to set the contents of a variable. The variable is declared inline.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-set-var-fmt",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20set-var-fmt",
         "name": "set-var-fmt",
         "rulesets": [
           "http-request",
@@ -8117,7 +8117,7 @@
       },
       {
         "description": "This stops the evaluation of the rules and makes the client-facing connection suddenly disappear using a system-dependent way that tries to prevent the client from being notified. The effect it then that the client still sees an established connection while there's none on HAProxy. The purpose is to achieve a comparable effect to \"tarpit\" except that it doesn't use any local resource at all on the machine running HAProxy. It can resist much higher loads than \"tarpit\", and slow down stronger attackers. It is important to understand the impact of using this mechanism. All stateful equipment placed between the client and HAProxy (firewalls, proxies, load balancers) will also keep the established connection for a long time and may suffer from this action. On modern Linux systems running with enough privileges, the TCP_REPAIR socket option is used to block the emission of a TCP reset. On other systems, the socket's TTL is reduced to 1 so that the TCP reset doesn't pass the first router, though it's still delivered to local networks. Do not use it unless you fully understand how it works.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-silent-drop",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20silent-drop",
         "name": "silent-drop",
         "rulesets": [
           "http-request",
@@ -8131,7 +8131,7 @@
       },
       {
         "description": "This is used to unset a variable. See above for details about <var-name>.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.4-unset-var",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20unset-var",
         "name": "unset-var",
         "rulesets": [
           "http-request",
