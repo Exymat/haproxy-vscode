@@ -8,8 +8,8 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "types": ["mocha", "node"],
-    "outDir": "out/test/integration",
-    "rootDir": "test/integration"
+    "outDir": "out/test",
+    "rootDir": "test"
   },
-  "include": ["test/integration/**/*.ts"]
+  "include": ["test/integration/**/*.ts", "test/helpers/diagnosticFormat.ts"]
 }
