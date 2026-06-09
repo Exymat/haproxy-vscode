@@ -349,9 +349,11 @@ function balanceArgumentDiagnostics(
   const allowedAlgorithms = enumValuesForSlot(algorithmSlot, schemaKw, 0);
   const algoIdx = argIndices[0];
   const algo = line.tokens[algoIdx].text.toLowerCase();
+  const algoBase = algo.split("(", 1)[0];
   if (
     allowedAlgorithms.length > 0 &&
     !allowedAlgorithms.includes(algo) &&
+    !allowedAlgorithms.includes(algoBase) &&
     !isLikelyValue(algo, conditionals)
   ) {
     diagnostics.push(
@@ -364,7 +366,7 @@ function balanceArgumentDiagnostics(
     );
   }
 
-  if (algo === "url_param") {
+  if (algoBase === "url_param") {
     const variant = schema.keywords["balance url_param"];
     const variantModel = variant?.argument_model;
     if (!variantModel || variantModel.max_args === null || variantModel.max_args === undefined) {

@@ -2,6 +2,14 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.9.0
+
+- Richer hover for `bind` and `server` line options — all documented forms, nested sub-options (e.g. `interface` under `source`), and ASCII tables rendered as readable markdown tables.
+- Hover for directive arguments shows alias forms (e.g. `random` / `random(<draws>)`) and keyworded parameters extracted from the manual (e.g. `meth` on `http-check send`).
+- Validation for nested `bind`/`server`/`default-server` options — understands sub-option arguments and reports missing values (e.g. `source … interface` without an interface name).
+- `balance` accepts parenthesized algorithm forms such as `random(5)` and `url_param`.
+- Refreshed keyword data and grammars for all supported versions (2.6-3.4).
+
 ## 0.8.4
 
 - **Go to Definition** and **Find All References** for ACL names in compound `if`/`unless` conditions — supports `&&`, `||`, and negation (`!acl_name`).

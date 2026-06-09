@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 
+import { enumNamesForSlot } from "./argumentEnumUtils";
 import {
   ADDRESS_POLICIES,
   AddressPolicyName,
@@ -12,6 +13,7 @@ import { conditionalStartIndex } from "./directiveUtils";
 import { diagRange, DIAG_SOURCE } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
 import { FixedSlotSpec, HaproxySchema, optionsWithValueSet, StatementRule } from "./schema";
+import { ResolvedSchemaKeyword, resolveSchemaKeyword } from "./keywordVariant";
 import { findStatementRule } from "./statementLayout";
 
 type StmtDiagCode =
@@ -156,6 +158,208 @@ function optionValuePolicy(
   return null;
 }
 
+function remainingRequiredSlots(slots: Array<{ optional?: boolean }>, start: number): number {
+  let required = 0;
+  for (let i = start; i < slots.length; i += 1) {
+    if (!slots[i]?.optional) {
+      required += 1;
+    }
+  }
+  return required;
+}
+
+function matchesLaterEnumSlot(
+  slots: Array<{ enum?: string[]; optional?: boolean; value_kind?: string }>,
+  schemaKw: ReturnType<typeof resolveSchemaKeyword>,
+  slotIdx: number,
+  lower: string,
+): boolean {
+  for (let idx = slotIdx + 1; idx < slots.length; idx += 1) {
+    const allowedValues = enumNamesForSlot(slots[idx], schemaKw, idx).map((v) => v.toLowerCase());
+    if (allowedValues.includes(lower) || allowedValues.includes(lower.split("(", 1)[0])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function signatureRequiresTrailingArgument(signatures: string[], token: string): boolean {
+  const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`\\b${escaped}\\s+(?:<|\\{)`, "i");
+  return signatures.some((signature) => re.test(signature));
+}
+
+function consumeOptionArguments(
+  line: ParsedLine,
+  optionIndex: number,
+  condStart: number,
+  rule: StatementRule,
+  schema: HaproxySchema,
+  allowed: Set<string>,
+  valueOptions: Set<string> | null,
+  diagnostics: vscode.Diagnostic[],
+): number {
+  const option = line.tokens[optionIndex].text.toLowerCase().replace(/\*$/, "");
+  const schemaKw = resolveNestedOptionKeyword(schema, line, rule, option);
+  const model = schemaKw?.argument_model;
+
+  if (!model || model.max_args === undefined) {
+    const addrPolicy = optionValuePolicy(rule, option, valueOptions);
+    if (addrPolicy && optionIndex + 1 < condStart) {
+      pushAddressResult(
+        line,
+        optionIndex + 1,
+        validateHaproxyAddress(line.tokens[optionIndex + 1].text, addrPolicy),
+        diagnostics,
+      );
+      return optionIndex + 2;
+    }
+
+    const takesValue = valueOptions?.has(option) ?? false;
+    if (takesValue && optionIndex + 1 < condStart) {
+      const next = line.tokens[optionIndex + 1].text.toLowerCase().replace(/\*$/, "");
+      if (!allowed.has(next)) {
+        return optionIndex + 2;
+      }
+    }
+    return optionIndex + 1;
+  }
+
+  const slots = model.slots ?? [];
+  const maxArgs = model.max_args === null ? Number.POSITIVE_INFINITY : model.max_args;
+  let pos = optionIndex + 1;
+  let slotIdx = 0;
+  let consumed = 0;
+  let pendingValueKeyword: { text: string; tokenIndex: number } | null = null;
+
+  while (pos < condStart && slotIdx < slots.length && consumed < maxArgs) {
+    const token = line.tokens[pos].text;
+    const lower = token.toLowerCase();
+    const base = lower.split("(", 1)[0];
+    const tokenStartsOption = allowed.has(lower.replace(/\*$/, ""));
+    const slot = slots[slotIdx];
+    const allowedValues = enumNamesForSlot(slot, schemaKw, slotIdx).map((v) => v.toLowerCase());
+
+    if (tokenStartsOption && remainingRequiredSlots(slots, slotIdx) === 0) {
+      break;
+    }
+
+    if (allowedValues.length > 0) {
+      if (allowedValues.includes(lower) || allowedValues.includes(base)) {
+        pendingValueKeyword = signatureRequiresTrailingArgument(schemaKw?.signatures ?? [], token)
+          ? { text: token, tokenIndex: pos }
+          : null;
+        pos += 1;
+        consumed += 1;
+        slotIdx += 1;
+        continue;
+      }
+      if (slot.optional) {
+        slotIdx += 1;
+        continue;
+      }
+      if (tokenStartsOption) {
+        diagnostics.push(
+          makeDiagnostic(
+            line,
+            optionIndex,
+            `'${line.tokens[optionIndex].text}' is missing required argument`,
+            "missing-argument",
+          ),
+        );
+        return pos;
+      }
+      pos += 1;
+      consumed += 1;
+      slotIdx += 1;
+      continue;
+    }
+
+    if (slot.optional && matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)) {
+      slotIdx += 1;
+      continue;
+    }
+
+    pendingValueKeyword = null;
+
+    if (slot.value_kind === "address" && slotIdx === 0) {
+      const addrPolicy = optionValuePolicy(rule, option, valueOptions);
+      if (addrPolicy) {
+        pushAddressResult(line, pos, validateHaproxyAddress(token, addrPolicy), diagnostics);
+      }
+    }
+
+    pos += 1;
+    consumed += 1;
+    slotIdx += 1;
+  }
+
+  if (
+    pendingValueKeyword &&
+    (pos >= condStart || allowed.has(line.tokens[pos].text.toLowerCase().replace(/\*$/, "")))
+  ) {
+    diagnostics.push(
+      makeDiagnostic(
+        line,
+        pendingValueKeyword.tokenIndex,
+        `'${pendingValueKeyword.text}' is missing required argument`,
+        "missing-argument",
+      ),
+    );
+  }
+
+  if (consumed < model.min_args) {
+    diagnostics.push(
+      makeDiagnostic(
+        line,
+        optionIndex,
+        `'${line.tokens[optionIndex].text}' is missing required argument`,
+        "missing-argument",
+      ),
+    );
+  }
+
+  return pos;
+}
+
+function resolveNestedOptionKeyword(
+  schema: HaproxySchema,
+  line: ParsedLine,
+  rule: StatementRule,
+  option: string,
+): ResolvedSchemaKeyword | undefined {
+  const keyword = schema.keywords[option];
+  if (!keyword) {
+    return undefined;
+  }
+  const resolved = resolveSchemaKeyword(keyword, line.section);
+  if (
+    resolved &&
+    line.section &&
+    resolved.sections.includes(line.section) &&
+    resolved.chapter?.startsWith("4.")
+  ) {
+    return resolved;
+  }
+  const chapter = rule.kind === "bind" ? "5.1" : rule.kind === "server" ? "5.2" : "";
+  if (chapter) {
+    const variant = keyword.variants?.find((item) => item.chapter === chapter);
+    if (variant) {
+      return {
+        name: keyword.name,
+        sections: variant.sections.length > 0 ? variant.sections : keyword.sections,
+        signatures: variant.signatures.length > 0 ? variant.signatures : keyword.signatures,
+        sources: keyword.sources,
+        contexts: variant.contexts?.length ? variant.contexts : keyword.contexts,
+        arguments: variant.arguments?.length ? variant.arguments : keyword.arguments,
+        argument_model: variant.argument_model ?? keyword.argument_model,
+        chapter: variant.chapter,
+      };
+    }
+  }
+  return resolved;
+}
+
 function scanNestedOptions(
   line: ParsedLine,
   rule: StatementRule,
@@ -185,28 +389,16 @@ function scanNestedOptions(
     const opt = raw.toLowerCase().replace(/\*$/, "");
 
     if (allowed.has(opt)) {
-      const addrPolicy = optionValuePolicy(rule, opt, valueOptions);
-      if (addrPolicy && i + 1 < condStart) {
-        pushAddressResult(
-          line,
-          i + 1,
-          validateHaproxyAddress(line.tokens[i + 1].text, addrPolicy),
-          diagnostics,
-        );
-        i += 2;
-        continue;
-      }
-
-      const takesValue = valueOptions?.has(opt) ?? false;
-
-      if (takesValue && i + 1 < condStart) {
-        const next = line.tokens[i + 1].text.toLowerCase();
-        if (!allowed.has(next.replace(/\*$/, ""))) {
-          i += 2;
-          continue;
-        }
-      }
-      i += 1;
+      i = consumeOptionArguments(
+        line,
+        i,
+        condStart,
+        rule,
+        schema,
+        allowed,
+        valueOptions,
+        diagnostics,
+      );
       continue;
     }
 
@@ -294,12 +486,14 @@ export function statementDiagnostics(line: ParsedLine, schema: HaproxySchema): v
   }
 
   const rule = findStatementRule(schema, line);
-  if (!rule?.fixed_slots?.length) {
+  if (!rule) {
     return [];
   }
 
   const diagnostics: vscode.Diagnostic[] = [];
-  diagnostics.push(...validateFixedSlots(line, rule));
+  if (rule.fixed_slots?.length) {
+    diagnostics.push(...validateFixedSlots(line, rule));
+  }
   diagnostics.push(...scanNestedOptions(line, rule, schema));
   return diagnostics;
 }

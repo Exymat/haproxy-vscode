@@ -54,6 +54,19 @@ describe("statementDiagnostics", () => {
     expect(diags.some((d) => d.code === "invalid-address")).toBe(true);
   });
 
+  it("consumes nested source sub-options on server lines", () => {
+    const diags = lineDiag(
+      "backend api\n    server s1 127.0.0.1:80 check source 0.0.0.0 interface eth0",
+      1,
+    );
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
+  it("reports missing nested source sub-option argument", () => {
+    const diags = lineDiag("backend api\n    server s1 127.0.0.1:80 source 0.0.0.0 interface", 1);
+    expect(diags.some((d) => d.code === "missing-argument")).toBe(true);
+  });
+
   it("is invoked from computeDiagnostics for server lines", () => {
     const doc = createDocument("backend api\n    server s1 127.0.0.1:80 notreal");
     const diags = computeDiagnostics(doc, bundle.schema, {
@@ -155,5 +168,10 @@ describe("statementDiagnostics", () => {
     const doc = createDocument("backend api\n    custom name");
     const line = parseDocument(doc)[1];
     expect(statementDiagnostics(line, schema)).toEqual([]);
+  });
+
+  it("scans nested options for option-only rules like default-server", () => {
+    const diags = lineDiag("backend api\n    default-server source 0.0.0.0 interface eth0", 1);
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
   });
 });

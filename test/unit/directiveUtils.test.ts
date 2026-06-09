@@ -51,6 +51,24 @@ describe("directiveUtils", () => {
     expect(hit?.parameter).toBe("http");
   });
 
+  it("findArgumentValue prefers documented parenthesized variants over empty bare aliases", () => {
+    const hit = findArgumentValue(
+      [
+        {
+          parameter: "<algorithm>",
+          description: "",
+          values: [
+            { name: "random", description: "" },
+            { name: "random(<draws>)", description: "Random load balancing." },
+          ],
+        },
+      ],
+      "random",
+    );
+    expect(hit?.name).toBe("random(<draws>)");
+    expect(hit?.description).toBe("Random load balancing.");
+  });
+
   it("findArgumentValue returns undefined without params", () => {
     expect(findArgumentValue(undefined, "http")).toBeUndefined();
   });

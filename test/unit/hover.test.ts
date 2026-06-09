@@ -1,5 +1,5 @@
 import * as directiveUtils from "../../src/directiveUtils";
-import { provideHover } from "../../src/hover";
+import { formatHoverText, provideHover } from "../../src/hover";
 import * as documentContext from "../../src/documentContext";
 import * as languageData from "../../src/languageData";
 import { MarkdownString } from "../__mocks__/vscode";
@@ -77,6 +77,134 @@ describe("provideHover", () => {
     expect(text.toLowerCase()).toContain("check");
     expect(text.toLowerCase()).not.toContain("**server**");
     expect(text).toContain("Valid in modes:");
+  });
+
+  it("shows all documented forms for server line options", () => {
+    const text = hoverMarkdown(
+      "backend api\n    server s1 127.0.0.1:80 source 0.0.0.0",
+      1,
+      "    server s1 127.0.0.1:80 source 0.0.0.0".indexOf("source"),
+      "3.4",
+    );
+    expect(text).toContain("**Forms:**");
+    expect(text).toContain("usesrc");
+    expect(text).toContain("interface");
+    expect(text).toContain('Additionally, the "source" statement on a server line allows');
+    expect(text).toContain("Since Linux 4.2/libc 2.23");
+  });
+
+  it("preserves ascii tables in hover documentation", () => {
+    const text = hoverMarkdown(
+      "backend api\n    server s1 127.0.0.1:80 inter 2s",
+      1,
+      "    server s1 127.0.0.1:80 inter 2s".indexOf("inter"),
+      "3.4",
+    );
+    expect(text).toContain("| Server state | Interval used |");
+    expect(text).toContain("| --- | --- |");
+    expect(text).toContain('UP 100% (non-transitional) | "inter"');
+    expect(text).toContain('"downinter" if set,<br>"inter" otherwise.');
+  });
+
+  it("formats ascii tables as markdown tables", () => {
+    const formatted = formatHoverText(
+      [
+        "Prefix paragraph.",
+        "",
+        "Server state                   |         Interval used",
+        "    ----------------------------------------+----------------------------------",
+        '     UP 100% (non-transitional)             | "inter"',
+        "    ----------------------------------------+----------------------------------",
+        "",
+        "Suffix paragraph.",
+      ].join("\n"),
+    );
+    expect(formatted).toContain("| Server state | Interval used |");
+    expect(formatted).toContain("| --- | --- |");
+    expect(formatted).toContain('| UP 100% (non-transitional) | "inter" |');
+  });
+
+  it("merges wrapped dconv table rows with line breaks", () => {
+    const formatted = formatHoverText(
+      [
+        "Server state                   |         Interval used",
+        "    ----------------------------------------+----------------------------------",
+        '     UP 100% (non-transitional)             | "inter"',
+        "    ----------------------------------------+----------------------------------",
+        '     Transitionally UP (going down "fall"), | "fastinter" if set,',
+        '     Transitionally DOWN (going up "rise"), | "inter" otherwise.',
+        "     or yet unchecked.                      |",
+        "    ----------------------------------------+----------------------------------",
+      ].join("\n"),
+    );
+    expect(formatted).toContain(
+      '| Transitionally UP (going down "fall"),<br>Transitionally DOWN (going up "rise"),<br>or yet unchecked. | "fastinter" if set,<br>"inter" otherwise. |',
+    );
+  });
+
+  it("collapses multi-section ascii tables when dconv parsing fails", () => {
+    const formatted = formatHoverText(
+      ["Col A | Col B", "------+------", "x | y", "plain text between sections", "z | w"].join(
+        "\n",
+      ),
+    );
+    expect(formatted).toContain("| Col A | Col B |");
+    expect(formatted).toContain("| x | y |");
+    expect(formatted).toContain("| z | w |");
+  });
+
+  it("falls back to fenced text for invalid table blocks", () => {
+    const block = ["only | one", "------+------"].join("\n");
+    const formatted = formatHoverText(`intro\n\n${block}\n\noutro`);
+    expect(formatted).toContain("```text");
+    expect(formatted).toContain("only | one");
+  });
+
+  it("finishes dconv table rows without a trailing separator", () => {
+    const formatted = formatHoverText(
+      ["State | Value", "------+------", "UP | inter", "DOWN | fast"].join("\n"),
+    );
+    expect(formatted).toContain("| UP<br>DOWN | inter<br>fast |");
+  });
+
+  it("rejects dconv tables with a non-pipe header row", () => {
+    const formatted = formatHoverText(
+      [
+        "plain header without pipe",
+        "------+------",
+        "a | b",
+        "plain text between sections",
+        "c | d",
+      ].join("\n"),
+    );
+    expect(formatted).toContain("| a | b |");
+    expect(formatted).toContain("| c | d |");
+  });
+
+  it("rejects dconv tables with mismatched separators", () => {
+    const formatted = formatHoverText(
+      ["A | B", "------+------", "x | y", "-------+-------", "z | w"].join("\n"),
+    );
+    expect(formatted).toContain("| x | y |");
+    expect(formatted).toContain("| z | w |");
+  });
+
+  it("falls back to fenced text when table has insufficient columns", () => {
+    const formatted = formatHoverText(["------+------", "------+------", "plain text"].join("\n"));
+    expect(formatted).toContain("```text");
+    expect(formatted).toContain("plain text");
+  });
+
+  it("keeps nested source sub-option hover on source instead of server", () => {
+    const text = hoverMarkdown(
+      "backend api\n    server s1 127.0.0.1:80 source 0.0.0.0 interface eth0",
+      1,
+      "    server s1 127.0.0.1:80 source 0.0.0.0 interface eth0".indexOf("interface"),
+      "3.4",
+    );
+    expect(text).toContain("source");
+    expect(text).toContain("interface");
+    expect(text.toLowerCase()).not.toContain("**server**");
   });
 
   it("shows mode-context metadata for keyword hovers", () => {
@@ -240,6 +368,33 @@ describe("provideHover", () => {
     expect(text.toLowerCase()).toContain("http");
   });
 
+  it("documents keyworded arguments extracted from Arguments blocks", () => {
+    const text = hoverMarkdown(
+      "backend api\n    http-check send meth GET",
+      1,
+      "    http-check send meth GET".indexOf("meth"),
+      "3.4",
+    );
+    expect(text).toContain("meth");
+    expect(text).toContain("OPTIONS");
+    expect(text).toContain("**Directive:** http-check send");
+  });
+
+  it("shows argument alias forms on hover", () => {
+    const text = hoverMarkdown(
+      "backend api\n    balance random(5)",
+      1,
+      "    balance random(5)".indexOf("random"),
+      "3.4",
+    );
+    expect(text).toContain("**Forms:**");
+    expect(text).toContain("random");
+    expect(text).toContain("random(<draws>)");
+    expect(text).toContain("Power of Two Random Choices");
+    expect(text).not.toContain("**Parameter:**");
+    expect(text).toContain("**Directive:** balance");
+  });
+
   it("falls back to group item documentation", () => {
     const text = hoverMarkdown(
       "defaults\n    balance roundrobin",
@@ -273,15 +428,19 @@ describe("provideHover", () => {
     const doc = createDocument("defaults\n    backlog 128");
     const bundle = bundles["3.4"];
     const data = structuredClone(bundle.languageData);
+    const mockArguments = [
+      {
+        description: "Maximum number of pending connections.",
+        parameter: "<conns>",
+        values: [],
+      },
+    ];
     data.keywords.backlog = {
       ...data.keywords.backlog,
-      arguments: [
-        {
-          description: "Maximum number of pending connections.",
-          parameter: "<conns>",
-          values: [],
-        },
-      ],
+      arguments: mockArguments,
+      variants: data.keywords.backlog.variants?.map((variant) =>
+        variant.sections.includes("defaults") ? { ...variant, arguments: mockArguments } : variant,
+      ),
     };
     const col = "    backlog 128".indexOf("128");
     const hover = provideHover(doc, { line: 1, character: col } as never, data, bundle.schema);
@@ -289,7 +448,7 @@ describe("provideHover", () => {
       throw new Error("expected hover");
     }
     const text = hoverText(hover);
-    expect(text).toContain("Parameter:");
+    expect(text).toContain("**Parameter:** `<conns>`");
     expect(text).toContain("Maximum number of pending connections.");
   });
 
@@ -651,15 +810,19 @@ describe("provideHover", () => {
     const doc = createDocument("defaults\n    backlog 128");
     const bundle = bundles["3.4"];
     const data = structuredClone(bundle.languageData);
+    const mockArguments = [
+      {
+        description: "Pending queue length.",
+        parameter: "",
+        values: [],
+      },
+    ];
     data.keywords.backlog = {
       ...data.keywords.backlog,
-      arguments: [
-        {
-          description: "Pending queue length.",
-          parameter: "",
-          values: [],
-        },
-      ],
+      arguments: mockArguments,
+      variants: data.keywords.backlog.variants?.map((variant) =>
+        variant.sections.includes("defaults") ? { ...variant, arguments: mockArguments } : variant,
+      ),
     };
     const col = "    backlog 128".indexOf("128");
     const hover = provideHover(doc, { line: 1, character: col } as never, data, bundle.schema);
@@ -668,6 +831,253 @@ describe("provideHover", () => {
       throw new Error("expected hover");
     }
     const text = hoverText(hover);
-    expect(text).toContain("**Parameter:** argument");
+    expect(text).toContain("**Parameter:** `argument`");
+  });
+
+  it("documents nested server option argument values", () => {
+    const line = "    server s1 127.0.0.1:80 cookie app01 insert";
+    const insertCol = line.indexOf("insert");
+    const doc = createDocument(`backend api\n${line}`);
+    const bundle = bundles["3.4"];
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      line: {
+        line: 1,
+        section: "backend",
+        tokens: [
+          { text: "server", start: 4, end: 10 },
+          { text: "s1", start: 11, end: 13 },
+          { text: "127.0.0.1:80", start: 14, end: 26 },
+          { text: "cookie", start: 27, end: 33 },
+          { text: "app01", start: 34, end: 39 },
+          { text: "insert", start: insertCol, end: insertCol + 6 },
+        ],
+        isSectionHeader: false,
+        anonymousDefaults: false,
+      },
+      lineText: line,
+      tokenIndex: 5,
+      token: { text: "insert", start: insertCol, end: insertCol + 6 },
+      kind: "server",
+      prefix: line.trimStart(),
+    });
+    vi.spyOn(directiveUtils, "findArgumentValue").mockReturnValue({
+      name: "insert",
+      description: "Insert persistence cookie mode.",
+      parameter: "insert",
+    });
+    const hover = provideHover(
+      doc,
+      { line: 1, character: insertCol + 2 } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    expect(hover).not.toBeNull();
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    const text = hoverText(hover);
+    expect(text).not.toContain("**Parameter:**");
+    expect(text).toContain("**Nested option:** cookie");
+    expect(text).toContain("Insert persistence cookie mode.");
+  });
+
+  it("resolves nested server option spans past unrelated tokens", () => {
+    const line = "    server s1 127.0.0.1:80 check junk ssl";
+    const sslCol = line.indexOf("ssl");
+    const text = hoverMarkdown(`backend api\n${line}`, 1, sslCol, "3.4");
+    expect(text.toLowerCase()).toContain("ssl");
+
+    const verifyLine = "    server s1 127.0.0.1:80 verify check";
+    const verifyText = hoverMarkdown(
+      `backend api\n${verifyLine}`,
+      1,
+      verifyLine.indexOf("verify"),
+      "3.4",
+    );
+    expect(verifyText.toLowerCase()).toContain("verify");
+  });
+
+  it("limits nested option span scanning before if conditions", () => {
+    const line = "    server s1 127.0.0.1:80 check inter 2s if MYACL";
+    const interCol = line.indexOf("inter");
+    const text = hoverMarkdown(`backend api\n${line}`, 1, interCol, "3.4");
+    expect(text.toLowerCase()).toContain("inter");
+  });
+
+  it("covers nested option span resolution edge cases", () => {
+    const bundle = bundles["3.4"];
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.testoptbreak = {
+      name: "testoptbreak",
+      sections: ["backend"],
+      signatures: ["testoptbreak [<mode>]"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testoptbreak [<mode>]"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 0,
+            max_args: 1,
+            slots: [
+              {
+                enum: ["on", "off"],
+                optional: true,
+                value_kind: "enum",
+                variadic: false,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testoptbreak",
+    ];
+    const data = structuredClone(bundle.languageData);
+    data.groups.server_options = [
+      ...(data.groups.server_options ?? []),
+      {
+        name: "testoptbreak",
+        description: "Optional enum option.",
+        docsUrl: undefined,
+        rulesets: [],
+        signature: "testoptbreak [<mode>]",
+      },
+    ];
+
+    const bogusLine = "    server s1 127.0.0.1:80 ws bogus";
+    const wsCol = bogusLine.indexOf("ws");
+    expect(hoverMarkdown(`backend api\n${bogusLine}`, 1, wsCol, "3.4").toLowerCase()).toContain(
+      "ws",
+    );
+    provideHover(
+      createDocument(`backend api\n${bogusLine}`),
+      { line: 1, character: bogusLine.indexOf("bogus") + 2 } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+
+    const wsCheckLine = "    server s1 127.0.0.1:80 ws check";
+    expect(
+      hoverMarkdown(
+        `backend api\n${wsCheckLine}`,
+        1,
+        wsCheckLine.indexOf("ws"),
+        "3.4",
+      ).toLowerCase(),
+    ).toContain("ws");
+
+    const cookieBogusLine = "    server s1 127.0.0.1:80 cookie app01 bogus";
+    provideHover(
+      createDocument(`backend api\n${cookieBogusLine}`),
+      { line: 1, character: cookieBogusLine.indexOf("bogus") + 2 } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+
+    schema.keywords.testvalopt = {
+      name: "testvalopt",
+      sections: ["backend"],
+      signatures: ["testvalopt <value>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testvalopt",
+    ];
+    schema.keyword_groups.server_options_with_value = [
+      ...(schema.keyword_groups.server_options_with_value ?? []),
+      "testvalopt",
+    ];
+    data.groups.server_options = [
+      ...(data.groups.server_options ?? []),
+      {
+        name: "testvalopt",
+        description: "Value option.",
+        docsUrl: undefined,
+        rulesets: [],
+        signature: "testvalopt <value>",
+      },
+    ];
+    const valueNextOptionLine = "    server s1 127.0.0.1:80 testvalopt check";
+    expect(
+      provideHover(
+        createDocument(`backend api\n${valueNextOptionLine}`),
+        { line: 1, character: valueNextOptionLine.indexOf("testvalopt") + 2 } as never,
+        data,
+        schema,
+      ),
+    ).not.toBeNull();
+
+    schema.keyword_groups.server_options.push("schemaless");
+    const schemalessLine = "    server s1 127.0.0.1:80 schemaless";
+    provideHover(
+      createDocument(`backend api\n${schemalessLine}`),
+      { line: 1, character: schemalessLine.indexOf("schemaless") + 2 } as never,
+      data,
+      schema,
+    );
+
+    const unknownLine = "    server s1 127.0.0.1:80 zzzunknown";
+    provideHover(
+      createDocument(`backend api\n${unknownLine}`),
+      { line: 1, character: unknownLine.indexOf("zzzunknown") + 2 } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+  });
+
+  it("documents value-taking nested options without argument models", () => {
+    const doc = createDocument("backend api\n    server s1 127.0.0.1:80 testvalopt myval");
+    const bundle = bundles["3.4"];
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.testvalopt = {
+      name: "testvalopt",
+      sections: ["backend"],
+      signatures: ["testvalopt <value>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testvalopt",
+    ];
+    schema.keyword_groups.server_options_with_value = [
+      ...(schema.keyword_groups.server_options_with_value ?? []),
+      "testvalopt",
+    ];
+    const data = structuredClone(bundle.languageData);
+    data.groups.server_options = [
+      ...(data.groups.server_options ?? []),
+      {
+        name: "testvalopt",
+        description: "Custom value option.",
+        docsUrl: undefined,
+        rulesets: [],
+        signature: "testvalopt <value>",
+      },
+    ];
+    const line = "    server s1 127.0.0.1:80 testvalopt myval";
+    const hover = provideHover(
+      doc,
+      { line: 1, character: line.indexOf("myval") + 1 } as never,
+      data,
+      schema,
+    );
+    expect(hover).not.toBeNull();
+    if (hover === null) {
+      throw new Error("expected hover");
+    }
+    expect(hoverText(hover)).toContain("testvalopt");
   });
 });

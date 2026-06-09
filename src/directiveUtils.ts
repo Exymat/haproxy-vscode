@@ -79,14 +79,26 @@ export function findArgumentValue(
     return undefined;
   }
   const key = normalizeValueName(tokenText);
+  let fallback:
+    | {
+        name: string;
+        description: string;
+        parameter: string;
+      }
+    | undefined;
   for (const param of params) {
     for (const value of param.values) {
-      if (normalizeValueName(value.name) === key) {
-        return { name: value.name, description: value.description, parameter: param.parameter };
+      if (normalizeValueName(value.name) !== key) {
+        continue;
       }
+      const hit = { name: value.name, description: value.description, parameter: param.parameter };
+      if (value.description.trim()) {
+        return hit;
+      }
+      fallback ??= hit;
     }
   }
-  return undefined;
+  return fallback;
 }
 
 export function isEnumPerParameter(params: LanguageArgumentParam[] | undefined): boolean {

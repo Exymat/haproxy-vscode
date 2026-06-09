@@ -82,6 +82,11 @@ describe("argumentDiagnostics", () => {
     expect(extra.some((d) => d.code === "extra-argument")).toBe(true);
   });
 
+  it("accepts balance algorithms with documented parenthesized forms", () => {
+    const diags = argDiags("backend x\n    balance random(5)", 1);
+    expect(diags.some((d) => d.code === "unknown-value")).toBe(false);
+  });
+
   it("accepts balance url_param forms", () => {
     expect(argDiags("backend x\n    balance url_param foo", 1)).toEqual([]);
     expect(argDiags("backend x\n    balance url_param foo check_post", 1)).toEqual([]);

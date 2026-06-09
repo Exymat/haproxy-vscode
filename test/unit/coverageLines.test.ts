@@ -366,6 +366,226 @@ describe("coverage line gaps", () => {
     expect(statementDiagnostics(bindLine, bindSchema).length).toBeGreaterThanOrEqual(0);
   });
 
+  it("covers statement diagnostics nested option argument branches", () => {
+    const wsLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 ws check"),
+    )[1];
+    expect(
+      statementDiagnostics(wsLine, bundle.schema).some((d) => d.code === "missing-argument"),
+    ).toBe(true);
+
+    const cookieLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 cookie app01 bogus"),
+    )[1];
+    expect(
+      statementDiagnostics(cookieLine, bundle.schema).filter((d) => d.code === "unknown-parameter"),
+    ).toHaveLength(0);
+
+    const customSchema = structuredClone(bundle.schema);
+    customSchema.keywords.testvalopt = {
+      name: "testvalopt",
+      sections: ["backend"],
+      signatures: ["testvalopt <value>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+    };
+    customSchema.keyword_groups.server_options = [
+      ...(customSchema.keyword_groups.server_options ?? []),
+      "testvalopt",
+    ];
+    customSchema.keyword_groups.server_options_with_value = [
+      ...(customSchema.keyword_groups.server_options_with_value ?? []),
+      "testvalopt",
+    ];
+    customSchema.keywords.testreqenum = {
+      name: "testreqenum",
+      sections: ["backend"],
+      signatures: ["testreqenum <mode>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testreqenum <mode>"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 1,
+            slots: [
+              {
+                enum: ["on", "off"],
+                optional: false,
+                value_kind: "enum",
+                variadic: false,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    customSchema.keyword_groups.server_options.push("testreqenum");
+    customSchema.keywords.testoptenum = {
+      name: "testoptenum",
+      sections: ["backend"],
+      signatures: ["testoptenum [<name>] [<mode>]"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testoptenum [<name>] [<mode>]"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 0,
+            max_args: 2,
+            slots: [
+              {
+                enum: [],
+                optional: false,
+                value_kind: "name",
+                variadic: false,
+              },
+              {
+                enum: ["on", "off"],
+                optional: true,
+                value_kind: "enum",
+                variadic: false,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    customSchema.keyword_groups.server_options.push("testoptenum");
+    customSchema.keywords.testno52 = {
+      name: "testno52",
+      sections: ["backend"],
+      signatures: ["testno52"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "4.2",
+          sections: ["frontend"],
+          signatures: ["testno52"],
+          contexts: [],
+          arguments: [],
+        },
+      ],
+    };
+    customSchema.keyword_groups.server_options.push("testno52");
+    customSchema.keywords.testoptbreak = {
+      name: "testoptbreak",
+      sections: ["backend"],
+      signatures: ["testoptbreak [<mode>]"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testoptbreak [<mode>]"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 0,
+            max_args: 1,
+            slots: [
+              {
+                enum: ["on", "off"],
+                optional: true,
+                value_kind: "enum",
+                variadic: false,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    customSchema.keyword_groups.server_options.push("testoptbreak");
+
+    const valueLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testvalopt myval check"),
+    )[1];
+    expect(
+      statementDiagnostics(valueLine, customSchema).filter((d) => d.code === "unknown-parameter"),
+    ).toHaveLength(0);
+
+    const reqEnumLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testreqenum check"),
+    )[1];
+    expect(
+      statementDiagnostics(reqEnumLine, customSchema).some((d) => d.code === "missing-argument"),
+    ).toBe(true);
+
+    const optEnumLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testoptenum myname check"),
+    )[1];
+    expect(
+      statementDiagnostics(optEnumLine, customSchema).filter((d) => d.code === "unknown-parameter"),
+    ).toHaveLength(0);
+
+    const noVariantLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testno52"),
+    )[1];
+    expect(
+      statementDiagnostics(noVariantLine, customSchema).filter(
+        (d) => d.code === "unknown-parameter",
+      ),
+    ).toHaveLength(0);
+
+    const bogusWsLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 ws bogus"),
+    )[1];
+    expect(
+      statementDiagnostics(bogusWsLine, bundle.schema).filter(
+        (d) => d.code === "unknown-parameter",
+      ),
+    ).toHaveLength(0);
+
+    const optBreakLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testoptbreak check"),
+    )[1];
+    expect(
+      statementDiagnostics(optBreakLine, customSchema).filter(
+        (d) => d.code === "unknown-parameter",
+      ),
+    ).toHaveLength(0);
+
+    const bindSchema = structuredClone(customSchema);
+    bindSchema.keywords.testvalopt = {
+      name: "testvalopt",
+      sections: ["frontend"],
+      signatures: ["testvalopt <value>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+    };
+    bindSchema.keyword_groups.bind_options = [
+      ...(bindSchema.keyword_groups.bind_options ?? []),
+      "testvalopt",
+    ];
+    bindSchema.keyword_groups.bind_options_with_value = [
+      ...(bindSchema.keyword_groups.bind_options_with_value ?? []),
+      "testvalopt",
+    ];
+    const bindLine = parseDocument(
+      createDocument("frontend web\n    bind :80 testvalopt myval ssl"),
+    )[1];
+    expect(
+      statementDiagnostics(bindLine, bindSchema).filter((d) => d.code === "unknown-parameter"),
+    ).toHaveLength(0);
+  });
+
   it("covers extension edge cases", () => {
     expect(extractAclConditionSpans('log-format "%{+Q}o %t"')).toEqual([]);
     expect(validateAclConditions("deny if { base_beg(/api) }", bundle.schema)).toEqual([]);
