@@ -162,6 +162,13 @@ export function resolveNestedLineOptionSpan(
     }
     const end = Math.max(spanEnd(i), i + 1);
     if (ctx.tokenIndex >= i && ctx.tokenIndex < end) {
+      const exactOption = ctx.line.tokens[ctx.tokenIndex]?.text.toLowerCase().replace(/\*$/, "");
+      if (ctx.tokenIndex > i && exactOption && allowed.has(exactOption)) {
+        const nestedEnd = Math.max(spanEnd(ctx.tokenIndex), ctx.tokenIndex + 1);
+        if (ctx.tokenIndex < nestedEnd) {
+          return { optionIndex: ctx.tokenIndex, end: nestedEnd, keyword: exactOption };
+        }
+      }
       return { optionIndex: i, end, keyword: option };
     }
     i = end;

@@ -1,8 +1,14 @@
 import * as directiveUtils from "../../src/directiveUtils";
 import { formatHoverText, provideHover } from "../../src/hover";
+import { tryActionHover } from "../../src/hover/handlers/actionHover";
+import { tryOptionHover } from "../../src/hover/handlers/optionHover";
+import { resolveNestedLineOptionSpan } from "../../src/hover/lineOptions";
+import { addSectionExtra } from "../../src/hover/markdown";
+import type { DocumentContextWithToken, HoverContext } from "../../src/hover/types";
 import * as documentContext from "../../src/documentContext";
+import { getDocumentContext } from "../../src/documentContext";
 import * as languageData from "../../src/languageData";
-import { MarkdownString } from "../__mocks__/vscode";
+import { MarkdownString, Range } from "../__mocks__/vscode";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 
@@ -35,6 +41,55 @@ function hoverMarkdown(content: string, lineNo: number, character: number, versi
   return hoverText(hover);
 }
 
+function optionHoverContext(
+  tokenText: string,
+  overrides: Partial<DocumentContextWithToken> = {},
+): HoverContext {
+  const start = 11;
+  const end = start + tokenText.length;
+  const ctx: DocumentContextWithToken = {
+    line: {
+      line: 1,
+      section: "defaults",
+      tokens: [
+        { text: "option", start: 4, end: 10 },
+        { text: tokenText, start, end },
+      ],
+      isSectionHeader: false,
+      anonymousDefaults: false,
+    },
+    lineText: `    option ${tokenText}`,
+    tokenIndex: 1,
+    token: { text: tokenText, start, end },
+    kind: "option",
+    prefix: `    option ${tokenText}`,
+    ...overrides,
+  };
+  return {
+    document: createDocument(""),
+    position: { line: ctx.line.line, character: ctx.token.start } as never,
+    data: bundles["3.4"].languageData,
+    schema: bundles["3.4"].schema,
+    ctx,
+    range: new Range(ctx.line.line, ctx.token.start, ctx.line.line, ctx.token.end) as never,
+    cursorOffset: 0,
+    tokenLower: ctx.token.text.toLowerCase(),
+  };
+}
+
+function actionHoverContext(tokenLower: string, data = bundles["3.4"].languageData): HoverContext {
+  return {
+    document: createDocument(""),
+    position: { line: 1, character: 0 } as never,
+    data,
+    schema: bundles["3.4"].schema,
+    ctx: optionHoverContext(tokenLower).ctx,
+    range: new Range(1, 0, 1, tokenLower.length) as never,
+    cursorOffset: 0,
+    tokenLower,
+  };
+}
+
 describe("provideHover", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -54,6 +109,8 @@ describe("provideHover", () => {
     const text = hoverMarkdown("defaults\n    option httplog", 1, 11, "3.4");
     expect(text).toContain("option");
     expect(text.length).toBeGreaterThan(0);
+    expect(text).toContain("Valid in sections:");
+    expect(text).toContain("Valid in modes:");
   });
 
   it("documents bind line options from section 5.1", () => {
@@ -77,6 +134,13 @@ describe("provideHover", () => {
     expect(text.toLowerCase()).toContain("check");
     expect(text.toLowerCase()).not.toContain("**server**");
     expect(text).toContain("Valid in modes:");
+  });
+
+  it("distinguishes section scope from mode scope on directive hovers", () => {
+    const text = hoverMarkdown("defaults\n    balance roundrobin", 1, 6, "3.4");
+    expect(text).toContain("Valid in sections:");
+    expect(text).toContain("Valid in modes:");
+    expect(text).not.toContain("**Valid in:**");
   });
 
   it("shows all documented forms for server line options", () => {
@@ -220,8 +284,9 @@ describe("provideHover", () => {
       "    server s1 127.0.0.1:80 source 0.0.0.0 interface eth0".indexOf("interface"),
       "3.4",
     );
-    expect(text).toContain("source");
     expect(text).toContain("interface");
+    expect(text).toContain("**interface**");
+    expect(text).not.toContain("**source**");
     expect(text.toLowerCase()).not.toContain("**server**");
   });
 
@@ -1098,5 +1163,247 @@ describe("provideHover", () => {
       throw new Error("expected hover");
     }
     expect(hoverText(hover)).toContain("testvalopt");
+  });
+
+  it("covers resolveNestedLineOptionSpan nested exact-option return", () => {
+    const schema = structuredClone(bundles["3.4"].schema);
+    schema.keywords.parentopt = {
+      name: "parentopt",
+      sections: ["backend"],
+      signatures: ["parentopt <value> [<childopt>]"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["parentopt <value> [<childopt>]"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 3,
+            slots: [
+              {
+                enum: [],
+                optional: false,
+                value_kind: "generic",
+                variadic: false,
+              },
+              {
+                enum: ["childopt"],
+                optional: true,
+                value_kind: "enum",
+                variadic: false,
+              },
+              {
+                enum: [],
+                optional: false,
+                value_kind: "generic",
+                variadic: false,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "parentopt",
+      "childopt",
+    ];
+    const line = "    server s1 127.0.0.1:80 parentopt val childopt tail";
+    const doc = createDocument(`backend api\n${line}`);
+    const childCol = line.indexOf("childopt") + 3;
+    const ctx = getDocumentContext(doc, { line: 1, character: childCol } as never, schema);
+    expect(ctx).not.toBeNull();
+    if (ctx === null) {
+      throw new Error("expected document context");
+    }
+    expect(ctx.tokenIndex).toBeGreaterThan(3);
+    expect(ctx.token?.text.toLowerCase()).toBe("childopt");
+    const active = resolveNestedLineOptionSpan(schema, ctx, "server_options", 3);
+    expect(active?.keyword).toBe("childopt");
+    expect(active?.optionIndex).toBe(ctx.tokenIndex);
+    if (active === null) {
+      throw new Error("expected nested line option span");
+    }
+    expect(active.optionIndex).toBeGreaterThan(3);
+  });
+
+  it("covers addSectionExtra with empty sections", () => {
+    const extras: string[] = [];
+    addSectionExtra(extras, undefined);
+    addSectionExtra(extras, []);
+    expect(extras).toEqual([]);
+  });
+
+  it("pads dconv table rows with fewer columns than the header", () => {
+    const formatted = formatHoverText(
+      ["Col A | Col B | Col C", "------+------+------", "x | y"].join("\n"),
+    );
+    expect(formatted).toContain("| Col A | Col B | Col C |");
+    expect(formatted).toContain("| x | y |  |");
+  });
+
+  describe("option and action hover handlers", () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("tryOptionHover rejects invalid contexts", () => {
+      expect(
+        tryOptionHover(
+          optionHoverContext("httplog", {
+            kind: "directive",
+          }),
+        ),
+      ).toBeNull();
+      expect(
+        tryOptionHover(
+          optionHoverContext("httplog", {
+            tokenIndex: 0,
+            token: { text: "option", start: 4, end: 10 },
+          }),
+        ),
+      ).toBeNull();
+    });
+
+    it("tryOptionHover uses language keyword metadata", () => {
+      const hover = tryOptionHover(optionHoverContext("httplog"));
+      expect(hover).not.toBeNull();
+      if (hover === null) {
+        throw new Error("expected hover");
+      }
+      const text = hoverText(hover);
+      expect(text).toContain("option httplog");
+      expect(text).toContain("option httplog [ clf ]");
+      expect(text).toContain("Enable logging of HTTP request");
+      expect(text).toContain("Valid in sections:");
+      expect(text).toContain("Valid in modes:");
+      expect(text).toContain("[HAProxy documentation](");
+    });
+
+    it("tryOptionHover resolves no-option keywords", () => {
+      vi.spyOn(directiveUtils, "getKeywordFromLanguage").mockImplementation((_data, keyword) => {
+        if (keyword === "no option httplog") {
+          return bundles["3.4"].languageData.keywords["option httplog"];
+        }
+        return undefined;
+      });
+
+      const hover = tryOptionHover(optionHoverContext("httplog"));
+      expect(hover).not.toBeNull();
+      if (hover === null) {
+        throw new Error("expected hover");
+      }
+      expect(hoverText(hover)).toContain("Enable logging of HTTP request");
+    });
+
+    it("tryOptionHover uses group metadata when language lookup misses", () => {
+      const data = structuredClone(bundles["3.4"].languageData);
+      data.groups.options = [
+        {
+          name: "groupopt",
+          description: "Group-only option docs.",
+          docsUrl: "https://example.test/groupopt",
+          rulesets: [],
+          signature: "option groupopt",
+        },
+      ];
+      vi.spyOn(directiveUtils, "getKeywordFromLanguage").mockReturnValue(undefined);
+
+      const hover = tryOptionHover({
+        ...optionHoverContext("groupopt"),
+        data,
+      });
+      expect(hover).not.toBeNull();
+      if (hover === null) {
+        throw new Error("expected hover");
+      }
+      const text = hoverText(hover);
+      expect(text).toContain("option groupopt");
+      expect(text).toContain("Group-only option docs.");
+      expect(text).toContain("https://example.test/groupopt");
+    });
+
+    it("tryOptionHover leaves description empty when no docs exist", () => {
+      vi.spyOn(directiveUtils, "getKeywordFromLanguage").mockReturnValue({
+        name: "option emptydesc",
+        sections: [],
+        signatures: ["option emptydesc"],
+        arguments: [],
+      } as never);
+
+      const hover = tryOptionHover(optionHoverContext("emptydesc"));
+      expect(hover).not.toBeNull();
+      if (hover === null) {
+        throw new Error("expected hover");
+      }
+      expect(hoverText(hover)).toBe("**option emptydesc**\n\n`option emptydesc`");
+    });
+
+    it("tryOptionHover falls back to schema option contexts and token text", () => {
+      const bundle = bundles["3.4"];
+      const schema = structuredClone(bundle.schema);
+      schema.keyword_group_contexts = {
+        ...schema.keyword_group_contexts,
+        options: {
+          ...schema.keyword_group_contexts?.options,
+          customopt: ["tcp", "http"],
+        },
+      };
+      vi.spyOn(directiveUtils, "getKeywordFromLanguage").mockReturnValue({
+        name: "option customopt",
+        description: "Custom option.",
+        sections: ["defaults"],
+        signatures: [],
+        arguments: [],
+      } as never);
+      vi.spyOn(directiveUtils, "getKeywordFromSchema").mockReturnValue(undefined);
+
+      const hover = tryOptionHover({
+        ...optionHoverContext("customopt"),
+        schema,
+      });
+      expect(hover).not.toBeNull();
+      if (hover === null) {
+        throw new Error("expected hover");
+      }
+      const text = hoverText(hover);
+      expect(text).toContain("option customopt");
+      expect(text).toContain("Custom option.");
+      expect(text).toContain("**Valid in modes:** tcp, http");
+    });
+
+    it("tryActionHover documents actions with and without rulesets", () => {
+      const denyHover = tryActionHover(actionHoverContext("deny"));
+      expect(denyHover).not.toBeNull();
+      if (denyHover === null) {
+        throw new Error("expected hover");
+      }
+      const denyText = hoverText(denyHover);
+      expect(denyText.toLowerCase()).toContain("deny");
+      expect(denyText).toContain("**Rulesets:** http-request, http-response");
+
+      const closeHover = tryActionHover(actionHoverContext("close"));
+      expect(closeHover).not.toBeNull();
+      if (closeHover === null) {
+        throw new Error("expected hover");
+      }
+      expect(hoverText(closeHover)).not.toContain("**Rulesets:**");
+    });
+
+    it("tryActionHover scans later action groups and rejects unknown actions", () => {
+      const attachHover = tryActionHover(actionHoverContext("attach-srv"));
+      expect(attachHover).not.toBeNull();
+      if (attachHover === null) {
+        throw new Error("expected hover");
+      }
+      expect(hoverText(attachHover)).toContain("attach-srv");
+
+      expect(tryActionHover(actionHoverContext("not-a-real-action"))).toBeNull();
+    });
   });
 });

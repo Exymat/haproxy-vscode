@@ -54,6 +54,13 @@ export function formatParameterExtra(parameter: string): string {
   return `**Parameter:** \`${label}\``;
 }
 
+export function addSectionExtra(extras: string[], sections: string[] | undefined): void {
+  if (!sections || sections.length === 0) {
+    return;
+  }
+  extras.push(`**Valid in sections:** ${sections.join(", ")}`);
+}
+
 export function matchingArgumentValueNames(
   params:
     | Array<{

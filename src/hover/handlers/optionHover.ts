@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { getKeywordFromLanguage, getKeywordFromSchema } from "../../directiveUtils";
 import { groupItems } from "../../documentContext";
-import { addContextExtra, hoverMarkdown } from "../markdown";
+import { addContextExtra, addSectionExtra, hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
 
 export function tryOptionHover(hc: HoverContext): vscode.Hover | null {
@@ -22,9 +22,7 @@ export function tryOptionHover(hc: HoverContext): vscode.Hover | null {
 
   const name = group?.name ?? ctx.token.text;
   const extras: string[] = [];
-  if (optKeyword?.sections.length) {
-    extras.push(`**Valid in:** ${optKeyword.sections.join(", ")}`);
-  }
+  addSectionExtra(extras, optKeyword?.sections);
   addContextExtra(
     extras,
     getKeywordFromSchema(schema, optKeyword?.name ?? `option ${tokenLower}`, ctx.line.section)

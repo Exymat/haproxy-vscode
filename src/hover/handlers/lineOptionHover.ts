@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
 
-import { findArgumentValue } from "../../directiveUtils";
+import { findArgumentValue, getKeywordFromSchema } from "../../directiveUtils";
 import { groupItems } from "../../documentContext";
 import { findStatementRule } from "../../statementLayout";
+import { findGroupItem } from "../helpers";
 import { lineOptionChapter, resolveNestedLineOptionSpan } from "../lineOptions";
 import { addContextExtra, escapeMarkdownText, hoverMarkdown, signaturesBlock } from "../markdown";
 import { HoverContext } from "../types";
@@ -19,6 +20,24 @@ export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
   }
 
   const active = resolveNestedLineOptionSpan(schema, ctx, lineOptionGroup, lineOptionStart);
+  if (active && ctx.tokenIndex > active.optionIndex && tokenLower !== active.keyword) {
+    const nestedGroup = findGroupItem(data, tokenLower);
+    if (nestedGroup?.description) {
+      const nestedSchemaKeyword = getKeywordFromSchema(schema, tokenLower, ctx.line.section);
+      const nestedExtras: string[] = [];
+      addContextExtra(nestedExtras, nestedSchemaKeyword?.contexts);
+      return new vscode.Hover(
+        hoverMarkdown(
+          nestedGroup.name,
+          nestedGroup.signature ?? nestedGroup.name,
+          nestedGroup.description,
+          nestedExtras,
+          nestedGroup.docsUrl,
+        ),
+        range,
+      );
+    }
+  }
   const effectiveKeyword = active?.keyword ?? tokenLower;
   const group = groupItems(data, lineOptionGroup).find(
     (g) => g.name.toLowerCase() === effectiveKeyword,

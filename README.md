@@ -37,7 +37,7 @@ Completion reloads immediately when you change the configured HAProxy version.
 
 ### Inline documentation
 
-Hover any supported keyword to read summaries sourced from HAProxy’s official `configuration.txt`. Many entries include a **link to the upstream HAProxy documentation** for the full reference. Conditional block directives (`.if`, `.elif`, `.else`, `.endif`) are documented as well, and mode-scoped keywords/options show context hints such as **Valid in modes: tcp, http, log** when available.
+Hover any supported keyword to read summaries sourced from HAProxy’s official `configuration.txt`. Many entries include a **link to the upstream HAProxy documentation** for the full reference. Conditional block directives (`.if`, `.elif`, `.else`, `.endif`) are documented as well, and hovers distinguish section scope such as **Valid in sections: defaults, frontend, listen, backend** from mode scope such as **Valid in modes: tcp, http, log** when available.
 
 ![Hover documentation with signature and upstream doc link](docs/images/hover-documentation.png)
 

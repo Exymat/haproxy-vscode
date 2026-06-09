@@ -15,6 +15,7 @@ import { modifierPrefixSet } from "../../schema";
 import { findGroupItem } from "../helpers";
 import {
   addContextExtra,
+  addSectionExtra,
   escapeMarkdownText,
   formatParameterExtra,
   hoverMarkdown,
@@ -73,9 +74,7 @@ export function tryDirectiveHover(hc: HoverContext): vscode.Hover | null {
 
   const onDirectiveToken = ctx.tokenIndex <= directive.end;
   const extras: string[] = [];
-  if (kw.sections.length > 0) {
-    extras.push(`**Valid in:** ${kw.sections.join(", ")}`);
-  }
+  addSectionExtra(extras, kw.sections);
   addContextExtra(extras, getKeywordFromSchema(schema, kw.name, ctx.line.section)?.contexts);
 
   if (onDirectiveToken) {
