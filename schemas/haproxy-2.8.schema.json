@@ -2490,7 +2490,7 @@
         "slots": [
           {
             "enum": [],
-            "optional": true,
+            "optional": false,
             "value_kind": "address",
             "variadic": false
           },
@@ -2539,6 +2539,8 @@
         "peers"
       ],
       "signatures": [
+        "bind /<path> [, ...] [param*]",
+        "bind /<path> [param*]",
         "bind <addr> [param*]",
         "bind [<address>]:<port_range> [, ...] [param*]",
         "bind [<address>]:port [param*]"
@@ -2584,7 +2586,7 @@
             "slots": [
               {
                 "enum": [],
-                "optional": true,
+                "optional": false,
                 "value_kind": "address",
                 "variadic": false
               },
@@ -2594,7 +2596,7 @@
                 ],
                 "optional": false,
                 "value_kind": "enum",
-                "variadic": false
+                "variadic": true
               },
               {
                 "enum": [],
@@ -2611,6 +2613,7 @@
             "peers"
           ],
           "signatures": [
+            "bind /<path> [param*]",
             "bind [<address>]:port [param*]"
           ]
         },
@@ -2621,7 +2624,7 @@
             "slots": [
               {
                 "enum": [],
-                "optional": true,
+                "optional": false,
                 "value_kind": "address",
                 "variadic": false
               },
@@ -2668,6 +2671,7 @@
             "listen"
           ],
           "signatures": [
+            "bind /<path> [, ...] [param*]",
             "bind [<address>]:<port_range> [, ...] [param*]"
           ]
         }
@@ -58580,7 +58584,7 @@
       "fixed_slots": [
         {
           "address_policy": "bind",
-          "port": "optional",
+          "port": "forbidden",
           "role": "address"
         }
       ],

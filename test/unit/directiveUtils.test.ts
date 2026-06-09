@@ -184,4 +184,116 @@ describe("directiveUtils", () => {
     expect(getKeywordFromLanguage(languageData, "MODE")?.name).toBe("mode");
     expect(getKeywordFromSchema(schema, "MODE")?.name).toBe("mode");
   });
+
+  it("completionValuesForPosition uses packed-value fallback after address tokens", () => {
+    const schemaKw = {
+      name: "testpacked",
+      sections: ["defaults"],
+      signatures: [],
+      sources: [],
+      contexts: [],
+      argument_model: {
+        min_args: 1,
+        max_args: 3,
+        slots: [
+          { optional: false, value_kind: "address", enum: [] },
+          { optional: true, value_kind: "generic", enum: [] },
+          { optional: true, value_kind: "enum", enum: ["interface", "usesrc"] },
+        ],
+      },
+    };
+    const line = lineAt("defaults\n    testpacked 0.0.0.0 ", 1);
+    const values = completionValuesForPosition(schemaKw, undefined, 1, line, 0, "testpacked");
+    expect(values.map((v) => v.name)).toEqual(expect.arrayContaining(["interface", "usesrc"]));
+  });
+
+  it("completionValuesForPosition skips packed fallback for non-generic slots", () => {
+    const schemaKw = {
+      name: "testpacked",
+      sections: ["defaults"],
+      signatures: [],
+      sources: [],
+      contexts: [],
+      argument_model: {
+        min_args: 1,
+        max_args: 1,
+        slots: [{ optional: false, value_kind: "address", enum: [] }],
+      },
+    };
+    const line = lineAt("defaults\n    testpacked 0.0.0.0 ", 1);
+    expect(
+      completionValuesForPosition(schemaKw as never, undefined, 0, line, 0, "testpacked"),
+    ).toEqual([]);
+  });
+
+  it("completionValuesForPosition skips packed fallback when previous token is not an address", () => {
+    const schemaKw = {
+      name: "testpacked",
+      sections: ["defaults"],
+      signatures: [],
+      sources: [],
+      contexts: [],
+      argument_model: {
+        min_args: 1,
+        max_args: 3,
+        slots: [
+          { optional: false, value_kind: "address", enum: [] },
+          { optional: true, value_kind: "generic", enum: [] },
+          { optional: true, value_kind: "enum", enum: ["alpha"] },
+        ],
+      },
+    };
+    const line = lineAt("defaults\n    testpacked notaddr ", 1);
+    expect(
+      completionValuesForPosition(schemaKw as never, undefined, 1, line, 0, "testpacked"),
+    ).toEqual([]);
+  });
+
+  it("completionValuesForPosition packed fallback stops before required slots", () => {
+    const schemaKw = {
+      name: "testpacked",
+      sections: ["defaults"],
+      signatures: [],
+      sources: [],
+      contexts: [],
+      argument_model: {
+        min_args: 1,
+        max_args: 4,
+        slots: [
+          { optional: false, value_kind: "address", enum: [] },
+          { optional: true, value_kind: "generic", enum: [] },
+          { optional: true, value_kind: "generic", enum: [] },
+          { optional: false, value_kind: "name", enum: [] },
+        ],
+      },
+    };
+    const line = lineAt("defaults\n    testpacked 0.0.0.0 ", 1);
+    expect(
+      completionValuesForPosition(schemaKw as never, undefined, 1, line, 0, "testpacked"),
+    ).toEqual([]);
+  });
+
+  it("completionValuesForPosition packed fallback returns empty when no later enums exist", () => {
+    const schemaKw = {
+      name: "testpacked",
+      sections: ["defaults"],
+      signatures: [],
+      sources: [],
+      contexts: [],
+      argument_model: {
+        min_args: 1,
+        max_args: 4,
+        slots: [
+          { optional: false, value_kind: "address", enum: [] },
+          { optional: true, value_kind: "generic", enum: [] },
+          { optional: true, value_kind: "generic", enum: [] },
+          { optional: true, value_kind: "name", enum: [] },
+        ],
+      },
+    };
+    const line = lineAt("defaults\n    testpacked 0.0.0.0 ", 1);
+    expect(
+      completionValuesForPosition(schemaKw as never, undefined, 1, line, 0, "testpacked"),
+    ).toEqual([]);
+  });
 });

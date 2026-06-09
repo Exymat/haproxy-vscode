@@ -2,7 +2,11 @@ import * as directiveUtils from "../../src/directiveUtils";
 import { formatHoverText, provideHover } from "../../src/hover";
 import { tryActionHover } from "../../src/hover/handlers/actionHover";
 import { tryOptionHover } from "../../src/hover/handlers/optionHover";
-import { resolveNestedLineOptionSpan } from "../../src/hover/lineOptions";
+import {
+  resolveLineOptionStartIndex,
+  resolveNestedLineOptionSpan,
+} from "../../src/hover/lineOptions";
+import { parseDocument } from "../../src/parser";
 import { addSectionExtra } from "../../src/hover/markdown";
 import type { DocumentContextWithToken, HoverContext } from "../../src/hover/types";
 import * as documentContext from "../../src/documentContext";
@@ -503,8 +507,30 @@ describe("provideHover", () => {
   it("shows section-specific signatures instead of merged cross-chapter forms", () => {
     const text = hoverMarkdown("frontend web\n    bind", 1, "    bind".indexOf("bind"), "3.4");
     expect(text).toContain("bind");
-    expect(text).not.toContain("Forms");
+    expect(text).toContain("Forms");
+    expect(text).toContain("bind [<address>]:<port_range> [, ...] [param*]");
+    expect(text).toContain("bind /<path> [, ...] [param*]");
     expect(text).toContain("#4.2-bind");
+  });
+
+  it("shows the peers bind variant inside a peers section", () => {
+    const text = hoverMarkdown("peers cluster\n    bind", 1, "    bind".indexOf("bind"), "3.4");
+    expect(text).toContain("bind [<address>]:port [param*]");
+    expect(text).toContain("bind /<path> [param*]");
+    expect(text).toContain("#11.2-bind");
+    expect(text).not.toContain("#4.2-bind");
+  });
+
+  it("shows the log-forward bind variant inside a log-forward section", () => {
+    const text = hoverMarkdown(
+      "log-forward syslog\n    bind",
+      1,
+      "    bind".indexOf("bind"),
+      "3.4",
+    );
+    expect(text).toContain("bind <addr> [param*]");
+    expect(text).toContain("#12.6-bind");
+    expect(text).not.toContain("#4.2-bind");
   });
 
   it("documents argument parameter descriptions", () => {
@@ -1230,6 +1256,13 @@ describe("provideHover", () => {
       throw new Error("expected nested line option span");
     }
     expect(active.optionIndex).toBeGreaterThan(3);
+  });
+
+  it("resolveLineOptionStartIndex ignores comma-only bind address tokens", () => {
+    const schema = bundles["3.4"].schema;
+    const bindRule = schema.statement_rules.find((rule) => rule.kind === "bind");
+    const line = parseDocument(createDocument("frontend web\n    bind ,"))[1];
+    expect(resolveLineOptionStartIndex(line, bindRule)).toBe(bindRule?.nested_start_index);
   });
 
   it("covers addSectionExtra with empty sections", () => {

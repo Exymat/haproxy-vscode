@@ -135,11 +135,70 @@ describe("completion extended", () => {
     expect(labels.length).toBeGreaterThan(0);
   });
 
-  it("returns no directive suggestions when token index is not zero", () => {
+  it("does not fall back to section directive suggestions when token index is not zero", () => {
     const content = "frontend web\n    bind :80 extra";
     const col = content.split("\n")[1].indexOf("extra");
     const labels = completionLabels(content, 1, col);
+    expect(labels).not.toContain("bind");
+    expect(labels).not.toContain("acl");
+  });
+
+  it("returns empty completion on bind address tokens before options", () => {
+    const line = "    bind 192.168.1.22:80, :81, 192.168.1.23:82 ";
+    const col = line.indexOf(":81") + 1;
+    const labels = completionLabels(`frontend web\n${line}`, 1, col);
     expect(labels).toEqual([]);
+  });
+
+  it("suggests server line-option argument values after the option name", () => {
+    const content = "backend api\n    server s1 127.0.0.1:80 cookie app01 ins";
+    const line = content.split("\n")[1];
+    const labels = completionLabels(content, 1, line.length);
+    expect(labels).toEqual(expect.arrayContaining(["insert"]));
+    expect(labels).not.toContain("ssl");
+  });
+
+  it("returns empty for directive kind with a non-zero token index", () => {
+    const doc = createDocument("defaults\n    mode http junk");
+    vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
+      kind: "directive",
+      tokenIndex: 2,
+      line: {
+        line: 1,
+        text: "    mode http junk",
+        indent: 4,
+        section: "defaults",
+        tokens: [
+          { text: "mode", start: 4, end: 8 },
+          { text: "http", start: 9, end: 13 },
+          { text: "junk", start: 14, end: 18 },
+        ],
+      },
+    } as never);
+    vi.spyOn(documentContext, "keywordsForSection").mockReturnValue([
+      {
+        name: "mode",
+        signatures: ["mode <mode>"],
+        description: "",
+        docsUrl: undefined,
+        arguments: [],
+      },
+      {
+        name: "balance",
+        signatures: ["balance <algorithm>"],
+        description: "",
+        docsUrl: undefined,
+        arguments: [],
+      },
+    ] as never);
+
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: 14 } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    expect(items).toEqual([]);
   });
 
   it("handles directive argument completion when schema keyword is missing", () => {

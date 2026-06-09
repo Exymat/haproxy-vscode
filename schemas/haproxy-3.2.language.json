@@ -10606,7 +10606,9 @@
       ],
       "signatures": [
         "bind [<address>]:<port_range> [, ...] [param*]",
+        "bind /<path> [, ...] [param*]",
         "bind [<address>]:port [param*]",
+        "bind /<path> [param*]",
         "bind <addr> [param*]"
       ],
       "variants": [
@@ -10645,7 +10647,8 @@
             "listen"
           ],
           "signatures": [
-            "bind [<address>]:<port_range> [, ...] [param*]"
+            "bind [<address>]:<port_range> [, ...] [param*]",
+            "bind /<path> [, ...] [param*]"
           ]
         },
         {
@@ -10658,7 +10661,8 @@
             "peers"
           ],
           "signatures": [
-            "bind [<address>]:port [param*]"
+            "bind [<address>]:port [param*]",
+            "bind /<path> [param*]"
           ]
         },
         {

@@ -183,7 +183,7 @@
           }
         },
         {
-          "match": "(?m)^(?:\\t| )*((?:http\\-errors|log\\-forward|log\\-profile|crt\\-store|resolvers|crt\\-list|fcgi\\-app|userlist|mailers|program|traces|cache|peers|acme|ring))\\s+(\\S+)",
+          "match": "(?m)^(?:\\t| )*((?:healthcheck|http\\-errors|log\\-forward|log\\-profile|crt\\-store|resolvers|crt\\-list|fcgi\\-app|userlist|mailers|traces|cache|peers|acme|ring))\\s+(\\S+)",
           "captures": {
             "1": {
               "name": "entity.name.type.section.haproxy"
@@ -195,7 +195,7 @@
         },
         {
           "name": "entity.name.type.section.haproxy",
-          "match": "(?m)^(?:\\t| )*((?:http\\-errors|log\\-forward|log\\-profile|crt\\-store|resolvers|crt\\-list|defaults|fcgi\\-app|frontend|userlist|backend|mailers|program|global|listen|traces|cache|peers|acme|ring))\\b"
+          "match": "(?m)^(?:\\t| )*((?:healthcheck|http\\-errors|log\\-forward|log\\-profile|crt\\-store|resolvers|crt\\-list|defaults|fcgi\\-app|frontend|userlist|backend|mailers|global|listen|traces|cache|peers|acme|ring))\\b"
         }
       ]
     },

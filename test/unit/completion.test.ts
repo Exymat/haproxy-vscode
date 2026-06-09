@@ -97,8 +97,10 @@ describe("completion and hover", () => {
     );
     const bind = items.find((item) => item.label === "bind");
     expect(bind).toBeDefined();
-    expect(bind?.detail).toContain("<port_range>");
-    expect(bind?.detail).not.toContain(":port [param*]");
+    expect(bind?.detail).toBe("2 forms");
+    const documentation = (bind?.documentation as { value?: string } | undefined)?.value ?? "";
+    expect(documentation).toContain("bind [<address>]:<port_range> [, ...] [param*]");
+    expect(documentation).toContain("bind /<path> [, ...] [param*]");
   });
 
   const completionCases = [
@@ -156,4 +158,63 @@ describe("completion and hover", () => {
       }
     },
   );
+
+  it("source completion skips packed optional port and suggests sub-options", () => {
+    const content = "defaults\n    source 0.0.0.0 ";
+    const labels = completionLabels(content, 1, content.split("\n")[1].length, "3.4");
+    expect(labels).toEqual(expect.arrayContaining(["interface", "usesrc"]));
+    expect(labels).not.toContain("mode");
+    expect(labels).not.toContain("balance");
+  });
+
+  it("bind completion suggests bind options after repeated addresses", () => {
+    const content = "frontend web\n    bind 192.168.1.22:80, :81, 192.168.1.23:82 ";
+    const labels = completionLabels(content, 1, content.split("\n")[1].length, "3.4");
+    expect(labels).toContain("ssl");
+    expect(labels).toContain("interface");
+    expect(labels).not.toContain("balance");
+  });
+
+  it("bind directive completion uses the peers-specific variant", () => {
+    const doc = createDocument("peers cluster\n    bi");
+    const bundle = bundles["3.4"];
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: "    bi".length } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    const bind = items.find((item) => item.label === "bind");
+    expect(bind).toBeDefined();
+    const documentation = (bind?.documentation as { value?: string } | undefined)?.value ?? "";
+    expect(documentation).toContain("bind [<address>]:port [param*]");
+    expect(documentation).toContain("bind /<path> [param*]");
+    expect(documentation).toContain("#11.2-bind");
+    expect(documentation).not.toContain("#4.2-bind");
+  });
+
+  it("bind directive completion uses the log-forward-specific variant", () => {
+    const doc = createDocument("log-forward syslog\n    bi");
+    const bundle = bundles["3.4"];
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: "    bi".length } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    const bind = items.find((item) => item.label === "bind");
+    expect(bind).toBeDefined();
+    const documentation = (bind?.documentation as { value?: string } | undefined)?.value ?? "";
+    expect(documentation).toContain("stream log listener");
+    expect(documentation).toContain("#12.6-bind");
+    expect(documentation).not.toContain("#4.2-bind");
+  });
+
+  it("bind completion suggests bind options in log-forward after the address", () => {
+    const content = "log-forward syslog\n    bind 127.0.0.1:514 ";
+    const labels = completionLabels(content, 1, content.split("\n")[1].length, "3.4");
+    expect(labels).toContain("ssl");
+    expect(labels).toContain("interface");
+    expect(labels).not.toContain("balance");
+  });
 });

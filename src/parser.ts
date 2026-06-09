@@ -11,6 +11,7 @@ export const SECTION_HEADERS = new Set([
   "resolvers",
   "mailers",
   "program",
+  "healthcheck",
   "http-errors",
   "ring",
   "cache",
@@ -18,6 +19,7 @@ export const SECTION_HEADERS = new Set([
   "crt-store",
   "traces",
   "acme",
+  "log-forward",
   "log-profile",
 ]);
 

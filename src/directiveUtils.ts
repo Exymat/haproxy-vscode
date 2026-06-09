@@ -14,7 +14,7 @@ import {
 } from "./keywordVariant";
 import { ParsedLine } from "./parser";
 import { HaproxySchema } from "./schema";
-import { resolveLongestDirectiveMatch } from "./tokenUtils";
+import { isAddressOrPathToken, resolveLongestDirectiveMatch } from "./tokenUtils";
 
 export interface ResolvedDirective {
   keyword: string;
@@ -148,9 +148,47 @@ export function completionValuesForPosition(
   const schemaNames = enumNamesForArgumentPosition(schemaKw, langKw, position);
   const descriptions = enumDescriptionsForKeyword(langKw, schemaKw);
   return filterDirectiveKeywordParts(
-    mergeEnumValues(langValues, schemaNames, descriptions),
+    mergeEnumValues(
+      langValues,
+      schemaNames.length > 0 || langValues.length > 0
+        ? schemaNames
+        : fallbackSchemaEnumNamesForPackedValueSlot(schemaKw, langKw, position, line, directiveEnd),
+      descriptions,
+    ),
     directiveKeyword,
   );
+}
+
+function fallbackSchemaEnumNamesForPackedValueSlot(
+  schemaKw: ResolvedSchemaKeyword | undefined,
+  langKw: ResolvedLanguageKeyword | undefined,
+  position: number,
+  line: ParsedLine,
+  directiveEnd: number,
+): string[] {
+  const slots = schemaKw?.argument_model?.slots ?? [];
+  const slot = slots[position];
+  if (!slot?.optional || slot.value_kind !== "generic" || (slot.enum?.length ?? 0) > 0) {
+    return [];
+  }
+
+  const previousArg = line.tokens[directiveEnd + position]?.text ?? "";
+  if (!isAddressOrPathToken(previousArg)) {
+    return [];
+  }
+
+  for (let next = position + 1; next < slots.length; next += 1) {
+    const names = enumNamesForArgumentPosition(schemaKw, langKw, next);
+    if (names.length > 0) {
+      return names;
+    }
+    const nextSlot = slots[next];
+    if (!nextSlot?.optional) {
+      break;
+    }
+  }
+
+  return [];
 }
 
 export function argumentValuesForPosition(

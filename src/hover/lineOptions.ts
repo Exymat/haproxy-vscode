@@ -1,7 +1,8 @@
 import { enumNamesForSlot } from "../argumentEnumUtils";
+import { ADDRESS_POLICIES, validateHaproxyAddress } from "../addressFormat";
 import { getKeywordFromSchema } from "../directiveUtils";
 import { getDocumentContext } from "../documentContext";
-import { HaproxySchema, optionsWithValueSet } from "../schema";
+import { HaproxySchema, optionsWithValueSet, StatementRule } from "../schema";
 
 export function lineOptionChapter(kind: "bind" | "server"): string {
   return kind === "bind" ? "5.1" : "5.2";
@@ -32,7 +33,7 @@ function matchesLaterEnumSlot(
   return false;
 }
 
-function resolveLineOptionSchemaKeyword(
+export function resolveLineOptionSchemaKeyword(
   schema: HaproxySchema,
   option: string,
   kind: string | null | undefined,
@@ -66,6 +67,44 @@ function resolveLineOptionSchemaKeyword(
     argument_model: variant.argument_model ?? keyword.argument_model,
     chapter: variant.chapter,
   };
+}
+
+function isValidBindAddressListToken(token: string): boolean {
+  const parts = token
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+  if (parts.length === 0) {
+    return false;
+  }
+  return parts.every((part) => {
+    const policy = part.startsWith("/")
+      ? { ...ADDRESS_POLICIES.bind, portMandatory: false }
+      : ADDRESS_POLICIES.bind;
+    return validateHaproxyAddress(part, policy).valid;
+  });
+}
+
+export function resolveLineOptionStartIndex(
+  line: NonNullable<ReturnType<typeof getDocumentContext>>["line"],
+  rule: StatementRule | undefined,
+): number {
+  const baseStart = rule?.nested_start_index ?? -1;
+  if (!rule || baseStart < 0) {
+    return -1;
+  }
+  if (rule.kind !== "bind") {
+    return baseStart;
+  }
+
+  let index = 1;
+  while (index < line.tokens.length) {
+    if (!isValidBindAddressListToken(line.tokens[index].text)) {
+      break;
+    }
+    index += 1;
+  }
+  return index > 1 ? index : baseStart;
 }
 
 export function resolveNestedLineOptionSpan(

@@ -25,4 +25,12 @@ describe("getParsedDocument", () => {
     expect(second).not.toBe(first);
     expect(parseDocument(doc as never)).toEqual(second);
   });
+
+  it("recognizes healthcheck as a section header", () => {
+    const doc = createDocument("healthcheck api\n    tcp-check connect");
+    const parsed = parseDocument(doc);
+    expect(parsed[0].isSectionHeader).toBe(true);
+    expect(parsed[0].section).toBe("healthcheck");
+    expect(parsed[1].section).toBe("healthcheck");
+  });
 });

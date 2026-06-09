@@ -4,7 +4,11 @@ import { findArgumentValue, getKeywordFromSchema } from "../../directiveUtils";
 import { groupItems } from "../../documentContext";
 import { findStatementRule } from "../../statementLayout";
 import { findGroupItem } from "../helpers";
-import { lineOptionChapter, resolveNestedLineOptionSpan } from "../lineOptions";
+import {
+  lineOptionChapter,
+  resolveLineOptionStartIndex,
+  resolveNestedLineOptionSpan,
+} from "../lineOptions";
 import { addContextExtra, escapeMarkdownText, hoverMarkdown, signaturesBlock } from "../markdown";
 import { HoverContext } from "../types";
 
@@ -14,7 +18,7 @@ export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
   const lineOptionGroup =
     ctx.kind === "bind" ? "bind_options" : ctx.kind === "server" ? "server_options" : null;
   const lineOptionRule = lineOptionGroup ? findStatementRule(schema, ctx.line) : undefined;
-  const lineOptionStart = lineOptionRule?.nested_start_index ?? -1;
+  const lineOptionStart = resolveLineOptionStartIndex(ctx.line, lineOptionRule);
   if (!lineOptionGroup || lineOptionStart < 0 || ctx.tokenIndex < lineOptionStart) {
     return null;
   }

@@ -87,6 +87,11 @@ describe("statementDiagnostics", () => {
     expect(unix.filter((d) => d.code === "invalid-address")).toHaveLength(0);
   });
 
+  it("consumes repeated bind addresses before scanning bind options", () => {
+    const diags = lineDiag("frontend web\n    bind 192.168.1.22:80, :81, 192.168.1.23:82 ssl", 1);
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
   it("skips placeholder server addresses", () => {
     const diags = lineDiag("backend api\n    server s1 /var/run/app.sock", 1);
     expect(diags.filter((d) => d.code === "invalid-address")).toHaveLength(0);

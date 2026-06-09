@@ -11131,7 +11131,9 @@
       ],
       "signatures": [
         "bind [<address>]:<port_range> [, ...] [param*]",
+        "bind /<path> [, ...] [param*]",
         "bind [<address>]:port [param*]",
+        "bind /<path> [param*]",
         "bind <addr> [param*]"
       ],
       "variants": [
@@ -11170,7 +11172,8 @@
             "listen"
           ],
           "signatures": [
-            "bind [<address>]:<port_range> [, ...] [param*]"
+            "bind [<address>]:<port_range> [, ...] [param*]",
+            "bind /<path> [, ...] [param*]"
           ]
         },
         {
@@ -11183,7 +11186,8 @@
             "peers"
           ],
           "signatures": [
-            "bind [<address>]:port [param*]"
+            "bind [<address>]:port [param*]",
+            "bind /<path> [param*]"
           ]
         },
         {
@@ -15485,7 +15489,7 @@
       "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-healthcheck",
       "name": "healthcheck",
       "sections": [
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "healthcheck <name>"
@@ -15498,7 +15502,7 @@
           "description": "Created a new healthcheck with name <name>. This name must be unique. It should be used on server line to reference a specific health-check section.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-healthcheck",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "healthcheck <name>"
@@ -15583,7 +15587,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "http-check comment <string>"
@@ -15620,7 +15624,7 @@
           "description": "Add a specific http-check rule for a \"httpchk\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-http-check%20comment",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check comment <string>"
@@ -15738,7 +15742,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "http-check connect [default] [port <expr>] [addr <ip>] [send-proxy] [via-socks4] [ssl] [sni <sni>] [alpn <alpn>] [linger] [proto <name>] [comment <msg>]"
@@ -15870,7 +15874,7 @@
           "description": "Add a specific http-check rule for a \"httpchk\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-http-check%20connect",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check connect [default] [port <expr>] [addr <ip>] [send-proxy] [via-socks4] [ssl] [sni <sni>] [alpn <alpn>] [linger] [proto <name>] [comment <msg>]"
@@ -15887,7 +15891,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "http-check disable-on-404"
@@ -15918,7 +15922,7 @@
           "description": "Add a specific http-check rule for a \"httpchk\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-http-check%20disable-on-404",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check disable-on-404"
@@ -16026,7 +16030,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "http-check expect [min-recv <int>] [comment <msg>] [ok-status <st>] [error-status <st>] [tout-status <st>] [on-success <fmt>] [on-error <fmt>] [status-code <expr>] [!] <match> <pattern>"
@@ -16148,7 +16152,7 @@
           "description": "Add a specific http-check rule for a \"httpchk\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-http-check%20expect",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check expect [min-recv <int>] [comment <msg>] [ok-status <st>] [error-status <st>] [tout-status <st>] [on-success <fmt>] [on-error <fmt>] [status-code <expr>] [!] <match> <pattern>"
@@ -16246,7 +16250,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "http-check send [meth <method>] [{ uri <uri> | uri-lf <fmt> }>] [ver <version>] [hdr <name> <fmt>]* [{ body <string> | body-lf <fmt> }] [comment <msg>]"
@@ -16358,7 +16362,7 @@
           "description": "Add a specific http-check rule for a \"httpchk\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-http-check%20send",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check send [meth <method>] [{ uri <uri> | uri-lf <fmt> }>] [ver <version>] [hdr <name> <fmt>]* [{ body <string> | body-lf <fmt> }] [comment <msg>]"
@@ -16375,7 +16379,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "http-check send-state"
@@ -16406,7 +16410,7 @@
           "description": "Add a specific http-check rule for a \"httpchk\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-http-check%20send-state",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check send-state"
@@ -16439,7 +16443,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "http-check set-var(<var-name>[,<cond>...]) <expr>"
@@ -16486,7 +16490,7 @@
           "description": "Add a specific http-check rule for a \"httpchk\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-http-check%20set-var",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check set-var(<var-name>[,<cond>...]) <expr>"
@@ -16519,7 +16523,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "http-check set-var-fmt(<var-name>[,<cond>...]) <fmt>"
@@ -16566,7 +16570,7 @@
           "description": "Add a specific http-check rule for a \"httpchk\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-http-check%20set-var-fmt",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check set-var-fmt(<var-name>[,<cond>...]) <fmt>"
@@ -16583,7 +16587,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "http-check unset-var(<var-name>)"
@@ -16614,7 +16618,7 @@
           "description": "Add a specific http-check rule for a \"httpchk\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-http-check%20unset-var",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check unset-var(<var-name>)"
@@ -28364,7 +28368,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "tcp-check comment <string>"
@@ -28402,7 +28406,7 @@
           "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20comment",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check comment <string>"
@@ -28520,7 +28524,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "tcp-check connect [default] [port <expr>] [addr <ip>] [send-proxy] [via-socks4] [ssl] [sni <sni>] [alpn <alpn>] [linger] [proto <name>] [comment <msg>]"
@@ -28653,7 +28657,7 @@
           "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20connect",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check connect [default] [port <expr>] [addr <ip>] [send-proxy] [via-socks4] [ssl] [sni <sni>] [alpn <alpn>] [linger] [proto <name>] [comment <msg>]"
@@ -28751,7 +28755,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "tcp-check expect [min-recv <int>] [comment <msg>] [ok-status <st>] [error-status <st>] [tout-status <st>] [on-success <fmt>] [on-error <fmt>] [status-code <expr>] [!] <match> <pattern>"
@@ -28864,7 +28868,7 @@
           "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20expect",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check expect [min-recv <int>] [comment <msg>] [ok-status <st>] [error-status <st>] [tout-status <st>] [on-success <fmt>] [on-error <fmt>] [status-code <expr>] [!] <match> <pattern>"
@@ -28902,7 +28906,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "tcp-check send <data> [comment <msg>]"
@@ -28955,7 +28959,7 @@
           "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20send",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check send <data> [comment <msg>]"
@@ -28993,7 +28997,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "tcp-check send-binary <hexstring> [comment <msg>]"
@@ -29046,7 +29050,7 @@
           "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20send-binary",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check send-binary <hexstring> [comment <msg>]"
@@ -29084,7 +29088,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "tcp-check send-binary-lf <hexfmt> [comment <msg>]"
@@ -29137,7 +29141,7 @@
           "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20send-binary-lf",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check send-binary-lf <hexfmt> [comment <msg>]"
@@ -29175,7 +29179,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "tcp-check send-lf <fmt> [comment <msg>]"
@@ -29228,7 +29232,7 @@
           "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20send-lf",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check send-lf <fmt> [comment <msg>]"
@@ -29261,7 +29265,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "tcp-check set-var(<var-name>[,<cond>...]) <expr>"
@@ -29309,7 +29313,7 @@
           "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20set-var",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check set-var(<var-name>[,<cond>...]) <expr>"
@@ -29342,7 +29346,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "tcp-check set-var-fmt(<var-name>[,<cond>...]) <fmt>"
@@ -29390,7 +29394,7 @@
           "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20set-var-fmt",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check set-var-fmt(<var-name>[,<cond>...]) <fmt>"
@@ -29407,7 +29411,7 @@
         "defaults",
         "listen",
         "backend",
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "tcp-check unset-var(<var-name>)"
@@ -29439,7 +29443,7 @@
           "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20unset-var",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check unset-var(<var-name>)"
@@ -34715,7 +34719,7 @@
       "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-type",
       "name": "type",
       "sections": [
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "type <type>"
@@ -34728,7 +34732,7 @@
           "description": "Defines the health-check type. This parameter is mandatory. Following types of health-check are supported:",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-type",
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "type <type>"

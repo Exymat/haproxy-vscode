@@ -2,6 +2,15 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.10.0
+
+- Context-aware completion on `bind` and `server` lines — suggests line options after the address (including comma-separated bind lists) and sub-option values (e.g. `interface`, `usesrc` after `source`).
+- `bind`/`server` diagnostics and hover start after all leading addresses on multi-address `bind` lines.
+- Hover and completion for section-specific `bind` variants in `peers` and `log-forward` sections.
+- `healthcheck` recognized as its own section; healthcheck directives no longer treated as belonging to `program`.
+- `bind` supports Unix socket path forms (`bind /<path>`) in schemas and documentation.
+- Updated keyword data for 3.4 (healthcheck section, bind signatures).
+
 ## 0.9.0
 
 - Richer hover for `bind` and `server` line options — all documented forms, nested sub-options (e.g. `interface` under `source`), and ASCII tables rendered as readable markdown tables.

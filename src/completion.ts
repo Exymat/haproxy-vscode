@@ -12,6 +12,12 @@ import {
   groupItems,
   keywordsForSection,
 } from "./documentContext";
+import { findStatementRule } from "./statementLayout";
+import {
+  resolveLineOptionSchemaKeyword,
+  resolveLineOptionStartIndex,
+  resolveNestedLineOptionSpan,
+} from "./hover/lineOptions";
 import { HaproxyLanguageData } from "./languageData";
 import { resolveLanguageKeyword } from "./keywordVariant";
 import { HaproxySchema, modifierPrefixSet } from "./schema";
@@ -191,6 +197,63 @@ export function provideCompletionItems(
       item.detail = kw?.name ?? "argument";
       if (value?.description) {
         item.documentation = markdownDoc(value.description, kw?.docsUrl);
+      }
+      return item;
+    });
+  }
+
+  if (ctx.kind === "bind" || ctx.kind === "server") {
+    const lineOptionGroup = ctx.kind === "bind" ? "bind_options" : "server_options";
+    const lineOptionRule = findStatementRule(schema, ctx.line);
+    const lineOptionStart = resolveLineOptionStartIndex(ctx.line, lineOptionRule);
+    if (lineOptionStart < 0 || ctx.tokenIndex < lineOptionStart) {
+      return [];
+    }
+
+    const active = resolveNestedLineOptionSpan(schema, ctx, lineOptionGroup, lineOptionStart);
+    if (active && ctx.tokenIndex > active.optionIndex) {
+      const schemaKw = resolveLineOptionSchemaKeyword(
+        schema,
+        active.keyword,
+        ctx.kind,
+        ctx.line.section,
+      );
+      const langKw = resolveLanguageKeyword(data.keywords[active.keyword], ctx.line.section);
+      const pos = argumentPosition(ctx.tokenIndex, active.optionIndex);
+      const values = completionValuesForPosition(
+        schemaKw,
+        langKw,
+        pos,
+        ctx.line,
+        active.optionIndex,
+        active.keyword,
+      );
+      const valuesByName = new Map(values.map((v) => [v.name, v]));
+      return filterByPrefix(
+        values.map((v) => v.name),
+        partial,
+      ).map((name) => {
+        const value = valuesByName.get(name);
+        const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Value);
+        item.detail = active.keyword;
+        if (value?.description) {
+          item.documentation = markdownDoc(value.description);
+        }
+        return item;
+      });
+    }
+
+    const optionItems = groupItems(data, lineOptionGroup);
+    const optionsByName = new Map(optionItems.map((g) => [g.name, g]));
+    return filterByPrefix(
+      optionItems.map((g) => g.name),
+      partial,
+    ).map((name) => {
+      const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Value);
+      const group = optionsByName.get(name);
+      item.detail = ctx.kind;
+      if (group?.description) {
+        item.documentation = markdownDoc(group.description, group.docsUrl);
       }
       return item;
     });

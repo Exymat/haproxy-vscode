@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 
 import { DiagnosticContext } from "./diagnosticContext";
 import { diagRange, diagRangeForTokens, makeDiagnostic } from "./diagnosticUtils";
+import { resolveLineOptionStartIndex } from "./hover/lineOptions";
 import { ParsedLine } from "./parser";
 import {
   conditionalTokenSet,
@@ -180,7 +181,7 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
 
   if (t0 === "bind" || t0 === "server" || t0 === "default-server") {
     const groupName = rule?.group;
-    const start = rule?.nested_start_index ?? -1;
+    const start = resolveLineOptionStartIndex(line, rule);
     if (groupName && start >= 0) {
       const groupContexts = ctx.schema.keyword_group_contexts?.[groupName] ?? {};
       const allowedGroup = new Set(

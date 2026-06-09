@@ -4108,7 +4108,7 @@
         "slots": [
           {
             "enum": [],
-            "optional": true,
+            "optional": false,
             "value_kind": "address",
             "variadic": false
           },
@@ -4160,6 +4160,8 @@
         "peers"
       ],
       "signatures": [
+        "bind /<path> [, ...] [param*]",
+        "bind /<path> [param*]",
         "bind <addr> [param*]",
         "bind [<address>]:<port_range> [, ...] [param*]",
         "bind [<address>]:port [param*]"
@@ -4176,7 +4178,7 @@
             "slots": [
               {
                 "enum": [],
-                "optional": true,
+                "optional": false,
                 "value_kind": "address",
                 "variadic": false
               },
@@ -4186,7 +4188,7 @@
                 ],
                 "optional": false,
                 "value_kind": "enum",
-                "variadic": false
+                "variadic": true
               },
               {
                 "enum": [],
@@ -4203,6 +4205,7 @@
             "peers"
           ],
           "signatures": [
+            "bind /<path> [param*]",
             "bind [<address>]:port [param*]"
           ]
         },
@@ -4242,7 +4245,7 @@
             "slots": [
               {
                 "enum": [],
-                "optional": true,
+                "optional": false,
                 "value_kind": "address",
                 "variadic": false
               },
@@ -4292,6 +4295,7 @@
             "listen"
           ],
           "signatures": [
+            "bind /<path> [, ...] [param*]",
             "bind [<address>]:<port_range> [, ...] [param*]"
           ]
         }
@@ -14201,7 +14205,7 @@
       "contexts": [],
       "name": "healthcheck",
       "sections": [
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "healthcheck <name>"
@@ -14227,7 +14231,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "healthcheck <name>"
@@ -14438,8 +14442,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "http-check comment <string>"
@@ -14465,7 +14469,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check comment <string>"
@@ -14754,8 +14758,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "http-check connect [default] [port <expr>] [addr <ip>] [send-proxy] [via-socks4] [ssl] [sni <sni>] [alpn <alpn>] [linger] [proto <name>] [comment <msg>]"
@@ -14899,7 +14903,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check connect [default] [port <expr>] [addr <ip>] [send-proxy] [via-socks4] [ssl] [sni <sni>] [alpn <alpn>] [linger] [proto <name>] [comment <msg>]"
@@ -15175,8 +15179,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "http-check disable-on-404"
@@ -15195,7 +15199,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check disable-on-404"
@@ -15467,8 +15471,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "http-check expect [min-recv <int>] [comment <msg>] [ok-status <st>] [error-status <st>] [tout-status <st>] [on-success <fmt>] [on-error <fmt>] [status-code <expr>] [!] <match> <pattern>"
@@ -15620,7 +15624,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check expect [min-recv <int>] [comment <msg>] [ok-status <st>] [error-status <st>] [tout-status <st>] [on-success <fmt>] [on-error <fmt>] [status-code <expr>] [!] <match> <pattern>"
@@ -16078,8 +16082,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "http-check send [meth <method>] [{ uri <uri> | uri-lf <fmt> }>] [ver <version>] [hdr <name> <fmt>]* [{ body <string> | body-lf <fmt> }] [comment <msg>]"
@@ -16199,7 +16203,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check send [meth <method>] [{ uri <uri> | uri-lf <fmt> }>] [ver <version>] [hdr <name> <fmt>]* [{ body <string> | body-lf <fmt> }] [comment <msg>]"
@@ -16429,8 +16433,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "http-check send-state"
@@ -16449,7 +16453,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check send-state"
@@ -16528,8 +16532,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "http-check set-var(<var-name>[,<cond>...]) <expr>"
@@ -16567,7 +16571,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check set-var(<var-name>[,<cond>...]) <expr>"
@@ -16681,8 +16685,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "http-check set-var-fmt(<var-name>[,<cond>...]) <fmt>"
@@ -16720,7 +16724,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check set-var-fmt(<var-name>[,<cond>...]) <fmt>"
@@ -16806,8 +16810,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "http-check unset-var(<var-name>)"
@@ -16833,7 +16837,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "http-check unset-var(<var-name>)"
@@ -42090,8 +42094,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "tcp-check comment <string>"
@@ -42117,7 +42121,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check comment <string>"
@@ -42408,8 +42412,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "tcp-check connect [default] [port <expr>] [addr <ip>] [send-proxy] [via-socks4] [ssl] [sni <sni>] [alpn <alpn>] [linger] [proto <name>] [comment <msg>]"
@@ -42553,7 +42557,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check connect [default] [port <expr>] [addr <ip>] [send-proxy] [via-socks4] [ssl] [sni <sni>] [alpn <alpn>] [linger] [proto <name>] [comment <msg>]"
@@ -43049,8 +43053,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "tcp-check expect [min-recv <int>] [comment <msg>] [ok-status <st>] [error-status <st>] [tout-status <st>] [on-success <fmt>] [on-error <fmt>] [status-code <expr>] [!] <match> <pattern>"
@@ -43202,7 +43206,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check expect [min-recv <int>] [comment <msg>] [ok-status <st>] [error-status <st>] [tout-status <st>] [on-success <fmt>] [on-error <fmt>] [status-code <expr>] [!] <match> <pattern>"
@@ -43508,8 +43512,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "tcp-check send <data> [comment <msg>]"
@@ -43549,7 +43553,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check send <data> [comment <msg>]"
@@ -43679,8 +43683,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "tcp-check send-binary <hexstring> [comment <msg>]"
@@ -43720,7 +43724,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check send-binary <hexstring> [comment <msg>]"
@@ -43850,8 +43854,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "tcp-check send-binary-lf <hexfmt> [comment <msg>]"
@@ -43891,7 +43895,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check send-binary-lf <hexfmt> [comment <msg>]"
@@ -44021,8 +44025,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "tcp-check send-lf <fmt> [comment <msg>]"
@@ -44062,7 +44066,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check send-lf <fmt> [comment <msg>]"
@@ -44185,8 +44189,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "tcp-check set-var(<var-name>[,<cond>...]) <expr>"
@@ -44224,7 +44228,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check set-var(<var-name>[,<cond>...]) <expr>"
@@ -44340,8 +44344,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "tcp-check set-var-fmt(<var-name>[,<cond>...]) <fmt>"
@@ -44379,7 +44383,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check set-var-fmt(<var-name>[,<cond>...]) <fmt>"
@@ -44467,8 +44471,8 @@
       "sections": [
         "backend",
         "defaults",
-        "listen",
-        "program"
+        "healthcheck",
+        "listen"
       ],
       "signatures": [
         "tcp-check unset-var(<var-name>)"
@@ -44494,7 +44498,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "tcp-check unset-var(<var-name>)"
@@ -55007,7 +55011,7 @@
       "contexts": [],
       "name": "type",
       "sections": [
-        "program"
+        "healthcheck"
       ],
       "signatures": [
         "type <type>"
@@ -55033,7 +55037,7 @@
           "chapter": "12.9",
           "contexts": [],
           "sections": [
-            "program"
+            "healthcheck"
           ],
           "signatures": [
             "type <type>"
@@ -81311,6 +81315,32 @@
       ],
       "name": "global"
     },
+    "healthcheck": {
+      "keywords": [
+        "healthcheck",
+        "http-check comment",
+        "http-check connect",
+        "http-check disable-on-404",
+        "http-check expect",
+        "http-check send",
+        "http-check send-state",
+        "http-check set-var",
+        "http-check set-var-fmt",
+        "http-check unset-var",
+        "tcp-check comment",
+        "tcp-check connect",
+        "tcp-check expect",
+        "tcp-check send",
+        "tcp-check send-binary",
+        "tcp-check send-binary-lf",
+        "tcp-check send-lf",
+        "tcp-check set-var",
+        "tcp-check set-var-fmt",
+        "tcp-check unset-var",
+        "type"
+      ],
+      "name": "healthcheck"
+    },
     "http-errors": {
       "keywords": [
         "errorfile",
@@ -81632,32 +81662,6 @@
       ],
       "name": "peers"
     },
-    "program": {
-      "keywords": [
-        "healthcheck",
-        "http-check comment",
-        "http-check connect",
-        "http-check disable-on-404",
-        "http-check expect",
-        "http-check send",
-        "http-check send-state",
-        "http-check set-var",
-        "http-check set-var-fmt",
-        "http-check unset-var",
-        "tcp-check comment",
-        "tcp-check connect",
-        "tcp-check expect",
-        "tcp-check send",
-        "tcp-check send-binary",
-        "tcp-check send-binary-lf",
-        "tcp-check send-lf",
-        "tcp-check set-var",
-        "tcp-check set-var-fmt",
-        "tcp-check unset-var",
-        "type"
-      ],
-      "name": "program"
-    },
     "resolvers": {
       "keywords": [
         "accepted_payload_size",
@@ -81722,7 +81726,7 @@
       "fixed_slots": [
         {
           "address_policy": "bind",
-          "port": "optional",
+          "port": "forbidden",
           "role": "address"
         }
       ],

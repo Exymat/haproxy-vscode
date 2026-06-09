@@ -11,6 +11,7 @@ import {
 } from "./addressFormat";
 import { conditionalStartIndex } from "./directiveUtils";
 import { diagRange, DIAG_SOURCE } from "./diagnosticUtils";
+import { resolveLineOptionStartIndex } from "./hover/lineOptions";
 import { ParsedLine } from "./parser";
 import { FixedSlotSpec, HaproxySchema, optionsWithValueSet, StatementRule } from "./schema";
 import { ResolvedSchemaKeyword, resolveSchemaKeyword } from "./keywordVariant";
@@ -79,9 +80,9 @@ function policyForSlot(rule: StatementRule, spec: FixedSlotSpec, token: string):
 function validateFixedSlots(line: ParsedLine, rule: StatementRule): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   const slots = rule.fixed_slots ?? [];
-  const nestedStart = rule.nested_start_index ?? 1 + slots.length;
+  const nestedStart = resolveLineOptionStartIndex(line, rule);
   const condStart = conditionalStartIndex(line, 0);
-  const limit = Math.min(condStart, nestedStart);
+  const limit = Math.min(condStart, nestedStart >= 0 ? nestedStart : 1 + slots.length);
 
   for (let slotIdx = 0; slotIdx < slots.length; slotIdx += 1) {
     const tokenIdx = 1 + slotIdx;
@@ -366,7 +367,7 @@ function scanNestedOptions(
   schema: HaproxySchema,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
-  const nestedStart = rule.nested_start_index ?? line.tokens.length;
+  const nestedStart = resolveLineOptionStartIndex(line, rule);
   const groupName = rule.group;
   if (!groupName) {
     return diagnostics;
@@ -382,7 +383,7 @@ function scanNestedOptions(
   }
 
   const condStart = conditionalStartIndex(line, 0);
-  let i = nestedStart;
+  let i = nestedStart >= 0 ? nestedStart : line.tokens.length;
 
   while (i < condStart) {
     const raw = line.tokens[i].text;
