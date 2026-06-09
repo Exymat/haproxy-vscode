@@ -1,6 +1,23 @@
 import * as vscode from "vscode";
 
-import { formatHoverText } from "./formatHoverText";
+import { formatHoverBlocks } from "./formatHoverText";
+
+function appendFormattedBlock(md: vscode.MarkdownString, text: string): void {
+  md.appendMarkdown(`\n\n${text}`);
+}
+
+function appendFormattedText(md: vscode.MarkdownString, text: string): void {
+  if (!text) {
+    return;
+  }
+  if (text.includes("```")) {
+    appendFormattedBlock(md, text);
+    return;
+  }
+  for (const block of formatHoverBlocks(text)) {
+    appendFormattedBlock(md, block);
+  }
+}
 
 export function hoverMarkdown(
   title: string,
@@ -14,11 +31,9 @@ export function hoverMarkdown(
   if (signature) {
     md.appendMarkdown(`\n\n\`${signature}\``);
   }
-  if (description) {
-    md.appendMarkdown(`\n\n${formatHoverText(description)}`);
-  }
+  appendFormattedText(md, description);
   for (const line of extras) {
-    md.appendMarkdown(`\n\n${formatHoverText(line)}`);
+    appendFormattedText(md, line);
   }
   if (docsUrl) {
     md.appendMarkdown(`\n\n[HAProxy documentation](${docsUrl})`);
@@ -27,7 +42,7 @@ export function hoverMarkdown(
 }
 
 export function signaturesBlock(signatures: string[]): string {
-  return signatures.map((sig) => `- \`${sig}\``).join("\n");
+  return ["```haproxy", ...signatures, "```"].join("\n");
 }
 
 export function escapeMarkdownText(value: string): string {

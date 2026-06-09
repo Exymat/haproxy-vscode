@@ -51,7 +51,8 @@ export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
     );
   }
   if (signatures.length > 1) {
-    extras.unshift(`**Forms:**\n${signaturesBlock(signatures)}`);
+    extras.unshift(signaturesBlock(signatures));
+    extras.unshift("**Forms:**");
     return new vscode.Hover(
       hoverMarkdown(group.name, "", group.description, extras, group.docsUrl),
       range,

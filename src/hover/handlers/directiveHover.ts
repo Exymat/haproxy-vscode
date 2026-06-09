@@ -39,7 +39,7 @@ export function tryDirectiveHover(hc: HoverContext): vscode.Hover | null {
       const extras: string[] = [];
       const forms = matchingArgumentValueNames(kw?.arguments, ctx.token.text);
       if (forms.length > 1) {
-        extras.push(`**Forms:**\n${signaturesBlock(forms)}`);
+        extras.push("**Forms:**", signaturesBlock(forms));
       }
       if (kw) {
         extras.push(`**Directive:** ${escapeMarkdownText(kw.name)}`);
@@ -85,7 +85,8 @@ export function tryDirectiveHover(hc: HoverContext): vscode.Hover | null {
       extras.push(`**Values:** ${documentedValues.join(", ")}`);
     }
     if (kw.signatures.length > 1) {
-      extras.unshift(`**Forms:**\n${signaturesBlock(kw.signatures)}`);
+      extras.unshift(signaturesBlock(kw.signatures));
+      extras.unshift("**Forms:**");
       return new vscode.Hover(
         hoverMarkdown(kw.name, "", kw.description, extras, kw.docsUrl),
         range,

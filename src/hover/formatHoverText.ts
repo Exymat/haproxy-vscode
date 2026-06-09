@@ -161,7 +161,7 @@ function parseAsciiTableBlock(lines: string[]): string | null {
   return md.join("\n");
 }
 
-export function formatHoverText(text: string): string {
+export function formatHoverBlocks(text: string): string[] {
   const lines = text.split("\n");
   const out: string[] = [];
   let idx = 0;
@@ -194,5 +194,9 @@ export function formatHoverText(text: string): string {
     idx = end;
   }
 
-  return out.join("\n");
+  return out;
+}
+
+export function formatHoverText(text: string): string {
+  return formatHoverBlocks(text).join("\n");
 }

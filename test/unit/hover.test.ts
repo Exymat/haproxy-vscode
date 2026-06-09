@@ -87,6 +87,8 @@ describe("provideHover", () => {
       "3.4",
     );
     expect(text).toContain("**Forms:**");
+    expect(text).toContain("```haproxy");
+    expect(text).toContain("```\n\n**Valid in modes:**");
     expect(text).toContain("usesrc");
     expect(text).toContain("interface");
     expect(text).toContain('Additionally, the "source" statement on a server line allows');
@@ -122,6 +124,22 @@ describe("provideHover", () => {
     expect(formatted).toContain("| Server state | Interval used |");
     expect(formatted).toContain("| --- | --- |");
     expect(formatted).toContain('| UP 100% (non-transitional) | "inter" |');
+  });
+
+  it("keeps blank-line paragraph splits in hover documentation", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    bind :443 ssl alpn h2",
+      1,
+      "    bind :443 ssl alpn h2".indexOf("alpn"),
+      "3.4",
+    );
+    expect(text).toContain(
+      "For example it is possible to only accept HTTP/2 connections with this:",
+    );
+    expect(text).toContain("QUIC supports only h3 and hq-interop as ALPN.");
+    expect(text).toContain("connections with this:\n\n\n\nbind :443 ssl crt pub.pem alpn h2");
+    expect(text).toContain("disable HTTP/1.1\n\n\n\nQUIC supports only h3");
+    expect(text).toContain("[HAProxy documentation](");
   });
 
   it("merges wrapped dconv table rows with line breaks", () => {
@@ -802,6 +820,7 @@ describe("provideHover", () => {
     }
     const text = hoverText(hover);
     expect(text).toContain("**Forms:**");
+    expect(text).toContain("```haproxy");
     expect(text).toContain("multi-sig <a>");
     expect(text).toContain("multi-sig <b>");
   });
