@@ -228,7 +228,7 @@ describe("coverage line gaps", () => {
 
     const aclParsed = parseDocument(
       createDocument(
-        "frontend web\n    acl is_api path -m beg /api\n    http-request deny if ! is_api",
+        "frontend web\n    acl is_api path -m beg /api\n    http-request deny if !is_api",
       ),
     );
     const aclIndex = buildSymbolIndex(aclParsed, bundle.schema);

@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.8.4
+
+- **Go to Definition** and **Find All References** for ACL names in compound `if`/`unless` conditions — supports `&&`, `||`, and negation (`!acl_name`).
+
 ## 0.8.3
 
 - Section-aware documentation for keywords that differ by context (`bind`, `log`, `server`, `description`, and many others) — hover, completion, and argument checks now match the current section instead of merging every manual chapter into one entry.

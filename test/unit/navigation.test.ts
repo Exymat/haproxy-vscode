@@ -116,12 +116,12 @@ describe("navigation", () => {
     );
   });
 
-  it("acl negated if reference spaced", () => {
+  it("acl negated if reference", () => {
     runCase(
-      "frontend web\n    acl is_api path -m beg /api\n    http-request deny if ! is_api",
+      "frontend web\n    acl is_api path -m beg /api\n    http-request deny if !is_api",
       ({ doc, index }) => {
         assertRefCount(index, "acl", "is_api", "frontend:web", 2);
-        const ifCol = "    http-request deny if ! is_api".indexOf("is_api");
+        const ifCol = "    http-request deny if !is_api".indexOf("is_api");
         assertResolve(doc, pos(2, ifCol), {
           kind: "acl",
           name: "is_api",
@@ -131,15 +131,46 @@ describe("navigation", () => {
     );
   });
 
-  it("acl negated if reference compact", () => {
+  it("acl && compound if reference", () => {
     runCase(
-      "frontend web\n    acl is_api path -m beg /api\n    http-request deny if !is_api",
+      "frontend web\n    acl is_api path -m beg /api\n    acl is_admin path -m beg /admin\n    http-request deny if is_api && is_admin",
       ({ doc, index }) => {
         assertRefCount(index, "acl", "is_api", "frontend:web", 2);
-        const ifCol = "    http-request deny if !is_api".indexOf("is_api");
-        assertResolve(doc, pos(2, ifCol), {
+        assertRefCount(index, "acl", "is_admin", "frontend:web", 2);
+        const adminCol = "    http-request deny if is_api && is_admin".lastIndexOf("is_admin");
+        assertResolve(doc, pos(3, adminCol), {
           kind: "acl",
-          name: "is_api",
+          name: "is_admin",
+          scopeKey: "frontend:web",
+        });
+      },
+    );
+  });
+
+  it("acl || compound if reference", () => {
+    runCase(
+      "frontend web\n    acl is_api path -m beg /api\n    acl is_admin path -m beg /admin\n    http-request deny if is_api || is_admin",
+      ({ doc, index }) => {
+        assertRefCount(index, "acl", "is_admin", "frontend:web", 2);
+        const adminCol = "    http-request deny if is_api || is_admin".lastIndexOf("is_admin");
+        assertResolve(doc, pos(3, adminCol), {
+          kind: "acl",
+          name: "is_admin",
+          scopeKey: "frontend:web",
+        });
+      },
+    );
+  });
+
+  it("acl compound if reference with negation", () => {
+    runCase(
+      "frontend web\n    acl is_api path -m beg /api\n    acl is_admin path -m beg /admin\n    http-request deny if is_api && !is_admin",
+      ({ doc, index }) => {
+        assertRefCount(index, "acl", "is_admin", "frontend:web", 2);
+        const adminCol = "    http-request deny if is_api && !is_admin".lastIndexOf("is_admin");
+        assertResolve(doc, pos(3, adminCol), {
+          kind: "acl",
+          name: "is_admin",
           scopeKey: "frontend:web",
         });
       },

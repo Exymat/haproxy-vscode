@@ -115,6 +115,16 @@ function proxyScopeKey(sectionType: string, sectionName: string): string {
   return `${sectionType}:${sectionName}`;
 }
 
+const ACL_CONDITION_OPS = new Set(["&&", "||"]);
+
+function aclConditionIntroducer(text: string | undefined): boolean {
+  if (!text) {
+    return false;
+  }
+  const lower = text.toLowerCase();
+  return lower === "if" || lower === "unless" || ACL_CONDITION_OPS.has(text);
+}
+
 function aclReferenceAt(
   line: ParsedLine,
   tokenIndex: number,
@@ -125,17 +135,21 @@ function aclReferenceAt(
     return null;
   }
 
-  const prev = tokens[tokenIndex - 1]?.text.toLowerCase();
-  const prev2 = tokens[tokenIndex - 2]?.text.toLowerCase();
+  if (
+    token.text === "{" ||
+    token.text === "}" ||
+    token.text === "!" ||
+    ACL_CONDITION_OPS.has(token.text)
+  ) {
+    return null;
+  }
 
-  if ((prev === "if" || prev === "unless") && token.text !== "{" && token.text !== "!") {
+  const prev = tokens[tokenIndex - 1]?.text;
+
+  if (aclConditionIntroducer(prev)) {
     if (token.text.startsWith("!") && token.text.length > 1) {
       return { name: token.text.slice(1), tokenIndex };
     }
-    return { name: token.text, tokenIndex };
-  }
-
-  if (prev === "!" && (prev2 === "if" || prev2 === "unless") && token.text !== "{") {
     return { name: token.text, tokenIndex };
   }
 
