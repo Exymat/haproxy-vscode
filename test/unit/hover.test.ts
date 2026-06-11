@@ -313,6 +313,29 @@ describe("provideHover", () => {
       "3.4",
     );
     expect(text.toLowerCase()).toContain("deny");
+    expect(text).toContain("immediately rejects");
+  });
+
+  it("documents http-request actions with shared multi-signature blocks", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    http-request track-sc1 src",
+      1,
+      "    http-request track-sc1 src".indexOf("track-sc1"),
+      "3.4",
+    );
+    expect(text).toContain("track-sc1");
+    expect(text).toContain("sticky counters");
+  });
+
+  it("documents http-request actions with four-space-indented descriptions", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    http-request set-path /api",
+      1,
+      "    http-request set-path /api".indexOf("set-path"),
+      "3.4",
+    );
+    expect(text).toContain("set-path");
+    expect(text).toContain("rewrites the request path");
   });
 
   it("documents conditional directives at line start", () => {
@@ -1418,6 +1441,7 @@ describe("provideHover", () => {
       }
       const denyText = hoverText(denyHover);
       expect(denyText.toLowerCase()).toContain("deny");
+      expect(denyText).toContain("immediately rejects");
       expect(denyText).toContain("**Rulesets:** http-request, http-response");
 
       const closeHover = tryActionHover(actionHoverContext("close"));

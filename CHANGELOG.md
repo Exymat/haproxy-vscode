@@ -2,6 +2,14 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.10.1
+
+- Richer hover for `http-request`, `http-response`, and `tcp-request` actions — fills in previously missing or truncated manual text (e.g. `set-path`, `track-sc1`, `deny`, `sc-inc-gpc1`, `set-var-fmt`, `wait-for-body`).
+- `balance` hover documents all load-balancing algorithms and their options (roundrobin, leastconn, hash, uri, url_param, random, etc.).
+- `http-request normalize-uri` sub-variants (`fragment-strip`, `path-strip-dotdot`, etc.) recognized in diagnostics, hover, and syntax highlighting.
+- `track-sc1`/`track-sc2` and `expect-netscaler-cip` rule actions added to schema validation and syntax highlighting.
+- Refreshed keyword data for all supported versions (2.6–3.4) — restores truncated descriptions for directives such as `compression`, `accepted_payload_size`, and `bind`.
+
 ## 0.10.0
 
 - Context-aware completion on `bind` and `server` lines — suggests line options after the address (including comma-separated bind lists) and sub-option values (e.g. `interface`, `usesrc` after `source`).

@@ -1598,11 +1598,16 @@
         "signature": "sc-inc-gpc0(<sc-id>)"
       },
       {
-        "description": "",
+        "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-sc-inc-gpc1",
         "name": "sc-inc-gpc1",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "sc-inc-gpc1(<sc-id>)"
       },
       {
         "description": "This action sets the 32-bit unsigned GPT at the index <idx> of the array associated to the sticky counter designated by <sc-id> at the value of <int>/<expr>. The expected result is a boolean.\n\nIf an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPT stored at this index.\n\nThis action applies only to the 'gpt' array data_type (and not to the legacy 'gpt0' data-type).",
@@ -1684,11 +1689,16 @@
         "signature": "set-var(<var-name>[,<cond>...]) <expr>"
       },
       {
-        "description": "",
+        "description": "This is used to set the contents of a variable. The variable is declared inline.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-set-var-fmt",
         "name": "set-var-fmt",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "set-var-fmt(<var-name>[,<cond>...]) <fmt>"
       },
       {
         "description": "This enables or disables the strict rewriting mode for following rules. It does not affect rules declared before it and it is only applicable on rules performing a rewrite on the requests. When the strict mode is enabled, any rewrite failure triggers an internal error. Otherwise, such errors are silently ignored. The purpose of the strict rewriting mode is to make some rewrites optional while others must be performed to continue the request processing.\n\nBy default, the strict rewriting mode is enabled. Its value is also reset when a ruleset evaluation ends. So, for instance, if you change the mode on the frontend, the default mode is restored when HAProxy starts the backend rules evaluation.",
@@ -1855,13 +1865,85 @@
         "signature": "early-hint <name> <fmt>"
       },
       {
-        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".",
+        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".\n\nThe \"fragment-strip\" normalizer should be preferred, unless it is known that broken clients do not correctly encode '#' within the path component.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-normalize-uri",
         "name": "normalize-uri",
         "rulesets": [
           "http-request"
         ],
         "signature": "normalize-uri <normalizer>"
+      },
+      {
+        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".\n\nThe \"fragment-strip\" normalizer should be preferred, unless it is known that broken clients do not correctly encode '#' within the path component.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-normalize-uri%20fragment-encode",
+        "name": "normalize-uri fragment-encode",
+        "rulesets": [
+          "http-request"
+        ],
+        "signature": "normalize-uri fragment-encode"
+      },
+      {
+        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".\n\nThe \"fragment-strip\" normalizer should be preferred, unless it is known that broken clients do not correctly encode '#' within the path component.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-normalize-uri%20fragment-strip",
+        "name": "normalize-uri fragment-strip",
+        "rulesets": [
+          "http-request"
+        ],
+        "signature": "normalize-uri fragment-strip"
+      },
+      {
+        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".\n\nThe \"fragment-strip\" normalizer should be preferred, unless it is known that broken clients do not correctly encode '#' within the path component.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-normalize-uri%20path-merge-slashes",
+        "name": "normalize-uri path-merge-slashes",
+        "rulesets": [
+          "http-request"
+        ],
+        "signature": "normalize-uri path-merge-slashes"
+      },
+      {
+        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".\n\nThe \"fragment-strip\" normalizer should be preferred, unless it is known that broken clients do not correctly encode '#' within the path component.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-normalize-uri%20path-strip-dot",
+        "name": "normalize-uri path-strip-dot",
+        "rulesets": [
+          "http-request"
+        ],
+        "signature": "normalize-uri path-strip-dot"
+      },
+      {
+        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".\n\nThe \"fragment-strip\" normalizer should be preferred, unless it is known that broken clients do not correctly encode '#' within the path component.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-normalize-uri%20path-strip-dotdot",
+        "name": "normalize-uri path-strip-dotdot",
+        "rulesets": [
+          "http-request"
+        ],
+        "signature": "normalize-uri path-strip-dotdot [ full ]"
+      },
+      {
+        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".\n\nThe \"fragment-strip\" normalizer should be preferred, unless it is known that broken clients do not correctly encode '#' within the path component.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-normalize-uri%20percent-decode-unreserved",
+        "name": "normalize-uri percent-decode-unreserved",
+        "rulesets": [
+          "http-request"
+        ],
+        "signature": "normalize-uri percent-decode-unreserved [ strict ]"
+      },
+      {
+        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".\n\nThe \"fragment-strip\" normalizer should be preferred, unless it is known that broken clients do not correctly encode '#' within the path component.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-normalize-uri%20percent-to-uppercase",
+        "name": "normalize-uri percent-to-uppercase",
+        "rulesets": [
+          "http-request"
+        ],
+        "signature": "normalize-uri percent-to-uppercase [ strict ]"
+      },
+      {
+        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".\n\nThe \"fragment-strip\" normalizer should be preferred, unless it is known that broken clients do not correctly encode '#' within the path component.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-normalize-uri%20query-sort-by-name",
+        "name": "normalize-uri query-sort-by-name",
+        "rulesets": [
+          "http-request"
+        ],
+        "signature": "normalize-uri query-sort-by-name"
       },
       {
         "description": "",
@@ -1940,7 +2022,7 @@
         "signature": "replace-value <name> <match-regex> <replace-fmt>"
       },
       {
-        "description": "This stops the evaluation of the rules and immediately returns a response. The default status code used for the response is 200. It can be optionally specified as an arguments to \"status\". The response content-type may also be specified as an argument to \"content-type\". Finally the response itself may be defined. It can be a full HTTP response specifying the errorfile to use, or the response payload specifying the file or the string to use. These rules are followed to create the response :\n\n* If neither the errorfile nor the payload to use is defined, a dummy",
+        "description": "This stops the evaluation of the rules and immediately returns a response. The default status code used for the response is 200. It can be optionally specified as an arguments to \"status\". The response content-type may also be specified as an argument to \"content-type\". Finally the response itself may be defined. It can be a full HTTP response specifying the errorfile to use, or the response payload specifying the file or the string to use. These rules are followed to create the response :\n\n* If neither the errorfile nor the payload to use is defined, a dummy response is returned. Only the \"status\" argument is considered. It can be any code in the range [200, 599]. The \"content-type\" argument, if any, is ignored.\n\n* If \"default-errorfiles\" argument is set, the proxy's errorfiles are considered.  If the \"status\" argument is defined, it must be one of the status code handled by HAProxy (200, 400, 403, 404, 405, 408, 410, 413, 425, 429, 500, 501, 502, 503, and 504). The \"content-type\" argument, if any, is ignored.\n\n* If a specific errorfile is defined, with an \"errorfile\" argument, the corresponding file, containing a full HTTP response, is returned. Only the \"status\" argument is considered. It must be one of the status code handled by HAProxy (200, 400, 403, 404, 405, 408, 410, 413, 425, 429, 500, 501, 502, 503, and 504). The \"content-type\" argument, if any, is ignored.\n\n* If an http-errors section is defined, with an \"errorfiles\" argument, the corresponding file in the specified http-errors section, containing a full HTTP response, is returned. Only the \"status\" argument is considered. It must be one of the status code handled by HAProxy (200, 400, 403, 404, 405, 408, 410, 413, 425, 429, 500, 501, 502, 503, and 504). The \"content-type\" argument, if any, is ignored.\n\n* If a \"file\" or a \"lf-file\" argument is specified, the file's content is used as the response payload. If the file is not empty, its content-type must be set as argument to \"content-type\". Otherwise, any \"content-type\" argument is ignored. With a \"lf-file\" argument, the file's content is evaluated as a Custom log format (see section 8.2.6). With a \"file\" argument, it is considered as a raw content.\n\n* If a \"string\" or \"lf-string\" argument is specified, the defined string is used as the response payload. The content-type must always be set as argument to \"content-type\". With a \"lf-string\" argument, the string is evaluated as a Custom log format (see section 8.2.6). With a \"string\" argument, it is considered as a raw string.\n\nWhen the response is not based on an errorfile, it is possible to append HTTP header fields to the response using \"hdr\" arguments. Otherwise, all \"hdr\" arguments are ignored. For each one, the header name is specified in <name> and its value is defined by <fmt> which follows the Custom log format rules described in section 8.2.6.\n\nNote that the generated response must be smaller than a buffer. And to avoid any warning, when an errorfile or a raw file is loaded, the buffer space reserved for the headers rewriting should also be free.\n\nThis action is final, i.e. no further rules from the same rule set are evaluated for the current section.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-return",
         "name": "return",
         "rulesets": [
@@ -1986,11 +2068,16 @@
         "signature": "sc-inc-gpc0(<sc-id>)"
       },
       {
-        "description": "",
+        "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-sc-inc-gpc1",
         "name": "sc-inc-gpc1",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "sc-inc-gpc1(<sc-id>)"
       },
       {
         "description": "This action sets the 32-bit unsigned GPT at the index <idx> of the array associated to the sticky counter designated by <sc-id> at the value of <int>/<expr>. The expected result is a boolean.\n\nIf an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPT stored at this index.\n\nThis action applies only to the 'gpt' array data_type (and not to the legacy 'gpt0' data-type).",
@@ -2156,7 +2243,7 @@
         "signature": "set-nice <nice>"
       },
       {
-        "description": "",
+        "description": "This rewrites the request path with the result of the evaluation of format string <fmt>. The query string, if any, is left intact. If a scheme and authority is found before the path, they are left intact as well. If the request doesn't have a path (\"*\"), this one is replaced with the format. This can be used to prepend a directory component in front of a path for example. See also \"http-request set-query\" and \"http-request set-uri\".",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-set-path",
         "name": "set-path",
         "rulesets": [
@@ -2269,11 +2356,16 @@
         "signature": "set-var(<var-name>[,<cond>...]) <expr>"
       },
       {
-        "description": "",
+        "description": "This is used to set the contents of a variable. The variable is declared inline.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-set-var-fmt",
         "name": "set-var-fmt",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "set-var-fmt(<var-name>[,<cond>...]) <fmt>"
       },
       {
         "description": "This stops the evaluation of the rules and makes the client-facing connection suddenly disappear using a system-dependent way that tries to prevent the client from being notified. When called without the rst-ttl argument, we try to prevent sending any FIN or RST packet back to the client by using TCP_REPAIR. If this fails (mainly because of missing privileges), we fall back to sending a RST packet with a TTL of 1.\n\nThe effect is that the client still sees an established connection while there is none on HAProxy, saving resources. However, stateful equipment placed between the HAProxy and the client (firewalls, proxies, load balancers) will also keep the established connection in their session tables.\n\nThe optional rst-ttl changes this behaviour: TCP_REPAIR is not used, and an RST packet with a configurable TTL is sent. When set to a reasonable value, the RST packet travels through the local infrastructure, deleting the connection in firewalls and other systems, but disappears before reaching the client. Future packets from the client will then be dropped already by front equipment. These local RSTs protect local resources, but not the client's. This must not be used unless the consequences of doing this are fully understood.",
@@ -2325,18 +2417,26 @@
         "signature": "track-sc0 <key> [table <table>]"
       },
       {
-        "description": "",
+        "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set by the global \"tune.stick-counters\" setting, which defaults to MAX_SESS_STKCTR if set at build time (it is reported in haproxy -vv) and which defaults to 3, so the track-sc number is between 0 and (tune.stick-counters-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-track-sc1",
         "name": "track-sc1",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response"
+        ],
+        "signature": "track-sc1 <key> [table <table>]"
       },
       {
-        "description": "",
+        "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set by the global \"tune.stick-counters\" setting, which defaults to MAX_SESS_STKCTR if set at build time (it is reported in haproxy -vv) and which defaults to 3, so the track-sc number is between 0 and (tune.stick-counters-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-track-sc2",
         "name": "track-sc2",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response"
+        ],
+        "signature": "track-sc2 <key> [table <table>]"
       },
       {
         "description": "This is used to unset a variable. See the \"set-var\" action for details about <var-name>.",
@@ -2360,14 +2460,17 @@
         "signature": "use-service <service-name>"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-wait-for-body",
+        "description": "This will delay the processing of the request or response until one of the following conditions occurs: - The full request body is received, in which case processing proceeds normally. - <bytes> bytes have been received, when the \"at-least\" argument is given and",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-wait-for-body%20time",
         "name": "wait-for-body",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "http-request",
+          "http-response"
+        ],
+        "signature": "wait-for-body time <time> [ at-least <bytes> ]"
       },
       {
-        "description": "This will delay the processing of the request or response until one of the following conditions occurs: - The full request body is received, in which case processing proceeds",
+        "description": "This will delay the processing of the request or response until one of the following conditions occurs: - The full request body is received, in which case processing proceeds normally. - <bytes> bytes have been received, when the \"at-least\" argument is given and",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-wait-for-body%20time",
         "name": "wait-for-body time",
         "rulesets": [
@@ -2521,7 +2624,7 @@
         "signature": "replace-value <name> <match-regex> <replace-fmt>"
       },
       {
-        "description": "This stops the evaluation of the rules and immediately returns a response. The default status code used for the response is 200. It can be optionally specified as an arguments to \"status\". The response content-type may also be specified as an argument to \"content-type\". Finally the response itself may be defined. It can be a full HTTP response specifying the errorfile to use, or the response payload specifying the file or the string to use. These rules are followed to create the response :\n\n* If neither the errorfile nor the payload to use is defined, a dummy",
+        "description": "This stops the evaluation of the rules and immediately returns a response. The default status code used for the response is 200. It can be optionally specified as an arguments to \"status\". The response content-type may also be specified as an argument to \"content-type\". Finally the response itself may be defined. It can be a full HTTP response specifying the errorfile to use, or the response payload specifying the file or the string to use. These rules are followed to create the response :\n\n* If neither the errorfile nor the payload to use is defined, a dummy response is returned. Only the \"status\" argument is considered. It can be any code in the range [200, 599]. The \"content-type\" argument, if any, is ignored.\n\n* If \"default-errorfiles\" argument is set, the proxy's errorfiles are considered.  If the \"status\" argument is defined, it must be one of the status code handled by HAProxy (200, 400, 403, 404, 405, 408, 410, 413, 425, 429, 500, 501, 502, 503, and 504). The \"content-type\" argument, if any, is ignored.\n\n* If a specific errorfile is defined, with an \"errorfile\" argument, the corresponding file, containing a full HTTP response, is returned. Only the \"status\" argument is considered. It must be one of the status code handled by HAProxy (200, 400, 403, 404, 405, 408, 410, 413, 425, 429, 500, 501, 502, 503, and 504). The \"content-type\" argument, if any, is ignored.\n\n* If an http-errors section is defined, with an \"errorfiles\" argument, the corresponding file in the specified http-errors section, containing a full HTTP response, is returned. Only the \"status\" argument is considered. It must be one of the status code handled by HAProxy (200, 400, 403, 404, 405, 408, 410, 413, 425, 429, 500, 501, 502, 503, and 504). The \"content-type\" argument, if any, is ignored.\n\n* If a \"file\" or a \"lf-file\" argument is specified, the file's content is used as the response payload. If the file is not empty, its content-type must be set as argument to \"content-type\". Otherwise, any \"content-type\" argument is ignored. With a \"lf-file\" argument, the file's content is evaluated as a Custom log format (see section 8.2.6). With a \"file\" argument, it is considered as a raw content.\n\n* If a \"string\" or \"lf-string\" argument is specified, the defined string is used as the response payload. The content-type must always be set as argument to \"content-type\". With a \"lf-string\" argument, the string is evaluated as a Custom log format (see section 8.2.6). With a \"string\" argument, it is considered as a raw string.\n\nWhen the response is not based on an errorfile, it is possible to append HTTP header fields to the response using \"hdr\" arguments. Otherwise, all \"hdr\" arguments are ignored. For each one, the header name is specified in <name> and its value is defined by <fmt> which follows the Custom log format rules described in section 8.2.6.\n\nNote that the generated response must be smaller than a buffer. And to avoid any warning, when an errorfile or a raw file is loaded, the buffer space reserved for the headers rewriting should also be free.\n\nThis action is final, i.e. no further rules from the same rule set are evaluated for the current section.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-return",
         "name": "return",
         "rulesets": [
@@ -2567,11 +2670,16 @@
         "signature": "sc-inc-gpc0(<sc-id>)"
       },
       {
-        "description": "",
+        "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-sc-inc-gpc1",
         "name": "sc-inc-gpc1",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "sc-inc-gpc1(<sc-id>)"
       },
       {
         "description": "This action sets the 32-bit unsigned GPT at the index <idx> of the array associated to the sticky counter designated by <sc-id> at the value of <int>/<expr>. The expected result is a boolean.\n\nIf an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPT stored at this index.\n\nThis action applies only to the 'gpt' array data_type (and not to the legacy 'gpt0' data-type).",
@@ -2729,11 +2837,16 @@
         "signature": "set-var(<var-name>[,<cond>...]) <expr>"
       },
       {
-        "description": "",
+        "description": "This is used to set the contents of a variable. The variable is declared inline.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-set-var-fmt",
         "name": "set-var-fmt",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "set-var-fmt(<var-name>[,<cond>...]) <fmt>"
       },
       {
         "description": "This stops the evaluation of the rules and makes the client-facing connection suddenly disappear using a system-dependent way that tries to prevent the client from being notified. When called without the rst-ttl argument, we try to prevent sending any FIN or RST packet back to the client by using TCP_REPAIR. If this fails (mainly because of missing privileges), we fall back to sending a RST packet with a TTL of 1.\n\nThe effect is that the client still sees an established connection while there is none on HAProxy, saving resources. However, stateful equipment placed between the HAProxy and the client (firewalls, proxies, load balancers) will also keep the established connection in their session tables.\n\nThe optional rst-ttl changes this behaviour: TCP_REPAIR is not used, and an RST packet with a configurable TTL is sent. When set to a reasonable value, the RST packet travels through the local infrastructure, deleting the connection in firewalls and other systems, but disappears before reaching the client. Future packets from the client will then be dropped already by front equipment. These local RSTs protect local resources, but not the client's. This must not be used unless the consequences of doing this are fully understood.",
@@ -2776,6 +2889,28 @@
         "signature": "track-sc0 <key> [table <table>]"
       },
       {
+        "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set by the global \"tune.stick-counters\" setting, which defaults to MAX_SESS_STKCTR if set at build time (it is reported in haproxy -vv) and which defaults to 3, so the track-sc number is between 0 and (tune.stick-counters-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-track-sc1",
+        "name": "track-sc1",
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response"
+        ],
+        "signature": "track-sc1 <key> [table <table>]"
+      },
+      {
+        "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set by the global \"tune.stick-counters\" setting, which defaults to MAX_SESS_STKCTR if set at build time (it is reported in haproxy -vv) and which defaults to 3, so the track-sc number is between 0 and (tune.stick-counters-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-track-sc2",
+        "name": "track-sc2",
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response"
+        ],
+        "signature": "track-sc2 <key> [table <table>]"
+      },
+      {
         "description": "This is used to unset a variable. See the \"set-var\" action for details about <var-name>.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-unset-var",
         "name": "unset-var",
@@ -2788,14 +2923,17 @@
         "signature": "unset-var(<var-name>)"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-wait-for-body",
+        "description": "This will delay the processing of the request or response until one of the following conditions occurs: - The full request body is received, in which case processing proceeds normally. - <bytes> bytes have been received, when the \"at-least\" argument is given and",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-wait-for-body%20time",
         "name": "wait-for-body",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "http-request",
+          "http-response"
+        ],
+        "signature": "wait-for-body time <time> [ at-least <bytes> ]"
       },
       {
-        "description": "This will delay the processing of the request or response until one of the following conditions occurs: - The full request body is received, in which case processing proceeds",
+        "description": "This will delay the processing of the request or response until one of the following conditions occurs: - The full request body is received, in which case processing proceeds normally. - <bytes> bytes have been received, when the \"at-least\" argument is given and",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-wait-for-body%20time",
         "name": "wait-for-body time",
         "rulesets": [
@@ -3238,11 +3376,13 @@
         "signature": "accept"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-expect-netscaler-cip",
+        "description": "This configures the client-facing connection to receive a NetScaler Client IP insertion protocol header before any byte is read from the socket.  This is equivalent to having the \"accept-netscaler-cip\" keyword on the \"bind\" line, except that using the TCP rule allows the PROXY protocol to be accepted only for certain IP address ranges using an ACL. This is convenient when multiple layers of load balancers are passed through by traffic coming from public hosts.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-expect-netscaler-cip%20layer4",
         "name": "expect-netscaler-cip",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection"
+        ],
+        "signature": "expect-netscaler-cip layer4"
       },
       {
         "description": "This configures the client-facing connection to receive a PROXY protocol header before any byte is read from the socket. This is equivalent to having the \"accept-proxy\" keyword on the \"bind\" line, except that using the TCP rule allows the PROXY protocol to be accepted only for certain IP address ranges using an ACL. This is convenient when multiple layers of load balancers are passed through by traffic coming from public hosts.",
@@ -3300,11 +3440,16 @@
         "signature": "sc-inc-gpc0(<sc-id>)"
       },
       {
-        "description": "",
+        "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-sc-inc-gpc1",
         "name": "sc-inc-gpc1",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "sc-inc-gpc1(<sc-id>)"
       },
       {
         "description": "This action sets the 32-bit unsigned GPT at the index <idx> of the array associated to the sticky counter designated by <sc-id> at the value of <int>/<expr>. The expected result is a boolean.\n\nIf an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPT stored at this index.\n\nThis action applies only to the 'gpt' array data_type (and not to the legacy 'gpt0' data-type).",
@@ -3419,11 +3564,16 @@
         "signature": "set-var(<var-name>[,<cond>...]) <expr>"
       },
       {
-        "description": "",
+        "description": "This is used to set the contents of a variable. The variable is declared inline.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-set-var-fmt",
         "name": "set-var-fmt",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "set-var-fmt(<var-name>[,<cond>...]) <fmt>"
       },
       {
         "description": "This stops the evaluation of the rules and makes the client-facing connection suddenly disappear using a system-dependent way that tries to prevent the client from being notified. When called without the rst-ttl argument, we try to prevent sending any FIN or RST packet back to the client by using TCP_REPAIR. If this fails (mainly because of missing privileges), we fall back to sending a RST packet with a TTL of 1.\n\nThe effect is that the client still sees an established connection while there is none on HAProxy, saving resources. However, stateful equipment placed between the HAProxy and the client (firewalls, proxies, load balancers) will also keep the established connection in their session tables.\n\nThe optional rst-ttl changes this behaviour: TCP_REPAIR is not used, and an RST packet with a configurable TTL is sent. When set to a reasonable value, the RST packet travels through the local infrastructure, deleting the connection in firewalls and other systems, but disappears before reaching the client. Future packets from the client will then be dropped already by front equipment. These local RSTs protect local resources, but not the client's. This must not be used unless the consequences of doing this are fully understood.",
@@ -3448,18 +3598,26 @@
         "signature": "track-sc0 <key> [table <table>]"
       },
       {
-        "description": "",
+        "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set by the global \"tune.stick-counters\" setting, which defaults to MAX_SESS_STKCTR if set at build time (it is reported in haproxy -vv) and which defaults to 3, so the track-sc number is between 0 and (tune.stick-counters-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-track-sc1",
         "name": "track-sc1",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response"
+        ],
+        "signature": "track-sc1 <key> [table <table>]"
       },
       {
-        "description": "",
+        "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set by the global \"tune.stick-counters\" setting, which defaults to MAX_SESS_STKCTR if set at build time (it is reported in haproxy -vv) and which defaults to 3, so the track-sc number is between 0 and (tune.stick-counters-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-track-sc2",
         "name": "track-sc2",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response"
+        ],
+        "signature": "track-sc2 <key> [table <table>]"
       },
       {
         "description": "This is used to unset a variable. See the \"set-var\" action for details about <var-name>.",
@@ -9069,6 +9227,15 @@
       {
         "description": "This configures the client-facing connection to receive a NetScaler Client IP insertion protocol header before any byte is read from the socket.  This is equivalent to having the \"accept-netscaler-cip\" keyword on the \"bind\" line, except that using the TCP rule allows the PROXY protocol to be accepted only for certain IP address ranges using an ACL. This is convenient when multiple layers of load balancers are passed through by traffic coming from public hosts.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-expect-netscaler-cip%20layer4",
+        "name": "expect-netscaler-cip",
+        "rulesets": [
+          "tcp-request connection"
+        ],
+        "signature": "expect-netscaler-cip layer4"
+      },
+      {
+        "description": "This configures the client-facing connection to receive a NetScaler Client IP insertion protocol header before any byte is read from the socket.  This is equivalent to having the \"accept-netscaler-cip\" keyword on the \"bind\" line, except that using the TCP rule allows the PROXY protocol to be accepted only for certain IP address ranges using an ACL. This is convenient when multiple layers of load balancers are passed through by traffic coming from public hosts.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-expect-netscaler-cip%20layer4",
         "name": "expect-netscaler-cip layer4",
         "rulesets": [
           "tcp-request connection"
@@ -9076,11 +9243,13 @@
         "signature": "expect-netscaler-cip layer4"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-expect-proxy",
+        "description": "This configures the client-facing connection to receive a PROXY protocol header before any byte is read from the socket. This is equivalent to having the \"accept-proxy\" keyword on the \"bind\" line, except that using the TCP rule allows the PROXY protocol to be accepted only for certain IP address ranges using an ACL. This is convenient when multiple layers of load balancers are passed through by traffic coming from public hosts.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-expect-proxy%20layer4",
         "name": "expect-proxy",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection"
+        ],
+        "signature": "expect-proxy layer4"
       },
       {
         "description": "This configures the client-facing connection to receive a PROXY protocol header before any byte is read from the socket. This is equivalent to having the \"accept-proxy\" keyword on the \"bind\" line, except that using the TCP rule allows the PROXY protocol to be accepted only for certain IP address ranges using an ACL. This is convenient when multiple layers of load balancers are passed through by traffic coming from public hosts.",
@@ -9152,11 +9321,16 @@
         "signature": "sc-inc-gpc0(<sc-id>)"
       },
       {
-        "description": "",
+        "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-sc-inc-gpc1",
         "name": "sc-inc-gpc1",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "sc-inc-gpc1(<sc-id>)"
       },
       {
         "description": "This action sets the 32-bit unsigned GPT at the index <idx> of the array associated to the sticky counter designated by <sc-id> at the value of <int>/<expr>. The expected result is a boolean.\n\nIf an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPT stored at this index.\n\nThis action applies only to the 'gpt' array data_type (and not to the legacy 'gpt0' data-type).",
@@ -9348,11 +9522,16 @@
         "signature": "set-var(<var-name>[,<cond>...]) <expr>"
       },
       {
-        "description": "",
+        "description": "This is used to set the contents of a variable. The variable is declared inline.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-set-var-fmt",
         "name": "set-var-fmt",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "set-var-fmt(<var-name>[,<cond>...]) <fmt>"
       },
       {
         "description": "This stops the evaluation of the rules and makes the client-facing connection suddenly disappear using a system-dependent way that tries to prevent the client from being notified. When called without the rst-ttl argument, we try to prevent sending any FIN or RST packet back to the client by using TCP_REPAIR. If this fails (mainly because of missing privileges), we fall back to sending a RST packet with a TTL of 1.\n\nThe effect is that the client still sees an established connection while there is none on HAProxy, saving resources. However, stateful equipment placed between the HAProxy and the client (firewalls, proxies, load balancers) will also keep the established connection in their session tables.\n\nThe optional rst-ttl changes this behaviour: TCP_REPAIR is not used, and an RST packet with a configurable TTL is sent. When set to a reasonable value, the RST packet travels through the local infrastructure, deleting the connection in firewalls and other systems, but disappears before reaching the client. Future packets from the client will then be dropped already by front equipment. These local RSTs protect local resources, but not the client's. This must not be used unless the consequences of doing this are fully understood.",
@@ -9366,11 +9545,11 @@
         "signature": "silent-drop [ rst-ttl <ttl> ]"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-switch-mode",
+        "description": "This action is used to perform a connection upgrade. Only HTTP upgrades are supported for now. The protocol may optionally be specified. This action is only available for a proxy with the frontend capability. The connection upgrade is immediately performed, following \"tcp-request content\" rules are not evaluated. This upgrade method should be preferred to the implicit one consisting to rely on the backend mode. When used, it is possible to set HTTP directives in a frontend without any warning. These directives will be conditionally evaluated if the HTTP upgrade is performed. However, an HTTP backend must still be selected. It remains unsupported to route an HTTP connection (upgraded or not) to a TCP server.\n\nSee section 4 about Proxies for more details on HTTP upgrades.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-switch-mode%20http",
         "name": "switch-mode",
         "rulesets": [],
-        "signature": ""
+        "signature": "switch-mode http [ proto <name> ]"
       },
       {
         "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set by the global \"tune.stick-counters\" setting, which defaults to MAX_SESS_STKCTR if set at build time (it is reported in haproxy -vv) and which defaults to 3, so the track-sc number is between 0 and (tune.stick-counters-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
@@ -9384,18 +9563,26 @@
         "signature": "track-sc0 <key> [table <table>]"
       },
       {
-        "description": "",
+        "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set by the global \"tune.stick-counters\" setting, which defaults to MAX_SESS_STKCTR if set at build time (it is reported in haproxy -vv) and which defaults to 3, so the track-sc number is between 0 and (tune.stick-counters-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-track-sc1",
         "name": "track-sc1",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response"
+        ],
+        "signature": "track-sc1 <key> [table <table>]"
       },
       {
-        "description": "",
+        "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set by the global \"tune.stick-counters\" setting, which defaults to MAX_SESS_STKCTR if set at build time (it is reported in haproxy -vv) and which defaults to 3, so the track-sc number is between 0 and (tune.stick-counters-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-track-sc2",
         "name": "track-sc2",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response"
+        ],
+        "signature": "track-sc2 <key> [table <table>]"
       },
       {
         "description": "This is used to unset a variable. See the \"set-var\" action for details about <var-name>.",
@@ -9560,7 +9747,7 @@
         "signature": "early-hint <name> <fmt>"
       },
       {
-        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".",
+        "description": "Performs normalization of the request's URI.\n\nURI normalization in HAProxy 2.4 is currently available as an experimental technical preview. As such, it requires the global directive 'expose-experimental-directives' first to be able to invoke it. You should be prepared that the behavior of normalizers might change to fix possible issues, possibly breaking proper request processing in your infrastructure.\n\nEach normalizer handles a single type of normalization to allow for a fine-grained selection of the level of normalization that is appropriate for the supported backend.\n\nAs an example the \"path-strip-dotdot\" normalizer might be useful for a static fileserver that directly maps the requested URI to the path within the local filesystem. However it might break routing of an API that expects a specific number of segments in the path.\n\nIt is important to note that some normalizers might result in unsafe transformations for broken URIs. It might also be possible that a combination of normalizers that are safe by themselves results in unsafe transformations when improperly combined.\n\nAs an example the \"percent-decode-unreserved\" normalizer might result in unexpected results when a broken URI includes bare percent characters. One such a broken URI is \"/%%36%36\" which would be decoded to \"/%66\" which in turn is equivalent to \"/f\". By specifying the \"strict\" option requests to such a broken URI would safely be rejected.\n\nThe following normalizers are available:\n\n- fragment-encode: Encodes \"#\" as \"%23\".\n\nThe \"fragment-strip\" normalizer should be preferred, unless it is known that broken clients do not correctly encode '#' within the path component.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-normalize-uri",
         "name": "normalize-uri",
         "rulesets": [
@@ -9645,7 +9832,7 @@
         "signature": "replace-value <name> <match-regex> <replace-fmt>"
       },
       {
-        "description": "This stops the evaluation of the rules and immediately returns a response. The default status code used for the response is 200. It can be optionally specified as an arguments to \"status\". The response content-type may also be specified as an argument to \"content-type\". Finally the response itself may be defined. It can be a full HTTP response specifying the errorfile to use, or the response payload specifying the file or the string to use. These rules are followed to create the response :\n\n* If neither the errorfile nor the payload to use is defined, a dummy",
+        "description": "This stops the evaluation of the rules and immediately returns a response. The default status code used for the response is 200. It can be optionally specified as an arguments to \"status\". The response content-type may also be specified as an argument to \"content-type\". Finally the response itself may be defined. It can be a full HTTP response specifying the errorfile to use, or the response payload specifying the file or the string to use. These rules are followed to create the response :\n\n* If neither the errorfile nor the payload to use is defined, a dummy response is returned. Only the \"status\" argument is considered. It can be any code in the range [200, 599]. The \"content-type\" argument, if any, is ignored.\n\n* If \"default-errorfiles\" argument is set, the proxy's errorfiles are considered.  If the \"status\" argument is defined, it must be one of the status code handled by HAProxy (200, 400, 403, 404, 405, 408, 410, 413, 425, 429, 500, 501, 502, 503, and 504). The \"content-type\" argument, if any, is ignored.\n\n* If a specific errorfile is defined, with an \"errorfile\" argument, the corresponding file, containing a full HTTP response, is returned. Only the \"status\" argument is considered. It must be one of the status code handled by HAProxy (200, 400, 403, 404, 405, 408, 410, 413, 425, 429, 500, 501, 502, 503, and 504). The \"content-type\" argument, if any, is ignored.\n\n* If an http-errors section is defined, with an \"errorfiles\" argument, the corresponding file in the specified http-errors section, containing a full HTTP response, is returned. Only the \"status\" argument is considered. It must be one of the status code handled by HAProxy (200, 400, 403, 404, 405, 408, 410, 413, 425, 429, 500, 501, 502, 503, and 504). The \"content-type\" argument, if any, is ignored.\n\n* If a \"file\" or a \"lf-file\" argument is specified, the file's content is used as the response payload. If the file is not empty, its content-type must be set as argument to \"content-type\". Otherwise, any \"content-type\" argument is ignored. With a \"lf-file\" argument, the file's content is evaluated as a Custom log format (see section 8.2.6). With a \"file\" argument, it is considered as a raw content.\n\n* If a \"string\" or \"lf-string\" argument is specified, the defined string is used as the response payload. The content-type must always be set as argument to \"content-type\". With a \"lf-string\" argument, the string is evaluated as a Custom log format (see section 8.2.6). With a \"string\" argument, it is considered as a raw string.\n\nWhen the response is not based on an errorfile, it is possible to append HTTP header fields to the response using \"hdr\" arguments. Otherwise, all \"hdr\" arguments are ignored. For each one, the header name is specified in <name> and its value is defined by <fmt> which follows the Custom log format rules described in section 8.2.6.\n\nNote that the generated response must be smaller than a buffer. And to avoid any warning, when an errorfile or a raw file is loaded, the buffer space reserved for the headers rewriting should also be free.\n\nThis action is final, i.e. no further rules from the same rule set are evaluated for the current section.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-return",
         "name": "return",
         "rulesets": [
@@ -9691,11 +9878,16 @@
         "signature": "sc-inc-gpc0(<sc-id>)"
       },
       {
-        "description": "",
+        "description": "This actions increments the GPC0 or GPC1 counter according with the sticky counter designated by <sc-id>. If an error occurs, this action silently fails and the actions evaluation continues.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-sc-inc-gpc1",
         "name": "sc-inc-gpc1",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "sc-inc-gpc1(<sc-id>)"
       },
       {
         "description": "This action sets the 32-bit unsigned GPT at the index <idx> of the array associated to the sticky counter designated by <sc-id> at the value of <int>/<expr>. The expected result is a boolean.\n\nIf an error occurs, this action silently fails and the actions evaluation continues. <idx> is an integer between 0 and 99 and <sc-id> is an integer between 0 and 2. It also silently fails if the there is no GPT stored at this index.\n\nThis action applies only to the 'gpt' array data_type (and not to the legacy 'gpt0' data-type).",
@@ -9861,7 +10053,7 @@
         "signature": "set-nice <nice>"
       },
       {
-        "description": "",
+        "description": "This rewrites the request path with the result of the evaluation of format string <fmt>. The query string, if any, is left intact. If a scheme and authority is found before the path, they are left intact as well. If the request doesn't have a path (\"*\"), this one is replaced with the format. This can be used to prepend a directory component in front of a path for example. See also \"http-request set-query\" and \"http-request set-uri\".",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-set-path",
         "name": "set-path",
         "rulesets": [
@@ -9964,11 +10156,16 @@
         "signature": "set-var(<var-name>[,<cond>...]) <expr>"
       },
       {
-        "description": "",
+        "description": "This is used to set the contents of a variable. The variable is declared inline.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-set-var-fmt",
         "name": "set-var-fmt",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response",
+          "http-after-response"
+        ],
+        "signature": "set-var-fmt(<var-name>[,<cond>...]) <fmt>"
       },
       {
         "description": "This stops the evaluation of the rules and makes the client-facing connection suddenly disappear using a system-dependent way that tries to prevent the client from being notified. When called without the rst-ttl argument, we try to prevent sending any FIN or RST packet back to the client by using TCP_REPAIR. If this fails (mainly because of missing privileges), we fall back to sending a RST packet with a TTL of 1.\n\nThe effect is that the client still sees an established connection while there is none on HAProxy, saving resources. However, stateful equipment placed between the HAProxy and the client (firewalls, proxies, load balancers) will also keep the established connection in their session tables.\n\nThe optional rst-ttl changes this behaviour: TCP_REPAIR is not used, and an RST packet with a configurable TTL is sent. When set to a reasonable value, the RST packet travels through the local infrastructure, deleting the connection in firewalls and other systems, but disappears before reaching the client. Future packets from the client will then be dropped already by front equipment. These local RSTs protect local resources, but not the client's. This must not be used unless the consequences of doing this are fully understood.",
@@ -10013,18 +10210,26 @@
         "signature": "track-sc0 <key> [table <table>]"
       },
       {
-        "description": "",
+        "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set by the global \"tune.stick-counters\" setting, which defaults to MAX_SESS_STKCTR if set at build time (it is reported in haproxy -vv) and which defaults to 3, so the track-sc number is between 0 and (tune.stick-counters-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-track-sc1",
         "name": "track-sc1",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response"
+        ],
+        "signature": "track-sc1 <key> [table <table>]"
       },
       {
-        "description": "",
+        "description": "This enables tracking of sticky counters from current request. These rules do not stop evaluation and do not change default action. The number of counters that may be simultaneously tracked by the same connection is set by the global \"tune.stick-counters\" setting, which defaults to MAX_SESS_STKCTR if set at build time (it is reported in haproxy -vv) and which defaults to 3, so the track-sc number is between 0 and (tune.stick-counters-1). The first \"track-sc0\" rule executed enables tracking of the counters of the specified table as the first set. The first \"track-sc1\" rule executed enables tracking of the counters of the specified table as the second set. The first \"track-sc2\" rule executed enables tracking of the counters of the specified table as the third set. It is a recommended practice to use the first set of counters for the per-frontend counters and the second set for the per-backend ones. But this is just a guideline, all may be used everywhere.",
         "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-track-sc2",
         "name": "track-sc2",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "tcp-request connection",
+          "http-request",
+          "http-response"
+        ],
+        "signature": "track-sc2 <key> [table <table>]"
       },
       {
         "description": "This is used to unset a variable. See the \"set-var\" action for details about <var-name>.",
@@ -10048,11 +10253,14 @@
         "signature": "use-service <service-name>"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-wait-for-body",
+        "description": "This will delay the processing of the request or response until one of the following conditions occurs: - The full request body is received, in which case processing proceeds normally. - <bytes> bytes have been received, when the \"at-least\" argument is given and",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.4-wait-for-body%20time",
         "name": "wait-for-body",
-        "rulesets": [],
-        "signature": ""
+        "rulesets": [
+          "http-request",
+          "http-response"
+        ],
+        "signature": "wait-for-body time <time> [ at-least <bytes> ]"
       },
       {
         "description": "This will delay the processing of the request until the SSL handshake happened. This is mostly useful to delay processing early data until we're sure they are valid.",
@@ -10068,7 +10276,7 @@
   "keywords": {
     "accepted_payload_size": {
       "arguments": [],
-      "description": "Defines the maximum payload size accepted by HAProxy and announced to all the name servers configured in this resolvers section. <nb> is in bytes. If not set, HAProxy announces 512. (minimal value defined",
+      "description": "Defines the maximum payload size accepted by HAProxy and announced to all the name servers configured in this resolvers section. <nb> is in bytes. If not set, HAProxy announces 512. (minimal value defined by RFC 6891)\n\nNote: the maximum allowed value is 65535. Recommended value for UDP is 4096 and it is not recommended to exceed 8192 except if you are sure that your system and network can handle this (over 65507 makes no sense since is the maximum UDP payload size). If you are using only TCP nameservers to handle huge DNS responses, you should put this value to the max: 65535.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#5.3.2-accepted_payload_size",
       "name": "accepted_payload_size",
       "sections": [
@@ -10082,7 +10290,7 @@
           "arguments": [],
           "chapter": "5.3.2",
           "contexts": [],
-          "description": "Defines the maximum payload size accepted by HAProxy and announced to all the name servers configured in this resolvers section. <nb> is in bytes. If not set, HAProxy announces 512. (minimal value defined",
+          "description": "Defines the maximum payload size accepted by HAProxy and announced to all the name servers configured in this resolvers section. <nb> is in bytes. If not set, HAProxy announces 512. (minimal value defined by RFC 6891)\n\nNote: the maximum allowed value is 65535. Recommended value for UDP is 4096 and it is not recommended to exceed 8192 except if you are sure that your system and network can handle this (over 65507 makes no sense since is the maximum UDP payload size). If you are using only TCP nameservers to handle huge DNS responses, you should put this value to the max: 65535.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#5.3.2-accepted_payload_size",
           "sections": [
             "resolvers"
@@ -11706,7 +11914,7 @@
     },
     "cpu-map": {
       "arguments": [],
-      "description": "On some operating systems, it is possible to bind a thread group or a thread to a specific CPU set. This means that the designated threads will never run on other CPUs. The \"cpu-map\" directive specifies CPU sets for individual threads or thread groups. The first argument is a thread group range, optionally followed by a thread set. These ranges have the following format:",
+      "description": "On some operating systems, it is possible to bind a thread group or a thread to a specific CPU set. This means that the designated threads will never run on other CPUs. The \"cpu-map\" directive specifies CPU sets for individual threads or thread groups. The first argument is a thread group range, optionally followed by a thread set. These ranges have the following format:\n\nall | odd | even | number[-[number]]\n\n<number> must be a number between 1 and 32 or 64, depending on the machine's word size. Any group IDs above 'thread-groups' and any thread IDs above the machine's word size are ignored. All thread numbers are relative to the group they belong to. It is possible to specify a range with two such number delimited by a dash ('-'). It also is possible to specify all threads at once using \"all\", only odd numbers using \"odd\" or even numbers using \"even\", just like with the \"thread\" bind directive. The second and forthcoming arguments are CPU sets. Each CPU set is either a unique number starting at 0 for the first CPU or a range with two such numbers delimited by a dash ('-'). These CPU numbers and ranges may be repeated by delimiting them with commas or by passing more ranges as new arguments on the same line. Outside of Linux and BSD operating systems, there may be a limitation on the maximum CPU index to either 31 or 63. Multiple \"cpu-map\" directives may be specified, but each \"cpu-map\" directive will replace the previous ones when they overlap.\n\nRanges can be partially defined. The higher bound can be omitted. In such case, it is replaced by the corresponding maximum value, 32 or 64 depending on the machine's word size.\n\nThe prefix \"auto:\" can be added before the thread set to let HAProxy automatically bind a set of threads to a CPU by incrementing threads and CPU sets. To be valid, both sets must have the same size. No matter the declaration order of the CPU sets, it will be bound from the lowest to the highest bound. Having both a group and a thread range with the \"auto:\" prefix is not supported. Only one range is supported, the other one must be a fixed number.\n\nNote that group ranges are supported for historical reasons. Nowadays, a lone number designates a thread group and must be 1 if thread-groups are not used, and specifying a thread range or number requires to prepend \"1/\" in front of it if thread groups are not used. Finally, \"1\" is strictly equivalent to \"1/all\" and designates all threads in the group.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-cpu-map",
       "name": "cpu-map",
       "sections": [
@@ -11720,7 +11928,7 @@
           "arguments": [],
           "chapter": "3.1",
           "contexts": [],
-          "description": "On some operating systems, it is possible to bind a thread group or a thread to a specific CPU set. This means that the designated threads will never run on other CPUs. The \"cpu-map\" directive specifies CPU sets for individual threads or thread groups. The first argument is a thread group range, optionally followed by a thread set. These ranges have the following format:",
+          "description": "On some operating systems, it is possible to bind a thread group or a thread to a specific CPU set. This means that the designated threads will never run on other CPUs. The \"cpu-map\" directive specifies CPU sets for individual threads or thread groups. The first argument is a thread group range, optionally followed by a thread set. These ranges have the following format:\n\nall | odd | even | number[-[number]]\n\n<number> must be a number between 1 and 32 or 64, depending on the machine's word size. Any group IDs above 'thread-groups' and any thread IDs above the machine's word size are ignored. All thread numbers are relative to the group they belong to. It is possible to specify a range with two such number delimited by a dash ('-'). It also is possible to specify all threads at once using \"all\", only odd numbers using \"odd\" or even numbers using \"even\", just like with the \"thread\" bind directive. The second and forthcoming arguments are CPU sets. Each CPU set is either a unique number starting at 0 for the first CPU or a range with two such numbers delimited by a dash ('-'). These CPU numbers and ranges may be repeated by delimiting them with commas or by passing more ranges as new arguments on the same line. Outside of Linux and BSD operating systems, there may be a limitation on the maximum CPU index to either 31 or 63. Multiple \"cpu-map\" directives may be specified, but each \"cpu-map\" directive will replace the previous ones when they overlap.\n\nRanges can be partially defined. The higher bound can be omitted. In such case, it is replaced by the corresponding maximum value, 32 or 64 depending on the machine's word size.\n\nThe prefix \"auto:\" can be added before the thread set to let HAProxy automatically bind a set of threads to a CPU by incrementing threads and CPU sets. To be valid, both sets must have the same size. No matter the declaration order of the CPU sets, it will be bound from the lowest to the highest bound. Having both a group and a thread range with the \"auto:\" prefix is not supported. Only one range is supported, the other one must be a fixed number.\n\nNote that group ranges are supported for historical reasons. Nowadays, a lone number designates a thread group and must be 1 if thread-groups are not used, and specifying a thread range or number requires to prepend \"1/\" in front of it if thread groups are not used. Finally, \"1\" is strictly equivalent to \"1/all\" and designates all threads in the group.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-cpu-map",
           "sections": [
             "global"
@@ -11913,7 +12121,7 @@
     },
     "default-path": {
       "arguments": [],
-      "description": "By default HAProxy loads all files designated by a relative path from the location the process is started in. In some circumstances it might be desirable to force all relative paths to start from a different location just as if the process was started from such locations. This is what this directive is made for. Technically it will perform a temporary chdir() to the designated location while processing each configuration file, and will return to the original directory after processing each file. It takes an argument indicating the policy to use when loading files whose path does not start with a slash ('/'):",
+      "description": "By default HAProxy loads all files designated by a relative path from the location the process is started in. In some circumstances it might be desirable to force all relative paths to start from a different location just as if the process was started from such locations. This is what this directive is made for. Technically it will perform a temporary chdir() to the designated location while processing each configuration file, and will return to the original directory after processing each file. It takes an argument indicating the policy to use when loading files whose path does not start with a slash ('/'): - \"current\" indicates that all relative files are to be loaded from the directory the process is started in ; this is the default.\n\n- \"config\" indicates that all relative files should be loaded from the directory containing the configuration file. More specifically, if the configuration file contains a slash ('/'), the longest part up to the last slash is used as the directory to change to, otherwise the current directory is used. This mode is convenient to bundle maps, errorfiles, certificates and Lua scripts together as relocatable packages. When multiple configuration files are loaded, the directory is updated for each of them.\n\n- \"parent\" indicates that all relative files should be loaded from the parent of the directory containing the configuration file. More specifically, if the configuration file contains a slash ('/'), \"..\" is appended to the longest part up to the last slash is used as the directory to change to, otherwise the directory is \"..\". This mode is convenient to bundle maps, errorfiles,  certificates and Lua scripts together as relocatable packages, but where each part is located in a different subdirectory (e.g. \"config/\", \"certs/\", \"maps/\", ...).\n\n- \"origin\" indicates that all relative files should be loaded from the designated (mandatory) path. This may be used to ease management of different HAProxy instances running in parallel on a system, where each instance uses a different prefix but where the rest of the sections are made easily relocatable.\n\nEach \"default-path\" directive instantly replaces any previous one and will possibly result in switching to a different directory. While this should always result in the desired behavior, it is really not a good practice to use multiple default-path directives, and if used, the policy ought to remain consistent across all configuration files.\n\nWarning: some configuration elements such as maps or certificates are uniquely identified by their configured path. By using a relocatable layout, it becomes possible for several of them to end up with the same unique name, making it difficult to update them at run time, especially when multiple configuration files are loaded from different directories. It is essential to observe a strict collision-free file naming scheme before adopting relative paths. A robust approach could consist in prefixing all files names with their respective site name, or in doing so at the directory level.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-default-path",
       "name": "default-path",
       "sections": [
@@ -11927,7 +12135,7 @@
           "arguments": [],
           "chapter": "3.1",
           "contexts": [],
-          "description": "By default HAProxy loads all files designated by a relative path from the location the process is started in. In some circumstances it might be desirable to force all relative paths to start from a different location just as if the process was started from such locations. This is what this directive is made for. Technically it will perform a temporary chdir() to the designated location while processing each configuration file, and will return to the original directory after processing each file. It takes an argument indicating the policy to use when loading files whose path does not start with a slash ('/'):",
+          "description": "By default HAProxy loads all files designated by a relative path from the location the process is started in. In some circumstances it might be desirable to force all relative paths to start from a different location just as if the process was started from such locations. This is what this directive is made for. Technically it will perform a temporary chdir() to the designated location while processing each configuration file, and will return to the original directory after processing each file. It takes an argument indicating the policy to use when loading files whose path does not start with a slash ('/'): - \"current\" indicates that all relative files are to be loaded from the directory the process is started in ; this is the default.\n\n- \"config\" indicates that all relative files should be loaded from the directory containing the configuration file. More specifically, if the configuration file contains a slash ('/'), the longest part up to the last slash is used as the directory to change to, otherwise the current directory is used. This mode is convenient to bundle maps, errorfiles, certificates and Lua scripts together as relocatable packages. When multiple configuration files are loaded, the directory is updated for each of them.\n\n- \"parent\" indicates that all relative files should be loaded from the parent of the directory containing the configuration file. More specifically, if the configuration file contains a slash ('/'), \"..\" is appended to the longest part up to the last slash is used as the directory to change to, otherwise the directory is \"..\". This mode is convenient to bundle maps, errorfiles,  certificates and Lua scripts together as relocatable packages, but where each part is located in a different subdirectory (e.g. \"config/\", \"certs/\", \"maps/\", ...).\n\n- \"origin\" indicates that all relative files should be loaded from the designated (mandatory) path. This may be used to ease management of different HAProxy instances running in parallel on a system, where each instance uses a different prefix but where the rest of the sections are made easily relocatable.\n\nEach \"default-path\" directive instantly replaces any previous one and will possibly result in switching to a different directory. While this should always result in the desired behavior, it is really not a good practice to use multiple default-path directives, and if used, the policy ought to remain consistent across all configuration files.\n\nWarning: some configuration elements such as maps or certificates are uniquely identified by their configured path. By using a relocatable layout, it becomes possible for several of them to end up with the same unique name, making it difficult to update them at run time, especially when multiple configuration files are loaded from different directories. It is essential to observe a strict collision-free file naming scheme before adopting relative paths. A robust approach could consist in prefixing all files names with their respective site name, or in doing so at the directory level.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-default-path",
           "sections": [
             "global"
@@ -13518,7 +13726,7 @@
     },
     "fd-hard-limit": {
       "arguments": [],
-      "description": "Sets an upper bound to the maximum number of file descriptors that the process will use, regardless of system limits. While \"ulimit-n\" and \"maxconn\" may be used to enforce a value, when they are not set, the process will be limited to the hard limit of the RLIMIT_NOFILE setting as reported by \"ulimit -n -H\". But some modern operating systems are now allowing extremely large values here (in the order of 1 billion), which will consume way too much RAM for regular usage. The fd-hard-limit setting is provided to enforce a possibly lower bound to this limit. This means that it will always respect the system-imposed limits when they are below <number> but the specified value will be used if system-imposed limits are higher. By default fd-hard-limit is set to 1048576. This default could be changed via DEFAULT_MAXFD compile-time variable, that could serve as the maximum (kernel) system limit, if RLIMIT_NOFILE hard limit is extremely large. fd-hard-limit set in global section allows to temporarily override the value provided via DEFAULT_MAXFD at the build-time. In the example below, no other setting is specified and the maxconn value will automatically adapt to the lower of \"fd-hard-limit\" and the RLIMIT_NOFILE limit:",
+      "description": "Sets an upper bound to the maximum number of file descriptors that the process will use, regardless of system limits. While \"ulimit-n\" and \"maxconn\" may be used to enforce a value, when they are not set, the process will be limited to the hard limit of the RLIMIT_NOFILE setting as reported by \"ulimit -n -H\". But some modern operating systems are now allowing extremely large values here (in the order of 1 billion), which will consume way too much RAM for regular usage. The fd-hard-limit setting is provided to enforce a possibly lower bound to this limit. This means that it will always respect the system-imposed limits when they are below <number> but the specified value will be used if system-imposed limits are higher. By default fd-hard-limit is set to 1048576. This default could be changed via DEFAULT_MAXFD compile-time variable, that could serve as the maximum (kernel) system limit, if RLIMIT_NOFILE hard limit is extremely large. fd-hard-limit set in global section allows to temporarily override the value provided via DEFAULT_MAXFD at the build-time. In the example below, no other setting is specified and the maxconn value will automatically adapt to the lower of \"fd-hard-limit\" and the RLIMIT_NOFILE limit:\n\nglobal # use as many FDs as possible but no more than 50000 fd-hard-limit 50000",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-fd-hard-limit",
       "name": "fd-hard-limit",
       "sections": [
@@ -13532,7 +13740,7 @@
           "arguments": [],
           "chapter": "3.1",
           "contexts": [],
-          "description": "Sets an upper bound to the maximum number of file descriptors that the process will use, regardless of system limits. While \"ulimit-n\" and \"maxconn\" may be used to enforce a value, when they are not set, the process will be limited to the hard limit of the RLIMIT_NOFILE setting as reported by \"ulimit -n -H\". But some modern operating systems are now allowing extremely large values here (in the order of 1 billion), which will consume way too much RAM for regular usage. The fd-hard-limit setting is provided to enforce a possibly lower bound to this limit. This means that it will always respect the system-imposed limits when they are below <number> but the specified value will be used if system-imposed limits are higher. By default fd-hard-limit is set to 1048576. This default could be changed via DEFAULT_MAXFD compile-time variable, that could serve as the maximum (kernel) system limit, if RLIMIT_NOFILE hard limit is extremely large. fd-hard-limit set in global section allows to temporarily override the value provided via DEFAULT_MAXFD at the build-time. In the example below, no other setting is specified and the maxconn value will automatically adapt to the lower of \"fd-hard-limit\" and the RLIMIT_NOFILE limit:",
+          "description": "Sets an upper bound to the maximum number of file descriptors that the process will use, regardless of system limits. While \"ulimit-n\" and \"maxconn\" may be used to enforce a value, when they are not set, the process will be limited to the hard limit of the RLIMIT_NOFILE setting as reported by \"ulimit -n -H\". But some modern operating systems are now allowing extremely large values here (in the order of 1 billion), which will consume way too much RAM for regular usage. The fd-hard-limit setting is provided to enforce a possibly lower bound to this limit. This means that it will always respect the system-imposed limits when they are below <number> but the specified value will be used if system-imposed limits are higher. By default fd-hard-limit is set to 1048576. This default could be changed via DEFAULT_MAXFD compile-time variable, that could serve as the maximum (kernel) system limit, if RLIMIT_NOFILE hard limit is extremely large. fd-hard-limit set in global section allows to temporarily override the value provided via DEFAULT_MAXFD at the build-time. In the example below, no other setting is specified and the maxconn value will automatically adapt to the lower of \"fd-hard-limit\" and the RLIMIT_NOFILE limit:\n\nglobal # use as many FDs as possible but no more than 50000 fd-hard-limit 50000",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-fd-hard-limit",
           "sections": [
             "global"
@@ -17103,7 +17311,7 @@
     },
     "lua-load": {
       "arguments": [],
-      "description": "This global directive loads and executes a Lua file in the shared context that is visible to all threads. Any variable set in such a context is visible from any thread. This is the easiest and recommended way to load Lua programs but it will not scale well if a lot of Lua calls are performed, as only one thread may be running on the global state at a time. A program loaded this way will always see 0 in the \"core.thread\" variable. This directive can be used multiple times.\n\nargs are available in the lua file using the code below in the body of the file. Do not forget that Lua arrays start at index 1. A \"local\" variable declared in a file is available in the entire file and not available on other files.",
+      "description": "This global directive loads and executes a Lua file in the shared context that is visible to all threads. Any variable set in such a context is visible from any thread. This is the easiest and recommended way to load Lua programs but it will not scale well if a lot of Lua calls are performed, as only one thread may be running on the global state at a time. A program loaded this way will always see 0 in the \"core.thread\" variable. This directive can be used multiple times.\n\nargs are available in the lua file using the code below in the body of the file. Do not forget that Lua arrays start at index 1. A \"local\" variable declared in a file is available in the entire file and not available on other files.\n\nlocal args = table.pack(...)",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-lua-load",
       "name": "lua-load",
       "sections": [
@@ -17117,7 +17325,7 @@
           "arguments": [],
           "chapter": "3.1",
           "contexts": [],
-          "description": "This global directive loads and executes a Lua file in the shared context that is visible to all threads. Any variable set in such a context is visible from any thread. This is the easiest and recommended way to load Lua programs but it will not scale well if a lot of Lua calls are performed, as only one thread may be running on the global state at a time. A program loaded this way will always see 0 in the \"core.thread\" variable. This directive can be used multiple times.\n\nargs are available in the lua file using the code below in the body of the file. Do not forget that Lua arrays start at index 1. A \"local\" variable declared in a file is available in the entire file and not available on other files.",
+          "description": "This global directive loads and executes a Lua file in the shared context that is visible to all threads. Any variable set in such a context is visible from any thread. This is the easiest and recommended way to load Lua programs but it will not scale well if a lot of Lua calls are performed, as only one thread may be running on the global state at a time. A program loaded this way will always see 0 in the \"core.thread\" variable. This directive can be used multiple times.\n\nargs are available in the lua file using the code below in the body of the file. Do not forget that Lua arrays start at index 1. A \"local\" variable declared in a file is available in the entire file and not available on other files.\n\nlocal args = table.pack(...)",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-lua-load",
           "sections": [
             "global"
@@ -17157,7 +17365,7 @@
     },
     "lua-prepend-path": {
       "arguments": [],
-      "description": "Prepends the given string followed by a semicolon to Lua's package.<type> variable. <type> must either be \"path\" or \"cpath\". If <type> is not given it defaults to \"path\".\n\nLua's paths are semicolon delimited lists of patterns that specify how the `require` function attempts to find the source file of a library. Question marks (?) within a pattern will be replaced by module name. The path is evaluated left to right. This implies that paths that are prepended later will be checked earlier.\n\nAs an example by specifying the following path:",
+      "description": "Prepends the given string followed by a semicolon to Lua's package.<type> variable. <type> must either be \"path\" or \"cpath\". If <type> is not given it defaults to \"path\".\n\nLua's paths are semicolon delimited lists of patterns that specify how the `require` function attempts to find the source file of a library. Question marks (?) within a pattern will be replaced by module name. The path is evaluated left to right. This implies that paths that are prepended later will be checked earlier.\n\nAs an example by specifying the following path:\n\nlua-prepend-path /usr/share/haproxy-lua/?/init.lua lua-prepend-path /usr/share/haproxy-lua/?.lua\n\nWhen `require \"example\"` is being called Lua will first attempt to load the /usr/share/haproxy-lua/example.lua script, if that does not exist the /usr/share/haproxy-lua/example/init.lua will be attempted and the default paths if that does not exist either.\n\nSee https://www.lua.org/pil/8.1.html for the details within the Lua documentation.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-lua-prepend-path",
       "name": "lua-prepend-path",
       "sections": [
@@ -17171,7 +17379,7 @@
           "arguments": [],
           "chapter": "3.1",
           "contexts": [],
-          "description": "Prepends the given string followed by a semicolon to Lua's package.<type> variable. <type> must either be \"path\" or \"cpath\". If <type> is not given it defaults to \"path\".\n\nLua's paths are semicolon delimited lists of patterns that specify how the `require` function attempts to find the source file of a library. Question marks (?) within a pattern will be replaced by module name. The path is evaluated left to right. This implies that paths that are prepended later will be checked earlier.\n\nAs an example by specifying the following path:",
+          "description": "Prepends the given string followed by a semicolon to Lua's package.<type> variable. <type> must either be \"path\" or \"cpath\". If <type> is not given it defaults to \"path\".\n\nLua's paths are semicolon delimited lists of patterns that specify how the `require` function attempts to find the source file of a library. Question marks (?) within a pattern will be replaced by module name. The path is evaluated left to right. This implies that paths that are prepended later will be checked earlier.\n\nAs an example by specifying the following path:\n\nlua-prepend-path /usr/share/haproxy-lua/?/init.lua lua-prepend-path /usr/share/haproxy-lua/?.lua\n\nWhen `require \"example\"` is being called Lua will first attempt to load the /usr/share/haproxy-lua/example.lua script, if that does not exist the /usr/share/haproxy-lua/example/init.lua will be attempted and the default paths if that does not exist either.\n\nSee https://www.lua.org/pil/8.1.html for the details within the Lua documentation.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-lua-prepend-path",
           "sections": [
             "global"
@@ -17789,7 +17997,7 @@
           ]
         }
       ],
-      "description": "Set the running mode or protocol of the instance",
+      "description": "Set the running mode or protocol of the instance\n\nhttp      The instance will work in HTTP mode. The client request will be analyzed in depth before connecting to any server. Any request which is not RFC-compliant will be rejected. Layer 7 filtering, processing and switching will be possible. This is the mode which brings HAProxy most of its value.\n\nlog       When used in a backend section, it will turn the backend into a log backend. Such backend can be used as a log destination for any \"log\" directive by using the \"backend@<name>\" syntax. Log messages will be distributed to the servers from the backend according to the lb settings which can be configured using the \"balance\" keyword. Log backends support UDP servers by prefixing the server's address with the \"udp@\" prefix. Common backend and server features are supported, but not TCP or HTTP specific ones.\n\nWhen doing content switching, it is mandatory that the frontend and the backend are in the same mode (generally HTTP), otherwise the configuration will be refused.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.2-mode",
       "name": "mode",
       "sections": [
@@ -17837,7 +18045,7 @@
           ],
           "chapter": "4.2",
           "contexts": [],
-          "description": "Set the running mode or protocol of the instance",
+          "description": "Set the running mode or protocol of the instance\n\nhttp      The instance will work in HTTP mode. The client request will be analyzed in depth before connecting to any server. Any request which is not RFC-compliant will be rejected. Layer 7 filtering, processing and switching will be possible. This is the mode which brings HAProxy most of its value.\n\nlog       When used in a backend section, it will turn the backend into a log backend. Such backend can be used as a log destination for any \"log\" directive by using the \"backend@<name>\" syntax. Log messages will be distributed to the servers from the backend according to the lb settings which can be configured using the \"balance\" keyword. Log backends support UDP servers by prefixing the server's address with the \"udp@\" prefix. Common backend and server features are supported, but not TCP or HTTP specific ones.\n\nWhen doing content switching, it is mandatory that the frontend and the backend are in the same mode (generally HTTP), otherwise the configuration will be refused.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#4.2-mode",
           "sections": [
             "defaults",
@@ -18615,7 +18823,7 @@
     },
     "no option get-values": {
       "arguments": [],
-      "description": "Enable or disable the retrieve of variables about connection management.\n\nHAProxy is able to send the record FCGI_GET_VALUES on connection establishment to retrieve the value for following variables:",
+      "description": "Enable or disable the retrieve of variables about connection management.\n\nHAProxy is able to send the record FCGI_GET_VALUES on connection establishment to retrieve the value for following variables:\n\n* FCGI_MAX_REQS     The maximum number of concurrent requests this application will accept.\n\n* FCGI_MPXS_CONNS   \"0\" if this application does not multiplex connections, \"1\" otherwise.\n\nSome FastCGI applications does not support this feature. Some others close the connection immediately after sending their response. So, by default, this option is disabled.\n\nNote that the maximum number of concurrent requests accepted by a FastCGI application is a connection variable. It only limits the number of streams per connection. If the global load must be limited on the application, the server parameters \"maxconn\" and \"pool-max-conn\" must be set. In addition, if an application does not support connection multiplexing, the maximum number of concurrent requests is automatically set to 1.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#10.1.1-no%20option%20get-values",
       "name": "no option get-values",
       "sections": [
@@ -18629,7 +18837,7 @@
           "arguments": [],
           "chapter": "10.1.1",
           "contexts": [],
-          "description": "Enable or disable the retrieve of variables about connection management.\n\nHAProxy is able to send the record FCGI_GET_VALUES on connection establishment to retrieve the value for following variables:",
+          "description": "Enable or disable the retrieve of variables about connection management.\n\nHAProxy is able to send the record FCGI_GET_VALUES on connection establishment to retrieve the value for following variables:\n\n* FCGI_MAX_REQS     The maximum number of concurrent requests this application will accept.\n\n* FCGI_MPXS_CONNS   \"0\" if this application does not multiplex connections, \"1\" otherwise.\n\nSome FastCGI applications does not support this feature. Some others close the connection immediately after sending their response. So, by default, this option is disabled.\n\nNote that the maximum number of concurrent requests accepted by a FastCGI application is a connection variable. It only limits the number of streams per connection. If the global load must be limited on the application, the server parameters \"maxconn\" and \"pool-max-conn\" must be set. In addition, if an application does not support connection multiplexing, the maximum number of concurrent requests is automatically set to 1.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#10.1.1-no%20option%20get-values",
           "sections": [
             "fcgi-app"
@@ -19051,7 +19259,7 @@
     },
     "no option keep-conn": {
       "arguments": [],
-      "description": "Instruct the FastCGI application to keep the connection open or not after sending a response.",
+      "description": "Instruct the FastCGI application to keep the connection open or not after sending a response.\n\nIf disabled, the FastCGI application closes the connection after responding to this request. By default, this option is enabled.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#10.1.1-no%20option%20keep-conn",
       "name": "no option keep-conn",
       "sections": [
@@ -19065,7 +19273,7 @@
           "arguments": [],
           "chapter": "10.1.1",
           "contexts": [],
-          "description": "Instruct the FastCGI application to keep the connection open or not after sending a response.",
+          "description": "Instruct the FastCGI application to keep the connection open or not after sending a response.\n\nIf disabled, the FastCGI application closes the connection after responding to this request. By default, this option is enabled.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#10.1.1-no%20option%20keep-conn",
           "sections": [
             "fcgi-app"
@@ -20693,7 +20901,7 @@
     },
     "option get-values": {
       "arguments": [],
-      "description": "Enable or disable the retrieve of variables about connection management.\n\nHAProxy is able to send the record FCGI_GET_VALUES on connection establishment to retrieve the value for following variables:",
+      "description": "Enable or disable the retrieve of variables about connection management.\n\nHAProxy is able to send the record FCGI_GET_VALUES on connection establishment to retrieve the value for following variables:\n\n* FCGI_MAX_REQS     The maximum number of concurrent requests this application will accept.\n\n* FCGI_MPXS_CONNS   \"0\" if this application does not multiplex connections, \"1\" otherwise.\n\nSome FastCGI applications does not support this feature. Some others close the connection immediately after sending their response. So, by default, this option is disabled.\n\nNote that the maximum number of concurrent requests accepted by a FastCGI application is a connection variable. It only limits the number of streams per connection. If the global load must be limited on the application, the server parameters \"maxconn\" and \"pool-max-conn\" must be set. In addition, if an application does not support connection multiplexing, the maximum number of concurrent requests is automatically set to 1.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#10.1.1-option%20get-values",
       "name": "option get-values",
       "sections": [
@@ -20707,7 +20915,7 @@
           "arguments": [],
           "chapter": "10.1.1",
           "contexts": [],
-          "description": "Enable or disable the retrieve of variables about connection management.\n\nHAProxy is able to send the record FCGI_GET_VALUES on connection establishment to retrieve the value for following variables:",
+          "description": "Enable or disable the retrieve of variables about connection management.\n\nHAProxy is able to send the record FCGI_GET_VALUES on connection establishment to retrieve the value for following variables:\n\n* FCGI_MAX_REQS     The maximum number of concurrent requests this application will accept.\n\n* FCGI_MPXS_CONNS   \"0\" if this application does not multiplex connections, \"1\" otherwise.\n\nSome FastCGI applications does not support this feature. Some others close the connection immediately after sending their response. So, by default, this option is disabled.\n\nNote that the maximum number of concurrent requests accepted by a FastCGI application is a connection variable. It only limits the number of streams per connection. If the global load must be limited on the application, the server parameters \"maxconn\" and \"pool-max-conn\" must be set. In addition, if an application does not support connection multiplexing, the maximum number of concurrent requests is automatically set to 1.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#10.1.1-option%20get-values",
           "sections": [
             "fcgi-app"
@@ -21362,7 +21570,7 @@
     },
     "option keep-conn": {
       "arguments": [],
-      "description": "Instruct the FastCGI application to keep the connection open or not after sending a response.",
+      "description": "Instruct the FastCGI application to keep the connection open or not after sending a response.\n\nIf disabled, the FastCGI application closes the connection after responding to this request. By default, this option is enabled.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#10.1.1-option%20keep-conn",
       "name": "option keep-conn",
       "sections": [
@@ -21376,7 +21584,7 @@
           "arguments": [],
           "chapter": "10.1.1",
           "contexts": [],
-          "description": "Instruct the FastCGI application to keep the connection open or not after sending a response.",
+          "description": "Instruct the FastCGI application to keep the connection open or not after sending a response.\n\nIf disabled, the FastCGI application closes the connection after responding to this request. By default, this option is enabled.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#10.1.1-option%20keep-conn",
           "sections": [
             "fcgi-app"
@@ -26024,7 +26232,7 @@
     },
     "table": {
       "arguments": [],
-      "description": "Configure a stickiness table for the current section. This line is parsed exactly the same way as the \"stick-table\" keyword in others section, except for the \"peers\" argument which is not required here and with an additional mandatory first parameter to designate the stick-table. Contrary to others sections, there may be several \"table\" lines in \"peers\" sections (see also \"stick-table\" keyword).\n\nAlso be aware of the fact that \"peers\" sections have their own stick-table namespaces to avoid collisions between stick-table names identical in different \"peers\" section. This is internally handled prepending the \"peers\" sections names to the name of the stick-tables followed by a '/' character. If somewhere else in the configuration file you have to refer to such stick-tables declared in \"peers\" sections you must use the prefixed version of the stick-table name as follows:",
+      "description": "Configure a stickiness table for the current section. This line is parsed exactly the same way as the \"stick-table\" keyword in others section, except for the \"peers\" argument which is not required here and with an additional mandatory first parameter to designate the stick-table. Contrary to others sections, there may be several \"table\" lines in \"peers\" sections (see also \"stick-table\" keyword).\n\nAlso be aware of the fact that \"peers\" sections have their own stick-table namespaces to avoid collisions between stick-table names identical in different \"peers\" section. This is internally handled prepending the \"peers\" sections names to the name of the stick-tables followed by a '/' character. If somewhere else in the configuration file you have to refer to such stick-tables declared in \"peers\" sections you must use the prefixed version of the stick-table name as follows:\n\npeers mypeers peer A ... peer B ... table t1 ...\n\nfrontend fe1 tcp-request content track-sc0 src table mypeers/t1\n\nThis is also this prefixed version of the stick-table names which must be used to refer to stick-tables through the CLI.\n\nAbout \"peers\" protocol, as only \"peers\" belonging to the same section may communicate with each others, there is no need to do such a distinction. Several \"peers\" sections may declare stick-tables with the same name. This is shorter version of the stick-table name  which is sent over the network. There is only a '/' character as prefix to avoid stick-table name collisions between stick-tables declared as backends and stick-table declared in \"peers\" sections as follows in this weird but supported configuration:\n\npeers mypeers peer A ... peer B ... table t1 type string size 10m store gpc0\n\nbackend t1 stick-table type string size 10m store gpc0 peers mypeers\n\nHere \"t1\" table declared in \"mypeers\" section has \"mypeers/t1\" as global name. \"t1\" table declared as a backend as \"t1\" as global name. But at peer protocol level the former table is named \"/t1\", the latter is again named \"t1\".",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.5-table",
       "name": "table",
       "sections": [
@@ -26038,7 +26246,7 @@
           "arguments": [],
           "chapter": "3.5",
           "contexts": [],
-          "description": "Configure a stickiness table for the current section. This line is parsed exactly the same way as the \"stick-table\" keyword in others section, except for the \"peers\" argument which is not required here and with an additional mandatory first parameter to designate the stick-table. Contrary to others sections, there may be several \"table\" lines in \"peers\" sections (see also \"stick-table\" keyword).\n\nAlso be aware of the fact that \"peers\" sections have their own stick-table namespaces to avoid collisions between stick-table names identical in different \"peers\" section. This is internally handled prepending the \"peers\" sections names to the name of the stick-tables followed by a '/' character. If somewhere else in the configuration file you have to refer to such stick-tables declared in \"peers\" sections you must use the prefixed version of the stick-table name as follows:",
+          "description": "Configure a stickiness table for the current section. This line is parsed exactly the same way as the \"stick-table\" keyword in others section, except for the \"peers\" argument which is not required here and with an additional mandatory first parameter to designate the stick-table. Contrary to others sections, there may be several \"table\" lines in \"peers\" sections (see also \"stick-table\" keyword).\n\nAlso be aware of the fact that \"peers\" sections have their own stick-table namespaces to avoid collisions between stick-table names identical in different \"peers\" section. This is internally handled prepending the \"peers\" sections names to the name of the stick-tables followed by a '/' character. If somewhere else in the configuration file you have to refer to such stick-tables declared in \"peers\" sections you must use the prefixed version of the stick-table name as follows:\n\npeers mypeers peer A ... peer B ... table t1 ...\n\nfrontend fe1 tcp-request content track-sc0 src table mypeers/t1\n\nThis is also this prefixed version of the stick-table names which must be used to refer to stick-tables through the CLI.\n\nAbout \"peers\" protocol, as only \"peers\" belonging to the same section may communicate with each others, there is no need to do such a distinction. Several \"peers\" sections may declare stick-tables with the same name. This is shorter version of the stick-table name  which is sent over the network. There is only a '/' character as prefix to avoid stick-table name collisions between stick-tables declared as backends and stick-table declared in \"peers\" sections as follows in this weird but supported configuration:\n\npeers mypeers peer A ... peer B ... table t1 type string size 10m store gpc0\n\nbackend t1 stick-table type string size 10m store gpc0 peers mypeers\n\nHere \"t1\" table declared in \"mypeers\" section has \"mypeers/t1\" as global name. \"t1\" table declared as a backend as \"t1\" as global name. But at peer protocol level the former table is named \"/t1\", the latter is again named \"t1\".",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.5-table",
           "sections": [
             "peers"
@@ -28388,7 +28596,7 @@
     },
     "tune.epoll.mask-events": {
       "arguments": [],
-      "description": "Along HAProxy's history, a few complex issues were met that were caused by bugs in the epoll mechanism in the Linux kernel. These ones usually are very rare and unreproducible outside the reporter's environment, and may only be worked around by disabling epoll and switching to poll instead, which is not very satisfying for high performance environments. Each time, issues affect only very specific (and rare) event types, and offering the ability to mask them can constitute a more acceptable work-around. This options offers this possibility by permitting to silently ignore events a few uncommon events and replace them with an input (which reports an unspecified incoming event). The effect is to avoid the fast error processing paths in certain places and only use the common paths. This should never be used unless being invited to do so by an expert in order to diagnose or work around a kernel bug.\n\nThe option takes a single argument which is a comma-delimited list of words each designating an event to be masked. The currently supported list of events is:",
+      "description": "Along HAProxy's history, a few complex issues were met that were caused by bugs in the epoll mechanism in the Linux kernel. These ones usually are very rare and unreproducible outside the reporter's environment, and may only be worked around by disabling epoll and switching to poll instead, which is not very satisfying for high performance environments. Each time, issues affect only very specific (and rare) event types, and offering the ability to mask them can constitute a more acceptable work-around. This options offers this possibility by permitting to silently ignore events a few uncommon events and replace them with an input (which reports an unspecified incoming event). The effect is to avoid the fast error processing paths in certain places and only use the common paths. This should never be used unless being invited to do so by an expert in order to diagnose or work around a kernel bug.\n\nThe option takes a single argument which is a comma-delimited list of words each designating an event to be masked. The currently supported list of events is: - \"err\":   mask the EPOLLERR event - \"hup\":   mask the EPOLLHUP events - \"rdhup\": mask the EPOLLRDHUP events",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.2-tune.epoll.mask-events",
       "name": "tune.epoll.mask-events",
       "sections": [
@@ -28402,7 +28610,7 @@
           "arguments": [],
           "chapter": "3.2",
           "contexts": [],
-          "description": "Along HAProxy's history, a few complex issues were met that were caused by bugs in the epoll mechanism in the Linux kernel. These ones usually are very rare and unreproducible outside the reporter's environment, and may only be worked around by disabling epoll and switching to poll instead, which is not very satisfying for high performance environments. Each time, issues affect only very specific (and rare) event types, and offering the ability to mask them can constitute a more acceptable work-around. This options offers this possibility by permitting to silently ignore events a few uncommon events and replace them with an input (which reports an unspecified incoming event). The effect is to avoid the fast error processing paths in certain places and only use the common paths. This should never be used unless being invited to do so by an expert in order to diagnose or work around a kernel bug.\n\nThe option takes a single argument which is a comma-delimited list of words each designating an event to be masked. The currently supported list of events is:",
+          "description": "Along HAProxy's history, a few complex issues were met that were caused by bugs in the epoll mechanism in the Linux kernel. These ones usually are very rare and unreproducible outside the reporter's environment, and may only be worked around by disabling epoll and switching to poll instead, which is not very satisfying for high performance environments. Each time, issues affect only very specific (and rare) event types, and offering the ability to mask them can constitute a more acceptable work-around. This options offers this possibility by permitting to silently ignore events a few uncommon events and replace them with an input (which reports an unspecified incoming event). The effect is to avoid the fast error processing paths in certain places and only use the common paths. This should never be used unless being invited to do so by an expert in order to diagnose or work around a kernel bug.\n\nThe option takes a single argument which is a comma-delimited list of words each designating an event to be masked. The currently supported list of events is: - \"err\":   mask the EPOLLERR event - \"hup\":   mask the EPOLLHUP events - \"rdhup\": mask the EPOLLRDHUP events",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.2-tune.epoll.mask-events",
           "sections": [
             "global"
@@ -29063,7 +29271,7 @@
     },
     "tune.lua.burst-timeout": {
       "arguments": [],
-      "description": "The \"burst\" execution timeout applies to any Lua handler. If the handler fails to finish or yield before timeout is reached, it will be aborted to prevent thread contention, to prevent traffic from not being served for too long, and ultimately to prevent the process from crashing because of the watchdog kicking in. Unlike other lua timeouts which are yield-cumulative, burst-timeout will ensure that the time spent in a single lua execution window does not exceed the configured timeout.\n\nYielding here means that the lua execution is effectively interrupted either through an explicit call to lua-yielding function such as core.(m)sleep() or core.yield(), or following an automatic forced-yield (see tune.lua.forced-yield) and that it will be resumed later when the related task is set for rescheduling. Not all lua handlers may yield: we have to make a distinction between yieldable handlers and unyieldable handlers.\n\nFor yieldable handlers (tasks, actions..), reaching the timeout means \"tune.lua.forced-yield\" might be too high for the system, reducing it could improve the situation, but it could also be a good idea to check if adding manual yields at some key points within the lua function helps or not. It may also indicate that the handler is spending too much time in a specific lua library function that cannot be interrupted.\n\nFor unyieldable handlers (lua converters, sample fetches), it could simply indicate that the handler is doing too much computation, which could result from an improper design given that such handlers, which often block the request execution flow, are expected to terminate quickly to allow the request processing to go through. A common resolution approach here would be to try to better optimize the lua function for speed since decreasing \"tune.lua.forced-yield\" won't help.\n\nThis timeout only counts the pure Lua runtime. If the Lua does a core.sleep, the sleeping time is not taken in account. The default timeout is 1000ms.\n\nNote: if a lua GC cycle is initiated from the handler (either explicitly requested or automatically triggered by lua after some time), the GC cycle time will also be accounted for.\n\nIndeed, there is no way to deduce the GC cycle time, so this could lead to some false positives on saturated systems (where GC is having hard time to catch up and consumes most of the available execution runtime). If it were to be the case, here are some resolution leads:",
+      "description": "The \"burst\" execution timeout applies to any Lua handler. If the handler fails to finish or yield before timeout is reached, it will be aborted to prevent thread contention, to prevent traffic from not being served for too long, and ultimately to prevent the process from crashing because of the watchdog kicking in. Unlike other lua timeouts which are yield-cumulative, burst-timeout will ensure that the time spent in a single lua execution window does not exceed the configured timeout.\n\nYielding here means that the lua execution is effectively interrupted either through an explicit call to lua-yielding function such as core.(m)sleep() or core.yield(), or following an automatic forced-yield (see tune.lua.forced-yield) and that it will be resumed later when the related task is set for rescheduling. Not all lua handlers may yield: we have to make a distinction between yieldable handlers and unyieldable handlers.\n\nFor yieldable handlers (tasks, actions..), reaching the timeout means \"tune.lua.forced-yield\" might be too high for the system, reducing it could improve the situation, but it could also be a good idea to check if adding manual yields at some key points within the lua function helps or not. It may also indicate that the handler is spending too much time in a specific lua library function that cannot be interrupted.\n\nFor unyieldable handlers (lua converters, sample fetches), it could simply indicate that the handler is doing too much computation, which could result from an improper design given that such handlers, which often block the request execution flow, are expected to terminate quickly to allow the request processing to go through. A common resolution approach here would be to try to better optimize the lua function for speed since decreasing \"tune.lua.forced-yield\" won't help.\n\nThis timeout only counts the pure Lua runtime. If the Lua does a core.sleep, the sleeping time is not taken in account. The default timeout is 1000ms.\n\nNote: if a lua GC cycle is initiated from the handler (either explicitly requested or automatically triggered by lua after some time), the GC cycle time will also be accounted for.\n\nIndeed, there is no way to deduce the GC cycle time, so this could lead to some false positives on saturated systems (where GC is having hard time to catch up and consumes most of the available execution runtime). If it were to be the case, here are some resolution leads:\n\n- checking if the script could be optimized to reduce lua memory footprint - fine-tuning lua GC parameters and / or requesting manual GC cycles (see: https://www.lua.org/manual/5.4/manual.html#pdf-collectgarbage) - increasing tune.lua.burst-timeout\n\nSetting value to 0 completely disables this protection.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.2-tune.lua.burst-timeout",
       "name": "tune.lua.burst-timeout",
       "sections": [
@@ -29077,7 +29285,7 @@
           "arguments": [],
           "chapter": "3.2",
           "contexts": [],
-          "description": "The \"burst\" execution timeout applies to any Lua handler. If the handler fails to finish or yield before timeout is reached, it will be aborted to prevent thread contention, to prevent traffic from not being served for too long, and ultimately to prevent the process from crashing because of the watchdog kicking in. Unlike other lua timeouts which are yield-cumulative, burst-timeout will ensure that the time spent in a single lua execution window does not exceed the configured timeout.\n\nYielding here means that the lua execution is effectively interrupted either through an explicit call to lua-yielding function such as core.(m)sleep() or core.yield(), or following an automatic forced-yield (see tune.lua.forced-yield) and that it will be resumed later when the related task is set for rescheduling. Not all lua handlers may yield: we have to make a distinction between yieldable handlers and unyieldable handlers.\n\nFor yieldable handlers (tasks, actions..), reaching the timeout means \"tune.lua.forced-yield\" might be too high for the system, reducing it could improve the situation, but it could also be a good idea to check if adding manual yields at some key points within the lua function helps or not. It may also indicate that the handler is spending too much time in a specific lua library function that cannot be interrupted.\n\nFor unyieldable handlers (lua converters, sample fetches), it could simply indicate that the handler is doing too much computation, which could result from an improper design given that such handlers, which often block the request execution flow, are expected to terminate quickly to allow the request processing to go through. A common resolution approach here would be to try to better optimize the lua function for speed since decreasing \"tune.lua.forced-yield\" won't help.\n\nThis timeout only counts the pure Lua runtime. If the Lua does a core.sleep, the sleeping time is not taken in account. The default timeout is 1000ms.\n\nNote: if a lua GC cycle is initiated from the handler (either explicitly requested or automatically triggered by lua after some time), the GC cycle time will also be accounted for.\n\nIndeed, there is no way to deduce the GC cycle time, so this could lead to some false positives on saturated systems (where GC is having hard time to catch up and consumes most of the available execution runtime). If it were to be the case, here are some resolution leads:",
+          "description": "The \"burst\" execution timeout applies to any Lua handler. If the handler fails to finish or yield before timeout is reached, it will be aborted to prevent thread contention, to prevent traffic from not being served for too long, and ultimately to prevent the process from crashing because of the watchdog kicking in. Unlike other lua timeouts which are yield-cumulative, burst-timeout will ensure that the time spent in a single lua execution window does not exceed the configured timeout.\n\nYielding here means that the lua execution is effectively interrupted either through an explicit call to lua-yielding function such as core.(m)sleep() or core.yield(), or following an automatic forced-yield (see tune.lua.forced-yield) and that it will be resumed later when the related task is set for rescheduling. Not all lua handlers may yield: we have to make a distinction between yieldable handlers and unyieldable handlers.\n\nFor yieldable handlers (tasks, actions..), reaching the timeout means \"tune.lua.forced-yield\" might be too high for the system, reducing it could improve the situation, but it could also be a good idea to check if adding manual yields at some key points within the lua function helps or not. It may also indicate that the handler is spending too much time in a specific lua library function that cannot be interrupted.\n\nFor unyieldable handlers (lua converters, sample fetches), it could simply indicate that the handler is doing too much computation, which could result from an improper design given that such handlers, which often block the request execution flow, are expected to terminate quickly to allow the request processing to go through. A common resolution approach here would be to try to better optimize the lua function for speed since decreasing \"tune.lua.forced-yield\" won't help.\n\nThis timeout only counts the pure Lua runtime. If the Lua does a core.sleep, the sleeping time is not taken in account. The default timeout is 1000ms.\n\nNote: if a lua GC cycle is initiated from the handler (either explicitly requested or automatically triggered by lua after some time), the GC cycle time will also be accounted for.\n\nIndeed, there is no way to deduce the GC cycle time, so this could lead to some false positives on saturated systems (where GC is having hard time to catch up and consumes most of the available execution runtime). If it were to be the case, here are some resolution leads:\n\n- checking if the script could be optimized to reduce lua memory footprint - fine-tuning lua GC parameters and / or requesting manual GC cycles (see: https://www.lua.org/manual/5.4/manual.html#pdf-collectgarbage) - increasing tune.lua.burst-timeout\n\nSetting value to 0 completely disables this protection.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.2-tune.lua.burst-timeout",
           "sections": [
             "global"
@@ -29144,7 +29352,7 @@
     },
     "tune.lua.log.stderr": {
       "arguments": [],
-      "description": "Enables ('on') or disables ('off') logging the output of LUA scripts via stderr. When set to 'auto', logging via stderr is conditionally 'on' if any of:",
+      "description": "Enables ('on') or disables ('off') logging the output of LUA scripts via stderr. When set to 'auto', logging via stderr is conditionally 'on' if any of:\n\n- tune.lua.log.loggers is set to 'off' - the script is executed in a non-proxy context with no global logger - the script is executed in a proxy context with no logger attached\n\nPlease note that, when enabled, this logging is in addition to the logging configured via tune.lua.log.loggers.\n\nDefaults to 'auto'.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.2-tune.lua.log.stderr",
       "name": "tune.lua.log.stderr",
       "sections": [
@@ -29158,7 +29366,7 @@
           "arguments": [],
           "chapter": "3.2",
           "contexts": [],
-          "description": "Enables ('on') or disables ('off') logging the output of LUA scripts via stderr. When set to 'auto', logging via stderr is conditionally 'on' if any of:",
+          "description": "Enables ('on') or disables ('off') logging the output of LUA scripts via stderr. When set to 'auto', logging via stderr is conditionally 'on' if any of:\n\n- tune.lua.log.loggers is set to 'off' - the script is executed in a non-proxy context with no global logger - the script is executed in a proxy context with no logger attached\n\nPlease note that, when enabled, this logging is in addition to the logging configured via tune.lua.log.loggers.\n\nDefaults to 'auto'.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.2-tune.lua.log.stderr",
           "sections": [
             "global"
@@ -29657,7 +29865,7 @@
     },
     "tune.quic.frontend.max-idle-timeout": {
       "arguments": [],
-      "description": "Sets the QUIC max_idle_timeout transport parameters in milliseconds for frontends which determines the period of time after which a connection silently closes if it has remained inactive during an effective period of time deduced from the two max_idle_timeout values announced by the two endpoints:",
+      "description": "Sets the QUIC max_idle_timeout transport parameters in milliseconds for frontends which determines the period of time after which a connection silently closes if it has remained inactive during an effective period of time deduced from the two max_idle_timeout values announced by the two endpoints: - the minimum of the two values if both are not null, - the maximum if only one of them is not null, - if both values are null, this feature is disabled.\n\nThe default value is 30000.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.2-tune.quic.frontend.max-idle-timeout",
       "name": "tune.quic.frontend.max-idle-timeout",
       "sections": [
@@ -29671,7 +29879,7 @@
           "arguments": [],
           "chapter": "3.2",
           "contexts": [],
-          "description": "Sets the QUIC max_idle_timeout transport parameters in milliseconds for frontends which determines the period of time after which a connection silently closes if it has remained inactive during an effective period of time deduced from the two max_idle_timeout values announced by the two endpoints:",
+          "description": "Sets the QUIC max_idle_timeout transport parameters in milliseconds for frontends which determines the period of time after which a connection silently closes if it has remained inactive during an effective period of time deduced from the two max_idle_timeout values announced by the two endpoints: - the minimum of the two values if both are not null, - the maximum if only one of them is not null, - if both values are null, this feature is disabled.\n\nThe default value is 30000.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.2-tune.quic.frontend.max-idle-timeout",
           "sections": [
             "global"
@@ -31254,7 +31462,7 @@
     },
     "wurfl-information-list": {
       "arguments": [],
-      "description": "A space-delimited list of WURFL capabilities, virtual capabilities, property names we plan to use in injected headers. A full list of capability and virtual capability names is available on the Scientiamobile website :",
+      "description": "A space-delimited list of WURFL capabilities, virtual capabilities, property names we plan to use in injected headers. A full list of capability and virtual capability names is available on the Scientiamobile website :\n\nhttps://www.scientiamobile.com/wurflCapability\n\nValid WURFL properties are: - wurfl_id                    Contains the device ID of the matched device.\n\n- wurfl_root_id               Contains the device root ID of the matched device.\n\n- wurfl_isdevroot             Tells if the matched device is a root device. Possible values are \"TRUE\" or \"FALSE\".\n\n- wurfl_useragent             The original useragent coming with this particular web request.\n\n- wurfl_api_version           Contains a string representing the currently used Libwurfl API version.\n\n- wurfl_info                  A string containing information on the parsed wurfl.xml and its full path.\n\n- wurfl_last_load_time        Contains the UNIX timestamp of the last time WURFL has been loaded successfully.\n\n- wurfl_normalized_useragent  The normalized useragent.\n\nPlease note that this option is only available when HAProxy has been compiled with USE_WURFL=1.",
       "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-wurfl-information-list",
       "name": "wurfl-information-list",
       "sections": [
@@ -31268,7 +31476,7 @@
           "arguments": [],
           "chapter": "3.1",
           "contexts": [],
-          "description": "A space-delimited list of WURFL capabilities, virtual capabilities, property names we plan to use in injected headers. A full list of capability and virtual capability names is available on the Scientiamobile website :",
+          "description": "A space-delimited list of WURFL capabilities, virtual capabilities, property names we plan to use in injected headers. A full list of capability and virtual capability names is available on the Scientiamobile website :\n\nhttps://www.scientiamobile.com/wurflCapability\n\nValid WURFL properties are: - wurfl_id                    Contains the device ID of the matched device.\n\n- wurfl_root_id               Contains the device root ID of the matched device.\n\n- wurfl_isdevroot             Tells if the matched device is a root device. Possible values are \"TRUE\" or \"FALSE\".\n\n- wurfl_useragent             The original useragent coming with this particular web request.\n\n- wurfl_api_version           Contains a string representing the currently used Libwurfl API version.\n\n- wurfl_info                  A string containing information on the parsed wurfl.xml and its full path.\n\n- wurfl_last_load_time        Contains the UNIX timestamp of the last time WURFL has been loaded successfully.\n\n- wurfl_normalized_useragent  The normalized useragent.\n\nPlease note that this option is only available when HAProxy has been compiled with USE_WURFL=1.",
           "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#3.1-wurfl-information-list",
           "sections": [
             "global"
