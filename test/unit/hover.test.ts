@@ -427,6 +427,18 @@ describe("provideHover", () => {
     expect(text.toLowerCase()).toContain("returns");
   });
 
+  it("documents sample fetches inside inline acl conditions", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    http-request set-header Host unless { req.hdr(Host) -m found }",
+      1,
+      "    http-request set-header Host unless { req.hdr(Host) -m found }".indexOf("req.hdr") +
+        2,
+      "3.4",
+    );
+    expect(text.toLowerCase()).toContain("req.hdr");
+    expect(text.toLowerCase()).toContain("returns");
+  });
+
   it("ignores whitespace-only sample token candidates", () => {
     const doc = createDocument("frontend web\n    http-request set-header X-Test %[   ]");
     const bundle = bundles["3.4"];
@@ -463,6 +475,17 @@ describe("provideHover", () => {
     expect(text.length).toBeGreaterThan(0);
     expect(text).toContain("use a specific pattern matching method");
     expect(text).not.toContain("load the file pointed by -f like a map");
+  });
+
+  it("documents acl match methods inside inline acl conditions", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    http-request set-header Host unless { req.hdr(Host) -m found }",
+      1,
+      "    http-request set-header Host unless { req.hdr(Host) -m found }".indexOf("found") + 1,
+      "3.4",
+    );
+    expect(text.toLowerCase()).toContain("found");
+    expect(text.toLowerCase()).toContain("requested sample could be found");
   });
 
   it("distinguishes case-sensitive acl flags", () => {
