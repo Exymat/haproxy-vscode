@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.10.2
+
+- ACL flag hover (`-f`, `-i`, `-m`, `-n`, `-u`, `-M`) — case-sensitive matching; `-m` and `-M` no longer share the same documentation.
+- `-M` ACL flag added to schemas for all supported versions.
+- Sample fetches inside inline ACL conditions (e.g. `{ req.hdr(Host) -m found }`) are syntax-highlighted correctly.
+
 ## 0.10.1
 
 - Richer hover for `http-request`, `http-response`, and `tcp-request` actions — fills in previously missing or truncated manual text (e.g. `set-path`, `track-sc1`, `deny`, `sc-inc-gpc1`, `set-var-fmt`, `wait-for-body`).

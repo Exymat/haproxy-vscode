@@ -461,6 +461,18 @@ describe("provideHover", () => {
       "3.4",
     );
     expect(text.length).toBeGreaterThan(0);
+    expect(text).toContain("use a specific pattern matching method");
+    expect(text).not.toContain("load the file pointed by -f like a map");
+  });
+
+  it("distinguishes case-sensitive acl flags", () => {
+    const text = hoverMarkdown(
+      "frontend web\n    acl test path -M -f map.lst",
+      1,
+      "    acl test path -M".indexOf("-M"),
+      "3.4",
+    );
+    expect(text).toContain("load the file pointed by -f like a map");
   });
 
   it("documents directive keywords", () => {

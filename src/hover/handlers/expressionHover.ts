@@ -8,6 +8,9 @@ export function tryExpressionHover(hc: HoverContext): vscode.Hover | null {
   const { ctx, data, range, cursorOffset } = hc;
 
   if (ctx.kind === "acl-criterion" && ctx.tokenIndex >= 2) {
+    if (ctx.token.text.startsWith("-")) {
+      return null;
+    }
     for (const candidate of sampleTokenCandidates(ctx.token.text, cursorOffset)) {
       const group =
         findGroupItemIn(data, "sample_fetches", candidate) ??

@@ -78,4 +78,11 @@ describe("highlight", () => {
     expect(findTokenOnLine(convTokens, 15, "hdr").displayScope).toBe(SCOPES.storage);
     expect(findTokenOnLine(convTokens, 18, "ipmask").displayScope).toBe(SCOPES.storage);
   });
+
+  it("tokenizes sample fetches inside inline acl conditions", async () => {
+    const lineTokens = await tokenizeDocument(
+      "frontend web\n    http-request set-header Host unless { req.hdr(Host) -m found }\n",
+    );
+    expect(findTokenOnLine(lineTokens, 2, "req.hdr").displayScope).toBe(SCOPES.storage);
+  });
 });

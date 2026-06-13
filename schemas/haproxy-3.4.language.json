@@ -548,42 +548,49 @@
         "docsUrl": "",
         "name": "--",
         "rulesets": [],
-        "signature": "---"
+        "signature": "--"
+      },
+      {
+        "description": "load the file pointed by -f like a map.",
+        "docsUrl": "",
+        "name": "-M",
+        "rulesets": [],
+        "signature": "-M"
       },
       {
         "description": "load patterns from a list.",
         "docsUrl": "",
         "name": "-f",
         "rulesets": [],
-        "signature": "--f"
+        "signature": "-f"
       },
       {
         "description": "ignore case during matching of all subsequent patterns.",
         "docsUrl": "",
         "name": "-i",
         "rulesets": [],
-        "signature": "--i"
+        "signature": "-i"
       },
       {
-        "description": "load the file pointed by -f like a map.",
+        "description": "use a specific pattern matching method",
         "docsUrl": "",
         "name": "-m",
         "rulesets": [],
-        "signature": "--m"
+        "signature": "-m"
       },
       {
         "description": "forbid the DNS resolutions",
         "docsUrl": "",
         "name": "-n",
         "rulesets": [],
-        "signature": "--n"
+        "signature": "-n"
       },
       {
         "description": "force the unique id of the ACL",
         "docsUrl": "",
         "name": "-u",
         "rulesets": [],
-        "signature": "--u"
+        "signature": "-u"
       }
     ],
     "acl_int_operators": [
