@@ -431,8 +431,7 @@ describe("provideHover", () => {
     const text = hoverMarkdown(
       "frontend web\n    http-request set-header Host unless { req.hdr(Host) -m found }",
       1,
-      "    http-request set-header Host unless { req.hdr(Host) -m found }".indexOf("req.hdr") +
-        2,
+      "    http-request set-header Host unless { req.hdr(Host) -m found }".indexOf("req.hdr") + 2,
       "3.4",
     );
     expect(text.toLowerCase()).toContain("req.hdr");
