@@ -165,6 +165,39 @@ Those inputs are merged into JSON schemas, completion/hover payloads, and TextMa
 
 ---
 
+## Performance
+
+The extension is built for interactive editing. The table below shows **median** timings from our automated micro-benchmarks (`npm run bench`) on Node.js 24 — they exercise the same TypeScript code paths as the extension host, using bundled schemas and synthetic `.cfg` fixtures.
+
+| Operation | Small config (~18 lines) | Medium config (~100 lines) | Stress config (24,000 lines) |
+| --------- | ------------------------ | --------------------------- | ---------------------------- |
+| **Startup** — load schema + language data (first `.cfg` open) | — | — | ~13 ms |
+| **Syntax highlighting** — full grammar tokenize¹ | ~6 ms | ~8 ms | ~1.2–1.7 s |
+| **Diagnostics** — one full pass² | <1 ms | ~0.6 ms | ~250 ms |
+| **Format document** | <0.1 ms | ~0.1 ms | ~36 ms |
+| **Completion** at cursor | <0.01 ms | — | ~31 ms |
+| **Hover** | <0.05 ms | — | <0.05 ms |
+| **Go to definition / references** | <0.01 ms | — | <1 ms |
+
+**What this means in practice**
+
+- **Everyday configs** (hundreds to a few thousand lines) stay responsive: diagnostics, completion, and hover are sub-millisecond to low tens of milliseconds per operation.
+- **Diagnostics dominate** cost on large files — the main reason `haproxy.diagnostics.maxLines` defaults to **4000** and very large files skip validation unless you raise that limit.
+- **Highlighting** scales with file size; the editor tokenizes incrementally, so the stress numbers above are a full-file worst case, not what you pay on every keystroke.
+- **Startup** pays a one-time ~13 ms JSON parse when the extension first loads language data for your selected HAProxy version.
+
+CI runs these benchmarks on every push (`npm run bench:ci`) and tracks regressions against [`test/bench/thresholds.json`](test/bench/thresholds.json). To reproduce locally:
+
+```powershell
+npm run bench
+```
+
+¹ Measured with `vscode-textmate` against the shipped grammar — a proxy for editor highlighting cost.
+
+² After `haproxy.diagnostics.debounceMs` (default 500 ms) following each edit in the real editor.
+
+---
+
 ## Report issues
 
 Found a false positive, missing completion, or wrong hover text? Open an issue on [GitHub](https://github.com/Exymat/haproxy-vscode/issues).

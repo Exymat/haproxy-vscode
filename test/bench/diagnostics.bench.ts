@@ -4,13 +4,15 @@ import { loadSchemaBundle } from "../helpers/schema";
 import { createDocument } from "../helpers/document";
 import { getParsedDocument } from "../../src/parseCache";
 import {
+  runDiagnosticsAfterEdit,
+  runDiagnosticsCold,
+  runDiagnosticsWarm,
+} from "./diagnosticsHelpers";
+import {
   findLineContaining,
   fixtureLineCount,
   fixturesForScenario,
   readFixture,
-  runDiagnosticsAfterEdit,
-  runDiagnosticsCold,
-  runDiagnosticsWarm,
 } from "./helpers";
 
 const bundle = loadSchemaBundle("3.2");
