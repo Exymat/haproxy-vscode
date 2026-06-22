@@ -1,6 +1,7 @@
 import { computeDiagnostics } from "../../src/diagnostics";
 import { parseDocument } from "../../src/parser";
 import { statementDiagnostics } from "../../src/statementDiagnostics";
+import * as addressFormat from "../../src/addressFormat";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 
@@ -21,6 +22,7 @@ describe("statementDiagnostics", () => {
   it("skips known log targets", () => {
     expect(lineDiag("global\n    log stdout local0", 1)).toEqual([]);
     expect(lineDiag("global\n    log @log local0", 1)).toEqual([]);
+    expect(lineDiag("global\n    log ring@buffer local0", 1)).toEqual([]);
     expect(lineDiag("global\n    log /var/log/haproxy.log local0", 1)).toEqual([]);
   });
 
@@ -177,6 +179,193 @@ describe("statementDiagnostics", () => {
 
   it("scans nested options for option-only rules like default-server", () => {
     const diags = lineDiag("backend api\n    default-server source 0.0.0.0 interface eth0", 1);
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
+  it("does not consume the next option as a value for value-taking nested options", () => {
+    const diags = lineDiag("backend api\n    server s1 127.0.0.1:80 cookie check", 1);
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+    expect(diags.filter((d) => d.code === "missing-argument")).toHaveLength(0);
+  });
+
+  it("reports missing trailing arguments for enum-style nested keywords", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.testrequiresvalue = {
+      name: "testrequiresvalue",
+      sections: ["backend"],
+      signatures: ["testrequiresvalue on <value>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testrequiresvalue on <value>"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 1,
+            slots: [
+              {
+                enum: ["on"],
+                optional: false,
+                value_kind: "enum",
+                variadic: false,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testrequiresvalue",
+      "testnextoption",
+    ];
+    const line = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testrequiresvalue on testnextoption"),
+    )[1];
+    const diags = statementDiagnostics(line, schema);
+    expect(diags.some((d) => d.code === "missing-argument")).toBe(true);
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
+  it("uses bind chapter variants for nested bind options", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.testbindvariant = {
+      name: "testbindvariant",
+      sections: ["frontend"],
+      signatures: ["testbindvariant"],
+      sources: [],
+      contexts: [],
+      arguments: [{ parameter: "base", description: "base", values: [] }],
+      argument_model: {
+        min_args: 0,
+        max_args: 0,
+        slots: [],
+      },
+      variants: [
+        {
+          chapter: "5.1",
+          sections: ["frontend"],
+          signatures: ["testbindvariant <value>"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 1,
+            slots: [{ enum: [], optional: false, value_kind: "name", variadic: false }],
+          },
+        },
+      ],
+    };
+    schema.keyword_groups.bind_options = [
+      ...(schema.keyword_groups.bind_options ?? []),
+      "testbindvariant",
+    ];
+    const diags = parseDocument(createDocument("frontend web\n    bind :80 testbindvariant"))[1];
+    expect(statementDiagnostics(diags, schema).some((d) => d.code === "missing-argument")).toBe(
+      true,
+    );
+  });
+
+  it("falls back to invalid-address when address validation omits a code", () => {
+    const spy = vi.spyOn(addressFormat, "validateHaproxyAddress").mockReturnValue({
+      valid: false,
+      message: "broken",
+    });
+    const diags = lineDiag("global\n    log bad local0", 1);
+    expect(diags.find((d) => d.code === "invalid-address")?.message).toBe("broken");
+    spy.mockRestore();
+  });
+
+  it("accepts a single nested value when max args is unlimited", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.testvariadic = {
+      name: "testvariadic",
+      sections: ["backend"],
+      signatures: ["testvariadic [<value> ...]"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testvariadic [<value> ...]"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 0,
+            max_args: null,
+            slots: [{ enum: [], optional: true, value_kind: "name", variadic: true }],
+          },
+        },
+      ],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testvariadic",
+    ];
+    const line = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testvariadic a"),
+    )[1];
+    expect(statementDiagnostics(line, schema)).toEqual([]);
+  });
+
+  it("tolerates address-valued nested options when no address policy applies", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.testaddress = {
+      name: "testaddress",
+      sections: ["backend"],
+      signatures: ["testaddress <addr>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testaddress <addr>"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 1,
+            slots: [{ enum: [], optional: false, value_kind: "address", variadic: false }],
+          },
+        },
+      ],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testaddress",
+    ];
+    const line = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testaddress not-an-address"),
+    )[1];
+    expect(statementDiagnostics(line, schema).filter((d) => d.code === "invalid-address")).toEqual(
+      [],
+    );
+  });
+
+  it("does not consume a value for a trailing value-taking option without a following token", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testvalueonly",
+    ];
+    schema.keyword_groups.server_options_with_value = [
+      ...(schema.keyword_groups.server_options_with_value ?? []),
+      "testvalueonly",
+    ];
+    const line = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testvalueonly"),
+    )[1];
+    const diags = statementDiagnostics(line, schema);
+    expect(diags.filter((d) => d.code === "missing-argument")).toHaveLength(0);
     expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
   });
 });

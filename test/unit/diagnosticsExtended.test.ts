@@ -229,4 +229,112 @@ describe("diagnostics extended branches", () => {
     const diags = computeDiagnostics(doc, schema, { languageData: bundle34.languageData });
     expect(diags.filter((d) => d.code === "unknown-keyword")).toHaveLength(0);
   });
+
+  it("accepts valid stats socket levels and lua services without diagnostics", () => {
+    const schema = structuredClone(bundle34.schema);
+    schema.keyword_groups.services = ["known-service"];
+    const doc = createDocument(
+      [
+        "global",
+        "    stats socket /tmp/haproxy level admin",
+        "frontend x",
+        "    bind :80",
+        "    http-request use-service lua.custom",
+      ].join("\n"),
+    );
+    const diags = computeDiagnostics(doc, schema, { languageData: bundle34.languageData });
+    expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
+    expect(diags.filter((d) => d.code === "unknown-service")).toHaveLength(0);
+  });
+
+  it("reports unknown option keywords for both option and no option forms", () => {
+    const doc = createDocument("defaults\n    option notreal\n    no option notreal");
+    const diags = computeDiagnostics(doc, bundle34.schema, {
+      languageData: bundle34.languageData,
+    });
+    expect(diags.filter((d) => d.code === "unknown-option")).toHaveLength(2);
+  });
+
+  it("skips unknown phase diagnostics when the token is also a known action", () => {
+    const schema = structuredClone(bundle34.schema);
+    schema.keywords["tcp-request"] = {
+      ...(schema.keywords["tcp-request content"] ?? { sections: ["frontend"] }),
+      sections: ["frontend"],
+    };
+    schema.keyword_groups.tcp_request_actions = [
+      ...(schema.keyword_groups.tcp_request_actions ?? []),
+      "accept",
+    ];
+    const doc = createDocument("frontend x\n    tcp-request accept if TRUE");
+    const diags = computeDiagnostics(doc, schema, { languageData: bundle34.languageData });
+    expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
+  });
+
+  it("reports wrong-context for no option lines in incompatible mode", () => {
+    const doc = createDocument("defaults\n    mode tcp\n    no option httplog");
+    const diags = computeDiagnostics(doc, bundle34.schema, {
+      languageData: bundle34.languageData,
+    });
+    expect(
+      diags.some((d) => d.code === "wrong-context" && d.message.includes("option httplog")),
+    ).toBe(true);
+  });
+
+  it("reports unknown prefix subcommands for known prefix families", () => {
+    const schema = structuredClone(bundle34.schema);
+    schema.line_layout = {
+      ...(schema.line_layout ?? {}),
+      prefix_families: ["customprefix"],
+      prefix_subcommands: { customprefix: ["enable", "scope"] },
+    };
+    const doc = createDocument("global\n    customprefix bogus");
+    const diags = computeDiagnostics(doc, schema, { languageData: bundle34.languageData });
+    expect(
+      diags.some((d) => d.code === "unknown-keyword" && d.message.includes("subcommand")),
+    ).toBe(true);
+  });
+
+  it("accepts known option keywords and acl criteria without nested diagnostics", () => {
+    const doc = createDocument(
+      "defaults\n    option httplog\nfrontend x\n    acl is_api path_beg /api",
+    );
+    const diags = computeDiagnostics(doc, bundle34.schema, {
+      languageData: bundle34.languageData,
+    });
+    expect(diags.filter((d) => d.code === "unknown-option")).toHaveLength(0);
+    expect(diags.filter((d) => d.code === "unknown-criterion")).toHaveLength(0);
+  });
+
+  it("uses legacy phase and action fallback when no statement rule group matches", () => {
+    const schema = structuredClone(bundle34.schema);
+    schema.statement_rules = [];
+    schema.keywords["tcp-request"] = {
+      name: "tcp-request",
+      sections: ["frontend"],
+      signatures: ["tcp-request <phase> [args]"],
+      sources: [],
+    };
+    schema.keywords["http-request"] = {
+      name: "http-request",
+      sections: ["frontend"],
+      signatures: ["http-request <action> [args]"],
+      sources: [],
+    };
+
+    const tcpDoc = createDocument("frontend x\n    tcp-request strangephase if TRUE");
+    const tcpDiags = computeDiagnostics(tcpDoc, schema, { languageData: bundle34.languageData });
+    expect(tcpDiags.some((d) => d.code === "unknown-value")).toBe(true);
+
+    const httpDoc = createDocument("frontend x\n    http-request strangeaction");
+    const httpDiags = computeDiagnostics(httpDoc, schema, { languageData: bundle34.languageData });
+    expect(httpDiags.some((d) => d.code === "unknown-action")).toBe(true);
+  });
+
+  it("does not report unknown service when no service catalog exists", () => {
+    const schema = structuredClone(bundle34.schema);
+    delete schema.keyword_groups.services;
+    const doc = createDocument("frontend x\n    bind :80\n    http-request use-service missing");
+    const diags = computeDiagnostics(doc, schema, { languageData: bundle34.languageData });
+    expect(diags.filter((d) => d.code === "unknown-service")).toHaveLength(0);
+  });
 });

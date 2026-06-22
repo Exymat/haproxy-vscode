@@ -1,5 +1,13 @@
 import { parseDocument } from "../../src/parser";
-import { buildSymbolIndex, getSymbolIndex, resolveSymbolAtPosition } from "../../src/symbolIndex";
+import {
+  buildSymbolIndex,
+  findAllSites,
+  findDefinitions,
+  findReferences,
+  getSymbolIndex,
+  resolveSymbolAtPosition,
+  symbolKey,
+} from "../../src/symbolIndex";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 import type { Position, TextDocument } from "vscode";
@@ -217,5 +225,39 @@ describe("symbolIndex extended", () => {
     const document = doc("frontend web extra\n    bind :80");
     const col = "frontend web extra".indexOf("extra");
     expect(resolveSymbolAtPosition(document, pos(0, col), schema)).toBeNull();
+  });
+
+  it("tracks acl references introduced by unless and strips leading bang", () => {
+    const parsed = parseDocument(
+      doc("frontend web\n    acl blocked path_beg /admin\n    http-request deny unless !blocked"),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+    const refs = findReferences(index, "acl", "blocked", "frontend:web");
+    expect(refs).toHaveLength(1);
+    expect(refs[0]?.name).toBe("blocked");
+  });
+
+  it("uses value token indexes for definitions and unscoped symbol keys", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = [
+      {
+        keyword: "use_backend",
+        kind: "directive",
+        definition_kind: "proxy-section",
+        value_token_index: 1,
+      },
+    ];
+    const parsed = parseDocument(doc("frontend web\n    use_backend api"));
+    const index = buildSymbolIndex(parsed, customSchema);
+    expect(findDefinitions(index, "proxy-section", "api", "frontend:web")).toHaveLength(1);
+    expect(symbolKey("proxy-section", "Api", "frontend:web")).toBe("proxy-section:api");
+  });
+
+  it("findAllSites returns both definitions and references", () => {
+    const parsed = parseDocument(
+      doc("defaults base\nfrontend web from base\nbackend api\n    use_backend api if TRUE"),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+    expect(findAllSites(index, "defaults-profile", "base", null)).toHaveLength(2);
   });
 });

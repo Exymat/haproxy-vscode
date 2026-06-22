@@ -192,4 +192,95 @@ describe("resolveLanguageKeyword", () => {
     };
     expect(resolveSchemaKeyword(baseOnly, "defaults")?.argument_model?.max_args).toBe(2);
   });
+
+  it("falls back to base sections, signatures, and contexts when a variant leaves them empty", () => {
+    const keyword: LanguageKeyword = {
+      name: "inherit",
+      sections: ["frontend"],
+      signatures: ["inherit <value>"],
+      description: "base description",
+      docsUrl: "http://example.com/base",
+      arguments: [{ parameter: "value", description: "base arg", values: [] }],
+      variants: [
+        {
+          chapter: "4.2",
+          sections: [],
+          signatures: [],
+          description: "variant description",
+          docsUrl: "http://example.com/variant",
+          contexts: [],
+          arguments: [{ parameter: "value", description: "", values: [] }],
+        },
+      ],
+    };
+
+    const resolved = resolveLanguageKeyword(keyword, "frontend");
+    expect(resolved?.sections).toEqual(["frontend"]);
+    expect(resolved?.signatures).toEqual(["inherit <value>"]);
+    expect(resolved?.arguments?.[0]?.description).toBe("base arg");
+  });
+
+  it("returns the sole variant when section does not match and only one variant exists", () => {
+    const schemaKeyword: SchemaKeyword = {
+      name: "single",
+      sections: ["frontend"],
+      signatures: ["single"],
+      sources: [],
+      variants: [
+        {
+          chapter: "9.1",
+          sections: ["backend"],
+          signatures: ["single backend"],
+        },
+      ],
+    };
+
+    expect(schemaVariantForSection(schemaKeyword, "frontend")?.chapter).toBe("9.1");
+    expect(resolveSchemaKeyword(schemaKeyword, "frontend")?.signatures).toEqual(["single backend"]);
+  });
+
+  it("falls back to base schema signatures, contexts, and arguments when a variant omits them", () => {
+    const schemaKeyword: SchemaKeyword = {
+      name: "inherit-schema",
+      sections: ["backend"],
+      signatures: ["inherit-schema <value>"],
+      sources: ["docs"],
+      contexts: ["tcp"],
+      arguments: [{ parameter: "value", description: "base arg", values: [] }],
+      variants: [
+        {
+          chapter: "4.2",
+          sections: [],
+          signatures: [],
+          contexts: [],
+          arguments: [{ parameter: "value", description: "", values: [] }],
+        },
+      ],
+    };
+
+    const resolved = resolveSchemaKeyword(schemaKeyword, "backend");
+    expect(resolved?.sections).toEqual(["backend"]);
+    expect(resolved?.signatures).toEqual(["inherit-schema <value>"]);
+    expect(resolved?.contexts).toEqual(["tcp"]);
+    expect(resolved?.arguments?.[0]?.description).toBe("base arg");
+  });
+
+  it("returns undefined for variant helpers when no variants exist", () => {
+    const noVariantsLanguage: LanguageKeyword = {
+      name: "plain",
+      sections: ["frontend"],
+      signatures: ["plain"],
+      description: "plain",
+      docsUrl: "http://example.com/plain",
+    };
+    const noVariantsSchema: SchemaKeyword = {
+      name: "plain-schema",
+      sections: ["backend"],
+      signatures: ["plain-schema"],
+      sources: [],
+    };
+
+    expect(languageVariantForSection(noVariantsLanguage, "frontend")).toBeUndefined();
+    expect(schemaVariantForSection(noVariantsSchema, "backend")).toBeUndefined();
+  });
 });

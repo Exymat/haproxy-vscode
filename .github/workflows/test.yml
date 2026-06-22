@@ -8,58 +8,103 @@ on:
     paths-ignore:
       - "**/*.md"
 
-jobs:
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+concurrency:
+  group: test-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v6
         with:
           node-version: 24
+          cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Lint
         run: npm run lint
 
+  format:
+    name: Format check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Check formatting
         run: npm run format:check
+
+  bench-fixture:
+    name: Benchmark fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Check generated benchmark fixtures
         run: npm run bench:fixture:check
 
+  compile:
+    name: Compile (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Compile
         run: npm run compile
 
+  unit:
+    name: Unit tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Unit tests with coverage
         run: npm run test:coverage
-
-      - name: Performance benchmarks
-        run: npm run bench:ci
-        continue-on-error: true
-
-      - name: Upload benchmark report
-        if: always() && runner.os == 'Linux'
-        uses: actions/upload-artifact@v7
-        with:
-          name: bench-report-${{ matrix.os }}
-          path: scripts/reports/bench-latest.json
-          if-no-files-found: ignore
-
-      - name: Integration tests
-        run: xvfb-run -a npm run test:integration
-        if: runner.os == 'Linux'
-
-      - name: Integration tests
-        run: npm run test:integration
-        if: runner.os != 'Linux'
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v7
@@ -67,3 +112,55 @@ jobs:
           files: ./coverage/lcov.info
           flags: ${{ matrix.os }}
           name: coverage-${{ matrix.os }}
+
+  integration:
+    name: Integration tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Integration tests (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npm run test:integration
+
+      - name: Integration tests
+        if: runner.os != 'Linux'
+        run: npm run test:integration
+
+  bench:
+    name: Performance benchmarks
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Performance benchmarks
+        run: npm run bench:ci
+
+      - name: Upload benchmark report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: bench-report
+          path: scripts/reports/bench-latest.json
+          if-no-files-found: ignore
