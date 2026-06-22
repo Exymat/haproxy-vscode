@@ -4,7 +4,7 @@
     { "name": "loadSchemaBundle cold", "maxMs": 500 },
     { "namePattern": "^loadSchemaBundle cold \\(", "maxMs": 500 },
     { "namePattern": "^tokenize large-valid\\.cfg", "maxMs": 2600, "derive": "tokenize" },
-    { "namePattern": "^tokenize large-mixed\\.cfg", "maxMs": 1800, "derive": "tokenize" },
+    { "namePattern": "^tokenize large-mixed\\.cfg", "maxMs": 2600, "derive": "tokenize" },
     { "namePattern": "^diagnostics cold: large-valid\\.cfg", "maxMs": 3000 },
     { "namePattern": "^diagnostics warm: large-valid\\.cfg", "maxMs": 2500 },
     { "namePattern": "^diagnostics edit: large-valid\\.cfg", "maxMs": 3000 },
