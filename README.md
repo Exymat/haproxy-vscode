@@ -169,15 +169,15 @@ Those inputs are merged into JSON schemas, completion/hover payloads, and TextMa
 
 The extension is built for interactive editing. The table below shows **median** timings from our automated micro-benchmarks (`npm run bench`) on Node.js 24 — they exercise the same TypeScript code paths as the extension host, using bundled schemas and synthetic `.cfg` fixtures.
 
-| Operation | Small config (~18 lines) | Medium config (~100 lines) | Stress config (24,000 lines) |
-| --------- | ------------------------ | --------------------------- | ---------------------------- |
-| **Startup** — load schema + language data (first `.cfg` open) | — | — | ~13 ms |
-| **Syntax highlighting** — full grammar tokenize¹ | ~6 ms | ~8 ms | ~1.2–1.7 s |
-| **Diagnostics** — one full pass² | <1 ms | ~0.6 ms | ~250 ms |
-| **Format document** | <0.1 ms | ~0.1 ms | ~36 ms |
-| **Completion** at cursor | <0.01 ms | — | ~31 ms |
-| **Hover** | <0.05 ms | — | <0.05 ms |
-| **Go to definition / references** | <0.01 ms | — | <1 ms |
+| Operation                                                     | Small config (~18 lines) | Medium config (~100 lines) | Stress config (24,000 lines) |
+| ------------------------------------------------------------- | ------------------------ | -------------------------- | ---------------------------- |
+| **Startup** — load schema + language data (first `.cfg` open) | —                        | —                          | ~13 ms                       |
+| **Syntax highlighting** — full grammar tokenize¹              | ~6 ms                    | ~8 ms                      | ~1.2–1.7 s                   |
+| **Diagnostics** — one full pass²                              | <1 ms                    | ~0.6 ms                    | ~250 ms                      |
+| **Format document**                                           | <0.1 ms                  | ~0.1 ms                    | ~36 ms                       |
+| **Completion** at cursor                                      | <0.01 ms                 | —                          | ~31 ms                       |
+| **Hover**                                                     | <0.05 ms                 | —                          | <0.05 ms                     |
+| **Go to definition / references**                             | <0.01 ms                 | —                          | <1 ms                        |
 
 **What this means in practice**
 

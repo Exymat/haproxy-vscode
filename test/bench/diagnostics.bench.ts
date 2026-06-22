@@ -8,12 +8,7 @@ import {
   runDiagnosticsCold,
   runDiagnosticsWarm,
 } from "./diagnosticsHelpers";
-import {
-  findLineContaining,
-  fixtureLineCount,
-  fixturesForScenario,
-  readFixture,
-} from "./helpers";
+import { findLineContaining, fixtureLineCount, fixturesForScenario, readFixture } from "./helpers";
 
 const bundle = loadSchemaBundle("3.2");
 
