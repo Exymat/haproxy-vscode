@@ -2,6 +2,10 @@ import * as vscode from "vscode";
 
 import { ParsedLine } from "./parser";
 import { HaproxySchema } from "./schema";
+import {
+  DelimiterDiagnostic,
+  filterExpressionIssuesAgainstDelimiters,
+} from "./delimiterDiagnostics";
 import { validateAclConditions } from "./aclCondition";
 import { validateSampleExpressions } from "./sampleExpression";
 
@@ -13,15 +17,16 @@ export function expressionDiagnostics(
   line: ParsedLine,
   lineText: string,
   schema: HaproxySchema,
+  delimiterIssues: DelimiterDiagnostic[] = [],
 ): vscode.Diagnostic[] {
   if (!mightContainExpressionSyntax(lineText)) {
     return [];
   }
   const diagnostics: vscode.Diagnostic[] = [];
-  const expressionIssues = [
-    ...validateSampleExpressions(lineText, schema),
-    ...validateAclConditions(lineText, schema),
-  ];
+  const expressionIssues = filterExpressionIssuesAgainstDelimiters(
+    [...validateSampleExpressions(lineText, schema), ...validateAclConditions(lineText, schema)],
+    delimiterIssues,
+  );
   for (const issue of expressionIssues) {
     diagnostics.push(
       new vscode.Diagnostic(

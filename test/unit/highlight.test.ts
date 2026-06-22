@@ -85,4 +85,22 @@ describe("highlight", () => {
     );
     expect(findTokenOnLine(lineTokens, 2, "req.hdr").displayScope).toBe(SCOPES.storage);
   });
+
+  it("recovers highlighting after an unclosed sample expression", async () => {
+    const lineTokens = await tokenizeDocument(
+      [
+        "frontend broken_expr",
+        "    http-request set-header x-bad %[req.hdr(host)",
+        "defaults malformed_defaults",
+        "    mode http",
+      ].join("\n"),
+    );
+    expect(findTokenOnLine(lineTokens, 3, "defaults").displayScope).toBe(
+      "entity.name.type.section.haproxy",
+    );
+    expect(findTokenOnLine(lineTokens, 3, "malformed_defaults").displayScope).toBe(SCOPES.label);
+    expect(findTokenOnLine(lineTokens, 4, "mode").displayScope).toBe(
+      "keyword.other.directive.haproxy",
+    );
+  });
 });

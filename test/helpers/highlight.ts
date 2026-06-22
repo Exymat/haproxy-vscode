@@ -133,6 +133,41 @@ function hasHaproxyScope(scopes: string[]): boolean {
   return scopes.some((s) => s !== "source.haproxy");
 }
 
+export function ruleStackDepth(ruleStack: StateStack | null): number {
+  return ruleStack?.depth ?? 0;
+}
+
+export function isLineIsolatedRuleStack(ruleStack: StateStack | null): boolean {
+  return ruleStackDepth(ruleStack) <= 1;
+}
+
+export interface LineIsolationViolation {
+  lineNo: number;
+  lineText: string;
+  depth: number;
+}
+
+export async function findLineIsolationViolations(
+  content: string,
+): Promise<LineIsolationViolation[]> {
+  const grammar = await createHaproxyGrammar();
+  const lines = content.split(/\r?\n/);
+  let ruleStack: StateStack | null = null;
+  const violations: LineIsolationViolation[] = [];
+
+  for (let lineNo = 0; lineNo < lines.length; lineNo += 1) {
+    const lineText = lines[lineNo];
+    const { ruleStack: nextStack } = grammar.tokenizeLine(lineText, ruleStack);
+    ruleStack = nextStack;
+    const depth = ruleStackDepth(ruleStack);
+    if (depth > 1) {
+      violations.push({ lineNo: lineNo + 1, lineText, depth });
+    }
+  }
+
+  return violations;
+}
+
 function resolveForeground(scopes: string[], colorRules: TokenColorRule[]) {
   let best: { color: string | null; specificity: number } | null = null;
   for (const rule of colorRules) {

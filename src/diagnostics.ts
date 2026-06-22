@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 import { argumentModelDiagnostics } from "./argumentDiagnostics";
+import { delimiterDiagnostics, validateLineDelimiters } from "./delimiterDiagnostics";
 import { DiagnosticContext } from "./diagnosticContext";
 import { deprecatedDiagnostics } from "./deprecatedDiagnostics";
 import { expressionDiagnostics } from "./expressionDiagnostics";
@@ -56,7 +57,10 @@ export function computeDiagnostics(
       diagnostics.push(...argumentModelDiagnostics(line, schema, memo, ctx.noPrefix));
     }
     diagnostics.push(...aclNameDiagnostics(line));
-    diagnostics.push(...expressionDiagnostics(line, ctx.lineText(line), schema));
+    const lineText = ctx.lineText(line);
+    const delimiterIssues = validateLineDelimiters(lineText);
+    diagnostics.push(...delimiterDiagnostics(line, delimiterIssues));
+    diagnostics.push(...expressionDiagnostics(line, lineText, schema, delimiterIssues));
     if (ctx.deprecatedIndex) {
       diagnostics.push(
         ...deprecatedDiagnostics(ctx, line, memo, ctx.deprecatedIndex, ctx.suppressDeprecated),

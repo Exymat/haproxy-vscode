@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.10.4
+
+- **Line-isolated syntax highlighting** — `%[…]`, `{…}`, `(...)`, `[…]`, and quoted strings no longer leak grammar state to following lines when a delimiter is missing on the same line. Fixes broken highlighting on the rest of a file after a malformed sample expression or ACL block.
+- **Delimiter diagnostics** — reports missing or unexpected `()`, `[]`, `{}`, and quotes on each line (e.g. `missing closing ']'` on `%[req.hdr(host)`), with squiggles on the opening delimiter.
+- Regenerated TextMate grammars for all supported versions (2.6–3.4) from `haproxy-schema`, including the line-isolation end-of-line recovery rules.
+
 ## 0.10.3
 
 - No user-facing changes.

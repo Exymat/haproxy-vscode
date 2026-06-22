@@ -171,11 +171,11 @@ The extension is built for interactive editing. The table below shows **median**
 
 | Operation                                                     | Small config (~18 lines) | Medium config (~100 lines) | Stress config (24,000 lines) |
 | ------------------------------------------------------------- | ------------------------ | -------------------------- | ---------------------------- |
-| **Startup** — load schema + language data (first `.cfg` open) | —                        | —                          | ~13 ms                       |
-| **Syntax highlighting** — full grammar tokenize¹              | ~6 ms                    | ~8 ms                      | ~1.2–1.7 s                   |
-| **Diagnostics** — one full pass²                              | <1 ms                    | ~0.6 ms                    | ~250 ms                      |
-| **Format document**                                           | <0.1 ms                  | ~0.1 ms                    | ~36 ms                       |
-| **Completion** at cursor                                      | <0.01 ms                 | —                          | ~31 ms                       |
+| **Startup** — load schema + language data (first `.cfg` open) | —                        | —                          | ~12 ms                       |
+| **Syntax highlighting** — full grammar tokenize¹              | ~6 ms                    | ~9 ms                      | ~1.5–1.9 s                   |
+| **Diagnostics** — one full pass²                              | <1 ms                    | ~0.6 ms                    | ~280 ms                      |
+| **Format document**                                           | <0.1 ms                  | ~0.1 ms                    | ~34–38 ms                    |
+| **Completion** at cursor                                      | <0.01 ms                 | —                          | ~33 ms                       |
 | **Hover**                                                     | <0.05 ms                 | —                          | <0.05 ms                     |
 | **Go to definition / references**                             | <0.01 ms                 | —                          | <1 ms                        |
 
@@ -183,8 +183,9 @@ The extension is built for interactive editing. The table below shows **median**
 
 - **Everyday configs** (hundreds to a few thousand lines) stay responsive: diagnostics, completion, and hover are sub-millisecond to low tens of milliseconds per operation.
 - **Diagnostics dominate** cost on large files — the main reason `haproxy.diagnostics.maxLines` defaults to **4000** and very large files skip validation unless you raise that limit.
-- **Highlighting** scales with file size; the editor tokenizes incrementally, so the stress numbers above are a full-file worst case, not what you pay on every keystroke.
-- **Startup** pays a one-time ~13 ms JSON parse when the extension first loads language data for your selected HAProxy version.
+- **Highlighting** scales with file size; the editor tokenizes incrementally, so the stress numbers above are a full-file worst case, not what you pay on every keystroke. Grammars are **line-isolated** (no `begin`/`end` region may carry state past end-of-line), so tokenization cost reflects correct per-line highlighting even when earlier lines contain deliberate syntax errors.
+- **Stress fixtures:** `large-valid.cfg` (mostly valid) tokenizes at ~**1.8 s** median; `large-mixed.cfg` (valid baseline plus injected invalid lines every ~5 blocks) at ~**1.5 s** median.
+- **Startup** pays a one-time ~12 ms JSON parse when the extension first loads language data for your selected HAProxy version.
 
 CI runs these benchmarks on every push (`npm run bench:ci`) and tracks regressions against [`test/bench/thresholds.json`](test/bench/thresholds.json). To reproduce locally:
 

@@ -125,7 +125,7 @@
         {
           "name": "string.quoted.double.haproxy",
           "begin": "\"",
-          "end": "\"",
+          "end": "(\"|$)",
           "patterns": [
             {
               "name": "constant.character.escape.haproxy",
@@ -136,7 +136,7 @@
         {
           "name": "string.quoted.single.haproxy",
           "begin": "'",
-          "end": "'",
+          "end": "('|$)",
           "patterns": [
             {
               "name": "constant.character.escape.haproxy",
@@ -951,7 +951,7 @@
               "name": "keyword.other.modifier.haproxy"
             }
           },
-          "end": "\\)",
+          "end": "(\\)|$)",
           "endCaptures": {
             "0": {
               "name": "keyword.other.modifier.haproxy"
@@ -1036,7 +1036,7 @@
               "name": "keyword.other.modifier.haproxy"
             }
           },
-          "end": "\\}",
+          "end": "(\\}|$)",
           "endCaptures": {
             "0": {
               "name": "keyword.other.modifier.haproxy"
@@ -1096,7 +1096,7 @@
               "name": "keyword.other.modifier.haproxy"
             }
           },
-          "end": "\\]",
+          "end": "(\\]|$)",
           "endCaptures": {
             "0": {
               "name": "keyword.other.modifier.haproxy"
@@ -1149,7 +1149,7 @@
               "name": "keyword.other.modifier.haproxy"
             }
           },
-          "end": "\\]",
+          "end": "(\\]|$)",
           "endCaptures": {
             "0": {
               "name": "keyword.other.modifier.haproxy"
