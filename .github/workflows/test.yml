@@ -17,9 +17,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
 
@@ -32,11 +32,26 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+      - name: Check generated benchmark fixtures
+        run: npm run bench:fixture:check
+
       - name: Compile
         run: npm run compile
 
       - name: Unit tests with coverage
         run: npm run test:coverage
+
+      - name: Performance benchmarks
+        run: npm run bench:ci
+        continue-on-error: true
+
+      - name: Upload benchmark report
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: bench-report-${{ matrix.os }}
+          path: scripts/reports/bench-latest.json
+          if-no-files-found: ignore
 
       - name: Integration tests
         run: xvfb-run -a npm run test:integration

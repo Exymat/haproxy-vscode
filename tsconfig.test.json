@@ -9,5 +9,11 @@
     "resolveJsonModule": true,
     "types": ["vitest/globals", "node"]
   },
-  "include": ["test/unit/**/*.ts", "test/helpers/**/*.ts", "test/__mocks__/**/*.ts", "src/**/*.ts"]
+  "include": [
+    "test/unit/**/*.ts",
+    "test/bench/**/*.ts",
+    "test/helpers/**/*.ts",
+    "test/__mocks__/**/*.ts",
+    "src/**/*.ts"
+  ]
 }

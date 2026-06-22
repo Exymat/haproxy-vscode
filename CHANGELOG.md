@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.10.3
+
+- No user-facing changes.
+
 ## 0.10.2
 
 - ACL flag hover (`-f`, `-i`, `-m`, `-n`, `-u`, `-M`) — case-sensitive matching; `-m` and `-M` no longer share the same documentation.

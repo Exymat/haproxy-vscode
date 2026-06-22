@@ -10,6 +10,12 @@ dkall.output
 # TypeScript compile output (regenerate with npm run compile)
 out/
 
+# Stray tsc emit when run without outDir (e.g. tsc -p tsconfig.test.json without --noEmit)
+src/**/*.js
+src/**/*.js.map
+test/**/*.js
+test/**/*.js.map
+
 # Build / test artifacts (regenerate with npm run compile / npm test)
 scripts/compare-haproxy-c-report.json
 syntaxes/haproxy-active.tmLanguage.json

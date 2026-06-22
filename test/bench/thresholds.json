@@ -1,0 +1,26 @@
+{
+  "metric": "p995",
+  "thresholds": [
+    { "name": "loadSchemaBundle cold", "maxMs": 500 },
+    { "namePattern": "^loadSchemaBundle cold \\(", "maxMs": 500 },
+    { "namePattern": "^tokenize large-valid\\.cfg", "maxMs": 2600, "derive": "tokenize" },
+    { "namePattern": "^tokenize large-mixed\\.cfg", "maxMs": 1800, "derive": "tokenize" },
+    { "namePattern": "^diagnostics cold: large-valid\\.cfg", "maxMs": 3000 },
+    { "namePattern": "^diagnostics warm: large-valid\\.cfg", "maxMs": 2500 },
+    { "namePattern": "^diagnostics edit: large-valid\\.cfg", "maxMs": 3000 },
+    { "namePattern": "^diagnostics cold: large-mixed\\.cfg", "maxMs": 3500 },
+    { "namePattern": "^diagnostics warm: large-mixed\\.cfg", "maxMs": 3000 },
+    { "namePattern": "^diagnostics edit: large-mixed\\.cfg", "maxMs": 3500 },
+    { "namePattern": "^format: large-(valid|mixed)\\.cfg", "maxMs": 1200 },
+    { "namePattern": "^document symbols: large-valid\\.cfg", "maxMs": 150 },
+    { "namePattern": "^completion: large-valid\\.cfg", "maxMs": 80 },
+    { "namePattern": "^hover warm: directive", "maxMs": 15 },
+    { "namePattern": "^hover cold:", "maxMs": 20 }
+  ],
+  "derived": {
+    "tokenize": {
+      "minLines": 500,
+      "maxMsPerLine": 0.12
+    }
+  }
+}

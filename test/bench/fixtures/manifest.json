@@ -1,0 +1,54 @@
+{
+  "generator": "scripts/generate-bench-fixture.mjs",
+  "fixtures": [
+    {
+      "fileName": "large-valid.cfg",
+      "fixtureType": "valid",
+      "profile": "tokenize",
+      "description": "Mostly valid sections for tokenization, navigation, formatting, and completion.",
+      "seed": 1337,
+      "targetLines": 24000,
+      "actualLines": 24000,
+      "invalidEvery": 0,
+      "blockCounts": {
+        "header": 1,
+        "validBackend": 1265,
+        "validFrontend": 317,
+        "validListen": 211,
+        "filler": 422
+      },
+      "invalidCategories": {}
+    },
+    {
+      "fileName": "large-mixed.cfg",
+      "fixtureType": "mixed",
+      "profile": "diagnostics",
+      "description": "Valid baseline plus deliberate syntax and context failures for diagnostics stress.",
+      "seed": 4242,
+      "targetLines": 24000,
+      "actualLines": 24000,
+      "invalidEvery": 5,
+      "blockCounts": {
+        "header": 1,
+        "validBackend": 963,
+        "validFrontend": 241,
+        "validListen": 161,
+        "invalidUnknownDirective": 193,
+        "invalidWrongContext": 193,
+        "invalidTruncatedCondition": 193,
+        "invalidBadServerAddress": 193,
+        "invalidMismatchedSyntax": 193,
+        "invalidDuplicateConflict": 193,
+        "filler": 482
+      },
+      "invalidCategories": {
+        "unknown-directive": 193,
+        "wrong-context": 193,
+        "truncated-condition": 193,
+        "bad-server-address": 193,
+        "mismatched-syntax": 193,
+        "duplicate-conflict": 193
+      }
+    }
+  ]
+}

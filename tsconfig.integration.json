@@ -11,5 +11,9 @@
     "outDir": "out/test",
     "rootDir": "test"
   },
-  "include": ["test/integration/**/*.ts", "test/helpers/diagnosticFormat.ts"]
+  "include": [
+    "test/integration/**/*.ts",
+    "test/helpers/diagnosticFormat.ts",
+    "test/bench/helpers.ts"
+  ]
 }
