@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  delimiterDiagnostics,
   filterExpressionIssuesAgainstDelimiters,
   validateLineDelimiters,
 } from "../../src/delimiterDiagnostics";
 import { sampleIssue } from "../../src/expressionTypes";
+import { parseDocument } from "../../src/parser";
 import { createDocument } from "../helpers/document";
 import { defaultSchema, runDiagnostics } from "../helpers/diagnostics";
 
@@ -91,6 +93,35 @@ describe("validateLineDelimiters", () => {
   it("ignores delimiters inside strings and comments", () => {
     expect(validateLineDelimiters('    acl x path "/api/{broken" if { always_true }')).toEqual([]);
     expect(validateLineDelimiters("    # comment with { unclosed")).toEqual([]);
+    expect(validateLineDelimiters('    acl x hdr("it\'s fine") if { ok }')).toEqual([]);
+    expect(validateLineDelimiters("    acl x hdr('say \"hi\"') if { ok }")).toEqual([]);
+  });
+
+  it("handles escaped characters inside double-quoted strings", () => {
+    expect(validateLineDelimiters('    acl x path "foo\\nbar" if { ok }')).toEqual([]);
+    expect(validateLineDelimiters('    acl x path "foo\\\\bar" if { ok }')).toEqual([]);
+    expect(validateLineDelimiters('    acl x path "foo\\" if { ok }')).toEqual([
+      expect.objectContaining({
+        code: "delimiter-unclosed",
+        message: "missing closing '\"'",
+      }),
+    ]);
+    expect(validateLineDelimiters('    acl x path "trailing\\')).toEqual([
+      expect.objectContaining({
+        code: "delimiter-unclosed",
+        message: "missing closing '\"'",
+      }),
+    ]);
+    expect(validateLineDelimiters('    acl x path "unknown\\z" if { ok }')).toEqual([]);
+  });
+
+  it("reports unexpected closing brackets", () => {
+    expect(validateLineDelimiters("    ]")).toEqual([
+      expect.objectContaining({
+        code: "delimiter-unexpected",
+        message: "unexpected ']'",
+      }),
+    ]);
   });
 
   it("accepts balanced delimiters", () => {
@@ -102,6 +133,22 @@ describe("validateLineDelimiters", () => {
 });
 
 describe("filterExpressionIssuesAgainstDelimiters", () => {
+  it("returns expression issues unchanged when delimiter issues are unrelated", () => {
+    const expressionIssues = [sampleIssue(0, 3, "expected ')'", "sample-syntax")];
+    expect(filterExpressionIssuesAgainstDelimiters(expressionIssues, [])).toEqual(expressionIssues);
+    expect(
+      filterExpressionIssuesAgainstDelimiters(expressionIssues, [
+        {
+          start: 0,
+          end: 1,
+          message: "unexpected ')'",
+          code: "delimiter-unexpected",
+          source: "haproxy",
+        },
+      ]),
+    ).toEqual(expressionIssues);
+  });
+
   it("drops duplicate parenthesis errors when delimiter diagnostics already report them", () => {
     const expressionIssues = [
       sampleIssue(10, 11, "expected ')'", "sample-syntax"),
@@ -110,6 +157,31 @@ describe("filterExpressionIssuesAgainstDelimiters", () => {
     const delimiterIssues = validateLineDelimiters("    %[bad(]");
     const filtered = filterExpressionIssuesAgainstDelimiters(expressionIssues, delimiterIssues);
     expect(filtered).toEqual([expressionIssues[1]]);
+  });
+
+  it("drops duplicate unclosed quote errors when delimiter diagnostics already report them", () => {
+    const expressionIssues = [
+      sampleIssue(5, 10, "unclosed quote in argument", "sample-syntax"),
+      sampleIssue(0, 3, "unknown fetch method 'bad'", "sample-unknown-fetch"),
+    ];
+    const filtered = filterExpressionIssuesAgainstDelimiters(
+      expressionIssues,
+      validateLineDelimiters('    http-request set-header x "open'),
+    );
+    expect(filtered).toEqual([expressionIssues[1]]);
+  });
+});
+
+describe("delimiterDiagnostics", () => {
+  it("maps delimiter issues to VS Code diagnostics on the parsed line", () => {
+    const doc = createDocument("frontend x\n    use_backend y if { path\n");
+    const line = parseDocument(doc)[1];
+    const issues = validateLineDelimiters(doc.lineAt(1).text);
+    const diagnostics = delimiterDiagnostics(line, issues);
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].message).toBe("missing closing '}'");
+    expect(diagnostics[0].code).toBe("delimiter-unclosed");
+    expect(diagnostics[0].range.start.line).toBe(1);
   });
 });
 
