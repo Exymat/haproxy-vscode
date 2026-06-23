@@ -139,6 +139,8 @@ function globalBlock(fileName, profileName, fixtureType) {
     "",
     "defaults",
     "    log global",
+    "    log-format '%{+Q}o %ci %t %H %ST %TR'",
+    "    error-log-format '%ci %ts'",
     "    mode http",
     "    option httplog",
     "    option dontlognull",
@@ -195,9 +197,17 @@ function validBackendBlock(index, rng) {
   const balance = rng.pick(["roundrobin", "leastconn", "first"]);
   const method = rng.pick(["GET", "POST", "PUT"]);
   const compressionAlgo = rng.pick(["gzip", "deflate"]);
+  const logFormatLines = [];
+  if (index % 8 === 0) {
+    logFormatLines.push(`    unique-id-format '%ci-${padded}'`);
+  }
+  if (index % 12 === 0) {
+    logFormatLines.push(`    http-request set-var-fmt(txn.bench_log) '%[src] %ci'`);
+  }
   return [
     `backend bench_api_${padded}`,
     `    balance ${balance}`,
+    ...logFormatLines,
     "    option httpchk",
     `    http-check send meth ${method} uri /health ver HTTP/1.1 hdr Host bench-${padded}.internal`,
     "    http-check expect status 200",
@@ -316,6 +326,12 @@ function invalidBlocks(index, rng, stats) {
       "    retries nope",
       "",
     ],
+  });
+
+  incrementError(stats, "invalid-log-format");
+  blocks.push({
+    category: "invalidLogFormat",
+    lines: [`defaults broken_logfmt_${padded}`, '    log-format "%zz"', ""],
   });
 
   return blocks;

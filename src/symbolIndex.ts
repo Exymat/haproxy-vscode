@@ -146,7 +146,7 @@ function aclReferenceAt(
 
   const prev = tokens[tokenIndex - 1]?.text;
 
-  if (aclConditionIntroducer(prev)) {
+  if (aclConditionIntroducer(prev) || prev === "{") {
     if (token.text.startsWith("!") && token.text.length > 1) {
       return { name: token.text.slice(1), tokenIndex };
     }
@@ -154,6 +154,141 @@ function aclReferenceAt(
   }
 
   return null;
+}
+
+function pushReference(
+  references: SymbolSite[],
+  kind: SymbolKind,
+  name: string,
+  line: ParsedLine,
+  tokenIndex: number,
+  scopeKey: string | null,
+): void {
+  const token = line.tokens[tokenIndex];
+  references.push({
+    kind,
+    name,
+    line: line.line,
+    start: token.start,
+    end: token.end,
+    scopeKey,
+    role: "reference",
+  });
+}
+
+const SAMPLE_FETCH_REF = /^([a-z_][\w.-]*)\(([^)]*)\)$/i;
+
+function collectSampleFetchReferences(line: ParsedLine, references: SymbolSite[]): void {
+  for (let i = 0; i < line.tokens.length; i += 1) {
+    const token = line.tokens[i];
+    if (!token) {
+      continue;
+    }
+    const match = SAMPLE_FETCH_REF.exec(token.text);
+    if (!match) {
+      continue;
+    }
+    const fetch = match[1].toLowerCase();
+    const arg = match[2].trim();
+    if (!arg) {
+      continue;
+    }
+    if (fetch === "http_auth" || fetch === "http_auth_group") {
+      pushReference(references, "userlist", arg, line, i, null);
+    }
+  }
+}
+
+function collectFilterSequenceReferences(
+  line: ParsedLine,
+  scopeKey: string | null,
+  references: SymbolSite[],
+): void {
+  if (!scopeKey || line.tokens.length < 3) {
+    return;
+  }
+  const keyword = line.tokens[0]?.text.toLowerCase();
+  if (keyword !== "filter-sequence") {
+    return;
+  }
+  const listToken = line.tokens[2];
+  if (!listToken) {
+    return;
+  }
+  const names = listToken.text.split(",");
+  let offset = 0;
+  for (const raw of names) {
+    const name = raw.trim();
+    if (!name) {
+      offset += raw.length + 1;
+      continue;
+    }
+    const start = listToken.start + listToken.text.indexOf(name, offset);
+    references.push({
+      kind: "filter",
+      name,
+      line: line.line,
+      start,
+      end: start + name.length,
+      scopeKey,
+      role: "reference",
+    });
+    offset = listToken.text.indexOf(name, offset) + name.length;
+  }
+}
+
+function collectFilterSelfReference(
+  line: ParsedLine,
+  scopeKey: string | null,
+  references: SymbolSite[],
+): void {
+  if (!scopeKey || line.tokens.length < 2) {
+    return;
+  }
+  const keyword = line.tokens[0]?.text.toLowerCase();
+  if (keyword !== "filter") {
+    return;
+  }
+  pushReference(references, "filter", line.tokens[1].text, line, 1, scopeKey);
+}
+
+function collectHeuristicGlobalReferences(line: ParsedLine, references: SymbolSite[]): void {
+  for (let i = 0; i < line.tokens.length - 1; i += 1) {
+    const token = line.tokens[i];
+    if (!token) {
+      continue;
+    }
+    const lower = token.text.toLowerCase();
+
+    if (lower === "resolvers") {
+      pushReference(references, "resolvers", line.tokens[i + 1].text, line, i + 1, null);
+      i += 1;
+      continue;
+    }
+
+    if (lower === "peers") {
+      pushReference(references, "peers", line.tokens[i + 1].text, line, i + 1, null);
+      i += 1;
+      continue;
+    }
+
+    if (lower === "cache-use" || lower === "cache-store") {
+      pushReference(references, "cache", line.tokens[i + 1].text, line, i + 1, null);
+      i += 1;
+      continue;
+    }
+
+    if (
+      lower === "filter" &&
+      line.tokens[i + 1]?.text.toLowerCase() === "cache" &&
+      line.tokens[i + 2]
+    ) {
+      pushReference(references, "cache", line.tokens[i + 2].text, line, i + 2, null);
+      i += 2;
+    }
+  }
+
+  collectSampleFetchReferences(line, references);
 }
 
 function collectAclReferences(
@@ -275,6 +410,9 @@ function collectStatementRuleSites(
   }
 
   collectAclReferences(line, scopeKey, references);
+  collectFilterSequenceReferences(line, scopeKey, references);
+  collectFilterSelfReference(line, scopeKey, references);
+  collectHeuristicGlobalReferences(line, references);
 }
 
 export function buildSymbolIndex(parsed: ParsedLine[], schema: HaproxySchema): SymbolIndex {

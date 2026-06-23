@@ -19,6 +19,10 @@ test/**/*.js.map
 # Build / test artifacts (regenerate with npm run compile / npm test)
 scripts/compare-haproxy-c-report.json
 syntaxes/haproxy-active.tmLanguage.json
+
+# Stray grammar output when build targets schemas/ by mistake
+schemas/*.tmLanguage.json
+schemas/tmlanguage.schema.json
 coverage/
 .vscode-test/
 .nvmrc

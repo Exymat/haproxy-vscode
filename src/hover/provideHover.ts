@@ -8,6 +8,7 @@ import { tryActionHover } from "./handlers/actionHover";
 import { tryConditionalHover } from "./handlers/conditionalHover";
 import { tryDirectiveHover } from "./handlers/directiveHover";
 import { tryExpressionHover } from "./handlers/expressionHover";
+import { tryLogFormatHover } from "./handlers/logFormatHover";
 import { tryLineOptionHover } from "./handlers/lineOptionHover";
 import { tryOptionHover } from "./handlers/optionHover";
 import { DocumentContextWithToken, HoverContext } from "./types";
@@ -39,6 +40,7 @@ export function provideHover(
     tryLineOptionHover(hc) ??
     tryActionHover(hc) ??
     tryConditionalHover(hc) ??
+    tryLogFormatHover(hc) ??
     tryExpressionHover(hc) ??
     tryAclRefHover(hc) ??
     tryDirectiveHover(hc)

@@ -438,4 +438,33 @@ describe("completion extended", () => {
     expect(items).toHaveLength(1);
     expect(items[0].documentation).toBeDefined();
   });
+
+  it("suggests log-format aliases inside format strings", () => {
+    const content = 'defaults\n    log-format "%c';
+    const line = content.split("\n")[1];
+    const labels = completionLabels(content, 1, line.length);
+    expect(labels).toContain("ci");
+    expect(labels).not.toContain("zz");
+  });
+
+  it("suggests log-format flags inside brace blocks", () => {
+    const content = 'defaults\n    log-format "%{+';
+    const line = content.split("\n")[1];
+    const labels = completionLabels(content, 1, line.length);
+    expect(labels).toEqual(expect.arrayContaining(["Q", "E", "X"]));
+  });
+
+  it("includes documentation for log-format alias completions", () => {
+    const doc = createDocument('defaults\n    log-format "%ci');
+    const line = doc.lineAt(1).text;
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: line.length } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    const ci = items.find((item) => item.label === "ci");
+    expect(ci?.detail).toBe("%ci");
+    expect(ci?.documentation).toBeDefined();
+  });
 });

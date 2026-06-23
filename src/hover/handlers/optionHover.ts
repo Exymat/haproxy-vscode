@@ -35,6 +35,7 @@ export function tryOptionHover(hc: HoverContext): vscode.Hover | null {
       optKeyword?.description ?? group?.description ?? "",
       extras,
       optKeyword?.docsUrl ?? group?.docsUrl,
+      optKeyword?.examples ?? group?.examples,
     ),
     range,
   );

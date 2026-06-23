@@ -26,7 +26,7 @@ export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
   const active = resolveNestedLineOptionSpan(schema, ctx, lineOptionGroup, lineOptionStart);
   if (active && ctx.tokenIndex > active.optionIndex && tokenLower !== active.keyword) {
     const nestedGroup = findGroupItem(data, tokenLower);
-    if (nestedGroup?.description) {
+    if (nestedGroup?.description || nestedGroup?.examples?.length) {
       const nestedSchemaKeyword = getKeywordFromSchema(schema, tokenLower, ctx.line.section);
       const nestedExtras: string[] = [];
       addContextExtra(nestedExtras, nestedSchemaKeyword?.contexts);
@@ -37,6 +37,7 @@ export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
           nestedGroup.description,
           nestedExtras,
           nestedGroup.docsUrl,
+          nestedGroup.examples,
         ),
         range,
       );
@@ -46,7 +47,7 @@ export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
   const group = groupItems(data, lineOptionGroup).find(
     (g) => g.name.toLowerCase() === effectiveKeyword,
   );
-  if (!group?.description) {
+  if (!group?.description && !group?.examples?.length) {
     return null;
   }
 
@@ -77,7 +78,7 @@ export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
     extras.unshift(signaturesBlock(signatures));
     extras.unshift("**Forms:**");
     return new vscode.Hover(
-      hoverMarkdown(group.name, "", group.description, extras, group.docsUrl),
+      hoverMarkdown(group.name, "", group.description, extras, group.docsUrl, group.examples),
       range,
     );
   }
@@ -88,6 +89,7 @@ export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
       group.description,
       extras,
       group.docsUrl,
+      group.examples,
     ),
     range,
   );

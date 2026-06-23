@@ -23,7 +23,14 @@ export function tryActionHover(hc: HoverContext): vscode.Hover | null {
         extras.push(`**Rulesets:** ${group.rulesets.join(", ")}`);
       }
       return new vscode.Hover(
-        hoverMarkdown(group.name, group.signature, group.description, extras, group.docsUrl),
+        hoverMarkdown(
+          group.name,
+          group.signature,
+          group.description,
+          extras,
+          group.docsUrl,
+          group.examples,
+        ),
         range,
       );
     }

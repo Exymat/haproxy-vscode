@@ -1,4 +1,5 @@
 import * as assert from "node:assert";
+import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
 
@@ -83,11 +84,119 @@ export async function openHaproxyDocument(content: string): Promise<vscode.TextD
   return doc;
 }
 
+export async function openTempFixtureDocument(
+  name: string,
+  content: string,
+): Promise<vscode.TextDocument> {
+  await ensureExtensionReady();
+  await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+  const dir = path.join(os.tmpdir(), "haproxy-vscode-integration");
+  await vscode.workspace.fs.createDirectory(vscode.Uri.file(dir));
+  const uri = vscode.Uri.file(path.join(dir, name));
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(content, "utf8"));
+  const doc = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(doc);
+  assert.strictEqual(doc.languageId, "haproxy", "Temp document must use the haproxy language");
+  await waitForDiagnosticsReady();
+  return doc;
+}
+
 export async function waitForDiagnosticsReady(extraMs = 300): Promise<void> {
   const debounceMs = vscode.workspace
     .getConfiguration("haproxy")
     .get<number>("diagnostics.debounceMs", 500);
   await new Promise((resolve) => setTimeout(resolve, debounceMs + extraMs));
+}
+
+export async function completionLabelsAt(
+  uri: vscode.Uri,
+  position: vscode.Position,
+): Promise<string[]> {
+  const items = await vscode.commands.executeCommand<vscode.CompletionList>(
+    "vscode.executeCompletionItemProvider",
+    uri,
+    position,
+  );
+  return (items?.items ?? []).map((item) =>
+    typeof item.label === "string" ? item.label : item.label.label,
+  );
+}
+
+export async function hoverTextAt(uri: vscode.Uri, position: vscode.Position): Promise<string> {
+  const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
+    "vscode.executeHoverProvider",
+    uri,
+    position,
+  );
+  return (hovers ?? [])
+    .flatMap((hover) => hover.contents)
+    .map((content) =>
+      typeof content === "string" ? content : "value" in content ? content.value : "",
+    )
+    .join("");
+}
+
+function normalizeLocations(
+  value: vscode.Location | vscode.Location[] | vscode.LocationLink[] | undefined | null,
+): vscode.Location[] {
+  if (!value) {
+    return [];
+  }
+  const values = Array.isArray(value) ? value : [value];
+  return values.map((entry) =>
+    "targetUri" in entry
+      ? new vscode.Location(entry.targetUri, entry.targetSelectionRange ?? entry.targetRange)
+      : entry,
+  );
+}
+
+export async function definitionLocationsAt(
+  uri: vscode.Uri,
+  position: vscode.Position,
+): Promise<vscode.Location[]> {
+  const value = await vscode.commands.executeCommand<
+    vscode.Location | vscode.Location[] | vscode.LocationLink[]
+  >("vscode.executeDefinitionProvider", uri, position);
+  return normalizeLocations(value);
+}
+
+export async function referenceLocationsAt(
+  uri: vscode.Uri,
+  position: vscode.Position,
+  includeDeclaration: boolean,
+): Promise<vscode.Location[]> {
+  const value = await vscode.commands.executeCommand<vscode.Location[]>(
+    "vscode.executeReferenceProvider",
+    uri,
+    position,
+    includeDeclaration,
+  );
+  return normalizeLocations(value);
+}
+
+export async function replaceDocumentContent(
+  document: vscode.TextDocument,
+  content: string,
+): Promise<vscode.TextDocument> {
+  const fullRange = new vscode.Range(
+    document.positionAt(0),
+    document.positionAt(document.getText().length),
+  );
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(document.uri, fullRange, content);
+  const applied = await vscode.workspace.applyEdit(edit);
+  assert.strictEqual(applied, true, "Workspace edit failed");
+  await waitForDiagnosticsReady();
+  const updated = vscode.workspace.textDocuments.find(
+    (openDoc) => openDoc.uri.toString() === document.uri.toString(),
+  );
+  assert.ok(updated, `Updated document not found for ${document.uri.toString()}`);
+  return updated;
+}
+
+export async function closeActiveEditor(): Promise<void> {
+  await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+  await new Promise((resolve) => setTimeout(resolve, 200));
 }
 
 export function haproxyDiagnostics(diags: vscode.Diagnostic[]): vscode.Diagnostic[] {
@@ -184,9 +293,6 @@ export async function formatDocumentContent(content: string): Promise<string> {
     "vscode.executeFormatDocumentProvider",
     doc.uri,
   );
-  if (edits && edits.length > 0 && edits[0].newText.length > 0) {
-    return edits[0].newText;
-  }
 
   const workEdit = new vscode.WorkspaceEdit();
   if (edits && edits.length > 0) {

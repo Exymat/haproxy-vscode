@@ -46,6 +46,9 @@
       "include": "#check-actions"
     },
     {
+      "include": "#log-format-prefixes"
+    },
+    {
       "include": "#log-line"
     },
     {
@@ -128,6 +131,9 @@
           "end": "(\"|$)",
           "patterns": [
             {
+              "include": "#log-format-content"
+            },
+            {
               "name": "constant.character.escape.haproxy",
               "match": "\\\\."
             }
@@ -138,6 +144,9 @@
           "begin": "'",
           "end": "('|$)",
           "patterns": [
+            {
+              "include": "#log-format-content"
+            },
             {
               "name": "constant.character.escape.haproxy",
               "match": "\\\\."
@@ -748,6 +757,48 @@
         }
       ]
     },
+    "log-format-content": {
+      "patterns": [
+        {
+          "include": "#sample-expressions"
+        },
+        {
+          "name": "keyword.other.modifier.haproxy",
+          "match": "%(?:\\([^)]*\\))?\\{[+\\-][^}]+\\}"
+        },
+        {
+          "name": "keyword.other.modifier.haproxy",
+          "match": "%\\([^)]*\\)"
+        },
+        {
+          "name": "variable.other.logformat.haproxy",
+          "match": "%(?:(?:tsc|o))\\b"
+        },
+        {
+          "name": "constant.character.escape.haproxy",
+          "match": "%%"
+        }
+      ]
+    },
+    "log-format-prefixes": {
+      "patterns": [
+        {
+          "match": "\\b((?:set\\-var\\-fmt|on\\-success|lf\\-string|string\\-lf|on\\-error|value\\-lf|body\\-lf|lf\\-file|name\\-lf|send\\-lf|uri\\-lf|hdr))\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.option.haproxy"
+            },
+            "2": {
+              "patterns": [
+                {
+                  "include": "#log-format-content"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
     "log-line": {
       "patterns": [
         {
@@ -765,13 +816,17 @@
           }
         },
         {
-          "match": "\\b(log-format-sd|log-format)\\s+(.+)$",
+          "match": "\\b(log-format-sd|log-format|error-log-format|unique-id-format|set-var-fmt)\\s+(.+)$",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
             },
             "2": {
-              "name": "string.unquoted.haproxy"
+              "patterns": [
+                {
+                  "include": "#log-format-content"
+                }
+              ]
             }
           }
         }

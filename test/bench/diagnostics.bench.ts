@@ -8,20 +8,44 @@ import {
   runDiagnosticsCold,
   runDiagnosticsWarm,
 } from "./diagnosticsHelpers";
-import { findLineContaining, fixtureLineCount, fixturesForScenario, readFixture } from "./helpers";
+import {
+  BENCH_LARGE_MAX_LINES,
+  findLineContaining,
+  fixtureLineCount,
+  fixturesForScenario,
+  readFixture,
+} from "./helpers";
 
 const bundle = loadSchemaBundle("3.2");
 
+const logFormatDiagnosticsContent = [
+  "defaults",
+  '    log-format "%{+Q}o %ci"',
+  '    error-log-format "%zz"',
+  "frontend web",
+  "    bind :80",
+].join("\n");
+
+const unusedSymbolOptions = {
+  unusedSymbols: true,
+  unusedSymbolSections: true,
+  maxLines: BENCH_LARGE_MAX_LINES,
+};
+
 describe("diagnostics", () => {
   const warmDocs = new Map<string, ReturnType<typeof createDocument>>();
-  type DiagnosticsFixture = ReturnType<typeof fixturesForScenario>[number];
+  const warmUnusedDocs = new Map<string, ReturnType<typeof createDocument>>();
 
-  function warmDoc(fixture: DiagnosticsFixture, content: string) {
-    let document = warmDocs.get(fixture.name);
+  function warmDoc(
+    cache: Map<string, ReturnType<typeof createDocument>>,
+    key: string,
+    content: string,
+  ) {
+    let document = cache.get(key);
     if (!document) {
       document = createDocument(content);
       getParsedDocument(document);
-      warmDocs.set(fixture.name, document);
+      cache.set(key, document);
     }
     return document;
   }
@@ -37,7 +61,7 @@ describe("diagnostics", () => {
     bench(
       `diagnostics warm: ${fixture.name} (${lineCount} lines)`,
       () => {
-        runDiagnosticsWarm(warmDoc(fixture, content), bundle);
+        runDiagnosticsWarm(warmDoc(warmDocs, fixture.name, content), bundle);
       },
       { warmupIterations: 2 },
     );
@@ -58,5 +82,62 @@ describe("diagnostics", () => {
         runDiagnosticsAfterEdit(content, bundle, editLine >= 0 ? editLine : 1, "    mode tcp");
       });
     }
+
+    if (fixture.workload === "valid-large" || fixture.workload === "mixed-large") {
+      bench(`diagnostics cold: ${fixture.name} unusedSymbols (${lineCount} lines)`, () => {
+        runDiagnosticsCold(content, bundle, unusedSymbolOptions);
+      });
+
+      bench(
+        `diagnostics warm: ${fixture.name} unusedSymbols (${lineCount} lines)`,
+        () => {
+          runDiagnosticsWarm(
+            warmDoc(warmUnusedDocs, fixture.name, content),
+            bundle,
+            unusedSymbolOptions,
+          );
+        },
+        { warmupIterations: 2 },
+      );
+
+      if (fixture.name === "large-valid.cfg") {
+        const editLine = findLineContaining(content, "maxconn 200000");
+        bench(`diagnostics edit: ${fixture.name} unusedSymbols (global maxconn change)`, () => {
+          runDiagnosticsAfterEdit(
+            content,
+            bundle,
+            editLine,
+            "    maxconn 8192",
+            unusedSymbolOptions,
+          );
+        });
+      } else if (fixture.name === "large-mixed.cfg") {
+        const editLine = findLineContaining(content, "timeout server banana");
+        bench(`diagnostics edit: ${fixture.name} unusedSymbols (repair invalid timeout)`, () => {
+          runDiagnosticsAfterEdit(
+            content,
+            bundle,
+            editLine,
+            "    timeout server 30s",
+            unusedSymbolOptions,
+          );
+        });
+      }
+    }
   }
+
+  bench("diagnostics cold: log-format validation", () => {
+    runDiagnosticsCold(logFormatDiagnosticsContent, bundle);
+  });
+
+  bench(
+    "diagnostics warm: log-format validation",
+    () => {
+      runDiagnosticsWarm(
+        warmDoc(warmDocs, "log-format validation", logFormatDiagnosticsContent),
+        bundle,
+      );
+    },
+    { warmupIterations: 2 },
+  );
 });

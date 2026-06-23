@@ -19,6 +19,8 @@ describe("settings", () => {
       formatIndent: "spaces-4",
       formatInsertBlankLineBetweenSections: true,
       deprecatedWarnings: true,
+      unusedSymbols: false,
+      unusedSymbolSections: true,
     });
   });
 

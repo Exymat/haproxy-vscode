@@ -65,7 +65,14 @@ export function tryDirectiveHover(hc: HoverContext): vscode.Hover | null {
     const group = findGroupItem(data, ctx.token.text);
     if (group) {
       return new vscode.Hover(
-        hoverMarkdown(group.name, group.signature, group.description, [], group.docsUrl),
+        hoverMarkdown(
+          group.name,
+          group.signature,
+          group.description,
+          [],
+          group.docsUrl,
+          group.examples,
+        ),
         range,
       );
     }
@@ -87,12 +94,19 @@ export function tryDirectiveHover(hc: HoverContext): vscode.Hover | null {
       extras.unshift(signaturesBlock(kw.signatures));
       extras.unshift("**Forms:**");
       return new vscode.Hover(
-        hoverMarkdown(kw.name, "", kw.description, extras, kw.docsUrl),
+        hoverMarkdown(kw.name, "", kw.description, extras, kw.docsUrl, kw.examples),
         range,
       );
     }
     return new vscode.Hover(
-      hoverMarkdown(kw.name, kw.signatures[0] ?? kw.name, kw.description, extras, kw.docsUrl),
+      hoverMarkdown(
+        kw.name,
+        kw.signatures[0] ?? kw.name,
+        kw.description,
+        extras,
+        kw.docsUrl,
+        kw.examples,
+      ),
       range,
     );
   }
@@ -105,7 +119,14 @@ export function tryDirectiveHover(hc: HoverContext): vscode.Hover | null {
   }
 
   return new vscode.Hover(
-    hoverMarkdown(kw.name, kw.signatures[0] ?? kw.name, kw.description, extras, kw.docsUrl),
+    hoverMarkdown(
+      kw.name,
+      kw.signatures[0] ?? kw.name,
+      kw.description,
+      extras,
+      kw.docsUrl,
+      kw.examples,
+    ),
     range,
   );
 }

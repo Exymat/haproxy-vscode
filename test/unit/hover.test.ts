@@ -1,6 +1,9 @@
 import * as directiveUtils from "../../src/directiveUtils";
 import { formatHoverText, provideHover } from "../../src/hover";
+import * as hoverHelpers from "../../src/hover/helpers";
+import { exampleBlock } from "../../src/hover/markdown";
 import { tryActionHover } from "../../src/hover/handlers/actionHover";
+import { tryLogFormatHover } from "../../src/hover/handlers/logFormatHover";
 import { tryOptionHover } from "../../src/hover/handlers/optionHover";
 import {
   resolveLineOptionStartIndex,
@@ -94,6 +97,30 @@ function actionHoverContext(tokenLower: string, data = bundles["3.4"].languageDa
   };
 }
 
+function logFormatHoverContext(lineText: string, character: number): HoverContext {
+  const doc = createDocument(`defaults\n${lineText}`);
+  const parsed = parseDocument(doc);
+  const line = parsed[1];
+  const token = line.tokens[line.tokens.length - 1] ?? line.tokens[0];
+  return {
+    document: doc,
+    position: { line: 1, character } as never,
+    data: bundles["3.4"].languageData,
+    schema: bundles["3.4"].schema,
+    ctx: {
+      line,
+      lineText,
+      tokenIndex: line.tokens.length - 1,
+      token,
+      kind: "directive-argument",
+      prefix: lineText.slice(0, character),
+    },
+    range: new Range(1, token.start, 1, token.end) as never,
+    cursorOffset: character - token.start,
+    tokenLower: token.text.toLowerCase(),
+  };
+}
+
 describe("provideHover", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -115,6 +142,22 @@ describe("provideHover", () => {
     expect(text.length).toBeGreaterThan(0);
     expect(text).toContain("Valid in sections:");
     expect(text).toContain("Valid in modes:");
+  });
+
+  it("documents log-format aliases and flags", () => {
+    const aliasLine = '    log-format "%{+Q}o %ci"';
+    const aliasText = hoverMarkdown(
+      `defaults\n${aliasLine}`,
+      1,
+      aliasLine.indexOf("ci") + 1,
+      "3.4",
+    );
+    expect(aliasText).toContain("%ci");
+
+    const flagLine = '    log-format "%{+Q}"';
+    const flagText = hoverMarkdown(`defaults\n${flagLine}`, 1, flagLine.indexOf("Q"), "3.4");
+    expect(flagText).toContain("Q");
+    expect(flagText.toLowerCase()).toContain("quote");
   });
 
   it("documents bind line options from section 5.1", () => {
@@ -161,6 +204,24 @@ describe("provideHover", () => {
     expect(text).toContain("interface");
     expect(text).toContain('Additionally, the "source" statement on a server line allows');
     expect(text).toContain("Since Linux 4.2/libc 2.23");
+  });
+
+  it("formats example blocks as fenced haproxy code", () => {
+    const block = exampleBlock({
+      title: "Minimal configuration",
+      code: "global\n  grace 10s",
+    });
+    expect(block).toContain("**Example:** Minimal configuration");
+    expect(block).toContain("```haproxy");
+    expect(block).toContain("grace 10s");
+    expect(block).toContain("```");
+  });
+
+  it("renders structured examples in keyword hover", () => {
+    const text = hoverMarkdown("global\n    grace 10s", 1, "    grace 10s".indexOf("grace"), "3.4");
+    expect(text).toContain("```haproxy");
+    expect(text).toContain("grace 10s");
+    expect(text).toContain("**Example**");
   });
 
   it("preserves ascii tables in hover documentation", () => {
@@ -1495,6 +1556,69 @@ describe("provideHover", () => {
       expect(hoverText(attachHover)).toContain("attach-srv");
 
       expect(tryActionHover(actionHoverContext("not-a-real-action"))).toBeNull();
+    });
+
+    it("tryLogFormatHover documents aliases, flags, and rejects unknown items", () => {
+      const aliasLine = '    log-format "%{+Q}o %ci"';
+      const aliasHover = tryLogFormatHover(
+        logFormatHoverContext(aliasLine, aliasLine.indexOf("ci") + 1),
+      );
+      expect(aliasHover).not.toBeNull();
+      if (aliasHover === null) {
+        throw new Error("expected alias hover");
+      }
+      expect(hoverText(aliasHover)).toContain("%ci");
+
+      const flagLine = '    log-format "%{+Q}"';
+      const flagHover = tryLogFormatHover(logFormatHoverContext(flagLine, flagLine.indexOf("Q")));
+      expect(flagHover).not.toBeNull();
+      if (flagHover === null) {
+        throw new Error("expected flag hover");
+      }
+      expect(hoverText(flagHover)).toContain("Q");
+
+      const unknownLine = '    log-format "%zz"';
+      expect(
+        tryLogFormatHover(logFormatHoverContext(unknownLine, unknownLine.indexOf("zz"))),
+      ).toBeNull();
+
+      const outsideLine = "    mode http";
+      expect(tryLogFormatHover(logFormatHoverContext(outsideLine, 8))).toBeNull();
+
+      const gapLine = '    log-format "%o  ci"';
+      expect(
+        tryLogFormatHover(logFormatHoverContext(gapLine, gapLine.indexOf("  ") + 1)),
+      ).toBeNull();
+
+      const plusLine = '    log-format "%{+Q}"';
+      expect(tryLogFormatHover(logFormatHoverContext(plusLine, plusLine.indexOf("+")))).toBeNull();
+
+      const exprLine = '    log-format "%[src]"';
+      expect(
+        tryLogFormatHover(logFormatHoverContext(exprLine, exprLine.indexOf("src"))),
+      ).toBeNull();
+
+      const quoteLine = '    log-format "%ci"';
+      expect(
+        tryLogFormatHover(logFormatHoverContext(quoteLine, quoteLine.indexOf('"'))),
+      ).toBeNull();
+
+      const minusFlagLine = '    log-format "%{-E}"';
+      expect(
+        tryLogFormatHover(logFormatHoverContext(minusFlagLine, minusFlagLine.indexOf("E"))),
+      ).toBeNull();
+
+      const origFindGroupItemIn = hoverHelpers.findGroupItemIn;
+      vi.spyOn(hoverHelpers, "findGroupItemIn").mockImplementation((data, group, name) => {
+        if (group === "logformat_flags") {
+          return undefined;
+        }
+        return origFindGroupItemIn(data, group, name);
+      });
+      const noDocFlagLine = '    log-format "%{+Q}"';
+      expect(
+        tryLogFormatHover(logFormatHoverContext(noDocFlagLine, noDocFlagLine.indexOf("Q"))),
+      ).toBeNull();
     });
   });
 });

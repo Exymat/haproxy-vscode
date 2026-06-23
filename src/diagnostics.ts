@@ -5,6 +5,7 @@ import { delimiterDiagnostics, validateLineDelimiters } from "./delimiterDiagnos
 import { DiagnosticContext } from "./diagnosticContext";
 import { deprecatedDiagnostics } from "./deprecatedDiagnostics";
 import { expressionDiagnostics } from "./expressionDiagnostics";
+import { logFormatDiagnostics } from "./logFormatDiagnostics";
 import { namedDefaultsDiagnostics } from "./namedDefaultsDiagnostics";
 import {
   contextDiagnostics,
@@ -16,10 +17,15 @@ import { statementDiagnostics } from "./statementDiagnostics";
 import { HaproxyLanguageData } from "./languageData";
 import { ParsedLine } from "./parser";
 import { HaproxySchema } from "./schema";
+import { getSymbolIndex } from "./symbolIndex";
+import { unusedSymbolDiagnostics } from "./unusedSymbolDiagnostics";
 
 export interface ComputeDiagnosticsOptions {
   languageData?: HaproxyLanguageData;
   deprecatedWarnings?: boolean;
+  unusedSymbols?: boolean;
+  unusedSymbolSections?: boolean;
+  maxLines?: number;
 }
 
 function isMacroLine(line: ParsedLine, schema: HaproxySchema): boolean {
@@ -61,6 +67,7 @@ export function computeDiagnostics(
     const delimiterIssues = validateLineDelimiters(lineText);
     diagnostics.push(...delimiterDiagnostics(line, delimiterIssues));
     diagnostics.push(...expressionDiagnostics(line, lineText, schema, delimiterIssues));
+    diagnostics.push(...logFormatDiagnostics(line, lineText, schema));
     if (ctx.deprecatedIndex) {
       diagnostics.push(
         ...deprecatedDiagnostics(ctx, line, memo, ctx.deprecatedIndex, ctx.suppressDeprecated),
@@ -68,5 +75,19 @@ export function computeDiagnostics(
     }
     diagnostics.push(...namedDefaultsDiagnostics(line, schema));
   }
+
+  if (options.unusedSymbols) {
+    const maxLines = options.maxLines ?? document.lineCount;
+    const index = getSymbolIndex(document, schema, maxLines);
+    if (index) {
+      diagnostics.push(
+        ...unusedSymbolDiagnostics(document, ctx.parsed, index, {
+          enabled: true,
+          includeSections: options.unusedSymbolSections ?? true,
+        }),
+      );
+    }
+  }
+
   return diagnostics;
 }

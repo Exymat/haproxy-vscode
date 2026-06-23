@@ -18,7 +18,14 @@ export function tryExpressionHover(hc: HoverContext): vscode.Hover | null {
         findGroupItem(data, candidate);
       if (group) {
         return new vscode.Hover(
-          hoverMarkdown(group.name, group.signature, group.description, [], group.docsUrl),
+          hoverMarkdown(
+            group.name,
+            group.signature,
+            group.description,
+            [],
+            group.docsUrl,
+            group.examples,
+          ),
           range,
         );
       }
@@ -34,7 +41,14 @@ export function tryExpressionHover(hc: HoverContext): vscode.Hover | null {
         findGroupItem(data, candidate);
       if (group) {
         return new vscode.Hover(
-          hoverMarkdown(group.name, group.signature, group.description, [], group.docsUrl),
+          hoverMarkdown(
+            group.name,
+            group.signature,
+            group.description,
+            [],
+            group.docsUrl,
+            group.examples,
+          ),
           range,
         );
       }

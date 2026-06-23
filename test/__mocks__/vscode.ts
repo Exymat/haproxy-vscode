@@ -20,6 +20,7 @@ export class Range {
 export class Diagnostic {
   source?: string;
   code?: string;
+  tags?: number[];
 
   constructor(
     public range: Range,
@@ -33,6 +34,11 @@ export const DiagnosticSeverity = {
   Warning: 1,
   Information: 2,
   Hint: 3,
+};
+
+export const DiagnosticTag = {
+  Unnecessary: 1,
+  Deprecated: 2,
 };
 
 export class CompletionItem {

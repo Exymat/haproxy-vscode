@@ -67,6 +67,15 @@ export interface SampleFunction {
   deprecated?: boolean;
 }
 
+export interface LogformatAlias {
+  name: string;
+  field_name: string;
+  sample_fetch: string;
+  type: string;
+  restrictions: string;
+  category: string;
+}
+
 export interface FixedSlotSpec {
   role: string;
   port?: string | null;
@@ -97,6 +106,13 @@ export interface LineLayout {
   stats_socket_levels?: string[];
 }
 
+export interface LogformatSlot {
+  kind: "line_tail" | "prefix";
+  directive?: string;
+  prefix?: string;
+  skip?: number;
+}
+
 export interface HaproxySchema {
   version: string;
   sections: Record<string, SchemaSection>;
@@ -106,6 +122,8 @@ export interface HaproxySchema {
   statement_rules: StatementRule[];
   sample_fetches: Record<string, SampleFunction>;
   sample_converters: Record<string, SampleFunction>;
+  logformat_aliases?: Record<string, LogformatAlias>;
+  logformat_slots?: LogformatSlot[];
   line_layout?: LineLayout;
   tokens: Record<string, string[]>;
 }

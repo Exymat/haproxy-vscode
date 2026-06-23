@@ -645,8 +645,43 @@ describe("coverage line gaps", () => {
     )[1];
     statementDiagnostics(serverLine, bundle.schema);
 
-    const parsed = parseDocument(createDocument("frontend web\n    http-request deny if acl1"));
-    parsed[1].tokens[2] = undefined as never;
-    buildSymbolIndex(parsed, bundle.schema);
+    const filterSequenceLine = parseDocument(
+      createDocument("frontend web\n    filter-sequence comp comp-req,,comp-res"),
+    );
+    buildSymbolIndex(filterSequenceLine, bundle.schema);
+
+    const missingListToken = parseDocument(
+      createDocument("frontend web\n    filter-sequence comp list"),
+    );
+    missingListToken[1] = {
+      ...missingListToken[1],
+      tokens: [
+        { text: "filter-sequence", start: 4, end: 19 },
+        { text: "comp", start: 20, end: 24 },
+        undefined as never,
+      ],
+    };
+    buildSymbolIndex(missingListToken, bundle.schema);
+
+    const emptyAuthFetch = parseDocument(createDocument("frontend web\n    acl x http_auth()"));
+    buildSymbolIndex(emptyAuthFetch, bundle.schema);
+
+    const filterCacheRef = parseDocument(
+      createDocument(
+        "cache bench_cache\n    total-max-size 4\nfrontend web\n    filter cache bench_cache",
+      ),
+    );
+    buildSymbolIndex(filterCacheRef, bundle.schema);
+
+    const sparseTokenLine = parseDocument(createDocument("frontend web\n    mode http extra"));
+    sparseTokenLine[1] = {
+      ...sparseTokenLine[1],
+      tokens: [
+        { text: "mode", start: 4, end: 8 },
+        undefined as never,
+        { text: "http", start: 9, end: 13 },
+      ],
+    };
+    buildSymbolIndex(sparseTokenLine, bundle.schema);
   });
 });

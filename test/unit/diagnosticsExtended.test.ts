@@ -1,5 +1,8 @@
+import { DiagnosticContext } from "../../src/diagnosticContext";
 import { computeDiagnostics } from "../../src/diagnostics";
+import { ParsedLine } from "../../src/parser";
 import { createDocument } from "../helpers/document";
+import { formatDiagnosticCode } from "../helpers/diagnosticFormat";
 import { loadSchemaBundle } from "../helpers/schema";
 
 describe("diagnostics extended branches", () => {
@@ -336,5 +339,103 @@ describe("diagnostics extended branches", () => {
     const doc = createDocument("frontend x\n    bind :80\n    http-request use-service missing");
     const diags = computeDiagnostics(doc, schema, { languageData: bundle34.languageData });
     expect(diags.filter((d) => d.code === "unknown-service")).toHaveLength(0);
+  });
+
+  it("skips deprecated diagnostics when deprecatedWarnings is disabled", () => {
+    const doc = createDocument("global\n    master-worker");
+    const diags = computeDiagnostics(doc, bundle34.schema, {
+      deprecatedWarnings: false,
+    });
+    expect(diags.filter((d) => d.code === "deprecated-keyword")).toHaveLength(0);
+  });
+
+  it("reports deprecated sample converters with converter-specific messaging", () => {
+    const schema = structuredClone(bundle34.schema);
+    schema.sample_converters = {
+      ...schema.sample_converters,
+      legacy_conv: {
+        name: "legacy_conv",
+        signature: "legacy_conv()",
+        deprecated: true,
+        args: [],
+        chapter: "7.3.1",
+        contexts: [],
+        description: "",
+        in_type: "str",
+        out_type: "str",
+        max_args: 0,
+      },
+    };
+    const doc = createDocument("frontend x\n    http-request set-header X %[src,legacy_conv()]");
+    const diags = computeDiagnostics(doc, schema, { languageData: bundle34.languageData });
+    expect(
+      diags.some((d) => d.code === "deprecated-sample" && d.message.includes("sample converter")),
+    ).toBe(true);
+  });
+
+  it("respects unused symbol settings and maxLines in computeDiagnostics", () => {
+    const doc = createDocument(
+      "frontend web\n    acl blocked path_beg /admin\n    bind :80\nbackend old\n    server s1 127.0.0.1:80",
+    );
+    const withSections = computeDiagnostics(doc, bundle34.schema, {
+      unusedSymbols: true,
+      unusedSymbolSections: true,
+      maxLines: 4000,
+    });
+    expect(withSections.some((d) => d.code === "unused-acl")).toBe(true);
+    expect(withSections.some((d) => d.code === "unused-section")).toBe(true);
+
+    const withoutSections = computeDiagnostics(doc, bundle34.schema, {
+      unusedSymbols: true,
+      unusedSymbolSections: false,
+    });
+    expect(withoutSections.some((d) => d.code === "unused-acl")).toBe(true);
+    expect(withoutSections.filter((d) => d.code === "unused-section")).toHaveLength(0);
+
+    const manyLines = Array.from({ length: 120 }, (_, i) =>
+      i === 0 ? "frontend web" : i === 1 ? "    bind :80" : `    acl a${i} path_beg /${i}`,
+    ).join("\n");
+    const largeDoc = createDocument(manyLines);
+    const skippedUnused = computeDiagnostics(largeDoc, bundle34.schema, {
+      unusedSymbols: true,
+      maxLines: 100,
+    });
+    expect(
+      skippedUnused.filter((d) => formatDiagnosticCode(d.code).startsWith("unused-")),
+    ).toHaveLength(0);
+  });
+
+  it("accepts valid prefix subcommands without unknown-keyword diagnostics", () => {
+    const doc = createDocument("backend x\n    http-check connect");
+    const diags = computeDiagnostics(doc, bundle34.schema, {
+      languageData: bundle34.languageData,
+    });
+    expect(
+      diags.filter((d) => d.code === "unknown-keyword" && d.message.includes("subcommand")),
+    ).toEqual([]);
+  });
+});
+
+describe("DiagnosticContext branches", () => {
+  const bundle34 = loadSchemaBundle("3.4");
+
+  it("omits deprecated index when deprecated warnings are disabled", () => {
+    const doc = createDocument("global\n    master-worker");
+    const ctx = new DiagnosticContext(doc, bundle34.schema, { deprecatedWarnings: false });
+    expect(ctx.deprecatedIndex).toBeUndefined();
+    expect(ctx.suppressDeprecated).toBe(false);
+  });
+
+  it("returns empty line text for out-of-range parsed lines", () => {
+    const doc = createDocument("global");
+    const ctx = new DiagnosticContext(doc, bundle34.schema);
+    const missingLine = {
+      line: 42,
+      section: "global",
+      tokens: [{ text: "mode", start: 0, end: 4 }],
+      isSectionHeader: false,
+      anonymousDefaults: false,
+    } satisfies ParsedLine;
+    expect(ctx.lineText(missingLine)).toBe("");
   });
 });

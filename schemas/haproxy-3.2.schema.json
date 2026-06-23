@@ -51263,6 +51263,620 @@
       "inspect-delay"
     ]
   },
+  "logformat_aliases": {
+    "%B": {
+      "category": "",
+      "field_name": "bytes_read           (from server to client)",
+      "name": "%B",
+      "restrictions": "",
+      "sample_fetch": "%[bytes_out]",
+      "type": "numeric"
+    },
+    "%CC": {
+      "category": "",
+      "field_name": "captured_request_cookie",
+      "name": "%CC",
+      "restrictions": "H",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%CS": {
+      "category": "",
+      "field_name": "captured_response_cookie",
+      "name": "%CS",
+      "restrictions": "H",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%H": {
+      "category": "",
+      "field_name": "hostname",
+      "name": "%H",
+      "restrictions": "",
+      "sample_fetch": "%[hostname]",
+      "type": "string"
+    },
+    "%HM": {
+      "category": "",
+      "field_name": "HTTP method (ex: POST)",
+      "name": "%HM",
+      "restrictions": "H",
+      "sample_fetch": "%[method]",
+      "type": "string"
+    },
+    "%HP": {
+      "category": "",
+      "field_name": "HTTP request URI without query string",
+      "name": "%HP",
+      "restrictions": "H",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%HPO": {
+      "category": "",
+      "field_name": "HTTP path only (without host nor query string)",
+      "name": "%HPO",
+      "restrictions": "H",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%HQ": {
+      "category": "",
+      "field_name": "HTTP request URI query string (ex: ?bar=baz) ?%[query]",
+      "name": "%HQ",
+      "restrictions": "H",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%HU": {
+      "category": "",
+      "field_name": "HTTP request URI (ex: /foo?bar=baz)",
+      "name": "%HU",
+      "restrictions": "H",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%HV": {
+      "category": "",
+      "field_name": "HTTP version (ex: HTTP/1.0) HTTP/%[req.ver]",
+      "name": "%HV",
+      "restrictions": "H",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%ID": {
+      "category": "",
+      "field_name": "unique-id",
+      "name": "%ID",
+      "restrictions": "",
+      "sample_fetch": "%[unique-id]",
+      "type": "string"
+    },
+    "%OG": {
+      "category": "",
+      "field_name": "human readable log origin",
+      "name": "%OG",
+      "restrictions": "L",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%ST": {
+      "category": "",
+      "field_name": "status_code",
+      "name": "%ST",
+      "restrictions": "",
+      "sample_fetch": "%[txn.status]",
+      "type": "numeric"
+    },
+    "%T": {
+      "category": "",
+      "field_name": "Accept date UTC + timezone",
+      "name": "%T",
+      "restrictions": "",
+      "sample_fetch": "%[accept_date,utime(\"%d/%b/%Y:%H:%M:%S %z\")]",
+      "type": "date"
+    },
+    "%TR": {
+      "category": "",
+      "field_name": "time to receive the full request from 1st byte",
+      "name": "%TR",
+      "restrictions": "H",
+      "sample_fetch": "%[req.timer.hdr]",
+      "type": "numeric"
+    },
+    "%Ta": {
+      "category": "",
+      "field_name": "Active time of the request (from TR to end)",
+      "name": "%Ta",
+      "restrictions": "H",
+      "sample_fetch": "%[txn.timer.total]",
+      "type": "numeric"
+    },
+    "%Tc": {
+      "category": "",
+      "field_name": "Tc",
+      "name": "%Tc",
+      "restrictions": "",
+      "sample_fetch": "%[bc.timer.connect]",
+      "type": "numeric"
+    },
+    "%Td": {
+      "category": "",
+      "field_name": "Td = Tt - (Tq + Tw + Tc + Tr)",
+      "name": "%Td",
+      "restrictions": "",
+      "sample_fetch": "%[res.timer.data]",
+      "type": "numeric"
+    },
+    "%Th": {
+      "category": "",
+      "field_name": "connection handshake time (SSL, PROXY proto)",
+      "name": "%Th",
+      "restrictions": "",
+      "sample_fetch": "%[fc.timer.handshake]",
+      "type": "numeric"
+    },
+    "%Ti": {
+      "category": "",
+      "field_name": "idle time before the HTTP request",
+      "name": "%Ti",
+      "restrictions": "H",
+      "sample_fetch": "%[req.timer.idle]",
+      "type": "numeric"
+    },
+    "%Tl": {
+      "category": "",
+      "field_name": "Accept date local + timezone",
+      "name": "%Tl",
+      "restrictions": "",
+      "sample_fetch": "%[accept_date,ltime(\"%d/%b/%Y:%H:%M:%S %z\")]",
+      "type": "date"
+    },
+    "%Tq": {
+      "category": "",
+      "field_name": "Th + Ti + TR",
+      "name": "%Tq",
+      "restrictions": "H",
+      "sample_fetch": "%[req.timer.tq]",
+      "type": "numeric"
+    },
+    "%Tr": {
+      "category": "",
+      "field_name": "Tr (response time)",
+      "name": "%Tr",
+      "restrictions": "H",
+      "sample_fetch": "%[res.timer.hdr]",
+      "type": "numeric"
+    },
+    "%Ts": {
+      "category": "",
+      "field_name": "Accept date as a UNIX timestamp",
+      "name": "%Ts",
+      "restrictions": "",
+      "sample_fetch": "%[accept_date]",
+      "type": "numeric"
+    },
+    "%Tt": {
+      "category": "",
+      "field_name": "Tt",
+      "name": "%Tt",
+      "restrictions": "",
+      "sample_fetch": "%[fc.timer.total]",
+      "type": "numeric"
+    },
+    "%Tu": {
+      "category": "",
+      "field_name": "Tu",
+      "name": "%Tu",
+      "restrictions": "",
+      "sample_fetch": "%[txn.timer.user]",
+      "type": "numeric"
+    },
+    "%Tw": {
+      "category": "",
+      "field_name": "Tw",
+      "name": "%Tw",
+      "restrictions": "",
+      "sample_fetch": "%[req.timer.queue]",
+      "type": "numeric"
+    },
+    "%U": {
+      "category": "",
+      "field_name": "bytes_uploaded       (from client to server)",
+      "name": "%U",
+      "restrictions": "",
+      "sample_fetch": "%[bytes_in]",
+      "type": "numeric"
+    },
+    "%ac": {
+      "category": "",
+      "field_name": "actconn",
+      "name": "%ac",
+      "restrictions": "",
+      "sample_fetch": "%[act_conn]",
+      "type": "numeric"
+    },
+    "%b": {
+      "category": "",
+      "field_name": "backend_name",
+      "name": "%b",
+      "restrictions": "",
+      "sample_fetch": "%[be_name]",
+      "type": "string"
+    },
+    "%bc": {
+      "category": "",
+      "field_name": "beconn      (backend concurrent connections)",
+      "name": "%bc",
+      "restrictions": "",
+      "sample_fetch": "%[be_conn]",
+      "type": "numeric"
+    },
+    "%bi": {
+      "category": "",
+      "field_name": "backend_source_ip       (connecting address)",
+      "name": "%bi",
+      "restrictions": "",
+      "sample_fetch": "%[bc_src]",
+      "type": "IP"
+    },
+    "%bp": {
+      "category": "",
+      "field_name": "backend_source_port     (connecting address)",
+      "name": "%bp",
+      "restrictions": "",
+      "sample_fetch": "%[bc_src_port]",
+      "type": "numeric"
+    },
+    "%bq": {
+      "category": "",
+      "field_name": "backend_queue",
+      "name": "%bq",
+      "restrictions": "",
+      "sample_fetch": "%[bc_be_queue]",
+      "type": "numeric"
+    },
+    "%ci": {
+      "category": "",
+      "field_name": "client_ip                 (accepted address)",
+      "name": "%ci",
+      "restrictions": "",
+      "sample_fetch": "%[src]",
+      "type": "IP"
+    },
+    "%cp": {
+      "category": "",
+      "field_name": "client_port               (accepted address)",
+      "name": "%cp",
+      "restrictions": "",
+      "sample_fetch": "%[src_port]",
+      "type": "numeric"
+    },
+    "%f": {
+      "category": "",
+      "field_name": "frontend_name",
+      "name": "%f",
+      "restrictions": "",
+      "sample_fetch": "%[fe_name]",
+      "type": "string"
+    },
+    "%fc": {
+      "category": "",
+      "field_name": "feconn     (frontend concurrent connections)",
+      "name": "%fc",
+      "restrictions": "",
+      "sample_fetch": "%[fe_conn]",
+      "type": "numeric"
+    },
+    "%fi": {
+      "category": "",
+      "field_name": "frontend_ip              (accepting address)",
+      "name": "%fi",
+      "restrictions": "",
+      "sample_fetch": "%[dst]",
+      "type": "IP"
+    },
+    "%fp": {
+      "category": "",
+      "field_name": "frontend_port            (accepting address)",
+      "name": "%fp",
+      "restrictions": "",
+      "sample_fetch": "%[dst_port]",
+      "type": "numeric"
+    },
+    "%ft": {
+      "category": "",
+      "field_name": "frontend_name_transport ('~' suffix for SSL)",
+      "name": "%ft",
+      "restrictions": "",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%hr": {
+      "category": "",
+      "field_name": "captured_request_headers default style",
+      "name": "%hr",
+      "restrictions": "",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%hrl": {
+      "category": "",
+      "field_name": "captured_request_headers CLF style",
+      "name": "%hrl",
+      "restrictions": "",
+      "sample_fetch": "",
+      "type": "list"
+    },
+    "%hs": {
+      "category": "",
+      "field_name": "captured_response_headers default style",
+      "name": "%hs",
+      "restrictions": "",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%hsl": {
+      "category": "",
+      "field_name": "captured_response_headers CLF style",
+      "name": "%hsl",
+      "restrictions": "",
+      "sample_fetch": "",
+      "type": "list"
+    },
+    "%lc": {
+      "category": "",
+      "field_name": "frontend_log_counter",
+      "name": "%lc",
+      "restrictions": "",
+      "sample_fetch": "",
+      "type": "numeric"
+    },
+    "%ms": {
+      "category": "",
+      "field_name": "Accept date milliseconds",
+      "name": "%ms",
+      "restrictions": "",
+      "sample_fetch": "%[accept_date(ms),ms_utime(\"%3N\")]",
+      "type": "numeric"
+    },
+    "%o": {
+      "category": "",
+      "field_name": "special, apply flags on all following items",
+      "name": "%o",
+      "restrictions": "",
+      "sample_fetch": "",
+      "type": ""
+    },
+    "%pid": {
+      "category": "",
+      "field_name": "PID",
+      "name": "%pid",
+      "restrictions": "",
+      "sample_fetch": "%[pid]",
+      "type": "numeric"
+    },
+    "%r": {
+      "category": "",
+      "field_name": "http_request",
+      "name": "%r",
+      "restrictions": "H",
+      "sample_fetch": "",
+      "type": "string"
+    },
+    "%rc": {
+      "category": "",
+      "field_name": "retries",
+      "name": "%rc",
+      "restrictions": "",
+      "sample_fetch": "%[txn.redispatched,iif(+,)]%[txn.conn_retries]",
+      "type": "numeric"
+    },
+    "%rt": {
+      "category": "",
+      "field_name": "request_counter (HTTP req or TCP session)",
+      "name": "%rt",
+      "restrictions": "",
+      "sample_fetch": "%[txn.id32]",
+      "type": "numeric"
+    },
+    "%s": {
+      "category": "",
+      "field_name": "server_name",
+      "name": "%s",
+      "restrictions": "",
+      "sample_fetch": "%[srv_name]",
+      "type": "string"
+    },
+    "%sc": {
+      "category": "",
+      "field_name": "srv_conn     (server concurrent connections)",
+      "name": "%sc",
+      "restrictions": "",
+      "sample_fetch": "",
+      "type": "numeric"
+    },
+    "%si": {
+      "category": "",
+      "field_name": "server_IP                   (target address)",
+      "name": "%si",
+      "restrictions": "",
+      "sample_fetch": "%[bc_dst]",
+      "type": "IP"
+    },
+    "%sp": {
+      "category": "",
+      "field_name": "server_port                 (target address)",
+      "name": "%sp",
+      "restrictions": "",
+      "sample_fetch": "%[bc_dst_port]",
+      "type": "numeric"
+    },
+    "%sq": {
+      "category": "",
+      "field_name": "srv_queue",
+      "name": "%sq",
+      "restrictions": "",
+      "sample_fetch": "%[bc_srv_queue]",
+      "type": "numeric"
+    },
+    "%sslc": {
+      "category": "",
+      "field_name": "ssl_ciphers (ex: AES-SHA)",
+      "name": "%sslc",
+      "restrictions": "S",
+      "sample_fetch": "%[ssl_fc_cipher]",
+      "type": "string"
+    },
+    "%sslv": {
+      "category": "",
+      "field_name": "ssl_version (ex: TLSv1)",
+      "name": "%sslv",
+      "restrictions": "S",
+      "sample_fetch": "%[ssl_fc_protocol]",
+      "type": "string"
+    },
+    "%t": {
+      "category": "",
+      "field_name": "Accept date local (with millisecond resolution)",
+      "name": "%t",
+      "restrictions": "",
+      "sample_fetch": "%[accept_date(ms),ms_ltime(\"%d/%b/%Y:%H:%M:%S.%3N\")]",
+      "type": "date"
+    },
+    "%tr": {
+      "category": "",
+      "field_name": "Request date local (with millisecond resolution)",
+      "name": "%tr",
+      "restrictions": "H",
+      "sample_fetch": "%[request_date(ms),ms_ltime(\"%d/%b/%Y:%H:%M:%S.%3N\")]",
+      "type": "date"
+    },
+    "%trg": {
+      "category": "",
+      "field_name": "Request date UTC + timezone",
+      "name": "%trg",
+      "restrictions": "H",
+      "sample_fetch": "%[request_date,utime(\"%d/%b/%Y:%H:%M:%S %z\")]",
+      "type": "date"
+    },
+    "%trl": {
+      "category": "",
+      "field_name": "Request date local + timezone",
+      "name": "%trl",
+      "restrictions": "H",
+      "sample_fetch": "%[request_date,ltime(\"%d/%b/%Y:%H:%M:%S %z\")]",
+      "type": "date"
+    },
+    "%ts": {
+      "category": "",
+      "field_name": "termination_state",
+      "name": "%ts",
+      "restrictions": "",
+      "sample_fetch": "%[txn.sess_term_state]",
+      "type": "string"
+    },
+    "%tsc": {
+      "category": "",
+      "field_name": "termination_state with cookie status",
+      "name": "%tsc",
+      "restrictions": "H",
+      "sample_fetch": "",
+      "type": "string"
+    }
+  },
+  "logformat_slots": [
+    {
+      "directive": "error-log-format",
+      "kind": "line_tail",
+      "skip": 0
+    },
+    {
+      "directive": "log-format",
+      "kind": "line_tail",
+      "skip": 0
+    },
+    {
+      "directive": "log-format-sd",
+      "kind": "line_tail",
+      "skip": 0
+    },
+    {
+      "directive": "set-var-fmt",
+      "kind": "line_tail",
+      "skip": 1
+    },
+    {
+      "directive": "unique-id-format",
+      "kind": "line_tail",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "body-lf",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "hdr",
+      "skip": 1
+    },
+    {
+      "kind": "prefix",
+      "prefix": "lf-file",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "lf-string",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "name-lf",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "on-error",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "on-success",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "send-lf",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "set-proxy-v2-tlv-fmt",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "set-var-fmt",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "string-lf",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "uri-lf",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "value-lf",
+      "skip": 0
+    }
+  ],
   "sample_converters": {
     "add": {
       "args": [
@@ -75514,6 +76128,14 @@
     "conditionals": [
       "if",
       "unless"
+    ],
+    "logformat_flags": [
+      "E",
+      "Q",
+      "X",
+      "bin",
+      "cbor",
+      "json"
     ],
     "macros": [
       ".if",

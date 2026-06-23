@@ -46,6 +46,9 @@
       "include": "#check-actions"
     },
     {
+      "include": "#log-format-prefixes"
+    },
+    {
       "include": "#log-line"
     },
     {
@@ -128,6 +131,9 @@
           "end": "(\"|$)",
           "patterns": [
             {
+              "include": "#log-format-content"
+            },
+            {
               "name": "constant.character.escape.haproxy",
               "match": "\\\\."
             }
@@ -138,6 +144,9 @@
           "begin": "'",
           "end": "('|$)",
           "patterns": [
+            {
+              "include": "#log-format-content"
+            },
             {
               "name": "constant.character.escape.haproxy",
               "match": "\\\\."
@@ -748,6 +757,48 @@
         }
       ]
     },
+    "log-format-content": {
+      "patterns": [
+        {
+          "include": "#sample-expressions"
+        },
+        {
+          "name": "keyword.other.modifier.haproxy",
+          "match": "%(?:\\([^)]*\\))?\\{[+\\-][^}]+\\}"
+        },
+        {
+          "name": "keyword.other.modifier.haproxy",
+          "match": "%\\([^)]*\\)"
+        },
+        {
+          "name": "variable.other.logformat.haproxy",
+          "match": "%(?:(?:sslc|sslv|HPO|hrl|hsl|pid|trg|trl|tsc|CC|CS|HM|HP|HQ|HU|HV|ID|OG|ST|TR|Ta|Tc|Td|Th|Ti|Tl|Tq|Tr|Ts|Tt|Tu|Tw|ac|bc|bi|bp|bq|ci|cp|fc|fi|fp|ft|hr|hs|lc|ms|rc|rt|sc|si|sp|sq|tr|ts|B|H|T|U|b|f|o|r|s|t))\\b"
+        },
+        {
+          "name": "constant.character.escape.haproxy",
+          "match": "%%"
+        }
+      ]
+    },
+    "log-format-prefixes": {
+      "patterns": [
+        {
+          "match": "\\b((?:set\\-proxy\\-v2\\-tlv\\-fmt|set\\-var\\-fmt|on\\-success|lf\\-string|string\\-lf|on\\-error|value\\-lf|body\\-lf|lf\\-file|name\\-lf|send\\-lf|uri\\-lf|hdr))\\s+(\\S+)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.option.haproxy"
+            },
+            "2": {
+              "patterns": [
+                {
+                  "include": "#log-format-content"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
     "log-line": {
       "patterns": [
         {
@@ -765,13 +816,17 @@
           }
         },
         {
-          "match": "\\b(log-format-sd|log-format)\\s+(.+)$",
+          "match": "\\b(log-format-sd|log-format|error-log-format|unique-id-format|set-var-fmt)\\s+(.+)$",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"
             },
             "2": {
-              "name": "string.unquoted.haproxy"
+              "patterns": [
+                {
+                  "include": "#log-format-content"
+                }
+              ]
             }
           }
         }

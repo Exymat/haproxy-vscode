@@ -18,19 +18,18 @@ import {
   resolveLineOptionStartIndex,
   resolveNestedLineOptionSpan,
 } from "./hover/lineOptions";
-import { HaproxyLanguageData } from "./languageData";
+import { HaproxyLanguageData, LanguageExample } from "./languageData";
 import { resolveLanguageKeyword } from "./keywordVariant";
+import { languageDocMarkdown } from "./hover/markdown";
+import { logFormatCompletionPrefix, logFormatContextAt } from "./logFormat";
 import { HaproxySchema, modifierPrefixSet } from "./schema";
 
-function markdownDoc(description: string, docsUrl?: string): vscode.MarkdownString {
-  const md = new vscode.MarkdownString();
-  if (description) {
-    md.appendMarkdown(description);
-  }
-  if (docsUrl) {
-    md.appendMarkdown(`\n\n[HAProxy documentation](${docsUrl})`);
-  }
-  return md;
+function markdownDoc(
+  description: string,
+  docsUrl?: string,
+  examples?: LanguageExample[],
+): vscode.MarkdownString {
+  return languageDocMarkdown(description, docsUrl, examples);
 }
 
 function filterByPrefix(items: string[], prefix: string): string[] {
@@ -39,6 +38,47 @@ function filterByPrefix(items: string[], prefix: string): string[] {
     return items;
   }
   return items.filter((item) => item.toLowerCase().startsWith(p));
+}
+
+function logFormatCompletionItems(
+  data: HaproxyLanguageData,
+  schema: HaproxySchema,
+  formatText: string,
+  localOffset: number,
+): vscode.CompletionItem[] {
+  const prefix = logFormatCompletionPrefix(formatText, localOffset) ?? "";
+  const before = formatText.slice(0, localOffset);
+  const inFlags = before.lastIndexOf("{") > before.lastIndexOf("}");
+
+  if (inFlags) {
+    const flags = schema.tokens.logformat_flags ?? [];
+    return filterByPrefix(flags, prefix).map((name) => {
+      const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
+      item.detail = "log-format flag";
+      const group = groupItems(data, "logformat_flags").find((g) => g.name === name);
+      if (group?.description) {
+        item.documentation = markdownDoc(group.description);
+      }
+      return item;
+    });
+  }
+
+  const aliases = groupItems(data, "logformat_aliases");
+  return aliases
+    .filter((alias) => {
+      const body = alias.name.replace(/^%/, "");
+      return !prefix || body.toLowerCase().startsWith(prefix.toLowerCase());
+    })
+    .map((alias) => {
+      const body = alias.name.replace(/^%/, "");
+      const item = new vscode.CompletionItem(body, vscode.CompletionItemKind.Variable);
+      item.detail = alias.name;
+      item.insertText = body;
+      if (alias.description) {
+        item.documentation = markdownDoc(alias.description, alias.docsUrl);
+      }
+      return item;
+    });
 }
 
 export function provideCompletionItems(
@@ -50,6 +90,12 @@ export function provideCompletionItems(
   const ctx = getDocumentContext(document, position, schema);
   if (!ctx) {
     return [];
+  }
+
+  const lineText = document.lineAt(position.line).text;
+  const fmtContext = logFormatContextAt(lineText, ctx.line.tokens, position.character, schema);
+  if (fmtContext) {
+    return logFormatCompletionItems(data, schema, fmtContext.region.text, fmtContext.localOffset);
   }
 
   const wordRange = document.getWordRangeAtPosition(position, /[a-zA-Z0-9_.-]+/);
@@ -74,10 +120,19 @@ export function provideCompletionItems(
       const optKeyword =
         data.keywords[`option ${name}`.toLowerCase()] ??
         data.keywords[`no option ${name}`.toLowerCase()];
-      if (optKeyword?.description || group?.description) {
+      const resolved = optKeyword
+        ? resolveLanguageKeyword(optKeyword, ctx.line.section)
+        : undefined;
+      if (
+        resolved?.description ||
+        group?.description ||
+        resolved?.examples?.length ||
+        group?.examples?.length
+      ) {
         item.documentation = markdownDoc(
-          optKeyword?.description ?? group?.description ?? "",
-          optKeyword?.docsUrl ?? group?.docsUrl,
+          resolved?.description ?? group?.description ?? "",
+          resolved?.docsUrl ?? group?.docsUrl,
+          resolved?.examples ?? group?.examples,
         );
       }
       return item;
@@ -126,8 +181,8 @@ export function provideCompletionItems(
       const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Keyword);
       const group = actionsByName.get(name);
       item.detail = ctx.kind;
-      if (group?.description) {
-        item.documentation = markdownDoc(group.description, group.docsUrl);
+      if (group?.description || group?.examples?.length) {
+        item.documentation = markdownDoc(group.description, group.docsUrl, group.examples);
       }
       return item;
     });
@@ -252,8 +307,8 @@ export function provideCompletionItems(
       const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Value);
       const group = optionsByName.get(name);
       item.detail = ctx.kind;
-      if (group?.description) {
-        item.documentation = markdownDoc(group.description, group.docsUrl);
+      if (group?.description || group?.examples?.length) {
+        item.documentation = markdownDoc(group.description, group.docsUrl, group.examples);
       }
       return item;
     });
@@ -280,7 +335,7 @@ export function provideCompletionItems(
       const sigList =
         kw.signatures.length > 1 ? kw.signatures.map((s) => `- \`${s}\``).join("\n") : "";
       const doc = sigList ? `${kw.description}\n\n${sigList}` : kw.description;
-      item.documentation = markdownDoc(doc, kw.docsUrl);
+      item.documentation = markdownDoc(doc, kw.docsUrl, kw.examples);
       return item;
     });
 }

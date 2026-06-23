@@ -4,12 +4,18 @@ import * as vscode from "vscode";
 
 import { DEFAULT_HAPROXY_VERSION, HaproxyVersion } from "./version";
 
+export interface LanguageExample {
+  title: string;
+  code: string;
+}
+
 export interface LanguageGroupItem {
   name: string;
   description: string;
   signature: string;
   rulesets: string[];
   docsUrl?: string;
+  examples?: LanguageExample[];
 }
 
 export interface LanguageArgumentValue {
@@ -31,6 +37,7 @@ export interface LanguageKeywordVariant {
   docsUrl: string;
   arguments?: LanguageArgumentParam[];
   contexts?: string[];
+  examples?: LanguageExample[];
 }
 
 export interface LanguageKeyword {
@@ -41,6 +48,7 @@ export interface LanguageKeyword {
   docsUrl: string;
   arguments?: LanguageArgumentParam[];
   variants?: LanguageKeywordVariant[];
+  examples?: LanguageExample[];
 }
 
 export interface HaproxyLanguageData {

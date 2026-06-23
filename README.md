@@ -56,6 +56,8 @@ Catch common mistakes while you type:
 
 Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Context checks use the effective runtime mode inferred from your section/config flow, but you should still validate with your real binary before deploying.
 
+**Unused symbol hints** (opt-in via `haproxy.diagnostics.unusedSymbols`) fade ACLs, servers, and whole section blocks that appear unreferenced in the current file — similar to unused-code hints in Ty or Pylance. Analysis is single-file and heuristic: it does not follow `include` directives or detect runtime-only references.
+
 ![Wrong-section diagnostic with inline directive help](docs/images/diagnostics-wrong-section.png)
 
 ### Document formatting
@@ -136,6 +138,8 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 | `haproxy.diagnostics.debounceMs`                | `500`      | Delay after edits before recomputing diagnostics (100-5000 ms)                                                                                                 |
 | `haproxy.diagnostics.maxLines`                  | `4000`     | Skip diagnostics above this line count to limit memory use                                                                                                     |
 | `haproxy.diagnostics.deprecatedWarnings`        | `true`     | Warn on directives and rule actions marked `(deprecated)` in the official docs. Warnings are suppressed when `global` contains `expose-deprecated-directives`. |
+| `haproxy.diagnostics.unusedSymbols`             | `false`    | Hint and fade ACLs, servers, and sections that appear unused in the current file (Ty-style unnecessary-code styling).                                          |
+| `haproxy.diagnostics.unusedSymbols.sections`    | `true`     | When unused hints are enabled, include whole unused section blocks (backends, named defaults, cache, userlist, resolvers, peers).                              |
 | `haproxy.format.enabled`                        | `true`     | Enable **Format Document** for HAProxy configs                                                                                                                 |
 | `haproxy.format.indent`                         | `spaces-4` | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                                                                                                  |
 | `haproxy.format.insertBlankLineBetweenSections` | `true`     | Insert a blank line before each new section header when formatting                                                                                             |

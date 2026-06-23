@@ -180,3 +180,6 @@ export function findLineContaining(content: string, needle: string): number {
 }
 
 export const BENCH_VERSIONS = ["2.6", "3.2", "3.4"] as const;
+
+/** Line cap for symbol-index features on 24k-line bench fixtures (matches extension default intent). */
+export const BENCH_LARGE_MAX_LINES = 26_000;

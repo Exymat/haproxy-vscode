@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 
+import type { LanguageExample } from "../languageData";
 import { formatHoverBlocks } from "./formatHoverText";
 
 function appendFormattedBlock(md: vscode.MarkdownString, text: string): void {
@@ -19,12 +20,27 @@ function appendFormattedText(md: vscode.MarkdownString, text: string): void {
   }
 }
 
+function appendExamples(md: vscode.MarkdownString, examples: LanguageExample[] | undefined): void {
+  if (!examples?.length) {
+    return;
+  }
+  for (const example of examples) {
+    appendFormattedBlock(md, exampleBlock(example));
+  }
+}
+
+export function exampleBlock(example: LanguageExample): string {
+  const heading = example.title ? `**Example:** ${example.title}` : "**Example**";
+  return [heading, "", "```haproxy", example.code, "```"].join("\n");
+}
+
 export function hoverMarkdown(
   title: string,
   signature: string,
   description: string,
   extras: string[],
   docsUrl?: string,
+  examples?: LanguageExample[],
 ): vscode.MarkdownString {
   const md = new vscode.MarkdownString();
   md.appendMarkdown(`**${title}**`);
@@ -32,9 +48,24 @@ export function hoverMarkdown(
     md.appendMarkdown(`\n\n\`${signature}\``);
   }
   appendFormattedText(md, description);
+  appendExamples(md, examples);
   for (const line of extras) {
     appendFormattedText(md, line);
   }
+  if (docsUrl) {
+    md.appendMarkdown(`\n\n[HAProxy documentation](${docsUrl})`);
+  }
+  return md;
+}
+
+export function languageDocMarkdown(
+  description: string,
+  docsUrl?: string,
+  examples?: LanguageExample[],
+): vscode.MarkdownString {
+  const md = new vscode.MarkdownString();
+  appendFormattedText(md, description);
+  appendExamples(md, examples);
   if (docsUrl) {
     md.appendMarkdown(`\n\n[HAProxy documentation](${docsUrl})`);
   }

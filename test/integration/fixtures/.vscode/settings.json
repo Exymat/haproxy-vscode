@@ -6,5 +6,7 @@
   "haproxy.diagnostics.maxLines": 4000,
   "haproxy.format.enabled": true,
   "haproxy.format.indent": "spaces-4",
-  "haproxy.format.insertBlankLineBetweenSections": true
+  "haproxy.format.insertBlankLineBetweenSections": true,
+  "haproxy.diagnostics.unusedSymbols": false,
+  "haproxy.diagnostics.unusedSymbols.sections": true
 }

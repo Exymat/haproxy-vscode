@@ -41,6 +41,18 @@ const completionCases: CompletionCase[] = [
     line: largeBackendLine,
     character: 4,
   },
+  {
+    name: "log-format alias prefix",
+    content: 'defaults\n    log-format "%c',
+    line: 1,
+    character: '    log-format "%c'.length,
+  },
+  {
+    name: "log-format flag prefix",
+    content: 'defaults\n    log-format "%{+',
+    line: 1,
+    character: '    log-format "%{+'.length,
+  },
 ];
 
 describe("completion", () => {
@@ -64,6 +76,22 @@ describe("completion", () => {
         provideCompletionItems(
           doc,
           { line: 1, character: 4 } as never,
+          bundle.languageData,
+          bundle.schema,
+        );
+      }
+    },
+    { time: 500, warmupIterations: 3 },
+  );
+
+  bench(
+    "completion warm: log-format alias prefix",
+    () => {
+      const doc = createDocument('defaults\n    log-format "%c');
+      for (let i = 0; i < 20; i += 1) {
+        provideCompletionItems(
+          doc,
+          { line: 1, character: '    log-format "%c'.length } as never,
           bundle.languageData,
           bundle.schema,
         );

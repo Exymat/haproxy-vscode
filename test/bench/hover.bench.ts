@@ -15,6 +15,8 @@ interface HoverCase {
   character: number;
 }
 
+const inlineConditionLine = "    http-request set-header Host unless { req.hdr(Host) -m found }";
+
 const hoverCases: HoverCase[] = [
   {
     name: "directive (balance)",
@@ -39,6 +41,30 @@ const hoverCases: HoverCase[] = [
     content: "frontend web\n    http-request set-header X-Test %[req.hdr(host)]",
     line: 1,
     character: "    http-request set-header X-Test %[req.hdr(host)]".indexOf("req.hdr") + 2,
+  },
+  {
+    name: "log-format alias (ci)",
+    content: 'defaults\n    log-format "%{+Q}o %ci"',
+    line: 1,
+    character: '    log-format "%{+Q}o %ci"'.indexOf("ci") + 1,
+  },
+  {
+    name: "log-format flag (Q)",
+    content: 'defaults\n    log-format "%{+Q}"',
+    line: 1,
+    character: '    log-format "%{+Q}"'.indexOf("Q"),
+  },
+  {
+    name: "inline condition fetch (req.hdr)",
+    content: `frontend web\n${inlineConditionLine}`,
+    line: 1,
+    character: inlineConditionLine.indexOf("req.hdr") + 2,
+  },
+  {
+    name: "inline condition ACL match (found)",
+    content: `frontend web\n${inlineConditionLine}`,
+    line: 1,
+    character: inlineConditionLine.indexOf("found") + 1,
   },
 ];
 

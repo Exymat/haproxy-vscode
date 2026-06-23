@@ -39204,6 +39204,91 @@
       "inspect-delay"
     ]
   },
+  "logformat_aliases": {
+    "%o": {
+      "category": "",
+      "field_name": "special variable, apply flags on all next var",
+      "name": "%o",
+      "restrictions": "",
+      "sample_fetch": "",
+      "type": ""
+    },
+    "%tsc": {
+      "category": "",
+      "field_name": "bytes_read           (from server to client) captured_request_cookie captured_response_cookie hostname HTTP method (ex: POST) HTTP request URI without query string HTTP path only (without host nor query string) HTTP request URI query string (ex: ?bar=baz) HTTP request URI (ex: /foo?bar=baz) HTTP version (ex: HTTP/1.0) unique-id status_code gmt_date_time Active time of the request (from TR to end) Tc Td = Tt - (Tq + Tw + Tc + Tr) local_date_time connection handshake time (SSL, PROXY proto) idle time before the HTTP request Th + Ti + TR time to receive the full request from 1st byte Tr (response time) timestamp Tt Tu Tw bytes_uploaded       (from client to server) actconn backend_name beconn      (backend concurrent connections) backend_source_ip       (connecting address) backend_source_port     (connecting address) backend_queue client_ip                 (accepted address) client_port               (accepted address) frontend_name feconn     (frontend concurrent connections) frontend_ip              (accepting address) frontend_port            (accepting address) frontend_name_transport ('~' suffix for SSL) frontend_log_counter captured_request_headers default style captured_request_headers CLF style captured_response_headers default style captured_response_headers CLF style accept date milliseconds (left-padded with 0) PID http_request retries request_counter (HTTP req or TCP session) server_name srv_conn     (server concurrent connections) server_IP                   (target address) server_port                 (target address) srv_queue ssl_ciphers (ex: AES-SHA) ssl_version (ex: TLSv1) date_time      (with millisecond resolution) date_time of HTTP request gmt_date_time of start of HTTP request local_date_time of start of HTTP request termination_state termination_state with cookie status",
+      "name": "%tsc",
+      "restrictions": "H",
+      "sample_fetch": "",
+      "type": "string"
+    }
+  },
+  "logformat_slots": [
+    {
+      "directive": "set-var-fmt",
+      "kind": "line_tail",
+      "skip": 1
+    },
+    {
+      "kind": "prefix",
+      "prefix": "body-lf",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "hdr",
+      "skip": 1
+    },
+    {
+      "kind": "prefix",
+      "prefix": "lf-file",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "lf-string",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "name-lf",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "on-error",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "on-success",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "send-lf",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "set-var-fmt",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "string-lf",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "uri-lf",
+      "skip": 0
+    },
+    {
+      "kind": "prefix",
+      "prefix": "value-lf",
+      "skip": 0
+    }
+  ],
   "sample_converters": {
     "add": {
       "args": [
@@ -56206,6 +56291,11 @@
     "conditionals": [
       "if",
       "unless"
+    ],
+    "logformat_flags": [
+      "E",
+      "Q",
+      "X"
     ],
     "macros": [
       ".if",

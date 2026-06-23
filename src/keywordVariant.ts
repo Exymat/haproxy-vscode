@@ -1,4 +1,9 @@
-import { LanguageArgumentParam, LanguageKeyword, LanguageKeywordVariant } from "./languageData";
+import {
+  LanguageArgumentParam,
+  LanguageExample,
+  LanguageKeyword,
+  LanguageKeywordVariant,
+} from "./languageData";
 import { SchemaKeyword, SchemaKeywordVariant } from "./schema";
 
 function effectiveLanguageArguments(
@@ -46,6 +51,7 @@ export interface ResolvedLanguageKeyword {
   arguments?: LanguageArgumentParam[];
   contexts?: string[];
   chapter?: string;
+  examples?: LanguageExample[];
 }
 
 export interface ResolvedSchemaKeyword {
@@ -103,6 +109,11 @@ export function resolveLanguageKeyword(
     preferredVariant(keyword.variants ?? []);
   if (variant) {
     const variantArguments = effectiveLanguageArguments(keyword, variant);
+    const examples = variant.examples?.length
+      ? variant.examples
+      : keyword.examples?.length
+        ? keyword.examples
+        : undefined;
     return {
       name: keyword.name,
       sections: variant.sections.length > 0 ? variant.sections : keyword.sections,
@@ -112,6 +123,7 @@ export function resolveLanguageKeyword(
       arguments: variantArguments,
       contexts: variant.contexts?.length ? variant.contexts : undefined,
       chapter: variant.chapter,
+      examples,
     };
   }
   return {
@@ -121,6 +133,7 @@ export function resolveLanguageKeyword(
     description: keyword.description,
     docsUrl: keyword.docsUrl,
     arguments: keyword.arguments,
+    examples: keyword.examples,
   };
 }
 

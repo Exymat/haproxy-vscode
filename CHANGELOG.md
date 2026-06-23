@@ -2,6 +2,15 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.11.0
+
+- **Log-format support** — completion, hover, and diagnostics for `log-format`, `error-log-format`, `unique-id-format`, `set-var-fmt`, and embedded format strings (aliases, `{+flags}`, unknown alias/flag checks).
+- **Unused symbol hints** (opt-in via `haproxy.diagnostics.unusedSymbols`) — fade ACLs, servers, and unreferenced section blocks; configurable with `haproxy.diagnostics.unusedSymbols.sections`.
+- **Go to Definition / Find References** extended to cache, resolvers, peers, userlist, filters, and ACL names inside inline `{ … }` conditions.
+- Hover and completion show **Examples** from the manual where available.
+- Hover for sample fetches and ACL match methods inside inline `{ … }` conditions.
+- Refreshed keyword data for all supported versions (2.6-3.4).
+
 ## 0.10.4
 
 - **Line-isolated syntax highlighting** — `%[…]`, `{…}`, `(...)`, `[…]`, and quoted strings no longer leak grammar state to following lines when a delimiter is missing on the same line. Fixes broken highlighting on the rest of a file after a malformed sample expression or ACL block.

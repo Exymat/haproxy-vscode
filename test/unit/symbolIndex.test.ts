@@ -237,6 +237,16 @@ describe("symbolIndex extended", () => {
     expect(refs[0]?.name).toBe("blocked");
   });
 
+  it("tracks acl references inside inline brace blocks", () => {
+    const parsed = parseDocument(
+      doc(
+        "frontend web\n    acl blocked path_beg /admin\n    http-request deny if { blocked -m found }",
+      ),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+    expect(findReferences(index, "acl", "blocked", "frontend:web")).toHaveLength(1);
+  });
+
   it("uses value token indexes for definitions and unscoped symbol keys", () => {
     const customSchema = structuredClone(schema);
     customSchema.statement_rules = [

@@ -12,10 +12,10 @@
       "invalidEvery": 0,
       "blockCounts": {
         "header": 1,
-        "validBackend": 1265,
-        "validFrontend": 317,
-        "validListen": 211,
-        "filler": 422
+        "validBackend": 1252,
+        "validFrontend": 313,
+        "validListen": 209,
+        "filler": 418
       },
       "invalidCategories": {}
     },
@@ -30,24 +30,26 @@
       "invalidEvery": 5,
       "blockCounts": {
         "header": 1,
-        "validBackend": 963,
-        "validFrontend": 241,
-        "validListen": 161,
-        "invalidUnknownDirective": 193,
-        "invalidWrongContext": 193,
-        "invalidTruncatedCondition": 193,
-        "invalidBadServerAddress": 193,
-        "invalidMismatchedSyntax": 193,
-        "invalidDuplicateConflict": 193,
-        "filler": 482
+        "validBackend": 932,
+        "validFrontend": 233,
+        "validListen": 156,
+        "invalidUnknownDirective": 187,
+        "invalidWrongContext": 187,
+        "invalidTruncatedCondition": 187,
+        "invalidBadServerAddress": 187,
+        "invalidMismatchedSyntax": 187,
+        "invalidDuplicateConflict": 187,
+        "invalidLogFormat": 187,
+        "filler": 466
       },
       "invalidCategories": {
-        "unknown-directive": 193,
-        "wrong-context": 193,
-        "truncated-condition": 193,
-        "bad-server-address": 193,
-        "mismatched-syntax": 193,
-        "duplicate-conflict": 193
+        "unknown-directive": 187,
+        "wrong-context": 187,
+        "truncated-condition": 187,
+        "bad-server-address": 187,
+        "mismatched-syntax": 187,
+        "duplicate-conflict": 187,
+        "invalid-log-format": 187
       }
     }
   ]

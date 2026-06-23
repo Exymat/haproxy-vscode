@@ -132,6 +132,9 @@ export function activate(context: vscode.ExtensionContext): void {
       computeDiagnostics(document, b.schema, {
         languageData: b.languageData,
         deprecatedWarnings: settings.deprecatedWarnings,
+        unusedSymbols: settings.unusedSymbols,
+        unusedSymbolSections: settings.unusedSymbolSections,
+        maxLines: settings.maxDiagnosticsLines,
       }),
     );
   };
