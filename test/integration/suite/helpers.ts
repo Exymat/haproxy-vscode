@@ -243,6 +243,14 @@ export async function updateHaproxySetting(
   await new Promise((resolve) => setTimeout(resolve, waitMs ?? debounceMs + 400));
 }
 
+export async function clearHaproxySetting(key: string, waitMs?: number): Promise<void> {
+  const config = vscode.workspace.getConfiguration("haproxy");
+  await config.update(key, undefined, vscode.ConfigurationTarget.Global);
+  await config.update(key, undefined, vscode.ConfigurationTarget.Workspace);
+  const debounceMs = config.get<number>("diagnostics.debounceMs", 500);
+  await new Promise((resolve) => setTimeout(resolve, waitMs ?? debounceMs + 400));
+}
+
 export async function ensureHaproxyVersion(version: string): Promise<void> {
   const current = vscode.workspace.getConfiguration("haproxy").get<string>("version");
   if (current === version) {
@@ -319,6 +327,12 @@ export async function formatDocumentContent(content: string): Promise<string> {
 export async function resetHaproxySettings(): Promise<void> {
   await ensureExtensionReady();
   const config = vscode.workspace.getConfiguration("haproxy");
+  await config.update("diagnostics.unusedSymbols.sections", undefined, vscode.ConfigurationTarget.Global);
+  await config.update(
+    "diagnostics.unusedSymbols.sections",
+    undefined,
+    vscode.ConfigurationTarget.Workspace,
+  );
   const defaults: Array<[string, unknown]> = [
     ["version", "3.2"],
     ["format.enabled", true],
@@ -327,6 +341,7 @@ export async function resetHaproxySettings(): Promise<void> {
     ["diagnostics.enabled", true],
     ["diagnostics.deprecatedWarnings", true],
     ["diagnostics.maxLines", 4000],
+    ["diagnostics.unusedSymbols", false],
   ];
   for (const [key, value] of defaults) {
     await config.update(key, value, vscode.ConfigurationTarget.Global);

@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 import {
   assertDiagnosticCounts,
+  clearHaproxySetting,
   completionLabelsAt,
   definitionLocationsAt,
   ensureHaproxyVersion,
@@ -211,8 +212,8 @@ suite("Language feature integration", () => {
   suite("Diagnostics lifecycle", () => {
     suiteTeardown(async () => {
       await updateHaproxySetting("diagnostics.enabled", true);
+      await clearHaproxySetting("diagnostics.unusedSymbols.sections");
       await updateHaproxySetting("diagnostics.unusedSymbols", false);
-      await updateHaproxySetting("diagnostics.unusedSymbols.sections", true);
     });
 
     test("diagnostics refresh after document edits", async () => {
