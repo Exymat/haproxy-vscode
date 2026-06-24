@@ -105,6 +105,16 @@ describe("extractLogFormatRegions", () => {
     expect(regions).toEqual([expect.objectContaining({ text: "%ci" })]);
   });
 
+  it("returns multiple embedded regions sorted by start offset", () => {
+    const line = "http-check send hdr Host %ci uri-lf %o ver HTTP/1.1";
+    const tokens = tokenizeLine(line);
+    const regions = extractLogFormatRegions(line, tokens, schemaStub);
+    expect(regions).toEqual([
+      expect.objectContaining({ text: "%ci" }),
+      expect.objectContaining({ text: "%o" }),
+    ]);
+  });
+
   it("finds fmt regions in set-var-fmt lines", () => {
     const line = 'set-var-fmt txn.id "%ci"';
     const tokens = tokenizeLine(line);

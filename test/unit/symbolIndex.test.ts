@@ -270,4 +270,10 @@ describe("symbolIndex extended", () => {
     const index = buildSymbolIndex(parsed, schema);
     expect(findAllSites(index, "defaults-profile", "base", null)).toHaveLength(2);
   });
+
+  it("findReferences returns empty array when symbol has no references", () => {
+    const parsed = parseDocument(doc("backend api\n    server s1 127.0.0.1:80"));
+    const index = buildSymbolIndex(parsed, schema);
+    expect(findReferences(index, "acl", "missing", "backend:api")).toEqual([]);
+  });
 });
