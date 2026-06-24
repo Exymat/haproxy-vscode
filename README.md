@@ -16,7 +16,7 @@ Open any `.cfg` file and get syntax highlighting, context-aware completion, inli
 
 ### Syntax highlighting
 
-Colorization is generated from HAProxy’s own keyword inventory (`haproxy -dKall`), not hand-maintained lists. Sections, directives, ACLs, sample expressions, and related constructs are scoped consistently across large configs.
+Colorization is generated from HAProxy's own keyword inventory (`haproxy -dKall`), not hand-maintained lists. Sections, directives, ACLs, sample expressions, and related constructs are scoped consistently across large configs.
 
 ![Syntax highlighting for sections, directives, and expressions](docs/images/syntax-highlight.png)
 
@@ -37,7 +37,7 @@ Completion reloads immediately when you change the configured HAProxy version.
 
 ### Inline documentation
 
-Hover any supported keyword to read summaries sourced from HAProxy’s official `configuration.txt`. Many entries include a **link to the upstream HAProxy documentation** for the full reference. Conditional block directives (`.if`, `.elif`, `.else`, `.endif`) are documented as well, and hovers distinguish section scope such as **Valid in sections: defaults, frontend, listen, backend** from mode scope such as **Valid in modes: tcp, http, log** when available.
+Hover any supported keyword to read summaries sourced from HAProxy's official `configuration.txt`. Many entries include a **link to the upstream HAProxy documentation** for the full reference. Conditional block directives (`.if`, `.elif`, `.else`, `.endif`) are documented as well, and hovers distinguish section scope such as **Valid in sections: defaults, frontend, listen, backend** from mode scope such as **Valid in modes: tcp, http, log** when available.
 
 ![Hover documentation with signature and upstream doc link](docs/images/hover-documentation.png)
 
@@ -62,7 +62,7 @@ Diagnostics are **schema-based** — they help you write valid-looking config fa
 
 ### Document formatting
 
-Run **Format Document** (or enable format-on-save) to normalize layout according to HAProxy’s configuration file rules:
+Run **Format Document** (or enable format-on-save) to normalize layout according to HAProxy's configuration file rules:
 
 - Section headers (`global`, `frontend`, …) stay left-aligned; directives inside a section are indented consistently.
 - Comments and quoted strings are preserved; inline `#` comments stay on the same line.
@@ -75,7 +75,7 @@ Indent style (4 spaces, 2 spaces, or tab) and blank-line behavior are configurab
 Navigate large configs with built-in structure support:
 
 - **Outline** — lists every top-level section (`frontend www`, `backend api`, …) so you can jump quickly.
-- **Folding** — collapse a section’s body while keeping its header visible.
+- **Folding** — collapse a section's body while keeping its header visible.
 
 ### Go to definition and find references
 
@@ -171,42 +171,29 @@ Those inputs are merged into JSON schemas, completion/hover payloads, and TextMa
 
 ## Performance
 
-The extension is built for interactive editing. The table below shows **median** timings from our automated micro-benchmarks (`npm run bench`) on Node.js 24 — they exercise the same TypeScript code paths as the extension host, using bundled schemas and synthetic `.cfg` fixtures.
+The extension is built for interactive editing. The table below shows **median** timings from our automated micro-benchmarks (`npm run bench`) on Node.js 24 - they exercise the same TypeScript code paths as the extension host, using bundled schemas and synthetic `.cfg` fixtures.
 
 | Operation                                                     | Small config (~18 lines) | Medium config (~100 lines) | Stress config (24,000 lines) |
 | ------------------------------------------------------------- | ------------------------ | -------------------------- | ---------------------------- |
-| **Startup** — load schema + language data (first `.cfg` open) | —                        | —                          | ~13 ms                       |
-| **Syntax highlighting** — full grammar tokenize¹              | ~6 ms                    | ~8 ms                      | ~1.7 s                       |
-| **Diagnostics** — one full pass²                              | ~0.1–0.3 ms              | ~0.9–1.0 ms                | ~150–260 ms                  |
-| **Diagnostics + unused-symbol hints**                         | —                        | —                          | ~150–290 ms                  |
-| **Format document**                                           | <0.01 ms                 | ~0.06 ms                   | ~19–21 ms                    |
-| **Completion** at cursor                                      | <0.01 ms                 | —                          | ~14 ms                       |
-| **Hover**                                                     | <0.1 ms                  | —                          | <0.1 ms                      |
-| **Go to definition / references**                             | <0.01 ms                 | —                          | ~0.7 ms                      |
+| **Startup** - load schema + language data (first `.cfg` open) | -                        | -                          | ~13 ms                       |
+| **Syntax highlighting** - full grammar tokenize^1^            | ~6 ms                    | ~8 ms                      | ~1.7 s                       |
+| **Diagnostics** - one full pass^2^                            | ~0.1-0.3 ms              | ~0.9-1.0 ms                | ~180-250 ms                  |
+| **Diagnostics** - incremental edit revalidation^2^            | ~0.02 ms                 | ~0.08 ms                   | ~11-13 ms                    |
+| **Diagnostics + unused-symbol hints**                         | -                        | -                          | ~200-280 ms                  |
+| **Diagnostics + unused-symbol hints** - incremental edit^2^   | -                        | -                          | ~48-55 ms                    |
+| **Format document**                                           | <0.01 ms                 | ~0.06 ms                   | ~19-21 ms                    |
+| **Completion** at cursor                                      | <0.01 ms                 | -                          | ~14 ms                       |
+| **Hover**                                                     | <0.1 ms                  | -                          | <0.1 ms                      |
+| **Go to definition / references**                             | <0.01 ms                 | -                          | ~0.7 ms                      |
 
 **What this means in practice**
 
 - **Everyday configs** (hundreds to a few thousand lines) stay responsive: diagnostics, completion, and hover are sub-millisecond to low tens of milliseconds per operation.
-- **Diagnostics dominate** cost on large files — the main reason `haproxy.diagnostics.maxLines` defaults to **4000** and very large files skip validation unless you raise that limit. CI guards the stress paths using p99.5 thresholds: large valid diagnostics must stay under **600–700 ms** without unused-symbol hints and **1.8–2.2 s** with them; large mixed diagnostics must stay under **3.0–3.5 s** without unused-symbol hints and **2.4–4.5 s** with them.
+- **Incremental diagnostics are now the fast path during editing.** On the 24k-line stress fixtures, a single-line edit revalidates in about **11-13 ms** without unused-symbol hints and **48-55 ms** with them enabled. The same edits take about **193-249 ms** and **235-248 ms** respectively when forced through a full recompute baseline.
+- **Diagnostics still dominate** full-pass cost on very large files - the main reason `haproxy.diagnostics.maxLines` defaults to **4000** and very large files skip validation unless you raise that limit. CI now guards the incremental stress-edit path at p99.5 under **35-40 ms** without unused-symbol hints and **90 ms** with them, while the full-pass stress benchmarks remain guarded separately.
 - **Highlighting** scales with file size; the editor tokenizes incrementally, so the stress numbers above are a full-file worst case, not what you pay on every keystroke. Grammars are **line-isolated** (no `begin`/`end` region may carry state past end-of-line), so tokenization cost reflects correct per-line highlighting even when earlier lines contain deliberate syntax errors.
 - **Stress fixtures:** `large-valid.cfg` (mostly valid) tokenizes at ~**1.73 s** median; `large-mixed.cfg` (valid baseline plus injected invalid lines every ~5 blocks) at ~**1.68 s** median. The p99.5 tokenization threshold is **2.6 s** for both fixtures.
 - **Startup** pays a one-time ~13 ms JSON parse when the extension first loads language data for your selected HAProxy version; the p99.5 threshold is **500 ms**.
-
-### Updated edit-path metrics
-
-The current benchmark suite now measures incremental revalidation separately from a forced full-recompute baseline.
-
-| Edit benchmark (24,000-line stress fixture) | Baseline full recompute | Incremental path |
-| ------------------------------------------- | ----------------------- | ---------------- |
-| `large-valid.cfg`                           | ~222 ms                 | ~13 ms           |
-| `large-mixed.cfg`                           | ~193 ms                 | ~11 ms           |
-| `large-valid.cfg` + unused symbols          | ~248 ms                 | ~55 ms           |
-| `large-mixed.cfg` + unused symbols          | ~235 ms                 | ~48 ms           |
-
-CI thresholds were tightened accordingly in [`test/bench/thresholds.json`](test/bench/thresholds.json):
-
-- Stress-edit diagnostics: **35-40 ms** p99.5 without unused-symbol hints
-- Stress-edit diagnostics with unused-symbol hints: **90 ms** p99.5
 
 CI runs these benchmarks on every push (`npm run bench:ci`) and tracks regressions against [`test/bench/thresholds.json`](test/bench/thresholds.json). To reproduce locally:
 
@@ -214,9 +201,9 @@ CI runs these benchmarks on every push (`npm run bench:ci`) and tracks regressio
 npm run bench
 ```
 
-¹ Measured with `vscode-textmate` against the shipped grammar — a proxy for editor highlighting cost.
+^1^ Measured with `vscode-textmate` against the shipped grammar - a proxy for editor highlighting cost.
 
-² After `haproxy.diagnostics.debounceMs` (default 500 ms) following each edit in the real editor.
+^2^ After `haproxy.diagnostics.debounceMs` (default 500 ms) following each edit in the real editor.
 
 ---
 
