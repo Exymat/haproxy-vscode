@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.11.3
+
+- Outline, folding, and unused-section hints use precise section end positions instead of spanning the full line width.
+
 ## 0.11.2
 
 - Faster diagnostics on large configs — cached keyword lookups, reused per-line statement rules, and indexed symbol references cut full-pass time roughly in half on stress fixtures; unused-symbol hints benefit from the same work.
