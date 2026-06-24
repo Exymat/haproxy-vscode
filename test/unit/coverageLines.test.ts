@@ -1,6 +1,8 @@
 import { extractAclConditionSpans, validateAclConditions } from "../../src/aclCondition";
 import { argumentModelDiagnostics } from "../../src/argumentDiagnostics";
 import { enumNamesForSlot } from "../../src/argumentEnumUtils";
+import { findGroupItem } from "../../src/hover/helpers";
+import { logFormatFlagSpans } from "../../src/logFormat";
 import { provideDefinition, provideReferences } from "../../src/navigation";
 import { formatConfig, splitLineAtComment } from "../../src/formatter";
 import {
@@ -683,5 +685,15 @@ describe("coverage line gaps", () => {
       ],
     };
     buildSymbolIndex(sparseTokenLine, bundle.schema);
+  });
+
+  it("covers log format flag span edge cases", () => {
+    expect(logFormatFlagSpans("%{+Q")).toEqual([]);
+  });
+
+  it("covers hover helper case-insensitive group lookup", () => {
+    const beg = bundle.languageData.groups.acl_match_methods?.find((item) => item.name === "beg");
+    expect(beg).toBeDefined();
+    expect(findGroupItem(bundle.languageData, "BEG")).toEqual(beg);
   });
 });
