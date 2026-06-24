@@ -435,6 +435,7 @@ describe("DiagnosticContext branches", () => {
       tokens: [{ text: "mode", start: 0, end: 4 }],
       isSectionHeader: false,
       anonymousDefaults: false,
+      textLength: 4,
     } satisfies ParsedLine;
     expect(ctx.lineText(missingLine)).toBe("");
   });

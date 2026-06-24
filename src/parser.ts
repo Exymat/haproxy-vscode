@@ -36,6 +36,8 @@ export interface ParsedLine {
   isSectionHeader: boolean;
   /** True when this line is inside an anonymous (unnamed) defaults section. */
   anonymousDefaults: boolean;
+  /** Length of the line text excluding the line break. */
+  textLength: number;
 }
 
 function isAsciiWhitespace(ch: string): boolean {
@@ -143,6 +145,7 @@ export function parseDocument(document: vscode.TextDocument): ParsedLine[] {
       tokens,
       isSectionHeader,
       anonymousDefaults: inAnonymousDefaults,
+      textLength: text.length,
     });
   }
   return out;

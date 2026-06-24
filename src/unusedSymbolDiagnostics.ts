@@ -22,12 +22,12 @@ const SECTION_BLOCK_KINDS = new Set<SymbolKind>([
 const ENTRY_POINT_TOKENS = new Set(["bind", "bind-process"]);
 
 function sectionBlockForSite(
-  sectionByStartLine: Map<number, { startLine: number; endLine: number }>,
+  sectionByStartLine: Map<number, { startLine: number; endLine: number; endColumn: number }>,
   site: SymbolSite,
   kind: SymbolKind,
-): { startLine: number; endLine: number } {
+): { startLine: number; endLine: number; endColumn: number } {
   if (!SECTION_BLOCK_KINDS.has(kind)) {
-    return { startLine: site.line, endLine: site.line };
+    return { startLine: site.line, endLine: site.line, endColumn: site.end };
   }
 
   const match = sectionByStartLine.get(site.line);
@@ -35,7 +35,7 @@ function sectionBlockForSite(
     return match;
   }
 
-  return { startLine: site.line, endLine: site.line };
+  return { startLine: site.line, endLine: site.line, endColumn: site.end };
 }
 
 function proxySectionType(parsed: ParsedLine[], defLine: number): string | null {
@@ -136,11 +136,15 @@ export function unusedSymbolDiagnostics(
 
   const diagnostics: vscode.Diagnostic[] = [];
   const reported = new Set<string>();
-  const sectionByStartLine = new Map<number, { startLine: number; endLine: number }>();
+  const sectionByStartLine = new Map<
+    number,
+    { startLine: number; endLine: number; endColumn: number }
+  >();
   for (const section of buildSectionSymbols(parsed, document.lineCount)) {
     sectionByStartLine.set(section.startLine, {
       startLine: section.startLine,
       endLine: section.endLine,
+      endColumn: section.endColumn,
     });
   }
 
@@ -176,10 +180,9 @@ export function unusedSymbolDiagnostics(
     const code = unusedCode(kind);
 
     if (SECTION_BLOCK_KINDS.has(kind)) {
-      const endLineText = document.lineAt(block.endLine).text;
       diagnostics.push(
         makeUnusedDiagnostic(
-          new vscode.Range(block.startLine, 0, block.endLine, endLineText.length),
+          new vscode.Range(block.startLine, 0, block.endLine, block.endColumn),
           message,
           code,
         ),
