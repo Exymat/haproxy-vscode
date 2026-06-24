@@ -57,7 +57,7 @@ export function computeDiagnostics(
     const topDiags = topLevelDiagnostics(ctx, line);
     diagnostics.push(...topDiags);
     if (topDiags.length === 0) {
-      diagnostics.push(...statementDiagnostics(line, schema));
+      diagnostics.push(...statementDiagnostics(line, schema, memo.statementRule));
       diagnostics.push(...contextDiagnostics(ctx, line));
       diagnostics.push(...unknownNestedDiagnostics(ctx, line));
       diagnostics.push(...argumentModelDiagnostics(line, schema, memo, ctx.noPrefix));

@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.11.2
+
+- Faster diagnostics on large configs — cached keyword lookups, reused per-line statement rules, and indexed symbol references cut full-pass time roughly in half on stress fixtures; unused-symbol hints benefit from the same work.
+
 ## 0.11.1
 
 - Log-format flag hover fixed for `+Q`, `-E`, and consecutive modifiers (`%{+Q+E}`) without comma separators; works on `log-format-sd` lines.

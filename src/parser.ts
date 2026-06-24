@@ -38,6 +38,11 @@ export interface ParsedLine {
   anonymousDefaults: boolean;
 }
 
+function isAsciiWhitespace(ch: string): boolean {
+  const code = ch.charCodeAt(0);
+  return code === 32 || (code >= 9 && code <= 13);
+}
+
 export function tokenizeLine(line: string): ParsedToken[] {
   const tokens: ParsedToken[] = [];
   let i = 0;
@@ -84,7 +89,7 @@ export function tokenizeLine(line: string): ParsedToken[] {
       continue;
     }
 
-    if (/\s/.test(ch)) {
+    if (isAsciiWhitespace(ch)) {
       flush(i);
       i += 1;
       continue;
@@ -101,8 +106,16 @@ export function tokenizeLine(line: string): ParsedToken[] {
 }
 
 function isCommentLine(text: string): boolean {
-  const trimmed = text.trimStart();
-  return trimmed.startsWith("#");
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === "#") {
+      return true;
+    }
+    if (!isAsciiWhitespace(ch)) {
+      return false;
+    }
+  }
+  return false;
 }
 
 export function parseDocument(document: vscode.TextDocument): ParsedLine[] {

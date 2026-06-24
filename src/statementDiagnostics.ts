@@ -13,7 +13,14 @@ import { conditionalStartIndex } from "./directiveUtils";
 import { diagRange, DIAG_SOURCE } from "./diagnosticUtils";
 import { resolveLineOptionStartIndex } from "./hover/lineOptions";
 import { ParsedLine } from "./parser";
-import { FixedSlotSpec, HaproxySchema, optionsWithValueSet, StatementRule } from "./schema";
+import {
+  FixedSlotSpec,
+  HaproxySchema,
+  keywordGroupSet,
+  lineOptionSet,
+  optionsWithValueSet,
+  StatementRule,
+} from "./schema";
 import { ResolvedSchemaKeyword, resolveSchemaKeyword } from "./keywordVariant";
 import { findStatementRule } from "./statementLayout";
 
@@ -373,14 +380,11 @@ function scanNestedOptions(
     return diagnostics;
   }
 
-  const allowed = new Set((schema.keyword_groups[groupName] ?? []).map((v) => v.toLowerCase()));
   const valueOptions =
     rule.kind === "server" || rule.kind === "bind" ? optionsWithValueSet(schema, groupName) : null;
-  if (valueOptions) {
-    for (const opt of valueOptions) {
-      allowed.add(opt);
-    }
-  }
+  const allowed = valueOptions
+    ? lineOptionSet(schema, groupName)
+    : keywordGroupSet(schema, groupName);
 
   const condStart = conditionalStartIndex(line, 0);
   let i = nestedStart >= 0 ? nestedStart : line.tokens.length;
@@ -473,7 +477,11 @@ function tcpCheckLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
   return diagnostics;
 }
 
-export function statementDiagnostics(line: ParsedLine, schema: HaproxySchema): vscode.Diagnostic[] {
+export function statementDiagnostics(
+  line: ParsedLine,
+  schema: HaproxySchema,
+  rule: StatementRule | undefined = findStatementRule(schema, line),
+): vscode.Diagnostic[] {
   const t0 = line.tokens[0]?.text.toLowerCase() ?? "";
 
   if (t0 === "log") {
@@ -486,7 +494,6 @@ export function statementDiagnostics(line: ParsedLine, schema: HaproxySchema): v
     return tcpCheckLineDiagnostics(line);
   }
 
-  const rule = findStatementRule(schema, line);
   if (!rule) {
     return [];
   }

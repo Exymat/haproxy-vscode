@@ -7,6 +7,7 @@ import { ParsedLine } from "./parser";
 import {
   conditionalTokenSet,
   HaproxySchema,
+  keywordGroupSet,
   prefixFamilies,
   prefixSubcommandSet,
   statsSocketLevelSet,
@@ -20,6 +21,8 @@ import {
 } from "./statementLayout";
 import { RuntimeMode } from "./sectionMode";
 import { isLikelyValue, normalizeActionName, resolveSubcommandSpan } from "./tokenUtils";
+
+const EMPTY_SET = new Set<string>();
 
 function keywordSections(schema: HaproxySchema, keyword: string): string[] {
   return schema.keywords[keyword.toLowerCase()]?.sections ?? [];
@@ -184,12 +187,9 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
     const start = resolveLineOptionStartIndex(line, rule);
     if (groupName && start >= 0) {
       const groupContexts = ctx.schema.keyword_group_contexts?.[groupName] ?? {};
-      const allowedGroup = new Set(
-        (ctx.schema.keyword_groups[groupName] ?? []).map((v) => v.toLowerCase()),
-      );
-      const condStart = line.tokens.findIndex((tok) =>
-        conditionalTokenSet(ctx.schema).has(tok.text.toLowerCase()),
-      );
+      const allowedGroup = keywordGroupSet(ctx.schema, groupName);
+      const conditionals = conditionalTokenSet(ctx.schema);
+      const condStart = line.tokens.findIndex((tok) => conditionals.has(tok.text.toLowerCase()));
       const limit = condStart >= 0 ? condStart : line.tokens.length;
       for (let i = start; i < limit; i += 1) {
         const option = line.tokens[i].text.toLowerCase().replace(/\*$/, "");
@@ -216,7 +216,6 @@ export function unknownNestedDiagnostics(
   line: ParsedLine,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
-  const groups = ctx.schema.keyword_groups;
   const conditionals = conditionalTokenSet(ctx.schema);
   const statsSocketLevels = statsSocketLevelSet(ctx.schema);
   const { statementRule: rule } = ctx.getLineMemo(line);
@@ -226,7 +225,7 @@ export function unknownNestedDiagnostics(
   if (t0 === "option" || (t0 === "no" && t1 === "option")) {
     const idx = t0 === "option" ? 1 : 2;
     const value = line.tokens[idx]?.text.toLowerCase();
-    if (value && !(groups.options ?? []).includes(value)) {
+    if (value && !keywordGroupSet(ctx.schema, "options").has(value)) {
       diagnostics.push(
         makeDiagnostic(
           diagRange(line, idx),
@@ -253,12 +252,13 @@ export function unknownNestedDiagnostics(
     const criterion = (
       parenIdx >= 0 ? rawCriterion.slice(0, parenIdx) : rawCriterion
     ).toLowerCase();
-    const allowedCriteria = new Set(
-      [...(groups.acl_criteria ?? []), ...(groups.sample_fetches ?? [])].map((v) =>
-        v.toLowerCase(),
-      ),
-    );
-    if (!isLikelyValue(criterion, conditionals) && !allowedCriteria.has(criterion)) {
+    const aclCriteria = keywordGroupSet(ctx.schema, "acl_criteria");
+    const sampleFetches = keywordGroupSet(ctx.schema, "sample_fetches");
+    if (
+      !isLikelyValue(criterion, conditionals) &&
+      !aclCriteria.has(criterion) &&
+      !sampleFetches.has(criterion)
+    ) {
       diagnostics.push(
         makeDiagnostic(
           diagRange(line, 2),
@@ -310,8 +310,7 @@ export function unknownNestedDiagnostics(
     const phase = line.tokens[phaseIdx].text.toLowerCase();
     if (!phases.has(phase)) {
       const groupName = ruleActionGroup(rule);
-      const allowedActions = groupName ? (groups[groupName] ?? []) : [];
-      const allowed = new Set(allowedActions.map((v) => v.toLowerCase()));
+      const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : EMPTY_SET;
       if (!allowed.has(phase)) {
         diagnostics.push(
           makeDiagnostic(
@@ -330,8 +329,7 @@ export function unknownNestedDiagnostics(
     const rawToken = line.tokens[actionIdx].text;
     const token = normalizeActionName(rawToken);
     const groupName = ruleActionGroup(rule);
-    const allowedActions = groupName ? (groups[groupName] ?? []) : [];
-    const allowed = new Set(allowedActions.map((v) => v.toLowerCase()));
+    const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : EMPTY_SET;
     if (token && !token.startsWith("lua.") && !allowed.has(token)) {
       diagnostics.push(
         makeDiagnostic(
@@ -344,7 +342,7 @@ export function unknownNestedDiagnostics(
     } else if (token === "use-service" && actionIdx + 1 < line.tokens.length) {
       const serviceIdx = actionIdx + 1;
       const serviceName = line.tokens[serviceIdx].text.toLowerCase();
-      const services = new Set((groups.services ?? []).map((v) => v.toLowerCase()));
+      const services = keywordGroupSet(ctx.schema, "services");
       if (
         services.size > 0 &&
         serviceName &&

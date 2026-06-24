@@ -130,6 +130,8 @@ export interface HaproxySchema {
 
 const schemaCache = new Map<HaproxyVersion, HaproxySchema>();
 const sectionKeywordCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
+const keywordGroupSetCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
+const lineOptionSetCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
 const optionsWithValueCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
 const noPrefixKeywordCache = new WeakMap<HaproxySchema, Set<string>>();
 const modifierPrefixCache = new WeakMap<HaproxySchema, Set<string>>();
@@ -332,6 +334,39 @@ export function optionsWithValueSet(schema: HaproxySchema, groupName: string): S
     if (optionTakesValueFallback(option)) {
       result.add(option.toLowerCase());
     }
+  }
+  perSchema.set(groupName, result);
+  return result;
+}
+
+export function keywordGroupSet(schema: HaproxySchema, groupName: string): Set<string> {
+  let perSchema = keywordGroupSetCache.get(schema);
+  if (!perSchema) {
+    perSchema = new Map();
+    keywordGroupSetCache.set(schema, perSchema);
+  }
+  const cached = perSchema.get(groupName);
+  if (cached) {
+    return cached;
+  }
+  const result = new Set((schema.keyword_groups[groupName] ?? []).map((v) => v.toLowerCase()));
+  perSchema.set(groupName, result);
+  return result;
+}
+
+export function lineOptionSet(schema: HaproxySchema, groupName: string): Set<string> {
+  let perSchema = lineOptionSetCache.get(schema);
+  if (!perSchema) {
+    perSchema = new Map();
+    lineOptionSetCache.set(schema, perSchema);
+  }
+  const cached = perSchema.get(groupName);
+  if (cached) {
+    return cached;
+  }
+  const result = new Set(keywordGroupSet(schema, groupName));
+  for (const option of optionsWithValueSet(schema, groupName)) {
+    result.add(option);
   }
   perSchema.set(groupName, result);
   return result;

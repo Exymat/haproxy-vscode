@@ -175,21 +175,22 @@ The extension is built for interactive editing. The table below shows **median**
 
 | Operation                                                     | Small config (~18 lines) | Medium config (~100 lines) | Stress config (24,000 lines) |
 | ------------------------------------------------------------- | ------------------------ | -------------------------- | ---------------------------- |
-| **Startup** — load schema + language data (first `.cfg` open) | —                        | —                          | ~12 ms                       |
-| **Syntax highlighting** — full grammar tokenize¹              | ~6 ms                    | ~9 ms                      | ~1.5–1.9 s                   |
-| **Diagnostics** — one full pass²                              | <1 ms                    | ~0.6 ms                    | ~280 ms                      |
-| **Format document**                                           | <0.1 ms                  | ~0.1 ms                    | ~34–38 ms                    |
-| **Completion** at cursor                                      | <0.01 ms                 | —                          | ~33 ms                       |
-| **Hover**                                                     | <0.05 ms                 | —                          | <0.05 ms                     |
-| **Go to definition / references**                             | <0.01 ms                 | —                          | <1 ms                        |
+| **Startup** — load schema + language data (first `.cfg` open) | —                        | —                          | ~13 ms                       |
+| **Syntax highlighting** — full grammar tokenize¹              | ~6 ms                    | ~8 ms                      | ~1.7 s                       |
+| **Diagnostics** — one full pass²                              | ~0.1–0.3 ms              | ~0.9–1.0 ms                | ~150–260 ms                  |
+| **Diagnostics + unused-symbol hints**                         | —                        | —                          | ~150–290 ms                  |
+| **Format document**                                           | <0.01 ms                 | ~0.06 ms                   | ~19–21 ms                    |
+| **Completion** at cursor                                      | <0.01 ms                 | —                          | ~14 ms                       |
+| **Hover**                                                     | <0.1 ms                  | —                          | <0.1 ms                      |
+| **Go to definition / references**                             | <0.01 ms                 | —                          | ~0.7 ms                      |
 
 **What this means in practice**
 
 - **Everyday configs** (hundreds to a few thousand lines) stay responsive: diagnostics, completion, and hover are sub-millisecond to low tens of milliseconds per operation.
-- **Diagnostics dominate** cost on large files — the main reason `haproxy.diagnostics.maxLines` defaults to **4000** and very large files skip validation unless you raise that limit.
+- **Diagnostics dominate** cost on large files — the main reason `haproxy.diagnostics.maxLines` defaults to **4000** and very large files skip validation unless you raise that limit. CI guards the stress paths using p99.5 thresholds: large valid diagnostics must stay under **600–700 ms** without unused-symbol hints and **1.8–2.2 s** with them; large mixed diagnostics must stay under **3.0–3.5 s** without unused-symbol hints and **2.4–4.5 s** with them.
 - **Highlighting** scales with file size; the editor tokenizes incrementally, so the stress numbers above are a full-file worst case, not what you pay on every keystroke. Grammars are **line-isolated** (no `begin`/`end` region may carry state past end-of-line), so tokenization cost reflects correct per-line highlighting even when earlier lines contain deliberate syntax errors.
-- **Stress fixtures:** `large-valid.cfg` (mostly valid) tokenizes at ~**1.8 s** median; `large-mixed.cfg` (valid baseline plus injected invalid lines every ~5 blocks) at ~**1.5 s** median.
-- **Startup** pays a one-time ~12 ms JSON parse when the extension first loads language data for your selected HAProxy version.
+- **Stress fixtures:** `large-valid.cfg` (mostly valid) tokenizes at ~**1.73 s** median; `large-mixed.cfg` (valid baseline plus injected invalid lines every ~5 blocks) at ~**1.68 s** median. The p99.5 tokenization threshold is **2.6 s** for both fixtures.
+- **Startup** pays a one-time ~13 ms JSON parse when the extension first loads language data for your selected HAProxy version; the p99.5 threshold is **500 ms**.
 
 CI runs these benchmarks on every push (`npm run bench:ci`) and tracks regressions against [`test/bench/thresholds.json`](test/bench/thresholds.json). To reproduce locally:
 

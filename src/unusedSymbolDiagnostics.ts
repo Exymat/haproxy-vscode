@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { DIAG_SOURCE } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
 import { buildSectionSymbols } from "./sectionOutline";
-import { findReferences, SymbolIndex, SymbolKind, SymbolSite } from "./symbolIndex";
+import { hasReferences, SymbolIndex, SymbolKind, SymbolSite } from "./symbolIndex";
 
 export interface UnusedSymbolOptions {
   enabled: boolean;
@@ -22,8 +22,7 @@ const SECTION_BLOCK_KINDS = new Set<SymbolKind>([
 const ENTRY_POINT_TOKENS = new Set(["bind", "bind-process"]);
 
 function sectionBlockForSite(
-  parsed: ParsedLine[],
-  lineCount: number,
+  sectionByStartLine: Map<number, { startLine: number; endLine: number }>,
   site: SymbolSite,
   kind: SymbolKind,
 ): { startLine: number; endLine: number } {
@@ -31,10 +30,9 @@ function sectionBlockForSite(
     return { startLine: site.line, endLine: site.line };
   }
 
-  const symbols = buildSectionSymbols(parsed, lineCount);
-  const match = symbols.find((section) => section.startLine === site.line);
+  const match = sectionByStartLine.get(site.line);
   if (match) {
-    return { startLine: match.startLine, endLine: match.endLine };
+    return match;
   }
 
   return { startLine: site.line, endLine: site.line };
@@ -138,6 +136,13 @@ export function unusedSymbolDiagnostics(
 
   const diagnostics: vscode.Diagnostic[] = [];
   const reported = new Set<string>();
+  const sectionByStartLine = new Map<number, { startLine: number; endLine: number }>();
+  for (const section of buildSectionSymbols(parsed, document.lineCount)) {
+    sectionByStartLine.set(section.startLine, {
+      startLine: section.startLine,
+      endLine: section.endLine,
+    });
+  }
 
   for (const [key, defs] of index.definitions) {
     if (reported.has(key) || defs.length === 0) {
@@ -157,11 +162,11 @@ export function unusedSymbolDiagnostics(
       continue;
     }
 
-    if (findReferences(index, kind, site.name, site.scopeKey).length > 0) {
+    if (hasReferences(index, kind, site.name, site.scopeKey)) {
       continue;
     }
 
-    const block = sectionBlockForSite(parsed, document.lineCount, site, kind);
+    const block = sectionBlockForSite(sectionByStartLine, site, kind);
     if (kind === "proxy-section" && isExemptProxySection(parsed, site, block)) {
       continue;
     }

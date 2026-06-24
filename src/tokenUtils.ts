@@ -55,10 +55,15 @@ export interface DirectiveMatch {
 }
 
 export function joinTokens(tokens: ParsedToken[], start: number, end: number): string {
-  return tokens
-    .slice(start, end + 1)
-    .map((t) => t.text.toLowerCase())
-    .join(" ");
+  let result = "";
+  for (let i = start; i <= end; i += 1) {
+    const token = tokens[i];
+    if (!token) {
+      continue;
+    }
+    result += `${i > start ? " " : ""}${token.text.toLowerCase()}`;
+  }
+  return result;
 }
 
 export function resolveLongestDirectiveMatch(
@@ -96,12 +101,21 @@ export function resolveLongestDirectiveMatch(
   }
 
   const limit = Math.min(tokens.length, maxParts);
+  const spaceCandidates: string[] = [];
+  let spaceCandidate = "";
+  let hyphenCandidate = "";
+  for (let i = 0; i < limit; i += 1) {
+    const lower = tokens[i].text.toLowerCase();
+    spaceCandidate = i === 0 ? lower : `${spaceCandidate} ${lower}`;
+    spaceCandidates.push(spaceCandidate);
+    if (i <= 1) {
+      hyphenCandidate = i === 0 ? lower : `${hyphenCandidate}-${lower}`;
+    }
+  }
+
   for (let end = limit - 1; end >= 0; end -= 1) {
-    const keyword = joinTokens(tokens, 0, end);
-    const hyphen = tokens
-      .slice(0, end + 1)
-      .map((t) => t.text.toLowerCase())
-      .join("-");
+    const keyword = spaceCandidates[end] ?? "";
+    const hyphen = end === 1 ? hyphenCandidate : "";
     if (allowed.has(keyword) || (end === 1 && allowed.has(hyphen))) {
       return { start: 0, end, keyword: allowed.has(keyword) ? keyword : hyphen, matched: true };
     }

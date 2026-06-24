@@ -221,6 +221,7 @@ describe("symbolIndex reference expansion", () => {
         ],
       ]),
       references: [],
+      referencesByKey: new Map(),
     };
     expect(
       unusedSymbolDiagnostics(document, parsed, filterIndex, {
@@ -232,6 +233,7 @@ describe("symbolIndex reference expansion", () => {
     const emptyDefsIndex: SymbolIndex = {
       definitions: new Map([[symbolKey("acl", "x", "frontend:web"), []]]),
       references: [],
+      referencesByKey: new Map(),
     };
     expect(
       unusedSymbolDiagnostics(document, parsed, emptyDefsIndex, {
@@ -258,6 +260,7 @@ describe("symbolIndex reference expansion", () => {
         ],
       ]),
       references: [],
+      referencesByKey: new Map(),
     };
     const unknownDiag = unusedSymbolDiagnostics(document, parsed, unknownKindIndex, {
       enabled: true,
@@ -284,6 +287,7 @@ describe("symbolIndex reference expansion", () => {
         ],
       ]),
       references: [],
+      referencesByKey: new Map(),
     };
     const orphanDiag = unusedSymbolDiagnostics(document, parsed, orphanSectionIndex, {
       enabled: true,
@@ -310,6 +314,7 @@ describe("symbolIndex reference expansion", () => {
         ],
       ]),
       references: [],
+      referencesByKey: new Map(),
     };
     const misfiledDiag = unusedSymbolDiagnostics(
       createDocument("frontend wide\n    mode http"),

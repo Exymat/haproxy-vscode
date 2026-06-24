@@ -30,6 +30,7 @@ export interface SymbolSite {
 export interface SymbolIndex {
   definitions: Map<string, SymbolSite[]>;
   references: SymbolSite[];
+  referencesByKey: Map<string, SymbolSite[]>;
 }
 
 const PROXY_SECTIONS = new Set(["frontend", "backend", "listen"]);
@@ -443,7 +444,21 @@ export function buildSymbolIndex(parsed: ParsedLine[], schema: HaproxySchema): S
     collectStatementRuleSites(line, rules, currentScopeKey, definitions, references);
   }
 
-  return { definitions, references };
+  return { definitions, references, referencesByKey: buildReferencesByKey(references) };
+}
+
+function buildReferencesByKey(references: SymbolSite[]): Map<string, SymbolSite[]> {
+  const map = new Map<string, SymbolSite[]>();
+  for (const site of references) {
+    const key = symbolKey(site.kind, site.name, site.scopeKey);
+    const list = map.get(key);
+    if (list) {
+      list.push(site);
+    } else {
+      map.set(key, [site]);
+    }
+  }
+  return map;
 }
 
 export function getSymbolIndex(
@@ -604,14 +619,21 @@ export function findReferences(
   name: string,
   scopeKey: string | null,
 ): SymbolSite[] {
-  const lower = name.toLowerCase();
-  const refs = index.references.filter(
-    (site) =>
-      site.kind === kind &&
-      site.name.toLowerCase() === lower &&
-      (site.scopeKey ?? "") === (scopeKey ?? ""),
-  );
-  return refs;
+  const key = symbolKey(kind, name, scopeKey);
+  const refs = index.referencesByKey.get(key);
+  if (refs) {
+    return refs;
+  }
+  return [];
+}
+
+export function hasReferences(
+  index: SymbolIndex,
+  kind: SymbolKind,
+  name: string,
+  scopeKey: string | null,
+): boolean {
+  return index.referencesByKey.has(symbolKey(kind, name, scopeKey));
 }
 
 export function findAllSites(
