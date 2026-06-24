@@ -37,7 +37,12 @@ export interface ParsedLine {
   /** True when this line is inside an anonymous (unnamed) defaults section. */
   anonymousDefaults: boolean;
   /** Length of the line text excluding the line break. */
-  textLength: number;
+  textLength?: number;
+}
+
+export interface ParseState {
+  currentSection: string | null;
+  inAnonymousDefaults: boolean;
 }
 
 function isAsciiWhitespace(ch: string): boolean {
@@ -120,33 +125,54 @@ function isCommentLine(text: string): boolean {
   return false;
 }
 
-export function parseDocument(document: vscode.TextDocument): ParsedLine[] {
-  const out: ParsedLine[] = [];
-  let currentSection: string | null = null;
-  let inAnonymousDefaults = false;
+export function initialParseState(): ParseState {
+  return { currentSection: null, inAnonymousDefaults: false };
+}
 
-  for (let lineNo = 0; lineNo < document.lineCount; lineNo += 1) {
-    const text = document.lineAt(lineNo).text;
-    const tokens = isCommentLine(text) ? [] : tokenizeLine(text);
-    let isSectionHeader = false;
+export function parseLine(
+  text: string,
+  lineNo: number,
+  state: ParseState,
+): { parsed: ParsedLine; nextState: ParseState } {
+  const tokens = isCommentLine(text) ? [] : tokenizeLine(text);
+  let currentSection = state.currentSection;
+  let inAnonymousDefaults = state.inAnonymousDefaults;
+  let isSectionHeader = false;
 
-    if (tokens.length > 0) {
-      const first = tokens[0].text.toLowerCase();
-      if (SECTION_HEADERS.has(first)) {
-        currentSection = first;
-        isSectionHeader = true;
-        inAnonymousDefaults = first === "defaults" && tokens.length === 1;
-      }
+  if (tokens.length > 0) {
+    const first = tokens[0].text.toLowerCase();
+    if (SECTION_HEADERS.has(first)) {
+      currentSection = first;
+      isSectionHeader = true;
+      inAnonymousDefaults = first === "defaults" && tokens.length === 1;
     }
+  }
 
-    out.push({
+  return {
+    parsed: {
       line: lineNo,
       section: currentSection,
       tokens,
       isSectionHeader,
       anonymousDefaults: inAnonymousDefaults,
       textLength: text.length,
-    });
+    },
+    nextState: {
+      currentSection,
+      inAnonymousDefaults,
+    },
+  };
+}
+
+export function parseDocument(document: vscode.TextDocument): ParsedLine[] {
+  const out: ParsedLine[] = [];
+  let state = initialParseState();
+
+  for (let lineNo = 0; lineNo < document.lineCount; lineNo += 1) {
+    const text = document.lineAt(lineNo).text;
+    const parsedLine = parseLine(text, lineNo, state);
+    out.push(parsedLine.parsed);
+    state = parsedLine.nextState;
   }
   return out;
 }

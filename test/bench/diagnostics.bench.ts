@@ -4,7 +4,8 @@ import { loadSchemaBundle } from "../helpers/schema";
 import { createDocument } from "../helpers/document";
 import { getParsedDocument } from "../../src/parseCache";
 import {
-  runDiagnosticsAfterEdit,
+  createDiagnosticsEditRunner,
+  runDiagnosticsAfterEditBaseline,
   runDiagnosticsCold,
   runDiagnosticsWarm,
 } from "./diagnosticsHelpers";
@@ -68,18 +69,44 @@ describe("diagnostics", () => {
 
     if (fixture.name === "large-valid.cfg") {
       const editLine = findLineContaining(content, "maxconn 200000");
+      const runner = createDiagnosticsEditRunner(content, bundle, editLine);
+      let nextLine = "    maxconn 8192";
+      bench(`diagnostics edit baseline: ${fixture.name} (global maxconn change)`, () => {
+        runDiagnosticsAfterEditBaseline(content, bundle, editLine, "    maxconn 8192");
+      });
       bench(`diagnostics edit: ${fixture.name} (global maxconn change)`, () => {
-        runDiagnosticsAfterEdit(content, bundle, editLine, "    maxconn 8192");
+        runner.run(nextLine);
+        nextLine = nextLine === "    maxconn 8192" ? runner.originalLineText : "    maxconn 8192";
       });
     } else if (fixture.name === "large-mixed.cfg") {
       const editLine = findLineContaining(content, "timeout server banana");
+      const runner = createDiagnosticsEditRunner(content, bundle, editLine);
+      let nextLine = "    timeout server 30s";
+      bench(`diagnostics edit baseline: ${fixture.name} (repair invalid timeout)`, () => {
+        runDiagnosticsAfterEditBaseline(content, bundle, editLine, "    timeout server 30s");
+      });
       bench(`diagnostics edit: ${fixture.name} (repair invalid timeout)`, () => {
-        runDiagnosticsAfterEdit(content, bundle, editLine, "    timeout server 30s");
+        runner.run(nextLine);
+        nextLine =
+          nextLine === "    timeout server 30s"
+            ? runner.originalLineText
+            : "    timeout server 30s";
       });
     } else {
       const editLine = content.split(/\r?\n/).findIndex((line) => line.trim().startsWith("mode "));
+      const runner = createDiagnosticsEditRunner(content, bundle, editLine >= 0 ? editLine : 1);
+      let nextLine = "    mode tcp";
+      bench(`diagnostics edit baseline: ${fixture.name} (mode line change)`, () => {
+        runDiagnosticsAfterEditBaseline(
+          content,
+          bundle,
+          editLine >= 0 ? editLine : 1,
+          "    mode tcp",
+        );
+      });
       bench(`diagnostics edit: ${fixture.name} (mode line change)`, () => {
-        runDiagnosticsAfterEdit(content, bundle, editLine >= 0 ? editLine : 1, "    mode tcp");
+        runner.run(nextLine);
+        nextLine = nextLine === "    mode tcp" ? runner.originalLineText : "    mode tcp";
       });
     }
 
@@ -102,25 +129,46 @@ describe("diagnostics", () => {
 
       if (fixture.name === "large-valid.cfg") {
         const editLine = findLineContaining(content, "maxconn 200000");
+        const runner = createDiagnosticsEditRunner(content, bundle, editLine, unusedSymbolOptions);
+        let nextLine = "    maxconn 8192";
+        bench(
+          `diagnostics edit baseline: ${fixture.name} unusedSymbols (global maxconn change)`,
+          () => {
+            runDiagnosticsAfterEditBaseline(
+              content,
+              bundle,
+              editLine,
+              "    maxconn 8192",
+              unusedSymbolOptions,
+            );
+          },
+        );
         bench(`diagnostics edit: ${fixture.name} unusedSymbols (global maxconn change)`, () => {
-          runDiagnosticsAfterEdit(
-            content,
-            bundle,
-            editLine,
-            "    maxconn 8192",
-            unusedSymbolOptions,
-          );
+          runner.run(nextLine);
+          nextLine = nextLine === "    maxconn 8192" ? runner.originalLineText : "    maxconn 8192";
         });
       } else if (fixture.name === "large-mixed.cfg") {
         const editLine = findLineContaining(content, "timeout server banana");
+        const runner = createDiagnosticsEditRunner(content, bundle, editLine, unusedSymbolOptions);
+        let nextLine = "    timeout server 30s";
+        bench(
+          `diagnostics edit baseline: ${fixture.name} unusedSymbols (repair invalid timeout)`,
+          () => {
+            runDiagnosticsAfterEditBaseline(
+              content,
+              bundle,
+              editLine,
+              "    timeout server 30s",
+              unusedSymbolOptions,
+            );
+          },
+        );
         bench(`diagnostics edit: ${fixture.name} unusedSymbols (repair invalid timeout)`, () => {
-          runDiagnosticsAfterEdit(
-            content,
-            bundle,
-            editLine,
-            "    timeout server 30s",
-            unusedSymbolOptions,
-          );
+          runner.run(nextLine);
+          nextLine =
+            nextLine === "    timeout server 30s"
+              ? runner.originalLineText
+              : "    timeout server 30s";
         });
       }
     }

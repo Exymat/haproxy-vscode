@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { DeprecatedIndex, buildDeprecatedIndex } from "./deprecatedIndex";
 import { documentUsesExposeDeprecatedDirectives } from "./deprecatedUtils";
 import { HaproxyLanguageData } from "./languageData";
-import { getParsedDocument } from "./parseCache";
+import { getParsedDocumentEntry, ParsedDocumentEntry } from "./parseCache";
 import { ParsedLine } from "./parser";
 import {
   HaproxySchema,
@@ -13,8 +13,10 @@ import {
   sectionKeywordSet,
 } from "./schema";
 import { findStatementRule } from "./statementLayout";
-import { RuntimeMode, runtimeModeForLine } from "./sectionMode";
+import { runtimeModeForDocument, RuntimeMode, RuntimeModeCacheEntry } from "./sectionMode";
 import { DirectiveMatch, resolveLongestDirectiveMatch } from "./tokenUtils";
+
+const runtimeModeCache = new WeakMap<vscode.TextDocument, RuntimeModeCacheEntry>();
 
 export interface LineDiagnosticMemo {
   allowed: Set<string>;
@@ -29,6 +31,7 @@ export interface DiagnosticContextOptions {
 
 export class DiagnosticContext {
   readonly schema: HaproxySchema;
+  readonly parsedEntry: ParsedDocumentEntry;
   readonly parsed: ParsedLine[];
   readonly modesByLine: Array<RuntimeMode | null>;
   readonly lineTexts: string[];
@@ -45,9 +48,18 @@ export class DiagnosticContext {
     options: DiagnosticContextOptions = {},
   ) {
     this.schema = schema;
-    this.parsed = getParsedDocument(document);
-    this.modesByLine = runtimeModeForLine(this.parsed);
-    this.lineTexts = Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
+    this.parsedEntry = getParsedDocumentEntry(document);
+    this.parsed = this.parsedEntry.parsed;
+    const previousModes = runtimeModeCache.get(document);
+    const nextModes = runtimeModeForDocument(
+      this.parsed,
+      document.version,
+      this.parsedEntry.reuse,
+      previousModes,
+    );
+    runtimeModeCache.set(document, nextModes);
+    this.modesByLine = nextModes.modes;
+    this.lineTexts = this.parsedEntry.lineTexts;
     this.noPrefix = noPrefixKeywordSet(schema);
     this.modifierPrefixes = modifierPrefixSet(schema);
     const deprecatedWarnings = options.deprecatedWarnings !== false;

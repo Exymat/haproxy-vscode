@@ -1,6 +1,12 @@
 import { ParsedLine } from "./parser";
+import { ParsedDocumentReuse } from "./parseCache";
 
 export type RuntimeMode = "tcp" | "http" | "log" | "spop" | "haterm";
+
+export interface RuntimeModeCacheEntry {
+  version: number;
+  modes: Array<RuntimeMode | null>;
+}
 
 interface SectionBlock {
   kind: string;
@@ -108,4 +114,44 @@ export function runtimeModeForLine(parsed: ParsedLine[]): Array<RuntimeMode | nu
     const idx = blockByLine.get(line.line) ?? -1;
     return idx >= 0 ? resolveMode(idx) : null;
   });
+}
+
+function changedLinesCanReuseModes(parsed: ParsedLine[], reuse: ParsedDocumentReuse): boolean {
+  if (reuse.previousVersion === null || reuse.prefixLines === parsed.length) {
+    return true;
+  }
+  if (reuse.prefixLines + reuse.suffixLines !== parsed.length) {
+    return false;
+  }
+  for (let i = reuse.prefixLines; i < reuse.newSuffixStart; i += 1) {
+    const line = parsed[i];
+    const t0 = line.tokens[0]?.text.toLowerCase();
+    if (line.isSectionHeader || t0 === "mode") {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function runtimeModeForDocument(
+  parsed: ParsedLine[],
+  version: number,
+  reuse: ParsedDocumentReuse,
+  previous?: RuntimeModeCacheEntry,
+): RuntimeModeCacheEntry {
+  if (
+    previous &&
+    previous.version === reuse.previousVersion &&
+    previous.modes.length === parsed.length &&
+    changedLinesCanReuseModes(parsed, reuse)
+  ) {
+    return {
+      version,
+      modes: previous.modes,
+    };
+  }
+  return {
+    version,
+    modes: runtimeModeForLine(parsed),
+  };
 }

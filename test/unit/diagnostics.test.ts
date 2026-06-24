@@ -5,10 +5,14 @@ import { join } from "node:path";
 
 import {
   DEFAULT_VERSION,
+  defaultSchema,
+  diagnosticOptions,
   runDiagnosticCase,
   schemas,
   type DiagnosticExpectations,
 } from "../helpers/diagnostics";
+import { createDocument, updateDocument } from "../helpers/document";
+import { computeDiagnostics } from "../../src/diagnostics";
 
 const fixturesDir = join(__dirname, "..", "fixtures");
 
@@ -212,5 +216,23 @@ const cases: Array<{
 describe("diagnostics", () => {
   it.each(cases)("$name", ({ name, content, expectations, schema, version }) => {
     runDiagnosticCase(name, content, expectations, schema, version ?? DEFAULT_VERSION);
+  });
+
+  it("preserves diagnostics results across incremental edits", () => {
+    const base = "frontend web\n\tbind :80\n\toption notreal\n";
+    const edited = "frontend web\n\tbind :81\n\toption notreal\n";
+    const doc = createDocument(base);
+
+    computeDiagnostics(doc, defaultSchema, diagnosticOptions(DEFAULT_VERSION));
+    updateDocument(doc, edited);
+
+    const incremental = computeDiagnostics(doc, defaultSchema, diagnosticOptions(DEFAULT_VERSION));
+    const fresh = computeDiagnostics(
+      createDocument(edited),
+      defaultSchema,
+      diagnosticOptions(DEFAULT_VERSION),
+    );
+
+    expect(incremental).toEqual(fresh);
   });
 });

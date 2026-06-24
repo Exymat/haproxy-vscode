@@ -2,7 +2,7 @@ import { computeDiagnostics } from "../../src/diagnostics";
 import type { HaproxyLanguageData } from "../../src/languageData";
 import { getParsedDocument } from "../../src/parseCache";
 import type { HaproxySchema } from "../../src/schema";
-import { createDocument, type MockTextDocument } from "../helpers/document";
+import { createDocument, type MockTextDocument, updateDocument } from "../helpers/document";
 
 import { createEditedDocument } from "./helpers";
 
@@ -58,6 +58,45 @@ export function runDiagnosticsWarm(
 }
 
 export function runDiagnosticsAfterEdit(
+  baseContent: string,
+  bundle: DiagnosticsBundle,
+  editLine: number,
+  newLineText: string,
+  options: DiagnosticsRunOptions = {},
+): ReturnType<typeof computeDiagnostics> {
+  const runner = createDiagnosticsEditRunner(baseContent, bundle, editLine, options);
+  return runner.run(newLineText);
+}
+
+export interface DiagnosticsEditRunner {
+  originalLineText: string;
+  run(newLineText: string): ReturnType<typeof computeDiagnostics>;
+}
+
+export function createDiagnosticsEditRunner(
+  baseContent: string,
+  bundle: DiagnosticsBundle,
+  editLine: number,
+  options: DiagnosticsRunOptions = {},
+): DiagnosticsEditRunner {
+  const lines = baseContent.split(/\r?\n/);
+  if (editLine < 0 || editLine >= lines.length) {
+    throw new Error(`edit line ${editLine} out of range (${lines.length} lines)`);
+  }
+  const document = createDocument(baseContent);
+  getParsedDocument(document);
+  runDiagnostics(document, bundle, options);
+  return {
+    originalLineText: lines[editLine],
+    run(newLineText: string) {
+      lines[editLine] = newLineText;
+      updateDocument(document, lines.join("\n"));
+      return runDiagnostics(document, bundle, options);
+    },
+  };
+}
+
+export function runDiagnosticsAfterEditBaseline(
   baseContent: string,
   bundle: DiagnosticsBundle,
   editLine: number,
