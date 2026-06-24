@@ -154,10 +154,34 @@ describe("provideHover", () => {
     );
     expect(aliasText).toContain("%ci");
 
+    const flagOnAliasLine = hoverMarkdown(
+      `defaults\n${aliasLine}`,
+      1,
+      aliasLine.indexOf("Q"),
+      "3.4",
+    );
+    expect(flagOnAliasLine.toLowerCase()).toContain("quote");
+    expect(flagOnAliasLine).not.toContain("apply flags globally");
+
     const flagLine = '    log-format "%{+Q}"';
     const flagText = hoverMarkdown(`defaults\n${flagLine}`, 1, flagLine.indexOf("Q"), "3.4");
     expect(flagText).toContain("Q");
     expect(flagText.toLowerCase()).toContain("quote");
+  });
+
+  it("documents log-format flags on log-format-sd lines", () => {
+    const line = '  log-format-sd "%{+Q}o"';
+    const text = hoverMarkdown(`cache c\n${line}`, 1, line.indexOf("Q"), "3.4");
+    expect(text.toLowerCase()).toContain("quote");
+    expect(text).not.toContain("%o");
+  });
+
+  it("documents multiple log-format flags in one brace block", () => {
+    const line = '    log-format "%{+Q+E}o"';
+    const qText = hoverMarkdown(`defaults\n${line}`, 1, line.indexOf("Q"), "3.4");
+    const eText = hoverMarkdown(`defaults\n${line}`, 1, line.indexOf("E"), "3.4");
+    expect(qText.toLowerCase()).toContain("quote");
+    expect(eText.length).toBeGreaterThan(0);
   });
 
   it("documents bind line options from section 5.1", () => {
@@ -533,6 +557,18 @@ describe("provideHover", () => {
       "3.4",
     );
     expect(text.length).toBeGreaterThan(0);
+    expect(text).toContain("use a specific pattern matching method");
+    expect(text).not.toContain("load the file pointed by -f like a map");
+  });
+
+  it("documents -m (not -M) inside inline acl conditions", () => {
+    const line = "  http-request redirect scheme https if { dst_port -m int 80 }";
+    const text = hoverMarkdown(
+      `frontend test_acl from default\n${line}`,
+      1,
+      line.indexOf("-m"),
+      "3.4",
+    );
     expect(text).toContain("use a specific pattern matching method");
     expect(text).not.toContain("load the file pointed by -f like a map");
   });
@@ -1604,9 +1640,10 @@ describe("provideHover", () => {
       ).toBeNull();
 
       const minusFlagLine = '    log-format "%{-E}"';
-      expect(
-        tryLogFormatHover(logFormatHoverContext(minusFlagLine, minusFlagLine.indexOf("E"))),
-      ).toBeNull();
+      const minusFlagHover = tryLogFormatHover(
+        logFormatHoverContext(minusFlagLine, minusFlagLine.indexOf("E")),
+      );
+      expect(minusFlagHover).not.toBeNull();
 
       const origFindGroupItemIn = hoverHelpers.findGroupItemIn;
       vi.spyOn(hoverHelpers, "findGroupItemIn").mockImplementation((data, group, name) => {

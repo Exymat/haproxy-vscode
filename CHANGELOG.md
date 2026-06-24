@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.11.1
+
+- Log-format flag hover fixed for `+Q`, `-E`, and consecutive modifiers (`%{+Q+E}`) without comma separators; works on `log-format-sd` lines.
+- `-m` and `-M` ACL flags no longer share hover text — case-sensitive matching in ACL definitions and inline `{ … }` conditions.
+- Sample-fetch hover no longer triggers on `-`-prefixed tokens inside expressions.
+
 ## 0.11.0
 
 - **Log-format support** — completion, hover, and diagnostics for `log-format`, `error-log-format`, `unique-id-format`, `set-var-fmt`, and embedded format strings (aliases, `{+flags}`, unknown alias/flag checks).

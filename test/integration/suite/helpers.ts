@@ -327,7 +327,11 @@ export async function formatDocumentContent(content: string): Promise<string> {
 export async function resetHaproxySettings(): Promise<void> {
   await ensureExtensionReady();
   const config = vscode.workspace.getConfiguration("haproxy");
-  await config.update("diagnostics.unusedSymbols.sections", undefined, vscode.ConfigurationTarget.Global);
+  await config.update(
+    "diagnostics.unusedSymbols.sections",
+    undefined,
+    vscode.ConfigurationTarget.Global,
+  );
   await config.update(
     "diagnostics.unusedSymbols.sections",
     undefined,

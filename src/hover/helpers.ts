@@ -5,6 +5,12 @@ export function findGroupItem(
   data: HaproxyLanguageData,
   name: string,
 ): LanguageGroupItem | undefined {
+  for (const items of Object.values(data.groups)) {
+    const exact = items.find((item) => item.name === name);
+    if (exact) {
+      return exact;
+    }
+  }
   const lower = name.toLowerCase();
   for (const items of Object.values(data.groups)) {
     const hit = items.find((item) => item.name.toLowerCase() === lower);
@@ -20,8 +26,11 @@ export function findGroupItemIn(
   groupName: string,
   name: string,
 ): LanguageGroupItem | undefined {
-  const lower = name.toLowerCase();
-  return groupItems(data, groupName).find((item) => item.name.toLowerCase() === lower);
+  const items = groupItems(data, groupName);
+  return (
+    items.find((item) => item.name === name) ??
+    items.find((item) => item.name.toLowerCase() === name.toLowerCase())
+  );
 }
 
 export function sampleTokenCandidates(tokenText: string, cursorOffset: number): string[] {

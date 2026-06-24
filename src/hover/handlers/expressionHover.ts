@@ -33,6 +33,9 @@ export function tryExpressionHover(hc: HoverContext): vscode.Hover | null {
   }
 
   if (ctx.kind === "expression-fetch" || ctx.kind === "expression-converter") {
+    if (ctx.token.text.startsWith("-")) {
+      return null;
+    }
     for (const candidate of sampleTokenCandidates(ctx.token.text, cursorOffset)) {
       const group =
         (ctx.kind === "expression-fetch"

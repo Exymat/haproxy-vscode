@@ -8,6 +8,7 @@ import {
   logFormatCompletionPrefix,
   logFormatContextAt,
   logFormatItemAtOffset,
+  logFormatFlagAtOffset,
   logFormatRegionAtOffset,
   validateLogFormatItems,
   validateLogFormatLine,
@@ -210,9 +211,22 @@ describe("extractLogFormatItems edge cases", () => {
     expect(items).toEqual([expect.objectContaining({ kind: "alias", alias: "%o" })]);
   });
 
-  it("skips empty flag segments", () => {
-    const items = extractLogFormatItems("%{+Q,,+E}");
-    expect(items).toEqual([expect.objectContaining({ kind: "flags", flags: ["Q", "E"] })]);
+  it("parses consecutive flag modifiers without commas", () => {
+    const items = extractLogFormatItems("%{+Q+E}o");
+    expect(items).toEqual([
+      expect.objectContaining({ kind: "alias", alias: "%o", flags: ["Q", "E"] }),
+    ]);
+  });
+});
+
+describe("logFormatFlagAtOffset", () => {
+  it("returns the flag under the cursor inside brace blocks", () => {
+    const text = '"%{+Q}o"';
+    const qOffset = text.indexOf("Q");
+    expect(logFormatFlagAtOffset(text, qOffset)).toEqual(
+      expect.objectContaining({ flag: "Q", sign: "+" }),
+    );
+    expect(logFormatFlagAtOffset(text, text.indexOf("o"))).toBeNull();
   });
 });
 

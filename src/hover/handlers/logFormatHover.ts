@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { logFormatContextAt, logFormatItemAtOffset } from "../../logFormat";
+import { logFormatContextAt, logFormatFlagAtOffset, logFormatItemAtOffset } from "../../logFormat";
 import { findGroupItemIn } from "../helpers";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
@@ -15,6 +15,23 @@ export function tryLogFormatHover(hc: HoverContext): vscode.Hover | null {
   }
 
   const { region, localOffset } = fmtContext;
+
+  const flagSpan = logFormatFlagAtOffset(region.text, localOffset);
+  if (flagSpan) {
+    const flagDoc = findGroupItemIn(data, "logformat_flags", flagSpan.flag);
+    if (flagDoc) {
+      return new vscode.Hover(
+        hoverMarkdown(flagSpan.flag, `${flagSpan.sign}${flagSpan.flag}`, flagDoc.description, []),
+        new vscode.Range(
+          position.line,
+          region.start + flagSpan.start,
+          position.line,
+          region.start + flagSpan.end,
+        ),
+      );
+    }
+  }
+
   const item = logFormatItemAtOffset(region.text, localOffset);
   if (!item) {
     return null;
@@ -41,30 +58,6 @@ export function tryLogFormatHover(hc: HoverContext): vscode.Hover | null {
       hoverMarkdown(item.alias, item.alias, description, [], aliasDoc?.docsUrl),
       range,
     );
-  }
-
-  if (item.flags?.length) {
-    for (const flag of item.flags) {
-      const flagDoc = findGroupItemIn(data, "logformat_flags", flag);
-      if (!flagDoc) {
-        continue;
-      }
-      const flagNeedle = `+${flag}`;
-      const braceStart = region.text.lastIndexOf("{", localOffset);
-      const braceBody = braceStart >= 0 ? region.text.slice(braceStart + 1) : "";
-      const flagOffset = braceBody.indexOf(flagNeedle);
-      if (flagOffset < 0) {
-        continue;
-      }
-      const absStart = region.start + braceStart + 1 + flagOffset + 1;
-      if (position.character < absStart || position.character > absStart + flag.length) {
-        continue;
-      }
-      return new vscode.Hover(
-        hoverMarkdown(flag, `+${flag}`, flagDoc.description, []),
-        new vscode.Range(position.line, absStart, position.line, absStart + flag.length),
-      );
-    }
   }
 
   return null;

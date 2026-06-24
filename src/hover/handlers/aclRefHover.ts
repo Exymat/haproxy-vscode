@@ -16,9 +16,12 @@ export function tryAclRefHover(hc: HoverContext): vscode.Hover | null {
   const { ctx, data, range, tokenLower } = hc;
 
   for (const groupName of aclRefGroups) {
+    const items = groupItems(data, groupName);
     const group =
-      groupItems(data, groupName).find((g) => g.name === ctx.token.text) ??
-      groupItems(data, groupName).find((g) => g.name.toLowerCase() === tokenLower);
+      items.find((g) => g.name === ctx.token.text) ??
+      (groupName === "acl_flags"
+        ? undefined
+        : items.find((g) => g.name.toLowerCase() === tokenLower));
     if (group) {
       return new vscode.Hover(
         hoverMarkdown(group.name, group.signature, group.description, []),

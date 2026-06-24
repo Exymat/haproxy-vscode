@@ -274,20 +274,81 @@ export function isLogFormatDirective(token: string | undefined): boolean {
   return token !== undefined && FALLBACK_LINE_TAIL_DIRECTIVES.has(token.toLowerCase());
 }
 
-function parseFlagTokens(body: string): string[] {
-  const flags: string[] = [];
-  for (const part of body.split(",")) {
-    const trimmed = part.trim();
-    if (!trimmed) {
+function parseFlagBody(body: string, base: number): LogFormatFlagSpan[] {
+  const spans: LogFormatFlagSpan[] = [];
+  let i = 0;
+  while (i < body.length) {
+    const ch = body[i];
+    if (ch === ",") {
+      i += 1;
       continue;
     }
-    const sign = trimmed[0];
-    if (sign !== "+" && sign !== "-") {
+    if (ch !== "+" && ch !== "-") {
+      i += 1;
       continue;
     }
-    flags.push(trimmed.slice(1));
+
+    const sign = ch;
+    const nameStart = i + 1;
+    let j = nameStart;
+    while (j < body.length && body[j] !== "," && body[j] !== "+" && body[j] !== "-") {
+      j += 1;
+    }
+    const name = body.slice(nameStart, j).trim();
+    if (name) {
+      spans.push({
+        flag: name,
+        sign,
+        start: base + nameStart,
+        end: base + j,
+      });
+    }
+    i = j;
   }
-  return flags;
+  return spans;
+}
+
+function parseFlagTokens(body: string): string[] {
+  return parseFlagBody(body, 0).map((span) => span.flag);
+}
+
+export interface LogFormatFlagSpan {
+  flag: string;
+  sign: "+" | "-";
+  start: number;
+  end: number;
+}
+
+/** Flag token spans inside `{…}` blocks; `base` is added to returned start/end offsets. */
+export function logFormatFlagSpans(text: string, base = 0): LogFormatFlagSpan[] {
+  const spans: LogFormatFlagSpan[] = [];
+  let searchFrom = 0;
+
+  while (searchFrom < text.length) {
+    const braceStart = text.indexOf("{", searchFrom);
+    if (braceStart < 0) {
+      break;
+    }
+    const close = text.indexOf("}", braceStart + 1);
+    if (close < 0) {
+      break;
+    }
+
+    const body = text.slice(braceStart + 1, close);
+    spans.push(...parseFlagBody(body, base + braceStart + 1));
+    searchFrom = close + 1;
+  }
+
+  return spans;
+}
+
+export function logFormatFlagAtOffset(text: string, offset: number): LogFormatFlagSpan | null {
+  for (const span of logFormatFlagSpans(text)) {
+    if (offset >= span.start && offset < span.end) {
+      return span;
+    }
+  }
+  return null;
 }
 
 export function extractLogFormatItems(text: string): LogFormatItemSpan[] {
