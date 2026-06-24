@@ -192,6 +192,22 @@ The extension is built for interactive editing. The table below shows **median**
 - **Stress fixtures:** `large-valid.cfg` (mostly valid) tokenizes at ~**1.73 s** median; `large-mixed.cfg` (valid baseline plus injected invalid lines every ~5 blocks) at ~**1.68 s** median. The p99.5 tokenization threshold is **2.6 s** for both fixtures.
 - **Startup** pays a one-time ~13 ms JSON parse when the extension first loads language data for your selected HAProxy version; the p99.5 threshold is **500 ms**.
 
+### Updated edit-path metrics
+
+The current benchmark suite now measures incremental revalidation separately from a forced full-recompute baseline.
+
+| Edit benchmark (24,000-line stress fixture) | Baseline full recompute | Incremental path |
+| ------------------------------------------- | ----------------------- | ---------------- |
+| `large-valid.cfg`                           | ~222 ms                 | ~13 ms           |
+| `large-mixed.cfg`                           | ~193 ms                 | ~11 ms           |
+| `large-valid.cfg` + unused symbols          | ~248 ms                 | ~55 ms           |
+| `large-mixed.cfg` + unused symbols          | ~235 ms                 | ~48 ms           |
+
+CI thresholds were tightened accordingly in [`test/bench/thresholds.json`](test/bench/thresholds.json):
+
+- Stress-edit diagnostics: **35-40 ms** p99.5 without unused-symbol hints
+- Stress-edit diagnostics with unused-symbol hints: **90 ms** p99.5
+
 CI runs these benchmarks on every push (`npm run bench:ci`) and tracks regressions against [`test/bench/thresholds.json`](test/bench/thresholds.json). To reproduce locally:
 
 ```powershell

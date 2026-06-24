@@ -2,6 +2,11 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.11.4
+
+- Faster edits on large configs — incremental parsing and per-line diagnostic caching reuse unchanged lines instead of reprocessing the whole file on every keystroke.
+- Mode-aware diagnostics cache section runtime modes across edits when mode/section headers are untouched.
+
 ## 0.11.3
 
 - Outline, folding, and unused-section hints use precise section end positions instead of spanning the full line width.
