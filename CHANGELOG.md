@@ -2,6 +2,13 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.2
+
+- Refreshed keyword data for all supported versions (2.6–3.4) — bind/server line options now carry schema metadata for parent context, manual chapter, and value-taking behavior.
+- Improved bind/server validation — enum slot values are no longer misread as nested options when scanning option arguments.
+- Go to Definition and Find References for resolvers, peers, cache, and `filter-sequence` lists are driven by schema reference patterns instead of hardcoded heuristics.
+- Statement layout and symbol indexing use schema `match_tokens` rules; legacy http/tcp action and phase fallbacks removed.
+
 ## 0.12.1
 
 - Go to Definition and Find References now reuse the scope index built during symbol indexing instead of rescanning lines on each request.

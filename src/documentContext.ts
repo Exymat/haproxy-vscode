@@ -88,6 +88,7 @@ function classifyByRules(
       continue;
     }
     const minIdx =
+      rule.minimum_token_index ??
       rule.value_token_index ??
       rule.action_token_index ??
       rule.nested_start_index ??

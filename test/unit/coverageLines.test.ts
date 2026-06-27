@@ -15,8 +15,12 @@ import { validateSampleExpressions } from "../../src/sampleExpression";
 import { parseDocument } from "../../src/parser";
 import { statementDiagnostics } from "../../src/statementDiagnostics";
 import { buildLineDiagnosticMemo } from "../helpers/lineMemo";
+import * as directiveUtils from "../../src/directiveUtils";
+import { resolveLineOptionSchemaKeyword } from "../../src/lineOptionKeyword";
+import { computeLineOptionArgumentEnd } from "../../src/lineOptionSpan";
+import { findStatementRule } from "../../src/statementLayout";
 import * as symbolIndex from "../../src/symbolIndex";
-import { buildSymbolIndex } from "../../src/symbolIndex";
+import { buildSymbolIndex, resolveSymbolAtPosition } from "../../src/symbolIndex";
 import { isLikelyValue } from "../../src/tokenUtils";
 import { createDocument } from "../helpers/document";
 import { loadSchema, loadSchemaBundle } from "../helpers/schema";
@@ -695,5 +699,88 @@ describe("coverage line gaps", () => {
     const beg = bundle.languageData.groups.acl_match_methods?.find((item) => item.name === "beg");
     expect(beg).toBeDefined();
     expect(findGroupItem(bundle.languageData, "BEG")).toEqual(beg);
+  });
+
+  it("covers line option keyword and span null-kind branches", () => {
+    const customSchema = structuredClone(bundle.schema);
+    customSchema.keywords.bindonly = {
+      name: "bindonly",
+      sections: ["global"],
+      signatures: ["bindonly"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.1",
+          sections: ["frontend"],
+          signatures: ["bindonly"],
+          contexts: [],
+          arguments: [],
+        },
+      ],
+    };
+    customSchema.keyword_groups.bind_options = [
+      ...(customSchema.keyword_groups.bind_options ?? []),
+      "bindonly",
+    ];
+
+    expect(resolveLineOptionSchemaKeyword(customSchema, "ssl", null, "frontend")).toBeDefined();
+
+    vi.spyOn(directiveUtils, "getKeywordFromSchema").mockReturnValue(undefined);
+    expect(
+      resolveLineOptionSchemaKeyword(customSchema, "bindonly", "bind", "global"),
+    ).toMatchObject({ chapter: "5.1" });
+
+    const line = parseDocument(createDocument("frontend web\n    bind :443 ssl"))[1];
+    const sslIndex = line.tokens.findIndex((token) => token.text === "ssl");
+    expect(sslIndex).toBeGreaterThanOrEqual(0);
+    expect(
+      computeLineOptionArgumentEnd(
+        customSchema,
+        line,
+        sslIndex,
+        line.tokens.length,
+        "bind_options",
+        null,
+        "frontend",
+      ),
+    ).toBe(sslIndex + 1);
+  });
+
+  it("covers statement layout prefix-only rule index", () => {
+    const customSchema = structuredClone(bundle.schema);
+    customSchema.statement_rules = [{ keyword: "option", prefix: "no option", kind: "option" }];
+    const line = parseDocument(createDocument("defaults\n    no option httplog"))[1];
+    expect(findStatementRule(customSchema, line)?.keyword).toBe("option");
+  });
+
+  it("covers symbolIndex reference pattern resolution at position", () => {
+    const customSchema = structuredClone(bundle.schema);
+    customSchema.reference_patterns = [
+      { match_tokens: [], reference_kind: "cache", scope: "global", target_token_index: 0 },
+      ...(customSchema.reference_patterns ?? []),
+    ];
+
+    const filterLine = "    filter-sequence comp myfilter";
+    const document = createDocument(`frontend web\n${filterLine}`);
+    const filterCol = filterLine.indexOf("myfilter");
+    expect(resolveSymbolAtPosition(document, pos(1, filterCol), customSchema)).toEqual({
+      kind: "filter",
+      name: "myfilter",
+      scopeKey: "frontend:web",
+    });
+    expect(
+      resolveSymbolAtPosition(document, pos(1, filterLine.indexOf("comp")), customSchema),
+    ).toBeNull();
+
+    const resolversLine = "    default-server resolvers dns-main";
+    const resolversDoc = createDocument(`backend api\n${resolversLine}`);
+    const resolversCol = resolversLine.indexOf("dns-main");
+    expect(resolveSymbolAtPosition(resolversDoc, pos(1, resolversCol), bundle.schema)).toEqual({
+      kind: "resolvers",
+      name: "dns-main",
+      scopeKey: null,
+    });
   });
 });

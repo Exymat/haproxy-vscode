@@ -6,6 +6,37 @@ import {
 } from "./languageData";
 import { SchemaKeyword, SchemaKeywordVariant } from "./schema";
 
+const languageResolutionCache = new WeakMap<
+  LanguageKeyword,
+  Map<string, ResolvedLanguageKeyword>
+>();
+const schemaResolutionCache = new WeakMap<SchemaKeyword, Map<string, ResolvedSchemaKeyword>>();
+
+function resolutionCacheKey(section: string | null | undefined): string {
+  return section ?? "";
+}
+
+function cachedResolution<K extends object, V>(
+  cache: WeakMap<K, Map<string, V>>,
+  keyword: K,
+  section: string | null | undefined,
+  build: () => V,
+): V {
+  const key = resolutionCacheKey(section);
+  let perKeyword = cache.get(keyword);
+  if (!perKeyword) {
+    perKeyword = new Map();
+    cache.set(keyword, perKeyword);
+  }
+  const cached = perKeyword.get(key);
+  if (cached) {
+    return cached;
+  }
+  const resolved = build();
+  perKeyword.set(key, resolved);
+  return resolved;
+}
+
 function effectiveLanguageArguments(
   keyword: LanguageKeyword,
   variant: LanguageKeywordVariant,
@@ -104,37 +135,39 @@ export function resolveLanguageKeyword(
   if (!keyword) {
     return undefined;
   }
-  const variant =
-    pickVariantBySection(keyword.variants ?? [], section) ??
-    preferredVariant(keyword.variants ?? []);
-  if (variant) {
-    const variantArguments = effectiveLanguageArguments(keyword, variant);
-    const examples = variant.examples?.length
-      ? variant.examples
-      : keyword.examples?.length
-        ? keyword.examples
-        : undefined;
+  return cachedResolution(languageResolutionCache, keyword, section, () => {
+    const variant =
+      pickVariantBySection(keyword.variants ?? [], section) ??
+      preferredVariant(keyword.variants ?? []);
+    if (variant) {
+      const variantArguments = effectiveLanguageArguments(keyword, variant);
+      const examples = variant.examples?.length
+        ? variant.examples
+        : keyword.examples?.length
+          ? keyword.examples
+          : undefined;
+      return {
+        name: keyword.name,
+        sections: variant.sections.length > 0 ? variant.sections : keyword.sections,
+        signatures: variant.signatures.length > 0 ? variant.signatures : keyword.signatures,
+        description: variant.description,
+        docsUrl: variant.docsUrl,
+        arguments: variantArguments,
+        contexts: variant.contexts?.length ? variant.contexts : undefined,
+        chapter: variant.chapter,
+        examples,
+      };
+    }
     return {
       name: keyword.name,
-      sections: variant.sections.length > 0 ? variant.sections : keyword.sections,
-      signatures: variant.signatures.length > 0 ? variant.signatures : keyword.signatures,
-      description: variant.description,
-      docsUrl: variant.docsUrl,
-      arguments: variantArguments,
-      contexts: variant.contexts?.length ? variant.contexts : undefined,
-      chapter: variant.chapter,
-      examples,
+      sections: keyword.sections,
+      signatures: keyword.signatures,
+      description: keyword.description,
+      docsUrl: keyword.docsUrl,
+      arguments: keyword.arguments,
+      examples: keyword.examples,
     };
-  }
-  return {
-    name: keyword.name,
-    sections: keyword.sections,
-    signatures: keyword.signatures,
-    description: keyword.description,
-    docsUrl: keyword.docsUrl,
-    arguments: keyword.arguments,
-    examples: keyword.examples,
-  };
+  });
 }
 
 export function resolveSchemaKeyword(
@@ -144,32 +177,34 @@ export function resolveSchemaKeyword(
   if (!keyword) {
     return undefined;
   }
-  const variant =
-    pickVariantBySection(keyword.variants ?? [], section) ??
-    preferredVariant(keyword.variants ?? []);
-  if (variant) {
-    const variantArguments = effectiveSchemaArguments(keyword, variant);
-    const variantModel = variant.argument_model ?? keyword.argument_model;
+  return cachedResolution(schemaResolutionCache, keyword, section, () => {
+    const variant =
+      pickVariantBySection(keyword.variants ?? [], section) ??
+      preferredVariant(keyword.variants ?? []);
+    if (variant) {
+      const variantArguments = effectiveSchemaArguments(keyword, variant);
+      const variantModel = variant.argument_model ?? keyword.argument_model;
+      return {
+        name: keyword.name,
+        sections: variant.sections.length > 0 ? variant.sections : keyword.sections,
+        signatures: variant.signatures.length > 0 ? variant.signatures : keyword.signatures,
+        sources: keyword.sources,
+        contexts: variant.contexts?.length ? variant.contexts : keyword.contexts,
+        arguments: variantArguments,
+        argument_model: variantModel,
+        chapter: variant.chapter,
+      };
+    }
     return {
       name: keyword.name,
-      sections: variant.sections.length > 0 ? variant.sections : keyword.sections,
-      signatures: variant.signatures.length > 0 ? variant.signatures : keyword.signatures,
+      sections: keyword.sections,
+      signatures: keyword.signatures,
       sources: keyword.sources,
-      contexts: variant.contexts?.length ? variant.contexts : keyword.contexts,
-      arguments: variantArguments,
-      argument_model: variantModel,
-      chapter: variant.chapter,
+      contexts: keyword.contexts,
+      arguments: keyword.arguments,
+      argument_model: keyword.argument_model,
     };
-  }
-  return {
-    name: keyword.name,
-    sections: keyword.sections,
-    signatures: keyword.signatures,
-    sources: keyword.sources,
-    contexts: keyword.contexts,
-    arguments: keyword.arguments,
-    argument_model: keyword.argument_model,
-  };
+  });
 }
 
 export function languageVariantForSection(

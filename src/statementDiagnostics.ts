@@ -224,7 +224,11 @@ function consumeOptionArguments(
     const slot = slots[slotIdx];
     const allowedValues = enumValuesForSlotLower(slot, schemaKw, slotIdx);
 
-    if (tokenStartsOption && remainingRequiredSlots(slots, slotIdx) === 0) {
+    if (
+      tokenStartsOption &&
+      remainingRequiredSlots(slots, slotIdx) === 0 &&
+      !matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)
+    ) {
       break;
     }
 

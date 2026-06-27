@@ -308,7 +308,7 @@ describe("diagnostics extended branches", () => {
     expect(diags.filter((d) => d.code === "unknown-criterion")).toHaveLength(0);
   });
 
-  it("uses legacy phase and action fallback when no statement rule group matches", () => {
+  it("does not infer phase or action positions without statement rule metadata", () => {
     const schema = structuredClone(bundle34.schema);
     schema.statement_rules = [];
     schema.keywords["tcp-request"] = {
@@ -326,11 +326,11 @@ describe("diagnostics extended branches", () => {
 
     const tcpDoc = createDocument("frontend x\n    tcp-request strangephase if TRUE");
     const tcpDiags = computeDiagnostics(tcpDoc, schema, { languageData: bundle34.languageData });
-    expect(tcpDiags.some((d) => d.code === "unknown-value")).toBe(true);
+    expect(tcpDiags.some((d) => d.code === "unknown-value")).toBe(false);
 
     const httpDoc = createDocument("frontend x\n    http-request strangeaction");
     const httpDiags = computeDiagnostics(httpDoc, schema, { languageData: bundle34.languageData });
-    expect(httpDiags.some((d) => d.code === "unknown-action")).toBe(true);
+    expect(httpDiags.some((d) => d.code === "unknown-action")).toBe(false);
   });
 
   it("does not report unknown service when no service catalog exists", () => {

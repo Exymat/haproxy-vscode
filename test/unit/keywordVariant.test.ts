@@ -283,4 +283,58 @@ describe("resolveLanguageKeyword", () => {
     expect(languageVariantForSection(noVariantsLanguage, "frontend")).toBeUndefined();
     expect(schemaVariantForSection(noVariantsSchema, "backend")).toBeUndefined();
   });
+
+  it("caches resolved keyword views by section", () => {
+    const schemaKeyword: SchemaKeyword = {
+      name: "cached-schema",
+      sections: ["backend", "frontend"],
+      signatures: ["cached-schema <value>"],
+      sources: ["docs"],
+      argument_model: { min_args: 1, max_args: 1, slots: [{ enum: ["one"] }] },
+      variants: [
+        {
+          chapter: "4.2",
+          sections: ["backend"],
+          signatures: ["cached-schema backend <value>"],
+          argument_model: { min_args: 1, max_args: 1, slots: [{ enum: ["backend"] }] },
+        },
+      ],
+    };
+    const languageKeyword: LanguageKeyword = {
+      name: "cached-language",
+      sections: ["frontend", "backend"],
+      signatures: ["cached-language <value>"],
+      description: "base",
+      docsUrl: "http://example.com/base",
+      variants: [
+        {
+          chapter: "4.2",
+          sections: ["frontend"],
+          signatures: ["cached-language frontend <value>"],
+          description: "frontend",
+          docsUrl: "http://example.com/frontend",
+        },
+      ],
+    };
+
+    expect(resolveSchemaKeyword(schemaKeyword, "backend")).toBe(
+      resolveSchemaKeyword(schemaKeyword, "backend"),
+    );
+    expect(resolveSchemaKeyword(schemaKeyword, "frontend")).toBe(
+      resolveSchemaKeyword(schemaKeyword, "frontend"),
+    );
+    expect(resolveSchemaKeyword(schemaKeyword, "backend")).not.toBe(
+      resolveSchemaKeyword(schemaKeyword, "frontend"),
+    );
+
+    expect(resolveLanguageKeyword(languageKeyword, "frontend")).toBe(
+      resolveLanguageKeyword(languageKeyword, "frontend"),
+    );
+    expect(resolveLanguageKeyword(languageKeyword, "backend")).toBe(
+      resolveLanguageKeyword(languageKeyword, "backend"),
+    );
+    expect(resolveLanguageKeyword(languageKeyword, "frontend")).not.toBe(
+      resolveLanguageKeyword(languageKeyword, "backend"),
+    );
+  });
 });

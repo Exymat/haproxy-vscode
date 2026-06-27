@@ -38,6 +38,7 @@ describe("loadSchema", () => {
     const second = loadSchema(context as never, "3.2");
     expect(first).toBe(second);
     expect(first.version).toBe("3.2");
+    expect(first.reference_patterns?.length).toBeGreaterThan(0);
   });
 
   it("returns fresh schema after cache clear", () => {
@@ -131,6 +132,9 @@ describe("schema helpers", () => {
     const second = optionsWithValueSet(schema, "bind_options");
     expect(first).toBe(second);
     expect(first.size).toBeGreaterThan(0);
+    expect(
+      schema.keywords.crt?.line_option_semantics?.some((item) => item.parent_kind === "bind"),
+    ).toBe(true);
   });
 
   it("returns empty sectionKeywordSet for null section", () => {

@@ -40,16 +40,16 @@ describe("statementLayout", () => {
     expect(ruleActionGroup(rule)).toBe("tcp_request_actions");
   });
 
-  it("falls back to legacy action index for unknown rules", () => {
+  it("returns null action and phase indices when no rule is provided", () => {
     const httpLine = line("    http-request deny if TRUE");
-    expect(resolveActionTokenIndex(undefined, httpLine)).toBe(1);
+    expect(resolveActionTokenIndex(undefined, httpLine)).toBeNull();
     expect(resolvePhaseTokenIndex(undefined, httpLine)).toBeNull();
   });
 
-  it("falls back to legacy tcp indices without statement rule", () => {
+  it("returns null tcp indices without statement rule", () => {
     const tcpLine = line("    tcp-request content accept if TRUE");
-    expect(resolvePhaseTokenIndex(undefined, tcpLine)).toBe(1);
-    expect(resolveActionTokenIndex(undefined, tcpLine)).toBe(2);
+    expect(resolvePhaseTokenIndex(undefined, tcpLine)).toBeNull();
+    expect(resolveActionTokenIndex(undefined, tcpLine)).toBeNull();
   });
 
   it("returns null when rule token indices are out of range", () => {
@@ -74,8 +74,8 @@ describe("statementLayout", () => {
     ).toBe(false);
   });
 
-  it("legacy phase index requires at least two tokens", () => {
+  it("returns null phase and action indices without a rule", () => {
     expect(resolvePhaseTokenIndex(undefined, line("    tcp-request"))).toBeNull();
-    expect(resolveActionTokenIndex(undefined, line("    tcp-request accept if TRUE"))).toBe(1);
+    expect(resolveActionTokenIndex(undefined, line("    tcp-request accept if TRUE"))).toBeNull();
   });
 });

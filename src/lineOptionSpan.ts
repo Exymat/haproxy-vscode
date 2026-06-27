@@ -6,7 +6,13 @@ import {
 import { ADDRESS_POLICIES, validateHaproxyAddress } from "./addressFormat";
 import { resolveLineOptionSchemaKeyword } from "./lineOptionKeyword";
 import { ParsedLine } from "./parser";
-import { ArgumentModel, HaproxySchema, optionsWithValueSet, StatementRule } from "./schema";
+import {
+  ArgumentModel,
+  HaproxySchema,
+  LineOptionSemantic,
+  optionsWithValueSet,
+  StatementRule,
+} from "./schema";
 
 export interface LineOptionSpanContext {
   kind: string;
@@ -82,6 +88,17 @@ export function buildLineOptionAllowedSet(
   return { allowed, valueOptions };
 }
 
+function lineOptionSemantic(
+  schema: HaproxySchema,
+  option: string,
+  kind: string | null | undefined,
+): LineOptionSemantic | undefined {
+  if (!kind) {
+    return undefined;
+  }
+  return schema.keywords[option]?.line_option_semantics?.find((item) => item.parent_kind === kind);
+}
+
 export function computeLineOptionArgumentEnd(
   schema: HaproxySchema,
   line: ParsedLine,
@@ -93,11 +110,13 @@ export function computeLineOptionArgumentEnd(
 ): number {
   const { allowed, valueOptions } = buildLineOptionAllowedSet(schema, lineOptionGroup);
   const option = line.tokens[optionIndex].text.toLowerCase().replace(/\*$/, "");
+  const semantic = lineOptionSemantic(schema, option, kind);
   const schemaKw = resolveLineOptionSchemaKeyword(schema, option, kind, section);
   const model = schemaKw?.argument_model;
 
   if (!model || model.max_args === undefined) {
-    if (valueOptions.has(option) && optionIndex + 1 < limit) {
+    const takesValue = semantic?.takes_value ?? valueOptions.has(option);
+    if (takesValue && optionIndex + 1 < limit) {
       const next = line.tokens[optionIndex + 1].text.toLowerCase().replace(/\*$/, "");
       if (!allowed.has(next)) {
         return optionIndex + 2;
@@ -131,7 +150,11 @@ function consumeLineOptionSlots(
     const slot = slots[slotIdx];
     const allowedValues = enumValuesForSlotLower(slot, schemaKw, slotIdx);
 
-    if (tokenStartsOption && remainingRequiredSlots(slots, slotIdx) === 0) {
+    if (
+      tokenStartsOption &&
+      remainingRequiredSlots(slots, slotIdx) === 0 &&
+      !matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)
+    ) {
       break;
     }
     if (allowedValues.length > 0) {

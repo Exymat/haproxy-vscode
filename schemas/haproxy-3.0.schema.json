@@ -2235,10 +2235,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "accept-netscaler-cip",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -2273,10 +2282,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
       "name": "accept-proxy",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -2311,6 +2329,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "accepted_payload_size",
       "sections": [
         "resolvers"
@@ -2393,6 +2412,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "acl",
       "sections": [
         "backend",
@@ -2533,10 +2553,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "addr",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -2582,10 +2611,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "agent-addr",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -2624,10 +2662,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "agent-check",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -2666,10 +2713,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "agent-inter",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -2715,10 +2771,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "agent-port",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -2764,10 +2829,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "agent-send",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -2813,6 +2887,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "alias",
       "sections": [
         "crt-list",
@@ -2881,6 +2956,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "allow-0rtt",
       "sections": [
         "crt-list"
@@ -2942,6 +3031,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "alpn",
       "sections": [
         "crt-list"
@@ -3014,6 +3117,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "anonkey",
       "sections": [
         "global"
@@ -3065,6 +3169,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "backing-file",
       "sections": [
         "ring"
@@ -3125,6 +3230,14 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [
+        {
+          "chapter": "4.2",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "backlog",
       "sections": [
         "defaults",
@@ -3136,6 +3249,7 @@
         "backlog <conns>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -3227,10 +3341,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "backup",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -3365,6 +3488,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "balance",
       "sections": [
         "backend",
@@ -3600,6 +3724,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "balance url_param",
       "sections": [
         "backend",
@@ -3775,6 +3900,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "bind",
       "sections": [
         "frontend",
@@ -3932,6 +4058,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "busy-polling",
       "sections": [
         "global"
@@ -3976,6 +4103,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ca-base",
       "sections": [
         "global"
@@ -4028,6 +4156,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "ca-file",
       "sections": [
         "crt-list"
@@ -4111,10 +4253,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "ca-ignore-err",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -4164,10 +4315,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "ca-sign-file",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -4209,10 +4369,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "ca-sign-pass",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -4254,6 +4423,14 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "ca-verify-file",
       "sections": [
         "crt-list"
@@ -4302,6 +4479,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "cache",
       "sections": [
         "cache"
@@ -4380,6 +4558,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "capture cookie",
       "sections": [
         "frontend",
@@ -4487,6 +4666,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "capture request header",
       "sections": [
         "frontend",
@@ -4594,6 +4774,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "capture response header",
       "sections": [
         "frontend",
@@ -4667,10 +4848,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "check",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -4709,10 +4899,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "check-alpn",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -4757,10 +4956,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "check-proto",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -4798,10 +5006,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "check-send-proxy",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -4839,10 +5056,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "check-sni",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -4881,10 +5107,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "check-ssl",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -4916,10 +5151,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "check-via-socks4",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -4958,6 +5202,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "chroot",
       "sections": [
         "global"
@@ -5009,6 +5254,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "ciphers",
       "sections": [
         "crt-list"
@@ -5084,6 +5343,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "ciphersuites",
       "sections": [
         "crt-list"
@@ -5159,6 +5432,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "client-sigalgs",
       "sections": [
         "crt-list"
@@ -5244,6 +5531,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "clitcpka-cnt",
       "sections": [
         "defaults",
@@ -5319,6 +5607,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "clitcpka-idle",
       "sections": [
         "defaults",
@@ -5393,6 +5682,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "clitcpka-intvl",
       "sections": [
         "defaults",
@@ -5447,6 +5737,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "clitimeout",
       "sections": [
         "listen"
@@ -5478,6 +5769,7 @@
         }
       ],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "close-spread-time",
       "sections": [
         "global"
@@ -5536,6 +5828,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "cluster-secret",
       "sections": [
         "global"
@@ -5595,6 +5888,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "command",
       "sections": [
         "program"
@@ -5643,6 +5937,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "compression",
       "sections": [
         "listen"
@@ -5683,6 +5978,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "compression algo",
       "sections": [
         "backend",
@@ -5770,6 +6066,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "compression algo-req",
       "sections": [
         "backend",
@@ -5857,6 +6154,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "compression algo-res",
       "sections": [
         "backend",
@@ -5931,6 +6229,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "compression direction",
       "sections": [
         "backend",
@@ -5985,6 +6284,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "compression offload",
       "sections": [
         "backend",
@@ -6050,6 +6350,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "compression type",
       "sections": [
         "backend",
@@ -6111,6 +6412,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "contimeout",
       "sections": [
         "listen"
@@ -6320,6 +6622,14 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [
+        {
+          "chapter": "4.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "cookie",
       "sections": [
         "backend",
@@ -6330,6 +6640,7 @@
         "cookie <name> [ rewrite | insert | prefix ] [ indirect ] [ nocache ] [ postonly ] [ preserve ] [ httponly ] [ secure ] [ domain <domain> ]* [ maxidle <idle> ] [ maxlife <life> ] [ dynamic ] [ attr <value> ]*"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -6614,6 +6925,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "cpu-map",
       "sections": [
         "global"
@@ -6697,6 +7009,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "crl-file",
       "sections": [
         "crt-list"
@@ -6772,6 +7098,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "crt",
       "sections": [
         "crt-list",
@@ -6781,6 +7121,7 @@
         "crt <filename>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -6895,6 +7236,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "crt-base",
       "sections": [
         "crt-store",
@@ -6971,10 +7313,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "crt-ignore-err",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -7016,10 +7367,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "crt-list",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -7061,6 +7421,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "curves",
       "sections": [
         "crt-list"
@@ -7129,6 +7503,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "daemon",
       "sections": [
         "global"
@@ -7162,6 +7537,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "declare",
       "sections": [
         "listen"
@@ -7213,6 +7589,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "declare capture",
       "sections": [
         "frontend",
@@ -7292,6 +7669,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "default-bind",
       "sections": [
         "peers"
@@ -7343,10 +7721,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "default-crt",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -7392,6 +7779,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "default-path",
       "sections": [
         "global"
@@ -7457,6 +7845,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "default-server",
       "sections": [
         "backend",
@@ -7560,6 +7949,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "default_backend",
       "sections": [
         "defaults",
@@ -7617,10 +8007,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
       "name": "defer-accept",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -7659,6 +8058,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "description",
       "sections": [
         "backend",
@@ -7767,6 +8167,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "deviceatlas-json-file",
       "sections": [
         "global"
@@ -7818,6 +8219,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "deviceatlas-log-level",
       "sections": [
         "global"
@@ -7869,6 +8271,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "deviceatlas-properties-cookie",
       "sections": [
         "global"
@@ -7920,6 +8323,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "deviceatlas-separator",
       "sections": [
         "global"
@@ -7977,6 +8381,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "dgram-bind",
       "sections": [
         "log-forward"
@@ -8031,6 +8436,14 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [
+        {
+          "chapter": "4.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "disabled",
       "sections": [
         "backend",
@@ -8043,6 +8456,7 @@
         "disabled"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -8134,6 +8548,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "dispatch",
       "sections": [
         "backend",
@@ -8201,6 +8616,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "docroot",
       "sections": [
         "fcgi-app"
@@ -8252,10 +8668,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "downinter",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -8303,6 +8728,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "dynamic-cookie-key",
       "sections": [
         "backend",
@@ -8360,6 +8786,14 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "ecdhe",
       "sections": [
         "crt-list"
@@ -8418,6 +8852,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "email-alert from",
       "sections": [
         "backend",
@@ -8495,6 +8930,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "email-alert level",
       "sections": [
         "backend",
@@ -8572,6 +9008,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "email-alert mailers",
       "sections": [
         "backend",
@@ -8649,6 +9086,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "email-alert myhostname",
       "sections": [
         "backend",
@@ -8726,6 +9164,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "email-alert to",
       "sections": [
         "backend",
@@ -8790,6 +9229,14 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [
+        {
+          "chapter": "4.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "enabled",
       "sections": [
         "backend",
@@ -8802,6 +9249,7 @@
         "enabled"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -8879,10 +9327,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "error-limit",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -8931,6 +9388,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "error-log-format",
       "sections": [
         "defaults",
@@ -9008,6 +9466,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "errorfile",
       "sections": [
         "backend",
@@ -9145,6 +9604,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "errorfiles",
       "sections": [
         "backend",
@@ -9241,6 +9701,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "errorloc",
       "sections": [
         "backend",
@@ -9337,6 +9798,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "errorloc302",
       "sections": [
         "backend",
@@ -9433,6 +9895,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "errorloc303",
       "sections": [
         "backend",
@@ -9503,6 +9966,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "expose-deprecated-directives",
       "sections": [
         "global"
@@ -9540,6 +10004,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "expose-experimental-directives",
       "sections": [
         "global"
@@ -9586,10 +10051,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "expose-fd",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -9626,6 +10100,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "expose-fd listeners",
       "sections": [],
       "signatures": [],
@@ -9666,6 +10141,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "external-check",
       "sections": [
         "global"
@@ -9860,6 +10336,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "external-check command",
       "sections": [
         "backend",
@@ -10065,6 +10542,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "external-check path",
       "sections": [
         "backend",
@@ -10130,10 +10608,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "fall",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -10179,10 +10666,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "fastinter",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -10228,6 +10724,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "fcgi-app",
       "sections": [
         "fcgi-app"
@@ -10279,6 +10776,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "fd-hard-limit",
       "sections": [
         "global"
@@ -10350,6 +10848,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "filter",
       "sections": [
         "backend",
@@ -10438,6 +10937,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "force-persist",
       "sections": [
         "backend",
@@ -10496,10 +10996,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "force-sslv3",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -10547,10 +11062,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "force-tlsv10",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -10598,10 +11128,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "force-tlsv11",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -10649,10 +11194,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "force-tlsv12",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -10700,10 +11260,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "force-tlsv13",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -10801,6 +11376,7 @@
         }
       ],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "format",
       "sections": [
         "ring"
@@ -10904,6 +11480,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "fullconn",
       "sections": [
         "backend",
@@ -10961,10 +11538,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
       "name": "generate-certificates",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -10999,6 +11585,14 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "gid",
       "sections": [
         "global"
@@ -11007,6 +11601,7 @@
         "gid <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -11077,6 +11672,7 @@
         }
       ],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "grace",
       "sections": [
         "global"
@@ -11135,6 +11731,14 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "group",
       "sections": [
         "global",
@@ -11146,6 +11750,7 @@
         "group <groupname> [users <user>,<user>,(...)]"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -11288,6 +11893,14 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [
+        {
+          "chapter": "4.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "guid",
       "sections": [
         "backend",
@@ -11373,10 +11986,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "guid-prefix",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -11411,6 +12033,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "h1-accept-payload-with-any-method",
       "sections": [
         "global"
@@ -11462,6 +12085,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "h1-case-adjust",
       "sections": [
         "global"
@@ -11520,6 +12144,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "h1-case-adjust-file",
       "sections": [
         "global"
@@ -11565,6 +12190,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "h1-do-not-close-on-insecure-transfer-encoding",
       "sections": [
         "global"
@@ -11603,6 +12229,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "h2-workaround-bogus-websocket-clients",
       "sections": [
         "global"
@@ -11653,6 +12280,7 @@
         }
       ],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "hard-stop-after",
       "sections": [
         "global"
@@ -11714,6 +12342,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "harden.reject-privileged-ports.quic",
       "sections": [
         "global"
@@ -11772,6 +12401,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "harden.reject-privileged-ports.tcp",
       "sections": [
         "global"
@@ -11836,6 +12466,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "hash-balance-factor",
       "sections": [
         "backend",
@@ -11900,10 +12531,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "hash-key",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -11993,6 +12633,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "hash-type",
       "sections": [
         "backend",
@@ -12098,6 +12739,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "hold",
       "sections": [
         "resolvers"
@@ -12163,6 +12805,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "http-after-response",
       "sections": [
         "backend",
@@ -12218,6 +12861,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "http-check",
       "sections": [
         "listen"
@@ -12252,6 +12896,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "http-check comment",
       "sections": [
         "backend",
@@ -12544,6 +13189,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "http-check connect",
       "sections": [
         "backend",
@@ -12823,6 +13469,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "http-check disable-on-404",
       "sections": [
         "backend",
@@ -13098,6 +13745,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "http-check expect",
       "sections": [
         "backend",
@@ -13559,6 +14207,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "http-check send",
       "sections": [
         "backend",
@@ -13792,6 +14441,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "http-check send-state",
       "sections": [
         "backend",
@@ -13879,6 +14529,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "http-check set-var",
       "sections": [
         "backend",
@@ -14006,6 +14657,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "http-check set-var-fmt",
       "sections": [
         "backend",
@@ -14106,6 +14758,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "http-check unset-var",
       "sections": [
         "backend",
@@ -14190,6 +14843,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "http-err-codes",
       "sections": [
         "global"
@@ -14251,6 +14905,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "http-error",
       "sections": [
         "listen"
@@ -14427,6 +15082,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "http-error status",
       "sections": [
         "backend",
@@ -14635,6 +15291,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "http-errors",
       "sections": [
         "http-errors"
@@ -14706,6 +15363,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "http-fail-codes",
       "sections": [
         "global"
@@ -14788,6 +15446,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "http-request",
       "sections": [
         "backend",
@@ -14864,6 +15523,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "http-response",
       "sections": [
         "backend",
@@ -14937,6 +15597,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "http-reuse",
       "sections": [
         "backend",
@@ -15007,6 +15668,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "http-send-name-header",
       "sections": [
         "backend",
@@ -15070,6 +15732,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "httpclient.resolvers.disabled",
       "sections": [],
       "signatures": [
@@ -15118,6 +15781,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "httpclient.resolvers.id",
       "sections": [],
       "signatures": [
@@ -15166,6 +15830,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "httpclient.resolvers.prefer",
       "sections": [],
       "signatures": [
@@ -15214,6 +15879,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "httpclient.retries",
       "sections": [],
       "signatures": [
@@ -15262,6 +15928,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "httpclient.ssl.ca-file",
       "sections": [],
       "signatures": [
@@ -15313,6 +15980,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "httpclient.ssl.verify",
       "sections": [],
       "signatures": [
@@ -15370,6 +16038,7 @@
         }
       ],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "httpclient.timeout.connect",
       "sections": [],
       "signatures": [
@@ -15428,6 +16097,20 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [
+        {
+          "chapter": "4.2",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "4.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "id",
       "sections": [
         "backend",
@@ -15438,6 +16121,7 @@
         "id <value>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -15545,6 +16229,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "ignore-persist",
       "sections": [
         "backend",
@@ -15610,6 +16295,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "index",
       "sections": [
         "fcgi-app"
@@ -15671,10 +16357,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "init-addr",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -15723,6 +16418,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "insecure-fork-wanted",
       "sections": [
         "global"
@@ -15760,6 +16456,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "insecure-setuid-wanted",
       "sections": [
         "global"
@@ -15804,10 +16501,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "inter",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -15853,10 +16559,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "interface",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -15898,6 +16613,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "issuer",
       "sections": [
         "crt-list",
@@ -15973,6 +16689,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "issuers-chain-path",
       "sections": [
         "global"
@@ -16025,6 +16742,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "key",
       "sections": [
         "crt-list",
@@ -16100,6 +16818,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "key-base",
       "sections": [
         "crt-store",
@@ -16176,10 +16895,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "level",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -16214,6 +16942,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "limited-quic",
       "sections": [
         "global"
@@ -16272,6 +17001,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "load",
       "sections": [
         "crt-store"
@@ -16376,6 +17106,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "load-server-state-from-file",
       "sections": [
         "backend",
@@ -16470,6 +17201,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "localpeer",
       "sections": [
         "global"
@@ -16721,6 +17453,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "log",
       "sections": [
         "backend",
@@ -17448,6 +18181,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "log global",
       "sections": [
         "backend",
@@ -17598,10 +18332,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "log-bufsize",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -17648,6 +18391,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "log-format",
       "sections": [
         "defaults",
@@ -17709,6 +18453,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "log-format-sd",
       "sections": [
         "defaults",
@@ -17767,6 +18512,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "log-forward",
       "sections": [
         "log-forward"
@@ -17818,10 +18564,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "log-proto",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -17866,6 +18621,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "log-send-hostname",
       "sections": [
         "global"
@@ -17983,6 +18739,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "log-stderr",
       "sections": [
         "fcgi-app"
@@ -18093,6 +18850,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "log-stderr global",
       "sections": [
         "fcgi-app"
@@ -18141,6 +18899,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "log-tag",
       "sections": [
         "backend",
@@ -18244,6 +19003,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "lua-load",
       "sections": [
         "global"
@@ -18332,6 +19092,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "lua-load-per-thread",
       "sections": [
         "global"
@@ -18408,6 +19169,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "lua-prepend-path",
       "sections": [
         "global"
@@ -18472,6 +19234,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "mailer",
       "sections": [
         "mailers"
@@ -18529,6 +19292,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "mailers",
       "sections": [
         "mailers"
@@ -18582,6 +19346,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "master-worker",
       "sections": [
         "global"
@@ -18635,6 +19400,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "max-age",
       "sections": [
         "cache"
@@ -18688,6 +19454,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "max-keep-alive-queue",
       "sections": [
         "backend",
@@ -18746,6 +19513,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "max-object-size",
       "sections": [
         "cache"
@@ -18797,10 +19565,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "max-reuse",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -18844,6 +19621,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "max-secondary-entries",
       "sections": [
         "cache"
@@ -18898,6 +19676,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "max-session-srv-conns",
       "sections": [
         "defaults",
@@ -18956,6 +19735,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "max-spread-checks",
       "sections": [
         "global"
@@ -19007,6 +19787,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "maxcompcpuusage",
       "sections": [
         "global"
@@ -19058,6 +19839,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "maxcomprate",
       "sections": [
         "global"
@@ -19118,6 +19900,20 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [
+        {
+          "chapter": "4.2",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "4.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "maxconn",
       "sections": [
         "defaults",
@@ -19131,6 +19927,7 @@
         "maxconn <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -19276,6 +20073,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "maxconnrate",
       "sections": [
         "global"
@@ -19327,6 +20125,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "maxlen",
       "sections": [
         "ring"
@@ -19378,6 +20177,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "maxpipes",
       "sections": [
         "global"
@@ -19429,10 +20229,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "maxqueue",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -19477,6 +20286,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "maxsessrate",
       "sections": [
         "global"
@@ -19528,6 +20338,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "maxsslconn",
       "sections": [
         "global"
@@ -19580,6 +20391,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "maxsslrate",
       "sections": [
         "global"
@@ -19631,6 +20443,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "maxzlibmem",
       "sections": [
         "global"
@@ -19682,10 +20495,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "minconn",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -19765,6 +20587,14 @@
         }
       ],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "4.2",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "mode",
       "sections": [
         "backend",
@@ -19776,6 +20606,7 @@
         "mode { tcp|http|log }"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -19867,6 +20698,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "module-load",
       "sections": [
         "global"
@@ -19881,6 +20713,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "module-path",
       "sections": [
         "global"
@@ -19928,6 +20761,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "monitor fail",
       "sections": [
         "frontend",
@@ -20011,6 +20845,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "monitor-uri",
       "sections": [
         "defaults",
@@ -20074,10 +20909,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "mss",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -20119,6 +20963,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "mworker-max-reloads",
       "sections": [
         "global"
@@ -20171,10 +21016,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "name",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -20228,6 +21082,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "nameserver",
       "sections": [
         "resolvers"
@@ -20291,10 +21146,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "namespace",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -20371,10 +21241,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "nbconn",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -20424,6 +21303,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "nbthread",
       "sections": [
         "global"
@@ -20476,10 +21356,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "nice",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -20597,6 +21486,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no log",
       "sections": [
         "backend",
@@ -20726,6 +21616,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option abortonclose",
       "sections": [
         "backend",
@@ -20772,6 +21663,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option accept-invalid-http-request",
       "sections": [
         "defaults",
@@ -20817,6 +21709,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option accept-invalid-http-response",
       "sections": [
         "backend",
@@ -20864,6 +21757,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option allbackups",
       "sections": [
         "backend",
@@ -20911,6 +21805,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option checkcache",
       "sections": [
         "backend",
@@ -20957,6 +21852,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option clitcpka",
       "sections": [
         "defaults",
@@ -21003,6 +21899,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option disable-h2-upgrade",
       "sections": [
         "defaults",
@@ -21049,6 +21946,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option dontlog-normal",
       "sections": [
         "defaults",
@@ -21096,6 +21994,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option dontlognull",
       "sections": [
         "defaults",
@@ -21168,6 +22067,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option forwarded",
       "sections": [
         "backend",
@@ -21237,6 +22137,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "no option get-values",
       "sections": [
         "fcgi-app"
@@ -21276,6 +22177,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option h1-case-adjust-bogus-client",
       "sections": [
         "defaults",
@@ -21321,6 +22223,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option h1-case-adjust-bogus-server",
       "sections": [
         "backend",
@@ -21366,6 +22269,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option http-buffer-request",
       "sections": [
         "backend",
@@ -21413,6 +22317,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option http-ignore-probes",
       "sections": [
         "defaults",
@@ -21458,6 +22363,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option http-keep-alive",
       "sections": [
         "backend",
@@ -21505,6 +22411,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option http-no-delay",
       "sections": [
         "backend",
@@ -21552,6 +22459,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option http-pretend-keepalive",
       "sections": [
         "backend",
@@ -21597,6 +22505,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option http-server-close",
       "sections": [
         "backend",
@@ -21644,6 +22553,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option http-use-proxy-header",
       "sections": [
         "defaults",
@@ -21689,6 +22599,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option httpclose",
       "sections": [
         "backend",
@@ -21736,6 +22647,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "no option idle-close-on-response",
       "sections": [
         "defaults",
@@ -21782,6 +22694,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option independent-streams",
       "sections": [
         "backend",
@@ -21828,6 +22741,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "no option keep-conn",
       "sections": [
         "fcgi-app"
@@ -21869,6 +22783,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option log-health-checks",
       "sections": [
         "backend",
@@ -21917,6 +22832,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option log-separate-errors",
       "sections": [
         "defaults",
@@ -21964,6 +22880,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option logasap",
       "sections": [
         "defaults",
@@ -22008,6 +22925,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "no option mpxs-conns",
       "sections": [
         "fcgi-app"
@@ -22049,6 +22967,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option nolinger",
       "sections": [
         "backend",
@@ -22099,6 +23018,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option persist",
       "sections": [
         "backend",
@@ -22146,6 +23066,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option prefer-last-server",
       "sections": [
         "backend",
@@ -22199,6 +23120,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option redispatch",
       "sections": [
         "backend",
@@ -22252,6 +23174,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option socket-stats",
       "sections": [
         "defaults",
@@ -22299,6 +23222,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option splice-auto",
       "sections": [
         "backend",
@@ -22348,6 +23272,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option splice-request",
       "sections": [
         "backend",
@@ -22397,6 +23322,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option splice-response",
       "sections": [
         "backend",
@@ -22447,6 +23373,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option srvtcpka",
       "sections": [
         "backend",
@@ -22492,6 +23419,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "no option start-on-reload",
       "sections": [
         "program"
@@ -22532,6 +23460,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option tcp-smart-accept",
       "sections": [
         "defaults",
@@ -22579,6 +23508,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option tcp-smart-connect",
       "sections": [
         "backend",
@@ -22626,6 +23556,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "no option transparent",
       "sections": [
         "backend",
@@ -22670,10 +23601,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-agent-check",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -22705,6 +23645,14 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
       "name": "no-alpn",
       "sections": [
         "crt-list"
@@ -22739,10 +23687,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-backup",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -22774,6 +23731,14 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
       "name": "no-ca-names",
       "sections": [
         "crt-list"
@@ -22808,10 +23773,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-check",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -22835,6 +23809,26 @@
         }
       ]
     },
+    "no-check-send-proxy": {
+      "argument_model": null,
+      "arguments": [],
+      "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
+      "name": "no-check-send-proxy",
+      "sections": [],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ],
+      "variants": []
+    },
     "no-check-ssl": {
       "argument_model": {
         "max_args": 0,
@@ -22843,10 +23837,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-check-ssl",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -22878,6 +23881,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "no-memory-trimming",
       "sections": [
         "global"
@@ -22916,6 +23920,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "no-quic",
       "sections": [
         "global"
@@ -22953,10 +23958,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-send-proxy",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -22987,10 +24001,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-send-proxy-v2",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23021,10 +24044,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-send-proxy-v2-ssl",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23055,10 +24087,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-send-proxy-v2-ssl-cn",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23089,10 +24130,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-ssl",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23126,10 +24176,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-ssl-reuse",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23163,10 +24222,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-sslv3",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23214,10 +24288,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-tfo",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23251,10 +24334,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-tls-tickets",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23302,10 +24400,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-tlsv10",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23353,10 +24466,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-tlsv11",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23404,10 +24532,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-tlsv12",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23455,10 +24598,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "no-tlsv13",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23506,6 +24664,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "no-verifyhost",
       "sections": [],
       "signatures": [],
@@ -23550,6 +24709,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "node",
       "sections": [
         "global"
@@ -23594,6 +24754,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "noepoll",
       "sections": [
         "global"
@@ -23631,6 +24792,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "noevports",
       "sections": [
         "global"
@@ -23668,6 +24830,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "nogetaddrinfo",
       "sections": [
         "global"
@@ -23705,6 +24868,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "nokqueue",
       "sections": [
         "global"
@@ -23742,10 +24906,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "non-stick",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -23776,6 +24949,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "nopoll",
       "sections": [
         "global"
@@ -23813,6 +24987,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "noreuseport",
       "sections": [
         "global"
@@ -23850,6 +25025,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "nosplice",
       "sections": [
         "global"
@@ -23894,6 +25070,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "npn",
       "sections": [
         "crt-list"
@@ -23959,6 +25149,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "numa-cpu-mapping",
       "sections": [
         "global"
@@ -24003,10 +25194,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "observe",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -24051,6 +25251,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ocsp",
       "sections": [
         "crt-list",
@@ -24129,6 +25330,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ocsp-update",
       "sections": [
         "crt-list",
@@ -24213,6 +25415,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ocsp-update.disable",
       "sections": [
         "global"
@@ -24268,6 +25471,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ocsp-update.httpproxy",
       "sections": [
         "global"
@@ -24320,6 +25524,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ocsp-update.maxdelay",
       "sections": [
         "global"
@@ -24372,6 +25577,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ocsp-update.mindelay",
       "sections": [
         "global"
@@ -24427,6 +25633,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ocsp-update.mode",
       "sections": [
         "global"
@@ -24482,10 +25689,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "on-error",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -24531,10 +25747,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "on-marked-down",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -24580,10 +25805,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "on-marked-up",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -24618,6 +25852,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "option",
       "sections": [
         "listen"
@@ -24639,6 +25874,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option abortonclose",
       "sections": [
         "backend",
@@ -24685,6 +25921,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option accept-invalid-http-request",
       "sections": [
         "defaults",
@@ -24730,6 +25967,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option accept-invalid-http-response",
       "sections": [
         "backend",
@@ -24777,6 +26015,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option allbackups",
       "sections": [
         "backend",
@@ -24824,6 +26063,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option checkcache",
       "sections": [
         "backend",
@@ -24870,6 +26110,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option clitcpka",
       "sections": [
         "defaults",
@@ -24917,6 +26158,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option contstats",
       "sections": [
         "defaults",
@@ -24963,6 +26205,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option disable-h2-upgrade",
       "sections": [
         "defaults",
@@ -25009,6 +26252,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option dontlog-normal",
       "sections": [
         "defaults",
@@ -25056,6 +26300,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option dontlognull",
       "sections": [
         "defaults",
@@ -25104,6 +26349,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option external-check",
       "sections": [
         "backend",
@@ -25336,6 +26582,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option forwarded",
       "sections": [
         "backend",
@@ -25614,6 +26861,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option forwardfor",
       "sections": [
         "backend",
@@ -25707,6 +26955,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "option get-values",
       "sections": [
         "fcgi-app"
@@ -25746,6 +26995,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option h1-case-adjust-bogus-client",
       "sections": [
         "defaults",
@@ -25791,6 +27041,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option h1-case-adjust-bogus-server",
       "sections": [
         "backend",
@@ -25836,6 +27087,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option http-buffer-request",
       "sections": [
         "backend",
@@ -25883,6 +27135,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option http-ignore-probes",
       "sections": [
         "defaults",
@@ -25928,6 +27181,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option http-keep-alive",
       "sections": [
         "backend",
@@ -25975,6 +27229,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option http-no-delay",
       "sections": [
         "backend",
@@ -26022,6 +27277,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option http-pretend-keepalive",
       "sections": [
         "backend",
@@ -26097,6 +27353,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option http-restrict-req-hdr-names",
       "sections": [
         "backend",
@@ -26174,6 +27431,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option http-server-close",
       "sections": [
         "backend",
@@ -26221,6 +27479,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option http-use-proxy-header",
       "sections": [
         "defaults",
@@ -26302,6 +27561,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option httpchk",
       "sections": [
         "backend",
@@ -26389,6 +27649,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option httpclose",
       "sections": [
         "backend",
@@ -26456,6 +27717,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option httplog",
       "sections": [
         "defaults",
@@ -26521,6 +27783,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option httpslog",
       "sections": [
         "defaults",
@@ -26566,6 +27829,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option idle-close-on-response",
       "sections": [
         "defaults",
@@ -26612,6 +27876,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option independent-streams",
       "sections": [
         "backend",
@@ -26658,6 +27923,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "option keep-conn",
       "sections": [
         "fcgi-app"
@@ -26697,6 +27963,7 @@
       "contexts": [
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option ldap-check",
       "sections": [
         "backend",
@@ -26744,6 +28011,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option log-health-checks",
       "sections": [
         "backend",
@@ -26792,6 +28060,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option log-separate-errors",
       "sections": [
         "defaults",
@@ -26839,6 +28108,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option logasap",
       "sections": [
         "defaults",
@@ -26890,6 +28160,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "option max-reqs",
       "sections": [
         "fcgi-app"
@@ -26934,6 +28205,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "option mpxs-conns",
       "sections": [
         "fcgi-app"
@@ -27023,6 +28295,7 @@
       "contexts": [
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option mysql-check",
       "sections": [
         "backend",
@@ -27120,6 +28393,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option nolinger",
       "sections": [
         "backend",
@@ -27209,6 +28483,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "option originalto",
       "sections": [
         "backend",
@@ -27297,6 +28572,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option persist",
       "sections": [
         "backend",
@@ -27356,6 +28632,7 @@
       "contexts": [
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option pgsql-check user",
       "sections": [
         "backend",
@@ -27415,6 +28692,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option prefer-last-server",
       "sections": [
         "backend",
@@ -27461,6 +28739,7 @@
       "contexts": [
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option redis-check",
       "sections": [
         "backend",
@@ -27520,6 +28799,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option redispatch",
       "sections": [
         "backend",
@@ -27605,6 +28885,7 @@
       "contexts": [
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option smtpchk",
       "sections": [
         "backend",
@@ -27677,6 +28958,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option socket-stats",
       "sections": [
         "defaults",
@@ -27724,6 +29006,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option splice-auto",
       "sections": [
         "backend",
@@ -27773,6 +29056,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option splice-request",
       "sections": [
         "backend",
@@ -27822,6 +29106,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option splice-response",
       "sections": [
         "backend",
@@ -27870,6 +29155,7 @@
       "contexts": [
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option spop-check",
       "sections": [
         "backend",
@@ -27917,6 +29203,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option srvtcpka",
       "sections": [
         "backend",
@@ -27965,6 +29252,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option ssl-hello-chk",
       "sections": [
         "backend",
@@ -28009,6 +29297,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "option start-on-reload",
       "sections": [
         "program"
@@ -28050,6 +29339,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option tcp-check",
       "sections": [
         "backend",
@@ -28098,6 +29388,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option tcp-smart-accept",
       "sections": [
         "defaults",
@@ -28145,6 +29436,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option tcp-smart-connect",
       "sections": [
         "backend",
@@ -28193,6 +29485,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option tcpka",
       "sections": [
         "backend",
@@ -28243,6 +29536,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option tcplog",
       "sections": [
         "defaults",
@@ -28290,6 +29584,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "option transparent",
       "sections": [
         "backend",
@@ -28334,6 +29629,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "parse-resolv-conf",
       "sections": [
         "resolvers"
@@ -28378,6 +29674,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "pass-header",
       "sections": [
         "fcgi-app"
@@ -28429,6 +29726,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "path-info",
       "sections": [
         "fcgi-app"
@@ -28500,6 +29798,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "peer",
       "sections": [
         "peers"
@@ -28573,6 +29872,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "peers",
       "sections": [
         "peers"
@@ -28632,6 +29932,7 @@
       "contexts": [
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "persist rdp-cookie",
       "sections": [
         "backend",
@@ -28697,6 +29998,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "pidfile",
       "sections": [
         "global"
@@ -28748,10 +30050,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "pool-conn-name",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -28795,10 +30106,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "pool-low-conn",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -28842,10 +30162,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "pool-max-conn",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -28889,10 +30218,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "pool-purge-delay",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -28936,10 +30274,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "port",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -28978,6 +30325,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "pp2-never-send-local",
       "sections": [
         "global"
@@ -29016,6 +30364,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "prealloc-fd",
       "sections": [
         "global"
@@ -29054,10 +30403,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
       "name": "prefer-client-ciphers",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -29098,6 +30456,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "presetenv",
       "sections": [
         "global"
@@ -29140,6 +30499,26 @@
         }
       ]
     },
+    "process": {
+      "argument_model": null,
+      "arguments": [],
+      "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
+      "name": "process",
+      "sections": [],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ],
+      "variants": []
+    },
     "process-vary": {
       "argument_model": {
         "max_args": 1,
@@ -29155,6 +30534,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "process-vary",
       "sections": [
         "cache"
@@ -29209,6 +30589,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "profiling.memory",
       "sections": [
         "global"
@@ -29267,6 +30648,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "profiling.tasks",
       "sections": [
         "global"
@@ -29323,6 +30705,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "program",
       "sections": [
         "program"
@@ -29374,10 +30757,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "proto",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -29449,10 +30847,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "proxy-v2-options",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -29514,10 +30921,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "quic-cc-algo",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -29564,10 +30980,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
       "name": "quic-force-retry",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -29605,10 +31030,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "quic-socket",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -29646,6 +31080,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "quick-exit",
       "sections": [
         "global"
@@ -29683,6 +31118,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "quiet",
       "sections": [
         "global"
@@ -29716,6 +31152,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "rate-limit",
       "sections": [
         "listen"
@@ -29750,6 +31187,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "rate-limit sessions",
       "sections": [
         "defaults",
@@ -29814,10 +31252,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "redir",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -29909,6 +31356,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "redirect location",
       "sections": [
         "backend",
@@ -30060,6 +31508,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "redirect prefix",
       "sections": [
         "backend",
@@ -30211,6 +31660,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "redirect scheme",
       "sections": [
         "backend",
@@ -30314,6 +31764,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "resetenv",
       "sections": [
         "global"
@@ -30373,10 +31824,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "resolve-net",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30436,10 +31896,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "resolve-opts",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30491,10 +31960,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "resolve-prefer",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30540,6 +32018,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "resolve_retries",
       "sections": [
         "resolvers"
@@ -30591,6 +32070,14 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "resolvers",
       "sections": [
         "resolvers"
@@ -30599,6 +32086,7 @@
         "resolvers <resolvers id>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30676,6 +32164,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "retries",
       "sections": [
         "backend",
@@ -30790,6 +32279,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "retry-on",
       "sections": [
         "backend",
@@ -30896,6 +32386,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ring",
       "sections": [
         "ring"
@@ -30947,10 +32438,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "rise",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30985,6 +32485,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "saml-sso-load",
       "sections": [
         "global"
@@ -31010,6 +32511,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "sctl",
       "sections": [
         "crt-list",
@@ -31078,10 +32580,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "send-proxy",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -31112,10 +32623,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "send-proxy-v2",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -31146,10 +32666,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "send-proxy-v2-ssl",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -31180,10 +32709,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "send-proxy-v2-ssl-cn",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -31258,6 +32796,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "server",
       "sections": [
         "backend",
@@ -31431,6 +32970,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "server-state-base",
       "sections": [
         "global"
@@ -31482,6 +33022,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "server-state-file",
       "sections": [
         "global"
@@ -31539,6 +33080,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "server-state-file-name",
       "sections": [
         "backend",
@@ -31654,6 +33196,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "server-template",
       "sections": [
         "backend",
@@ -31754,6 +33297,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "set-dumpable",
       "sections": [
         "global"
@@ -31804,6 +33348,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "set-param",
       "sections": [
         "fcgi-app"
@@ -31867,10 +33412,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "set-proxy-v2-tlv-fmt",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -31927,6 +33481,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "set-var",
       "sections": [
         "global"
@@ -31991,6 +33546,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "set-var-fmt",
       "sections": [
         "global"
@@ -32055,6 +33611,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "setcap",
       "sections": [
         "global"
@@ -32119,6 +33676,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "setenv",
       "sections": [
         "global"
@@ -32176,10 +33734,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "severity-output",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -32221,10 +33788,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "shard",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -32268,6 +33844,14 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "shards",
       "sections": [
         "peers"
@@ -32276,6 +33860,7 @@
         "shards <shards>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -32372,6 +33957,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "sigalgs",
       "sections": [
         "crt-list"
@@ -32447,6 +34046,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "size",
       "sections": [
         "ring"
@@ -32498,10 +34098,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "slowstart",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -32546,10 +34155,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "sni",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -32597,10 +34215,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "socks4",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -32718,6 +34345,14 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [
+        {
+          "chapter": "4.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "source",
       "sections": [
         "backend",
@@ -32730,6 +34365,7 @@
         "source <addr>[:<port>] [usesrc { <addr2>[:<port2>] | hdr_ip(<hdr>[,<occ>]) } ]"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -32917,6 +34553,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "spread-checks",
       "sections": [
         "global"
@@ -32978,6 +34615,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "srvtcpka-cnt",
       "sections": [
         "backend",
@@ -33054,6 +34692,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "srvtcpka-idle",
       "sections": [
         "backend",
@@ -33130,6 +34769,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "srvtcpka-intvl",
       "sections": [
         "backend",
@@ -33185,6 +34825,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "srvtimeout",
       "sections": [
         "listen"
@@ -33203,10 +34844,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "ssl",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -33261,6 +34917,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-bind-ciphers",
       "sections": [
         "global"
@@ -33313,6 +34970,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-bind-ciphersuites",
       "sections": [
         "global"
@@ -33365,6 +35023,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-bind-client-sigalgs",
       "sections": [
         "global"
@@ -33417,6 +35076,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-bind-curves",
       "sections": [
         "global"
@@ -33469,6 +35129,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-bind-options",
       "sections": [
         "global"
@@ -33521,6 +35182,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-bind-sigalgs",
       "sections": [
         "global"
@@ -33573,6 +35235,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-server-ciphers",
       "sections": [
         "global"
@@ -33625,6 +35288,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-server-ciphersuites",
       "sections": [
         "global"
@@ -33677,6 +35341,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-server-client-sigalgs",
       "sections": [
         "global"
@@ -33729,6 +35394,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-server-curves",
       "sections": [
         "global"
@@ -33781,6 +35447,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-server-options",
       "sections": [
         "global"
@@ -33833,6 +35500,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-default-server-sigalgs",
       "sections": [
         "global"
@@ -33885,6 +35553,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-dh-param-file",
       "sections": [
         "global"
@@ -33951,6 +35620,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-engine",
       "sections": [
         "global"
@@ -34009,6 +35679,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-load-extra-del-ext",
       "sections": [
         "global"
@@ -34062,6 +35733,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-load-extra-files",
       "sections": [
         "global"
@@ -34128,6 +35800,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "ssl-max-ver",
       "sections": [
         "crt-list"
@@ -34221,6 +35907,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "ssl-min-ver",
       "sections": [
         "crt-list"
@@ -34301,6 +36001,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-mode-async",
       "sections": [
         "global"
@@ -34346,6 +36047,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-propquery",
       "sections": [
         "global"
@@ -34398,6 +36100,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-provider",
       "sections": [
         "global"
@@ -34450,6 +36153,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-provider-path",
       "sections": [
         "global"
@@ -34495,10 +36199,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "ssl-reuse",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -34539,6 +36252,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-security-level",
       "sections": [
         "global"
@@ -34594,6 +36308,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-server-verify",
       "sections": [
         "global"
@@ -34641,6 +36356,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ssl-skip-self-issued-ca",
       "sections": [
         "global"
@@ -34675,6 +36391,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "stats",
       "sections": [
         "global"
@@ -34711,6 +36428,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats admin",
       "sections": [
         "backend",
@@ -34796,6 +36514,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats auth",
       "sections": [
         "backend",
@@ -34867,6 +36586,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats enable",
       "sections": [
         "backend",
@@ -34914,6 +36634,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats hide-version",
       "sections": [
         "backend",
@@ -34971,6 +36692,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats http-request",
       "sections": [
         "backend",
@@ -35031,6 +36753,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "stats maxconn",
       "sections": [
         "global"
@@ -35090,6 +36813,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats realm",
       "sections": [
         "backend",
@@ -35163,6 +36887,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats refresh",
       "sections": [
         "backend",
@@ -35238,6 +36963,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats scope",
       "sections": [
         "backend",
@@ -35307,6 +37033,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats show-desc",
       "sections": [
         "backend",
@@ -35361,6 +37088,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats show-legends",
       "sections": [
         "backend",
@@ -35408,6 +37136,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats show-modules",
       "sections": [
         "backend",
@@ -35468,6 +37197,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats show-node",
       "sections": [
         "backend",
@@ -35553,6 +37283,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "stats socket",
       "sections": [
         "global"
@@ -35624,6 +37355,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "stats timeout",
       "sections": [
         "global"
@@ -35683,6 +37415,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "stats uri",
       "sections": [
         "backend",
@@ -35748,6 +37481,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "stats-file",
       "sections": [
         "global"
@@ -35788,10 +37522,19 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "stick",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -35858,6 +37601,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "stick match",
       "sections": [
         "backend",
@@ -35961,6 +37705,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "stick on",
       "sections": [
         "backend",
@@ -36064,6 +37809,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "stick store-request",
       "sections": [
         "backend",
@@ -36183,6 +37929,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "stick store-response",
       "sections": [
         "backend",
@@ -36445,6 +38192,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "stick-table type",
       "sections": [
         "backend",
@@ -36669,6 +38417,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "strict-limits",
       "sections": [
         "global"
@@ -36706,10 +38455,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
       "name": "strict-sni",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -36825,6 +38583,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "table",
       "sections": [
         "peers"
@@ -36946,6 +38705,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tcp-check",
       "sections": [
         "listen"
@@ -36981,6 +38741,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-check comment",
       "sections": [
         "backend",
@@ -37275,6 +39036,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-check connect",
       "sections": [
         "backend",
@@ -37774,6 +39536,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-check expect",
       "sections": [
         "backend",
@@ -38083,6 +39846,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-check send",
       "sections": [
         "backend",
@@ -38216,6 +39980,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-check send-binary",
       "sections": [
         "backend",
@@ -38349,6 +40114,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-check send-binary-lf",
       "sections": [
         "backend",
@@ -38482,6 +40248,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-check send-lf",
       "sections": [
         "backend",
@@ -38613,6 +40380,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-check set-var",
       "sections": [
         "backend",
@@ -38742,6 +40510,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-check set-var-fmt",
       "sections": [
         "backend",
@@ -38844,6 +40613,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-check unset-var",
       "sections": [
         "backend",
@@ -38898,6 +40668,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tcp-request",
       "sections": [
         "listen"
@@ -38943,6 +40714,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-request connection",
       "sections": [
         "defaults",
@@ -39032,6 +40804,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-request content",
       "sections": [
         "backend",
@@ -39112,6 +40885,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-request inspect-delay",
       "sections": [
         "backend",
@@ -39192,6 +40966,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-request session",
       "sections": [
         "defaults",
@@ -39250,6 +41025,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tcp-response",
       "sections": [
         "listen"
@@ -39289,6 +41065,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-response content",
       "sections": [
         "backend",
@@ -39367,6 +41144,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "tcp-response inspect-delay",
       "sections": [
         "backend",
@@ -39431,10 +41209,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "tcp-ut",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -39496,10 +41289,25 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "tfo",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -39566,10 +41374,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "thread",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -39629,6 +41446,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "thread-group",
       "sections": [
         "global"
@@ -39687,6 +41505,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "thread-groups",
       "sections": [
         "global"
@@ -39739,6 +41558,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "thread-hard-limit",
       "sections": [
         "global"
@@ -39797,6 +41617,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "timeout",
       "sections": [
         "resolvers"
@@ -39865,6 +41686,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "timeout check",
       "sections": [
         "backend",
@@ -39939,6 +41761,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "timeout client",
       "sections": [
         "defaults",
@@ -40036,6 +41859,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "timeout client-fin",
       "sections": [
         "defaults",
@@ -40109,6 +41933,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "timeout client-hs",
       "sections": [
         "defaults",
@@ -40183,6 +42008,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "timeout connect",
       "sections": [
         "backend",
@@ -40286,6 +42112,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "timeout http-keep-alive",
       "sections": [
         "backend",
@@ -40359,6 +42186,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "timeout http-request",
       "sections": [
         "backend",
@@ -40424,6 +42252,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "timeout mail",
       "sections": [
         "mailers"
@@ -40484,6 +42313,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "timeout queue",
       "sections": [
         "backend",
@@ -40558,6 +42388,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "timeout server",
       "sections": [
         "backend",
@@ -40663,6 +42494,7 @@
         "log",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "timeout server-fin",
       "sections": [
         "backend",
@@ -40736,6 +42568,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "timeout tarpit",
       "sections": [
         "backend",
@@ -40810,6 +42643,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "timeout tunnel",
       "sections": [
         "backend",
@@ -40874,10 +42708,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "tls-ticket-keys",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -40912,10 +42755,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
       "name": "tls-tickets",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -40956,6 +42808,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "total-max-size",
       "sections": [
         "cache"
@@ -41007,6 +42860,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "trace",
       "sections": [
         "global"
@@ -41065,10 +42919,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "track",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -41116,6 +42979,14 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [
+        {
+          "chapter": "4.2",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
       "name": "transparent",
       "sections": [
         "backend",
@@ -41127,6 +42998,7 @@
         "transparent (deprecated)"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -41186,6 +43058,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.applet.zero-copy-forwarding",
       "sections": [
         "global"
@@ -41241,6 +43114,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.buffers.limit",
       "sections": [
         "global"
@@ -41293,6 +43167,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.buffers.reserve",
       "sections": [
         "global"
@@ -41345,6 +43220,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.bufsize",
       "sections": [
         "global"
@@ -41396,6 +43272,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.comp.maxlevel",
       "sections": [
         "global"
@@ -41449,6 +43326,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.disable-fast-forward",
       "sections": [
         "global"
@@ -41495,6 +43373,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.disable-zero-copy-forwarding",
       "sections": [
         "global"
@@ -41539,6 +43418,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.epoll.mask-events",
       "sections": [
         "global"
@@ -41591,6 +43471,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.events.max-events-at-once",
       "sections": [
         "global"
@@ -41636,6 +43517,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.fail-alloc",
       "sections": [
         "global"
@@ -41692,6 +43574,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.fd.edge-triggered",
       "sections": [
         "global"
@@ -41758,6 +43641,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h1.zero-copy-fwd-recv",
       "sections": [
         "global"
@@ -41816,6 +43700,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h1.zero-copy-fwd-send",
       "sections": [
         "global"
@@ -41871,6 +43756,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.be.glitches-threshold",
       "sections": [
         "global"
@@ -41923,6 +43809,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.be.initial-window-size",
       "sections": [
         "global"
@@ -41975,6 +43862,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.be.max-concurrent-streams",
       "sections": [
         "global"
@@ -42027,6 +43915,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.fe.glitches-threshold",
       "sections": [
         "global"
@@ -42079,6 +43968,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.fe.initial-window-size",
       "sections": [
         "global"
@@ -42131,6 +44021,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.fe.max-concurrent-streams",
       "sections": [
         "global"
@@ -42183,6 +44074,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.fe.max-total-streams",
       "sections": [
         "global"
@@ -42235,6 +44127,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.header-table-size",
       "sections": [
         "global"
@@ -42287,6 +44180,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.initial-window-size",
       "sections": [
         "global"
@@ -42339,6 +44233,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.max-concurrent-streams",
       "sections": [
         "global"
@@ -42391,6 +44286,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.max-frame-size",
       "sections": [
         "global"
@@ -42446,6 +44342,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.h2.zero-copy-fwd-send",
       "sections": [
         "global"
@@ -42501,6 +44398,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.http.cookielen",
       "sections": [
         "global"
@@ -42552,6 +44450,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.http.logurilen",
       "sections": [
         "global"
@@ -42603,6 +44502,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.http.maxhdr",
       "sections": [
         "global"
@@ -42657,6 +44557,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.idle-pool.shared",
       "sections": [
         "global"
@@ -42712,6 +44613,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.idletimer",
       "sections": [
         "global"
@@ -42767,6 +44669,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.listener.default-shards",
       "sections": [
         "global"
@@ -42827,6 +44730,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.listener.multi-queue",
       "sections": [
         "global"
@@ -42883,6 +44787,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.lua.burst-timeout",
       "sections": [
         "global"
@@ -42935,6 +44840,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.lua.forced-yield",
       "sections": [
         "global"
@@ -42990,6 +44896,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.lua.log.loggers",
       "sections": [
         "global"
@@ -43049,6 +44956,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.lua.log.stderr",
       "sections": [
         "global"
@@ -43105,6 +45013,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.lua.maxmem",
       "sections": [
         "global"
@@ -43157,6 +45066,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.lua.service-timeout",
       "sections": [
         "global"
@@ -43209,6 +45119,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.lua.session-timeout",
       "sections": [
         "global"
@@ -43261,6 +45172,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.lua.task-timeout",
       "sections": [
         "global"
@@ -43313,6 +45225,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.max-checks-per-thread",
       "sections": [
         "global"
@@ -43365,6 +45278,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.maxaccept",
       "sections": [
         "global"
@@ -43416,6 +45330,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.maxpollevents",
       "sections": [
         "global"
@@ -43467,6 +45382,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.maxrewrite",
       "sections": [
         "global"
@@ -43518,6 +45434,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.memory.hot-size",
       "sections": [
         "global"
@@ -43570,6 +45487,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.pattern.cache-size",
       "sections": [
         "global"
@@ -43621,6 +45539,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.peers.max-updates-at-once",
       "sections": [
         "global"
@@ -43673,6 +45592,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.pipesize",
       "sections": [
         "global"
@@ -43724,6 +45644,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.pool-high-fd-ratio",
       "sections": [
         "global"
@@ -43776,6 +45697,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.pool-low-fd-ratio",
       "sections": [
         "global"
@@ -43831,6 +45753,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.pt.zero-copy-forwarding",
       "sections": [
         "global"
@@ -43875,6 +45798,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.quic.backend.max-idle-timeou",
       "sections": [
         "global"
@@ -43903,6 +45827,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.quic.cc-hystart",
       "sections": [
         "global"
@@ -43958,6 +45883,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.quic.frontend.conn-tx-buffers.limit",
       "sections": [
         "global"
@@ -44010,6 +45936,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.quic.frontend.glitches-threshold",
       "sections": [
         "global"
@@ -44062,6 +45989,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.quic.frontend.max-idle-timeout",
       "sections": [
         "global"
@@ -44114,6 +46042,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.quic.frontend.max-streams-bidi",
       "sections": [
         "global"
@@ -44166,6 +46095,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.quic.max-frame-loss",
       "sections": [
         "global"
@@ -44218,6 +46148,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.quic.reorder-ratio",
       "sections": [
         "global"
@@ -44270,6 +46201,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.quic.retry-threshold",
       "sections": [
         "global"
@@ -44325,6 +46257,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.quic.socket-owner",
       "sections": [
         "global"
@@ -44383,6 +46316,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.quic.zero-copy-fwd-send",
       "sections": [
         "global"
@@ -44438,6 +46372,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.rcvbuf.backend",
       "sections": [
         "global"
@@ -44490,6 +46425,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.rcvbuf.client",
       "sections": [
         "global"
@@ -44541,6 +46477,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.rcvbuf.frontend",
       "sections": [
         "global"
@@ -44593,6 +46530,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.rcvbuf.server",
       "sections": [
         "global"
@@ -44644,6 +46582,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.recv_enough",
       "sections": [
         "global"
@@ -44695,6 +46634,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ring.queues",
       "sections": [
         "global"
@@ -44747,6 +46687,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.runqueue-depth",
       "sections": [
         "global"
@@ -44801,6 +46742,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.sched.low-latency",
       "sections": [
         "global"
@@ -44856,6 +46798,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.sndbuf.backend",
       "sections": [
         "global"
@@ -44908,6 +46851,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.sndbuf.client",
       "sections": [
         "global"
@@ -44959,6 +46903,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.sndbuf.frontend",
       "sections": [
         "global"
@@ -45011,6 +46956,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.sndbuf.server",
       "sections": [
         "global"
@@ -45062,6 +47008,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.cachesize",
       "sections": [
         "global"
@@ -45114,6 +47061,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.capture-buffer-size",
       "sections": [
         "global"
@@ -45166,6 +47114,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.capture-cipherlist-size",
       "sections": [
         "global"
@@ -45221,6 +47170,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.certificate-compression",
       "sections": [
         "global"
@@ -45276,6 +47226,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.default-dh-param",
       "sections": [
         "global"
@@ -45321,6 +47272,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.force-private-cache",
       "sections": [
         "global"
@@ -45366,6 +47318,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.hard-maxrecord",
       "sections": [
         "global"
@@ -45421,6 +47374,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.keylog",
       "sections": [
         "global"
@@ -45476,6 +47430,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.lifetime",
       "sections": [
         "global"
@@ -45528,6 +47483,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.maxrecord",
       "sections": [
         "global"
@@ -45580,6 +47536,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.ocsp-update.maxdelay",
       "sections": [
         "global"
@@ -45632,6 +47589,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.ocsp-update.mindelay",
       "sections": [
         "global"
@@ -45684,6 +47642,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.ssl.ssl-ctx-cache-size",
       "sections": [
         "global"
@@ -45736,6 +47695,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.stick-counters",
       "sections": [
         "global"
@@ -45777,6 +47737,7 @@
       "argument_model": null,
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.vars.check-max-size",
       "sections": [
         "global"
@@ -45802,6 +47763,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.vars.global-max-size",
       "sections": [
         "global"
@@ -45854,6 +47816,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.vars.proc-max-size",
       "sections": [
         "global"
@@ -45906,6 +47869,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.vars.reqres-max-size",
       "sections": [
         "global"
@@ -45958,6 +47922,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.vars.sess-max-size",
       "sections": [
         "global"
@@ -46010,6 +47975,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.vars.txn-max-size",
       "sections": [
         "global"
@@ -46062,6 +48028,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.zlib.memlevel",
       "sections": [
         "global"
@@ -46113,6 +48080,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "tune.zlib.windowsize",
       "sections": [
         "global"
@@ -46164,6 +48132,14 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "uid",
       "sections": [
         "global"
@@ -46172,6 +48148,7 @@
         "uid <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -46236,6 +48213,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "ulimit-n",
       "sections": [
         "global"
@@ -46296,6 +48274,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "unique-id-format",
       "sections": [
         "defaults",
@@ -46368,6 +48347,7 @@
       "contexts": [
         "http"
       ],
+      "line_option_semantics": [],
       "name": "unique-id-header",
       "sections": [
         "defaults",
@@ -46509,6 +48489,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "unix-bind",
       "sections": [
         "global"
@@ -46638,6 +48619,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "unsetenv",
       "sections": [
         "global"
@@ -46698,6 +48680,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "use-fcgi-app",
       "sections": [
         "backend",
@@ -46790,6 +48773,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "use-server",
       "sections": [
         "backend",
@@ -46888,6 +48872,7 @@
         "http",
         "tcp"
       ],
+      "line_option_semantics": [],
       "name": "use_backend",
       "sections": [
         "frontend",
@@ -46955,6 +48940,14 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        }
+      ],
       "name": "user",
       "sections": [
         "global",
@@ -46966,6 +48959,7 @@
         "user <username> [password|insecure-password <password>] [groups <group>,<group>,(...)]"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -47118,6 +49112,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "userlist",
       "sections": [
         "userlist"
@@ -47154,6 +49149,26 @@
         }
       ]
     },
+    "usesrc": {
+      "argument_model": null,
+      "arguments": [],
+      "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": false
+        }
+      ],
+      "name": "usesrc",
+      "sections": [],
+      "signatures": [],
+      "sources": [
+        "dkall"
+      ],
+      "variants": []
+    },
     "v4v6": {
       "argument_model": {
         "max_args": 0,
@@ -47162,10 +49177,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
       "name": "v4v6",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -47193,10 +49217,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": false
+        }
+      ],
       "name": "v6only",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -47235,6 +49268,20 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.1",
+          "option_group": "bind_options",
+          "parent_kind": "bind",
+          "takes_value": true
+        },
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "verify",
       "sections": [
         "crt-list"
@@ -47317,10 +49364,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "verifyhost",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -47368,6 +49424,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "warn-blocked-traffic-after",
       "sections": [
         "global"
@@ -47420,10 +49477,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "weight",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -47472,10 +49538,19 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [
+        {
+          "chapter": "5.2",
+          "option_group": "server_options",
+          "parent_kind": "server",
+          "takes_value": true
+        }
+      ],
       "name": "ws",
       "sections": [],
       "signatures": [],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -47516,6 +49591,7 @@
       },
       "arguments": [],
       "contexts": [],
+      "line_option_semantics": [],
       "name": "zero-warning",
       "sections": [
         "global"
@@ -48249,6 +50325,63 @@
       "kind": "prefix",
       "prefix": "value-lf",
       "skip": 0
+    }
+  ],
+  "reference_patterns": [
+    {
+      "match_tokens": [
+        "resolvers"
+      ],
+      "reference_kind": "resolvers",
+      "scope": "global",
+      "split": null,
+      "target_token_index": 1
+    },
+    {
+      "match_tokens": [
+        "peers"
+      ],
+      "reference_kind": "peers",
+      "scope": "global",
+      "split": null,
+      "target_token_index": 1
+    },
+    {
+      "match_tokens": [
+        "cache-use"
+      ],
+      "reference_kind": "cache",
+      "scope": "global",
+      "split": null,
+      "target_token_index": 1
+    },
+    {
+      "match_tokens": [
+        "cache-store"
+      ],
+      "reference_kind": "cache",
+      "scope": "global",
+      "split": null,
+      "target_token_index": 1
+    },
+    {
+      "match_tokens": [
+        "filter",
+        "cache"
+      ],
+      "reference_kind": "cache",
+      "scope": "global",
+      "split": null,
+      "target_token_index": 2
+    },
+    {
+      "match_tokens": [
+        "filter-sequence"
+      ],
+      "reference_kind": "filter",
+      "scope": "section",
+      "split": ",",
+      "target_token_index": 2
     }
   ],
   "sample_converters": {
@@ -71283,6 +73416,11 @@
       "group": "options",
       "keyword": "option",
       "kind": "option",
+      "match_tokens": [
+        "no",
+        "option"
+      ],
+      "minimum_token_index": 2,
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": "no",
@@ -71304,6 +73442,10 @@
       "group": "bind_options",
       "keyword": "bind",
       "kind": "bind",
+      "match_tokens": [
+        "bind"
+      ],
+      "minimum_token_index": 2,
       "nested_start_index": 2,
       "phase_token_index": null,
       "prefix": null,
@@ -71319,6 +73461,10 @@
       "group": "server_options",
       "keyword": "default-server",
       "kind": "server",
+      "match_tokens": [
+        "default-server"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": 1,
       "phase_token_index": null,
       "prefix": null,
@@ -71345,6 +73491,10 @@
       "group": "server_options",
       "keyword": "server",
       "kind": "server",
+      "match_tokens": [
+        "server"
+      ],
+      "minimum_token_index": 3,
       "nested_start_index": 3,
       "phase_token_index": null,
       "prefix": null,
@@ -71360,6 +73510,10 @@
       "group": "http_request_actions",
       "keyword": "http-request",
       "kind": "http-request",
+      "match_tokens": [
+        "http-request"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
@@ -71375,6 +73529,10 @@
       "group": "http_response_actions",
       "keyword": "http-response",
       "kind": "http-response",
+      "match_tokens": [
+        "http-response"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
@@ -71390,6 +73548,10 @@
       "group": "http_after_response_actions",
       "keyword": "http-after-response",
       "kind": "http-after-response",
+      "match_tokens": [
+        "http-after-response"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
@@ -71405,6 +73567,10 @@
       "group": "tcp_request_actions",
       "keyword": "tcp-request",
       "kind": "tcp-request",
+      "match_tokens": [
+        "tcp-request"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": 1,
       "prefix": null,
@@ -71420,6 +73586,10 @@
       "group": "tcp_response_actions",
       "keyword": "tcp-response",
       "kind": "tcp-response",
+      "match_tokens": [
+        "tcp-response"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": 1,
       "prefix": null,
@@ -71435,6 +73605,10 @@
       "group": "acl_criteria",
       "keyword": "acl",
       "kind": "acl-criterion",
+      "match_tokens": [
+        "acl"
+      ],
+      "minimum_token_index": 2,
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
@@ -71450,6 +73624,10 @@
       "group": "filters",
       "keyword": "filter",
       "kind": "filter",
+      "match_tokens": [
+        "filter"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
@@ -71465,6 +73643,10 @@
       "group": null,
       "keyword": "use_backend",
       "kind": "directive",
+      "match_tokens": [
+        "use_backend"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
@@ -71480,6 +73662,10 @@
       "group": null,
       "keyword": "use-server",
       "kind": "directive",
+      "match_tokens": [
+        "use-server"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
@@ -71495,6 +73681,10 @@
       "group": null,
       "keyword": "default_backend",
       "kind": "directive",
+      "match_tokens": [
+        "default_backend"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
@@ -71510,6 +73700,10 @@
       "group": null,
       "keyword": "balance",
       "kind": "directive",
+      "match_tokens": [
+        "balance"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,
@@ -71525,6 +73719,10 @@
       "group": null,
       "keyword": "mode",
       "kind": "directive",
+      "match_tokens": [
+        "mode"
+      ],
+      "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": null,
       "prefix": null,

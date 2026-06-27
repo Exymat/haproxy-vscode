@@ -276,4 +276,11 @@ describe("symbolIndex extended", () => {
     const index = buildSymbolIndex(parsed, schema);
     expect(findReferences(index, "acl", "missing", "backend:api")).toEqual([]);
   });
+
+  it("tracks configured global reference patterns from schema", () => {
+    const parsed = parseDocument(doc("backend api\n    default-server resolvers dns-main"));
+    const index = buildSymbolIndex(parsed, schema);
+    const refs = findReferences(index, "resolvers", "dns-main", null);
+    expect(refs).toHaveLength(1);
+  });
 });

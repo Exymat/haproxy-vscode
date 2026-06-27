@@ -42,6 +42,13 @@ export interface SchemaKeywordVariant {
   arguments?: SchemaArgumentParam[];
 }
 
+export interface LineOptionSemantic {
+  parent_kind: string;
+  option_group: string;
+  chapter: string;
+  takes_value?: boolean;
+}
+
 export interface SchemaKeyword {
   name: string;
   sections: string[];
@@ -51,6 +58,7 @@ export interface SchemaKeyword {
   variants?: SchemaKeywordVariant[];
   argument_model?: ArgumentModel;
   arguments?: SchemaArgumentParam[];
+  line_option_semantics?: LineOptionSemantic[];
 }
 
 export interface SampleFunction {
@@ -86,6 +94,8 @@ export interface StatementRule {
   keyword: string;
   kind: string;
   group?: string;
+  match_tokens?: string[];
+  minimum_token_index?: number;
   value_token_index?: number;
   action_token_index?: number;
   phase_token_index?: number;
@@ -96,6 +106,14 @@ export interface StatementRule {
   reference_kind?: string;
   definition_kind?: string;
   symbol_name_token_index?: number;
+}
+
+export interface ReferencePattern {
+  match_tokens: string[];
+  reference_kind: string;
+  target_token_index: number;
+  scope?: "global" | "section";
+  split?: string;
 }
 
 export interface LineLayout {
@@ -120,6 +138,7 @@ export interface HaproxySchema {
   keyword_groups: Record<string, string[]>;
   keyword_group_contexts?: Record<string, Record<string, string[]>>;
   statement_rules: StatementRule[];
+  reference_patterns?: ReferencePattern[];
   sample_fetches: Record<string, SampleFunction>;
   sample_converters: Record<string, SampleFunction>;
   logformat_aliases?: Record<string, LogformatAlias>;
@@ -462,6 +481,7 @@ export function sectionNames(schema: HaproxySchema): string[] {
 
 function normalizeSchemaData(data: HaproxySchema): HaproxySchema {
   data.statement_rules = data.statement_rules ?? [];
+  data.reference_patterns = data.reference_patterns ?? [];
   data.sample_fetches = data.sample_fetches ?? {};
   data.sample_converters = data.sample_converters ?? {};
   data.keyword_group_contexts = data.keyword_group_contexts ?? {};
