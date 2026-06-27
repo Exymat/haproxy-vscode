@@ -3,56 +3,15 @@
  * Validate HAProxy .cfg files using the same diagnostic logic as the VS Code extension,
  * without requiring the vscode module.
  */
-import { createRequire } from "node:module";
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, resolve, relative, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
+import { relative, resolve } from "node:path";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const extensionRoot = resolve(__dirname, "..");
-const schemaPath = join(extensionRoot, "schemas", "haproxy-3.0.schema.json");
-const mockVscodePath = join(__dirname, "mock-vscode.cjs");
+import { DEFAULT_VERSION } from "./lib/versions.mjs";
+import { collectCfgFiles } from "./lib/fs-utils.mjs";
+import { createDocument, loadCompiledModule, loadSchema } from "./lib/extension-runtime.mjs";
 
-const require = createRequire(import.meta.url);
-const Module = require("module");
-const originalResolveFilename = Module._resolveFilename;
-Module._resolveFilename = function (request, parent, isMain, options) {
-  if (request === "vscode") {
-    return mockVscodePath;
-  }
-  return originalResolveFilename.call(this, request, parent, isMain, options);
-};
-
-const { computeDiagnostics } = require(join(extensionRoot, "out", "diagnostics.js"));
-const schema = JSON.parse(readFileSync(schemaPath, "utf-8"));
-
-function createDocument(content, uri = "file:///test.cfg") {
-  const lines = content.split(/\r?\n/);
-  return {
-    uri,
-    lineCount: lines.length,
-    lineAt(lineNo) {
-      return { text: lines[lineNo] ?? "" };
-    },
-    getText() {
-      return content;
-    },
-  };
-}
-
-function collectCfgFiles(dir) {
-  const files = [];
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    const st = statSync(full);
-    if (st.isDirectory()) {
-      files.push(...collectCfgFiles(full));
-    } else if (entry.endsWith(".cfg")) {
-      files.push(full);
-    }
-  }
-  return files.sort();
-}
+const { computeDiagnostics } = loadCompiledModule("diagnostics.js");
+const schema = loadSchema(process.env.HAPROXY_VERSION ?? DEFAULT_VERSION);
 
 function validateFile(filePath) {
   const content = readFileSync(filePath, "utf-8");

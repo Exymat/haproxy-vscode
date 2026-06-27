@@ -7,10 +7,13 @@ import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
+import { SUPPORTED_VERSIONS } from "./lib/versions.mjs";
+import { parseVersionArgs } from "./lib/cli.mjs";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const extensionRoot = resolve(__dirname, "..");
 const compareScript = join(__dirname, "compare-haproxy-c.mjs");
-const versions = ["2.6", "2.8", "3.0", "3.2", "3.4"];
+const versions = SUPPORTED_VERSIONS;
 const targets = [
   { name: "tests-conf", parts: ["tests", "conf"] },
   { name: "examples", parts: ["examples"] },
@@ -19,19 +22,7 @@ const targets = [
 const confRoot = resolve(process.env.HAPROXY_CONF_ROOT ?? join(extensionRoot, "..", "haproxy_git"));
 const reportDir = resolve(process.env.HAPROXY_COMPARE_REPORT_DIR ?? join(__dirname, "reports"));
 
-function parseArgs(argv) {
-  let runtime = process.env.HAPROXY_RUNTIME ?? "local";
-  for (let idx = 0; idx < argv.length; idx += 1) {
-    const arg = argv[idx];
-    if (arg === "--runtime") {
-      runtime = argv[idx + 1] ?? runtime;
-      idx += 1;
-    }
-  }
-  return { runtime };
-}
-
-const { runtime } = parseArgs(process.argv.slice(2));
+const { runtime } = parseVersionArgs(process.argv.slice(2));
 
 if (!existsSync(reportDir)) {
   mkdirSync(reportDir, { recursive: true });

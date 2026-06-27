@@ -10,18 +10,25 @@ import {
   StatementRule,
   modifierPrefixSet,
   noPrefixKeywordSet,
+  sectionHasOptionKeywords,
   sectionKeywordSet,
 } from "./schema";
-import { findStatementRule } from "./statementLayout";
+import { analyzeLine, AnalyzedLine } from "./lineAnalysis";
+import { LogFormatLineMemo, extractLogFormatRegions } from "./logFormat";
 import { runtimeModeForDocument, RuntimeMode, RuntimeModeCacheEntry } from "./sectionMode";
-import { DirectiveMatch, resolveLongestDirectiveMatch } from "./tokenUtils";
+import { DirectiveMatch } from "./tokenUtils";
 
 const runtimeModeCache = new WeakMap<vscode.TextDocument, RuntimeModeCacheEntry>();
 
+export type { AnalyzedLine } from "./lineAnalysis";
+export type { LogFormatLineMemo } from "./logFormat";
+
 export interface LineDiagnosticMemo {
   allowed: Set<string>;
+  hasOptionKeywords: boolean;
   directiveMatch: DirectiveMatch;
   statementRule: StatementRule | undefined;
+  analyzed: AnalyzedLine;
 }
 
 export interface DiagnosticContextOptions {
@@ -41,6 +48,7 @@ export class DiagnosticContext {
   readonly suppressDeprecated: boolean;
 
   private readonly lineMemo = new Map<number, LineDiagnosticMemo>();
+  private readonly logFormatMemo = new Map<number, LogFormatLineMemo>();
 
   constructor(
     document: vscode.TextDocument,
@@ -82,18 +90,32 @@ export class DiagnosticContext {
     let memo = this.lineMemo.get(line.line);
     if (!memo) {
       const allowed = sectionKeywordSet(this.schema, line.section);
+      const analyzed = analyzeLine(line, {
+        schema: this.schema,
+        allowed,
+        noPrefix: this.noPrefix,
+        modifierPrefixes: this.modifierPrefixes,
+      });
       memo = {
         allowed,
-        directiveMatch: resolveLongestDirectiveMatch(
-          line,
-          allowed,
-          4,
-          this.noPrefix,
-          this.modifierPrefixes,
-        ),
-        statementRule: findStatementRule(this.schema, line),
+        hasOptionKeywords: sectionHasOptionKeywords(this.schema, line.section),
+        directiveMatch: analyzed.directiveMatch,
+        statementRule: analyzed.statement.rule,
+        analyzed,
       };
       this.lineMemo.set(line.line, memo);
+    }
+    return memo;
+  }
+
+  getLogFormatMemo(line: ParsedLine): LogFormatLineMemo {
+    let memo = this.logFormatMemo.get(line.line);
+    if (!memo) {
+      const lineText = this.lineText(line);
+      memo = {
+        regions: extractLogFormatRegions(lineText, line.tokens, this.schema),
+      };
+      this.logFormatMemo.set(line.line, memo);
     }
     return memo;
   }

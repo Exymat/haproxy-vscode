@@ -5,48 +5,17 @@
  * Usage:
  *   node scripts/verify-highlight.mjs <conf-directory-or-file> [--json] [--max N]
  */
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, resolve, relative, dirname } from "node:path";
+import { readFileSync } from "node:fs";
+import { resolve, relative, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { analyzeDocument, summarizeResults } from "./highlight-lib.mjs";
 
+import { parseHighlightArgs } from "./lib/cli.mjs";
+import { collectCfgFiles } from "./lib/fs-utils.mjs";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-function parseArgs(argv) {
-  const options = { json: false, summary: false, maxPerFile: 25, path: null };
-  for (const arg of argv) {
-    if (arg === "--json") {
-      options.json = true;
-    } else if (arg === "--summary") {
-      options.summary = true;
-    } else if (arg === "--help" || arg === "-h") {
-      options.help = true;
-    } else if (arg.startsWith("--max=")) {
-      options.maxPerFile = Number.parseInt(arg.slice("--max=".length), 10);
-    } else if (!arg.startsWith("-")) {
-      options.path = arg;
-    }
-  }
-  return options;
-}
-
-function collectCfgFiles(path) {
-  const st = statSync(path);
-  if (st.isFile()) {
-    return path.endsWith(".cfg") ? [path] : [];
-  }
-  const files = [];
-  for (const entry of readdirSync(path)) {
-    const full = join(path, entry);
-    const entryStat = statSync(full);
-    if (entryStat.isDirectory()) {
-      files.push(...collectCfgFiles(full));
-    } else if (entry.endsWith(".cfg")) {
-      files.push(full);
-    }
-  }
-  return files.sort();
-}
+const options = parseHighlightArgs(process.argv.slice(2));
 
 async function analyzeFile(filePath) {
   const content = readFileSync(filePath, "utf-8");
@@ -142,7 +111,6 @@ function printScopeSummary(fileResults) {
 }
 
 async function main() {
-  const options = parseArgs(process.argv.slice(2));
   if (options.help || !options.path) {
     console.error(
       "Usage: node scripts/verify-highlight.mjs <conf-directory-or-file> [--json] [--summary] [--max=N] [--fail-on-uncolored]",

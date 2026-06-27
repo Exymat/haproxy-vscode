@@ -10,19 +10,11 @@ import {
   keywordGroupSet,
   prefixFamilies,
   prefixSubcommandSet,
-  statsSocketLevelSet,
-  tcpRequestPhaseSet,
-  tcpResponsePhaseSet,
 } from "./schema";
-import {
-  resolveActionTokenIndex,
-  resolvePhaseTokenIndex,
-  ruleActionGroup,
-} from "./statementLayout";
 import { RuntimeMode } from "./sectionMode";
-import { isLikelyValue, normalizeActionName, resolveSubcommandSpan } from "./tokenUtils";
+import { resolveSubcommandSpan } from "./tokenUtils";
 
-const EMPTY_SET = new Set<string>();
+export { unknownNestedDiagnostics } from "./nestedKeywordHandlers";
 
 function keywordSections(schema: HaproxySchema, keyword: string): string[] {
   return schema.keywords[keyword.toLowerCase()]?.sections ?? [];
@@ -41,13 +33,8 @@ function isOptionLine(line: ParsedLine): boolean {
   return t0 === "option" || (t0 === "no" && t1 === "option");
 }
 
-function optionAllowedInSection(allowed: Set<string>): boolean {
-  for (const keyword of allowed) {
-    if (keyword.startsWith("option ") || keyword.startsWith("no option")) {
-      return true;
-    }
-  }
-  return false;
+function optionAllowedInSection(memo: { hasOptionKeywords: boolean }): boolean {
+  return memo.hasOptionKeywords;
 }
 
 function wrongContextMessage(keyword: string, mode: RuntimeMode, contexts: string[]): string {
@@ -82,12 +69,12 @@ function modeContextDiagnostic(
 }
 
 export function topLevelDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vscode.Diagnostic[] {
-  const { allowed, directiveMatch: match } = ctx.getLineMemo(line);
+  const { allowed, directiveMatch: match, hasOptionKeywords } = ctx.getLineMemo(line);
   if (match.matched) {
     return [];
   }
 
-  if (isOptionLine(line) && optionAllowedInSection(allowed)) {
+  if (isOptionLine(line) && optionAllowedInSection({ hasOptionKeywords })) {
     return [];
   }
 
@@ -204,159 +191,6 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
         if (diag) {
           diagnostics.push(diag);
         }
-      }
-    }
-  }
-
-  return diagnostics;
-}
-
-export function unknownNestedDiagnostics(
-  ctx: DiagnosticContext,
-  line: ParsedLine,
-): vscode.Diagnostic[] {
-  const diagnostics: vscode.Diagnostic[] = [];
-  const conditionals = conditionalTokenSet(ctx.schema);
-  const statsSocketLevels = statsSocketLevelSet(ctx.schema);
-  const { statementRule: rule } = ctx.getLineMemo(line);
-  const t0 = line.tokens[0]?.text.toLowerCase();
-  const t1 = line.tokens[1]?.text.toLowerCase();
-
-  if (t0 === "option" || (t0 === "no" && t1 === "option")) {
-    const idx = t0 === "option" ? 1 : 2;
-    const value = line.tokens[idx]?.text.toLowerCase();
-    if (value && !keywordGroupSet(ctx.schema, "options").has(value)) {
-      diagnostics.push(
-        makeDiagnostic(
-          diagRange(line, idx),
-          `Unknown option keyword '${line.tokens[idx].text}'`,
-          vscode.DiagnosticSeverity.Warning,
-          "unknown-option",
-        ),
-      );
-    }
-    return diagnostics;
-  }
-
-  if (t0 === "mode") {
-    return diagnostics;
-  }
-
-  if (t0 === "balance") {
-    return diagnostics;
-  }
-
-  if (t0 === "acl" && line.tokens.length >= 3) {
-    const rawCriterion = line.tokens[2].text;
-    const parenIdx = rawCriterion.indexOf("(");
-    const criterion = (
-      parenIdx >= 0 ? rawCriterion.slice(0, parenIdx) : rawCriterion
-    ).toLowerCase();
-    const aclCriteria = keywordGroupSet(ctx.schema, "acl_criteria");
-    const sampleFetches = keywordGroupSet(ctx.schema, "sample_fetches");
-    if (
-      !isLikelyValue(criterion, conditionals) &&
-      !aclCriteria.has(criterion) &&
-      !sampleFetches.has(criterion)
-    ) {
-      diagnostics.push(
-        makeDiagnostic(
-          diagRange(line, 2),
-          `Unknown ACL criterion '${rawCriterion}'`,
-          vscode.DiagnosticSeverity.Warning,
-          "unknown-criterion",
-        ),
-      );
-    }
-    return diagnostics;
-  }
-
-  if (t0 === "bind" || t0 === "server") {
-    return diagnostics;
-  }
-
-  if (t0 === "stats" && t1 === "socket") {
-    for (let i = 2; i < line.tokens.length; i += 1) {
-      const val = line.tokens[i].text.toLowerCase().replace(/\*$/, "");
-      if (val === "level" && i + 1 < line.tokens.length) {
-        const levelValue = line.tokens[i + 1].text.toLowerCase();
-        if (!statsSocketLevels.has(levelValue)) {
-          diagnostics.push(
-            makeDiagnostic(
-              diagRange(line, i + 1),
-              `Unknown level '${line.tokens[i + 1].text}' (expected user, operator, or admin)`,
-              vscode.DiagnosticSeverity.Warning,
-              "unknown-value",
-            ),
-          );
-        }
-        i += 1;
-      }
-    }
-    return diagnostics;
-  }
-
-  if (
-    (t0 === "tcp-request" || t0 === "tcp-response") &&
-    line.tokens[1]?.text.toLowerCase() === "inspect-delay"
-  ) {
-    return diagnostics;
-  }
-
-  const phaseIdx = resolvePhaseTokenIndex(rule, line);
-  if (phaseIdx !== null && (t0 === "tcp-request" || t0 === "tcp-response")) {
-    const phases =
-      t0 === "tcp-request" ? tcpRequestPhaseSet(ctx.schema) : tcpResponsePhaseSet(ctx.schema);
-    const phase = line.tokens[phaseIdx].text.toLowerCase();
-    if (!phases.has(phase)) {
-      const groupName = ruleActionGroup(rule);
-      const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : EMPTY_SET;
-      if (!allowed.has(phase)) {
-        diagnostics.push(
-          makeDiagnostic(
-            diagRange(line, phaseIdx),
-            `Unknown ${t0} phase '${line.tokens[phaseIdx].text}'`,
-            vscode.DiagnosticSeverity.Warning,
-            "unknown-value",
-          ),
-        );
-      }
-    }
-  }
-
-  const actionIdx = resolveActionTokenIndex(rule, line);
-  if (actionIdx !== null) {
-    const rawToken = line.tokens[actionIdx].text;
-    const token = normalizeActionName(rawToken);
-    const groupName = ruleActionGroup(rule);
-    const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : EMPTY_SET;
-    if (token && !token.startsWith("lua.") && !allowed.has(token)) {
-      diagnostics.push(
-        makeDiagnostic(
-          diagRange(line, actionIdx),
-          `Unknown ${line.tokens[0].text} action '${rawToken}'`,
-          vscode.DiagnosticSeverity.Warning,
-          "unknown-action",
-        ),
-      );
-    } else if (token === "use-service" && actionIdx + 1 < line.tokens.length) {
-      const serviceIdx = actionIdx + 1;
-      const serviceName = line.tokens[serviceIdx].text.toLowerCase();
-      const services = keywordGroupSet(ctx.schema, "services");
-      if (
-        services.size > 0 &&
-        serviceName &&
-        !serviceName.startsWith("lua.") &&
-        !services.has(serviceName)
-      ) {
-        diagnostics.push(
-          makeDiagnostic(
-            diagRange(line, serviceIdx),
-            `Unknown service '${line.tokens[serviceIdx].text}'`,
-            vscode.DiagnosticSeverity.Warning,
-            "unknown-service",
-          ),
-        );
       }
     }
   }

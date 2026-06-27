@@ -1,21 +1,8 @@
 import * as vscode from "vscode";
 
-import { argumentModelDiagnostics } from "./argumentDiagnostics";
-import { delimiterDiagnostics, validateLineDelimiters } from "./delimiterDiagnostics";
+import { runLineDiagnosticPipeline } from "./diagnosticPipeline";
 import { DiagnosticContext } from "./diagnosticContext";
-import { deprecatedDiagnostics } from "./deprecatedDiagnostics";
-import { expressionDiagnostics } from "./expressionDiagnostics";
-import { logFormatDiagnostics } from "./logFormatDiagnostics";
-import { namedDefaultsDiagnostics } from "./namedDefaultsDiagnostics";
-import {
-  contextDiagnostics,
-  topLevelDiagnostics,
-  unknownNestedDiagnostics,
-} from "./nestedKeywordDiagnostics";
-import { aclNameDiagnostics, sectionHeaderDiagnostics } from "./sectionDiagnostics";
-import { statementDiagnostics } from "./statementDiagnostics";
 import { HaproxyLanguageData } from "./languageData";
-import { ParsedLine } from "./parser";
 import { HaproxySchema } from "./schema";
 import { getSymbolIndex } from "./symbolIndex";
 import { unusedSymbolDiagnostics } from "./unusedSymbolDiagnostics";
@@ -47,11 +34,6 @@ export interface ComputeDiagnosticsOptions {
   maxLines?: number;
 }
 
-function isMacroLine(line: ParsedLine, schema: HaproxySchema): boolean {
-  const first = line.tokens[0]?.text.toLowerCase();
-  return (schema.tokens.macros ?? []).some((macro) => first === macro.toLowerCase());
-}
-
 function diagnosticsCacheKey(
   schema: HaproxySchema,
   options: ComputeDiagnosticsOptions,
@@ -75,42 +57,6 @@ function sameCacheKey(left: DiagnosticsCacheKey, right: DiagnosticsCacheKey): bo
     left.unusedSymbolSections === right.unusedSymbolSections &&
     left.maxLines === right.maxLines
   );
-}
-
-function lineDiagnosticsFor(ctx: DiagnosticContext, line: ParsedLine): vscode.Diagnostic[] {
-  if (line.tokens.length === 0) {
-    return [];
-  }
-  if (line.isSectionHeader) {
-    return sectionHeaderDiagnostics(line);
-  }
-  if (isMacroLine(line, ctx.schema)) {
-    return [];
-  }
-
-  const diagnostics: vscode.Diagnostic[] = [];
-  const memo = ctx.getLineMemo(line);
-  const topDiags = topLevelDiagnostics(ctx, line);
-  diagnostics.push(...topDiags);
-  if (topDiags.length === 0) {
-    diagnostics.push(...statementDiagnostics(line, ctx.schema, memo.statementRule));
-    diagnostics.push(...contextDiagnostics(ctx, line));
-    diagnostics.push(...unknownNestedDiagnostics(ctx, line));
-    diagnostics.push(...argumentModelDiagnostics(line, ctx.schema, memo, ctx.noPrefix));
-  }
-  diagnostics.push(...aclNameDiagnostics(line));
-  const lineText = ctx.lineText(line);
-  const delimiterIssues = validateLineDelimiters(lineText);
-  diagnostics.push(...delimiterDiagnostics(line, delimiterIssues));
-  diagnostics.push(...expressionDiagnostics(line, lineText, ctx.schema, delimiterIssues));
-  diagnostics.push(...logFormatDiagnostics(line, lineText, ctx.schema));
-  if (ctx.deprecatedIndex) {
-    diagnostics.push(
-      ...deprecatedDiagnostics(ctx, line, memo, ctx.deprecatedIndex, ctx.suppressDeprecated),
-    );
-  }
-  diagnostics.push(...namedDefaultsDiagnostics(line, ctx.schema));
-  return diagnostics;
 }
 
 function flattenDiagnostics(lineDiagnostics: vscode.Diagnostic[][]): vscode.Diagnostic[] {
@@ -150,7 +96,7 @@ export function computeDiagnostics(
     if (lineDiagnostics[i]) {
       continue;
     }
-    lineDiagnostics[i] = lineDiagnosticsFor(ctx, ctx.parsed[i]);
+    lineDiagnostics[i] = runLineDiagnosticPipeline(ctx, ctx.parsed[i]);
   }
 
   const diagnostics = flattenDiagnostics(lineDiagnostics);

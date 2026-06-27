@@ -1,4 +1,5 @@
 import { activate, deactivate } from "../../src/extension";
+import { getLoadedBundle, invalidateBundleLoad } from "../../src/extensionBundle";
 import * as grammar from "../../src/grammar";
 import * as schema from "../../src/schema";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -63,8 +64,10 @@ describe("extension", () => {
 
   it("activates and deactivates without error", () => {
     const context = mockExtensionContext();
+    expect(getLoadedBundle()).toBeUndefined();
     expect(() => activate(context as never)).not.toThrow();
     expect(() => deactivate()).not.toThrow();
+    expect(getLoadedBundle()).toBeUndefined();
   });
 
   it("schedules diagnostics for haproxy documents", async () => {
@@ -248,6 +251,40 @@ describe("extension", () => {
     await vi.waitFor(() => {
       expect(collection?.set).toHaveBeenCalledWith(doc.uri, []);
     });
+  });
+
+  it("shows scheduler bundle error when load fails after initial success", async () => {
+    vi.restoreAllMocks();
+    const doc = haproxyDocument("frontend web\n    bind :80");
+    mockTextDocuments.push(doc);
+    setMockConfig("haproxy", "diagnostics.debounceMs", 100);
+
+    const changeListeners: Array<(event: { document: (typeof mockTextDocuments)[0] }) => void> = [];
+    const origOnChange = workspace.onDidChangeTextDocument.bind(workspace);
+    vi.spyOn(workspace, "onDidChangeTextDocument").mockImplementation((listener) => {
+      changeListeners.push(listener);
+      return origOnChange(listener);
+    });
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+    await vi.waitFor(() => {
+      expect(getLoadedBundle()).toBeDefined();
+    });
+
+    vi.spyOn(schema, "loadSchemaAsync").mockRejectedValue(new Error("scheduler reload failed"));
+    invalidateBundleLoad();
+    vi.mocked(window.showErrorMessage).mockClear();
+
+    changeListeners[changeListeners.length - 1]({ document: doc });
+    await vi.advanceTimersByTimeAsync(200);
+
+    await vi.waitFor(() => {
+      expect(window.showErrorMessage).toHaveBeenCalledWith(
+        expect.stringContaining("scheduler reload failed"),
+      );
+    });
+    vi.restoreAllMocks();
   });
 
   it("clears pending diagnostic timers on deactivate", () => {

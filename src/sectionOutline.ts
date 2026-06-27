@@ -1,3 +1,5 @@
+import * as vscode from "vscode";
+
 import { ParsedLine } from "./parser";
 import { isTopLevelSectionHeader } from "./sectionUtils";
 
@@ -37,6 +39,25 @@ function sectionSymbolFromEntry(
   };
 }
 
+const sectionOutlineCache = new WeakMap<
+  vscode.TextDocument,
+  { version: number; lineCount: number; symbols: SectionSymbolInfo[] }
+>();
+
+export function getSectionOutline(
+  document: vscode.TextDocument,
+  parsed: ParsedLine[],
+): SectionSymbolInfo[] {
+  const lineCount = document.lineCount;
+  const hit = sectionOutlineCache.get(document);
+  if (hit && hit.version === document.version && hit.lineCount === lineCount) {
+    return hit.symbols;
+  }
+  const symbols = buildSectionSymbols(parsed, lineCount);
+  sectionOutlineCache.set(document, { version: document.version, lineCount, symbols });
+  return symbols;
+}
+
 export function buildSectionSymbols(parsed: ParsedLine[], lineCount: number): SectionSymbolInfo[] {
   const symbols: SectionSymbolInfo[] = [];
   let openIndex = -1;
@@ -68,11 +89,8 @@ export interface SectionFoldRange {
 }
 
 /** Fold ranges start at the section header; VS Code hides startLine+1..endLine when collapsed. */
-export function buildSectionFoldRanges(
-  parsed: ParsedLine[],
-  lineCount: number,
-): SectionFoldRange[] {
-  return buildSectionSymbols(parsed, lineCount)
+export function buildSectionFoldRanges(sections: SectionSymbolInfo[]): SectionFoldRange[] {
+  return sections
     .filter((section) => section.endLine > section.startLine)
     .map((section) => ({
       startLine: section.startLine,

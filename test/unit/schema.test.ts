@@ -21,7 +21,6 @@ import {
   statsSocketLevelSet,
   tcpRequestPhaseSet,
   tcpResponsePhaseSet,
-  allTcpRulePhases,
 } from "../../src/schema";
 import { resetVscodeMock } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
@@ -155,6 +154,7 @@ describe("schema helpers", () => {
 
   it("exposes stats socket levels", () => {
     expect(statsSocketLevelSet(schema)).toEqual(new Set(["admin", "operator", "user"]));
+    expect(statsSocketLevelSet(schema)).toBe(statsSocketLevelSet(schema));
   });
 
   it("falls back when line_layout metadata is absent", () => {
@@ -165,10 +165,11 @@ describe("schema helpers", () => {
     expect(tcpResponsePhaseSet(bare).size).toBeGreaterThan(0);
   });
 
-  it("uses legacy tcp phase scan when layout phases are missing", () => {
+  it("uses keyword scan for tcp phases when layout phases are missing", () => {
     const bare = structuredClone(schema);
     bare.line_layout = { prefix_families: bare.line_layout?.prefix_families };
-    expect(allTcpRulePhases(bare).has("content")).toBe(true);
+    expect(tcpRequestPhaseSet(bare).has("content")).toBe(true);
+    expect(tcpResponsePhaseSet(bare).has("content")).toBe(true);
   });
 
   it("uses explicit options_with_value from keyword_groups", () => {
@@ -191,8 +192,9 @@ describe("schema helpers", () => {
     expect(values.has("sni")).toBe(false);
   });
 
-  it("combines layout tcp phases via allTcpRulePhases", () => {
-    expect(allTcpRulePhases(schema).has("content")).toBe(true);
+  it("combines layout tcp phases via phase set helpers", () => {
+    expect(tcpRequestPhaseSet(schema).has("content")).toBe(true);
+    expect(tcpResponsePhaseSet(schema).has("content")).toBe(true);
   });
 
   it("falls back for missing token arrays and missing sections", () => {

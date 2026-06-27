@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  extractLogFormatArgument,
   extractLogFormatItems,
   extractLogFormatRegions,
-  isLogFormatDirective,
   logFormatCompletionPrefix,
   logFormatContextAt,
   logFormatItemAtOffset,
@@ -68,17 +66,18 @@ describe("extractLogFormatItems", () => {
   });
 });
 
-describe("extractLogFormatArgument", () => {
-  it("returns the format string offset after the directive", () => {
+describe("logFormatRegionAtOffset", () => {
+  it("returns the format string region after the directive", () => {
     const line = '  log-format "%{+Q}o %ci"';
-    expect(extractLogFormatArgument(line)).toEqual({
-      text: '"%{+Q}o %ci"',
-      start: 13,
-    });
+    const tokens = tokenizeLine(line);
+    const region = logFormatRegionAtOffset(line, tokens, line.indexOf("%"), schemaStub);
+    expect(region).toEqual(expect.objectContaining({ text: '"%{+Q}o %ci"', start: 13 }));
   });
 
   it("returns null for unrelated lines", () => {
-    expect(extractLogFormatArgument("frontend web")).toBeNull();
+    expect(
+      logFormatRegionAtOffset("frontend web", tokenizeLine("frontend web"), 0, schemaStub),
+    ).toBeNull();
   });
 });
 
@@ -192,15 +191,6 @@ describe("logFormatItemAtOffset", () => {
       expect.objectContaining({ kind: "alias", alias: "%o", flags: ["Q"] }),
     );
     expect(logFormatItemAtOffset(text, 999)).toBeNull();
-  });
-});
-
-describe("isLogFormatDirective", () => {
-  it("recognizes supported directives", () => {
-    expect(isLogFormatDirective("log-format")).toBe(true);
-    expect(isLogFormatDirective("set-var-fmt")).toBe(true);
-    expect(isLogFormatDirective("other")).toBe(false);
-    expect(isLogFormatDirective(undefined)).toBe(false);
   });
 });
 

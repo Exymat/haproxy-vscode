@@ -129,12 +129,19 @@ export interface HaproxySchema {
 }
 
 const schemaCache = new Map<HaproxyVersion, HaproxySchema>();
-const sectionKeywordCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
+
+interface SectionKeywordCacheEntry {
+  allowed: Set<string>;
+  hasOptionKeywords: boolean;
+}
+
+const sectionKeywordCache = new WeakMap<HaproxySchema, Map<string, SectionKeywordCacheEntry>>();
 const keywordGroupSetCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
 const lineOptionSetCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
 const optionsWithValueCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
 const noPrefixKeywordCache = new WeakMap<HaproxySchema, Set<string>>();
 const modifierPrefixCache = new WeakMap<HaproxySchema, Set<string>>();
+const macroTokenCache = new WeakMap<HaproxySchema, Set<string>>();
 const conditionalTokenCache = new WeakMap<HaproxySchema, Set<string>>();
 const namedDefaultsKeywordCache = new WeakMap<HaproxySchema, Set<string>>();
 const sampleExpressionNameCache = new WeakMap<
@@ -168,21 +175,12 @@ export function prefixFamilies(schema: HaproxySchema): string[] {
 
 export function prefixSubcommandSet(schema: HaproxySchema, prefix: string): Set<string> {
   const key = prefix.toLowerCase();
-  let perSchema = prefixSubcommandCache.get(schema);
-  if (!perSchema) {
-    perSchema = new Map();
-    prefixSubcommandCache.set(schema, perSchema);
-  }
-  const cached = perSchema.get(key);
-  if (cached) {
-    return cached;
-  }
-  const fromLayout = schema.line_layout?.prefix_subcommands?.[key];
-  const result = fromLayout
-    ? new Set(fromLayout.map((v) => v.toLowerCase()))
-    : buildPrefixSubcommands(Object.keys(schema.keywords), prefix);
-  perSchema.set(key, result);
-  return result;
+  return prefixSubcommandCached(schema, key, () => {
+    const fromLayout = schema.line_layout?.prefix_subcommands?.[key];
+    return fromLayout
+      ? new Set(fromLayout.map((v) => v.toLowerCase()))
+      : buildPrefixSubcommands(Object.keys(schema.keywords), prefix);
+  });
 }
 
 export function buildPrefixSubcommands(keywords: Iterable<string>, prefix: string): Set<string> {
@@ -211,12 +209,40 @@ function tokenSetFromSchema(
   return result;
 }
 
+function perSchemaMapCache<V>(
+  outerCache: WeakMap<HaproxySchema, Map<string, V>>,
+): (schema: HaproxySchema, key: string, build: () => V) => V {
+  return (schema, key, build) => {
+    let perSchema = outerCache.get(schema);
+    if (!perSchema) {
+      perSchema = new Map();
+      outerCache.set(schema, perSchema);
+    }
+    const cached = perSchema.get(key);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const result = build();
+    perSchema.set(key, result);
+    return result;
+  };
+}
+
+const keywordGroupSetCached = perSchemaMapCache(keywordGroupSetCache);
+const lineOptionSetCached = perSchemaMapCache(lineOptionSetCache);
+const optionsWithValueCached = perSchemaMapCache(optionsWithValueCache);
+const prefixSubcommandCached = perSchemaMapCache(prefixSubcommandCache);
+
 export function noPrefixKeywordSet(schema: HaproxySchema): Set<string> {
   return tokenSetFromSchema(schema, noPrefixKeywordCache, schema.tokens.no_prefix_keywords);
 }
 
 export function modifierPrefixSet(schema: HaproxySchema): Set<string> {
   return tokenSetFromSchema(schema, modifierPrefixCache, schema.tokens.modifiers);
+}
+
+export function macroTokenSet(schema: HaproxySchema): Set<string> {
+  return tokenSetFromSchema(schema, macroTokenCache, schema.tokens.macros);
 }
 
 export function conditionalTokenSet(schema: HaproxySchema): Set<string> {
@@ -284,27 +310,6 @@ export function tcpResponsePhaseSet(schema: HaproxySchema): Set<string> {
   return tcpRulePhaseSet(schema, "tcp-response");
 }
 
-function legacyTcpRulePhaseSet(schema: HaproxySchema): Set<string> {
-  const phases = new Set<string>();
-  for (const name of Object.keys(schema.keywords)) {
-    for (const prefix of ["tcp-request", "tcp-response"] as const) {
-      const needle = `${prefix} `;
-      if (name.startsWith(needle)) {
-        phases.add(name.slice(needle.length).toLowerCase());
-      }
-    }
-  }
-  return phases;
-}
-
-/** @deprecated Use tcpRequestPhaseSet / tcpResponsePhaseSet instead. */
-export function allTcpRulePhases(schema: HaproxySchema): Set<string> {
-  if (schema.line_layout?.tcp_request_phases || schema.line_layout?.tcp_response_phases) {
-    return new Set([...tcpRequestPhaseSet(schema), ...tcpResponsePhaseSet(schema)]);
-  }
-  return legacyTcpRulePhaseSet(schema);
-}
-
 function optionTakesValueFallback(option: string): boolean {
   const lower = option.toLowerCase();
   return ["-file", "-path", "-addr", "-port", "-name", "-inter"].some((hint) =>
@@ -313,63 +318,38 @@ function optionTakesValueFallback(option: string): boolean {
 }
 
 export function optionsWithValueSet(schema: HaproxySchema, groupName: string): Set<string> {
-  let perSchema = optionsWithValueCache.get(schema);
-  if (!perSchema) {
-    perSchema = new Map();
-    optionsWithValueCache.set(schema, perSchema);
-  }
-  const cached = perSchema.get(groupName);
-  if (cached) {
-    return cached;
-  }
-  const explicitKey = `${groupName}_with_value`;
-  const explicit = schema.keyword_groups[explicitKey] ?? [];
-  if (explicit.length > 0) {
-    const result = new Set(explicit.map((v) => v.toLowerCase()));
-    perSchema.set(groupName, result);
-    return result;
-  }
-  const result = new Set<string>();
-  for (const option of schema.keyword_groups[groupName] ?? []) {
-    if (optionTakesValueFallback(option)) {
-      result.add(option.toLowerCase());
+  return optionsWithValueCached(schema, groupName, () => {
+    const explicitKey = `${groupName}_with_value`;
+    const explicit = schema.keyword_groups[explicitKey] ?? [];
+    if (explicit.length > 0) {
+      return new Set(explicit.map((v) => v.toLowerCase()));
     }
-  }
-  perSchema.set(groupName, result);
-  return result;
+    const result = new Set<string>();
+    for (const option of schema.keyword_groups[groupName] ?? []) {
+      if (optionTakesValueFallback(option)) {
+        result.add(option.toLowerCase());
+      }
+    }
+    return result;
+  });
 }
 
 export function keywordGroupSet(schema: HaproxySchema, groupName: string): Set<string> {
-  let perSchema = keywordGroupSetCache.get(schema);
-  if (!perSchema) {
-    perSchema = new Map();
-    keywordGroupSetCache.set(schema, perSchema);
-  }
-  const cached = perSchema.get(groupName);
-  if (cached) {
-    return cached;
-  }
-  const result = new Set((schema.keyword_groups[groupName] ?? []).map((v) => v.toLowerCase()));
-  perSchema.set(groupName, result);
-  return result;
+  return keywordGroupSetCached(
+    schema,
+    groupName,
+    () => new Set((schema.keyword_groups[groupName] ?? []).map((v) => v.toLowerCase())),
+  );
 }
 
 export function lineOptionSet(schema: HaproxySchema, groupName: string): Set<string> {
-  let perSchema = lineOptionSetCache.get(schema);
-  if (!perSchema) {
-    perSchema = new Map();
-    lineOptionSetCache.set(schema, perSchema);
-  }
-  const cached = perSchema.get(groupName);
-  if (cached) {
-    return cached;
-  }
-  const result = new Set(keywordGroupSet(schema, groupName));
-  for (const option of optionsWithValueSet(schema, groupName)) {
-    result.add(option);
-  }
-  perSchema.set(groupName, result);
-  return result;
+  return lineOptionSetCached(schema, groupName, () => {
+    const result = new Set(keywordGroupSet(schema, groupName));
+    for (const option of optionsWithValueSet(schema, groupName)) {
+      result.add(option);
+    }
+    return result;
+  });
 }
 
 export function statsSocketLevelSet(schema: HaproxySchema): Set<string> {
@@ -383,10 +363,27 @@ export function statsSocketLevelSet(schema: HaproxySchema): Set<string> {
   return result;
 }
 
-export function sectionKeywordSet(schema: HaproxySchema, section: string | null): Set<string> {
-  if (!section) {
-    return new Set();
+function buildSectionKeywordEntry(
+  schema: HaproxySchema,
+  section: string,
+): SectionKeywordCacheEntry {
+  const allowed = new Set((schema.sections[section]?.keywords ?? []).map((k) => k.toLowerCase()));
+  let hasOptionKeywords = false;
+  for (const [name, keyword] of Object.entries(schema.keywords)) {
+    if (keyword.sections.includes(section)) {
+      allowed.add(name.toLowerCase());
+    }
   }
+  for (const keyword of allowed) {
+    if (keyword.startsWith("option ") || keyword.startsWith("no option")) {
+      hasOptionKeywords = true;
+      break;
+    }
+  }
+  return { allowed, hasOptionKeywords };
+}
+
+function sectionKeywordEntry(schema: HaproxySchema, section: string): SectionKeywordCacheEntry {
   let perSchema = sectionKeywordCache.get(schema);
   if (!perSchema) {
     perSchema = new Map();
@@ -396,14 +393,23 @@ export function sectionKeywordSet(schema: HaproxySchema, section: string | null)
   if (cached) {
     return cached;
   }
-  const allowed = new Set((schema.sections[section]?.keywords ?? []).map((k) => k.toLowerCase()));
-  for (const [name, keyword] of Object.entries(schema.keywords)) {
-    if (keyword.sections.includes(section)) {
-      allowed.add(name.toLowerCase());
-    }
+  const entry = buildSectionKeywordEntry(schema, section);
+  perSchema.set(section, entry);
+  return entry;
+}
+
+export function sectionKeywordSet(schema: HaproxySchema, section: string | null): Set<string> {
+  if (!section) {
+    return new Set();
   }
-  perSchema.set(section, allowed);
-  return allowed;
+  return sectionKeywordEntry(schema, section).allowed;
+}
+
+export function sectionHasOptionKeywords(schema: HaproxySchema, section: string | null): boolean {
+  if (!section) {
+    return false;
+  }
+  return sectionKeywordEntry(schema, section).hasOptionKeywords;
 }
 
 export function loadSchema(

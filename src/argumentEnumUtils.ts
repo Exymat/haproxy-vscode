@@ -1,6 +1,12 @@
 import { LanguageArgumentParam, LanguageKeyword } from "./languageData";
 import { ArgumentSlot, SchemaArgumentParam, SchemaKeyword } from "./schema";
 
+const enumSlotCache = new WeakMap<SchemaKeyword, Map<string, string[]>>();
+
+function cacheKeyForSchemaKeyword(schemaKw: SchemaKeyword | undefined): SchemaKeyword | null {
+  return schemaKw ?? null;
+}
+
 export interface EnumValue {
   name: string;
   description: string;
@@ -72,7 +78,37 @@ function shouldUseDocEnumHints(
   return lower.startsWith("<");
 }
 
+function enumSlotCacheKey(slot: ArgumentSlot | undefined, position: number): string {
+  const enumPart = (slot?.enum ?? []).join("\0");
+  const kindPart = slot?.value_kind ?? "";
+  return `${position}:${kindPart}:${enumPart}`;
+}
+
 export function enumNamesForSlot(
+  slot: ArgumentSlot | undefined,
+  schemaKw: SchemaKeyword | undefined,
+  position: number,
+): string[] {
+  const cacheOwner = cacheKeyForSchemaKeyword(schemaKw);
+  if (cacheOwner) {
+    const cacheKey = enumSlotCacheKey(slot, position);
+    let perKeyword = enumSlotCache.get(cacheOwner);
+    if (!perKeyword) {
+      perKeyword = new Map();
+      enumSlotCache.set(cacheOwner, perKeyword);
+    }
+    const cached = perKeyword.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    const result = computeEnumNamesForSlot(slot, schemaKw, position);
+    perKeyword.set(cacheKey, result);
+    return result;
+  }
+  return computeEnumNamesForSlot(slot, schemaKw, position);
+}
+
+function computeEnumNamesForSlot(
   slot: ArgumentSlot | undefined,
   schemaKw: SchemaKeyword | undefined,
   position: number,

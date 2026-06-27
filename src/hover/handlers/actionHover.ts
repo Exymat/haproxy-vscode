@@ -1,22 +1,17 @@
 import * as vscode from "vscode";
 
-import { groupItems } from "../../documentContext";
+import { ACTION_GROUP_NAMES } from "../../domainMaps";
+import { findIndexedGroupItem } from "../../languageDataIndexes";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
 
-const actionGroups = [
-  "http_request_actions",
-  "http_response_actions",
-  "http_after_response_actions",
-  "tcp_request_actions",
-  "tcp_response_actions",
-] as const;
+const actionGroups = ACTION_GROUP_NAMES;
 
 export function tryActionHover(hc: HoverContext): vscode.Hover | null {
   const { data, range, tokenLower } = hc;
 
   for (const groupName of actionGroups) {
-    const group = groupItems(data, groupName).find((g) => g.name.toLowerCase() === tokenLower);
+    const group = findIndexedGroupItem(data, groupName, tokenLower);
     if (group) {
       const extras: string[] = [];
       if (group.rulesets.length > 0) {

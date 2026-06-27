@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
-import { buildSectionSymbols } from "./sectionOutline";
+import { getSectionOutline } from "./sectionOutline";
 import { hasReferences, SymbolIndex, SymbolKind, SymbolSite } from "./symbolIndex";
 
 export interface UnusedSymbolOptions {
@@ -140,7 +140,7 @@ export function unusedSymbolDiagnostics(
     number,
     { startLine: number; endLine: number; endColumn: number }
   >();
-  for (const section of buildSectionSymbols(parsed, document.lineCount)) {
+  for (const section of getSectionOutline(document, parsed)) {
     sectionByStartLine.set(section.startLine, {
       startLine: section.startLine,
       endLine: section.endLine,

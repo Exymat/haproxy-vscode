@@ -1,6 +1,11 @@
 import * as vscode from "vscode";
 
-import { enumNamesForSlot } from "./argumentEnumUtils";
+import {
+  enumValuesForSlotLower,
+  matchesLaterEnumSlot,
+  remainingRequiredSlots,
+} from "./argumentSlotValidation";
+import { resolveNestedOptionKeyword } from "./lineOptionKeyword";
 import {
   ADDRESS_POLICIES,
   AddressPolicyName,
@@ -10,8 +15,8 @@ import {
   validateHaproxyAddress,
 } from "./addressFormat";
 import { conditionalStartIndex } from "./directiveUtils";
-import { diagRange, DIAG_SOURCE } from "./diagnosticUtils";
-import { resolveLineOptionStartIndex } from "./hover/lineOptions";
+import { makeLineDiagnostic } from "./diagnosticUtils";
+import { resolveLineOptionStartIndex } from "./lineOptionSpan";
 import { ParsedLine } from "./parser";
 import {
   FixedSlotSpec,
@@ -21,7 +26,6 @@ import {
   optionsWithValueSet,
   StatementRule,
 } from "./schema";
-import { ResolvedSchemaKeyword, resolveSchemaKeyword } from "./keywordVariant";
 import { findStatementRule } from "./statementLayout";
 
 type StmtDiagCode =
@@ -49,10 +53,7 @@ function makeDiagnostic(
   code: StmtDiagCode,
   severity: vscode.DiagnosticSeverity = vscode.DiagnosticSeverity.Error,
 ): vscode.Diagnostic {
-  const diagnostic = new vscode.Diagnostic(diagRange(line, tokenIndex), message, severity);
-  diagnostic.source = DIAG_SOURCE;
-  diagnostic.code = code;
-  return diagnostic;
+  return makeLineDiagnostic(line, tokenIndex, message, code, severity);
 }
 
 function pushAddressResult(
@@ -166,31 +167,6 @@ function optionValuePolicy(
   return null;
 }
 
-function remainingRequiredSlots(slots: Array<{ optional?: boolean }>, start: number): number {
-  let required = 0;
-  for (let i = start; i < slots.length; i += 1) {
-    if (!slots[i]?.optional) {
-      required += 1;
-    }
-  }
-  return required;
-}
-
-function matchesLaterEnumSlot(
-  slots: Array<{ enum?: string[]; optional?: boolean; value_kind?: string }>,
-  schemaKw: ReturnType<typeof resolveSchemaKeyword>,
-  slotIdx: number,
-  lower: string,
-): boolean {
-  for (let idx = slotIdx + 1; idx < slots.length; idx += 1) {
-    const allowedValues = enumNamesForSlot(slots[idx], schemaKw, idx).map((v) => v.toLowerCase());
-    if (allowedValues.includes(lower) || allowedValues.includes(lower.split("(", 1)[0])) {
-      return true;
-    }
-  }
-  return false;
-}
-
 function signatureRequiresTrailingArgument(signatures: string[], token: string): boolean {
   const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const re = new RegExp(`\\b${escaped}\\s+(?:<|\\{)`, "i");
@@ -208,7 +184,7 @@ function consumeOptionArguments(
   diagnostics: vscode.Diagnostic[],
 ): number {
   const option = line.tokens[optionIndex].text.toLowerCase().replace(/\*$/, "");
-  const schemaKw = resolveNestedOptionKeyword(schema, line, rule, option);
+  const schemaKw = resolveNestedOptionKeyword(schema, line.section, rule.kind, option);
   const model = schemaKw?.argument_model;
 
   if (!model || model.max_args === undefined) {
@@ -246,7 +222,7 @@ function consumeOptionArguments(
     const base = lower.split("(", 1)[0];
     const tokenStartsOption = allowed.has(lower.replace(/\*$/, ""));
     const slot = slots[slotIdx];
-    const allowedValues = enumNamesForSlot(slot, schemaKw, slotIdx).map((v) => v.toLowerCase());
+    const allowedValues = enumValuesForSlotLower(slot, schemaKw, slotIdx);
 
     if (tokenStartsOption && remainingRequiredSlots(slots, slotIdx) === 0) {
       break;
@@ -328,44 +304,6 @@ function consumeOptionArguments(
   }
 
   return pos;
-}
-
-function resolveNestedOptionKeyword(
-  schema: HaproxySchema,
-  line: ParsedLine,
-  rule: StatementRule,
-  option: string,
-): ResolvedSchemaKeyword | undefined {
-  const keyword = schema.keywords[option];
-  if (!keyword) {
-    return undefined;
-  }
-  const resolved = resolveSchemaKeyword(keyword, line.section);
-  if (
-    resolved &&
-    line.section &&
-    resolved.sections.includes(line.section) &&
-    resolved.chapter?.startsWith("4.")
-  ) {
-    return resolved;
-  }
-  const chapter = rule.kind === "bind" ? "5.1" : rule.kind === "server" ? "5.2" : "";
-  if (chapter) {
-    const variant = keyword.variants?.find((item) => item.chapter === chapter);
-    if (variant) {
-      return {
-        name: keyword.name,
-        sections: variant.sections.length > 0 ? variant.sections : keyword.sections,
-        signatures: variant.signatures.length > 0 ? variant.signatures : keyword.signatures,
-        sources: keyword.sources,
-        contexts: variant.contexts?.length ? variant.contexts : keyword.contexts,
-        arguments: variant.arguments?.length ? variant.arguments : keyword.arguments,
-        argument_model: variant.argument_model ?? keyword.argument_model,
-        chapter: variant.chapter,
-      };
-    }
-  }
-  return resolved;
 }
 
 function scanNestedOptions(

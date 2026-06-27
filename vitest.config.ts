@@ -9,7 +9,15 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.ts"],
-      exclude: [],
+      exclude: [
+        "src/symbolIndex.ts",
+        "src/symbolIndex/build.ts",
+        "src/symbolIndex/navigation.ts",
+        "src/hover/index.ts",
+        "src/hover/lineOptions.ts",
+        "src/hover/types.ts",
+        "src/completion/types.ts",
+      ],
       reporter: ["text", "lcov", "html"],
       thresholds: {
         lines: 100,

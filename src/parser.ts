@@ -164,15 +164,19 @@ export function parseLine(
   };
 }
 
-export function parseDocument(document: vscode.TextDocument): ParsedLine[] {
+export function parseDocumentLines(lineTexts: string[]): ParsedLine[] {
   const out: ParsedLine[] = [];
   let state = initialParseState();
 
-  for (let lineNo = 0; lineNo < document.lineCount; lineNo += 1) {
-    const text = document.lineAt(lineNo).text;
-    const parsedLine = parseLine(text, lineNo, state);
-    out.push(parsedLine.parsed);
-    state = parsedLine.nextState;
+  for (let lineNo = 0; lineNo < lineTexts.length; lineNo += 1) {
+    const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state);
+    out.push(next.parsed);
+    state = next.nextState;
   }
   return out;
+}
+
+export function parseDocument(document: vscode.TextDocument): ParsedLine[] {
+  const lineTexts = Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
+  return parseDocumentLines(lineTexts);
 }

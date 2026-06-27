@@ -1,47 +1,26 @@
 #!/usr/bin/env node
-import { createRequire } from "node:module";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { SUPPORTED_VERSIONS, DEFAULT_VERSION } from "./lib/versions.mjs";
+import {
+  createDocument,
+  extensionRoot,
+  loadCompiledModule,
+  loadLanguageData,
+  loadSchema,
+} from "./lib/extension-runtime.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const extensionRoot = resolve(__dirname, "..");
+
 const haproxyGitRoot = resolve(extensionRoot, "..", "haproxy_git");
-const VERSIONS = ["2.6", "2.8", "3.0", "3.2", "3.4"];
-const DEFAULT_VERSION = "3.2";
-const mockVscodePath = join(__dirname, "mock-vscode.cjs");
+const VERSIONS = SUPPORTED_VERSIONS;
 
 const EXAMPLES_SKIP_BY_VERSION = {
   3.4: new Set(["keylog-test.cfg"]),
 };
 
-const require = createRequire(import.meta.url);
-const Module = require("module");
-const originalResolveFilename = Module._resolveFilename;
-Module._resolveFilename = function (request, parent, isMain, options) {
-  if (request === "vscode") {
-    return mockVscodePath;
-  }
-  return originalResolveFilename.call(this, request, parent, isMain, options);
-};
-
-const { computeDiagnostics } = require(join(extensionRoot, "out", "diagnostics.js"));
-
-function loadSchema(version) {
-  const path = join(extensionRoot, "schemas", `haproxy-${version}.schema.json`);
-  if (!existsSync(path)) {
-    throw new Error(`missing schema: ${path}`);
-  }
-  return JSON.parse(readFileSync(path, "utf-8"));
-}
-
-function loadLanguageData(version) {
-  const path = join(extensionRoot, "schemas", `haproxy-${version}.language.json`);
-  if (!existsSync(path)) {
-    throw new Error(`missing language data: ${path}`);
-  }
-  return JSON.parse(readFileSync(path, "utf-8"));
-}
+const { computeDiagnostics } = loadCompiledModule("diagnostics.js");
 
 const schemas = Object.fromEntries(VERSIONS.map((version) => [version, loadSchema(version)]));
 const languageDataByVersion = Object.fromEntries(
@@ -58,20 +37,6 @@ function diagnosticOptions(version = DEFAULT_VERSION, overrides = {}) {
 
 function runDiagnostics(doc, schemaForCase, version = DEFAULT_VERSION, overrides = {}) {
   return computeDiagnostics(doc, schemaForCase, diagnosticOptions(version, overrides));
-}
-
-function createDocument(content, uri = "file:///test.cfg") {
-  const lines = content.split(/\r?\n/);
-  return {
-    uri,
-    lineCount: lines.length,
-    lineAt(lineNo) {
-      return { text: lines[lineNo] ?? "" };
-    },
-    getText() {
-      return content;
-    },
-  };
 }
 
 const fixturesDir = join(extensionRoot, "test", "fixtures");

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { validateLogFormatLine } from "./logFormat";
+import { LogFormatLineMemo, validateLogFormatLine } from "./logFormat";
 import { ParsedLine } from "./parser";
 import { HaproxySchema } from "./schema";
 
@@ -8,9 +8,10 @@ export function logFormatDiagnostics(
   line: ParsedLine,
   lineText: string,
   schema: HaproxySchema,
+  memo?: LogFormatLineMemo,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
-  for (const issue of validateLogFormatLine(lineText, line.tokens, schema)) {
+  for (const issue of validateLogFormatLine(lineText, line.tokens, schema, memo?.regions)) {
     diagnostics.push(
       new vscode.Diagnostic(
         new vscode.Range(line.line, issue.start, line.line, issue.end),

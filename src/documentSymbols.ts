@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 
 import { getParsedDocument } from "./parseCache";
-import { buildSectionSymbols } from "./sectionOutline";
+import { getSectionOutline } from "./sectionOutline";
 
 export function provideDocumentSymbols(document: vscode.TextDocument): vscode.DocumentSymbol[] {
   const parsed = getParsedDocument(document);
-  return buildSectionSymbols(parsed, document.lineCount).map((symbol) => {
+  return getSectionOutline(document, parsed).map((symbol) => {
     return new vscode.DocumentSymbol(
       symbol.name,
       symbol.detail,

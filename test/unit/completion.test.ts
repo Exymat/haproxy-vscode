@@ -217,4 +217,18 @@ describe("completion and hover", () => {
     expect(labels).toContain("interface");
     expect(labels).not.toContain("balance");
   });
+
+  it("returns empty when no completion handler matches", () => {
+    const content = "frontend web\n    bind :80 extra";
+    const doc = createDocument(content);
+    const bundle = bundles["3.2"];
+    const line = content.split("\n")[1];
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: line.indexOf("extra") + 3 } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    expect(items).toEqual([]);
+  });
 });

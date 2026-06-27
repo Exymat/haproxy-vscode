@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
 
 import { getDocumentContext } from "../documentContext";
+import { analyzeLine } from "../lineAnalysis";
 import { HaproxyLanguageData } from "../languageData";
-import { HaproxySchema } from "../schema";
+import { modifierPrefixSet, noPrefixKeywordSet, sectionKeywordSet, HaproxySchema } from "../schema";
 import { tryAclRefHover } from "./handlers/aclRefHover";
 import { tryActionHover } from "./handlers/actionHover";
 import { tryConditionalHover } from "./handlers/conditionalHover";
@@ -24,6 +25,7 @@ export function provideHover(
     return null;
   }
 
+  const allowed = sectionKeywordSet(schema, ctx.line.section);
   const hc: HoverContext = {
     document,
     position,
@@ -33,6 +35,12 @@ export function provideHover(
     range: new vscode.Range(ctx.line.line, ctx.token.start, ctx.line.line, ctx.token.end),
     cursorOffset: position.character - ctx.token.start,
     tokenLower: ctx.token.text.toLowerCase(),
+    analyzed: analyzeLine(ctx.line, {
+      schema,
+      allowed,
+      noPrefix: noPrefixKeywordSet(schema),
+      modifierPrefixes: modifierPrefixSet(schema),
+    }),
   };
 
   return (

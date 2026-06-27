@@ -2,6 +2,13 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.0
+
+- Completion, hover, and diagnostics now share unified line analysis — bind/server option spans, rule actions, and statement layout are interpreted consistently across all language features.
+- Faster completion, hover, and diagnostics on large configs from precomputed keyword indexes, schema lookup caches, and a shared section-outline pass reused by outline, folding, and unused-symbol hints.
+- Faster Go to Definition and Find References — symbol scope is recorded during indexing instead of backward line scans.
+- More reliable diagnostic updates when editing, switching HAProxy versions, or closing documents.
+
 ## 0.11.4
 
 - Faster edits on large configs — incremental parsing and per-line diagnostic caching reuse unchanged lines instead of reprocessing the whole file on every keystroke.

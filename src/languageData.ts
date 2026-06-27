@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 
+import { clearLanguageDataIndexCache } from "./languageDataIndexes";
 import { DEFAULT_HAPROXY_VERSION, HaproxyVersion } from "./version";
 
 export interface LanguageExample {
@@ -62,6 +63,7 @@ const languageDataCache = new Map<HaproxyVersion, HaproxyLanguageData>();
 
 export function clearLanguageDataCache(): void {
   languageDataCache.clear();
+  clearLanguageDataIndexCache();
 }
 
 export function loadLanguageData(

@@ -1,19 +1,12 @@
-import { groupItems } from "../documentContext";
 import { HaproxyLanguageData, LanguageGroupItem } from "../languageData";
+import { findIndexedGroupItem } from "../languageDataIndexes";
 
 export function findGroupItem(
   data: HaproxyLanguageData,
   name: string,
 ): LanguageGroupItem | undefined {
-  for (const items of Object.values(data.groups)) {
-    const exact = items.find((item) => item.name === name);
-    if (exact) {
-      return exact;
-    }
-  }
-  const lower = name.toLowerCase();
-  for (const items of Object.values(data.groups)) {
-    const hit = items.find((item) => item.name.toLowerCase() === lower);
+  for (const groupName of Object.keys(data.groups)) {
+    const hit = findIndexedGroupItem(data, groupName, name);
     if (hit) {
       return hit;
     }
@@ -26,11 +19,7 @@ export function findGroupItemIn(
   groupName: string,
   name: string,
 ): LanguageGroupItem | undefined {
-  const items = groupItems(data, groupName);
-  return (
-    items.find((item) => item.name === name) ??
-    items.find((item) => item.name.toLowerCase() === name.toLowerCase())
-  );
+  return findIndexedGroupItem(data, groupName, name);
 }
 
 export function sampleTokenCandidates(tokenText: string, cursorOffset: number): string[] {

@@ -7,6 +7,8 @@ import { ParsedLine, ParsedToken } from "./parser";
 import { HaproxySchema, sectionNames, StatementRule } from "./schema";
 import { ruleMatchesLine } from "./statementLayout";
 
+import { indexedKeywordsForSection } from "./languageDataIndexes";
+
 const keywordsForSectionCache = new WeakMap<HaproxyLanguageData, Map<string, LanguageKeyword[]>>();
 
 export type CompletionKind =
@@ -176,7 +178,7 @@ export function keywordsForSection(
   if (cached) {
     return cached;
   }
-  const result = Object.values(data.keywords).filter((kw) => kw.sections.includes(section));
+  const result = indexedKeywordsForSection(data, section);
   perData.set(section, result);
   return result;
 }

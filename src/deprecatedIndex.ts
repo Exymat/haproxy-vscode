@@ -3,14 +3,7 @@ import { HaproxySchema } from "./schema";
 
 const DEPRECATED_MARK = /\(deprecated\)/i;
 
-const ACTION_GROUP_KEYS = [
-  "http_request_actions",
-  "http_response_actions",
-  "http_after_response_actions",
-  "tcp_request_actions",
-  "tcp_response_actions",
-  "quic_initial_actions",
-] as const;
+import { DEPRECATED_ACTION_GROUP_NAMES } from "./domainMaps";
 
 export interface DeprecatedIndex {
   keywords: Set<string>;
@@ -59,7 +52,7 @@ export function buildDeprecatedIndex(
 
   const actions = new Set<string>();
   if (languageData) {
-    for (const groupKey of ACTION_GROUP_KEYS) {
+    for (const groupKey of DEPRECATED_ACTION_GROUP_NAMES) {
       for (const item of languageData.groups[groupKey] ?? []) {
         if (DEPRECATED_MARK.test(item.signature)) {
           actions.add(item.name.toLowerCase());

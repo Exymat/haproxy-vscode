@@ -25,6 +25,10 @@ export interface LogFormatRegion {
   end: number;
 }
 
+export interface LogFormatLineMemo {
+  regions: LogFormatRegion[];
+}
+
 export interface LogFormatItemSpan {
   start: number;
   end: number;
@@ -254,24 +258,6 @@ export function logFormatRegionAtOffset(
     }
   }
   return null;
-}
-
-/** @deprecated Use logFormatRegionAtOffset */
-export function extractLogFormatArgument(lineText: string): { text: string; start: number } | null {
-  const match = lineText.match(
-    /^\s*(log-format-sd|log-format|error-log-format|unique-id-format|set-var-fmt)\s+(.*)$/i,
-  );
-  if (!match || match.index === undefined) {
-    return null;
-  }
-  const text = match[2];
-  const start = lineText.indexOf(text, match.index);
-  return { text, start };
-}
-
-/** @deprecated Use extractLogFormatRegions with schema slots */
-export function isLogFormatDirective(token: string | undefined): boolean {
-  return token !== undefined && FALLBACK_LINE_TAIL_DIRECTIVES.has(token.toLowerCase());
 }
 
 function parseFlagBody(body: string, base: number): LogFormatFlagSpan[] {
@@ -513,9 +499,11 @@ export function validateLogFormatLine(
   lineText: string,
   tokens: ParsedToken[],
   schema: HaproxySchema,
+  cachedRegions?: LogFormatRegion[],
 ): LogFormatDiagnostic[] {
   const issues: LogFormatDiagnostic[] = [];
-  for (const region of extractLogFormatRegions(lineText, tokens, schema)) {
+  const regions = cachedRegions ?? extractLogFormatRegions(lineText, tokens, schema);
+  for (const region of regions) {
     issues.push(...validateLogFormatItems(region.text, region.start, schema));
   }
   return issues;

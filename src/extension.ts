@@ -2,105 +2,33 @@ import * as vscode from "vscode";
 
 import { provideCompletionItems } from "./completion";
 import { provideDocumentSymbols } from "./documentSymbols";
-import { computeDiagnostics } from "./diagnostics";
+import { createDiagnosticScheduler, DiagnosticScheduler } from "./diagnosticScheduler";
 import { provideFoldingRanges } from "./folding";
 import { formatConfig } from "./formatter";
 import { promptReloadIfGrammarChanged, syncActiveGrammarAsync } from "./grammar";
 import { provideHover } from "./hover";
 import { provideDefinition, provideReferences } from "./navigation";
-import { clearLanguageDataCache, HaproxyLanguageData, loadLanguageDataAsync } from "./languageData";
-import { clearSchemaCache, HaproxySchema, loadSchemaAsync } from "./schema";
+import { createBundleLoader, invalidateBundleLoad } from "./extensionBundle";
 import { getExtensionSettings, getFormatOptions, onSettingsChanged } from "./settings";
 import { registerVersionStatusBar } from "./statusBar";
-import { getConfiguredVersion, HaproxyVersion, onVersionConfigurationChanged } from "./version";
+import { getConfiguredVersion, onVersionConfigurationChanged } from "./version";
 
-interface ExtensionBundle {
-  version: HaproxyVersion;
-  schema: HaproxySchema;
-  languageData: HaproxyLanguageData;
-}
-
-const pendingDiagnostics = new Map<string, NodeJS.Timeout>();
-let bundle: ExtensionBundle | undefined;
-let bundleLoadPromise: Promise<ExtensionBundle> | undefined;
-let bundleLoadError: Error | undefined;
-let bundleErrorShown = false;
-let bundleGeneration = 0;
-let cachedSettings = getExtensionSettings();
-
-function invalidateBundleLoad(): void {
-  bundleGeneration += 1;
-  bundle = undefined;
-  bundleLoadPromise = undefined;
-  bundleLoadError = undefined;
-  bundleErrorShown = false;
-}
-
-function refreshCachedSettings(): void {
-  cachedSettings = getExtensionSettings();
-}
-
-function clearPendingDiagnostics(): void {
-  for (const timer of pendingDiagnostics.values()) {
-    clearTimeout(timer);
-  }
-  pendingDiagnostics.clear();
-}
+let activeScheduler: DiagnosticScheduler | undefined;
 
 export function activate(context: vscode.ExtensionContext): void {
-  refreshCachedSettings();
+  let cachedSettings = getExtensionSettings();
   registerVersionStatusBar(context);
 
   const diagnostics = vscode.languages.createDiagnosticCollection("haproxy");
   context.subscriptions.push(diagnostics);
 
-  const ensureBundle = (): Promise<ExtensionBundle> => {
-    if (bundle) {
-      return Promise.resolve(bundle);
-    }
-    if (bundleLoadError) {
-      return Promise.reject(bundleLoadError);
-    }
-    if (!bundleLoadPromise) {
-      const generation = bundleGeneration;
-      const isStale = (): boolean => generation !== bundleGeneration;
-      bundleLoadPromise = new Promise((resolve, reject) => {
-        setImmediate(() => {
-          void (async () => {
-            const version = getConfiguredVersion();
-            const loaded = {
-              version,
-              schema: await loadSchemaAsync(context, version),
-              languageData: await loadLanguageDataAsync(context, version),
-            };
-            if (isStale()) {
-              return;
-            }
-            bundle = loaded;
-            resolve(loaded);
-          })().catch((error) => {
-            /* c8 ignore next 3 -- stale load discarded after deactivate/reload */
-            if (isStale()) {
-              return;
-            }
-            reject(error instanceof Error ? error : new Error(String(error)));
-          });
-        });
-      });
-      /* c8 ignore next 4 -- defensive recovery path for transient async load failures */
-      bundleLoadPromise = bundleLoadPromise.catch((error) => {
-        if (isStale()) {
-          throw error;
-        }
-        bundleLoadPromise = undefined;
-        bundleLoadError = error instanceof Error ? error : new Error(String(error));
-        throw bundleLoadError;
-      });
-    }
-    return bundleLoadPromise;
-  };
+  const { ensureBundle, invalidate: invalidateBundle } = createBundleLoader(
+    context,
+    getConfiguredVersion,
+  );
 
-  const safeEnsureBundle = async (): Promise<ExtensionBundle | undefined> => {
+  let bundleErrorShown = false;
+  const safeEnsureBundle = async () => {
     try {
       return await ensureBundle();
     } catch (error) {
@@ -113,65 +41,33 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   };
 
-  const runDiagnostics = async (document: vscode.TextDocument): Promise<void> => {
-    const settings = cachedSettings;
-    if (!settings.diagnosticsEnabled || document.languageId !== "haproxy") {
-      return;
-    }
-    if (document.lineCount > settings.maxDiagnosticsLines) {
-      diagnostics.set(document.uri, []);
-      return;
-    }
-    const b = await safeEnsureBundle();
-    if (!b) {
-      diagnostics.set(document.uri, []);
-      return;
-    }
-    diagnostics.set(
-      document.uri,
-      computeDiagnostics(document, b.schema, {
-        languageData: b.languageData,
-        deprecatedWarnings: settings.deprecatedWarnings,
-        unusedSymbols: settings.unusedSymbols,
-        unusedSymbolSections: settings.unusedSymbolSections,
-        maxLines: settings.maxDiagnosticsLines,
-      }),
-    );
-  };
+  const scheduler = createDiagnosticScheduler(
+    diagnostics,
+    () => cachedSettings,
+    ensureBundle,
+    (message) => {
+      if (!bundleErrorShown) {
+        bundleErrorShown = true;
+        void vscode.window.showErrorMessage(`HAProxy extension failed to load schema: ${message}`);
+      }
+    },
+  );
 
-  const scheduleDiagnostics = (document: vscode.TextDocument): void => {
-    if (document.languageId !== "haproxy") {
-      return;
-    }
-    const settings = cachedSettings;
-    if (!settings.diagnosticsEnabled) {
-      diagnostics.delete(document.uri);
-      return;
-    }
-    const key = document.uri.toString();
-    const existing = pendingDiagnostics.get(key);
-    if (existing) {
-      clearTimeout(existing);
-    }
-    pendingDiagnostics.set(
-      key,
-      setTimeout(() => {
-        pendingDiagnostics.delete(key);
-        void runDiagnostics(document);
-      }, settings.diagnosticsDebounceMs),
-    );
+  activeScheduler = scheduler;
+
+  const refreshCachedSettings = (): void => {
+    cachedSettings = getExtensionSettings();
   };
 
   const refreshAllDocuments = (): void => {
     for (const document of vscode.workspace.textDocuments) {
-      scheduleDiagnostics(document);
+      scheduler.schedule(document);
     }
   };
 
   const reloadBundle = async (syncGrammar: boolean): Promise<void> => {
-    clearSchemaCache();
-    clearLanguageDataCache();
-    invalidateBundleLoad();
+    invalidateBundle();
+    bundleErrorShown = false;
     const b = await safeEnsureBundle();
     if (!b) {
       return;
@@ -184,18 +80,10 @@ export function activate(context: vscode.ExtensionContext): void {
   };
 
   context.subscriptions.push(
-    vscode.workspace.onDidOpenTextDocument(scheduleDiagnostics),
-    vscode.workspace.onDidChangeTextDocument((event) => scheduleDiagnostics(event.document)),
-    vscode.workspace.onDidSaveTextDocument(scheduleDiagnostics),
-    vscode.workspace.onDidCloseTextDocument((doc) => {
-      const key = doc.uri.toString();
-      const pending = pendingDiagnostics.get(key);
-      if (pending) {
-        clearTimeout(pending);
-        pendingDiagnostics.delete(key);
-      }
-      diagnostics.delete(doc.uri);
-    }),
+    vscode.workspace.onDidOpenTextDocument(scheduler.schedule),
+    vscode.workspace.onDidChangeTextDocument((event) => scheduler.schedule(event.document)),
+    vscode.workspace.onDidSaveTextDocument(scheduler.schedule),
+    vscode.workspace.onDidCloseTextDocument(scheduler.disposeDocument),
     onVersionConfigurationChanged(() => {
       void reloadBundle(true);
     }),
@@ -278,7 +166,7 @@ export function activate(context: vscode.ExtensionContext): void {
       },
     }),
     vscode.languages.registerReferenceProvider(selector, {
-      async provideReferences(document, position, context) {
+      async provideReferences(document, position, refContext) {
         const b = await safeEnsureBundle();
         if (!b) {
           return [];
@@ -287,7 +175,7 @@ export function activate(context: vscode.ExtensionContext): void {
         return provideReferences(
           document,
           position,
-          context,
+          refContext,
           b.schema,
           settings.maxDiagnosticsLines,
         );
@@ -297,6 +185,7 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {
-  clearPendingDiagnostics();
+  activeScheduler?.clearPending();
+  activeScheduler = undefined;
   invalidateBundleLoad();
 }

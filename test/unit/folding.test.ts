@@ -1,5 +1,5 @@
 import { parseDocument } from "../../src/parser";
-import { buildSectionFoldRanges } from "../../src/sectionOutline";
+import { buildSectionFoldRanges, buildSectionSymbols } from "../../src/sectionOutline";
 import { createDocument } from "../helpers/document";
 
 function runCase(
@@ -14,7 +14,8 @@ function runCase(
       return { text: content.split(/\r?\n/)[lineNo] ?? "" };
     },
   } as never);
-  const actual = buildSectionFoldRanges(parsed, doc.lineCount);
+  const sections = buildSectionSymbols(parsed, doc.lineCount);
+  const actual = buildSectionFoldRanges(sections);
   expect(actual).toEqual(expected);
 }
 

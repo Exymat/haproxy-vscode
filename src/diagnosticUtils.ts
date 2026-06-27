@@ -45,16 +45,21 @@ export function makeDiagnostic(
   return diagnostic;
 }
 
+export function makeLineDiagnostic(
+  line: ParsedLine,
+  tokenIndex: number,
+  message: string,
+  code: string,
+  severity: vscode.DiagnosticSeverity = vscode.DiagnosticSeverity.Warning,
+): vscode.Diagnostic {
+  return makeDiagnostic(diagRange(line, tokenIndex), message, severity, code);
+}
+
 export function makeError(
   line: ParsedLine,
   tokenIndex: number,
   message: string,
   code: string,
 ): vscode.Diagnostic {
-  return makeDiagnostic(
-    diagRange(line, tokenIndex),
-    message,
-    vscode.DiagnosticSeverity.Error,
-    code,
-  );
+  return makeLineDiagnostic(line, tokenIndex, message, code, vscode.DiagnosticSeverity.Error);
 }

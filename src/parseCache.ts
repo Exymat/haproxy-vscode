@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { initialParseState, parseDocument, parseLine, ParsedLine } from "./parser";
+import { initialParseState, parseDocumentLines, parseLine, ParsedLine } from "./parser";
 
 export interface ParsedDocumentReuse {
   previousVersion: number | null;
@@ -155,7 +155,7 @@ export function getParsedDocumentEntry(document: vscode.TextDocument): ParsedDoc
     : {
         version: document.version,
         lineTexts: lineTextsForDocument(document),
-        parsed: parseDocument(document),
+        parsed: parseDocumentLines(lineTextsForDocument(document)),
         reuse: {
           previousVersion: null,
           prefixLines: 0,

@@ -3,39 +3,23 @@
  * Run `haproxy -c` on each .cfg and compare first error line with extension diagnostics.
  * Also flags extension errors on files haproxy accepts, and haproxy errors with no extension match.
  */
-import { createRequire } from "node:module";
-import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve, basename, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execSync, spawnSync } from "node:child_process";
 
+import { parseVersionArgs } from "./lib/cli.mjs";
+import { collectCfgFiles, schemaPath } from "./lib/fs-utils.mjs";
+import {
+  createDocument,
+  extensionRoot,
+  loadCompiledModule,
+  loadDiagnosticSeverity,
+} from "./lib/extension-runtime.mjs";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const extensionRoot = resolve(__dirname, "..");
-const mockVscodePath = join(__dirname, "mock-vscode.cjs");
 
-function parseArgs(argv) {
-  const positional = [];
-  let version = process.env.HAPROXY_VERSION ?? "3.2";
-  let runtime = process.env.HAPROXY_RUNTIME ?? "local";
-  for (let idx = 0; idx < argv.length; idx += 1) {
-    const arg = argv[idx];
-    if (arg === "--version") {
-      version = argv[idx + 1] ?? version;
-      idx += 1;
-      continue;
-    }
-    if (arg === "--runtime") {
-      runtime = argv[idx + 1] ?? runtime;
-      idx += 1;
-      continue;
-    }
-    positional.push(arg);
-  }
-  return { version, runtime, positional };
-}
-
-const { version, runtime, positional } = parseArgs(process.argv.slice(2));
-const schemaPath = join(extensionRoot, "schemas", `haproxy-${version}.schema.json`);
+const { version, runtime, positional } = parseVersionArgs(process.argv.slice(2));
 const defaultConfDir = resolve(
   extensionRoot,
   "..",
@@ -45,19 +29,9 @@ const defaultConfDir = resolve(
   "conf",
 );
 
-const require = createRequire(import.meta.url);
-const Module = require("module");
-const originalResolveFilename = Module._resolveFilename;
-Module._resolveFilename = function (request, parent, isMain, options) {
-  if (request === "vscode") {
-    return mockVscodePath;
-  }
-  return originalResolveFilename.call(this, request, parent, isMain, options);
-};
-
-const { computeDiagnostics } = require(join(extensionRoot, "out", "diagnostics.js"));
-const { DiagnosticSeverity } = require(mockVscodePath);
-const schema = JSON.parse(readFileSync(schemaPath, "utf-8"));
+const { computeDiagnostics } = loadCompiledModule("diagnostics.js");
+const DiagnosticSeverity = loadDiagnosticSeverity();
+const schema = JSON.parse(readFileSync(schemaPath(extensionRoot, version), "utf-8"));
 
 function isErrorSeverity(severity) {
   return severity === DiagnosticSeverity.Error;
@@ -151,33 +125,6 @@ function interpretHaproxyCheck(status, raw, spawnError) {
     return { ok: true, lines: [], raw };
   }
   return { ok: false, lines: extractHaproxyErrorLines(raw), raw };
-}
-
-function collectCfgFiles(dir) {
-  const files = [];
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    if (statSync(full).isDirectory()) {
-      files.push(...collectCfgFiles(full));
-    } else if (entry.endsWith(".cfg")) {
-      files.push(full);
-    }
-  }
-  return files.sort();
-}
-
-function createDocument(content, uri) {
-  const lines = content.split(/\r?\n/);
-  return {
-    uri,
-    lineCount: lines.length,
-    lineAt(lineNo) {
-      return { text: lines[lineNo] ?? "" };
-    },
-    getText() {
-      return content;
-    },
-  };
 }
 
 function wslPath(winPath) {

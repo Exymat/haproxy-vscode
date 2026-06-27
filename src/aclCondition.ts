@@ -1,18 +1,15 @@
-import { HaproxySchema, sampleExpressionNameSets } from "./schema";
+import { HaproxySchema, keywordGroupSet, sampleExpressionNameSets } from "./schema";
 import { findClosingBrace, findExprEnd, readIdentifier, skipSpace } from "./expressionParsing";
 import { ExpressionSpan, SampleDiagnostic, validateExpressionBody } from "./sampleExpression";
 
 function isAclOnlyCriterion(
   name: string,
-  schema: HaproxySchema,
+  aclCriteria: Set<string>,
   fetchNames: Set<string>,
   fetches: Record<string, import("./schema").SampleFunction>,
 ): boolean {
   const lower = name.toLowerCase();
-  const inAcl = (schema.keyword_groups.acl_criteria ?? []).some(
-    (criterion) => criterion.toLowerCase() === lower,
-  );
-  if (!inAcl) {
+  if (!aclCriteria.has(lower)) {
     return false;
   }
   if (fetchNames.has(lower) || fetches[name] || fetches[lower]) {
@@ -50,6 +47,7 @@ export function validateAclConditions(lineText: string, schema: HaproxySchema): 
   const fetches = schema.sample_fetches ?? {};
   const converters = schema.sample_converters ?? {};
   const { fetchNames, convNames } = sampleExpressionNameSets(schema);
+  const aclCriteria = keywordGroupSet(schema, "acl_criteria");
 
   const issues: SampleDiagnostic[] = [];
   for (const span of extractAclConditionSpans(lineText)) {
@@ -82,7 +80,7 @@ export function validateAclConditions(lineText: string, schema: HaproxySchema): 
         pos += 1;
         continue;
       }
-      const aclOnly = isAclOnlyCriterion(id.name, schema, fetchNames, fetches);
+      const aclOnly = isAclOnlyCriterion(id.name, aclCriteria, fetchNames, fetches);
       const after = skipSpace(body, id.end);
       if (after < body.length && body[after] === "(") {
         const end = findExprEnd(body, after);

@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 
 import { findArgumentValue, getKeywordFromSchema } from "../../directiveUtils";
-import { groupItems } from "../../documentContext";
+import { lineOptionGroupForKind } from "../../domainMaps";
+import { findIndexedGroupItem } from "../../languageDataIndexes";
 import { findStatementRule } from "../../statementLayout";
 import { findGroupItem } from "../helpers";
 import {
@@ -15,9 +16,10 @@ import { HoverContext } from "../types";
 export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
   const { ctx, data, schema, range, tokenLower } = hc;
 
-  const lineOptionGroup =
-    ctx.kind === "bind" ? "bind_options" : ctx.kind === "server" ? "server_options" : null;
-  const lineOptionRule = lineOptionGroup ? findStatementRule(schema, ctx.line) : undefined;
+  const lineOptionGroup = lineOptionGroupForKind(ctx.kind);
+  const lineOptionRule = lineOptionGroup
+    ? (hc.analyzed?.statement.rule ?? findStatementRule(schema, ctx.line))
+    : undefined;
   const lineOptionStart = resolveLineOptionStartIndex(ctx.line, lineOptionRule);
   if (!lineOptionGroup || lineOptionStart < 0 || ctx.tokenIndex < lineOptionStart) {
     return null;
@@ -44,9 +46,7 @@ export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
     }
   }
   const effectiveKeyword = active?.keyword ?? tokenLower;
-  const group = groupItems(data, lineOptionGroup).find(
-    (g) => g.name.toLowerCase() === effectiveKeyword,
-  );
+  const group = findIndexedGroupItem(data, lineOptionGroup, effectiveKeyword);
   if (!group?.description && !group?.examples?.length) {
     return null;
   }
