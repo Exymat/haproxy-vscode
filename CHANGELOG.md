@@ -2,6 +2,11 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.5
+
+- Fixed `userlist user` validation — `password` and `insecure-password` are recognized as separate option keywords (e.g. `user alice insecure-password … groups admins`).
+- Refreshed schemas (2.6–3.4) with corrected pipe-separated enum values in argument models.
+
 ## 0.12.4
 
 - Rule-action hover resolves parenthesized names (e.g. `set-var-fmt(txn.foo)`) and prefers the current ruleset's action list.
