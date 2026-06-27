@@ -14,6 +14,7 @@ import {
   noPrefixKeywordSet,
   optionsWithValueSet,
   prefixFamilies,
+  prefixFamilySet,
   prefixSubcommandSet,
   sampleExpressionNameSets,
   sectionKeywordSet,
@@ -121,6 +122,8 @@ describe("schema helpers", () => {
 
   it("exposes prefix families from line_layout", () => {
     expect(prefixFamilies(schema)).toContain("stats");
+    expect(prefixFamilySet(schema)).toBe(prefixFamilySet(schema));
+    expect(prefixFamilySet(schema).has("stats")).toBe(true);
     const first = prefixSubcommandSet(schema, "stats");
     const second = prefixSubcommandSet(schema, "stats");
     expect(first).toBe(second);

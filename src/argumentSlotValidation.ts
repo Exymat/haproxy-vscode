@@ -1,4 +1,4 @@
-import { enumNamesForSlot } from "./argumentEnumUtils";
+import { enumNamesForSlotLower } from "./argumentEnumUtils";
 import { ArgumentModel, ArgumentSlot } from "./schema";
 import { ResolvedSchemaKeyword } from "./keywordVariant";
 
@@ -20,7 +20,7 @@ export function enumValuesForSlotLower(
   schemaKw: ResolvedSchemaKeyword | undefined,
   position: number,
 ): string[] {
-  return enumNamesForSlot(slot, schemaKw, position).map((v) => v.toLowerCase());
+  return enumNamesForSlotLower(slot, schemaKw, position);
 }
 
 export function matchesLaterEnumSlot(

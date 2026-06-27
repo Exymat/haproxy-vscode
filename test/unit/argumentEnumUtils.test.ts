@@ -3,6 +3,7 @@ import {
   enumDescriptionsForKeyword,
   enumNamesForArgumentPosition,
   enumNamesForSlot,
+  enumNamesForSlotLower,
   filterDirectiveKeywordParts,
   mergeEnumValues,
   normalizeEnumDisplayName,
@@ -91,6 +92,10 @@ describe("argumentEnumUtils", () => {
     expect(
       enumNamesForSlot({ enum: ["roundrobin"] }, schemaKw, 0).map((n) => n.toLowerCase()),
     ).toContain("roundrobin");
+  });
+
+  it("enumNamesForSlotLower lowercases without schema keyword cache", () => {
+    expect(enumNamesForSlotLower({ enum: ["HTTP", "TCP"] }, undefined, 0)).toEqual(["http", "tcp"]);
   });
 
   it("enumNamesForSlot merges signature and doc enums", () => {

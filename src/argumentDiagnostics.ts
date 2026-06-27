@@ -16,12 +16,12 @@ import {
   httpSendNameHeaderDiagnostics,
   mysqlCheckOptionDiagnostics,
 } from "./argumentHandlers/specialKeywords";
-import { argumentTokenIndices } from "./directiveUtils";
+import { argumentTokenIndices, conditionalStartIndex } from "./directiveUtils";
 import { LineDiagnosticMemo } from "./diagnosticContext";
 import { makeLineDiagnostic } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
 import { resolveSchemaKeyword } from "./keywordVariant";
-import { conditionalTokenSet, HaproxySchema, prefixFamilies } from "./schema";
+import { conditionalTokenSet, HaproxySchema, prefixFamilySet } from "./schema";
 import { isLikelyValue } from "./tokenUtils";
 
 const SKIP_KEYWORDS = new Set([
@@ -72,26 +72,32 @@ export function argumentModelDiagnostics(
       return [];
     }
   }
-  if (prefixFamilies(schema).includes(keyword) || (t0 && prefixFamilies(schema).includes(t0))) {
+  const prefixFamilies = prefixFamilySet(schema);
+  if (prefixFamilies.has(keyword) || (t0 && prefixFamilies.has(t0))) {
     return [];
   }
 
   const fullKeyword = schema.keywords[keyword];
   const schemaKw = resolveSchemaKeyword(fullKeyword, line.section);
   const model = schemaKw?.argument_model;
-
-  const argIndices = argumentTokenIndices(line, match.end);
-  const conditionals = conditionalTokenSet(schema);
   const diagnostics: vscode.Diagnostic[] = [];
+  let conditionals: Set<string> | undefined;
+  const getConditionals = (): Set<string> => {
+    conditionals ??= conditionalTokenSet(schema);
+    return conditionals;
+  };
+  const argsEnd = conditionalStartIndex(line, match.end);
 
   if (keyword === "cookie") {
-    return cookieArgumentDiagnostics(line, match, argIndices, conditionals);
+    const argIndices = argumentTokenIndices(line, match.end);
+    return cookieArgumentDiagnostics(line, match, argIndices, getConditionals());
   }
 
   if (keyword === "balance") {
     if (!model || model.max_args === null || model.max_args === undefined) {
       return [];
     }
+    const argIndices = argumentTokenIndices(line, match.end);
     return balanceArgumentDiagnostics(
       line,
       match,
@@ -99,14 +105,16 @@ export function argumentModelDiagnostics(
       model,
       schemaKw,
       schema,
-      conditionals,
+      getConditionals(),
     );
   }
 
   if (keyword === "option mysql-check") {
-    return mysqlCheckOptionDiagnostics(line, match, argIndices, conditionals);
+    const argIndices = argumentTokenIndices(line, match.end);
+    return mysqlCheckOptionDiagnostics(line, match, argIndices, getConditionals());
   }
   if (keyword === "http-send-name-header") {
+    const argIndices = argumentTokenIndices(line, match.end);
     return httpSendNameHeaderDiagnostics(line, argIndices, schema.version);
   }
 
@@ -115,10 +123,10 @@ export function argumentModelDiagnostics(
   }
 
   if (
-    argIndices.length < model.min_args &&
+    argsEnd - match.end - 1 < model.min_args &&
     !allowsMissingArgs(schemaKw, model, fullKeyword?.signatures)
   ) {
-    const missing = model.min_args - argIndices.length;
+    const missing = model.min_args - (argsEnd - match.end - 1);
     diagnostics.push(
       makeArgDiagnostic(
         line,
@@ -131,8 +139,7 @@ export function argumentModelDiagnostics(
   }
 
   let slotIdx = 0;
-  for (let pos = 0; pos < argIndices.length; pos += 1) {
-    const tokenIdx = argIndices[pos];
+  for (let tokenIdx = match.end + 1; tokenIdx < argsEnd; tokenIdx += 1) {
     const value = line.tokens[tokenIdx].text;
     const lower = value.toLowerCase();
     const base = lower.split("(", 1)[0];
@@ -143,8 +150,7 @@ export function argumentModelDiagnostics(
       const allowedValues = enumValuesForSlot(slot, schemaKw, slotIdx);
 
       if (allowedValues.length > 0) {
-        const allowedSet = new Set(allowedValues);
-        const matches = allowedSet.has(lower) || allowedSet.has(base);
+        const matches = allowedValues.includes(lower) || allowedValues.includes(base);
         if (!matches) {
           if (slot.optional) {
             if (isKeywordValuePair(slot, model.slots[slotIdx + 1])) {
@@ -155,7 +161,7 @@ export function argumentModelDiagnostics(
               slotIdx += 1;
               continue;
             }
-            if (!isLikelyValue(lower, conditionals)) {
+            if (!isLikelyValue(lower, getConditionals())) {
               diagnostics.push(
                 makeArgDiagnostic(
                   line,
@@ -169,7 +175,7 @@ export function argumentModelDiagnostics(
             slotIdx += 1;
             break;
           }
-          if (!isLikelyValue(lower, conditionals)) {
+          if (!isLikelyValue(lower, getConditionals())) {
             diagnostics.push(
               makeArgDiagnostic(
                 line,

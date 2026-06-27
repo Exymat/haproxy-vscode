@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { enumNamesForSlot } from "../argumentEnumUtils";
+import { enumNamesForSlotLower } from "../argumentEnumUtils";
 import { makeLineDiagnostic } from "../diagnosticUtils";
 import { ResolvedSchemaKeyword } from "../keywordVariant";
 import { ArgumentModel, HaproxySchema } from "../schema";
@@ -19,7 +19,7 @@ function enumValuesForSlot(
   schemaKw: ResolvedSchemaKeyword | undefined,
   position: number,
 ): string[] {
-  return enumNamesForSlot(slot, schemaKw, position).map((v) => v.toLowerCase());
+  return enumNamesForSlotLower(slot, schemaKw, position);
 }
 
 function allowsMissingArgs(

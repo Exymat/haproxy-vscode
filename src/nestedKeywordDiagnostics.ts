@@ -2,15 +2,10 @@ import * as vscode from "vscode";
 
 import { DiagnosticContext } from "./diagnosticContext";
 import { diagRange, diagRangeForTokens, makeDiagnostic } from "./diagnosticUtils";
+import { conditionalStartIndex } from "./directiveUtils";
 import { resolveLineOptionStartIndex } from "./hover/lineOptions";
 import { ParsedLine } from "./parser";
-import {
-  conditionalTokenSet,
-  HaproxySchema,
-  keywordGroupSet,
-  prefixFamilies,
-  prefixSubcommandSet,
-} from "./schema";
+import { HaproxySchema, keywordGroupSet, prefixFamilySet, prefixSubcommandSet } from "./schema";
 import { RuntimeMode } from "./sectionMode";
 import { resolveSubcommandSpan } from "./tokenUtils";
 
@@ -52,12 +47,19 @@ function modeContextDiagnostic(
     /* c8 ignore next -- contextDiagnostics callers already guarantee both mode and non-empty contexts */
     return null;
   }
-  const normalized = contexts.map((c) => c.toLowerCase());
-  const modeSet = ["tcp", "http", "log"];
-  if (!normalized.some((ctx) => modeSet.includes(ctx))) {
-    return null;
+  let hasModeContext = false;
+  let modeSupported = false;
+  for (const context of contexts) {
+    const normalized = context.toLowerCase();
+    if (normalized === "tcp" || normalized === "http" || normalized === "log") {
+      hasModeContext = true;
+      if (normalized === mode) {
+        modeSupported = true;
+        break;
+      }
+    }
   }
-  if (normalized.includes(mode)) {
+  if (!hasModeContext || modeSupported) {
     return null;
   }
   return makeDiagnostic(
@@ -95,7 +97,7 @@ export function topLevelDiagnostics(ctx: DiagnosticContext, line: ParsedLine): v
   }
 
   const prefix = line.tokens[0]?.text.toLowerCase();
-  if (prefix && prefixFamilies(ctx.schema).includes(prefix)) {
+  if (prefix && prefixFamilySet(ctx.schema).has(prefix)) {
     const sub = resolveSubcommandSpan(
       line,
       allowed,
@@ -174,10 +176,11 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
     const start = resolveLineOptionStartIndex(line, rule);
     if (groupName && start >= 0) {
       const groupContexts = ctx.schema.keyword_group_contexts?.[groupName] ?? {};
+      if (Object.keys(groupContexts).length === 0) {
+        return diagnostics;
+      }
       const allowedGroup = keywordGroupSet(ctx.schema, groupName);
-      const conditionals = conditionalTokenSet(ctx.schema);
-      const condStart = line.tokens.findIndex((tok) => conditionals.has(tok.text.toLowerCase()));
-      const limit = condStart >= 0 ? condStart : line.tokens.length;
+      const limit = conditionalStartIndex(line, 0);
       for (let i = start; i < limit; i += 1) {
         const option = line.tokens[i].text.toLowerCase().replace(/\*$/, "");
         if (!allowedGroup.has(option)) {

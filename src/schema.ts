@@ -168,6 +168,7 @@ const sampleExpressionNameCache = new WeakMap<
   { fetchNames: Set<string>; convNames: Set<string> }
 >();
 const prefixSubcommandCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
+const prefixFamilyCache = new WeakMap<HaproxySchema, Set<string>>();
 const tcpRequestPhaseCache = new WeakMap<HaproxySchema, Set<string>>();
 const tcpResponsePhaseCache = new WeakMap<HaproxySchema, Set<string>>();
 const statsSocketLevelCache = new WeakMap<HaproxySchema, Set<string>>();
@@ -190,6 +191,16 @@ export function clearSchemaCache(): void {
 
 export function prefixFamilies(schema: HaproxySchema): string[] {
   return schema.line_layout?.prefix_families ?? [...FALLBACK_PREFIX_FAMILIES];
+}
+
+export function prefixFamilySet(schema: HaproxySchema): Set<string> {
+  const cached = prefixFamilyCache.get(schema);
+  if (cached) {
+    return cached;
+  }
+  const result = new Set(prefixFamilies(schema).map((value) => value.toLowerCase()));
+  prefixFamilyCache.set(schema, result);
+  return result;
 }
 
 export function prefixSubcommandSet(schema: HaproxySchema, prefix: string): Set<string> {

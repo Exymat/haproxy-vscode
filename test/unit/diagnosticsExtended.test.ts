@@ -107,6 +107,19 @@ describe("diagnostics extended branches", () => {
     expect(diags.some((d) => d.code === "wrong-context")).toBe(false);
   });
 
+  it("skips bind option context checks when group context map is empty", () => {
+    const schema = structuredClone(bundle34.schema);
+    schema.keyword_group_contexts = {
+      ...schema.keyword_group_contexts,
+      bind_options: {},
+    };
+    const doc = createDocument("frontend x\n    mode tcp\n    bind :80 idle-ping ssl");
+    const diags = computeDiagnostics(doc, schema, {
+      languageData: bundle34.languageData,
+    });
+    expect(diags.some((d) => d.code === "wrong-context")).toBe(false);
+  });
+
   it("reports wrong-context for bind option in incompatible mode", () => {
     const doc = createDocument("frontend x\n    mode spop\n    bind :80 idle-ping");
     const diags = computeDiagnostics(doc, bundle34.schema, {

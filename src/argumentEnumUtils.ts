@@ -2,6 +2,7 @@ import { LanguageArgumentParam, LanguageKeyword } from "./languageData";
 import { ArgumentSlot, SchemaArgumentParam, SchemaKeyword } from "./schema";
 
 const enumSlotCache = new WeakMap<SchemaKeyword, Map<string, string[]>>();
+const enumSlotLowerCache = new WeakMap<SchemaKeyword, Map<string, string[]>>();
 
 function cacheKeyForSchemaKeyword(schemaKw: SchemaKeyword | undefined): SchemaKeyword | null {
   return schemaKw ?? null;
@@ -106,6 +107,30 @@ export function enumNamesForSlot(
     return result;
   }
   return computeEnumNamesForSlot(slot, schemaKw, position);
+}
+
+export function enumNamesForSlotLower(
+  slot: ArgumentSlot | undefined,
+  schemaKw: SchemaKeyword | undefined,
+  position: number,
+): string[] {
+  const cacheOwner = cacheKeyForSchemaKeyword(schemaKw);
+  if (cacheOwner) {
+    const cacheKey = enumSlotCacheKey(slot, position);
+    let perKeyword = enumSlotLowerCache.get(cacheOwner);
+    if (!perKeyword) {
+      perKeyword = new Map();
+      enumSlotLowerCache.set(cacheOwner, perKeyword);
+    }
+    const cached = perKeyword.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    const result = enumNamesForSlot(slot, schemaKw, position).map((value) => value.toLowerCase());
+    perKeyword.set(cacheKey, result);
+    return result;
+  }
+  return enumNamesForSlot(slot, schemaKw, position).map((value) => value.toLowerCase());
 }
 
 function computeEnumNamesForSlot(

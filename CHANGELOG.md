@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.3
+
+- Argument validation stops at `if`/`unless` — condition tokens are no longer counted as missing or extra directive arguments.
+- Fewer false wrong-context warnings on `bind`/`server` options when the schema has no mode context for that option group.
+- Faster diagnostics — delimiter checks skip lines without brackets or quotes; nested-keyword validation runs only on relevant statement types.
+
 ## 0.12.2
 
 - Refreshed keyword data for all supported versions (2.6–3.4) — bind/server line options now carry schema metadata for parent context, manual chapter, and value-taking behavior.

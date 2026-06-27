@@ -17,6 +17,22 @@ import {
 } from "./statementLayout";
 import { isLikelyValue, normalizeActionName } from "./tokenUtils";
 
+const NESTED_DIAGNOSTIC_KEYWORDS = new Set([
+  "option",
+  "no",
+  "acl",
+  "stats",
+  "tcp-request",
+  "tcp-response",
+  "http-request",
+  "http-response",
+  "http-after-response",
+  "mode",
+  "balance",
+  "bind",
+  "server",
+]);
+
 type NestedKeywordHandler = (
   ctx: DiagnosticContext,
   line: ParsedLine,
@@ -139,6 +155,11 @@ export function unknownNestedDiagnostics(
   ctx: DiagnosticContext,
   line: ParsedLine,
 ): vscode.Diagnostic[] {
+  const t0 = line.tokens[0]?.text.toLowerCase();
+  if (!t0 || !NESTED_DIAGNOSTIC_KEYWORDS.has(t0)) {
+    return [];
+  }
+
   for (const handler of NESTED_KEYWORD_HANDLERS) {
     const result = handler(ctx, line);
     if (result !== null) {
@@ -148,7 +169,6 @@ export function unknownNestedDiagnostics(
 
   const diagnostics: vscode.Diagnostic[] = [];
   const { statementRule: rule } = ctx.getLineMemo(line);
-  const t0 = line.tokens[0]?.text.toLowerCase();
 
   const phaseIdx = resolvePhaseTokenIndex(rule, line);
   if (phaseIdx !== null && (t0 === "tcp-request" || t0 === "tcp-response")) {

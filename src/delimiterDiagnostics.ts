@@ -54,8 +54,26 @@ function advancePastEscape(lineText: string, pos: number): number {
   return pos + 1;
 }
 
+function mightContainDelimiters(lineText: string): boolean {
+  return (
+    lineText.includes("#") ||
+    lineText.includes('"') ||
+    lineText.includes("'") ||
+    lineText.includes("%[") ||
+    lineText.includes("(") ||
+    lineText.includes(")") ||
+    lineText.includes("[") ||
+    lineText.includes("]") ||
+    lineText.includes("{") ||
+    lineText.includes("}")
+  );
+}
+
 /** Line-oriented delimiter balance check (strings and # comments respected). */
 export function validateLineDelimiters(lineText: string): DelimiterDiagnostic[] {
+  if (!mightContainDelimiters(lineText)) {
+    return [];
+  }
   const issues: DelimiterDiagnostic[] = [];
   const stack: OpenDelimiter[] = [];
   let squote: QuoteKind | null = null;
