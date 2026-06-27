@@ -11,6 +11,7 @@ export default defineConfig({
       include: ["src/**/*.ts"],
       exclude: [
         "src/symbolIndex.ts",
+        "src/symbolIndex/index.ts",
         "src/hover/index.ts",
         "src/hover/types.ts",
         "src/completion/types.ts",

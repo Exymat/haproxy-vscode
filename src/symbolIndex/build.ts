@@ -321,20 +321,57 @@ export function buildScopeKeyByLine(parsed: ParsedLine[]): (string | null)[] {
   return scopeKeyByLine;
 }
 
-export function buildSymbolIndex(parsed: ParsedLine[], schema: HaproxySchema): SymbolIndex {
+/** Collect definition/reference sites contributed by a single parsed line. */
+export function collectLineSymbolSites(
+  line: ParsedLine,
+  schema: HaproxySchema,
+  scopeKey: string | null,
+): SymbolSite[] {
   const definitions = new Map<string, SymbolSite[]>();
   const references: SymbolSite[] = [];
   const rules = schema.statement_rules ?? [];
+
+  if (isTopLevelSectionHeader(line)) {
+    collectSectionHeaderSites(line, definitions, references);
+  } else {
+    collectStatementRuleSites(line, schema, rules, scopeKey, definitions, references);
+  }
+
+  const sites: SymbolSite[] = [...references];
+  for (const defs of definitions.values()) {
+    sites.push(...defs);
+  }
+  return sites;
+}
+
+/** Stable fingerprint of symbol names/roles on a line (ignores positions). */
+export function symbolSiteFingerprint(sites: SymbolSite[]): string {
+  if (sites.length === 0) {
+    return "";
+  }
+  return sites
+    .map((site) => `${site.role}:${site.kind}:${site.scopeKey ?? ""}:${site.name.toLowerCase()}`)
+    .sort()
+    .join("\0");
+}
+
+export function buildLineFingerprints(parsed: ParsedLine[], schema: HaproxySchema): string[] {
+  const scopeKeyByLine = buildScopeKeyByLine(parsed);
+  return parsed.map((line) =>
+    symbolSiteFingerprint(collectLineSymbolSites(line, schema, scopeKeyByLine[line.line] ?? null)),
+  );
+}
+
+export function buildSymbolIndex(parsed: ParsedLine[], schema: HaproxySchema): SymbolIndex {
+  const definitions = new Map<string, SymbolSite[]>();
+  const references: SymbolSite[] = [];
   const scopeKeyByLine = buildScopeKeyByLine(parsed);
 
   for (const line of parsed) {
-    if (isTopLevelSectionHeader(line)) {
-      collectSectionHeaderSites(line, definitions, references);
-      continue;
-    }
-
     const scopeKey = scopeKeyByLine[line.line] ?? null;
-    collectStatementRuleSites(line, schema, rules, scopeKey, definitions, references);
+    for (const site of collectLineSymbolSites(line, schema, scopeKey)) {
+      addSite(definitions, references, site);
+    }
   }
 
   return {

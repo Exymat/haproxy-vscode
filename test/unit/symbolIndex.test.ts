@@ -1,4 +1,6 @@
 import { parseDocument } from "../../src/parser";
+import * as parseCache from "../../src/parseCache";
+import { getParsedDocument, getParsedDocumentEntry } from "../../src/parseCache";
 import {
   buildSymbolIndex,
   findAllSites,
@@ -8,9 +10,10 @@ import {
   resolveSymbolAtPosition,
   symbolKey,
 } from "../../src/symbolIndex";
-import { createDocument } from "../helpers/document";
+import { createDocument, updateDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 import type { Position, TextDocument } from "vscode";
+import { vi } from "vitest";
 
 const schema = loadSchema("3.4");
 
@@ -49,6 +52,97 @@ describe("symbolIndex extended", () => {
     const lines = Array.from({ length: 5000 }, (_, i) => (i === 0 ? "global" : "    # pad"));
     const document = doc(lines.join("\n"));
     expect(getSymbolIndex(document, schema, 4000)).toBeNull();
+  });
+
+  it("getSymbolIndex reuses index when a single-line edit does not change symbols", () => {
+    const document = doc("global\n    maxconn 4096\nbackend api\n    server s1 127.0.0.1:80");
+    getParsedDocument(document);
+    const first = getSymbolIndex(document, schema, 4000);
+    updateDocument(document, "global\n    maxconn 8192\nbackend api\n    server s1 127.0.0.1:80");
+    getParsedDocument(document);
+    const second = getSymbolIndex(document, schema, 4000);
+    expect(second).toBe(first);
+  });
+
+  it("getSymbolIndex rebuilds when a single-line edit changes a symbol definition", () => {
+    const document = doc("backend api\n    server s1 127.0.0.1:80");
+    getParsedDocument(document);
+    const first = getSymbolIndex(document, schema, 4000);
+    updateDocument(document, "backend api\n    server s2 127.0.0.1:80");
+    getParsedDocument(document);
+    const second = getSymbolIndex(document, schema, 4000);
+    expect(second).not.toBe(first);
+    expect(second?.definitions.get("server:backend:api:s2")).toHaveLength(1);
+  });
+
+  it("getSymbolIndex rebuilds when a single-line edit changes a symbol reference", () => {
+    const document = doc("backend api\nfrontend web\n    default_backend api");
+    getParsedDocument(document);
+    const first = getSymbolIndex(document, schema, 4000);
+    updateDocument(document, "backend api\nfrontend web\n    default_backend other");
+    getParsedDocument(document);
+    const second = getSymbolIndex(document, schema, 4000);
+    expect(second).not.toBe(first);
+    expect(second).not.toBeNull();
+    if (!second) {
+      return;
+    }
+    expect(findReferences(second, "proxy-section", "other", null)).toHaveLength(1);
+  });
+
+  it("getSymbolIndex rebuilds when a section header line is edited", () => {
+    const document = doc("backend api\n    server s1 127.0.0.1:80");
+    getParsedDocument(document);
+    const first = getSymbolIndex(document, schema, 4000);
+    updateDocument(document, "backend renamed\n    server s1 127.0.0.1:80");
+    getParsedDocument(document);
+    const second = getSymbolIndex(document, schema, 4000);
+    expect(second).not.toBe(first);
+    expect(second?.definitions.get("proxy-section:renamed")).toHaveLength(1);
+  });
+
+  it("getSymbolIndex rebuilds when line count changes", () => {
+    const document = doc("global\n    maxconn 4096");
+    getParsedDocument(document);
+    const first = getSymbolIndex(document, schema, 4000);
+    updateDocument(document, "global\n    maxconn 4096\n    daemon");
+    getParsedDocument(document);
+    const second = getSymbolIndex(document, schema, 4000);
+    expect(second).not.toBe(first);
+  });
+
+  it("getSymbolIndex rebuilds when parse reuse has no previous version", () => {
+    const document = doc("global\n    maxconn 4096");
+    getParsedDocument(document);
+    const first = getSymbolIndex(document, schema, 4000);
+    updateDocument(document, "global\n    maxconn 8192");
+    const realEntry = getParsedDocumentEntry(document);
+    vi.spyOn(parseCache, "getParsedDocumentEntry").mockReturnValueOnce({
+      ...realEntry,
+      reuse: { ...realEntry.reuse, previousVersion: null },
+    });
+    const second = getSymbolIndex(document, schema, 4000);
+    expect(second).not.toBe(first);
+    vi.restoreAllMocks();
+  });
+
+  it("getSymbolIndex rebuilds when multiple lines are reparsed", () => {
+    const document = doc(
+      ["defaults", "    mode http", "    # comment", "    timeout client 50s"].join("\n"),
+    );
+    getParsedDocument(document);
+    const first = getSymbolIndex(document, schema, 4000);
+    updateDocument(
+      document,
+      ["defaults", "    mode http", "frontend web", "    timeout client 50s"].join("\n"),
+    );
+    const entry = getParsedDocumentEntry(document);
+    expect(entry.reuse.suffixLines).toBe(0);
+    expect(entry.parsed.length - entry.reuse.prefixLines - entry.reuse.suffixLines).toBeGreaterThan(
+      1,
+    );
+    const second = getSymbolIndex(document, schema, 4000);
+    expect(second).not.toBe(first);
   });
 
   it("resolveSymbolAtPosition returns null without tokens", () => {
