@@ -296,10 +296,7 @@ function consumeOptionArguments(
         return pos + 1;
       }
     }
-    if (
-      pos >= condStart ||
-      allowed.has(line.tokens[pos].text.toLowerCase().replace(/\*$/, ""))
-    ) {
+    if (pos >= condStart || allowed.has(line.tokens[pos].text.toLowerCase().replace(/\*$/, ""))) {
       diagnostics.push(
         makeDiagnostic(
           line,

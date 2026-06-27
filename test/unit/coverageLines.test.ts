@@ -747,11 +747,16 @@ describe("coverage line gaps", () => {
     const insIndex = partialLine.tokens.findIndex((token) => token.text === "ins");
     const partialTokenIndex = insIndex >= 0 ? insIndex : partialLine.tokens.length;
     expect(
-      resolveNestedLineOptionSpan(bundle.schema, {
-        kind: "server",
-        line: partialLine,
-        tokenIndex: partialTokenIndex,
-      }, "server_options", 3)?.keyword,
+      resolveNestedLineOptionSpan(
+        bundle.schema,
+        {
+          kind: "server",
+          line: partialLine,
+          tokenIndex: partialTokenIndex,
+        },
+        "server_options",
+        3,
+      )?.keyword,
     ).toBe("cookie");
 
     vi.spyOn(directiveUtils, "getKeywordFromSchema").mockReturnValue({

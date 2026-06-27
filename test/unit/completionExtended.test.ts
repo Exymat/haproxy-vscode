@@ -477,12 +477,7 @@ describe("logFormatCompletionItems", () => {
 
   it("falls back to an empty prefix when no %-token precedes the offset", () => {
     const text = "plain text";
-    const items = logFormatCompletionItems(
-      bundle.languageData,
-      bundle.schema,
-      text,
-      text.length,
-    );
+    const items = logFormatCompletionItems(bundle.languageData, bundle.schema, text, text.length);
     const aliasCount = documentContext.groupItems(bundle.languageData, "logformat_aliases").length;
     expect(items).toHaveLength(aliasCount);
   });
