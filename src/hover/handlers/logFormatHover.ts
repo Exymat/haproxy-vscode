@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { logFormatContextAt, logFormatFlagAtOffset, logFormatItemAtOffset } from "../../logFormat";
-import { findGroupItemIn } from "../helpers";
+import { findIndexedGroupItem } from "../../languageDataIndexes";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
 
@@ -18,7 +18,7 @@ export function tryLogFormatHover(hc: HoverContext): vscode.Hover | null {
 
   const flagSpan = logFormatFlagAtOffset(region.text, localOffset);
   if (flagSpan) {
-    const flagDoc = findGroupItemIn(data, "logformat_flags", flagSpan.flag);
+    const flagDoc = findIndexedGroupItem(data, "logformat_flags", flagSpan.flag);
     if (flagDoc) {
       return new vscode.Hover(
         hoverMarkdown(flagSpan.flag, `${flagSpan.sign}${flagSpan.flag}`, flagDoc.description, []),
@@ -39,8 +39,8 @@ export function tryLogFormatHover(hc: HoverContext): vscode.Hover | null {
 
   if (item.kind === "alias" && item.alias) {
     const aliasDoc =
-      findGroupItemIn(data, "logformat_aliases", item.alias) ??
-      findGroupItemIn(data, "logformat_aliases", item.alias.toLowerCase());
+      findIndexedGroupItem(data, "logformat_aliases", item.alias) ??
+      findIndexedGroupItem(data, "logformat_aliases", item.alias.toLowerCase());
     const schemaAlias = schema.logformat_aliases?.[item.alias];
     if (!aliasDoc && !schemaAlias) {
       return null;

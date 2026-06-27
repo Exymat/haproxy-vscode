@@ -58878,6 +58878,28 @@
         "tunnel"
       ]
     },
+    "section_headers": [
+      "global",
+      "defaults",
+      "frontend",
+      "backend",
+      "listen",
+      "peers",
+      "userlist",
+      "resolvers",
+      "mailers",
+      "program",
+      "healthcheck",
+      "http-errors",
+      "ring",
+      "cache",
+      "crt-list",
+      "crt-store",
+      "traces",
+      "acme",
+      "log-forward",
+      "log-profile"
+    ],
     "stats_socket_levels": [
       "admin",
       "operator",

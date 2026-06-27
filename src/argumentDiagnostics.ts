@@ -5,18 +5,9 @@ import {
   matchesLaterEnumSlotInModel,
   skipOptionalSlotGroup,
 } from "./argumentSlotValidation";
-import {
-  allowsMissingArgs,
-  balanceArgumentDiagnostics,
-  enumValuesForSlot,
-  formatEnumHint,
-} from "./argumentHandlers/balance";
-import { cookieArgumentDiagnostics } from "./argumentHandlers/cookie";
-import {
-  httpSendNameHeaderDiagnostics,
-  mysqlCheckOptionDiagnostics,
-} from "./argumentHandlers/specialKeywords";
-import { argumentTokenIndices, conditionalStartIndex } from "./directiveUtils";
+import { allowsMissingArgs, enumValuesForSlot, formatEnumHint } from "./argumentHandlers/balance";
+import { runSpecialArgumentHandlers } from "./argumentHandlers/registry";
+import { conditionalStartIndex } from "./directiveUtils";
 import { LineDiagnosticMemo } from "./diagnosticContext";
 import { makeLineDiagnostic } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
@@ -24,20 +15,7 @@ import { resolveSchemaKeyword } from "./keywordVariant";
 import { conditionalTokenSet, HaproxySchema, prefixFamilySet } from "./schema";
 import { isLikelyValue } from "./tokenUtils";
 
-const SKIP_KEYWORDS = new Set([
-  "bind",
-  "server",
-  "acl",
-  "option",
-  "stats",
-  "http-request",
-  "http-response",
-  "tcp-request",
-  "tcp-response",
-  "http-after-response",
-  "http-check",
-  "tcp-check",
-]);
+import { ARGUMENT_MODEL_SKIP_KEYWORDS } from "./diagnosticKeywordSets";
 
 function makeArgDiagnostic(
   line: ParsedLine,
@@ -61,7 +39,7 @@ export function argumentModelDiagnostics(
   }
 
   const keyword = match.keyword.toLowerCase();
-  if (SKIP_KEYWORDS.has(keyword)) {
+  if (ARGUMENT_MODEL_SKIP_KEYWORDS.has(keyword)) {
     return [];
   }
 
@@ -88,34 +66,17 @@ export function argumentModelDiagnostics(
   };
   const argsEnd = conditionalStartIndex(line, match.end);
 
-  if (keyword === "cookie") {
-    const argIndices = argumentTokenIndices(line, match.end);
-    return cookieArgumentDiagnostics(line, match, argIndices, getConditionals());
-  }
-
-  if (keyword === "balance") {
-    if (!model || model.max_args === null || model.max_args === undefined) {
-      return [];
-    }
-    const argIndices = argumentTokenIndices(line, match.end);
-    return balanceArgumentDiagnostics(
-      line,
-      match,
-      argIndices,
-      model,
-      schemaKw,
-      schema,
-      getConditionals(),
-    );
-  }
-
-  if (keyword === "option mysql-check") {
-    const argIndices = argumentTokenIndices(line, match.end);
-    return mysqlCheckOptionDiagnostics(line, match, argIndices, getConditionals());
-  }
-  if (keyword === "http-send-name-header") {
-    const argIndices = argumentTokenIndices(line, match.end);
-    return httpSendNameHeaderDiagnostics(line, argIndices, schema.version);
+  const specialResult = runSpecialArgumentHandlers({
+    line,
+    schema,
+    match,
+    memo,
+    fullKeyword,
+    schemaKw,
+    getConditionals,
+  });
+  if (specialResult !== null) {
+    return specialResult;
   }
 
   if (!model || model.max_args === null || model.max_args === undefined) {

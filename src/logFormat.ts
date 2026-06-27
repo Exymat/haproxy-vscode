@@ -1,21 +1,7 @@
 import { ParsedToken } from "./parser";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema, LogformatAlias, LogformatSlot } from "./schema";
 
-export interface LogformatAlias {
-  name: string;
-  field_name: string;
-  sample_fetch: string;
-  type: string;
-  restrictions: string;
-  category: string;
-}
-
-export interface LogformatSlot {
-  kind: "line_tail" | "prefix";
-  directive?: string;
-  prefix?: string;
-  skip?: number;
-}
+export type { LogformatAlias, LogformatSlot };
 
 export type LogFormatItemKind = "alias" | "flags" | "named" | "expression";
 
@@ -114,7 +100,7 @@ function logformatSlots(schema: HaproxySchema): LogformatSlot[] {
     return cached;
   }
 
-  const fromSchema = (schema.logformat_slots ?? []) as LogformatSlot[];
+  const fromSchema = schema.logformat_slots ?? [];
   const slots =
     fromSchema.length > 0
       ? fromSchema

@@ -6,7 +6,7 @@ import { addSectionExtra, exampleBlock } from "../../../src/hover/markdown";
 import {
   resolveLineOptionStartIndex,
   resolveNestedLineOptionSpan,
-} from "../../../src/hover/lineOptions";
+} from "../../../src/lineOptionSpan";
 import { parseDocument } from "../../../src/parser";
 import * as documentContext from "../../../src/documentContext";
 import { getDocumentContext } from "../../../src/documentContext";

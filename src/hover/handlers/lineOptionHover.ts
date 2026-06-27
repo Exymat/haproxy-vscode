@@ -5,11 +5,8 @@ import { lineOptionGroupForKind } from "../../domainMaps";
 import { findIndexedGroupItem } from "../../languageDataIndexes";
 import { findStatementRule } from "../../statementLayout";
 import { findGroupItem } from "../helpers";
-import {
-  lineOptionChapter,
-  resolveLineOptionStartIndex,
-  resolveNestedLineOptionSpan,
-} from "../lineOptions";
+import { lineOptionChapter } from "../../lineOptionKeyword";
+import { resolveLineOptionStartIndex, resolveNestedLineOptionSpan } from "../../lineOptionSpan";
 import { addContextExtra, escapeMarkdownText, hoverMarkdown, signaturesBlock } from "../markdown";
 import { HoverContext } from "../types";
 

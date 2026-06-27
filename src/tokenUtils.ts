@@ -1,5 +1,47 @@
 import { ParsedLine, ParsedToken } from "./parser";
 
+/** Token index at a character offset, or null when the cursor is outside all tokens. */
+export function tokenAtPosition(
+  line: ParsedLine,
+  character: number,
+): { index: number; token: ParsedToken } | null {
+  for (let i = 0; i < line.tokens.length; i += 1) {
+    const tok = line.tokens[i];
+    if (character >= tok.start && character <= tok.end) {
+      return { index: i, token: tok };
+    }
+  }
+  return null;
+}
+
+/** Token index at a character offset, including whitespace before the next token. */
+export function resolveTokenIndex(
+  line: ParsedLine,
+  character: number,
+): { index: number; token: ParsedToken | null } {
+  const hit = tokenAtPosition(line, character);
+  if (hit) {
+    return hit;
+  }
+  for (let i = 0; i < line.tokens.length; i += 1) {
+    const tok = line.tokens[i];
+    if (character <= tok.end) {
+      break;
+    }
+    const next = line.tokens[i + 1];
+    if (!next || character < next.start) {
+      return { index: i + 1, token: null };
+    }
+  }
+  const last = Math.max(0, line.tokens.length - 1);
+  return { index: last, token: line.tokens[last] ?? null };
+}
+
+/** Token index at a character offset; returns null when outside all tokens. */
+export function tokenIndexAtPosition(line: ParsedLine, character: number): number | null {
+  return tokenAtPosition(line, character)?.index ?? null;
+}
+
 export function isWordToken(token: string): boolean {
   return /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(token);
 }

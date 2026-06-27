@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { groupItems } from "../../documentContext";
+import { indexedGroupItems, indexedGroupItemsByName } from "../../languageDataIndexes";
 import { actionGroupForCompletionKind } from "../../domainMaps";
 import { CompletionContext } from "../types";
 import { filterByPrefix, markdownDoc } from "../helpers";
@@ -10,9 +10,8 @@ export function tryActionCompletion(cc: CompletionContext): vscode.CompletionIte
   if (!actionKind) {
     return null;
   }
-  const actionItems = groupItems(cc.data, actionKind);
-  const actionsByName = new Map(actionItems.map((g) => [g.name, g]));
-  const actions = actionItems.map((g) => g.name);
+  const actionsByName = indexedGroupItemsByName(cc.data, actionKind);
+  const actions = indexedGroupItems(cc.data, actionKind).map((g) => g.name);
   return filterByPrefix(actions, cc.partial).map((name) => {
     const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Keyword);
     const group = actionsByName.get(name);

@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.6
+
+- Section parsing follows schema-defined section headers, staying aligned with each supported HAProxy version.
+- Clearer error when schema or language data fails to load (corrupt or incomplete bundle files).
+- Switching HAProxy version fully refreshes cached language data, indexes, and section configuration.
+
 ## 0.12.5
 
 - Fixed `userlist user` validation — `password` and `insecure-password` are recognized as separate option keywords (e.g. `user alice insecure-password … groups admins`).

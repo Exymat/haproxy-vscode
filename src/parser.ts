@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-export const SECTION_HEADERS = new Set([
+export const DEFAULT_SECTION_HEADERS = new Set([
   "global",
   "defaults",
   "frontend",
@@ -22,6 +22,19 @@ export const SECTION_HEADERS = new Set([
   "log-forward",
   "log-profile",
 ]);
+
+/** @deprecated Use DEFAULT_SECTION_HEADERS or configureSectionHeaders instead. */
+export const SECTION_HEADERS = DEFAULT_SECTION_HEADERS;
+
+let activeSectionHeaders = DEFAULT_SECTION_HEADERS;
+
+export function configureSectionHeaders(headers: Iterable<string>): void {
+  activeSectionHeaders = new Set([...headers].map((header) => header.toLowerCase()));
+}
+
+export function sectionHeaders(): Set<string> {
+  return activeSectionHeaders;
+}
 
 export interface ParsedToken {
   text: string;
@@ -141,7 +154,7 @@ export function parseLine(
 
   if (tokens.length > 0) {
     const first = tokens[0].text.toLowerCase();
-    if (SECTION_HEADERS.has(first)) {
+    if (sectionHeaders().has(first)) {
       currentSection = first;
       isSectionHeader = true;
       inAnonymousDefaults = first === "defaults" && tokens.length === 1;

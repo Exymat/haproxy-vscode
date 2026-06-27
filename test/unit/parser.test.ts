@@ -1,4 +1,10 @@
-import { parseDocument, tokenizeLine } from "../../src/parser";
+import {
+  parseDocument,
+  tokenizeLine,
+  configureSectionHeaders,
+  sectionHeaders,
+  DEFAULT_SECTION_HEADERS,
+} from "../../src/parser";
 import { createDocument } from "../helpers/document";
 
 describe("tokenizeLine", () => {
@@ -28,5 +34,15 @@ describe("tokenizeLine", () => {
     const doc = createDocument("defaults my-profile\n    maxconn 100");
     const parsed = parseDocument(doc);
     expect(parsed[0].anonymousDefaults).toBe(false);
+  });
+
+  it("uses configured section headers", () => {
+    configureSectionHeaders(["custom-section"]);
+    const doc = createDocument("custom-section my-block\n    mode http");
+    const parsed = parseDocument(doc);
+    expect(parsed[0].isSectionHeader).toBe(true);
+    expect(parsed[0].section).toBe("custom-section");
+    configureSectionHeaders(DEFAULT_SECTION_HEADERS);
+    expect(sectionHeaders()).toEqual(DEFAULT_SECTION_HEADERS);
   });
 });

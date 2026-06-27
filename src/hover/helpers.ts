@@ -14,14 +14,6 @@ export function findGroupItem(
   return undefined;
 }
 
-export function findGroupItemIn(
-  data: HaproxyLanguageData,
-  groupName: string,
-  name: string,
-): LanguageGroupItem | undefined {
-  return findIndexedGroupItem(data, groupName, name);
-}
-
 export function sampleTokenCandidates(tokenText: string, cursorOffset: number): string[] {
   const candidates: string[] = [];
   const seen = new Set<string>();

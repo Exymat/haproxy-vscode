@@ -28,15 +28,19 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   let bundleErrorShown = false;
+  const reportBundleError = (message: string): void => {
+    if (!bundleErrorShown) {
+      bundleErrorShown = true;
+      void vscode.window.showErrorMessage(`HAProxy extension failed to load schema: ${message}`);
+    }
+  };
+
   const safeEnsureBundle = async () => {
     try {
       return await ensureBundle();
     } catch (error) {
-      if (!bundleErrorShown) {
-        bundleErrorShown = true;
-        const message = error instanceof Error ? error.message : String(error);
-        void vscode.window.showErrorMessage(`HAProxy extension failed to load schema: ${message}`);
-      }
+      const message = error instanceof Error ? error.message : String(error);
+      reportBundleError(message);
       return undefined;
     }
   };
@@ -45,12 +49,7 @@ export function activate(context: vscode.ExtensionContext): void {
     diagnostics,
     () => cachedSettings,
     ensureBundle,
-    (message) => {
-      if (!bundleErrorShown) {
-        bundleErrorShown = true;
-        void vscode.window.showErrorMessage(`HAProxy extension failed to load schema: ${message}`);
-      }
-    },
+    reportBundleError,
   );
 
   activeScheduler = scheduler;

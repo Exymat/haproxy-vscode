@@ -1,4 +1,4 @@
-import { SECTION_HEADERS, tokenizeLine } from "./parser";
+import { sectionHeaders, tokenizeLine } from "./parser";
 
 /**
  * Layout rules follow HAProxy configuration.txt sections 2.1 and 2.2
@@ -76,7 +76,7 @@ function appendComment(line: string, commentSuffix: string | null): string {
 }
 
 function isSectionHeaderLine(tokens: { text: string }[]): boolean {
-  return SECTION_HEADERS.has(tokens[0].text.toLowerCase());
+  return sectionHeaders().has(tokens[0].text.toLowerCase());
 }
 
 function detectLineEnding(text: string): "\n" | "\r\n" {

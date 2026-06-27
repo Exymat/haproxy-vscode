@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 
-import { clearLanguageDataCache, HaproxyLanguageData, loadLanguageDataAsync } from "./languageData";
-import { clearSchemaCache, HaproxySchema, loadSchemaAsync } from "./schema";
+import { applyLoadedSchema, invalidateAllExtensionCaches } from "./cacheInvalidation";
+import { HaproxyLanguageData, loadLanguageDataAsync } from "./languageData";
+import { HaproxySchema, loadSchemaAsync } from "./schema";
 import { HaproxyVersion } from "./version";
 
 export interface ExtensionBundle {
@@ -56,6 +57,7 @@ export function createBundleLoader(
               return;
             }
             bundle = loaded;
+            applyLoadedSchema(loaded.schema);
             resolve(loaded);
           })().catch((error) => {
             /* c8 ignore next 3 -- stale load discarded after deactivate/reload */
@@ -80,8 +82,7 @@ export function createBundleLoader(
   };
 
   const invalidate = (): void => {
-    clearSchemaCache();
-    clearLanguageDataCache();
+    invalidateAllExtensionCaches();
     invalidateBundleLoad();
   };
 

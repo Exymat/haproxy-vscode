@@ -6,7 +6,7 @@ import { HaproxySchema } from "./schema";
 import { COMPLETION_HANDLERS } from "./completion/registry";
 import { CompletionContext } from "./completion/types";
 
-export { groupItems, keywordsForSection } from "./documentContext";
+export { groupItems, keywordsForSection } from "./languageDataIndexes";
 
 export function provideCompletionItems(
   document: vscode.TextDocument,

@@ -49,7 +49,7 @@ const SERVER_ADDRESS_OPTION_POLICIES: Record<string, AddressPolicyName> = {
   socks4: "serverSocks4",
 };
 
-function makeDiagnostic(
+function makeStmtDiagnostic(
   line: ParsedLine,
   tokenIndex: number,
   message: string,
@@ -69,7 +69,7 @@ function pushAddressResult(
     return;
   }
   const code = (result.code ?? "invalid-address") as StmtDiagCode;
-  diagnostics.push(makeDiagnostic(line, tokenIndex, result.message, code));
+  diagnostics.push(makeStmtDiagnostic(line, tokenIndex, result.message, code));
 }
 
 function policyForSlot(rule: StatementRule, spec: FixedSlotSpec, token: string): PortAddressPolicy {
@@ -99,7 +99,7 @@ function validateFixedSlots(line: ParsedLine, rule: StatementRule): vscode.Diagn
     const tokenIdx = 1 + slotIdx;
     if (tokenIdx >= limit) {
       diagnostics.push(
-        makeDiagnostic(
+        makeStmtDiagnostic(
           line,
           Math.max(1, line.tokens.length - 1),
           `'${rule.keyword}' is missing required argument`,
@@ -116,7 +116,7 @@ function validateFixedSlots(line: ParsedLine, rule: StatementRule): vscode.Diagn
       const lower = token.toLowerCase();
       if (lower === "check" || lower === "inter") {
         diagnostics.push(
-          makeDiagnostic(
+          makeStmtDiagnostic(
             line,
             tokenIdx,
             `'${token}' is a server parameter name, not a server name`,
@@ -255,7 +255,7 @@ function consumeOptionArguments(
       }
       if (tokenStartsOption) {
         diagnostics.push(
-          makeDiagnostic(
+          makeStmtDiagnostic(
             line,
             optionIndex,
             `'${line.tokens[optionIndex].text}' is missing required argument`,
@@ -298,7 +298,7 @@ function consumeOptionArguments(
     }
     if (pos >= condStart || allowed.has(line.tokens[pos].text.toLowerCase().replace(/\*$/, ""))) {
       diagnostics.push(
-        makeDiagnostic(
+        makeStmtDiagnostic(
           line,
           pendingValueKeyword.tokenIndex,
           `'${line.tokens[pendingValueKeyword.tokenIndex].text}' is missing required argument`,
@@ -310,7 +310,7 @@ function consumeOptionArguments(
 
   if (consumed < model.min_args) {
     diagnostics.push(
-      makeDiagnostic(
+      makeStmtDiagnostic(
         line,
         optionIndex,
         `'${line.tokens[optionIndex].text}' is missing required argument`,
@@ -367,7 +367,7 @@ function scanNestedOptions(
     }
 
     diagnostics.push(
-      makeDiagnostic(
+      makeStmtDiagnostic(
         line,
         i,
         `Unknown ${rule.keyword} parameter '${raw}'`,

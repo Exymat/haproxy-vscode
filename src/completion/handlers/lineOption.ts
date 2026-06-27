@@ -1,13 +1,10 @@
 import * as vscode from "vscode";
 
 import { argumentPosition, completionValuesForPosition } from "../../directiveUtils";
-import { groupItems } from "../../documentContext";
+import { indexedGroupItems, indexedGroupItemsByName } from "../../languageDataIndexes";
 import { lineOptionGroupForKind } from "../../domainMaps";
-import {
-  resolveLineOptionSchemaKeyword,
-  resolveLineOptionStartIndex,
-  resolveNestedLineOptionSpan,
-} from "../../hover/lineOptions";
+import { resolveLineOptionSchemaKeyword } from "../../lineOptionKeyword";
+import { resolveLineOptionStartIndex, resolveNestedLineOptionSpan } from "../../lineOptionSpan";
 import { resolveLanguageKeyword } from "../../keywordVariant";
 import { findStatementRule } from "../../statementLayout";
 import { CompletionContext } from "../types";
@@ -57,10 +54,9 @@ export function tryLineOptionCompletion(cc: CompletionContext): vscode.Completio
     });
   }
 
-  const optionItems = groupItems(cc.data, lineOptionGroup);
-  const optionsByName = new Map(optionItems.map((g) => [g.name, g]));
+  const optionsByName = indexedGroupItemsByName(cc.data, lineOptionGroup);
   return filterByPrefix(
-    optionItems.map((g) => g.name),
+    indexedGroupItems(cc.data, lineOptionGroup).map((g) => g.name),
     cc.partial,
   ).map((name) => {
     const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Value);

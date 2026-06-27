@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
-import { findGroupItem, findGroupItemIn, sampleTokenCandidates } from "../helpers";
+import { findIndexedGroupItem } from "../../languageDataIndexes";
+import { findGroupItem, sampleTokenCandidates } from "../helpers";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
 
@@ -13,8 +14,8 @@ export function tryExpressionHover(hc: HoverContext): vscode.Hover | null {
     }
     for (const candidate of sampleTokenCandidates(ctx.token.text, cursorOffset)) {
       const group =
-        findGroupItemIn(data, "sample_fetches", candidate) ??
-        findGroupItemIn(data, "acl_criteria", candidate) ??
+        findIndexedGroupItem(data, "sample_fetches", candidate) ??
+        findIndexedGroupItem(data, "acl_criteria", candidate) ??
         findGroupItem(data, candidate);
       if (group) {
         return new vscode.Hover(
@@ -39,8 +40,8 @@ export function tryExpressionHover(hc: HoverContext): vscode.Hover | null {
     for (const candidate of sampleTokenCandidates(ctx.token.text, cursorOffset)) {
       const group =
         (ctx.kind === "expression-fetch"
-          ? findGroupItemIn(data, "sample_fetches", candidate)
-          : findGroupItemIn(data, "sample_converters", candidate)) ??
+          ? findIndexedGroupItem(data, "sample_fetches", candidate)
+          : findIndexedGroupItem(data, "sample_converters", candidate)) ??
         findGroupItem(data, candidate);
       if (group) {
         return new vscode.Hover(

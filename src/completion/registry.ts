@@ -16,12 +16,12 @@ export const COMPLETION_HANDLERS: CompletionHandler[] = [
   tryLogFormatCompletion,
   trySectionCompletion,
   tryOptionCompletion,
+  tryLineOptionCompletion,
   tryUseServiceCompletion,
   tryActionCompletion,
   tryFilterCompletion,
   tryExpressionCompletion,
   tryAclCriterionCompletion,
   tryDirectiveArgumentCompletion,
-  tryLineOptionCompletion,
   tryDirectiveCompletion,
 ];

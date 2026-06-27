@@ -61,6 +61,23 @@ export interface HaproxyLanguageData {
 
 const languageDataCache = new Map<HaproxyVersion, HaproxyLanguageData>();
 
+function assertLanguageDataContract(data: HaproxyLanguageData): void {
+  if (!data.version || typeof data.version !== "string") {
+    throw new Error("HAProxy language data is missing a version string");
+  }
+  if (!data.keywords || typeof data.keywords !== "object") {
+    throw new Error("HAProxy language data is missing keywords");
+  }
+  if (!data.groups || typeof data.groups !== "object") {
+    throw new Error("HAProxy language data is missing groups");
+  }
+}
+
+function normalizeLanguageData(data: HaproxyLanguageData): HaproxyLanguageData {
+  assertLanguageDataContract(data);
+  return data;
+}
+
 export function clearLanguageDataCache(): void {
   languageDataCache.clear();
   clearLanguageDataIndexCache();
@@ -77,7 +94,7 @@ export function loadLanguageData(
   const filePath = path.join(context.extensionPath, "schemas", `haproxy-${version}.language.json`);
   try {
     const raw = fs.readFileSync(filePath, "utf-8");
-    const data = JSON.parse(raw) as HaproxyLanguageData;
+    const data = normalizeLanguageData(JSON.parse(raw) as HaproxyLanguageData);
     languageDataCache.set(version, data);
     return data;
   } catch (error) {
@@ -100,7 +117,7 @@ export async function loadLanguageDataAsync(
   const filePath = path.join(context.extensionPath, "schemas", `haproxy-${version}.language.json`);
   try {
     const raw = await fs.promises.readFile(filePath, "utf-8");
-    const data = JSON.parse(raw) as HaproxyLanguageData;
+    const data = normalizeLanguageData(JSON.parse(raw) as HaproxyLanguageData);
     languageDataCache.set(version, data);
     return data;
   } catch (error) {

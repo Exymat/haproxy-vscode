@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import * as directiveUtils from "../../../src/directiveUtils";
+import * as languageDataIndexes from "../../../src/languageDataIndexes";
 import { tryActionHover } from "../../../src/hover/handlers/actionHover";
 import { tryLogFormatHover } from "../../../src/hover/handlers/logFormatHover";
 import { tryOptionHover } from "../../../src/hover/handlers/optionHover";
-import * as hoverHelpers from "../../../src/hover/helpers";
 import {
   actionHoverContext,
   bundles,
@@ -237,13 +237,15 @@ describe("hover handlers", () => {
       );
       expect(minusFlagHover).not.toBeNull();
 
-      const origFindGroupItemIn = hoverHelpers.findGroupItemIn;
-      vi.spyOn(hoverHelpers, "findGroupItemIn").mockImplementation((data, group, name) => {
-        if (group === "logformat_flags") {
-          return undefined;
-        }
-        return origFindGroupItemIn(data, group, name);
-      });
+      const origFindIndexedGroupItem = languageDataIndexes.findIndexedGroupItem;
+      vi.spyOn(languageDataIndexes, "findIndexedGroupItem").mockImplementation(
+        (data, group, name) => {
+          if (group === "logformat_flags") {
+            return undefined;
+          }
+          return origFindIndexedGroupItem(data, group, name);
+        },
+      );
       const noDocFlagLine = '    log-format "%{+Q}"';
       expect(
         tryLogFormatHover(logFormatHoverContext(noDocFlagLine, noDocFlagLine.indexOf("Q"))),

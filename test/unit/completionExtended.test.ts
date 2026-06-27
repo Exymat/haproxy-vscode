@@ -2,10 +2,30 @@ import { provideCompletionItems } from "../../src/completion";
 import { logFormatCompletionItems } from "../../src/completion/helpers";
 import * as documentContext from "../../src/documentContext";
 import * as directiveUtils from "../../src/directiveUtils";
+import * as languageDataIndexes from "../../src/languageDataIndexes";
+import { LanguageGroupItem } from "../../src/languageData";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 
 const bundle = loadSchemaBundle("3.4");
+
+function mockOptionsGroupItems(items: LanguageGroupItem[]): void {
+  const byName = new Map(items.map((item) => [item.name, item]));
+  const origIndexedGroupItems = languageDataIndexes.indexedGroupItems;
+  const origIndexedGroupItemsByName = languageDataIndexes.indexedGroupItemsByName;
+  vi.spyOn(languageDataIndexes, "indexedGroupItems").mockImplementation((data, group) => {
+    if (group === "options") {
+      return items;
+    }
+    return origIndexedGroupItems(data, group);
+  });
+  vi.spyOn(languageDataIndexes, "indexedGroupItemsByName").mockImplementation((data, group) => {
+    if (group === "options") {
+      return byName;
+    }
+    return origIndexedGroupItemsByName(data, group);
+  });
+}
 
 function completionLabels(content: string, lineNo: number, character: number) {
   const doc = createDocument(content);
@@ -276,7 +296,6 @@ describe("completion extended", () => {
 
   it("builds option documentation from fallback no-option keyword", () => {
     const doc = createDocument("defaults\n    option legacy");
-    const originalGroupItems = documentContext.groupItems;
     const data = structuredClone(bundle.languageData);
     vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
       kind: "option",
@@ -292,12 +311,9 @@ describe("completion extended", () => {
         ],
       },
     } as never);
-    vi.spyOn(documentContext, "groupItems").mockImplementation((data, group) => {
-      if (group === "options") {
-        return [{ name: "legacy", description: "Legacy option", rulesets: [] }] as never;
-      }
-      return originalGroupItems(data, group);
-    });
+    mockOptionsGroupItems([
+      { name: "legacy", description: "Legacy option", signature: "legacy", rulesets: [] },
+    ]);
     data.keywords["option legacy"] = undefined as never;
     data.keywords["no option legacy"] = {
       name: "no option legacy",
@@ -351,7 +367,6 @@ describe("completion extended", () => {
 
   it("uses option group description/docs when language keyword docs are missing", () => {
     const doc = createDocument("defaults\n    option grouped");
-    const originalGroupItems = documentContext.groupItems;
     const data = structuredClone(bundle.languageData);
     vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
       kind: "option",
@@ -367,19 +382,15 @@ describe("completion extended", () => {
         ],
       },
     } as never);
-    vi.spyOn(documentContext, "groupItems").mockImplementation((d, group) => {
-      if (group === "options") {
-        return [
-          {
-            name: "grouped",
-            description: "Group-only description",
-            docsUrl: "https://example.test/grouped",
-            rulesets: [],
-          },
-        ] as never;
-      }
-      return originalGroupItems(d, group);
-    });
+    mockOptionsGroupItems([
+      {
+        name: "grouped",
+        description: "Group-only description",
+        signature: "grouped",
+        docsUrl: "https://example.test/grouped",
+        rulesets: [],
+      },
+    ]);
     data.keywords["option grouped"] = {
       name: "option grouped",
       signatures: ["option grouped"],
@@ -400,7 +411,6 @@ describe("completion extended", () => {
 
   it("uses option keyword description/docs when available", () => {
     const doc = createDocument("defaults\n    option directdoc");
-    const originalGroupItems = documentContext.groupItems;
     const data = structuredClone(bundle.languageData);
     vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
       kind: "option",
@@ -416,12 +426,9 @@ describe("completion extended", () => {
         ],
       },
     } as never);
-    vi.spyOn(documentContext, "groupItems").mockImplementation((d, group) => {
-      if (group === "options") {
-        return [{ name: "directdoc", description: "", rulesets: [] }] as never;
-      }
-      return originalGroupItems(d, group);
-    });
+    mockOptionsGroupItems([
+      { name: "directdoc", description: "", signature: "directdoc", rulesets: [] },
+    ]);
     data.keywords["option directdoc"] = {
       name: "option directdoc",
       signatures: ["option directdoc"],

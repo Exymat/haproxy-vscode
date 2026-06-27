@@ -122,6 +122,7 @@ export interface LineLayout {
   tcp_request_phases?: string[];
   tcp_response_phases?: string[];
   stats_socket_levels?: string[];
+  section_headers?: string[];
 }
 
 export interface LogformatSlot {
@@ -172,6 +173,30 @@ const prefixFamilyCache = new WeakMap<HaproxySchema, Set<string>>();
 const tcpRequestPhaseCache = new WeakMap<HaproxySchema, Set<string>>();
 const tcpResponsePhaseCache = new WeakMap<HaproxySchema, Set<string>>();
 const statsSocketLevelCache = new WeakMap<HaproxySchema, Set<string>>();
+const sectionHeaderSetCache = new WeakMap<HaproxySchema, Set<string>>();
+
+const FALLBACK_SECTION_HEADERS = [
+  "global",
+  "defaults",
+  "frontend",
+  "backend",
+  "listen",
+  "peers",
+  "userlist",
+  "resolvers",
+  "mailers",
+  "program",
+  "healthcheck",
+  "http-errors",
+  "ring",
+  "cache",
+  "crt-list",
+  "crt-store",
+  "traces",
+  "acme",
+  "log-forward",
+  "log-profile",
+] as const;
 
 const FALLBACK_PREFIX_FAMILIES = [
   "stats",
@@ -490,6 +515,39 @@ export function sectionNames(schema: HaproxySchema): string[] {
   return Object.keys(schema.sections).sort();
 }
 
+export function sectionHeaderSet(schema: HaproxySchema): Set<string> {
+  const cached = sectionHeaderSetCache.get(schema);
+  if (cached) {
+    return cached;
+  }
+  const fromLayout = schema.line_layout?.section_headers;
+  const headers =
+    fromLayout && fromLayout.length > 0
+      ? fromLayout
+      : [...new Set([...sectionNames(schema), ...FALLBACK_SECTION_HEADERS])];
+  const set = new Set(headers.map((header) => header.toLowerCase()));
+  sectionHeaderSetCache.set(schema, set);
+  return set;
+}
+
+function assertSchemaContract(data: HaproxySchema): void {
+  if (!data.version || typeof data.version !== "string") {
+    throw new Error("HAProxy schema is missing a version string");
+  }
+  if (!data.sections || typeof data.sections !== "object") {
+    throw new Error("HAProxy schema is missing sections");
+  }
+  if (!data.keywords || typeof data.keywords !== "object") {
+    throw new Error("HAProxy schema is missing keywords");
+  }
+  if (!Array.isArray(data.statement_rules)) {
+    throw new Error("HAProxy schema is missing statement_rules");
+  }
+  if (!data.tokens || typeof data.tokens !== "object") {
+    throw new Error("HAProxy schema is missing tokens");
+  }
+}
+
 function normalizeSchemaData(data: HaproxySchema): HaproxySchema {
   data.statement_rules = data.statement_rules ?? [];
   data.reference_patterns = data.reference_patterns ?? [];
@@ -497,5 +555,6 @@ function normalizeSchemaData(data: HaproxySchema): HaproxySchema {
   data.sample_converters = data.sample_converters ?? {};
   data.keyword_group_contexts = data.keyword_group_contexts ?? {};
   data.line_layout = data.line_layout ?? {};
+  assertSchemaContract(data);
   return data;
 }

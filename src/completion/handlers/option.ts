@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { groupItems } from "../../documentContext";
+import { indexedGroupItems, indexedGroupItemsByName } from "../../languageDataIndexes";
 import { COMMON_LANGUAGE_GROUPS } from "../../domainMaps";
 import { resolveLanguageKeyword } from "../../keywordVariant";
 import { CompletionContext } from "../types";
@@ -10,9 +10,8 @@ export function tryOptionCompletion(cc: CompletionContext): vscode.CompletionIte
   if (cc.ctx.kind !== "option") {
     return null;
   }
-  const optionItems = groupItems(cc.data, COMMON_LANGUAGE_GROUPS.options);
-  const optionsByName = new Map(optionItems.map((g) => [g.name, g]));
-  const options = optionItems.map((g) => g.name);
+  const optionsByName = indexedGroupItemsByName(cc.data, COMMON_LANGUAGE_GROUPS.options);
+  const options = indexedGroupItems(cc.data, COMMON_LANGUAGE_GROUPS.options).map((g) => g.name);
   return filterByPrefix(options, cc.partial).map((name) => {
     const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Value);
     const group = optionsByName.get(name);

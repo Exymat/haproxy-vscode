@@ -36,12 +36,14 @@ function buildLanguageDataIndexes(data: HaproxyLanguageData): LanguageDataIndexe
   const resolvedKeywordsBySection = new Map<string, ResolvedLanguageKeyword[]>();
   const sections = new Set<string>();
   for (const kw of Object.values(data.keywords)) {
-    for (const section of kw.sections) {
+    for (const section of kw.sections ?? []) {
       sections.add(section);
     }
   }
   for (const section of sections) {
-    const keywords = Object.values(data.keywords).filter((kw) => kw.sections.includes(section));
+    const keywords = Object.values(data.keywords).filter((kw) =>
+      (kw.sections ?? []).includes(section),
+    );
     keywordsBySection.set(section, keywords);
     resolvedKeywordsBySection.set(
       section,
@@ -74,6 +76,27 @@ export function indexedGroupItems(
   groupName: string,
 ): LanguageGroupItem[] {
   return data.groups[groupName] ?? [];
+}
+
+export function indexedGroupItemsByName(
+  data: HaproxyLanguageData,
+  groupName: string,
+): Map<string, LanguageGroupItem> {
+  return (
+    languageDataIndexes(data).groupItemsByName.get(groupName) ??
+    new Map<string, LanguageGroupItem>()
+  );
+}
+
+export function groupItems(data: HaproxyLanguageData, groupName: string): LanguageGroupItem[] {
+  return indexedGroupItems(data, groupName);
+}
+
+export function keywordsForSection(
+  data: HaproxyLanguageData,
+  section: string | null,
+): LanguageKeyword[] {
+  return indexedKeywordsForSection(data, section);
 }
 
 export function findIndexedGroupItem(

@@ -1,15 +1,13 @@
 import * as vscode from "vscode";
 
-import { HaproxyLanguageData, LanguageKeyword } from "./languageData";
+import { HaproxyLanguageData } from "./languageData";
 import { isConditionalOrStatusDirective } from "./conditionalDirectives";
 import { getParsedDocument } from "./parseCache";
 import { ParsedLine, ParsedToken } from "./parser";
 import { HaproxySchema, sectionNames, StatementRule } from "./schema";
 import { ruleMatchesLine } from "./statementLayout";
-
-import { indexedKeywordsForSection } from "./languageDataIndexes";
-
-const keywordsForSectionCache = new WeakMap<HaproxyLanguageData, Map<string, LanguageKeyword[]>>();
+import { keywordsForSection } from "./languageDataIndexes";
+import { resolveTokenIndex } from "./tokenUtils";
 
 export type CompletionKind =
   | "section"
@@ -26,8 +24,7 @@ export type CompletionKind =
   | "acl-criterion"
   | "filter"
   | "expression-fetch"
-  | "expression-converter"
-  | "none";
+  | "expression-converter";
 
 export interface DocumentContext {
   line: ParsedLine;
@@ -36,42 +33,6 @@ export interface DocumentContext {
   token: ParsedToken | null;
   kind: CompletionKind;
   prefix: string;
-}
-
-function tokenAtPosition(
-  line: ParsedLine,
-  character: number,
-): { index: number; token: ParsedToken } | null {
-  for (let i = 0; i < line.tokens.length; i += 1) {
-    const tok = line.tokens[i];
-    if (character >= tok.start && character <= tok.end) {
-      return { index: i, token: tok };
-    }
-  }
-  return null;
-}
-
-/** Map cursor position to a token index, including whitespace before the next token. */
-function resolveTokenIndex(
-  line: ParsedLine,
-  character: number,
-): { index: number; token: ParsedToken | null } {
-  const hit = tokenAtPosition(line, character);
-  if (hit) {
-    return hit;
-  }
-  for (let i = 0; i < line.tokens.length; i += 1) {
-    const tok = line.tokens[i];
-    if (character <= tok.end) {
-      break;
-    }
-    const next = line.tokens[i + 1];
-    if (!next || character < next.start) {
-      return { index: i + 1, token: null };
-    }
-  }
-  const last = Math.max(0, line.tokens.length - 1);
-  return { index: last, token: line.tokens[last] ?? null };
 }
 
 function linePrefixBeforeCursor(lineText: string, character: number): string {
@@ -163,33 +124,7 @@ export function getDocumentContext(
   return { line, lineText, tokenIndex, token, kind: "directive", prefix };
 }
 
-export function keywordsForSection(
-  data: HaproxyLanguageData,
-  section: string | null,
-): LanguageKeyword[] {
-  if (!section) {
-    return [];
-  }
-  let perData = keywordsForSectionCache.get(data);
-  if (!perData) {
-    perData = new Map();
-    keywordsForSectionCache.set(data, perData);
-  }
-  const cached = perData.get(section);
-  if (cached) {
-    return cached;
-  }
-  const result = indexedKeywordsForSection(data, section);
-  perData.set(section, result);
-  return result;
-}
-
-export function groupItems(
-  data: HaproxyLanguageData,
-  groupName: string,
-): HaproxyLanguageData["groups"][string] {
-  return data.groups[groupName] ?? [];
-}
+export { groupItems, keywordsForSection } from "./languageDataIndexes";
 
 export function sectionKeywordNames(data: HaproxyLanguageData, section: string | null): string[] {
   return keywordsForSection(data, section).map((kw) => kw.name);

@@ -1,0 +1,153 @@
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import { applyLoadedSchema, invalidateAllExtensionCaches } from "../../src/cacheInvalidation";
+import { isOptionLine, optionNameTokenIndex } from "../../src/optionLine";
+import {
+  configureSectionHeaders,
+  DEFAULT_SECTION_HEADERS,
+  parseDocument,
+  sectionHeaders,
+} from "../../src/parser";
+import {
+  findReferencePatternAtToken,
+  findReferencePatternMatches,
+} from "../../src/referencePatternMatching";
+import { loadLanguageData, clearLanguageDataCache } from "../../src/languageData";
+import { clearSchemaCache, loadSchema, ReferencePattern, sectionHeaderSet } from "../../src/schema";
+import { createDocument } from "../helpers/document";
+import { loadSchema as loadFixtureSchema } from "../helpers/schema";
+
+describe("refactor helpers", () => {
+  beforeEach(() => {
+    invalidateAllExtensionCaches();
+  });
+
+  it("detects option lines and option token index", () => {
+    const optionParsed = parseDocument(createDocument("defaults\n    option httplog"));
+    const bindParsed = parseDocument(createDocument("frontend web\n    bind :80"));
+    const optionLine = optionParsed.find((line) => line.tokens[0]?.text === "option");
+    const bindLine = bindParsed.find((line) => line.tokens[0]?.text === "bind");
+    expect(optionLine).toBeDefined();
+    expect(bindLine).toBeDefined();
+    if (!optionLine || !bindLine) {
+      return;
+    }
+    expect(isOptionLine(optionLine)).toBe(true);
+    expect(optionNameTokenIndex(optionLine)).toBe(1);
+    expect(isOptionLine(bindLine)).toBe(false);
+    expect(optionNameTokenIndex(bindLine)).toBe(-1);
+  });
+
+  it("matches reference patterns", () => {
+    const tokens = [
+      { text: "use-backend", start: 0, end: 11 },
+      { text: "web", start: 12, end: 15 },
+    ];
+    const pattern: ReferencePattern = {
+      match_tokens: ["use-backend"],
+      reference_kind: "backend",
+      target_token_index: 1,
+      scope: "global",
+    };
+    expect(findReferencePatternMatches(tokens, pattern)).toEqual([
+      {
+        start: 0,
+        targetIndex: 1,
+        targetToken: tokens[1],
+      },
+    ]);
+    expect(findReferencePatternAtToken(tokens, pattern, 1)?.targetToken.text).toBe("web");
+    expect(findReferencePatternAtToken(tokens, pattern, 0)).toBeNull();
+  });
+
+  it("derives section headers from schema and configures parser", () => {
+    const schema = loadFixtureSchema("3.4");
+    const headers = sectionHeaderSet(schema);
+    expect(headers.has("frontend")).toBe(true);
+    applyLoadedSchema(schema);
+    expect(sectionHeaders()).toEqual(headers);
+    configureSectionHeaders(DEFAULT_SECTION_HEADERS);
+    expect(sectionHeaders()).toEqual(DEFAULT_SECTION_HEADERS);
+  });
+
+  it("rejects invalid schema and language data contracts", () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "haproxy-contract-"));
+    const schemasDir = join(tempRoot, "schemas");
+    mkdirSync(schemasDir, { recursive: true });
+    const context = { extensionPath: tempRoot } as never;
+
+    writeFileSync(
+      join(schemasDir, "haproxy-3.4.schema.json"),
+      JSON.stringify({ version: "3.4", sections: {} }),
+      "utf-8",
+    );
+    clearSchemaCache();
+    expect(() => loadSchema(context, "3.4")).toThrow(/missing keywords/);
+
+    writeFileSync(
+      join(schemasDir, "haproxy-3.4.schema.json"),
+      JSON.stringify({ version: "", sections: {}, keywords: {}, tokens: {} }),
+      "utf-8",
+    );
+    clearSchemaCache();
+    expect(() => loadSchema(context, "3.4")).toThrow(/missing a version string/);
+
+    writeFileSync(
+      join(schemasDir, "haproxy-3.4.schema.json"),
+      JSON.stringify({ version: "3.4", keywords: {}, tokens: {} }),
+      "utf-8",
+    );
+    clearSchemaCache();
+    expect(() => loadSchema(context, "3.4")).toThrow(/missing sections/);
+
+    writeFileSync(
+      join(schemasDir, "haproxy-3.4.schema.json"),
+      JSON.stringify({ version: "3.4", sections: {}, keywords: {} }),
+      "utf-8",
+    );
+    clearSchemaCache();
+    expect(() => loadSchema(context, "3.4")).toThrow(/missing tokens/);
+
+    writeFileSync(
+      join(schemasDir, "haproxy-3.4.schema.json"),
+      JSON.stringify({
+        version: "3.4",
+        sections: {},
+        keywords: {},
+        tokens: {},
+        statement_rules: "invalid",
+      }),
+      "utf-8",
+    );
+    clearSchemaCache();
+    expect(() => loadSchema(context, "3.4")).toThrow(/missing statement_rules/);
+
+    writeFileSync(
+      join(schemasDir, "haproxy-3.4.language.json"),
+      JSON.stringify({ docsBaseUrl: "", keywords: {}, groups: {} }),
+      "utf-8",
+    );
+    clearLanguageDataCache();
+    expect(() => loadLanguageData(context, "3.4")).toThrow(/missing a version string/);
+
+    writeFileSync(
+      join(schemasDir, "haproxy-3.4.language.json"),
+      JSON.stringify({ version: "3.4", docsBaseUrl: "", groups: {} }),
+      "utf-8",
+    );
+    clearLanguageDataCache();
+    expect(() => loadLanguageData(context, "3.4")).toThrow(/missing keywords/);
+
+    writeFileSync(
+      join(schemasDir, "haproxy-3.4.language.json"),
+      JSON.stringify({ version: "3.4", docsBaseUrl: "", keywords: {} }),
+      "utf-8",
+    );
+    clearLanguageDataCache();
+    expect(() => loadLanguageData(context, "3.4")).toThrow(/missing groups/);
+
+    rmSync(tempRoot, { recursive: true, force: true });
+  });
+});
