@@ -48999,7 +48999,8 @@
               },
               {
                 "enum": [
-                  "password|insecure-password"
+                  "password",
+                  "insecure-password"
                 ],
                 "optional": true,
                 "value_kind": "enum",

@@ -341,6 +341,14 @@ describe("argumentDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
   });
 
+  it("accepts userlist user with insecure-password and groups", () => {
+    const diags = argDiags(
+      "userlist bench_users\n    user alice insecure-password alicepw groups admins",
+      1,
+    );
+    expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
+  });
+
   it("does not flag unique-id-format in backend on 3.4", () => {
     const doc = createDocument("backend b\n    unique-id-format '%ci-0000'");
     const diags = computeDiagnostics(doc, bundle.schema, { languageData: bundle.languageData });
