@@ -32,7 +32,7 @@ export function tryOptionHover(hc: HoverContext): vscode.Hover | null {
     hoverMarkdown(
       `option ${name}`,
       optKeyword?.signatures[0] ?? `option ${name}`,
-      optKeyword?.description ?? group?.description ?? "",
+      optKeyword?.description || group?.description || "",
       extras,
       optKeyword?.docsUrl ?? group?.docsUrl,
       optKeyword?.examples ?? group?.examples,

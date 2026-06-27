@@ -30,7 +30,7 @@ export function tryOptionCompletion(cc: CompletionContext): vscode.CompletionIte
       group?.examples?.length
     ) {
       item.documentation = markdownDoc(
-        resolved?.description ?? group?.description ?? "",
+        resolved?.description || group?.description || "",
         resolved?.docsUrl ?? group?.docsUrl,
         resolved?.examples ?? group?.examples,
       );
