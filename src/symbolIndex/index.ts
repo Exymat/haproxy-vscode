@@ -494,7 +494,14 @@ export function getSymbolIndex(
   return index;
 }
 
-function scopeKeyForLine(parsed: ParsedLine[], lineNo: number): string | null {
+function scopeKeyForLine(
+  lineNo: number,
+  scopeKeyByLine: (string | null)[] | undefined,
+  parsed: ParsedLine[],
+): string | null {
+  if (scopeKeyByLine) {
+    return scopeKeyByLine[lineNo] ?? null;
+  }
   return buildScopeKeyByLine(parsed)[lineNo] ?? null;
 }
 
@@ -590,6 +597,7 @@ export function resolveSymbolAtPosition(
   document: vscode.TextDocument,
   position: vscode.Position,
   schema: HaproxySchema,
+  scopeKeyByLine?: (string | null)[],
 ): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
   const parsed = getParsedDocument(document);
   const line = parsed[position.line];
@@ -606,7 +614,7 @@ export function resolveSymbolAtPosition(
     return resolveSectionHeaderSymbol(line, tokenIndex);
   }
 
-  const scopeKey = scopeKeyForLine(parsed, position.line);
+  const scopeKey = scopeKeyForLine(position.line, scopeKeyByLine, parsed);
 
   return resolveStatementRuleSymbol(line, tokenIndex, schema.statement_rules ?? [], scopeKey);
 }

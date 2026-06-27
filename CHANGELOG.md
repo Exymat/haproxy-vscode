@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.1
+
+- Go to Definition and Find References now reuse the scope index built during symbol indexing instead of rescanning lines on each request.
+
 ## 0.12.0
 
 - Completion, hover, and diagnostics now share unified line analysis — bind/server option spans, rule actions, and statement layout are interpreted consistently across all language features.

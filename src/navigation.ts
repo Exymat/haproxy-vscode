@@ -27,7 +27,7 @@ export function provideDefinition(
     return null;
   }
 
-  const symbol = resolveSymbolAtPosition(document, position, schema);
+  const symbol = resolveSymbolAtPosition(document, position, schema, index.scopeKeyByLine);
   if (!symbol) {
     return null;
   }
@@ -56,7 +56,7 @@ export function provideReferences(
     return [];
   }
 
-  const symbol = resolveSymbolAtPosition(document, position, schema);
+  const symbol = resolveSymbolAtPosition(document, position, schema, index.scopeKeyByLine);
   if (!symbol) {
     return [];
   }
