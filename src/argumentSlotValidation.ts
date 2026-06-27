@@ -48,6 +48,12 @@ export function matchesLaterEnumSlotInModel(
   return matchesLaterEnumSlot(model.slots, schemaKw, slotIdx, lower);
 }
 
+export function signatureRequiresTrailingArgument(signatures: string[], token: string): boolean {
+  const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`\\b${escaped}\\s+(?:<|\\{)`, "i");
+  return signatures.some((signature) => re.test(signature));
+}
+
 export function isKeywordValuePair(
   slot: ArgumentSlot | undefined,
   nextSlot: ArgumentSlot | undefined,

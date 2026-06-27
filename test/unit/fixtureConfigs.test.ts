@@ -5,7 +5,7 @@ import { createDocument } from "../helpers/document";
 import { listGoldenFixtures, readFixture, readGoldenFixture } from "../helpers/fixtures";
 import { loadSchemaBundle } from "../helpers/schema";
 
-const bundle = loadSchemaBundle("3.2");
+const bundle = loadSchemaBundle("3.4");
 
 describe("bundled config fixtures", () => {
   it.each(listGoldenFixtures())("computes diagnostics for golden/%s", (fileName) => {

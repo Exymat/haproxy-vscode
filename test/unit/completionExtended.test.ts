@@ -1,4 +1,5 @@
 import { provideCompletionItems } from "../../src/completion";
+import { logFormatCompletionItems } from "../../src/completion/helpers";
 import * as documentContext from "../../src/documentContext";
 import * as directiveUtils from "../../src/directiveUtils";
 import { createDocument } from "../helpers/document";
@@ -466,5 +467,49 @@ describe("completion extended", () => {
     const ci = items.find((item) => item.label === "ci");
     expect(ci?.detail).toBe("%ci");
     expect(ci?.documentation).toBeDefined();
+  });
+});
+
+describe("logFormatCompletionItems", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("falls back to an empty prefix when no %-token precedes the offset", () => {
+    const text = "plain text";
+    const items = logFormatCompletionItems(
+      bundle.languageData,
+      bundle.schema,
+      text,
+      text.length,
+    );
+    const aliasCount = documentContext.groupItems(bundle.languageData, "logformat_aliases").length;
+    expect(items).toHaveLength(aliasCount);
+  });
+
+  it("returns no flags when the schema has no logformat_flags token", () => {
+    const schema = structuredClone(bundle.schema);
+    delete schema.tokens.logformat_flags;
+    const items = logFormatCompletionItems(bundle.languageData, schema, "%{+", 3);
+    expect(items).toEqual([]);
+  });
+
+  it("omits documentation for flags without a matching language group entry", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.tokens.logformat_flags = ["UNKNOWNFLAGXYZ"];
+    const items = logFormatCompletionItems(bundle.languageData, schema, "%{+", 3);
+    expect(items).toHaveLength(1);
+    expect(items[0].detail).toBe("log-format flag");
+    expect(items[0].documentation).toBeUndefined();
+  });
+
+  it("omits documentation for aliases without a description", () => {
+    vi.spyOn(documentContext, "groupItems").mockReturnValue([
+      { name: "%nodesc", description: "", rulesets: [] },
+    ] as never);
+    const items = logFormatCompletionItems(bundle.languageData, bundle.schema, "%", 1);
+    expect(items).toHaveLength(1);
+    expect(items[0].label).toBe("nodesc");
+    expect(items[0].documentation).toBeUndefined();
   });
 });

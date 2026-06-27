@@ -2,8 +2,11 @@ import * as vscode from "vscode";
 
 import {
   enumValuesForSlotLower,
+  isKeywordValuePair,
   matchesLaterEnumSlot,
   remainingRequiredSlots,
+  signatureRequiresTrailingArgument,
+  skipOptionalSlotGroup,
 } from "./argumentSlotValidation";
 import { resolveNestedOptionKeyword } from "./lineOptionKeyword";
 import {
@@ -167,12 +170,6 @@ function optionValuePolicy(
   return null;
 }
 
-function signatureRequiresTrailingArgument(signatures: string[], token: string): boolean {
-  const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const re = new RegExp(`\\b${escaped}\\s+(?:<|\\{)`, "i");
-  return signatures.some((signature) => re.test(signature));
-}
-
 function consumeOptionArguments(
   line: ParsedLine,
   optionIndex: number,
@@ -243,6 +240,16 @@ function consumeOptionArguments(
         continue;
       }
       if (slot.optional) {
+        if (isKeywordValuePair(slot, slots[slotIdx + 1])) {
+          slotIdx = skipOptionalSlotGroup(model, slotIdx);
+          continue;
+        }
+        if (matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)) {
+          slotIdx += 1;
+          continue;
+        }
+        pos += 1;
+        consumed += 1;
         slotIdx += 1;
         continue;
       }
@@ -282,18 +289,26 @@ function consumeOptionArguments(
     slotIdx += 1;
   }
 
-  if (
-    pendingValueKeyword &&
-    (pos >= condStart || allowed.has(line.tokens[pos].text.toLowerCase().replace(/\*$/, "")))
-  ) {
-    diagnostics.push(
-      makeDiagnostic(
-        line,
-        pendingValueKeyword.tokenIndex,
-        `'${pendingValueKeyword.text}' is missing required argument`,
-        "missing-argument",
-      ),
-    );
+  if (pendingValueKeyword) {
+    if (pos < condStart) {
+      const next = line.tokens[pos].text.toLowerCase().replace(/\*$/, "");
+      if (!allowed.has(next)) {
+        return pos + 1;
+      }
+    }
+    if (
+      pos >= condStart ||
+      allowed.has(line.tokens[pos].text.toLowerCase().replace(/\*$/, ""))
+    ) {
+      diagnostics.push(
+        makeDiagnostic(
+          line,
+          pendingValueKeyword.tokenIndex,
+          `'${line.tokens[pendingValueKeyword.tokenIndex].text}' is missing required argument`,
+          "missing-argument",
+        ),
+      );
+    }
   }
 
   if (consumed < model.min_args) {

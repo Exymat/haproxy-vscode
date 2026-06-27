@@ -316,6 +316,14 @@ describe("provideHover", () => {
     expect(text).toContain("rewrites the request path");
   });
 
+  it("documents parenthesized http-request actions instead of the ruleset keyword", () => {
+    const line = "    http-request set-var-fmt(txn.bench_log) '%[src] %ci'";
+    const text = hoverMarkdown(`backend b\n${line}`, 1, line.indexOf("set-var-fmt") + 4, "3.4");
+    expect(text).toContain("set-var-fmt");
+    expect(text).toContain("variable");
+    expect(text).not.toContain("Access control for Layer 7 requests");
+  });
+
   it("documents conditional directives at line start", () => {
     const doc = createDocument("global\n    .if { always_true }");
     const bundle = bundles["3.4"];

@@ -17,7 +17,10 @@ import { statementDiagnostics } from "../../src/statementDiagnostics";
 import { buildLineDiagnosticMemo } from "../helpers/lineMemo";
 import * as directiveUtils from "../../src/directiveUtils";
 import { resolveLineOptionSchemaKeyword } from "../../src/lineOptionKeyword";
-import { computeLineOptionArgumentEnd } from "../../src/lineOptionSpan";
+import {
+  computeLineOptionArgumentEnd,
+  resolveNestedLineOptionSpan,
+} from "../../src/lineOptionSpan";
 import { findStatementRule } from "../../src/statementLayout";
 import * as symbolIndex from "../../src/symbolIndex";
 import { buildSymbolIndex, resolveSymbolAtPosition } from "../../src/symbolIndex";
@@ -590,6 +593,192 @@ describe("coverage line gaps", () => {
     expect(
       statementDiagnostics(bindLine, bindSchema).filter((d) => d.code === "unknown-parameter"),
     ).toHaveLength(0);
+  });
+
+  it("covers line option slot keyword-value pairs and trailing arguments", () => {
+    const customSchema = structuredClone(bundle.schema);
+    const lineOptionSemantics = [
+      {
+        chapter: "5.2",
+        option_group: "server_options",
+        parent_kind: "server",
+        takes_value: true,
+      },
+    ] as const;
+
+    customSchema.keywords.testkvp = {
+      name: "testkvp",
+      sections: ["backend"],
+      signatures: ["testkvp [<alpha>] [<value>]"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      line_option_semantics: [...lineOptionSemantics],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testkvp [<alpha>] [<value>]"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 0,
+            max_args: 2,
+            slots: [
+              {
+                enum: ["alpha"],
+                optional: true,
+                value_kind: "enum",
+                variadic: false,
+              },
+              {
+                enum: [],
+                optional: true,
+                value_kind: "generic",
+                variadic: false,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    customSchema.keywords.testif = {
+      name: "testif",
+      sections: ["backend"],
+      signatures: ["testif <addr> [interface <name>]"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      line_option_semantics: [...lineOptionSemantics],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testif <addr> [interface <name>]"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 2,
+            slots: [
+              {
+                enum: [],
+                optional: false,
+                value_kind: "address",
+                variadic: false,
+              },
+              {
+                enum: ["interface"],
+                optional: true,
+                value_kind: "enum",
+                variadic: false,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    customSchema.keywords.nochapter52 = {
+      name: "nochapter52",
+      sections: ["backend"],
+      signatures: ["nochapter52"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      line_option_semantics: [...lineOptionSemantics],
+      variants: [
+        {
+          chapter: "4.2",
+          sections: ["backend"],
+          signatures: ["nochapter52"],
+          contexts: [],
+          arguments: [],
+        },
+      ],
+    };
+    customSchema.keyword_groups.server_options = [
+      ...(customSchema.keyword_groups.server_options ?? []),
+      "testkvp",
+      "testif",
+      "nochapter52",
+    ];
+
+    const kvpLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testkvp beta check"),
+    )[1];
+    const kvpIndex = kvpLine.tokens.findIndex((token) => token.text === "testkvp");
+    expect(statementDiagnostics(kvpLine, customSchema).length).toBeGreaterThanOrEqual(0);
+    expect(
+      computeLineOptionArgumentEnd(
+        customSchema,
+        kvpLine,
+        kvpIndex,
+        kvpLine.tokens.length,
+        "server_options",
+        "server",
+        "backend",
+      ),
+    ).toBeGreaterThan(kvpIndex);
+
+    const trailingLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testif 0.0.0.0 interface eth0"),
+    )[1];
+    const trailingIndex = trailingLine.tokens.findIndex((token) => token.text === "testif");
+    expect(
+      statementDiagnostics(trailingLine, customSchema).filter(
+        (d) => d.code === "unknown-parameter",
+      ),
+    ).toHaveLength(0);
+    expect(
+      computeLineOptionArgumentEnd(
+        customSchema,
+        trailingLine,
+        trailingIndex,
+        trailingLine.tokens.length,
+        "server_options",
+        "server",
+        "backend",
+      ),
+    ).toBe(trailingLine.tokens.length);
+
+    const partialLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 cookie app01 ins"),
+    )[1];
+    const insIndex = partialLine.tokens.findIndex((token) => token.text === "ins");
+    const partialTokenIndex = insIndex >= 0 ? insIndex : partialLine.tokens.length;
+    expect(
+      resolveNestedLineOptionSpan(bundle.schema, {
+        kind: "server",
+        line: partialLine,
+        tokenIndex: partialTokenIndex,
+      }, "server_options", 3)?.keyword,
+    ).toBe("cookie");
+
+    vi.spyOn(directiveUtils, "getKeywordFromSchema").mockReturnValue({
+      name: "nochapter52",
+      sections: ["backend"],
+      signatures: ["nochapter52"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      chapter: "4.2",
+    });
+    expect(
+      resolveLineOptionSchemaKeyword(customSchema, "nochapter52", "server", "backend"),
+    ).toMatchObject({ chapter: "4.2" });
+
+    const noModelSchema = structuredClone(bundle.schema);
+    const sourceKeyword = noModelSchema.keywords.source;
+    delete sourceKeyword?.argument_model;
+    for (const variant of sourceKeyword?.variants ?? []) {
+      delete variant.argument_model;
+    }
+    const badSourceLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 source bad-address"),
+    )[1];
+    expect(
+      statementDiagnostics(badSourceLine, noModelSchema).some((d) => d.code === "invalid-address"),
+    ).toBe(true);
   });
 
   it("covers extension edge cases", () => {

@@ -2,6 +2,13 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.4
+
+- Rule-action hover resolves parenthesized names (e.g. `set-var-fmt(txn.foo)`) and prefers the current ruleset's action list.
+- Improved `bind`/`server` line-option validation and hover — correct manual chapters (5.1/5.2), optional keyword/value groups, and missing-argument checks for value-taking options.
+- Fixed argument validation for `log` optional groups, `stick-table type` store arguments, and similar variadic trailing slots.
+- Refreshed schemas and 3.4 grammar for corrected line-option semantics and `tune.h2.fe.max-concurrent-streams` highlighting.
+
 ## 0.12.3
 
 - Argument validation stops at `if`/`unless` — condition tokens are no longer counted as missing or extra directive arguments.

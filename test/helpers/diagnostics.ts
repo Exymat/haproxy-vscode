@@ -4,7 +4,7 @@ import { formatDiagnosticCode } from "./diagnosticFormat";
 import { createDocument, type MockTextDocument } from "./document";
 import { loadAllLanguageData, loadAllSchemas, type SupportedVersion } from "./schema";
 
-export const DEFAULT_VERSION: SupportedVersion = "3.2";
+export const DEFAULT_VERSION: SupportedVersion = "3.4";
 
 const schemas = loadAllSchemas();
 const languageDataByVersion = loadAllLanguageData();

@@ -174,6 +174,18 @@ describe("hover handlers", () => {
       expect(tryActionHover(actionHoverContext("not-a-real-action"))).toBeNull();
     });
 
+    it("tryActionHover resolves parenthesized action names", () => {
+      const hover = tryActionHover(actionHoverContext("set-var-fmt(txn.bench_log)"));
+      expect(hover).not.toBeNull();
+      if (hover === null) {
+        throw new Error("expected hover");
+      }
+      const text = hoverText(hover);
+      expect(text).toContain("set-var-fmt");
+      expect(text).toContain("variable");
+      expect(text).not.toContain("Access control for Layer 7 requests");
+    });
+
     it("tryLogFormatHover documents aliases, flags, and rejects unknown items", () => {
       const aliasLine = '    log-format "%{+Q}o %ci"';
       const aliasHover = tryLogFormatHover(

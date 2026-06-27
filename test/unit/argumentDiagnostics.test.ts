@@ -332,4 +332,18 @@ describe("argumentDiagnostics", () => {
     const diags = argDiagsForBundle("defaults\n    test-kw alpha", 1, schema);
     expect(diags.some((d) => d.code === "extra-argument")).toBe(true);
   });
+
+  it("accepts stick-table store arguments after optional args ellipsis slot", () => {
+    const diags = argDiags(
+      "backend b\n    stick-table type ip size 1000 expire 30m store gpc0,http_req_rate(10s)",
+      1,
+    );
+    expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
+  });
+
+  it("does not flag unique-id-format in backend on 3.4", () => {
+    const doc = createDocument("backend b\n    unique-id-format '%ci-0000'");
+    const diags = computeDiagnostics(doc, bundle.schema, { languageData: bundle.languageData });
+    expect(diags.filter((d) => d.code === "wrong-section")).toHaveLength(0);
+  });
 });

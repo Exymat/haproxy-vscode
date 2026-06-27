@@ -17,7 +17,7 @@ import {
   readFixture,
 } from "./helpers";
 
-const bundle = loadSchemaBundle("3.2");
+const bundle = loadSchemaBundle("3.4");
 
 const logFormatDiagnosticsContent = [
   "defaults",

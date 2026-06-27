@@ -1,7 +1,10 @@
 import {
   enumValuesForSlotLower,
+  isKeywordValuePair,
   matchesLaterEnumSlot,
   remainingRequiredSlots,
+  signatureRequiresTrailingArgument,
+  skipOptionalSlotGroup,
 } from "./argumentSlotValidation";
 import { ADDRESS_POLICIES, validateHaproxyAddress } from "./addressFormat";
 import { resolveLineOptionSchemaKeyword } from "./lineOptionKeyword";
@@ -141,6 +144,7 @@ function consumeLineOptionSlots(
   let pos = optionIndex + 1;
   let slotIdx = 0;
   let consumed = 0;
+  let pendingValueKeyword: { tokenIndex: number } | null = null;
 
   while (pos < limit && slotIdx < slots.length && consumed < maxArgs) {
     const token = line.tokens[pos].text;
@@ -159,12 +163,25 @@ function consumeLineOptionSlots(
     }
     if (allowedValues.length > 0) {
       if (allowedValues.includes(lower) || allowedValues.includes(base)) {
+        pendingValueKeyword = signatureRequiresTrailingArgument(schemaKw?.signatures ?? [], token)
+          ? { tokenIndex: pos }
+          : null;
         pos += 1;
         consumed += 1;
         slotIdx += 1;
         continue;
       }
       if (slot.optional) {
+        if (isKeywordValuePair(slot, slots[slotIdx + 1])) {
+          slotIdx = skipOptionalSlotGroup(model, slotIdx);
+          continue;
+        }
+        if (matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)) {
+          slotIdx += 1;
+          continue;
+        }
+        pos += 1;
+        consumed += 1;
         slotIdx += 1;
         continue;
       }
@@ -180,12 +197,37 @@ function consumeLineOptionSlots(
       slotIdx += 1;
       continue;
     }
+
+    pendingValueKeyword = null;
     pos += 1;
     consumed += 1;
     slotIdx += 1;
   }
 
+  if (pendingValueKeyword && pos < limit) {
+    const next = line.tokens[pos].text.toLowerCase().replace(/\*$/, "");
+    if (!allowed.has(next)) {
+      return pos + 1;
+    }
+  }
+
   return pos;
+}
+
+function tokenInActiveOptionSpan(
+  ctx: LineOptionSpanContext,
+  optionIndex: number,
+  end: number,
+  allowed: Set<string>,
+): boolean {
+  if (ctx.tokenIndex < optionIndex || ctx.tokenIndex > end) {
+    return false;
+  }
+  if (ctx.tokenIndex < end) {
+    return true;
+  }
+  const token = ctx.line.tokens[ctx.tokenIndex]?.text.toLowerCase().replace(/\*$/, "");
+  return !token || !allowed.has(token);
 }
 
 export function resolveNestedLineOptionSpan(
@@ -215,7 +257,7 @@ export function resolveNestedLineOptionSpan(
       continue;
     }
     const end = Math.max(spanEnd(i), i + 1);
-    if (ctx.tokenIndex >= i && ctx.tokenIndex < end) {
+    if (tokenInActiveOptionSpan(ctx, i, end, allowed)) {
       const exactOption = ctx.line.tokens[ctx.tokenIndex]?.text.toLowerCase().replace(/\*$/, "");
       if (ctx.tokenIndex > i && exactOption && allowed.has(exactOption)) {
         const nestedEnd = Math.max(spanEnd(ctx.tokenIndex), ctx.tokenIndex + 1);

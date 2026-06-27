@@ -3232,7 +3232,7 @@
       ],
       "line_option_semantics": [
         {
-          "chapter": "4.2",
+          "chapter": "5.1",
           "option_group": "bind_options",
           "parent_kind": "bind",
           "takes_value": true
@@ -6624,7 +6624,7 @@
       ],
       "line_option_semantics": [
         {
-          "chapter": "4.2",
+          "chapter": "5.2",
           "option_group": "server_options",
           "parent_kind": "server",
           "takes_value": true
@@ -8438,7 +8438,7 @@
       ],
       "line_option_semantics": [
         {
-          "chapter": "4.2",
+          "chapter": "5.2",
           "option_group": "server_options",
           "parent_kind": "server",
           "takes_value": false
@@ -9231,7 +9231,7 @@
       ],
       "line_option_semantics": [
         {
-          "chapter": "4.2",
+          "chapter": "5.2",
           "option_group": "server_options",
           "parent_kind": "server",
           "takes_value": false
@@ -11895,7 +11895,7 @@
       ],
       "line_option_semantics": [
         {
-          "chapter": "4.2",
+          "chapter": "5.2",
           "option_group": "server_options",
           "parent_kind": "server",
           "takes_value": true
@@ -16099,13 +16099,13 @@
       ],
       "line_option_semantics": [
         {
-          "chapter": "4.2",
+          "chapter": "5.1",
           "option_group": "bind_options",
           "parent_kind": "bind",
           "takes_value": true
         },
         {
-          "chapter": "4.2",
+          "chapter": "5.2",
           "option_group": "server_options",
           "parent_kind": "server",
           "takes_value": true
@@ -19902,13 +19902,13 @@
       ],
       "line_option_semantics": [
         {
-          "chapter": "4.2",
+          "chapter": "5.1",
           "option_group": "bind_options",
           "parent_kind": "bind",
           "takes_value": true
         },
         {
-          "chapter": "4.2",
+          "chapter": "5.2",
           "option_group": "server_options",
           "parent_kind": "server",
           "takes_value": true
@@ -20589,7 +20589,7 @@
       "contexts": [],
       "line_option_semantics": [
         {
-          "chapter": "4.2",
+          "chapter": "5.1",
           "option_group": "bind_options",
           "parent_kind": "bind",
           "takes_value": true
@@ -34347,7 +34347,7 @@
       ],
       "line_option_semantics": [
         {
-          "chapter": "4.2",
+          "chapter": "5.2",
           "option_group": "server_options",
           "parent_kind": "server",
           "takes_value": true
@@ -42981,7 +42981,7 @@
       ],
       "line_option_semantics": [
         {
-          "chapter": "4.2",
+          "chapter": "5.1",
           "option_group": "bind_options",
           "parent_kind": "bind",
           "takes_value": false

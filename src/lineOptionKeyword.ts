@@ -20,6 +20,10 @@ export function lineOptionChapter(kind: "bind" | "server"): string {
   return kind === "bind" ? LINE_OPTION_CHAPTER_BIND : LINE_OPTION_CHAPTER_SERVER;
 }
 
+function argumentModelSlotCount(model: { slots?: unknown[] } | undefined): number {
+  return model?.slots?.length ?? 0;
+}
+
 function chapterResolvedKeyword(
   schema: HaproxySchema,
   option: string,
@@ -30,14 +34,29 @@ function chapterResolvedKeyword(
   if (!keyword || !variant) {
     return undefined;
   }
+  const variantModel = variant.argument_model ?? keyword.argument_model;
+  const topModel = keyword.argument_model;
+  const useTopLevelModel =
+    topModel &&
+    variantModel &&
+    argumentModelSlotCount(topModel) > argumentModelSlotCount(variantModel);
+
   return {
     name: keyword.name,
     sections: variant.sections.length > 0 ? variant.sections : keyword.sections,
-    signatures: variant.signatures.length > 0 ? variant.signatures : keyword.signatures,
+    signatures: useTopLevelModel
+      ? keyword.signatures
+      : variant.signatures.length > 0
+        ? variant.signatures
+        : keyword.signatures,
     sources: keyword.sources,
     contexts: variant.contexts?.length ? variant.contexts : keyword.contexts,
-    arguments: variant.arguments?.length ? variant.arguments : keyword.arguments,
-    argument_model: variant.argument_model ?? keyword.argument_model,
+    arguments: useTopLevelModel
+      ? keyword.arguments
+      : variant.arguments?.length
+        ? variant.arguments
+        : keyword.arguments,
+    argument_model: useTopLevelModel ? topModel : variantModel,
     chapter: variant.chapter,
   };
 }
