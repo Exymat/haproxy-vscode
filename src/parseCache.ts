@@ -192,6 +192,9 @@ export function getParsedDocumentEntry(
   return next;
 }
 
-export function getParsedDocument(document: vscode.TextDocument, options?: ParseOptions): ParsedLine[] {
+export function getParsedDocument(
+  document: vscode.TextDocument,
+  options?: ParseOptions,
+): ParsedLine[] {
   return getParsedDocumentEntry(document, options).parsed;
 }

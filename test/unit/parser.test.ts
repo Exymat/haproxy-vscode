@@ -1,8 +1,4 @@
-import {
-  parseDocument,
-  tokenizeLine,
-  DEFAULT_SECTION_HEADERS,
-} from "../../src/parser";
+import { parseDocument, tokenizeLine, DEFAULT_SECTION_HEADERS } from "../../src/parser";
 import { createDocument } from "../helpers/document";
 
 describe("tokenizeLine", () => {

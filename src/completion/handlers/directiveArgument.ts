@@ -1,8 +1,6 @@
 import * as vscode from "vscode";
 
-import {
-  completionValuesForPosition,
-} from "../../directiveUtils";
+import { completionValuesForPosition } from "../../directiveUtils";
 import { directiveArgumentPosition, getLineSemanticContext } from "../../lineSemanticContext";
 import { CompletionContext } from "../types";
 import { filterByPrefix, markdownDoc } from "../helpers";

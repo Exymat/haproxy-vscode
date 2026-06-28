@@ -1,17 +1,17 @@
 import * as vscode from "vscode";
 
-import { argumentPosition, getKeywordFromLanguage, getKeywordFromSchema, resolveDirective } from "./directiveUtils";
+import {
+  argumentPosition,
+  getKeywordFromLanguage,
+  getKeywordFromSchema,
+  resolveDirective,
+} from "./directiveUtils";
 import { getDocumentContext } from "./documentContext";
 import { HaproxyLanguageData } from "./languageData";
 import { indexedKeywordNameSetForSection } from "./languageDataIndexes";
 import { analyzeLine, AnalyzedLine } from "./lineAnalysis";
 import { ResolvedLanguageKeyword, ResolvedSchemaKeyword } from "./keywordVariant";
-import {
-  HaproxySchema,
-  modifierPrefixSet,
-  noPrefixKeywordSet,
-  sectionKeywordSet,
-} from "./schema";
+import { HaproxySchema, modifierPrefixSet, noPrefixKeywordSet, sectionKeywordSet } from "./schema";
 
 export interface LineSemanticContext {
   document: vscode.TextDocument;

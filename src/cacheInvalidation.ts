@@ -9,5 +9,4 @@ export function invalidateAllExtensionCaches(): void {
   clearLanguageDataIndexCache();
 }
 
-export function applyLoadedSchema(_schema: HaproxySchema): void {
-}
+export function applyLoadedSchema(_schema: HaproxySchema): void {}
