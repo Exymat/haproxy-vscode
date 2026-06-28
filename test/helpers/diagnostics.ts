@@ -1,14 +1,14 @@
 import { computeDiagnostics } from "../../src/diagnostics";
 import type { HaproxySchema } from "../../src/schema";
-import {
+import { countDiagnosticsByCode, formatDiagnostics } from "./diagnosticCounts";
+import { createDocument, type MockTextDocument } from "./document";
+import { loadAllLanguageData, loadAllSchemas, type SupportedVersion } from "./schema";
+
+export {
   assertDiagnosticCounts,
   countDiagnosticsByCode,
   formatDiagnostics,
 } from "./diagnosticCounts";
-import { createDocument, type MockTextDocument } from "./document";
-import { loadAllLanguageData, loadAllSchemas, type SupportedVersion } from "./schema";
-
-export { assertDiagnosticCounts, countDiagnosticsByCode, formatDiagnostics } from "./diagnosticCounts";
 
 export const DEFAULT_VERSION: SupportedVersion = "3.4";
 
