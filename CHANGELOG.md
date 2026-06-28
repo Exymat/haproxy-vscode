@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.7
+
+- Faster Go to Definition and Find References on large configs — symbol index is reused when a single-line edit does not change symbol names.
+- Format Document, folding, and the document outline use schema section headers for the active HAProxy version.
+- Shared per-line semantic context improves directive-argument completion and hover consistency.
+
 ## 0.12.6
 
 - Section parsing follows schema-defined section headers, staying aligned with each supported HAProxy version.

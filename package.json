@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config highlighting, completion, hover docs, and schema diagnostics",
-  "version": "0.12.6",
+  "version": "0.12.7",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
