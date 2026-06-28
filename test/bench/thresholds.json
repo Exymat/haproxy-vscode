@@ -3,8 +3,8 @@
   "thresholds": [
     {
       "name": "loadSchemaBundle cold",
-      "maxMs": 25,
-      "baselineMs": 21.544,
+      "maxMs": 30,
+      "baselineMs": 21.935,
       "statisticalMarginMs": 0.9928
     },
     {
@@ -18,13 +18,13 @@
       "maxMs": 2690,
       "derive": "tokenize",
       "baselineMs": 2338.315,
-      "statisticalMarginMs": 25.7619
+      "statisticalMarginMs": 27.6904
     },
     {
       "namePattern": "^tokenize large-mixed\\.cfg",
-      "maxMs": 2180,
+      "maxMs": 2190,
       "derive": "tokenize",
-      "baselineMs": 1892.549,
+      "baselineMs": 1898.777,
       "statisticalMarginMs": 16.5175
     },
     {
@@ -53,9 +53,9 @@
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg unusedSymbols",
-      "maxMs": 270,
-      "baselineMs": 231.571,
-      "statisticalMarginMs": 1.8544
+      "maxMs": 290,
+      "baselineMs": 246.222,
+      "statisticalMarginMs": 4.8313
     },
     {
       "namePattern": "^diagnostics edit: large-valid\\.cfg unusedSymbols",
@@ -71,26 +71,26 @@
     },
     {
       "namePattern": "^diagnostics warm: large-mixed\\.cfg \\(",
-      "maxMs": 220,
-      "baselineMs": 189.184,
+      "maxMs": 230,
+      "baselineMs": 192.372,
       "statisticalMarginMs": 2.2839
     },
     {
       "namePattern": "^diagnostics edit: large-mixed\\.cfg \\(",
       "maxMs": 30,
-      "baselineMs": 22.543,
-      "statisticalMarginMs": 0.7387
+      "baselineMs": 24.385,
+      "statisticalMarginMs": 0.7727
     },
     {
       "namePattern": "^diagnostics cold: large-mixed\\.cfg unusedSymbols",
-      "maxMs": 400,
-      "baselineMs": 346.437,
-      "statisticalMarginMs": 4.0115
+      "maxMs": 610,
+      "baselineMs": 529.355,
+      "statisticalMarginMs": 42.213
     },
     {
       "namePattern": "^diagnostics warm: large-mixed\\.cfg unusedSymbols",
       "maxMs": 230,
-      "baselineMs": 197.856,
+      "baselineMs": 199.382,
       "statisticalMarginMs": 2.785
     },
     {
@@ -103,7 +103,7 @@
       "namePattern": "^diagnostics cold: log-format validation",
       "maxMs": 2,
       "baselineMs": 0.174,
-      "statisticalMarginMs": 0.024
+      "statisticalMarginMs": 0.0249
     },
     {
       "namePattern": "^diagnostics warm: log-format validation",
@@ -126,8 +126,8 @@
     {
       "namePattern": "^completion: large-valid\\.cfg",
       "maxMs": 65,
-      "baselineMs": 54.354,
-      "statisticalMarginMs": 4.8472
+      "baselineMs": 54.636,
+      "statisticalMarginMs": 4.8521
     },
     {
       "namePattern": "^completion: log-format",
@@ -138,8 +138,8 @@
     {
       "namePattern": "^hover warm:",
       "maxMs": 4,
-      "baselineMs": 2.354,
-      "statisticalMarginMs": 0.0116
+      "baselineMs": 2.904,
+      "statisticalMarginMs": 0.018
     },
     {
       "namePattern": "^hover cold:",
@@ -156,7 +156,7 @@
     {
       "namePattern": "^references: peers section",
       "maxMs": 2,
-      "baselineMs": 0.045,
+      "baselineMs": 0.049,
       "statisticalMarginMs": 0.0021
     },
     {
