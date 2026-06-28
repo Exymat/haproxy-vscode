@@ -42,4 +42,11 @@ describe("tokenizeLine", () => {
     const parsed = parseDocument(doc, { sectionHeaders: DEFAULT_SECTION_HEADERS });
     expect(parsed[0].isSectionHeader).toBe(true);
   });
+
+  it("tokenizes single-quoted values at line start", () => {
+    expect(tokenizeLine("'mode' http")).toEqual([
+      { text: "'mode'", start: 0, end: 6 },
+      { text: "http", start: 7, end: 11 },
+    ]);
+  });
 });

@@ -1,4 +1,9 @@
 import { argumentModelDiagnostics } from "../../src/argumentDiagnostics";
+import {
+  allowsMissingArgs,
+  balanceArgumentDiagnostics,
+  formatEnumHint,
+} from "../../src/argumentHandlers/balance";
 import { computeDiagnostics } from "../../src/diagnostics";
 import { parseDocument } from "../../src/parser";
 import { sectionKeywordSet } from "../../src/schema";
@@ -139,6 +144,24 @@ describe("argumentDiagnostics", () => {
     expect(diags).toEqual([]);
   });
 
+  it("returns early when balance url_param variants allow missing args", () => {
+    const schema = structuredClone(bundle.schema);
+    const variant = schema.keywords["balance url_param"];
+    if (!variant?.argument_model) {
+      throw new Error("Expected balance url_param argument model in test schema");
+    }
+    variant.argument_model.min_args = 1;
+    variant.argument_model.slots = [{ enum: ["foo"], optional: true }];
+    variant.signatures = ["balance url_param <name>", "balance url_param"];
+    const diags = argDiagsForBundleWithAllowed(
+      "backend x\n    balance url_param",
+      1,
+      schema,
+      (allowed) => allowed.delete("balance url_param"),
+    );
+    expect(diags).toEqual([]);
+  });
+
   it("handles balance url_param conditional and unknown trailing values", () => {
     const schemaWithVariantEnum = structuredClone(bundle.schema);
     const variant = schemaWithVariantEnum.keywords["balance url_param"];
@@ -180,6 +203,7 @@ describe("argumentDiagnostics", () => {
     expect(argDiags("global\n    stats show", 1)).toEqual([]);
     expect(argDiags("defaults\n    no option httplog", 1)).toEqual([]);
     expect(argDiags("defaults\n    default-server inter 2s", 1)).toEqual([]);
+    expect(argDiags("global\n    no log", 1)).toEqual([]);
   });
 
   it("is wired through computeDiagnostics", () => {
@@ -203,6 +227,16 @@ describe("argumentDiagnostics", () => {
   it("returns early for empty mysql-check arguments", () => {
     const diags = argDiags("defaults\n    option mysql-check", 1);
     expect(diags).toEqual([]);
+  });
+
+  it("accepts mysql-check post-41 mode without user", () => {
+    const diags = argDiags("defaults\n    option mysql-check post-41", 1);
+    expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
+  });
+
+  it("allows optional enum slots to accept value-like tokens", () => {
+    const diags = argDiags("defaults\n    mode /tmp/haproxy.sock", 1);
+    expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
   });
 
   it("rejects host for http-send-name-header", () => {
@@ -353,5 +387,27 @@ describe("argumentDiagnostics", () => {
     const doc = createDocument("backend b\n    unique-id-format '%ci-0000'");
     const diags = computeDiagnostics(doc, bundle.schema, { languageData: bundle.languageData });
     expect(diags.filter((d) => d.code === "wrong-section")).toHaveLength(0);
+  });
+
+  it("covers balance helper edge paths directly", () => {
+    expect(formatEnumHint(["a", "b", "c", "d", "e", "f", "g"])).toBe("a, b, c, d, e, f, ...");
+    expect(
+      allowsMissingArgs(undefined, { min_args: 1, max_args: 1, slots: [{ optional: true }] }, [
+        "one",
+      ]),
+    ).toBe(true);
+
+    const line = parseDocument(createDocument("backend x\n    balance roundrobin"))[1];
+    expect(
+      balanceArgumentDiagnostics(
+        line,
+        { end: 0 },
+        [],
+        { min_args: 1, max_args: 1, slots: [{ enum: ["roundrobin"] }] },
+        undefined,
+        bundle.schema,
+        new Set(["if", "unless"]),
+      ),
+    ).toEqual([]);
   });
 });

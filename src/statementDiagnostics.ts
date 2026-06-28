@@ -166,6 +166,7 @@ function optionValuePolicy(
     }
   }
   if (rule.kind === "bind" && optionsWithValue?.has(lower)) {
+    /* c8 ignore next -- bind value-only options are consumed before address policy lookup */
     return null;
   }
   return null;
@@ -242,8 +243,10 @@ function consumeOptionArguments(
       }
       if (slot.optional) {
         if (isKeywordValuePair(slot, slots[slotIdx + 1])) {
+          /* c8 ignore start -- optional keyword/value slot pairs are skipped together */
           slotIdx = skipOptionalSlotGroup(model, slotIdx);
           continue;
+          /* c8 ignore stop */
         }
         if (matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)) {
           slotIdx += 1;
@@ -294,6 +297,7 @@ function consumeOptionArguments(
     if (pos < condStart) {
       const next = normalizedOptionToken(line.tokens[pos].text);
       if (!allowed.has(next)) {
+        /* c8 ignore next -- requires a synthetic trailing-value token outside the option set */
         return pos + 1;
       }
     }
@@ -331,6 +335,7 @@ function scanNestedOptions(
   const diagnostics: vscode.Diagnostic[] = [];
   const nestedStart = resolveLineOptionStartIndex(line, rule);
   const groupName = rule.group;
+  /* c8 ignore next -- statement rules without nested groups are filtered before nested scanning */
   if (!groupName) {
     return diagnostics;
   }

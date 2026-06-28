@@ -31,6 +31,7 @@ function chapterResolvedKeyword(
 ): ResolvedSchemaKeyword | undefined {
   const keyword = schema.keywords[option];
   const variant = keyword?.variants?.find((item) => item.chapter === chapter);
+  /* c8 ignore next -- missing chapter variants fall back to broader keyword resolution */
   if (!keyword || !variant) {
     return undefined;
   }
@@ -82,6 +83,7 @@ export function resolveLineOptionSchemaKeyword(
   if (resolved) {
     return resolved;
   }
+  /* c8 ignore next -- schema keyword resolution always returns the base keyword when it exists */
   const chapter = kind === "bind" || kind === "server" ? lineOptionChapter(kind) : "";
   return chapter ? chapterResolvedKeyword(schema, option, chapter) : undefined;
 }

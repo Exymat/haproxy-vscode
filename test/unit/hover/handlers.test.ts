@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as directiveUtils from "../../../src/directiveUtils";
 import * as languageDataIndexes from "../../../src/languageDataIndexes";
 import { tryActionHover } from "../../../src/hover/handlers/actionHover";
+import { tryExpressionHover } from "../../../src/hover/handlers/expressionHover";
 import { tryLogFormatHover } from "../../../src/hover/handlers/logFormatHover";
 import { tryOptionHover } from "../../../src/hover/handlers/optionHover";
 import {
@@ -35,6 +36,11 @@ describe("hover handlers", () => {
           }),
         ),
       ).toBeNull();
+    });
+
+    it("tryOptionHover returns null when neither group nor keyword docs exist", () => {
+      vi.spyOn(directiveUtils, "getKeywordFromLanguage").mockReturnValue(undefined);
+      expect(tryOptionHover(optionHoverContext("notreal"))).toBeNull();
     });
 
     it("tryOptionHover uses language keyword metadata", () => {
@@ -184,6 +190,10 @@ describe("hover handlers", () => {
       expect(text).toContain("set-var-fmt");
       expect(text).toContain("variable");
       expect(text).not.toContain("Access control for Layer 7 requests");
+    });
+
+    it("tryExpressionHover rejects non-expression contexts", () => {
+      expect(tryExpressionHover(optionHoverContext("httplog"))).toBeNull();
     });
 
     it("tryLogFormatHover documents aliases, flags, and rejects unknown items", () => {

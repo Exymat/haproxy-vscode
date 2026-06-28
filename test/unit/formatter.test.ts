@@ -115,6 +115,12 @@ describe("formatter", () => {
       code: 'set-var(txn.x) "a#b"',
       comment: "# trailing",
     },
+    {
+      name: "comment-only line",
+      line: "# comment only",
+      code: "",
+      comment: "# comment only",
+    },
   ] as const satisfies ReadonlyArray<{
     name: string;
     line: string;
@@ -124,5 +130,17 @@ describe("formatter", () => {
     const split = splitLineAtComment(line);
     expect(split.code).toBe(code);
     expect(split.commentSuffix).toBe(comment);
+  });
+
+  it("formats comment-only lines without indentation", () => {
+    expect(formatConfig("# comment only")).toBe("# comment only");
+  });
+
+  it("handles inputs with no non-empty lines", () => {
+    expect(formatConfig("\n\n")).toBe("\n\n");
+  });
+
+  it("handles an empty file", () => {
+    expect(formatConfig("")).toBe("");
   });
 });

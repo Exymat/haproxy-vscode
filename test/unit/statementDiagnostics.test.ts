@@ -368,4 +368,155 @@ describe("statementDiagnostics", () => {
     expect(diags.filter((d) => d.code === "missing-argument")).toHaveLength(0);
     expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
   });
+
+  it("consumes plain values for value-taking options without argument models", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testvalueonly",
+    ];
+    schema.keyword_groups.server_options_with_value = [
+      ...(schema.keyword_groups.server_options_with_value ?? []),
+      "testvalueonly",
+    ];
+    const line = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testvalueonly value"),
+    )[1];
+    const diags = statementDiagnostics(line, schema);
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
+  it("validates nested address options when their model is absent", () => {
+    const schema = structuredClone(bundle.schema);
+    if (schema.keywords.source) {
+      delete schema.keywords.source.argument_model;
+      for (const variant of schema.keywords.source.variants ?? []) {
+        delete variant.argument_model;
+      }
+    }
+    const line = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 source bad"),
+    )[1];
+    const diags = statementDiagnostics(line, schema);
+    expect(diags.some((d) => d.code === "invalid-address")).toBe(true);
+  });
+
+  it("reports missing arguments when a required enum slot is followed by another option", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.testrequiredpair = {
+      name: "testrequiredpair",
+      sections: ["backend"],
+      signatures: ["testrequiredpair on <value>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testrequiredpair on <value>"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 2,
+            max_args: 2,
+            slots: [
+              { enum: ["on"], optional: false, value_kind: "enum", variadic: false },
+              { enum: [], optional: false, value_kind: "name", variadic: false },
+            ],
+          },
+        },
+      ],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testrequiredpair",
+      "nextopt",
+    ];
+    const line = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testrequiredpair nextopt"),
+    )[1];
+    expect(statementDiagnostics(line, schema).some((d) => d.code === "missing-argument")).toBe(
+      true,
+    );
+  });
+
+  it("covers nested option scanner edge cases directly", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.testplainenum = {
+      name: "testplainenum",
+      sections: ["backend"],
+      signatures: ["testplainenum on"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testplainenum on"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 1,
+            slots: [{ enum: ["on"], optional: false, value_kind: "enum", variadic: false }],
+          },
+        },
+      ],
+    };
+    schema.keywords.testaddr = {
+      name: "testaddr",
+      sections: ["backend"],
+      signatures: ["testaddr <addr>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testaddr <addr>"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 1,
+            slots: [{ enum: [], optional: false, value_kind: "address", variadic: false }],
+          },
+        },
+      ],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testplainenum",
+      "testaddr",
+      "nextopt",
+    ];
+
+    const plain = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testplainenum nope"),
+    )[1];
+    expect(statementDiagnostics(plain, schema).some((d) => d.code === "unknown-parameter")).toBe(
+      false,
+    );
+
+    const addr = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testaddr bad"),
+    )[1];
+    expect(statementDiagnostics(addr, schema).some((d) => d.code === "invalid-address")).toBe(
+      false,
+    );
+
+    const customRule = structuredClone(schema);
+    customRule.statement_rules = [
+      {
+        keyword: "custom",
+        kind: "directive",
+        fixed_slots: [],
+      },
+    ];
+    const customLine = parseDocument(createDocument("backend api\n    custom foo"))[1];
+    expect(statementDiagnostics(customLine, customRule)).toEqual([]);
+  });
 });

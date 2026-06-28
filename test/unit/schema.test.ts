@@ -1,7 +1,4 @@
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import * as fs from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 
 import {
   buildPrefixSubcommands,
@@ -18,6 +15,7 @@ import {
   prefixSubcommandSet,
   sampleExpressionNameSets,
   sectionKeywordSet,
+  sectionHeaderSet,
   sectionNames,
   statsSocketLevelSet,
   tcpRequestPhaseSet,
@@ -26,6 +24,7 @@ import {
 import { resetVscodeMock } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
 import { loadSchema as loadFixtureSchema } from "../helpers/schema";
+import { createTempSchemaFixture } from "../helpers/tempSchema";
 
 describe("loadSchema", () => {
   beforeEach(() => {
@@ -81,16 +80,24 @@ describe("loadSchema", () => {
 
   it("throws when sync schema file contains invalid JSON", () => {
     clearSchemaCache();
-    const tempRoot = mkdtempSync(join(tmpdir(), "haproxy-schema-error-"));
-    const schemasDir = join(tempRoot, "schemas");
-    mkdirSync(schemasDir, { recursive: true });
-    writeFileSync(join(schemasDir, "haproxy-3.4.schema.json"), "{not-json", "utf-8");
+    const fixture = createTempSchemaFixture("haproxy-schema-error-", {
+      "haproxy-3.4.schema.json": "{not-json",
+    });
+    try {
+      expect(() => loadSchema({ extensionPath: fixture.extensionPath } as never, "3.4")).toThrow(
+        /Failed to load HAProxy schema for 3\.4/,
+      );
+    } finally {
+      fixture.cleanup();
+    }
+  });
 
-    expect(() => loadSchema({ extensionPath: tempRoot } as never, "3.4")).toThrow(
-      /Failed to load HAProxy schema for 3\.4/,
-    );
-
-    rmSync(tempRoot, { recursive: true, force: true });
+  it("sectionHeaderSet uses schema line_layout headers when provided", () => {
+    const schema = loadFixtureSchema("3.4");
+    const custom = structuredClone(schema);
+    custom.line_layout = { section_headers: ["custom-proxy"] };
+    expect(sectionHeaderSet(custom).has("custom-proxy")).toBe(true);
+    expect(sectionHeaderSet(custom).has("global")).toBe(false);
   });
 });
 
@@ -246,28 +253,24 @@ describe("schema helpers", () => {
 
   it("normalizes missing schema collections via loadSchema", () => {
     clearSchemaCache();
-    const tempRoot = mkdtempSync(join(tmpdir(), "haproxy-schema-test-"));
-    const schemasDir = join(tempRoot, "schemas");
-    mkdirSync(schemasDir, { recursive: true });
-    writeFileSync(
-      join(schemasDir, "haproxy-3.4.schema.json"),
-      JSON.stringify({
+    const fixture = createTempSchemaFixture("haproxy-schema-test-", {
+      "haproxy-3.4.schema.json": JSON.stringify({
         version: "3.4",
         sections: {},
         keywords: {},
         keyword_groups: {},
         tokens: {},
       }),
-      "utf-8",
-    );
-
-    const loaded = loadSchema({ extensionPath: tempRoot } as never, "3.4");
-    expect(loaded.statement_rules).toEqual([]);
-    expect(loaded.sample_fetches).toEqual({});
-    expect(loaded.sample_converters).toEqual({});
-    expect(loaded.keyword_group_contexts).toEqual({});
-    expect(loaded.line_layout).toEqual({});
-
-    rmSync(tempRoot, { recursive: true, force: true });
+    });
+    try {
+      const loaded = loadSchema({ extensionPath: fixture.extensionPath } as never, "3.4");
+      expect(loaded.statement_rules).toEqual([]);
+      expect(loaded.sample_fetches).toEqual({});
+      expect(loaded.sample_converters).toEqual({});
+      expect(loaded.keyword_group_contexts).toEqual({});
+      expect(loaded.line_layout).toEqual({});
+    } finally {
+      fixture.cleanup();
+    }
   });
 });

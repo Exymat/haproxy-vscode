@@ -1,7 +1,4 @@
 import * as fs from "node:fs";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 
 import {
   clearLanguageDataCache,
@@ -12,6 +9,7 @@ import {
 import { resetVscodeMock } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
 import { loadLanguageData as loadFixtureLanguageData } from "../helpers/schema";
+import { createTempSchemaFixture } from "../helpers/tempSchema";
 
 describe("loadLanguageData", () => {
   beforeEach(() => {
@@ -60,16 +58,16 @@ describe("loadLanguageData", () => {
 
   it("throws when sync language data file contains invalid JSON", () => {
     clearLanguageDataCache();
-    const tempRoot = mkdtempSync(join(tmpdir(), "haproxy-language-error-"));
-    const schemasDir = join(tempRoot, "schemas");
-    mkdirSync(schemasDir, { recursive: true });
-    writeFileSync(join(schemasDir, "haproxy-3.4.language.json"), "{not-json", "utf-8");
-
-    expect(() => loadLanguageData({ extensionPath: tempRoot } as never, "3.4")).toThrow(
-      /Failed to load HAProxy language data for 3\.4/,
-    );
-
-    rmSync(tempRoot, { recursive: true, force: true });
+    const fixture = createTempSchemaFixture("haproxy-language-error-", {
+      "haproxy-3.4.language.json": "{not-json",
+    });
+    try {
+      expect(() =>
+        loadLanguageData({ extensionPath: fixture.extensionPath } as never, "3.4"),
+      ).toThrow(/Failed to load HAProxy language data for 3\.4/);
+    } finally {
+      fixture.cleanup();
+    }
   });
 });
 

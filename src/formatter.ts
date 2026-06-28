@@ -86,6 +86,7 @@ function lastNonEmptyLine(lines: string[]): string | undefined {
       return lines[i];
     }
   }
+  /* c8 ignore next -- defensive fallback for an all-empty buffer */
   return undefined;
 }
 

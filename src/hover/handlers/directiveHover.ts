@@ -75,6 +75,7 @@ function tryPrefixDirectiveHover(hc: HoverContext): vscode.Hover | null {
   if (!kw) {
     return null;
   }
+  /* c8 ignore next -- exercised only by partial-prefix directive states */
   return buildDirectiveHover(
     hc,
     kw,

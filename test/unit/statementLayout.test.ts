@@ -74,6 +74,18 @@ describe("statementLayout", () => {
     ).toBe(false);
   });
 
+  it("indexes statement rules by prefix when match tokens are absent", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.statement_rules = [
+      {
+        keyword: "option",
+        kind: "directive",
+        prefix: "no option",
+      },
+    ];
+    expect(findStatementRule(schema, line("    no option httplog"))?.prefix).toBe("no option");
+  });
+
   it("returns null phase and action indices without a rule", () => {
     expect(resolvePhaseTokenIndex(undefined, line("    tcp-request"))).toBeNull();
     expect(resolveActionTokenIndex(undefined, line("    tcp-request accept if TRUE"))).toBeNull();

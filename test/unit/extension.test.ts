@@ -253,6 +253,15 @@ describe("extension", () => {
     });
   });
 
+  it("wraps non-Error bundle load failures on activation", async () => {
+    vi.spyOn(schema, "loadSchemaAsync").mockRejectedValue("string-load-failure");
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+    expect(window.showErrorMessage).toHaveBeenCalledWith(
+      expect.stringContaining("string-load-failure"),
+    );
+  });
+
   it("shows scheduler bundle error when load fails after initial success", async () => {
     vi.restoreAllMocks();
     const doc = haproxyDocument("frontend web\n    bind :80");

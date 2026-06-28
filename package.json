@@ -184,6 +184,7 @@
     "bench:fixture:check": "node scripts/generate-bench-fixture.mjs --verify",
     "bench:report": "vitest bench --config vitest.bench.config.ts --run --outputJson scripts/reports/bench-latest.json",
     "bench:check": "node scripts/check-bench-thresholds.mjs scripts/reports/bench-latest.json",
+    "bench:update-thresholds": "node scripts/update-bench-thresholds.mjs scripts/reports/bench-latest.json",
     "bench:ci": "npm run bench:fixture:check && npm run bench:report && npm run bench:check",
     "bench:integration": "node scripts/run-perf-integration.mjs",
     "bench:tags": "node scripts/bench-tags.mjs",

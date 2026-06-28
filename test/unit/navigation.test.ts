@@ -233,6 +233,35 @@ describe("navigation", () => {
     expect(provideDefinition(doc as never, pos(1, col), schema, 4000)).toBeNull();
   });
 
+  it("provideDefinition returns a single location when exactly one definition exists", () => {
+    const doc = createDocument("backend api\nfrontend web\n    use_backend api");
+    const col = "    use_backend api".indexOf("api");
+    const location = provideDefinition(doc, pos(2, col), schema, 4000);
+    expect(Array.isArray(location)).toBe(false);
+    expect(location).not.toBeNull();
+  });
+
+  it("provideDefinition returns null when indexing is unavailable or no definitions remain", () => {
+    const doc = createDocument("frontend web\n    use_backend api");
+    const col = "    use_backend api".indexOf("api");
+    vi.spyOn(symbolIndex, "getSymbolIndex").mockReturnValueOnce(null);
+    expect(provideDefinition(doc as never, pos(1, col), schema, 4000)).toBeNull();
+
+    vi.spyOn(symbolIndex, "getSymbolIndex").mockReturnValueOnce({
+      definitions: new Map(),
+      references: [],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [null, null],
+    });
+    vi.spyOn(symbolIndex, "resolveSymbolAtPosition").mockReturnValueOnce({
+      kind: "proxy-section",
+      name: "api",
+      scopeKey: null,
+    });
+    vi.spyOn(symbolIndex, "findDefinitions").mockReturnValueOnce([]);
+    expect(provideDefinition(doc as never, pos(1, col), schema, 4000)).toBeNull();
+  });
+
   it("provideReferences returns empty without sites", () => {
     const doc = createDocument("frontend web\n    bind :80");
     const col = "    bind :80".indexOf("bind");

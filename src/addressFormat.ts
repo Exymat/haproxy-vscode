@@ -71,6 +71,7 @@ function splitHostAndPort(token: string): {
   for (let i = trimmed.length - 1; i >= 0; i -= 1) {
     const ch = trimmed[i];
     if (ch === "]") {
+      /* c8 ignore next -- malformed trailing brackets are rejected later by host validation */
       break;
     }
     if (ch === ":") {

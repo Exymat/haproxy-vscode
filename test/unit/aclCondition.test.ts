@@ -28,6 +28,12 @@ describe("extractAclConditionSpans", () => {
     expect(spans).toHaveLength(1);
     expect(spans[0].text).toContain("/not{a}brace");
   });
+
+  it("skips %{...} log-format style braces while still finding ACL blocks", () => {
+    const spans = extractAclConditionSpans("http-request set-log-level silent if %{+Q}o { src }");
+    expect(spans).toHaveLength(1);
+    expect(spans[0].text.trim()).toBe("src");
+  });
 });
 
 describe("validateAclConditions", () => {
@@ -38,6 +44,11 @@ describe("validateAclConditions", () => {
 
   it("skips acl-only criteria calls", () => {
     const issues = validateAclConditions("deny if { base_beg /api }", schema);
+    expect(issues).toEqual([]);
+  });
+
+  it("skips acl-only criteria calls with parenthesized values", () => {
+    const issues = validateAclConditions("deny if { base_beg(/api) }", schema);
     expect(issues).toEqual([]);
   });
 

@@ -55,6 +55,23 @@ describe("refactor helpers", () => {
     ]);
     expect(findReferencePatternAtToken(tokens, pattern, 1)?.targetToken.text).toBe("web");
     expect(findReferencePatternAtToken(tokens, pattern, 0)).toBeNull();
+    expect(findReferencePatternAtToken(tokens, pattern, 99)).toBeNull();
+    expect(
+      findReferencePatternMatches(
+        [
+          { text: "use-backend", start: 0, end: 11 },
+          { text: "web", start: 12, end: 15 },
+          { text: "use-backend", start: 16, end: 27 },
+        ],
+        { ...pattern, match_tokens: ["use-backend"], target_token_index: 2 },
+      ),
+    ).toEqual([
+      {
+        start: 0,
+        targetIndex: 2,
+        targetToken: { text: "use-backend", start: 16, end: 27 },
+      },
+    ]);
   });
 
   it("derives section headers from schema for parsing", () => {

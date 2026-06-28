@@ -76,6 +76,12 @@ describe("validateSampleExpressions inline", () => {
     expect(codesForLine("http-request add-header n %[req.hdr('bad]")).toContain("sample-syntax");
   });
 
+  it("parses double-quoted escaped fetch arguments", () => {
+    expect(codesForLine('http-request add-header n %[req.hdr("host\\r\\n\\t\\"x\\"")]')).toEqual(
+      [],
+    );
+  });
+
   it("reports fetch and converter argument shape errors", () => {
     expect(codesForLine("http-request add-header n %[src,ipmask(bad)]")).toContain(
       "sample-converter-args",
@@ -206,6 +212,61 @@ describe("validateSampleExpressions inline", () => {
         (d) => d.code === "sample-fetch-args",
       ),
     ).toBe(true);
+  });
+
+  it("reports empty and missing required arguments directly from the parser", () => {
+    const customFetches = {
+      required_fetch: {
+        name: "required_fetch",
+        args: ["integer", "integer"],
+        out_type: "int",
+        min_args: 2,
+        max_args: 2,
+      },
+    };
+    expect(
+      validateExpressionBody(
+        "required_fetch(,2)",
+        0,
+        customFetches,
+        {},
+        new Set(["required_fetch"]),
+        new Set(),
+      )[0]?.code,
+    ).toBe("sample-fetch-args");
+    expect(
+      validateExpressionBody(
+        "required_fetch(1)",
+        0,
+        customFetches,
+        {},
+        new Set(["required_fetch"]),
+        new Set(),
+      )[0]?.code,
+    ).toBe("sample-fetch-args");
+  });
+
+  it("accepts valid IPv6 mask converter args and rejects zero-arg converters with args", () => {
+    expect(
+      validateExpressionBody(
+        "src,mask6(2001:db8::/64)",
+        0,
+        schema32.sample_fetches ?? {},
+        { mask6: { name: "mask6", args: ["IPv6 mask"], in_type: "str", out_type: "str" } },
+        new Set(Object.keys(schema32.sample_fetches ?? {})),
+        new Set(["mask6"]),
+      ),
+    ).toEqual([]);
+    expect(
+      validateExpressionBody(
+        "src,noargs(1)",
+        0,
+        schema32.sample_fetches ?? {},
+        { noargs: { name: "noargs", args: [], in_type: "str", out_type: "str" } },
+        new Set(Object.keys(schema32.sample_fetches ?? {})),
+        new Set(["noargs"]),
+      )[0]?.code,
+    ).toBe("sample-converter-args");
   });
 });
 

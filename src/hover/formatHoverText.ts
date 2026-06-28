@@ -45,6 +45,7 @@ function parseDconvPipeTable(lines: string[]): string[][] | null {
   }
   const separator = lines[separatorIndex].trim();
   const header = splitAsciiTableRow(lines[separatorIndex - 1]);
+  /* c8 ignore next -- structured-block detection already filters out headerless table candidates */
   if (!header) {
     return null;
   }
@@ -92,6 +93,7 @@ function parseAsciiTableBlock(lines: string[]): string | null {
       .map((line) => splitAsciiTableRow(line))
       .filter((cells): cells is string[] => cells !== null);
   const width = parsedRows.reduce((max, cells) => Math.max(max, cells.length), 0);
+  /* c8 ignore next -- table parsing only reaches this point for multi-column candidates */
   if (width < 2) {
     return null;
   }

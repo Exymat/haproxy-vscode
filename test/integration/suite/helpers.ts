@@ -3,7 +3,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
 
-import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
+import { assertDiagnosticCounts as assertCounts } from "../../helpers/diagnostics";
 
 const EXTENSION_ID = "Exymat.haproxy-config";
 const FIXTURES_DIR = path.resolve(__dirname, "../../../../test/integration/fixtures");
@@ -259,15 +259,6 @@ export async function ensureHaproxyVersion(version: string): Promise<void> {
   await updateHaproxySetting("version", version, 2500);
 }
 
-export function countDiagnosticsByCode(diags: vscode.Diagnostic[]): Map<string, number> {
-  const counts = new Map<string, number>();
-  for (const diag of diags) {
-    const code = formatDiagnosticCode(diag.code);
-    counts.set(code, (counts.get(code) ?? 0) + 1);
-  }
-  return counts;
-}
-
 export function filterDiagnostics(
   diags: vscode.Diagnostic[],
   severity: vscode.DiagnosticSeverity,
@@ -280,19 +271,7 @@ export function assertDiagnosticCounts(
   expected: Record<string, number>,
   label: string,
 ): void {
-  const counts = countDiagnosticsByCode(diags);
-  for (const [code, count] of Object.entries(expected)) {
-    assert.strictEqual(
-      counts.get(code) ?? 0,
-      count,
-      `${label}: expected ${count} '${code}' diagnostic(s), got ${counts.get(code) ?? 0}\n` +
-        diags
-          .map(
-            (d) => `  L${d.range.start.line + 1}: [${formatDiagnosticCode(d.code)}] ${d.message}`,
-          )
-          .join("\n"),
-    );
-  }
+  assertCounts(diags, expected, label);
 }
 
 export async function formatDocumentContent(content: string): Promise<string> {

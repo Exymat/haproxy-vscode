@@ -128,6 +128,12 @@ describe("validateHaproxyAddress", () => {
     expect(validateHaproxyAddress("[::1]", ADDRESS_POLICIES.bind).code).toBe("missing-port");
   });
 
+  it("rejects malformed prefixed bracketed IPv6 addresses", () => {
+    expect(validateHaproxyAddress("ipv6@[::1]:8080", ADDRESS_POLICIES.bind).code).toBe(
+      "invalid-address",
+    );
+  });
+
   it("accepts wildcard ipv4 hosts", () => {
     expect(validateHaproxyAddress("*:8080", ADDRESS_POLICIES.bind)).toEqual({ valid: true });
   });
@@ -136,6 +142,10 @@ describe("validateHaproxyAddress", () => {
     expect(validateHaproxyAddress("bad..host:80", ADDRESS_POLICIES.bind).code).toBe(
       "invalid-address",
     );
+    expect(validateHaproxyAddress("bad!host:80", ADDRESS_POLICIES.bind).code).toBe(
+      "invalid-address",
+    );
+    expect(validateHaproxyAddress("host]:80", ADDRESS_POLICIES.bind).code).toBe("invalid-address");
   });
 
   it("accepts udp@ without host body", () => {

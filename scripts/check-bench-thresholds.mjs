@@ -2,6 +2,10 @@
 /**
  * Validate vitest bench JSON output against test/bench/thresholds.json.
  * Prints per-line tokenization rates and exits non-zero on regression.
+ *
+ * Thresholds are derived from baselines via:
+ *   threshold = baseline + max(absoluteFloorMs, relativeMargin × baseline, statisticalMarginMs)
+ * Regenerate with: npm run bench:update-thresholds
  */
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -89,8 +93,9 @@ function main() {
     if (rule) {
       const actual = bench.p995;
       const status = actual <= rule.maxMs ? "ok" : "FAIL";
+      const baselineHint = rule.baselineMs !== undefined ? `, baseline ${rule.baselineMs}ms` : "";
       console.log(
-        `[${status}] ${bench.name}: p99.5=${actual.toFixed(3)}ms (limit ${rule.maxMs}ms)${suffix}`,
+        `[${status}] ${bench.name}: p99.5=${actual.toFixed(3)}ms (limit ${rule.maxMs}ms${baselineHint})${suffix}`,
       );
       if (actual > rule.maxMs) {
         failures.push({

@@ -135,4 +135,19 @@ describe("tokenUtils", () => {
   it("reads prefix families from schema line_layout", () => {
     expect(prefixFamilies(loadSchema("3.4"))).toContain("stats");
   });
+
+  it("resolveLongestDirectiveMatch prefers hyphenated keywords at token boundary", () => {
+    const allowed = new Set(["set-var"]);
+    const line = parsedLine("    set var txn.foo int 0");
+    const match = resolveLongestDirectiveMatch(line, allowed);
+    expect(match.matched).toBe(true);
+    expect(match.keyword).toBe("set-var");
+  });
+
+  it("resolveLongestDirectiveMatch handles maxParts limit of one", () => {
+    const line = parsedLine("    mode http");
+    const match = resolveLongestDirectiveMatch(line, new Set(["mode"]), 1);
+    expect(match.matched).toBe(true);
+    expect(match.keyword).toBe("mode");
+  });
 });

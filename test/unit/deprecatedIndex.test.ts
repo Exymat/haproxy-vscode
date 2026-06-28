@@ -54,4 +54,34 @@ describe("deprecatedIndex", () => {
     expect(index.sampleConverters.has("legacy_conv")).toBe(true);
     expect(index.sampleConverters.has("lang_conv")).toBe(true);
   });
+
+  it("indexes deprecated sample fetches from signature marks", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.sample_fetches = {
+      ...schema.sample_fetches,
+      legacy_fetch: {
+        name: "legacy_fetch",
+        signature: "legacy_fetch() (deprecated)",
+        args: [],
+        out_type: "str",
+        chapter: "7.3",
+        contexts: [],
+        description: "",
+        max_args: 0,
+      },
+    };
+    const data = structuredClone(bundle.languageData);
+    data.groups.sample_fetches = [
+      ...(data.groups.sample_fetches ?? []),
+      {
+        name: "lang_fetch",
+        description: "",
+        signature: "lang_fetch() (deprecated)",
+        rulesets: [],
+      },
+    ];
+    const index = buildDeprecatedIndex(schema, data);
+    expect(index.sampleFetches.has("legacy_fetch")).toBe(true);
+    expect(index.sampleFetches.has("lang_fetch")).toBe(true);
+  });
 });

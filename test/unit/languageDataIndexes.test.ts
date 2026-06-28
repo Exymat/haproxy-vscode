@@ -63,6 +63,31 @@ describe("languageDataIndexes", () => {
   it("indexedKeywordNameSetForSection handles null section", () => {
     expect(indexedKeywordNameSetForSection(data, null)).toEqual(new Set());
   });
+
+  it("skips keywords whose variants do not resolve for a section", () => {
+    const custom = structuredClone(data);
+    custom.keywords.sectiononly = {
+      name: "sectiononly",
+      sections: ["frontend"],
+      signatures: ["sectiononly"],
+      arguments: [],
+      description: "",
+      docsUrl: "",
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["sectiononly backend"],
+          arguments: [],
+          description: "",
+          docsUrl: "",
+        },
+      ],
+    };
+    clearLanguageDataIndexCache();
+    const resolved = indexedResolvedKeywordsForSection(custom, "frontend");
+    expect(resolved.some((kw) => kw.name === "sectiononly")).toBe(true);
+  });
 });
 
 describe("domainMaps", () => {

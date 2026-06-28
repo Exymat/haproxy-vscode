@@ -1,6 +1,7 @@
 import { parseDocument } from "../../src/parser";
 import * as parseCache from "../../src/parseCache";
 import { getParsedDocument, getParsedDocumentEntry } from "../../src/parseCache";
+import { aclReferenceAt, collectLineSymbolSites } from "../../src/symbolIndex/build";
 import {
   buildSymbolIndex,
   findAllSites,
@@ -376,5 +377,57 @@ describe("symbolIndex extended", () => {
     const index = buildSymbolIndex(parsed, schema);
     const refs = findReferences(index, "resolvers", "dns-main", null);
     expect(refs).toHaveLength(1);
+  });
+
+  it("resolves configured reference-pattern symbols at the cursor", () => {
+    const document = doc("backend api\n    default-server resolvers dns-main");
+    const col = "    default-server resolvers dns-main".indexOf("dns-main");
+    expect(resolveSymbolAtPosition(document, pos(1, col), schema)).toEqual({
+      kind: "resolvers",
+      name: "dns-main",
+      scopeKey: null,
+    });
+  });
+
+  it("skips empty split references and empty sample-fetch args", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.reference_patterns = [
+      {
+        match_tokens: ["set-map"],
+        reference_kind: "map",
+        target_token_index: 1,
+        split: ",",
+        scope: "global",
+      },
+    ] as never;
+    const parsed = parseDocument(
+      doc("backend api\n    set-map a,,b\n    http-request set-var(txn.x) http_auth()"),
+    );
+    const sites = collectLineSymbolSites(parsed[1], customSchema, "backend:api");
+    expect(
+      sites
+        .filter((site) => site.kind === ("map" as (typeof site)["kind"]))
+        .map((site) => site.name),
+    ).toEqual(["a", "b"]);
+    expect(collectLineSymbolSites(parsed[2], customSchema, "backend:api")).toEqual([]);
+  });
+
+  it("tracks defaults from references after unrelated section-header tokens", () => {
+    const parsed = parseDocument(doc("frontend web extra from base"));
+    const sites = collectLineSymbolSites(parsed[0], schema, null);
+    expect(sites.some((site) => site.kind === "defaults-profile" && site.name === "base")).toBe(
+      true,
+    );
+  });
+
+  it("covers defensive symbol-index helpers directly", () => {
+    const line = parseDocument(doc("frontend web\n    http-request deny if acl1"))[1];
+    expect(aclReferenceAt(line, 99)).toBeNull();
+
+    const sparse = {
+      ...line,
+      tokens: [{ text: "http_auth()", start: 0, end: 11 }, undefined as never],
+    };
+    expect(collectLineSymbolSites(sparse as never, schema, "frontend:web")).toEqual([]);
   });
 });
