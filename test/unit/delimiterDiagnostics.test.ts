@@ -130,6 +130,15 @@ describe("validateLineDelimiters", () => {
     ).toEqual([]);
     expect(validateLineDelimiters("    http-request set-header x %[req.hdr(host)]")).toEqual([]);
   });
+
+  it("ignores inner delimiters inside acl and sample expression regions", () => {
+    expect(validateLineDelimiters("    http-request deny if { req.hdr( }")).toEqual([]);
+    expect(validateLineDelimiters("    http-request add-header name %[req.hdr(]")).toEqual([]);
+    expect(validateLineDelimiters("    http-request add-header name %[hdr(arg))]")).toEqual([]);
+    expect(validateLineDelimiters("    http-request add-header name %[hdr(arg),ipmask(2]")).toEqual(
+      [],
+    );
+  });
 });
 
 describe("filterExpressionIssuesAgainstDelimiters", () => {
@@ -154,7 +163,7 @@ describe("filterExpressionIssuesAgainstDelimiters", () => {
       sampleIssue(10, 11, "expected ')'", "sample-syntax"),
       sampleIssue(0, 3, "unknown fetch method 'bad'", "sample-unknown-fetch"),
     ];
-    const delimiterIssues = validateLineDelimiters("    %[bad(]");
+    const delimiterIssues = validateLineDelimiters("    %[bad(");
     const filtered = filterExpressionIssuesAgainstDelimiters(expressionIssues, delimiterIssues);
     expect(filtered).toEqual([expressionIssues[1]]);
   });
@@ -205,6 +214,6 @@ describe("computeDiagnostics delimiter integration", () => {
     const content = "frontend x\n    http-request set-header x %[req.hdr(host\n";
     const diagnostics = runDiagnostics(createDocument(content), defaultSchema);
     expect(diagnostics.some((diag) => diag.message === "expected ')'")).toBe(false);
-    expect(diagnostics.some((diag) => diag.message === "missing closing ')'")).toBe(true);
+    expect(diagnostics.some((diag) => diag.message === "missing closing ']'")).toBe(true);
   });
 });

@@ -252,6 +252,18 @@ function consumeOptionArguments(
           slotIdx += 1;
           continue;
         }
+        if (pendingValueKeyword) {
+          const policyName = SERVER_ADDRESS_OPTION_POLICIES[lowerToken(pendingValueKeyword.text)];
+          if (policyName) {
+            pushAddressResult(
+              line,
+              pos,
+              validateHaproxyAddress(token, ADDRESS_POLICIES[policyName]),
+              diagnostics,
+            );
+          }
+          pendingValueKeyword = null;
+        }
         pos += 1;
         consumed += 1;
         slotIdx += 1;

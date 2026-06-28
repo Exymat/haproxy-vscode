@@ -69,6 +69,23 @@ describe("statementDiagnostics", () => {
     expect(diags.some((d) => d.code === "missing-argument")).toBe(true);
   });
 
+  it("accepts source usesrc with address on server lines", () => {
+    const diags = lineDiag(
+      "backend b6\n\t server s1 : source 0.0.0.0 usesrc localhost:16000",
+      1,
+    );
+    expect(diags.filter((d) => d.code === "missing-argument")).toHaveLength(0);
+  });
+
+  it("validates usesrc address policy when nested under source", () => {
+    const diags = lineDiag(
+      "backend b6\n\t server s1 : source 0.0.0.0 usesrc 0.0.0.1:+16002",
+      1,
+    );
+    expect(diags.some((d) => d.code === "port-offset-not-permitted")).toBe(true);
+    expect(diags.filter((d) => d.code === "missing-argument")).toHaveLength(0);
+  });
+
   it("is invoked from computeDiagnostics for server lines", () => {
     const doc = createDocument("backend api\n    server s1 127.0.0.1:80 notreal");
     const diags = computeDiagnostics(doc, bundle.schema, {

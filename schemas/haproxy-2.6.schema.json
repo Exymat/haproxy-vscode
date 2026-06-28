@@ -1075,6 +1075,7 @@
       "ssl-min-ver",
       "tcp-ut",
       "track",
+      "usesrc",
       "verify",
       "verifyhost",
       "weight",
@@ -28920,7 +28921,7 @@
     },
     "source": {
       "argument_model": {
-        "max_args": 5,
+        "max_args": 4,
         "min_args": 1,
         "slots": [
           {
@@ -28951,13 +28952,7 @@
               "hdr_ip"
             ],
             "optional": true,
-            "value_kind": "enum",
-            "variadic": false
-          },
-          {
-            "enum": [],
-            "optional": true,
-            "value_kind": "generic",
+            "value_kind": "address",
             "variadic": false
           }
         ]
@@ -29026,7 +29021,7 @@
       "variants": [
         {
           "argument_model": {
-            "max_args": 5,
+            "max_args": 4,
             "min_args": 1,
             "slots": [
               {
@@ -29057,13 +29052,7 @@
                   "hdr_ip"
                 ],
                 "optional": true,
-                "value_kind": "enum",
-                "variadic": false
-              },
-              {
-                "enum": [],
-                "optional": true,
-                "value_kind": "generic",
+                "value_kind": "address",
                 "variadic": false
               }
             ]
@@ -41028,7 +41017,28 @@
       ]
     },
     "usesrc": {
-      "argument_model": null,
+      "argument_model": {
+        "max_args": 2,
+        "min_args": 1,
+        "slots": [
+          {
+            "enum": [
+              "client",
+              "clientip",
+              "hdr_ip"
+            ],
+            "optional": false,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "generic",
+            "variadic": false
+          }
+        ]
+      },
       "arguments": [],
       "contexts": [],
       "line_option_semantics": [
@@ -41036,12 +41046,16 @@
           "chapter": "5.2",
           "option_group": "server_options",
           "parent_kind": "server",
-          "takes_value": false
+          "takes_value": true
         }
       ],
       "name": "usesrc",
       "sections": [],
-      "signatures": [],
+      "signatures": [
+        "usesrc <addr2>[:<port2>]",
+        "usesrc client|clientip",
+        "usesrc hdr_ip(<hdr>[,<occ>])"
+      ],
       "sources": [
         "dkall"
       ],

@@ -2,6 +2,13 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.8
+
+- Server `usesrc` option — validation and hover for `client`/`clientip`, `hdr_ip(...)`, and address forms; schema metadata added across supported versions.
+- Fixed `source` argument validation on server lines when followed by `usesrc`.
+- Fewer false bracket/quote warnings inside ACL conditions (`{...}`) and `%[...]` sample expressions.
+- Refreshed schemas (2.6–3.4) with corrected `source` address slots and `usesrc` line-option semantics.
+
 ## 0.12.7
 
 - Faster Go to Definition and Find References on large configs — symbol index is reused when a single-line edit does not change symbol names.

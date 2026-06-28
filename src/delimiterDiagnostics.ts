@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";
+import { findClosingBrace } from "./expressionParsing";
 import { SampleDiagnostic } from "./expressionTypes";
 import { ParsedLine } from "./parser";
 
@@ -123,12 +124,26 @@ export function validateLineDelimiters(lineText: string): DelimiterDiagnostic[] 
     }
 
     if (ch === "%" && i + 1 < lineText.length && lineText[i + 1] === "[") {
-      stack.push({ kind: "[", start: i + 1 });
-      i += 1;
+      const close = lineText.indexOf("]", i + 2);
+      if (close < 0) {
+        stack.push({ kind: "[", start: i + 1 });
+        break;
+      }
+      i = close + 1;
       continue;
     }
 
-    if (ch === "(" || ch === "{" || ch === "[") {
+    if (ch === "{") {
+      const close = findClosingBrace(lineText, i);
+      if (close >= 0) {
+        i = close + 1;
+        continue;
+      }
+      stack.push({ kind: ch, start: i });
+      continue;
+    }
+
+    if (ch === "(" || ch === "[") {
       stack.push({ kind: ch, start: i });
       continue;
     }
@@ -190,7 +205,7 @@ export function filterExpressionIssuesAgainstDelimiters(
     if (
       issue.code === "sample-syntax" &&
       issue.message === "expected ')'" &&
-      missingClose.has(")")
+      (missingClose.has(")") || missingClose.has("]"))
     ) {
       return false;
     }
