@@ -1,10 +1,15 @@
 import * as vscode from "vscode";
 
+import { getLoadedBundle } from "./extensionBundle";
 import { getParsedDocument } from "./parseCache";
+import { sectionHeaderSet } from "./schema";
 import { getSectionOutline } from "./sectionOutline";
 
 export function provideDocumentSymbols(document: vscode.TextDocument): vscode.DocumentSymbol[] {
-  const parsed = getParsedDocument(document);
+  const bundle = getLoadedBundle();
+  const parsed = getParsedDocument(document, {
+    sectionHeaders: bundle ? sectionHeaderSet(bundle.schema) : undefined,
+  });
   return getSectionOutline(document, parsed).map((symbol) => {
     return new vscode.DocumentSymbol(
       symbol.name,

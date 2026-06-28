@@ -7,6 +7,7 @@ import {
   clearLanguageDataIndexCache,
   findIndexedGroupItem,
   indexedGroupItems,
+  indexedKeywordNameSetForSection,
   indexedKeywordsForSection,
   indexedResolvedKeywordsForSection,
   languageDataIndexes,
@@ -57,6 +58,10 @@ describe("languageDataIndexes", () => {
 
   it("indexedResolvedKeywordsForSection returns empty for unknown section", () => {
     expect(indexedResolvedKeywordsForSection(data, "nonexistent-section")).toEqual([]);
+  });
+
+  it("indexedKeywordNameSetForSection handles null section", () => {
+    expect(indexedKeywordNameSetForSection(data, null)).toEqual(new Set());
   });
 });
 

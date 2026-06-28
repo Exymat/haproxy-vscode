@@ -1,4 +1,4 @@
-import { sectionHeaders, tokenizeLine } from "./parser";
+import { DEFAULT_SECTION_HEADERS, tokenizeLine } from "./parser";
 
 /**
  * Layout rules follow HAProxy configuration.txt sections 2.1 and 2.2
@@ -10,6 +10,7 @@ export interface FormatOptions {
   /** Doc recommends 2-4 spaces when not using tabs. */
   indentSize: number;
   insertBlankLineBetweenSections: boolean;
+  sectionHeaders?: ReadonlySet<string>;
 }
 
 export const DEFAULT_FORMAT_OPTIONS: FormatOptions = {
@@ -75,10 +76,6 @@ function appendComment(line: string, commentSuffix: string | null): string {
   return `${line} ${commentSuffix}`;
 }
 
-function isSectionHeaderLine(tokens: { text: string }[]): boolean {
-  return sectionHeaders().has(tokens[0].text.toLowerCase());
-}
-
 function detectLineEnding(text: string): "\n" | "\r\n" {
   return text.includes("\r\n") ? "\r\n" : "\n";
 }
@@ -96,6 +93,7 @@ export function formatConfig(
   text: string,
   options: FormatOptions = DEFAULT_FORMAT_OPTIONS,
 ): string {
+  const sectionHeaders = options.sectionHeaders ?? DEFAULT_SECTION_HEADERS;
   const lineEnding = detectLineEnding(text);
   const hasTrailingNewline = text.endsWith("\n") || text.endsWith("\r\n");
   const indent = indentPrefix(options);
@@ -120,7 +118,7 @@ export function formatConfig(
 
     const tokens = tokenizeLine(code);
 
-    if (isSectionHeaderLine(tokens)) {
+    if (sectionHeaders.has(tokens[0].text.toLowerCase())) {
       if (options.insertBlankLineBetweenSections && outputLines.length > 0) {
         const last = lastNonEmptyLine(outputLines);
         if (last !== undefined) {

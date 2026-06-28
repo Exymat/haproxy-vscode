@@ -23,10 +23,16 @@ import {
   resolvePhaseTokenIndex,
   ruleActionGroup,
 } from "./statementLayout";
-import { isLikelyValue, normalizeActionName, resolveSubcommandSpan } from "./tokenUtils";
+import {
+  isLikelyValue,
+  lowerToken,
+  normalizeActionName,
+  normalizedOptionToken,
+  resolveSubcommandSpan,
+} from "./tokenUtils";
 
 function keywordSections(schema: HaproxySchema, keyword: string): string[] {
-  return schema.keywords[keyword.toLowerCase()]?.sections ?? [];
+  return schema.keywords[lowerToken(keyword)]?.sections ?? [];
 }
 
 function wrongSectionMessage(keyword: string, section: string, sections: string[]): string {
@@ -58,7 +64,7 @@ function modeContextDiagnostic(
   let hasModeContext = false;
   let modeSupported = false;
   for (const context of contexts) {
-    const normalized = context.toLowerCase();
+    const normalized = lowerToken(context);
     if (normalized === "tcp" || normalized === "http" || normalized === "log") {
       hasModeContext = true;
       if (normalized === mode) {
@@ -104,7 +110,7 @@ export function topLevelDiagnostics(ctx: DiagnosticContext, line: ParsedLine): v
     ];
   }
 
-  const prefix = line.tokens[0]?.text.toLowerCase();
+  const prefix = lowerToken(line.tokens[0]?.text ?? "");
   if (prefix && prefixFamilySet(ctx.schema).has(prefix)) {
     const sub = resolveSubcommandSpan(
       line,
@@ -152,10 +158,10 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
   }
   const { directiveMatch: top, statementRule: rule } = ctx.getLineMemo(line);
   const diagnostics: vscode.Diagnostic[] = [];
-  const t0 = line.tokens[0]?.text.toLowerCase();
+  const t0 = lowerToken(line.tokens[0]?.text ?? "");
 
   if (top.matched) {
-    const kw = ctx.schema.keywords[top.keyword.toLowerCase()];
+    const kw = ctx.schema.keywords[lowerToken(top.keyword)];
     if (kw?.contexts?.length) {
       const diag = modeContextDiagnostic(line, top.start, kw.name, kw.contexts, mode);
       if (diag) {
@@ -166,7 +172,7 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
 
   if (isOptionLine(line)) {
     const idx = optionNameTokenIndex(line);
-    const option = line.tokens[idx]?.text.toLowerCase();
+    const option = lowerToken(line.tokens[idx]?.text ?? "");
     if (option) {
       const contexts = ctx.schema.keyword_group_contexts?.options?.[option];
       if (contexts?.length) {
@@ -189,7 +195,7 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
       const allowedGroup = keywordGroupSet(ctx.schema, groupName);
       const limit = conditionalStartIndex(line, 0);
       for (let i = start; i < limit; i += 1) {
-        const option = line.tokens[i].text.toLowerCase().replace(/\*$/, "");
+        const option = normalizedOptionToken(line.tokens[i].text);
         if (!allowedGroup.has(option)) {
           continue;
         }
@@ -218,7 +224,7 @@ function handleOptionLine(ctx: DiagnosticContext, line: ParsedLine): vscode.Diag
     return null;
   }
   const idx = optionNameTokenIndex(line);
-  const value = line.tokens[idx]?.text.toLowerCase();
+  const value = lowerToken(line.tokens[idx]?.text ?? "");
   if (value && !keywordGroupSet(ctx.schema, "options").has(value)) {
     return [
       makeDiagnostic(
@@ -236,7 +242,7 @@ function handleSkippedKeywordLine(
   _ctx: DiagnosticContext,
   line: ParsedLine,
 ): vscode.Diagnostic[] | null {
-  const t0 = line.tokens[0]?.text.toLowerCase();
+  const t0 = lowerToken(line.tokens[0]?.text ?? "");
   if (t0 && STATEMENT_RULE_KEYWORDS.has(t0)) {
     return [];
   }
@@ -244,14 +250,14 @@ function handleSkippedKeywordLine(
 }
 
 function handleAclLine(ctx: DiagnosticContext, line: ParsedLine): vscode.Diagnostic[] | null {
-  const t0 = line.tokens[0]?.text.toLowerCase();
+  const t0 = lowerToken(line.tokens[0]?.text ?? "");
   if (t0 !== "acl" || line.tokens.length < 3) {
     return null;
   }
   const conditionals = conditionalTokenSet(ctx.schema);
   const rawCriterion = line.tokens[2].text;
   const parenIdx = rawCriterion.indexOf("(");
-  const criterion = (parenIdx >= 0 ? rawCriterion.slice(0, parenIdx) : rawCriterion).toLowerCase();
+  const criterion = lowerToken(parenIdx >= 0 ? rawCriterion.slice(0, parenIdx) : rawCriterion);
   const aclCriteria = keywordGroupSet(ctx.schema, "acl_criteria");
   const sampleFetches = keywordGroupSet(ctx.schema, "sample_fetches");
   if (
@@ -275,17 +281,17 @@ function handleStatsSocketLine(
   ctx: DiagnosticContext,
   line: ParsedLine,
 ): vscode.Diagnostic[] | null {
-  const t0 = line.tokens[0]?.text.toLowerCase();
-  const t1 = line.tokens[1]?.text.toLowerCase();
+  const t0 = lowerToken(line.tokens[0]?.text ?? "");
+  const t1 = lowerToken(line.tokens[1]?.text ?? "");
   if (t0 !== "stats" || t1 !== "socket") {
     return null;
   }
   const statsSocketLevels = statsSocketLevelSet(ctx.schema);
   const diagnostics: vscode.Diagnostic[] = [];
   for (let i = 2; i < line.tokens.length; i += 1) {
-    const val = line.tokens[i].text.toLowerCase().replace(/\*$/, "");
+    const val = normalizedOptionToken(line.tokens[i].text);
     if (val === "level" && i + 1 < line.tokens.length) {
-      const levelValue = line.tokens[i + 1].text.toLowerCase();
+      const levelValue = lowerToken(line.tokens[i + 1].text);
       if (!statsSocketLevels.has(levelValue)) {
         diagnostics.push(
           makeDiagnostic(
@@ -306,10 +312,10 @@ function handleTcpInspectDelayLine(
   _ctx: DiagnosticContext,
   line: ParsedLine,
 ): vscode.Diagnostic[] | null {
-  const t0 = line.tokens[0]?.text.toLowerCase();
+  const t0 = lowerToken(line.tokens[0]?.text ?? "");
   if (
     (t0 === "tcp-request" || t0 === "tcp-response") &&
-    line.tokens[1]?.text.toLowerCase() === "inspect-delay"
+    lowerToken(line.tokens[1]?.text ?? "") === "inspect-delay"
   ) {
     return [];
   }
@@ -328,7 +334,7 @@ export function unknownNestedDiagnostics(
   ctx: DiagnosticContext,
   line: ParsedLine,
 ): vscode.Diagnostic[] {
-  const t0 = line.tokens[0]?.text.toLowerCase();
+  const t0 = lowerToken(line.tokens[0]?.text ?? "");
   if (!t0 || !NESTED_DIAGNOSTIC_KEYWORDS.has(t0)) {
     return [];
   }
@@ -347,7 +353,7 @@ export function unknownNestedDiagnostics(
   if (phaseIdx !== null && (t0 === "tcp-request" || t0 === "tcp-response")) {
     const phases =
       t0 === "tcp-request" ? tcpRequestPhaseSet(ctx.schema) : tcpResponsePhaseSet(ctx.schema);
-    const phase = line.tokens[phaseIdx].text.toLowerCase();
+    const phase = lowerToken(line.tokens[phaseIdx].text);
     if (!phases.has(phase)) {
       const groupName = ruleActionGroup(rule);
       const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : new Set<string>();
@@ -381,7 +387,7 @@ export function unknownNestedDiagnostics(
       );
     } else if (token === "use-service" && actionIdx + 1 < line.tokens.length) {
       const serviceIdx = actionIdx + 1;
-      const serviceName = line.tokens[serviceIdx].text.toLowerCase();
+      const serviceName = lowerToken(line.tokens[serviceIdx].text);
       const services = keywordGroupSet(ctx.schema, "services");
       if (
         services.size > 0 &&

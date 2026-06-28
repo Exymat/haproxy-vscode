@@ -1,8 +1,6 @@
 import {
   parseDocument,
   tokenizeLine,
-  configureSectionHeaders,
-  sectionHeaders,
   DEFAULT_SECTION_HEADERS,
 } from "../../src/parser";
 import { createDocument } from "../helpers/document";
@@ -36,13 +34,16 @@ describe("tokenizeLine", () => {
     expect(parsed[0].anonymousDefaults).toBe(false);
   });
 
-  it("uses configured section headers", () => {
-    configureSectionHeaders(["custom-section"]);
+  it("uses provided section headers", () => {
     const doc = createDocument("custom-section my-block\n    mode http");
-    const parsed = parseDocument(doc);
+    const parsed = parseDocument(doc, { sectionHeaders: new Set(["custom-section"]) });
     expect(parsed[0].isSectionHeader).toBe(true);
     expect(parsed[0].section).toBe("custom-section");
-    configureSectionHeaders(DEFAULT_SECTION_HEADERS);
-    expect(sectionHeaders()).toEqual(DEFAULT_SECTION_HEADERS);
+  });
+
+  it("uses default section headers when options are omitted", () => {
+    const doc = createDocument("frontend web\n    mode http");
+    const parsed = parseDocument(doc, { sectionHeaders: DEFAULT_SECTION_HEADERS });
+    expect(parsed[0].isSectionHeader).toBe(true);
   });
 });

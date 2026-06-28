@@ -42,6 +42,14 @@ export function tokenIndexAtPosition(line: ParsedLine, character: number): numbe
   return tokenAtPosition(line, character)?.index ?? null;
 }
 
+export function lowerToken(token: string): string {
+  return token.toLowerCase();
+}
+
+export function normalizedOptionToken(token: string): string {
+  return lowerToken(token).replace(/\*$/, "");
+}
+
 export function isWordToken(token: string): boolean {
   return /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(token);
 }
@@ -259,7 +267,7 @@ export function resolveDirectiveSpan(
 
 /** Rule action name from a config token (e.g. set-var(txn.path) -> set-var). */
 export function normalizeActionName(token: string): string {
-  const lower = token.toLowerCase().replace(/\*$/, "");
+  const lower = normalizedOptionToken(token);
   const paren = lower.indexOf("(");
   if (paren > 0 && lower.endsWith(")")) {
     return lower.slice(0, paren);

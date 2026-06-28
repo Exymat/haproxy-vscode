@@ -1,8 +1,10 @@
 import { provideCompletionItems } from "../../src/completion";
+import { tryDirectiveArgumentCompletion } from "../../src/completion/handlers/directiveArgument";
 import { logFormatCompletionItems } from "../../src/completion/helpers";
 import * as documentContext from "../../src/documentContext";
 import * as directiveUtils from "../../src/directiveUtils";
 import * as languageDataIndexes from "../../src/languageDataIndexes";
+import * as lineSemanticContext from "../../src/lineSemanticContext";
 import { LanguageGroupItem } from "../../src/languageData";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
@@ -105,6 +107,31 @@ describe("completion extended", () => {
     const content = "defaults\n    notadirective ";
     const labels = completionLabels(content, 1, content.split("\n")[1].length);
     expect(labels).toEqual([]);
+  });
+
+  it("returns empty for directive-argument when line semantic context is unavailable", () => {
+    const doc = createDocument("defaults\n    mode ");
+    vi.spyOn(lineSemanticContext, "getLineSemanticContext").mockReturnValue(null);
+    const items = tryDirectiveArgumentCompletion({
+      document: doc,
+      position: { line: 1, character: 9 } as never,
+      data: bundle.languageData,
+      schema: bundle.schema,
+      ctx: {
+        kind: "directive-argument",
+        tokenIndex: 1,
+        prefix: "",
+        line: {
+          line: 1,
+          text: "    mode ",
+          indent: 4,
+          section: "defaults",
+          tokens: [{ text: "mode", start: 4, end: 8 }],
+        },
+      } as never,
+      partial: "",
+    });
+    expect(items).toEqual([]);
   });
 
   it("suggests section directive keywords", () => {

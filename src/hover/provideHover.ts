@@ -1,9 +1,8 @@
 import * as vscode from "vscode";
 
-import { getDocumentContext } from "../documentContext";
-import { analyzeLine } from "../lineAnalysis";
+import { getLineSemanticContext } from "../lineSemanticContext";
 import { HaproxyLanguageData } from "../languageData";
-import { modifierPrefixSet, noPrefixKeywordSet, sectionKeywordSet, HaproxySchema } from "../schema";
+import { HaproxySchema } from "../schema";
 import { tryAclRefHover } from "./handlers/aclRefHover";
 import { tryActionHover } from "./handlers/actionHover";
 import { tryConditionalHover } from "./handlers/conditionalHover";
@@ -20,27 +19,23 @@ export function provideHover(
   data: HaproxyLanguageData,
   schema: HaproxySchema,
 ): vscode.Hover | null {
-  const ctx = getDocumentContext(document, position, schema);
+  const semantic = getLineSemanticContext(document, position, schema, data);
+  const ctx = semantic?.ctx;
   if (!ctx || !ctx.token) {
     return null;
   }
 
-  const allowed = sectionKeywordSet(schema, ctx.line.section);
   const hc: HoverContext = {
     document,
     position,
     data,
     schema,
+    semantic,
     ctx: ctx as DocumentContextWithToken,
     range: new vscode.Range(ctx.line.line, ctx.token.start, ctx.line.line, ctx.token.end),
     cursorOffset: position.character - ctx.token.start,
     tokenLower: ctx.token.text.toLowerCase(),
-    analyzed: analyzeLine(ctx.line, {
-      schema,
-      allowed,
-      noPrefix: noPrefixKeywordSet(schema),
-      modifierPrefixes: modifierPrefixSet(schema),
-    }),
+    analyzed: semantic.analyzed,
   };
 
   return (

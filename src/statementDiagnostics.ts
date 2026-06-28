@@ -30,6 +30,7 @@ import {
   StatementRule,
 } from "./schema";
 import { findStatementRule } from "./statementLayout";
+import { lowerToken, normalizedOptionToken } from "./tokenUtils";
 
 type StmtDiagCode =
   | "invalid-address"
@@ -154,7 +155,7 @@ function optionValuePolicy(
   option: string,
   optionsWithValue: Set<string> | null,
 ): PortAddressPolicy | null {
-  const lower = option.toLowerCase();
+  const lower = lowerToken(option);
   if (rule.kind === "server") {
     const named = SERVER_ADDRESS_OPTION_POLICIES[lower];
     if (named) {
@@ -180,7 +181,7 @@ function consumeOptionArguments(
   valueOptions: Set<string> | null,
   diagnostics: vscode.Diagnostic[],
 ): number {
-  const option = line.tokens[optionIndex].text.toLowerCase().replace(/\*$/, "");
+  const option = normalizedOptionToken(line.tokens[optionIndex].text);
   const schemaKw = resolveNestedOptionKeyword(schema, line.section, rule.kind, option);
   const model = schemaKw?.argument_model;
 
@@ -198,7 +199,7 @@ function consumeOptionArguments(
 
     const takesValue = valueOptions?.has(option) ?? false;
     if (takesValue && optionIndex + 1 < condStart) {
-      const next = line.tokens[optionIndex + 1].text.toLowerCase().replace(/\*$/, "");
+      const next = normalizedOptionToken(line.tokens[optionIndex + 1].text);
       if (!allowed.has(next)) {
         return optionIndex + 2;
       }
@@ -215,7 +216,7 @@ function consumeOptionArguments(
 
   while (pos < condStart && slotIdx < slots.length && consumed < maxArgs) {
     const token = line.tokens[pos].text;
-    const lower = token.toLowerCase();
+    const lower = lowerToken(token);
     const base = lower.split("(", 1)[0];
     const tokenStartsOption = allowed.has(lower.replace(/\*$/, ""));
     const slot = slots[slotIdx];
@@ -291,12 +292,12 @@ function consumeOptionArguments(
 
   if (pendingValueKeyword) {
     if (pos < condStart) {
-      const next = line.tokens[pos].text.toLowerCase().replace(/\*$/, "");
+      const next = normalizedOptionToken(line.tokens[pos].text);
       if (!allowed.has(next)) {
         return pos + 1;
       }
     }
-    if (pos >= condStart || allowed.has(line.tokens[pos].text.toLowerCase().replace(/\*$/, ""))) {
+    if (pos >= condStart || allowed.has(normalizedOptionToken(line.tokens[pos].text))) {
       diagnostics.push(
         makeStmtDiagnostic(
           line,
@@ -345,7 +346,7 @@ function scanNestedOptions(
 
   while (i < condStart) {
     const raw = line.tokens[i].text;
-    const opt = raw.toLowerCase().replace(/\*$/, "");
+    const opt = normalizedOptionToken(raw);
 
     if (allowed.has(opt)) {
       i = consumeOptionArguments(
@@ -384,11 +385,11 @@ function scanNestedOptions(
 const LOG_ADDRESS_SKIP = new Set(["global", "stdout", "stderr"]);
 
 function logLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
-  if (line.tokens[0]?.text.toLowerCase() !== "log" || line.tokens.length < 2) {
+  if (lowerToken(line.tokens[0]?.text ?? "") !== "log" || line.tokens.length < 2) {
     return [];
   }
   const target = line.tokens[1].text;
-  const lower = target.toLowerCase();
+  const lower = lowerToken(target);
   if (
     LOG_ADDRESS_SKIP.has(lower) ||
     lower.startsWith("@") ||
@@ -403,7 +404,7 @@ function logLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
 }
 
 function sourceLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
-  if (line.tokens[0]?.text.toLowerCase() !== "source" || line.tokens.length < 2) {
+  if (lowerToken(line.tokens[0]?.text ?? "") !== "source" || line.tokens.length < 2) {
     return [];
   }
   const diagnostics: vscode.Diagnostic[] = [];
@@ -419,7 +420,7 @@ function sourceLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
 function tcpCheckLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   for (let i = 1; i < line.tokens.length - 1; i += 1) {
-    if (line.tokens[i].text.toLowerCase() === "addr") {
+    if (lowerToken(line.tokens[i].text) === "addr") {
       pushAddressResult(
         line,
         i + 1,
@@ -436,7 +437,7 @@ export function statementDiagnostics(
   schema: HaproxySchema,
   rule: StatementRule | undefined = findStatementRule(schema, line),
 ): vscode.Diagnostic[] {
-  const t0 = line.tokens[0]?.text.toLowerCase() ?? "";
+  const t0 = lowerToken(line.tokens[0]?.text ?? "");
 
   if (t0 === "log") {
     return logLineDiagnostics(line);

@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 
 import { getDocumentContext } from "../documentContext";
 import { AnalyzedLine } from "../lineAnalysis";
+import { LineSemanticContext } from "../lineSemanticContext";
 import { HaproxyLanguageData } from "../languageData";
 import { HaproxySchema } from "../schema";
 
@@ -15,6 +16,7 @@ export interface HoverContext {
   position: vscode.Position;
   data: HaproxyLanguageData;
   schema: HaproxySchema;
+  semantic: LineSemanticContext;
   ctx: DocumentContextWithToken;
   range: vscode.Range;
   cursorOffset: number;

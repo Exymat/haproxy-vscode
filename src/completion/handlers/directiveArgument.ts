@@ -1,14 +1,9 @@
 import * as vscode from "vscode";
 
 import {
-  argumentPosition,
   completionValuesForPosition,
-  getKeywordFromSchema,
-  resolveDirective,
 } from "../../directiveUtils";
-import { keywordsForSection } from "../../documentContext";
-import { resolveLanguageKeyword } from "../../keywordVariant";
-import { modifierPrefixSet } from "../../schema";
+import { directiveArgumentPosition, getLineSemanticContext } from "../../lineSemanticContext";
 import { CompletionContext } from "../types";
 import { filterByPrefix, markdownDoc } from "../helpers";
 
@@ -18,20 +13,17 @@ export function tryDirectiveArgumentCompletion(
   if (cc.ctx.kind !== "directive-argument") {
     return null;
   }
-  const sectionKeywords = keywordsForSection(cc.data, cc.ctx.line.section);
-  const allowed = new Set(sectionKeywords.map((kw) => kw.name.toLowerCase()));
-  const directive = resolveDirective(cc.ctx.line, allowed, {
-    modifierPrefixes: modifierPrefixSet(cc.schema),
-  });
+  const semantic = getLineSemanticContext(cc.document, cc.position, cc.schema, cc.data);
+  if (!semantic) {
+    return [];
+  }
+  const directive = semantic.directive;
   if (!directive.matched) {
     return [];
   }
-  const kw = resolveLanguageKeyword(
-    sectionKeywords.find((k) => k.name.toLowerCase() === directive.keyword.toLowerCase()),
-    cc.ctx.line.section,
-  );
-  const schemaKw = getKeywordFromSchema(cc.schema, directive.keyword, cc.ctx.line.section);
-  const pos = argumentPosition(cc.ctx.tokenIndex, directive.end);
+  const kw = semantic.resolvedLanguageKeyword;
+  const schemaKw = semantic.resolvedSchemaKeyword;
+  const pos = directiveArgumentPosition(semantic);
   const values = completionValuesForPosition(
     schemaKw,
     kw,

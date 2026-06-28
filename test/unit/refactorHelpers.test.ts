@@ -4,12 +4,7 @@ import { join } from "node:path";
 
 import { applyLoadedSchema, invalidateAllExtensionCaches } from "../../src/cacheInvalidation";
 import { isOptionLine, optionNameTokenIndex } from "../../src/optionLine";
-import {
-  configureSectionHeaders,
-  DEFAULT_SECTION_HEADERS,
-  parseDocument,
-  sectionHeaders,
-} from "../../src/parser";
+import { parseDocument } from "../../src/parser";
 import {
   findReferencePatternAtToken,
   findReferencePatternMatches,
@@ -62,14 +57,15 @@ describe("refactor helpers", () => {
     expect(findReferencePatternAtToken(tokens, pattern, 0)).toBeNull();
   });
 
-  it("derives section headers from schema and configures parser", () => {
+  it("derives section headers from schema for parsing", () => {
     const schema = loadFixtureSchema("3.4");
     const headers = sectionHeaderSet(schema);
     expect(headers.has("frontend")).toBe(true);
     applyLoadedSchema(schema);
-    expect(sectionHeaders()).toEqual(headers);
-    configureSectionHeaders(DEFAULT_SECTION_HEADERS);
-    expect(sectionHeaders()).toEqual(DEFAULT_SECTION_HEADERS);
+    const parsed = parseDocument(createDocument("frontend web\n    mode http"), {
+      sectionHeaders: headers,
+    });
+    expect(parsed[0].isSectionHeader).toBe(true);
   });
 
   it("rejects invalid schema and language data contracts", () => {

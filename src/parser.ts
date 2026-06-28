@@ -23,17 +23,8 @@ export const DEFAULT_SECTION_HEADERS = new Set([
   "log-profile",
 ]);
 
-/** @deprecated Use DEFAULT_SECTION_HEADERS or configureSectionHeaders instead. */
-export const SECTION_HEADERS = DEFAULT_SECTION_HEADERS;
-
-let activeSectionHeaders = DEFAULT_SECTION_HEADERS;
-
-export function configureSectionHeaders(headers: Iterable<string>): void {
-  activeSectionHeaders = new Set([...headers].map((header) => header.toLowerCase()));
-}
-
-export function sectionHeaders(): Set<string> {
-  return activeSectionHeaders;
+export interface ParseOptions {
+  sectionHeaders?: ReadonlySet<string>;
 }
 
 export interface ParsedToken {
@@ -56,6 +47,10 @@ export interface ParsedLine {
 export interface ParseState {
   currentSection: string | null;
   inAnonymousDefaults: boolean;
+}
+
+function resolvedSectionHeaders(options?: ParseOptions): ReadonlySet<string> {
+  return options?.sectionHeaders ?? DEFAULT_SECTION_HEADERS;
 }
 
 function isAsciiWhitespace(ch: string): boolean {
@@ -146,15 +141,17 @@ export function parseLine(
   text: string,
   lineNo: number,
   state: ParseState,
+  options?: ParseOptions,
 ): { parsed: ParsedLine; nextState: ParseState } {
   const tokens = isCommentLine(text) ? [] : tokenizeLine(text);
   let currentSection = state.currentSection;
   let inAnonymousDefaults = state.inAnonymousDefaults;
   let isSectionHeader = false;
+  const headers = resolvedSectionHeaders(options);
 
   if (tokens.length > 0) {
     const first = tokens[0].text.toLowerCase();
-    if (sectionHeaders().has(first)) {
+    if (headers.has(first)) {
       currentSection = first;
       isSectionHeader = true;
       inAnonymousDefaults = first === "defaults" && tokens.length === 1;
@@ -177,19 +174,19 @@ export function parseLine(
   };
 }
 
-export function parseDocumentLines(lineTexts: string[]): ParsedLine[] {
+export function parseDocumentLines(lineTexts: string[], options?: ParseOptions): ParsedLine[] {
   const out: ParsedLine[] = [];
   let state = initialParseState();
 
   for (let lineNo = 0; lineNo < lineTexts.length; lineNo += 1) {
-    const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state);
+    const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state, options);
     out.push(next.parsed);
     state = next.nextState;
   }
   return out;
 }
 
-export function parseDocument(document: vscode.TextDocument): ParsedLine[] {
+export function parseDocument(document: vscode.TextDocument, options?: ParseOptions): ParsedLine[] {
   const lineTexts = Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
-  return parseDocumentLines(lineTexts);
+  return parseDocumentLines(lineTexts, options);
 }

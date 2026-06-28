@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { getParsedDocumentEntry, ParsedDocumentEntry } from "../parseCache";
 import { isTopLevelSectionHeader } from "../sectionUtils";
-import { HaproxySchema } from "../schema";
+import { HaproxySchema, sectionHeaderSet } from "../schema";
 
 import {
   buildLineFingerprints,
@@ -61,7 +61,9 @@ export function getSymbolIndex(
     return null;
   }
 
-  const parseEntry = getParsedDocumentEntry(document);
+  const parseEntry = getParsedDocumentEntry(document, {
+    sectionHeaders: sectionHeaderSet(schema),
+  });
   const hit = indexCache.get(document);
   if (hit && hit.version === document.version) {
     return hit.index;

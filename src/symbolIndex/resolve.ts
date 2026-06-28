@@ -4,7 +4,7 @@ import { getParsedDocument } from "../parseCache";
 import { ParsedLine } from "../parser";
 import { findReferencePatternAtToken } from "../referencePatternMatching";
 import { isTopLevelSectionHeader } from "../sectionUtils";
-import { HaproxySchema, StatementRule } from "../schema";
+import { HaproxySchema, sectionHeaderSet, StatementRule } from "../schema";
 import { ruleMatchesLine } from "../statementLayout";
 import { tokenIndexAtPosition } from "../tokenUtils";
 
@@ -126,7 +126,7 @@ export function resolveSymbolAtPosition(
   schema: HaproxySchema,
   scopeKeyByLine?: (string | null)[],
 ): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
-  const parsed = getParsedDocument(document);
+  const parsed = getParsedDocument(document, { sectionHeaders: sectionHeaderSet(schema) });
   const line = parsed[position.line];
   if (!line || line.tokens.length === 0) {
     return null;

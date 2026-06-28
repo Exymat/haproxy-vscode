@@ -5,6 +5,7 @@ export interface LanguageDataIndexes {
   groupItemsByName: Map<string, Map<string, LanguageGroupItem>>;
   groupItemsByLowerName: Map<string, Map<string, LanguageGroupItem>>;
   keywordsBySection: Map<string, LanguageKeyword[]>;
+  keywordNamesLowerBySection: Map<string, Set<string>>;
   resolvedKeywordsBySection: Map<string, ResolvedLanguageKeyword[]>;
 }
 
@@ -33,30 +34,35 @@ function buildLanguageDataIndexes(data: HaproxyLanguageData): LanguageDataIndexe
   }
 
   const keywordsBySection = new Map<string, LanguageKeyword[]>();
+  const keywordNamesLowerBySection = new Map<string, Set<string>>();
   const resolvedKeywordsBySection = new Map<string, ResolvedLanguageKeyword[]>();
-  const sections = new Set<string>();
   for (const kw of Object.values(data.keywords)) {
     for (const section of kw.sections ?? []) {
-      sections.add(section);
+      const keywords = keywordsBySection.get(section) ?? [];
+      keywords.push(kw);
+      keywordsBySection.set(section, keywords);
+
+      const lowerNames = keywordNamesLowerBySection.get(section) ?? new Set<string>();
+      lowerNames.add(kw.name.toLowerCase());
+      keywordNamesLowerBySection.set(section, lowerNames);
     }
   }
-  for (const section of sections) {
-    const keywords = Object.values(data.keywords).filter((kw) =>
-      (kw.sections ?? []).includes(section),
-    );
-    keywordsBySection.set(section, keywords);
-    resolvedKeywordsBySection.set(
-      section,
-      keywords
-        .map((kw) => resolveLanguageKeyword(kw, section))
-        .filter((kw): kw is ResolvedLanguageKeyword => Boolean(kw)),
-    );
+  for (const [section, keywords] of keywordsBySection) {
+    const resolved: ResolvedLanguageKeyword[] = [];
+    for (const kw of keywords) {
+      const hit = resolveLanguageKeyword(kw, section);
+      if (hit) {
+        resolved.push(hit);
+      }
+    }
+    resolvedKeywordsBySection.set(section, resolved);
   }
 
   return {
     groupItemsByName,
     groupItemsByLowerName,
     keywordsBySection,
+    keywordNamesLowerBySection,
     resolvedKeywordsBySection,
   };
 }
@@ -130,6 +136,16 @@ export function indexedResolvedKeywordsForSection(
     return [];
   }
   return languageDataIndexes(data).resolvedKeywordsBySection.get(section) ?? [];
+}
+
+export function indexedKeywordNameSetForSection(
+  data: HaproxyLanguageData,
+  section: string | null,
+): ReadonlySet<string> {
+  if (!section) {
+    return new Set<string>();
+  }
+  return languageDataIndexes(data).keywordNamesLowerBySection.get(section) ?? new Set<string>();
 }
 
 export function clearLanguageDataIndexCache(): void {

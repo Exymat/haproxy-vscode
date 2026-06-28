@@ -4,14 +4,11 @@ import {
   argumentPosition,
   documentedEnumValueNames,
   findArgumentValue,
-  getKeywordFromLanguage,
   getKeywordFromSchema,
-  resolveDirective,
 } from "../../directiveUtils";
-import { keywordsForSection } from "../../languageDataIndexes";
 import { findKeywordByPrefix } from "../../languageData";
-import { resolveLanguageKeyword } from "../../keywordVariant";
-import { modifierPrefixSet } from "../../schema";
+import { ResolvedLanguageKeyword, resolveLanguageKeyword } from "../../keywordVariant";
+import { LineSemanticContext } from "../../lineSemanticContext";
 import { findGroupItem } from "../helpers";
 import {
   addContextExtra,
@@ -25,19 +22,14 @@ import {
 import { HoverContext } from "../types";
 
 function tryArgumentValueHover(hc: HoverContext): vscode.Hover | null {
-  const { ctx, data, schema, range } = hc;
-  const allowed = new Set(
-    keywordsForSection(data, ctx.line.section).map((kw) => kw.name.toLowerCase()),
-  );
-  const directive = resolveDirective(ctx.line, allowed, {
-    modifierPrefixes: modifierPrefixSet(schema),
-  });
+  const { ctx, range, semantic } = hc;
+  const directive = semantic.directive;
 
   if (!directive.matched || ctx.tokenIndex <= directive.end) {
     return null;
   }
 
-  const kw = getKeywordFromLanguage(data, directive.keyword, ctx.line.section);
+  const kw = semantic.resolvedLanguageKeyword;
   const argValue = findArgumentValue(kw?.arguments, ctx.token.text);
   if (!argValue) {
     return null;
@@ -58,16 +50,9 @@ function tryArgumentValueHover(hc: HoverContext): vscode.Hover | null {
 }
 
 function tryMatchedDirectiveHover(hc: HoverContext): vscode.Hover | null {
-  const { ctx, data, schema } = hc;
-  const allowed = new Set(
-    keywordsForSection(data, ctx.line.section).map((kw) => kw.name.toLowerCase()),
-  );
-  const directive = resolveDirective(ctx.line, allowed, {
-    modifierPrefixes: modifierPrefixSet(schema),
-  });
-  const kw = directive.matched
-    ? getKeywordFromLanguage(data, directive.keyword, ctx.line.section)
-    : undefined;
+  const { ctx, semantic } = hc;
+  const directive = semantic.directive;
+  const kw = directive.matched ? semantic.resolvedLanguageKeyword : undefined;
   if (!kw) {
     return null;
   }
@@ -80,13 +65,8 @@ function tryMatchedDirectiveHover(hc: HoverContext): vscode.Hover | null {
 }
 
 function tryPrefixDirectiveHover(hc: HoverContext): vscode.Hover | null {
-  const { ctx, data, schema } = hc;
-  const allowed = new Set(
-    keywordsForSection(data, ctx.line.section).map((kw) => kw.name.toLowerCase()),
-  );
-  const directive = resolveDirective(ctx.line, allowed, {
-    modifierPrefixes: modifierPrefixSet(schema),
-  });
+  const { ctx, data, semantic } = hc;
+  const directive = semantic.directive;
   const combined = ctx.line.tokens
     .slice(0, Math.min(ctx.tokenIndex + 1, 4))
     .map((t) => t.text)
@@ -124,8 +104,8 @@ function tryGroupItemHover(hc: HoverContext): vscode.Hover | null {
 
 function buildDirectiveHover(
   hc: HoverContext,
-  kw: NonNullable<ReturnType<typeof getKeywordFromLanguage>>,
-  directive: ReturnType<typeof resolveDirective>,
+  kw: ResolvedLanguageKeyword,
+  directive: LineSemanticContext["directive"],
   onDirectiveToken: boolean,
 ): vscode.Hover {
   const { ctx, schema, range } = hc;

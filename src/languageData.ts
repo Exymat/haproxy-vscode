@@ -137,12 +137,13 @@ export function findKeywordByPrefix(
   if (data.keywords[lower]) {
     return data.keywords[lower];
   }
-  let best: LanguageKeyword | undefined;
-  for (const kw of Object.values(data.keywords)) {
-    const name = kw.name.toLowerCase();
-    if (lower.startsWith(name) && (!best || name.length > best.name.length)) {
-      best = kw;
+  const parts = lower.split(/\s+/);
+  for (let length = parts.length; length > 0; length -= 1) {
+    const candidate = parts.slice(0, length).join(" ");
+    const hit = data.keywords[candidate];
+    if (hit) {
+      return hit;
     }
   }
-  return best;
+  return undefined;
 }

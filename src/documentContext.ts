@@ -4,7 +4,7 @@ import { HaproxyLanguageData } from "./languageData";
 import { isConditionalOrStatusDirective } from "./conditionalDirectives";
 import { getParsedDocument } from "./parseCache";
 import { ParsedLine, ParsedToken } from "./parser";
-import { HaproxySchema, sectionNames, StatementRule } from "./schema";
+import { HaproxySchema, sectionHeaderSet, sectionNames, StatementRule } from "./schema";
 import { ruleMatchesLine } from "./statementLayout";
 import { keywordsForSection } from "./languageDataIndexes";
 import { resolveTokenIndex } from "./tokenUtils";
@@ -83,7 +83,7 @@ export function getDocumentContext(
   position: vscode.Position,
   schema: HaproxySchema,
 ): DocumentContext | null {
-  const parsed = getParsedDocument(document);
+  const parsed = getParsedDocument(document, { sectionHeaders: sectionHeaderSet(schema) });
   const line = parsed[position.line];
   if (!line || line.isSectionHeader) {
     return null;

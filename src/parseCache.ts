@@ -1,6 +1,12 @@
 import * as vscode from "vscode";
 
-import { initialParseState, parseDocumentLines, parseLine, ParsedLine } from "./parser";
+import {
+  initialParseState,
+  ParseOptions,
+  parseDocumentLines,
+  parseLine,
+  ParsedLine,
+} from "./parser";
 
 export interface ParsedDocumentReuse {
   previousVersion: number | null;
@@ -17,7 +23,7 @@ export interface ParsedDocumentEntry {
   reuse: ParsedDocumentReuse;
 }
 
-const cache = new WeakMap<vscode.TextDocument, ParsedDocumentEntry>();
+const cache = new WeakMap<vscode.TextDocument, Map<string, ParsedDocumentEntry>>();
 
 function lineTextsForDocument(document: vscode.TextDocument): string[] {
   return Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
@@ -50,9 +56,17 @@ function sameState(
   );
 }
 
+function parseOptionsKey(options?: ParseOptions): string {
+  if (!options?.sectionHeaders) {
+    return "";
+  }
+  return [...options.sectionHeaders].join("\0");
+}
+
 function parseDocumentIncremental(
   previous: ParsedDocumentEntry,
   document: vscode.TextDocument,
+  options?: ParseOptions,
 ): ParsedDocumentEntry {
   const lineTexts = lineTextsForDocument(document);
   const prevLineTexts = previous.lineTexts;
@@ -97,7 +111,7 @@ function parseDocumentIncremental(
   const newSuffixStart = lineTexts.length - suffixLines;
 
   for (let lineNo = prefixLines; lineNo < newSuffixStart; lineNo += 1) {
-    const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state);
+    const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state, options);
     parsed[lineNo] = next.parsed;
     state = next.nextState;
   }
@@ -126,7 +140,7 @@ function parseDocumentIncremental(
   }
 
   for (let lineNo = newSuffixStart; lineNo < lineTexts.length; lineNo += 1) {
-    const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state);
+    const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state, options);
     parsed[lineNo] = next.parsed;
     state = next.nextState;
   }
@@ -145,17 +159,27 @@ function parseDocumentIncremental(
   };
 }
 
-export function getParsedDocumentEntry(document: vscode.TextDocument): ParsedDocumentEntry {
-  const hit = cache.get(document);
+export function getParsedDocumentEntry(
+  document: vscode.TextDocument,
+  options?: ParseOptions,
+): ParsedDocumentEntry {
+  const optionsKey = parseOptionsKey(options);
+  let entries = cache.get(document);
+  if (!entries) {
+    entries = new Map();
+    cache.set(document, entries);
+  }
+  const hit = entries.get(optionsKey);
   if (hit && hit.version === document.version) {
     return hit;
   }
+  const lineTexts = lineTextsForDocument(document);
   const next = hit
-    ? parseDocumentIncremental(hit, document)
+    ? parseDocumentIncremental(hit, document, options)
     : {
         version: document.version,
-        lineTexts: lineTextsForDocument(document),
-        parsed: parseDocumentLines(lineTextsForDocument(document)),
+        lineTexts,
+        parsed: parseDocumentLines(lineTexts, options),
         reuse: {
           previousVersion: null,
           prefixLines: 0,
@@ -164,10 +188,10 @@ export function getParsedDocumentEntry(document: vscode.TextDocument): ParsedDoc
           newSuffixStart: 0,
         },
       };
-  cache.set(document, next);
+  entries.set(optionsKey, next);
   return next;
 }
 
-export function getParsedDocument(document: vscode.TextDocument): ParsedLine[] {
-  return getParsedDocumentEntry(document).parsed;
+export function getParsedDocument(document: vscode.TextDocument, options?: ParseOptions): ParsedLine[] {
+  return getParsedDocumentEntry(document, options).parsed;
 }

@@ -8,8 +8,9 @@ import { formatConfig } from "./formatter";
 import { promptReloadIfGrammarChanged, syncActiveGrammarAsync } from "./grammar";
 import { provideHover } from "./hover";
 import { provideDefinition, provideReferences } from "./navigation";
-import { createBundleLoader, invalidateBundleLoad } from "./extensionBundle";
+import { createBundleLoader, getLoadedBundle, invalidateBundleLoad } from "./extensionBundle";
 import { getExtensionSettings, getFormatOptions, onSettingsChanged } from "./settings";
+import { sectionHeaderSet } from "./schema";
 import { registerVersionStatusBar } from "./statusBar";
 import { getConfiguredVersion, onVersionConfigurationChanged } from "./version";
 
@@ -135,8 +136,12 @@ export function activate(context: vscode.ExtensionContext): void {
         if (!settings.formatEnabled) {
           return [];
         }
+        const loadedBundle = getLoadedBundle();
         const text = document.getText();
-        const formatted = formatConfig(text, getFormatOptions(settings));
+        const formatted = formatConfig(text, {
+          ...getFormatOptions(settings),
+          sectionHeaders: loadedBundle ? sectionHeaderSet(loadedBundle.schema) : undefined,
+        });
         const fullRange = new vscode.Range(
           document.positionAt(0),
           document.positionAt(text.length),

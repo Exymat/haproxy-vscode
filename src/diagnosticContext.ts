@@ -10,6 +10,7 @@ import {
   StatementRule,
   modifierPrefixSet,
   noPrefixKeywordSet,
+  sectionHeaderSet,
   sectionHasOptionKeywords,
   sectionKeywordSet,
 } from "./schema";
@@ -56,7 +57,9 @@ export class DiagnosticContext {
     options: DiagnosticContextOptions = {},
   ) {
     this.schema = schema;
-    this.parsedEntry = getParsedDocumentEntry(document);
+    this.parsedEntry = getParsedDocumentEntry(document, {
+      sectionHeaders: sectionHeaderSet(schema),
+    });
     this.parsed = this.parsedEntry.parsed;
     const previousModes = runtimeModeCache.get(document);
     const nextModes = runtimeModeForDocument(
