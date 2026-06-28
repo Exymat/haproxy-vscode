@@ -18,8 +18,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
 
 const defaultReportPath = join(repoRoot, "scripts/reports/bench-latest.json");
-const reportPaths =
-  process.argv.length > 2 ? process.argv.slice(2) : [defaultReportPath];
+const reportPaths = process.argv.length > 2 ? process.argv.slice(2) : [defaultReportPath];
 const thresholdsPath = join(repoRoot, "test/bench/thresholds.json");
 
 const DEFAULT_FORMULA = {
@@ -217,8 +216,7 @@ function main() {
     rule.maxMs = maxMs;
     updatedRules += 1;
 
-    const rounded =
-      maxMs !== Math.ceil(rawMaxMs) ? ` (raw ${rawMaxMs.toFixed(2)} → ${maxMs})` : "";
+    const rounded = maxMs !== Math.ceil(rawMaxMs) ? ` (raw ${rawMaxMs.toFixed(2)} → ${maxMs})` : "";
     console.log(
       `[update] ${rule.name ?? rule.namePattern}: baseline=${rule.baselineMs}ms → maxMs=${maxMs}ms${rounded} (${matches.length} match(es))`,
     );
