@@ -3,7 +3,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
 
-import { assertDiagnosticCounts as assertCounts } from "../../helpers/diagnostics";
+import { assertDiagnosticCounts as assertCounts } from "../../helpers/diagnosticCounts";
 
 const EXTENSION_ID = "Exymat.haproxy-config";
 const FIXTURES_DIR = path.resolve(__dirname, "../../../../test/integration/fixtures");

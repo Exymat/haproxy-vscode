@@ -3,186 +3,186 @@
   "thresholds": [
     {
       "name": "loadSchemaBundle cold",
-      "maxMs": 22,
-      "baselineMs": 18.74,
-      "statisticalMarginMs": 0.3802
+      "maxMs": 25,
+      "baselineMs": 21.544,
+      "statisticalMarginMs": 0.6398
     },
     {
       "namePattern": "^loadSchemaBundle cold \\(",
-      "maxMs": 24,
-      "baselineMs": 20.154,
-      "statisticalMarginMs": 0.4193
+      "maxMs": 29,
+      "baselineMs": 24.523,
+      "statisticalMarginMs": 0.6181
     },
     {
       "namePattern": "^tokenize large-valid\\.cfg",
-      "maxMs": 2677,
+      "maxMs": 2659,
       "derive": "tokenize",
-      "baselineMs": 2327.202,
-      "statisticalMarginMs": 129.3419
+      "baselineMs": 2311.889,
+      "statisticalMarginMs": 25.7364
     },
     {
       "namePattern": "^tokenize large-mixed\\.cfg",
-      "maxMs": 1809,
+      "maxMs": 2172,
       "derive": "tokenize",
-      "baselineMs": 1572.669,
-      "statisticalMarginMs": 24.3981
+      "baselineMs": 1888.517,
+      "statisticalMarginMs": 16.5175
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg \\(",
-      "maxMs": 425,
-      "baselineMs": 369.522,
-      "statisticalMarginMs": 30.4752
+      "maxMs": 321,
+      "baselineMs": 279.076,
+      "statisticalMarginMs": 10.3848
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg \\(",
-      "maxMs": 319,
-      "baselineMs": 277.327,
-      "statisticalMarginMs": 10.1825
+      "maxMs": 288,
+      "baselineMs": 249.861,
+      "statisticalMarginMs": 7.5747
     },
     {
       "namePattern": "^diagnostics edit: large-valid\\.cfg \\(",
-      "maxMs": 24,
-      "baselineMs": 20.235,
-      "statisticalMarginMs": 0.5399
+      "maxMs": 30,
+      "baselineMs": 25.95,
+      "statisticalMarginMs": 0.7693
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg unusedSymbols",
-      "maxMs": 495,
-      "baselineMs": 430.108,
-      "statisticalMarginMs": 24.0054
+      "maxMs": 452,
+      "baselineMs": 392.215,
+      "statisticalMarginMs": 3.4819
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg unusedSymbols",
-      "maxMs": 288,
-      "baselineMs": 250.312,
-      "statisticalMarginMs": 7.6852
+      "maxMs": 267,
+      "baselineMs": 231.571,
+      "statisticalMarginMs": 1.8544
     },
     {
       "namePattern": "^diagnostics edit: large-valid\\.cfg unusedSymbols",
-      "maxMs": 124,
-      "baselineMs": 107.652,
-      "statisticalMarginMs": 6.2789
+      "maxMs": 43,
+      "baselineMs": 37.207,
+      "statisticalMarginMs": 1.8131
     },
     {
       "namePattern": "^diagnostics cold: large-mixed\\.cfg \\(",
-      "maxMs": 323,
-      "baselineMs": 280.774,
-      "statisticalMarginMs": 12.867
+      "maxMs": 245,
+      "baselineMs": 213.007,
+      "statisticalMarginMs": 2.5501
     },
     {
       "namePattern": "^diagnostics warm: large-mixed\\.cfg \\(",
-      "maxMs": 260,
-      "baselineMs": 225.376,
-      "statisticalMarginMs": 8.9351
+      "maxMs": 218,
+      "baselineMs": 189.184,
+      "statisticalMarginMs": 1.5476
     },
     {
       "namePattern": "^diagnostics edit: large-mixed\\.cfg \\(",
-      "maxMs": 22,
-      "baselineMs": 18.468,
-      "statisticalMarginMs": 0.6404
+      "maxMs": 26,
+      "baselineMs": 22.543,
+      "statisticalMarginMs": 0.7387
     },
     {
       "namePattern": "^diagnostics cold: large-mixed\\.cfg unusedSymbols",
-      "maxMs": 406,
-      "baselineMs": 352.792,
-      "statisticalMarginMs": 17.2732
+      "maxMs": 399,
+      "baselineMs": 346.437,
+      "statisticalMarginMs": 3.5632
     },
     {
       "namePattern": "^diagnostics warm: large-mixed\\.cfg unusedSymbols",
-      "maxMs": 274,
-      "baselineMs": 237.555,
-      "statisticalMarginMs": 8.9123
+      "maxMs": 228,
+      "baselineMs": 197.856,
+      "statisticalMarginMs": 2.785
     },
     {
       "namePattern": "^diagnostics edit: large-mixed\\.cfg unusedSymbols",
-      "maxMs": 87,
-      "baselineMs": 75.219,
-      "statisticalMarginMs": 1.6635
+      "maxMs": 38,
+      "baselineMs": 32.892,
+      "statisticalMarginMs": 1.8102
     },
     {
       "namePattern": "^diagnostics cold: log-format validation",
       "maxMs": 2,
-      "baselineMs": 0.103,
-      "statisticalMarginMs": 0.0014
+      "baselineMs": 0.174,
+      "statisticalMarginMs": 0.024
     },
     {
       "namePattern": "^diagnostics warm: log-format validation",
       "maxMs": 2,
-      "baselineMs": 0.084,
-      "statisticalMarginMs": 0.0005
+      "baselineMs": 0.082,
+      "statisticalMarginMs": 0.0009
     },
     {
       "namePattern": "^format: large-(valid|mixed)\\.cfg",
-      "maxMs": 33,
-      "baselineMs": 28.175,
-      "statisticalMarginMs": 0.9132
+      "maxMs": 46,
+      "baselineMs": 39.855,
+      "statisticalMarginMs": 1.8089
     },
     {
       "namePattern": "^document symbols: large-valid\\.cfg",
       "maxMs": 2,
-      "baselineMs": 0.351,
-      "statisticalMarginMs": 0.0015
+      "baselineMs": 0.563,
+      "statisticalMarginMs": 0.0055
     },
     {
       "namePattern": "^completion: large-valid\\.cfg",
-      "maxMs": 40,
-      "baselineMs": 34.431,
-      "statisticalMarginMs": 2.4723
+      "maxMs": 63,
+      "baselineMs": 54.157,
+      "statisticalMarginMs": 4.8472
     },
     {
       "namePattern": "^completion: log-format",
       "maxMs": 2,
-      "baselineMs": 0.038,
-      "statisticalMarginMs": 0.0006
+      "baselineMs": 0.033,
+      "statisticalMarginMs": 0.0008
     },
     {
       "namePattern": "^hover warm:",
-      "maxMs": 8,
-      "baselineMs": 6.929,
-      "statisticalMarginMs": 0.0834
+      "maxMs": 3,
+      "baselineMs": 1.962,
+      "statisticalMarginMs": 0.0099
     },
     {
       "namePattern": "^hover cold:",
       "maxMs": 2,
-      "baselineMs": 0.215,
-      "statisticalMarginMs": 0.0007
+      "baselineMs": 0.085,
+      "statisticalMarginMs": 0.0011
     },
     {
       "namePattern": "^definition: (cache-use|resolvers|inline ACL)",
       "maxMs": 2,
-      "baselineMs": 0.041,
-      "statisticalMarginMs": 0.0011
+      "baselineMs": 0.059,
+      "statisticalMarginMs": 0.0026
     },
     {
       "namePattern": "^references: peers section",
       "maxMs": 2,
-      "baselineMs": 0.056,
-      "statisticalMarginMs": 0.0012
+      "baselineMs": 0.041,
+      "statisticalMarginMs": 0.0021
     },
     {
       "namePattern": "^definition: large-valid\\.cfg",
       "maxMs": 7,
-      "baselineMs": 5.128,
-      "statisticalMarginMs": 0.0459
+      "baselineMs": 5.223,
+      "statisticalMarginMs": 0.0473
     },
     {
       "namePattern": "^references: large-valid\\.cfg",
       "maxMs": 7,
-      "baselineMs": 5.193,
-      "statisticalMarginMs": 0.0459
+      "baselineMs": 5.155,
+      "statisticalMarginMs": 0.0439
     },
     {
       "namePattern": "^definition warm: large-valid\\.cfg",
       "maxMs": 7,
-      "baselineMs": 5.114,
-      "statisticalMarginMs": 0.0497
+      "baselineMs": 5.116,
+      "statisticalMarginMs": 0.05
     }
   ],
   "derived": {
     "tokenize": {
       "minLines": 500,
       "absoluteFloorMsPerLine": 0.01,
-      "maxMsPerLine": 0.112
+      "maxMsPerLine": 0.111
     }
   },
   "formula": {

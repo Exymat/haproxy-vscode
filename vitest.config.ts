@@ -30,5 +30,7 @@ export default defineConfig({
     alias: {
       vscode: path.resolve(__dirname, "test/__mocks__/vscode.ts"),
     },
+    // Prefer .ts sources over stray tsc emit next to .ts files (see .gitignore).
+    extensions: [".ts", ".tsx", ".mts", ".mjs", ".js", ".jsx", ".json"],
   },
 });
