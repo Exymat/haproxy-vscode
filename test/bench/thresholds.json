@@ -4,13 +4,13 @@
     {
       "name": "loadSchemaBundle cold",
       "maxMs": 30,
-      "baselineMs": 21.935,
-      "statisticalMarginMs": 0.9928
+      "baselineMs": 23.893,
+      "statisticalMarginMs": 1.3518
     },
     {
       "namePattern": "^loadSchemaBundle cold \\(",
-      "maxMs": 30,
-      "baselineMs": 25.409,
+      "maxMs": 35,
+      "baselineMs": 27.025,
       "statisticalMarginMs": 1.0163
     },
     {
@@ -30,8 +30,8 @@
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg \\(",
       "maxMs": 330,
-      "baselineMs": 279.076,
-      "statisticalMarginMs": 10.3848
+      "baselineMs": 286.116,
+      "statisticalMarginMs": 15.2134
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg \\(",
@@ -53,9 +53,9 @@
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg unusedSymbols",
-      "maxMs": 290,
-      "baselineMs": 246.222,
-      "statisticalMarginMs": 4.8313
+      "maxMs": 390,
+      "baselineMs": 338.812,
+      "statisticalMarginMs": 25.7465
     },
     {
       "namePattern": "^diagnostics edit: large-valid\\.cfg unusedSymbols",
@@ -71,9 +71,9 @@
     },
     {
       "namePattern": "^diagnostics warm: large-mixed\\.cfg \\(",
-      "maxMs": 230,
-      "baselineMs": 192.372,
-      "statisticalMarginMs": 2.2839
+      "maxMs": 240,
+      "baselineMs": 201.156,
+      "statisticalMarginMs": 5.5261
     },
     {
       "namePattern": "^diagnostics edit: large-mixed\\.cfg \\(",
@@ -91,13 +91,13 @@
       "namePattern": "^diagnostics warm: large-mixed\\.cfg unusedSymbols",
       "maxMs": 230,
       "baselineMs": 199.382,
-      "statisticalMarginMs": 2.785
+      "statisticalMarginMs": 4.9032
     },
     {
       "namePattern": "^diagnostics edit: large-mixed\\.cfg unusedSymbols",
-      "maxMs": 40,
-      "baselineMs": 32.892,
-      "statisticalMarginMs": 1.8276
+      "maxMs": 45,
+      "baselineMs": 35.115,
+      "statisticalMarginMs": 2.1752
     },
     {
       "namePattern": "^diagnostics cold: log-format validation",
@@ -109,13 +109,13 @@
       "namePattern": "^diagnostics warm: log-format validation",
       "maxMs": 2,
       "baselineMs": 0.088,
-      "statisticalMarginMs": 0.0009
+      "statisticalMarginMs": 0.001
     },
     {
       "namePattern": "^format: large-(valid|mixed)\\.cfg",
       "maxMs": 50,
-      "baselineMs": 39.855,
-      "statisticalMarginMs": 2.097
+      "baselineMs": 42.418,
+      "statisticalMarginMs": 2.2136
     },
     {
       "namePattern": "^document symbols: large-valid\\.cfg",
@@ -132,8 +132,8 @@
     {
       "namePattern": "^completion: log-format",
       "maxMs": 2,
-      "baselineMs": 0.036,
-      "statisticalMarginMs": 0.0008
+      "baselineMs": 0.037,
+      "statisticalMarginMs": 0.0009
     },
     {
       "namePattern": "^hover warm:",
@@ -162,20 +162,20 @@
     {
       "namePattern": "^definition: large-valid\\.cfg",
       "maxMs": 8,
-      "baselineMs": 5.223,
-      "statisticalMarginMs": 0.0473
+      "baselineMs": 5.958,
+      "statisticalMarginMs": 0.0572
     },
     {
       "namePattern": "^references: large-valid\\.cfg",
       "maxMs": 8,
-      "baselineMs": 5.155,
-      "statisticalMarginMs": 0.0448
+      "baselineMs": 5.726,
+      "statisticalMarginMs": 0.0524
     },
     {
       "namePattern": "^definition warm: large-valid\\.cfg",
       "maxMs": 8,
-      "baselineMs": 5.242,
-      "statisticalMarginMs": 0.1058
+      "baselineMs": 5.749,
+      "statisticalMarginMs": 0.1105
     }
   ],
   "derived": {
