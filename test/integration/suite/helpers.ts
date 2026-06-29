@@ -112,14 +112,20 @@ export async function completionLabelsAt(
   uri: vscode.Uri,
   position: vscode.Position,
 ): Promise<string[]> {
+  const items = await completionItemsAt(uri, position);
+  return items.map((item) => (typeof item.label === "string" ? item.label : item.label.label));
+}
+
+export async function completionItemsAt(
+  uri: vscode.Uri,
+  position: vscode.Position,
+): Promise<vscode.CompletionItem[]> {
   const items = await vscode.commands.executeCommand<vscode.CompletionList>(
     "vscode.executeCompletionItemProvider",
     uri,
     position,
   );
-  return (items?.items ?? []).map((item) =>
-    typeof item.label === "string" ? item.label : item.label.label,
-  );
+  return items?.items ?? [];
 }
 
 export async function hoverTextAt(uri: vscode.Uri, position: vscode.Position): Promise<string> {

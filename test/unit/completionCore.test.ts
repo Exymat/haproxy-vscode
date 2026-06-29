@@ -16,6 +16,22 @@ describe("completion core", () => {
     expect(labels).toEqual(expect.arrayContaining(["global", "defaults", "frontend", "backend"]));
   });
 
+  it("suggests section headers while typing partial names", () => {
+    expect(completionLabels("global", 0, 1)).toEqual(expect.arrayContaining(["global"]));
+    expect(completionLabels("fron", 0)).toEqual(["frontend"]);
+    expect(completionLabels("back", 0)).toEqual(expect.arrayContaining(["backend"]));
+    expect(completionLabels("fron", 0)).not.toContain("backend");
+  });
+
+  it("suggests section headers between sections but not on indented blank lines", () => {
+    expect(completionLabels("global\n    daemon\n", 2, 0)).toEqual(
+      expect.arrayContaining(["frontend", "backend", "defaults"]),
+    );
+    const indentedBlank = "defaults\n    mode http\n    \n    balance roundrobin";
+    expect(completionLabels(indentedBlank, 2, 4)).toEqual(expect.arrayContaining(["balance"]));
+    expect(completionLabels(indentedBlank, 2, 4)).not.toContain("frontend");
+  });
+
   it("suggests option names", () => {
     expect(completionLabels("defaults\n    no option ", 1)).toEqual(
       expect.arrayContaining(["httplog", "forwardfor"]),
@@ -76,7 +92,6 @@ describe("completion core", () => {
 
   it("covers directive and ruleset completions", () => {
     expect(completionLabels("frontend web\n    bi", 1)).toEqual(expect.arrayContaining(["bind"]));
-    expect(completionLabels("global", 0, 1)).toEqual([]);
     expect(
       completionLabels(
         "frontend web\n    http-request set",

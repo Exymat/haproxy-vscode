@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.9
+
+- Section header completion while typing — partial names like `fron` or `back` suggest `frontend` and `backend`.
+- Section headers are offered on new top-level lines (empty files and between sections), but not on indented blank lines inside a section or on section name tokens.
+- Section completion list follows the full schema section header set for the active HAProxy version.
+
 ## 0.12.8
 
 - Server `usesrc` option — validation and hover for `client`/`clientip`, `hdr_ip(...)`, and address forms; schema metadata added across supported versions.

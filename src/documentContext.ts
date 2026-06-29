@@ -4,9 +4,10 @@ import { HaproxyLanguageData } from "./languageData";
 import { isConditionalOrStatusDirective } from "./conditionalDirectives";
 import { getParsedDocument } from "./parseCache";
 import { ParsedLine, ParsedToken } from "./parser";
-import { HaproxySchema, sectionHeaderSet, sectionNames, StatementRule } from "./schema";
+import { HaproxySchema, sectionHeaderSet, StatementRule } from "./schema";
 import { ruleMatchesLine } from "./statementLayout";
 import { keywordsForSection } from "./languageDataIndexes";
+import { isSectionHeaderCompletionContext } from "./sectionUtils";
 import { resolveTokenIndex } from "./tokenUtils";
 
 export type CompletionKind =
@@ -85,12 +86,7 @@ export function getDocumentContext(
 ): DocumentContext | null {
   const parsed = getParsedDocument(document, { sectionHeaders: sectionHeaderSet(schema) });
   const line = parsed[position.line];
-  if (!line || line.isSectionHeader) {
-    return null;
-  }
-
-  const firstToken = line.tokens[0]?.text;
-  if (isConditionalOrStatusDirective(firstToken)) {
+  if (!line) {
     return null;
   }
 
@@ -100,16 +96,22 @@ export function getDocumentContext(
   const token = resolved.token;
   const prefix = linePrefixBeforeCursor(lineText, position.character);
 
+  if (line.isSectionHeader && tokenIndex > 0) {
+    return null;
+  }
+
+  const firstToken = line.tokens[0]?.text;
+  if (isConditionalOrStatusDirective(firstToken)) {
+    return null;
+  }
+
   const exprKind = expressionKindAt(lineText, position.character);
   if (exprKind) {
     return { line, lineText, tokenIndex, token, kind: exprKind, prefix };
   }
 
-  if (line.tokens.length === 0) {
-    const trimmed = lineText.trim();
-    if (!trimmed) {
-      return { line, lineText, tokenIndex: 0, token: null, kind: "section", prefix: "" };
-    }
+  if (isSectionHeaderCompletionContext(line, tokenIndex, lineText, position.character)) {
+    return { line, lineText, tokenIndex, token, kind: "section", prefix };
   }
 
   const fromRules = classifyByRules(schema.statement_rules ?? [], line, tokenIndex);
@@ -131,5 +133,5 @@ export function sectionKeywordNames(data: HaproxyLanguageData, section: string |
 }
 
 export function getSectionKeywords(schema: HaproxySchema): string[] {
-  return sectionNames(schema);
+  return [...sectionHeaderSet(schema)].sort();
 }

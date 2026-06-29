@@ -16,17 +16,29 @@ function ctx(content: string, lineNo: number, character: number) {
 }
 
 describe("documentContext", () => {
-  it("returns null on section headers and conditional directives", () => {
-    expect(ctx("global", 0, 0)).toBeNull();
-    expect(ctx("defaults\n    mode http", 0, 0)).toBeNull();
+  it("returns null on section name tokens and conditional directives", () => {
+    expect(ctx("global", 0, 0)?.kind).toBe("section");
+    expect(ctx("defaults\n    mode http", 0, 0)?.kind).toBe("section");
+    expect(ctx("frontend web", 0, "frontend web".indexOf("web"))).toBeNull();
     expect(ctx("global\n    .if { always_true }", 1, 5)).toBeNull();
   });
 
-  it("classifies empty lines as section completion", () => {
+  it("classifies top-level empty lines as section completion", () => {
     const hit = ctx("global\n    daemon\n\n    mode http", 2, 0);
     expect(hit?.kind).toBe("section");
     expect(hit?.tokenIndex).toBe(0);
     expect(hit?.token).toBeNull();
+  });
+
+  it("classifies indented blank lines as directive completion", () => {
+    const lineText = "    ";
+    const hit = ctx(`global\n    daemon\n${lineText}\n    mode http`, 2, lineText.length);
+    expect(hit?.kind).toBe("directive");
+  });
+
+  it("classifies partial section header typing as section completion", () => {
+    expect(ctx("fron", 0, 4)?.kind).toBe("section");
+    expect(ctx("back", 0, 4)?.kind).toBe("section");
   });
 
   it("classifies expression fetch and converter contexts", () => {

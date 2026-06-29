@@ -6,6 +6,7 @@ import {
   assertDiagnosticCounts,
   clearHaproxySetting,
   completionLabelsAt,
+  completionItemsAt,
   definitionLocationsAt,
   ensureHaproxyVersion,
   filterDiagnostics,
@@ -308,6 +309,66 @@ suite("Language feature integration", () => {
       doc = await openHaproxyDocument("frontend web\n    acl test \n");
       labels = await completionLabelsAt(doc.uri, new vscode.Position(1, "    acl test ".length));
       assert.ok(labels.includes("path"), "Expected ACL criterion completion for path");
+    });
+
+    test("completion covers section headers at top level", async () => {
+      let doc = await openHaproxyDocument("");
+      let labels = await completionLabelsAt(doc.uri, new vscode.Position(0, 0));
+      assert.ok(labels.includes("global"), "Expected global section header on empty file");
+      assert.ok(labels.includes("defaults"), "Expected defaults section header on empty file");
+      assert.ok(labels.includes("frontend"), "Expected frontend section header on empty file");
+      assert.ok(labels.includes("backend"), "Expected backend section header on empty file");
+
+      doc = await openHaproxyDocument("fron");
+      labels = await completionLabelsAt(doc.uri, new vscode.Position(0, "fron".length));
+      assert.ok(labels.includes("frontend"), "Expected frontend completion for partial fron");
+      assert.ok(!labels.includes("backend"), "Did not expect backend for partial fron");
+
+      doc = await openHaproxyDocument("back");
+      labels = await completionLabelsAt(doc.uri, new vscode.Position(0, "back".length));
+      assert.ok(labels.includes("backend"), "Expected backend completion for partial back");
+
+      doc = await openHaproxyDocument("global");
+      labels = await completionLabelsAt(doc.uri, new vscode.Position(0, 1));
+      assert.ok(labels.includes("global"), "Expected global when editing a section keyword");
+
+      doc = await openHaproxyDocument("global\n    daemon\n");
+      labels = await completionLabelsAt(doc.uri, new vscode.Position(2, 0));
+      assert.ok(labels.includes("frontend"), "Expected frontend on blank line between sections");
+      assert.ok(labels.includes("defaults"), "Expected defaults on blank line between sections");
+
+      doc = await openHaproxyDocument("defaults\n    mode http\n    \n    balance roundrobin\n");
+      labels = await completionLabelsAt(doc.uri, new vscode.Position(2, 4));
+      assert.ok(
+        labels.includes("balance"),
+        "Expected in-section directive on indented blank line inside a section",
+      );
+      assert.ok(
+        !labels.includes("frontend"),
+        "Did not expect section header on indented blank line inside a section",
+      );
+
+      doc = await openHaproxyDocument("frontend web");
+      const sectionNameItems = await completionItemsAt(
+        doc.uri,
+        new vscode.Position(0, "frontend web".indexOf("web")),
+      );
+      const sectionHeadersOnName = sectionNameItems.filter(
+        (item) => item.detail === "HAProxy section",
+      );
+      assert.strictEqual(
+        sectionHeadersOnName.length,
+        0,
+        "Did not expect section header completion on section name token",
+      );
+
+      doc = await openHaproxyDocument("glob");
+      const items = await completionItemsAt(doc.uri, new vscode.Position(0, "glob".length));
+      const globalItem = items.find(
+        (item) => (typeof item.label === "string" ? item.label : item.label.label) === "global",
+      );
+      assert.ok(globalItem, "Expected global completion item for partial glob");
+      assert.strictEqual(globalItem.detail, "HAProxy section");
     });
 
     test("completion covers bind options, server option values, and sample converters", async () => {
