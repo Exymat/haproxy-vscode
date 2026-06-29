@@ -10,5 +10,8 @@
   "eslint.validate": ["typescript"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
+  },
+  "[haproxy]": {
+    "editor.defaultFormatter": "Exymat.haproxy-config"
   }
 }

@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.10
+
+- Format Document collapses multiple blank lines between sections to one, removes trailing blank lines at end of file, and keeps blank lines within a section.
+
 ## 0.12.9
 
 - Section header completion while typing — partial names like `fron` or `back` suggest `frontend` and `backend`.

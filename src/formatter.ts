@@ -90,6 +90,12 @@ function lastNonEmptyLine(lines: string[]): string | undefined {
   return undefined;
 }
 
+function stripTrailingBlankLines(lines: string[]): void {
+  while (lines.length > 0 && lines[lines.length - 1] === "") {
+    lines.pop();
+  }
+}
+
 export function formatConfig(
   text: string,
   options: FormatOptions = DEFAULT_FORMAT_OPTIONS,
@@ -120,17 +126,19 @@ export function formatConfig(
     const tokens = tokenizeLine(code);
 
     if (sectionHeaders.has(tokens[0].text.toLowerCase())) {
+      stripTrailingBlankLines(outputLines);
       if (options.insertBlankLineBetweenSections && outputLines.length > 0) {
-        const last = lastNonEmptyLine(outputLines);
-        if (last !== undefined) {
-          outputLines.push("");
-        }
+        outputLines.push("");
       }
       outputLines.push(appendComment(joinTokens(tokens), commentSuffix));
       continue;
     }
 
     outputLines.push(appendComment(`${indent}${joinTokens(tokens)}`, commentSuffix));
+  }
+
+  if (lastNonEmptyLine(outputLines) !== undefined) {
+    stripTrailingBlankLines(outputLines);
   }
 
   let formatted = outputLines.join(lineEnding);

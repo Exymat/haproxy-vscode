@@ -96,6 +96,21 @@ describe("formatter", () => {
       },
       expected: "frontend web\n  bind :443",
     },
+    {
+      name: "collapses multiple blank lines between sections",
+      input: "global\n    maxconn 100\n\n\n\n\ndefaults\n    mode http",
+      expected: "global\n    maxconn 100\n\ndefaults\n    mode http",
+    },
+    {
+      name: "removes trailing blank lines at end of file",
+      input: "global\n    maxconn 100\n\n\n",
+      expected: "global\n    maxconn 100\n",
+    },
+    {
+      name: "preserves blank lines within a section",
+      input: "frontend web\n    bind :80\n\n    default_backend www",
+      expected: "frontend web\n    bind :80\n\n    default_backend www",
+    },
   ];
 
   it.each(cases)("$name", ({ input, expected, options }) => {

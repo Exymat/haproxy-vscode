@@ -44,4 +44,23 @@ describe("folding", () => {
       { startLine: 0, endLine: 2 },
     ]);
   });
+
+  it("includes trailing blank lines before next section", () => {
+    runCase(
+      "includes trailing blank lines before next section",
+      "global\n    maxconn 100\n\n\n\ndefaults\n    mode http",
+      [
+        { startLine: 0, endLine: 4 },
+        { startLine: 5, endLine: 6 },
+      ],
+    );
+  });
+
+  it("keeps blank lines within a section body", () => {
+    runCase(
+      "keeps blank lines within a section body",
+      "frontend web\n    bind :80\n\n    default_backend www",
+      [{ startLine: 0, endLine: 3 }],
+    );
+  });
 });
