@@ -5,6 +5,7 @@ import {
   keywordsForSection,
   sectionKeywordNames,
 } from "../../src/documentContext";
+import * as parseCache from "../../src/parseCache";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 
@@ -16,6 +17,16 @@ function ctx(content: string, lineNo: number, character: number) {
 }
 
 describe("documentContext", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns null when parsed line is missing", () => {
+    const doc = createDocument("global");
+    vi.spyOn(parseCache, "getParsedDocument").mockReturnValue([]);
+    expect(getDocumentContext(doc, { line: 0, character: 0 } as never, schema)).toBeNull();
+  });
+
   it("returns null on section name tokens and conditional directives", () => {
     expect(ctx("global", 0, 0)?.kind).toBe("section");
     expect(ctx("defaults\n    mode http", 0, 0)?.kind).toBe("section");

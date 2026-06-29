@@ -34,6 +34,10 @@ describe("provideHover fallbacks", () => {
     expect(hoverMarkdown("defaults\n    totallyunknownkeyword", 1, 8, "3.4")).toBe("");
   });
 
+  it("returns null when document context is unavailable", () => {
+    expect(hoverMarkdown("frontend web", 0, "frontend web".indexOf("web"), "3.4")).toBe("");
+  });
+
   it("covers group-item fallback paths and unknown-token null paths", () => {
     const doc = createDocument("frontend web\n    acl test base /");
     const bundle = bundles["3.4"];

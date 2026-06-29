@@ -32,6 +32,10 @@ describe("completion core", () => {
     expect(completionLabels(indentedBlank, 2, 4)).not.toContain("frontend");
   });
 
+  it("returns no completions when document context is null", () => {
+    expect(completionLabels("frontend web", 0, "frontend web".indexOf("web"))).toEqual([]);
+  });
+
   it("suggests option names", () => {
     expect(completionLabels("defaults\n    no option ", 1)).toEqual(
       expect.arrayContaining(["httplog", "forwardfor"]),
