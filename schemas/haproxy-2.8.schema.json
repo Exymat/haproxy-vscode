@@ -9205,6 +9205,1050 @@
         }
       ]
     },
+    "filter bwlim-in": {
+      "argument_model": {
+        "max_args": 9,
+        "min_args": 5,
+        "slots": [
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "name",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "default-limit",
+              "limit"
+            ],
+            "optional": false,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "generic",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "default-period",
+              "key"
+            ],
+            "optional": false,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "generic",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "min-size",
+              "table"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "generic",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "min-size"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "generic",
+            "variadic": false
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "description": "is the filter name that will be used by 'set-bandwidth-limit' actions to reference a specific bandwidth limitation filter.",
+          "parameter": "<name>",
+          "values": []
+        },
+        {
+          "description": "is max number of bytes that can be forwarded over the period. The value must be specified for per-stream and shared bandwidth limitation filters. It follows the HAProxy size format and is expressed in bytes.",
+          "parameter": "<size>",
+          "values": []
+        },
+        {
+          "description": "is a sample expression rule as described in section 7.3. It describes what elements will be analyzed, extracted, combined, and used to select which table entry to update the counters. It must be specified for shared bandwidth limitation filters only.",
+          "parameter": "<pattern>",
+          "values": []
+        },
+        {
+          "description": "is an optional table to be used instead of the default one, which is the stick-table declared in the current proxy. It can be specified for shared bandwidth limitation filters only.",
+          "parameter": "<table>",
+          "values": []
+        },
+        {
+          "description": "is the default time period used to evaluate the bandwidth limitation rate. It can be specified for per-stream bandwidth limitation filters only. It follows the HAProxy time format and is expressed in milliseconds.",
+          "parameter": "<time>",
+          "values": []
+        },
+        {
+          "description": "is the optional minimum number of bytes forwarded at a time by a stream excluding the last packet that may be smaller. This value can be specified for per-stream and shared bandwidth limitation filters. It follows the HAProxy size format and is expressed in bytes.",
+          "parameter": "<min-size>",
+          "values": []
+        }
+      ],
+      "contexts": [],
+      "line_option_semantics": [],
+      "name": "filter bwlim-in",
+      "sections": [
+        "backend",
+        "frontend",
+        "listen"
+      ],
+      "signatures": [
+        "filter bwlim-in  <name> default-limit <size> default-period <time> [min-size <sz>]",
+        "filter bwlim-in  <name> limit <size> key <pattern> [table <table>] [min-size <sz>]"
+      ],
+      "sources": [
+        "doc"
+      ],
+      "variants": [
+        {
+          "argument_model": {
+            "max_args": 9,
+            "min_args": 5,
+            "slots": [
+              {
+                "enum": [],
+                "optional": false,
+                "value_kind": "name",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "default-limit",
+                  "limit"
+                ],
+                "optional": false,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": false,
+                "value_kind": "generic",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "default-period",
+                  "key"
+                ],
+                "optional": false,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": false,
+                "value_kind": "generic",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "min-size",
+                  "table"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "generic",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "min-size"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "generic",
+                "variadic": false
+              }
+            ]
+          },
+          "arguments": [
+            {
+              "description": "is the filter name that will be used by 'set-bandwidth-limit' actions to reference a specific bandwidth limitation filter.",
+              "parameter": "<name>",
+              "values": []
+            },
+            {
+              "description": "is max number of bytes that can be forwarded over the period. The value must be specified for per-stream and shared bandwidth limitation filters. It follows the HAProxy size format and is expressed in bytes.",
+              "parameter": "<size>",
+              "values": []
+            },
+            {
+              "description": "is a sample expression rule as described in section 7.3. It describes what elements will be analyzed, extracted, combined, and used to select which table entry to update the counters. It must be specified for shared bandwidth limitation filters only.",
+              "parameter": "<pattern>",
+              "values": []
+            },
+            {
+              "description": "is an optional table to be used instead of the default one, which is the stick-table declared in the current proxy. It can be specified for shared bandwidth limitation filters only.",
+              "parameter": "<table>",
+              "values": []
+            },
+            {
+              "description": "is the default time period used to evaluate the bandwidth limitation rate. It can be specified for per-stream bandwidth limitation filters only. It follows the HAProxy time format and is expressed in milliseconds.",
+              "parameter": "<time>",
+              "values": []
+            },
+            {
+              "description": "is the optional minimum number of bytes forwarded at a time by a stream excluding the last packet that may be smaller. This value can be specified for per-stream and shared bandwidth limitation filters. It follows the HAProxy size format and is expressed in bytes.",
+              "parameter": "<min-size>",
+              "values": []
+            }
+          ],
+          "chapter": "9",
+          "contexts": [],
+          "sections": [
+            "backend",
+            "frontend",
+            "listen"
+          ],
+          "signatures": [
+            "filter bwlim-in  <name> default-limit <size> default-period <time> [min-size <sz>]",
+            "filter bwlim-in  <name> limit <size> key <pattern> [table <table>] [min-size <sz>]"
+          ]
+        }
+      ]
+    },
+    "filter bwlim-out": {
+      "argument_model": {
+        "max_args": 9,
+        "min_args": 5,
+        "slots": [
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "name",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "default-limit",
+              "limit"
+            ],
+            "optional": false,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "generic",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "default-period",
+              "key"
+            ],
+            "optional": false,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "generic",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "min-size",
+              "table"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "generic",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "min-size"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "generic",
+            "variadic": false
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "description": "is the filter name that will be used by 'set-bandwidth-limit' actions to reference a specific bandwidth limitation filter.",
+          "parameter": "<name>",
+          "values": []
+        },
+        {
+          "description": "is max number of bytes that can be forwarded over the period. The value must be specified for per-stream and shared bandwidth limitation filters. It follows the HAProxy size format and is expressed in bytes.",
+          "parameter": "<size>",
+          "values": []
+        },
+        {
+          "description": "is a sample expression rule as described in section 7.3. It describes what elements will be analyzed, extracted, combined, and used to select which table entry to update the counters. It must be specified for shared bandwidth limitation filters only.",
+          "parameter": "<pattern>",
+          "values": []
+        },
+        {
+          "description": "is an optional table to be used instead of the default one, which is the stick-table declared in the current proxy. It can be specified for shared bandwidth limitation filters only.",
+          "parameter": "<table>",
+          "values": []
+        },
+        {
+          "description": "is the default time period used to evaluate the bandwidth limitation rate. It can be specified for per-stream bandwidth limitation filters only. It follows the HAProxy time format and is expressed in milliseconds.",
+          "parameter": "<time>",
+          "values": []
+        },
+        {
+          "description": "is the optional minimum number of bytes forwarded at a time by a stream excluding the last packet that may be smaller. This value can be specified for per-stream and shared bandwidth limitation filters. It follows the HAProxy size format and is expressed in bytes.",
+          "parameter": "<min-size>",
+          "values": []
+        }
+      ],
+      "contexts": [],
+      "line_option_semantics": [],
+      "name": "filter bwlim-out",
+      "sections": [
+        "backend",
+        "frontend",
+        "listen"
+      ],
+      "signatures": [
+        "filter bwlim-out <name> default-limit <size> default-period <time> [min-size <sz>]",
+        "filter bwlim-out <name> limit <size> key <pattern> [table <table>] [min-size <sz>]"
+      ],
+      "sources": [
+        "doc"
+      ],
+      "variants": [
+        {
+          "argument_model": {
+            "max_args": 9,
+            "min_args": 5,
+            "slots": [
+              {
+                "enum": [],
+                "optional": false,
+                "value_kind": "name",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "default-limit",
+                  "limit"
+                ],
+                "optional": false,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": false,
+                "value_kind": "generic",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "default-period",
+                  "key"
+                ],
+                "optional": false,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": false,
+                "value_kind": "generic",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "min-size",
+                  "table"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "generic",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "min-size"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "generic",
+                "variadic": false
+              }
+            ]
+          },
+          "arguments": [
+            {
+              "description": "is the filter name that will be used by 'set-bandwidth-limit' actions to reference a specific bandwidth limitation filter.",
+              "parameter": "<name>",
+              "values": []
+            },
+            {
+              "description": "is max number of bytes that can be forwarded over the period. The value must be specified for per-stream and shared bandwidth limitation filters. It follows the HAProxy size format and is expressed in bytes.",
+              "parameter": "<size>",
+              "values": []
+            },
+            {
+              "description": "is a sample expression rule as described in section 7.3. It describes what elements will be analyzed, extracted, combined, and used to select which table entry to update the counters. It must be specified for shared bandwidth limitation filters only.",
+              "parameter": "<pattern>",
+              "values": []
+            },
+            {
+              "description": "is an optional table to be used instead of the default one, which is the stick-table declared in the current proxy. It can be specified for shared bandwidth limitation filters only.",
+              "parameter": "<table>",
+              "values": []
+            },
+            {
+              "description": "is the default time period used to evaluate the bandwidth limitation rate. It can be specified for per-stream bandwidth limitation filters only. It follows the HAProxy time format and is expressed in milliseconds.",
+              "parameter": "<time>",
+              "values": []
+            },
+            {
+              "description": "is the optional minimum number of bytes forwarded at a time by a stream excluding the last packet that may be smaller. This value can be specified for per-stream and shared bandwidth limitation filters. It follows the HAProxy size format and is expressed in bytes.",
+              "parameter": "<min-size>",
+              "values": []
+            }
+          ],
+          "chapter": "9",
+          "contexts": [],
+          "sections": [
+            "backend",
+            "frontend",
+            "listen"
+          ],
+          "signatures": [
+            "filter bwlim-out <name> default-limit <size> default-period <time> [min-size <sz>]",
+            "filter bwlim-out <name> limit <size> key <pattern> [table <table>] [min-size <sz>]"
+          ]
+        }
+      ]
+    },
+    "filter cache": {
+      "argument_model": {
+        "max_args": 1,
+        "min_args": 1,
+        "slots": [
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "name",
+            "variadic": false
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "description": "is name of the cache section this filter will use.",
+          "parameter": "<name>",
+          "values": []
+        }
+      ],
+      "contexts": [],
+      "line_option_semantics": [],
+      "name": "filter cache",
+      "sections": [
+        "backend",
+        "frontend",
+        "listen"
+      ],
+      "signatures": [
+        "filter cache <name>"
+      ],
+      "sources": [
+        "doc"
+      ],
+      "variants": [
+        {
+          "argument_model": {
+            "max_args": 1,
+            "min_args": 1,
+            "slots": [
+              {
+                "enum": [],
+                "optional": false,
+                "value_kind": "name",
+                "variadic": false
+              }
+            ]
+          },
+          "arguments": [
+            {
+              "description": "is name of the cache section this filter will use.",
+              "parameter": "<name>",
+              "values": []
+            }
+          ],
+          "chapter": "9",
+          "contexts": [],
+          "sections": [
+            "backend",
+            "frontend",
+            "listen"
+          ],
+          "signatures": [
+            "filter cache <name>"
+          ]
+        }
+      ]
+    },
+    "filter compression": {
+      "argument_model": {
+        "max_args": 0,
+        "min_args": 0,
+        "slots": []
+      },
+      "arguments": [],
+      "contexts": [],
+      "line_option_semantics": [],
+      "name": "filter compression",
+      "sections": [
+        "backend",
+        "frontend",
+        "listen"
+      ],
+      "signatures": [
+        "filter compression"
+      ],
+      "sources": [
+        "doc"
+      ],
+      "variants": [
+        {
+          "argument_model": {
+            "max_args": 0,
+            "min_args": 0,
+            "slots": []
+          },
+          "arguments": [],
+          "chapter": "9",
+          "contexts": [],
+          "sections": [
+            "backend",
+            "frontend",
+            "listen"
+          ],
+          "signatures": [
+            "filter compression"
+          ]
+        }
+      ]
+    },
+    "filter fcgi-app": {
+      "argument_model": {
+        "max_args": 1,
+        "min_args": 1,
+        "slots": [
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "name",
+            "variadic": false
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "description": "is name of the fcgi-app section this filter will use.",
+          "parameter": "<name>",
+          "values": []
+        }
+      ],
+      "contexts": [],
+      "line_option_semantics": [],
+      "name": "filter fcgi-app",
+      "sections": [
+        "backend",
+        "frontend",
+        "listen"
+      ],
+      "signatures": [
+        "filter fcgi-app <name>"
+      ],
+      "sources": [
+        "doc"
+      ],
+      "variants": [
+        {
+          "argument_model": {
+            "max_args": 1,
+            "min_args": 1,
+            "slots": [
+              {
+                "enum": [],
+                "optional": false,
+                "value_kind": "name",
+                "variadic": false
+              }
+            ]
+          },
+          "arguments": [
+            {
+              "description": "is name of the fcgi-app section this filter will use.",
+              "parameter": "<name>",
+              "values": []
+            }
+          ],
+          "chapter": "9",
+          "contexts": [],
+          "sections": [
+            "backend",
+            "frontend",
+            "listen"
+          ],
+          "signatures": [
+            "filter fcgi-app <name>"
+          ]
+        }
+      ]
+    },
+    "filter opentracing": {
+      "argument_model": {
+        "max_args": 4,
+        "min_args": 2,
+        "slots": [
+          {
+            "enum": [
+              "id"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "name",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "config"
+            ],
+            "optional": false,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "path",
+            "variadic": false
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "description": "is the OpenTracing filter id that will be used to find the right scope in the configuration file. If no filter id is specified, 'ot-filter' is used as default.  If scope is not specified in the configuration file, it applies to all defined OpenTracing filters.",
+          "parameter": "<id>",
+          "values": []
+        },
+        {
+          "description": "is the path of the OpenTracing configuration file. The same file can contain configurations for multiple OpenTracing filters simultaneously. In that case we do not need to define scope so the same configuration applies to all filters or each filter must have its own scope defined.",
+          "parameter": "<file>",
+          "values": []
+        }
+      ],
+      "contexts": [],
+      "line_option_semantics": [],
+      "name": "filter opentracing",
+      "sections": [
+        "backend",
+        "frontend",
+        "listen"
+      ],
+      "signatures": [
+        "filter opentracing [id <id>] config <file>"
+      ],
+      "sources": [
+        "doc"
+      ],
+      "variants": [
+        {
+          "argument_model": {
+            "max_args": 4,
+            "min_args": 2,
+            "slots": [
+              {
+                "enum": [
+                  "id"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "name",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "config"
+                ],
+                "optional": false,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": false,
+                "value_kind": "path",
+                "variadic": false
+              }
+            ]
+          },
+          "arguments": [
+            {
+              "description": "is the OpenTracing filter id that will be used to find the right scope in the configuration file. If no filter id is specified, 'ot-filter' is used as default.  If scope is not specified in the configuration file, it applies to all defined OpenTracing filters.",
+              "parameter": "<id>",
+              "values": []
+            },
+            {
+              "description": "is the path of the OpenTracing configuration file. The same file can contain configurations for multiple OpenTracing filters simultaneously. In that case we do not need to define scope so the same configuration applies to all filters or each filter must have its own scope defined.",
+              "parameter": "<file>",
+              "values": []
+            }
+          ],
+          "chapter": "9",
+          "contexts": [],
+          "sections": [
+            "backend",
+            "frontend",
+            "listen"
+          ],
+          "signatures": [
+            "filter opentracing [id <id>] config <file>"
+          ]
+        }
+      ]
+    },
+    "filter spoe": {
+      "argument_model": {
+        "max_args": 4,
+        "min_args": 2,
+        "slots": [
+          {
+            "enum": [
+              "engine"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "name",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "config"
+            ],
+            "optional": false,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "path",
+            "variadic": false
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "description": "is the engine name that will be used to find the right scope in the configuration file. If not provided, all the file will be parsed.",
+          "parameter": "<name>",
+          "values": []
+        },
+        {
+          "description": "is the path of the engine configuration file. This file can contain configuration of several engines. In this case, each part must be placed in its own scope.",
+          "parameter": "<file>",
+          "values": []
+        }
+      ],
+      "contexts": [],
+      "line_option_semantics": [],
+      "name": "filter spoe",
+      "sections": [
+        "backend",
+        "frontend",
+        "listen"
+      ],
+      "signatures": [
+        "filter spoe [engine <name>] config <file>"
+      ],
+      "sources": [
+        "doc"
+      ],
+      "variants": [
+        {
+          "argument_model": {
+            "max_args": 4,
+            "min_args": 2,
+            "slots": [
+              {
+                "enum": [
+                  "engine"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "name",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "config"
+                ],
+                "optional": false,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": false,
+                "value_kind": "path",
+                "variadic": false
+              }
+            ]
+          },
+          "arguments": [
+            {
+              "description": "is the engine name that will be used to find the right scope in the configuration file. If not provided, all the file will be parsed.",
+              "parameter": "<name>",
+              "values": []
+            },
+            {
+              "description": "is the path of the engine configuration file. This file can contain configuration of several engines. In this case, each part must be placed in its own scope.",
+              "parameter": "<file>",
+              "values": []
+            }
+          ],
+          "chapter": "9",
+          "contexts": [],
+          "sections": [
+            "backend",
+            "frontend",
+            "listen"
+          ],
+          "signatures": [
+            "filter spoe [engine <name>] config <file>"
+          ]
+        }
+      ]
+    },
+    "filter trace": {
+      "argument_model": {
+        "max_args": 4,
+        "min_args": 0,
+        "slots": [
+          {
+            "enum": [
+              "name"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "name",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "random-forwarding"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [
+              "hexdump"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "description": "is an arbitrary name that will be reported in messages. If no name is provided, \"TRACE\" is used.",
+          "parameter": "<name>",
+          "values": []
+        },
+        {
+          "description": "inhibits trace messages.",
+          "parameter": "<quiet>",
+          "values": []
+        },
+        {
+          "description": "enables the random forwarding of parsed data. By default, this filter forwards all previously parsed data. With this parameter, it only forwards a random amount of the parsed data.",
+          "parameter": "<random-forwarding>",
+          "values": []
+        },
+        {
+          "description": "dumps all forwarded data to the server and the client.",
+          "parameter": "<hexdump>",
+          "values": []
+        }
+      ],
+      "contexts": [],
+      "line_option_semantics": [],
+      "name": "filter trace",
+      "sections": [
+        "backend",
+        "frontend",
+        "listen"
+      ],
+      "signatures": [
+        "filter trace [name <name>] [random-forwarding] [hexdump]"
+      ],
+      "sources": [
+        "doc"
+      ],
+      "variants": [
+        {
+          "argument_model": {
+            "max_args": 4,
+            "min_args": 0,
+            "slots": [
+              {
+                "enum": [
+                  "name"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "name",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "random-forwarding"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [
+                  "hexdump"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              }
+            ]
+          },
+          "arguments": [
+            {
+              "description": "is an arbitrary name that will be reported in messages. If no name is provided, \"TRACE\" is used.",
+              "parameter": "<name>",
+              "values": []
+            },
+            {
+              "description": "inhibits trace messages.",
+              "parameter": "<quiet>",
+              "values": []
+            },
+            {
+              "description": "enables the random forwarding of parsed data. By default, this filter forwards all previously parsed data. With this parameter, it only forwards a random amount of the parsed data.",
+              "parameter": "<random-forwarding>",
+              "values": []
+            },
+            {
+              "description": "dumps all forwarded data to the server and the client.",
+              "parameter": "<hexdump>",
+              "values": []
+            }
+          ],
+          "chapter": "9",
+          "contexts": [],
+          "sections": [
+            "backend",
+            "frontend",
+            "listen"
+          ],
+          "signatures": [
+            "filter trace [name <name>] [random-forwarding] [hexdump]"
+          ]
+        }
+      ]
+    },
     "force-persist": {
       "argument_model": {
         "max_args": 2,
@@ -59997,6 +61041,14 @@
         "external-check command",
         "external-check path",
         "filter",
+        "filter bwlim-in",
+        "filter bwlim-out",
+        "filter cache",
+        "filter compression",
+        "filter fcgi-app",
+        "filter opentracing",
+        "filter spoe",
+        "filter trace",
         "force-persist",
         "fullconn",
         "hash-balance-factor",
@@ -60425,6 +61477,14 @@
         "errorloc302",
         "errorloc303",
         "filter",
+        "filter bwlim-in",
+        "filter bwlim-out",
+        "filter cache",
+        "filter compression",
+        "filter fcgi-app",
+        "filter opentracing",
+        "filter spoe",
+        "filter trace",
         "http-after-response",
         "http-error status",
         "http-request",
@@ -60781,6 +61841,14 @@
         "external-check command",
         "external-check path",
         "filter",
+        "filter bwlim-in",
+        "filter bwlim-out",
+        "filter cache",
+        "filter compression",
+        "filter fcgi-app",
+        "filter opentracing",
+        "filter spoe",
+        "filter trace",
         "force-persist",
         "fullconn",
         "hash-type",

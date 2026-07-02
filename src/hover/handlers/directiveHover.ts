@@ -44,7 +44,7 @@ function tryArgumentValueHover(hc: HoverContext): vscode.Hover | null {
     extras.push(`**Directive:** ${escapeMarkdownText(kw.name)}`);
   }
   return new vscode.Hover(
-    hoverMarkdown(argValue.name, "", argValue.description, extras, kw?.docsUrl),
+    hoverMarkdown(argValue.name, "", argValue.description, extras, kw?.docsUrl, kw?.examples),
     range,
   );
 }
@@ -55,6 +55,13 @@ function tryMatchedDirectiveHover(hc: HoverContext): vscode.Hover | null {
   const kw = directive.matched ? semantic.resolvedLanguageKeyword : undefined;
   if (!kw) {
     return null;
+  }
+  if (ctx.tokenIndex > directive.end) {
+    const pos = argumentPosition(ctx.tokenIndex, directive.end);
+    const param = kw.arguments?.[Math.min(pos, (kw.arguments?.length ?? 1) - 1)];
+    if (!param?.description) {
+      return null;
+    }
   }
   return buildDirectiveHover(
     hc,
@@ -74,6 +81,13 @@ function tryPrefixDirectiveHover(hc: HoverContext): vscode.Hover | null {
   const kw = resolveLanguageKeyword(findKeywordByPrefix(data, combined), ctx.line.section);
   if (!kw) {
     return null;
+  }
+  if (ctx.tokenIndex > directive.end) {
+    const pos = argumentPosition(ctx.tokenIndex, directive.end);
+    const param = kw.arguments?.[Math.min(pos, (kw.arguments?.length ?? 1) - 1)];
+    if (!param?.description) {
+      return null;
+    }
   }
   /* c8 ignore next -- exercised only by partial-prefix directive states */
   return buildDirectiveHover(

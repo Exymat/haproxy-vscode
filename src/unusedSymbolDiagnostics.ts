@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
-import { getSectionOutline } from "./sectionOutline";
+import { getSectionOutline, SectionSymbolInfo } from "./sectionOutline";
 import { hasReferences, SymbolIndex, SymbolKind, SymbolSite } from "./symbolIndex";
 
 export interface UnusedSymbolOptions {
@@ -20,21 +20,46 @@ const SECTION_BLOCK_KINDS = new Set<SymbolKind>([
 
 const ENTRY_POINT_TOKENS = new Set(["bind", "bind-process"]);
 
-function sectionBlockForSite(
-  sectionByStartLine: Map<number, { startLine: number; endLine: number; endColumn: number }>,
+const SKIPPED_UNUSED_KINDS = new Set<SymbolKind>(["filter", "server"]);
+
+function sectionOutlineByStartLine(
+  document: vscode.TextDocument,
+  parsed: ParsedLine[],
+): Map<number, SectionSymbolInfo> {
+  const byStartLine = new Map<number, SectionSymbolInfo>();
+  for (const section of getSectionOutline(document, parsed)) {
+    byStartLine.set(section.startLine, section);
+  }
+  return byStartLine;
+}
+
+function sectionBlockBounds(
+  outline: SectionSymbolInfo | undefined,
   site: SymbolSite,
   kind: SymbolKind,
-): { startLine: number; endLine: number; endColumn: number } {
-  if (!SECTION_BLOCK_KINDS.has(kind)) {
-    return { startLine: site.line, endLine: site.line, endColumn: site.end };
+): { startLine: number; endLine: number } {
+  if (outline) {
+    return { startLine: outline.startLine, endLine: outline.endLine };
   }
-
-  const match = sectionByStartLine.get(site.line);
-  if (match) {
-    return match;
+  if (SECTION_BLOCK_KINDS.has(kind)) {
+    return { startLine: site.line, endLine: site.line };
   }
+  return { startLine: site.line, endLine: site.line };
+}
 
-  return { startLine: site.line, endLine: site.line, endColumn: site.end };
+function sectionHeaderRange(
+  site: SymbolSite,
+  outline: SectionSymbolInfo | undefined,
+): vscode.Range {
+  if (outline) {
+    return new vscode.Range(
+      outline.startLine,
+      outline.selectionStart,
+      outline.startLine,
+      outline.selectionEnd,
+    );
+  }
+  return new vscode.Range(site.line, site.start, site.line, site.end);
 }
 
 function proxySectionType(parsed: ParsedLine[], defLine: number): string | null {
@@ -77,8 +102,6 @@ function unusedMessage(kind: SymbolKind, name: string, sectionType: string | nul
   switch (kind) {
     case "acl":
       return `ACL '${name}' is defined but never referenced in this section`;
-    case "server":
-      return `Server '${name}' is never referenced by use-server`;
     case "proxy-section":
       return `${sectionType ?? "Section"} '${name}' is never referenced by use_backend or default_backend`;
     case "defaults-profile":
@@ -100,8 +123,6 @@ function unusedCode(kind: SymbolKind): string {
   switch (kind) {
     case "acl":
       return "unused-acl";
-    case "server":
-      return "unused-server";
     case "proxy-section":
       return "unused-section";
     case "defaults-profile":
@@ -111,15 +132,28 @@ function unusedCode(kind: SymbolKind): string {
   }
 }
 
-function makeUnusedDiagnostic(
+/** Information severity: full-line squiggle on unused ACL and similar symbols. */
+function makeUnusedLineDiagnostic(
   range: vscode.Range,
   message: string,
   code: string,
 ): vscode.Diagnostic {
-  const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Hint);
+  const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Information);
   diagnostic.source = DIAG_SOURCE;
   diagnostic.code = code;
   diagnostic.tags = [vscode.DiagnosticTag.Unnecessary];
+  return diagnostic;
+}
+
+/** Information severity: squiggle on the section header keyword only. */
+function makeUnusedSectionDiagnostic(
+  range: vscode.Range,
+  message: string,
+  code: string,
+): vscode.Diagnostic {
+  const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Information);
+  diagnostic.source = DIAG_SOURCE;
+  diagnostic.code = code;
   return diagnostic;
 }
 
@@ -135,17 +169,7 @@ export function unusedSymbolDiagnostics(
 
   const diagnostics: vscode.Diagnostic[] = [];
   const reported = new Set<string>();
-  const sectionByStartLine = new Map<
-    number,
-    { startLine: number; endLine: number; endColumn: number }
-  >();
-  for (const section of getSectionOutline(document, parsed)) {
-    sectionByStartLine.set(section.startLine, {
-      startLine: section.startLine,
-      endLine: section.endLine,
-      endColumn: section.endColumn,
-    });
-  }
+  const outlineByStartLine = sectionOutlineByStartLine(document, parsed);
 
   for (const [key, defs] of index.definitions) {
     if (reported.has(key) || defs.length === 0) {
@@ -156,8 +180,7 @@ export function unusedSymbolDiagnostics(
     const site = defs[0];
     const { kind } = site;
 
-    // Filter lines apply themselves; duplicate names are intentional filter types.
-    if (kind === "filter") {
+    if (SKIPPED_UNUSED_KINDS.has(kind)) {
       continue;
     }
 
@@ -165,7 +188,8 @@ export function unusedSymbolDiagnostics(
       continue;
     }
 
-    const block = sectionBlockForSite(sectionByStartLine, site, kind);
+    const outline = outlineByStartLine.get(site.line);
+    const block = sectionBlockBounds(outline, site, kind);
     if (kind === "proxy-section" && isExemptProxySection(parsed, site, block)) {
       continue;
     }
@@ -176,18 +200,14 @@ export function unusedSymbolDiagnostics(
 
     if (SECTION_BLOCK_KINDS.has(kind)) {
       diagnostics.push(
-        makeUnusedDiagnostic(
-          new vscode.Range(block.startLine, 0, block.endLine, block.endColumn),
-          message,
-          code,
-        ),
+        makeUnusedSectionDiagnostic(sectionHeaderRange(site, outline), message, code),
       );
       continue;
     }
 
     const lineText = document.lineAt(site.line).text;
     diagnostics.push(
-      makeUnusedDiagnostic(
+      makeUnusedLineDiagnostic(
         new vscode.Range(site.line, 0, site.line, lineText.length),
         message,
         code,

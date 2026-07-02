@@ -41,10 +41,10 @@ export function provideHover(
   return (
     tryOptionHover(hc) ??
     tryLineOptionHover(hc) ??
-    tryActionHover(hc) ??
     tryConditionalHover(hc) ??
     tryLogFormatHover(hc) ??
     tryExpressionHover(hc) ??
+    tryActionHover(hc) ??
     tryAclRefHover(hc) ??
     tryDirectiveHover(hc)
   );

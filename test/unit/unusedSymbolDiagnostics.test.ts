@@ -31,7 +31,7 @@ describe("unusedSymbolDiagnostics", () => {
     expect(diags).toHaveLength(1);
     expect(diags[0]?.code).toBe("unused-acl");
     expect(diags[0]?.message).toContain("blocked");
-    expect(diags[0]?.severity).toBe(vscode.DiagnosticSeverity.Hint);
+    expect(diags[0]?.severity).toBe(vscode.DiagnosticSeverity.Information);
     expect(diags[0]?.tags).toContain(vscode.DiagnosticTag.Unnecessary);
     expect(diags[0]?.range.start.line).toBe(1);
     expect(diags[0]?.range.start.character).toBe(0);
@@ -52,14 +52,18 @@ describe("unusedSymbolDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unused-acl")).toHaveLength(0);
   });
 
-  it("reports unused backend spanning the full section block", () => {
+  it("reports unused backend with a squiggle on the section header", () => {
     const diags = unusedDiags(
       "frontend web\n    bind :80\nbackend old_api\n    server s1 127.0.0.1:80",
     );
     const sectionDiag = diags.find((d) => d.code === "unused-section");
     expect(sectionDiag).toBeDefined();
+    expect(sectionDiag?.severity).toBe(vscode.DiagnosticSeverity.Information);
+    expect(sectionDiag?.tags ?? []).not.toContain(vscode.DiagnosticTag.Unnecessary);
     expect(sectionDiag?.range.start.line).toBe(2);
-    expect(sectionDiag?.range.end.line).toBe(3);
+    expect(sectionDiag?.range.end.line).toBe(2);
+    expect(sectionDiag?.range.start.character).toBe(0);
+    expect(sectionDiag?.range.end.character).toBe("backend old_api".length);
     expect(sectionDiag?.message).toContain("old_api");
   });
 
@@ -75,12 +79,14 @@ describe("unusedSymbolDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unused-section")).toHaveLength(0);
   });
 
-  it("reports unused named defaults profile", () => {
+  it("reports unused named defaults profile on the header keyword", () => {
     const diags = unusedDiags("defaults profile_a\n    timeout connect 5s");
     const profileDiag = diags.find((d) => d.code === "unused-defaults-profile");
     expect(profileDiag).toBeDefined();
+    expect(profileDiag?.severity).toBe(vscode.DiagnosticSeverity.Information);
     expect(profileDiag?.range.start.line).toBe(0);
-    expect(profileDiag?.range.end.line).toBe(1);
+    expect(profileDiag?.range.end.line).toBe(0);
+    expect(profileDiag?.range.end.character).toBe("defaults profile_a".length);
   });
 
   it("suppresses unused defaults profile referenced by from", () => {
@@ -88,11 +94,18 @@ describe("unusedSymbolDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unused-defaults-profile")).toHaveLength(0);
   });
 
-  it("reports one hint for duplicate ACL definitions", () => {
+  it("reports one diagnostic for duplicate ACL definitions", () => {
     const diags = unusedDiags(
       "frontend web\n    acl blocked path_beg /admin\n    acl blocked path_end /admin",
     );
     expect(diags.filter((d) => d.code === "unused-acl")).toHaveLength(1);
+  });
+
+  it("does not report backend servers as unused without use-server", () => {
+    const diags = unusedDiags(
+      "backend api\n    http-request set-var(txn.rwtpath) path\n    server HUB_MIDDLE_INTRA_PRD_AUTH_TEC_1 172.29.4.37:10045 check\n    server HUB_MIDDLE_INTRA_PRD_AUTH_TEC_2 172.29.4.49:10045 check",
+    );
+    expect(diags.filter((d) => d.code === "unused-server")).toHaveLength(0);
   });
 
   it("returns no unused diagnostics when feature is disabled", () => {

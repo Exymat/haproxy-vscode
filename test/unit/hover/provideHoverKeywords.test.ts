@@ -120,6 +120,14 @@ describe("provideHover keyword docs", () => {
     expect(
       hoverMarkdown("peers cluster\n    bind", 1, "    bind".indexOf("bind"), "3.4"),
     ).toContain("#11.2-bind");
+    expect(
+      hoverMarkdown(
+        "frontend web\n    filter cache maintenance_cache",
+        1,
+        "    filter cache maintenance_cache".indexOf("cache"),
+        "3.0",
+      ),
+    ).toContain("cache uses a filter");
   });
 
   it("documents directive forms, parameters, and argument values", () => {

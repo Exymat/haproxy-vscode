@@ -41,7 +41,14 @@ export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
     addContextExtra(extras, schema.keyword_group_contexts?.[lineOptionGroup]?.[effectiveKeyword]);
     extras.push(`**Nested option:** ${escapeMarkdownText(group.name)}`);
     return new vscode.Hover(
-      hoverMarkdown(argumentHover.name, "", argumentHover.description, extras, group.docsUrl),
+      hoverMarkdown(
+        argumentHover.name,
+        "",
+        argumentHover.description,
+        extras,
+        group.docsUrl,
+        group.examples,
+      ),
       range,
     );
   }

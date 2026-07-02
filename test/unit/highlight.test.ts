@@ -86,6 +86,22 @@ describe("highlight", () => {
     expect(findTokenOnLine(lineTokens, 2, "req.hdr").displayScope).toBe(SCOPES.storage);
   });
 
+  it("tokenizes cache-use and cache-store as single rule actions", async () => {
+    const lineTokens = await tokenizeDocument(
+      [
+        "frontend web",
+        "  http-request cache-use maintenance_cache",
+        "  http-response cache-store maintenance_cache",
+      ].join("\n"),
+    );
+    expect(findTokenOnLine(lineTokens, 2, "cache-use").displayScope).toBe(
+      "keyword.other.directive.haproxy",
+    );
+    expect(findTokenOnLine(lineTokens, 3, "cache-store").displayScope).toBe(
+      "keyword.other.directive.haproxy",
+    );
+  });
+
   it("recovers highlighting after an unclosed sample expression", async () => {
     const lineTokens = await tokenizeDocument(
       [

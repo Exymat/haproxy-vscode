@@ -3,9 +3,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as directiveUtils from "../../../src/directiveUtils";
 import * as languageDataIndexes from "../../../src/languageDataIndexes";
 import { tryActionHover } from "../../../src/hover/handlers/actionHover";
+import { tryDirectiveHover } from "../../../src/hover/handlers/directiveHover";
 import { tryExpressionHover } from "../../../src/hover/handlers/expressionHover";
 import { tryLogFormatHover } from "../../../src/hover/handlers/logFormatHover";
 import { tryOptionHover } from "../../../src/hover/handlers/optionHover";
+import type { DocumentContextWithToken, HoverContext } from "../../../src/hover/types";
+import { getLineSemanticContext } from "../../../src/lineSemanticContext";
 import {
   actionHoverContext,
   bundles,
@@ -13,6 +16,32 @@ import {
   logFormatHoverContext,
   optionHoverContext,
 } from "./helpers";
+import { createDocument } from "../../helpers/document";
+import { Range } from "../../__mocks__/vscode";
+
+function ruleActionHoverContext(lineText: string, character: number): HoverContext {
+  const doc = createDocument(`frontend web\n${lineText}`);
+  const position = { line: 1, character } as never;
+  const data = bundles["3.4"].languageData;
+  const schema = bundles["3.4"].schema;
+  const semantic = getLineSemanticContext(doc, position, schema, data);
+  if (!semantic?.ctx.token) {
+    throw new Error("ruleActionHoverContext requires a token at the cursor");
+  }
+  const ctx = semantic.ctx as DocumentContextWithToken;
+  return {
+    document: doc,
+    position,
+    data,
+    schema,
+    semantic,
+    ctx,
+    range: new Range(1, ctx.token.start, 1, ctx.token.end) as never,
+    cursorOffset: character - ctx.token.start,
+    tokenLower: ctx.token.text.toLowerCase(),
+    analyzed: semantic.analyzed,
+  };
+}
 
 describe("hover handlers", () => {
   describe("option and action hover handlers", () => {
@@ -222,6 +251,69 @@ describe("hover handlers", () => {
         throw new Error("expected hover");
       }
       expect(hoverText(hover).toLowerCase()).toContain("req.hdr");
+    });
+
+    it("tryExpressionHover documents sample fetches in generic argument contexts", () => {
+      const hover = tryExpressionHover(
+        optionHoverContext("req.hdr(host)", {
+          kind: "directive-argument",
+          tokenIndex: 2,
+        }),
+      );
+      expect(hover).not.toBeNull();
+      if (hover === null) {
+        throw new Error("expected hover");
+      }
+      expect(hoverText(hover).toLowerCase()).toContain("req.hdr");
+    });
+
+    it("tryExpressionHover ignores dash-prefixed tokens when resolving sample fetches", () => {
+      expect(
+        tryExpressionHover(
+          optionHoverContext("-m", {
+            kind: "http-request",
+            tokenIndex: 3,
+          }),
+        ),
+      ).toBeNull();
+    });
+
+    it("tryExpressionHover does not treat ambiguous action tokens as sample fetches", () => {
+      const origFindIndexedGroupItem = languageDataIndexes.findIndexedGroupItem;
+      vi.spyOn(languageDataIndexes, "findIndexedGroupItem").mockImplementation(
+        (data, group, name) => {
+          const lower = name.toLowerCase();
+          if (
+            lower === "ambiguous" &&
+            (group === "sample_fetches" || group === "http_request_actions")
+          ) {
+            return {
+              name: "ambiguous",
+              signature: "ambiguous",
+              description: "ambiguous",
+              rulesets: [],
+              docsUrl: "",
+              examples: [],
+            };
+          }
+          return origFindIndexedGroupItem(data, group, name);
+        },
+      );
+      expect(
+        tryExpressionHover(
+          optionHoverContext("ambiguous", {
+            kind: "http-request",
+            tokenIndex: 1,
+          }),
+        ),
+      ).toBeNull();
+    });
+
+    it("tryDirectiveHover yields to expression hover on sample fetches in rule actions", () => {
+      const line = "  http-request set-src req.hdr(X-Forwarded-For)";
+      const hc = ruleActionHoverContext(line, line.indexOf("req.hdr") + 3);
+      expect(tryExpressionHover(hc)).not.toBeNull();
+      expect(tryDirectiveHover(hc)).toBeNull();
     });
 
     it("tryLogFormatHover documents aliases, flags, and rejects unknown items", () => {

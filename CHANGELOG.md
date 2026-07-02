@@ -2,9 +2,18 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.13.0
+
+- Refreshed generated HAProxy 2.6, 2.8, 3.0, 3.2, and 3.4 schema, language data, and TextMate grammars.
+- Improved hover documentation completeness for generated directive docs, including fuller `http-request` and `capture request header` prose and preserved examples on directive, action, and option argument hovers.
+- Fixed rule-action hover precedence so parenthesized actions such as `set-var(txn.hostheader)` show action docs, while sample fetches such as `req.hdr(host)` show sample-fetch docs instead of falling back to `http-request`.
+- Improved highlighting for generated rule actions such as `cache-use` and `cache-store`.
+- Server lines are no longer flagged as unused; `use-server` is optional and backend pool members are valid without it.
+- Unused ACL lines use full-line unnecessary-code diagnostics; unused section headers show squiggles on the section keyword only.
+
 ## 0.12.11
 
-- Unused symbol hints are enabled by default and fade entire ACL/server lines (not just the symbol name).
+- Unused symbol hints are enabled by default and fade entire ACL lines (not just the symbol name).
 - Removed the separate `haproxy.diagnostics.unusedSymbols.sections` setting; section blocks are included whenever unused symbol hints are on.
 - Hover on sample fetches such as `req.hdr` in rule actions (e.g. `http-request set-var(...) req.hdr(host)`) shows fetch docs instead of the parent directive.
 

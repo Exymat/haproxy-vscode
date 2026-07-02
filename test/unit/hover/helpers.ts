@@ -21,6 +21,7 @@ import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";
 
 export const bundles = {
+  "3.0": loadSchemaBundle("3.0"),
   "3.2": loadSchemaBundle("3.2"),
   "3.4": loadSchemaBundle("3.4"),
 };
