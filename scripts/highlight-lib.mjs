@@ -115,7 +115,7 @@ export function resolveForeground(scopes, colorRules) {
         continue;
       }
       const tail = ruleScope.includes(" ") ? ruleScope.split(/\s+/).pop() : ruleScope;
-      const specificity = scopeSpecificity(tail.replace(/^source\.haproxy$/, "source.haproxy"));
+      const specificity = scopeSpecificity(tail);
       if (!best || specificity > best.specificity) {
         best = {
           color: rule.settings?.foreground ?? null,

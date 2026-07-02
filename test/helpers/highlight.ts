@@ -179,7 +179,7 @@ function resolveForeground(scopes: string[], colorRules: TokenColorRule[]) {
       const tail = ruleScope.includes(" ")
         ? (scopeParts[scopeParts.length - 1] ?? ruleScope)
         : ruleScope;
-      const specificity = scopeSpecificity(tail.replace(/^source\.haproxy$/, "source.haproxy"));
+      const specificity = scopeSpecificity(tail);
       if (!best || specificity > best.specificity) {
         best = {
           color: rule.settings?.foreground ?? null,
