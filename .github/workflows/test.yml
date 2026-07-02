@@ -60,6 +60,7 @@ jobs:
       tooling: ${{ steps.filter.outputs.tooling }}
       packaging: ${{ steps.filter.outputs.packaging }}
       workflows: ${{ steps.filter.outputs.workflows }}
+      bench: ${{ steps.filter.outputs.bench }}
     steps:
       - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v3
@@ -92,6 +93,19 @@ jobs:
               - '.vscodeignore'
             workflows:
               - '.github/workflows/**'
+            bench:
+              - 'src/**'
+              - 'syntaxes/**'
+              - 'schemas/**'
+              - 'test/bench/**'
+              - 'vitest.bench.config.ts'
+              - 'scripts/generate-bench-fixture.mjs'
+              - 'scripts/check-bench-thresholds.mjs'
+              - 'scripts/update-bench-thresholds.mjs'
+              - 'scripts/bench-tags.mjs'
+              - 'scripts/run-tag-bench-suite.mjs'
+              - 'scripts/run-perf-integration.mjs'
+              - 'scripts/tag-bench/**'
 
   format-docs:
     name: Format docs
@@ -242,8 +256,7 @@ jobs:
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
-      needs.changes.outputs.scripts == 'true' ||
-      needs.changes.outputs.extension == 'true'
+      needs.changes.outputs.bench == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -265,7 +278,6 @@ jobs:
     if: >
       github.event_name == 'workflow_dispatch' ||
       needs.changes.outputs.extension == 'true' ||
-      needs.changes.outputs.scripts == 'true' ||
       needs.changes.outputs.tooling == 'true'
     strategy:
       fail-fast: false
@@ -354,8 +366,7 @@ jobs:
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
-      needs.changes.outputs.extension == 'true' ||
-      needs.changes.outputs.scripts == 'true'
+      needs.changes.outputs.bench == 'true'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
