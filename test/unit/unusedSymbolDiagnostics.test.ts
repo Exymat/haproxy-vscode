@@ -17,11 +17,10 @@ import { loadSchema } from "../helpers/schema";
 
 const schema = loadSchema("3.4");
 
-function unusedDiags(content: string, options: { sections?: boolean } = {}): vscode.Diagnostic[] {
+function unusedDiags(content: string): vscode.Diagnostic[] {
   const document = createDocument(content);
   return computeDiagnostics(document, schema, {
     unusedSymbols: true,
-    unusedSymbolSections: options.sections ?? true,
     maxLines: 4000,
   }).filter((diag) => formatDiagnosticCode(diag.code).startsWith("unused-"));
 }
@@ -35,6 +34,8 @@ describe("unusedSymbolDiagnostics", () => {
     expect(diags[0]?.severity).toBe(vscode.DiagnosticSeverity.Hint);
     expect(diags[0]?.tags).toContain(vscode.DiagnosticTag.Unnecessary);
     expect(diags[0]?.range.start.line).toBe(1);
+    expect(diags[0]?.range.start.character).toBe(0);
+    expect(diags[0]?.range.end.character).toBe("    acl blocked path_beg /admin".length);
   });
 
   it("suppresses unused ACL when referenced in if conditions", () => {
@@ -92,13 +93,6 @@ describe("unusedSymbolDiagnostics", () => {
       "frontend web\n    acl blocked path_beg /admin\n    acl blocked path_end /admin",
     );
     expect(diags.filter((d) => d.code === "unused-acl")).toHaveLength(1);
-  });
-
-  it("skips unused section hints when sections setting is disabled", () => {
-    const diags = unusedDiags("backend old_api\n    server s1 127.0.0.1:80", {
-      sections: false,
-    });
-    expect(diags.filter((d) => d.code === "unused-section")).toHaveLength(0);
   });
 
   it("returns no unused diagnostics when feature is disabled", () => {
@@ -194,7 +188,6 @@ describe("symbolIndex reference expansion", () => {
     expect(
       unusedSymbolDiagnostics(document, parsed, index, {
         enabled: false,
-        includeSections: true,
       }),
     ).toHaveLength(0);
   });
@@ -227,7 +220,6 @@ describe("symbolIndex reference expansion", () => {
     expect(
       unusedSymbolDiagnostics(document, parsed, filterIndex, {
         enabled: true,
-        includeSections: true,
       }),
     ).toHaveLength(0);
 
@@ -240,7 +232,6 @@ describe("symbolIndex reference expansion", () => {
     expect(
       unusedSymbolDiagnostics(document, parsed, emptyDefsIndex, {
         enabled: true,
-        includeSections: true,
       }),
     ).toHaveLength(0);
 
@@ -267,7 +258,6 @@ describe("symbolIndex reference expansion", () => {
     };
     const unknownDiag = unusedSymbolDiagnostics(document, parsed, unknownKindIndex, {
       enabled: true,
-      includeSections: true,
     });
     expect(unknownDiag).toHaveLength(1);
     expect(unknownDiag[0]?.message).toContain("appears unused");
@@ -295,7 +285,6 @@ describe("symbolIndex reference expansion", () => {
     };
     const orphanDiag = unusedSymbolDiagnostics(document, parsed, orphanSectionIndex, {
       enabled: true,
-      includeSections: true,
     });
     expect(orphanDiag).toHaveLength(1);
     expect(orphanDiag[0]?.range.start.line).toBe(99);
@@ -325,7 +314,7 @@ describe("symbolIndex reference expansion", () => {
       createDocument("frontend wide\n    mode http"),
       parseDocument(createDocument("frontend wide\n    mode http")),
       misfiledFrontendIndex,
-      { enabled: true, includeSections: true },
+      { enabled: true },
     );
     expect(misfiledDiag).toHaveLength(1);
     expect(misfiledDiag[0]?.message).toContain("Section 'wide'");

@@ -45,6 +45,14 @@ describe("provideHover keyword docs", () => {
     ).toContain("req.hdr");
     expect(
       hoverMarkdown(
+        "frontend web\n    http-request set-var(txn.hostheader) req.hdr(host)",
+        1,
+        "    http-request set-var(txn.hostheader) req.hdr(host)".indexOf("req.hdr") + 2,
+        "3.4",
+      ).toLowerCase(),
+    ).toContain("req.hdr");
+    expect(
+      hoverMarkdown(
         "frontend web\n    http-request set-header X-Test %[req.hdr(host)]",
         1,
         "    http-request set-header X-Test %[req.hdr(host)]".indexOf("req.hdr") + 2,

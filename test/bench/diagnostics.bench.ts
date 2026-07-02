@@ -29,7 +29,6 @@ const logFormatDiagnosticsContent = [
 
 const unusedSymbolOptions = {
   unusedSymbols: true,
-  unusedSymbolSections: true,
   maxLines: BENCH_LARGE_MAX_LINES,
 };
 

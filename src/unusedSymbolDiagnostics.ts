@@ -7,7 +7,6 @@ import { hasReferences, SymbolIndex, SymbolKind, SymbolSite } from "./symbolInde
 
 export interface UnusedSymbolOptions {
   enabled: boolean;
-  includeSections: boolean;
 }
 
 const SECTION_BLOCK_KINDS = new Set<SymbolKind>([
@@ -162,10 +161,6 @@ export function unusedSymbolDiagnostics(
       continue;
     }
 
-    if (SECTION_BLOCK_KINDS.has(kind) && !options.includeSections) {
-      continue;
-    }
-
     if (hasReferences(index, kind, site.name, site.scopeKey)) {
       continue;
     }
@@ -190,9 +185,10 @@ export function unusedSymbolDiagnostics(
       continue;
     }
 
+    const lineText = document.lineAt(site.line).text;
     diagnostics.push(
       makeUnusedDiagnostic(
-        new vscode.Range(site.line, site.start, site.line, site.end),
+        new vscode.Range(site.line, 0, site.line, lineText.length),
         message,
         code,
       ),

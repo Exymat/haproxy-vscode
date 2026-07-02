@@ -49,7 +49,6 @@ export function createDiagnosticScheduler(
         languageData: b.languageData,
         deprecatedWarnings: settings.deprecatedWarnings,
         unusedSymbols: settings.unusedSymbols,
-        unusedSymbolSections: settings.unusedSymbolSections,
         maxLines: settings.maxDiagnosticsLines,
       }),
     );

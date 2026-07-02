@@ -171,16 +171,9 @@ describe("diagnostics settings branches", () => {
     expect(
       computeDiagnostics(doc, bundle34.schema, {
         unusedSymbols: true,
-        unusedSymbolSections: true,
         maxLines: 4000,
       }).some((d) => d.code === "unused-section"),
     ).toBe(true);
-    expect(
-      computeDiagnostics(doc, bundle34.schema, {
-        unusedSymbols: true,
-        unusedSymbolSections: false,
-      }).filter((d) => d.code === "unused-section"),
-    ).toHaveLength(0);
     const largeDoc = createDocument(
       Array.from({ length: 120 }, (_, i) =>
         i === 0 ? "frontend web" : i === 1 ? "    bind :80" : `    acl a${i} path_beg /${i}`,

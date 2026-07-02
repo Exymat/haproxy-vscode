@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config highlighting, completion, hover docs, and schema diagnostics",
-  "version": "0.12.10",
+  "version": "0.12.11",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
@@ -91,13 +91,8 @@
         },
         "haproxy.diagnostics.unusedSymbols": {
           "type": "boolean",
-          "default": false,
-          "description": "Hint when ACLs, servers, filters, or sections appear unused. Fades unreferenced symbols using editor unnecessary-code styling."
-        },
-        "haproxy.diagnostics.unusedSymbols.sections": {
-          "type": "boolean",
           "default": true,
-          "description": "Include unused section blocks (backends, named defaults, cache, userlist, resolvers, peers) when unused symbol hints are enabled."
+          "description": "Hint when ACLs, servers, filters, or sections appear unused. Fades unreferenced symbols using editor unnecessary-code styling."
         },
         "haproxy.format.enabled": {
           "type": "boolean",

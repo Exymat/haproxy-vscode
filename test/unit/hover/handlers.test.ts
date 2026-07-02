@@ -196,6 +196,34 @@ describe("hover handlers", () => {
       expect(tryExpressionHover(optionHoverContext("httplog"))).toBeNull();
     });
 
+    it("tryExpressionHover documents sample converters in expression context", () => {
+      const hover = tryExpressionHover(
+        optionHoverContext("lower", {
+          kind: "expression-converter",
+          tokenIndex: 2,
+        }),
+      );
+      expect(hover).not.toBeNull();
+      if (hover === null) {
+        throw new Error("expected hover");
+      }
+      expect(hoverText(hover).toLowerCase()).toContain("lower");
+    });
+
+    it("tryExpressionHover documents sample fetches on rule action arguments", () => {
+      const hover = tryExpressionHover(
+        optionHoverContext("req.hdr(host)", {
+          kind: "http-request",
+          tokenIndex: 2,
+        }),
+      );
+      expect(hover).not.toBeNull();
+      if (hover === null) {
+        throw new Error("expected hover");
+      }
+      expect(hoverText(hover).toLowerCase()).toContain("req.hdr");
+    });
+
     it("tryLogFormatHover documents aliases, flags, and rejects unknown items", () => {
       const aliasLine = '    log-format "%{+Q}o %ci"';
       const aliasHover = tryLogFormatHover(

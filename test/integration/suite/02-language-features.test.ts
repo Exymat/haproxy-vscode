@@ -214,7 +214,7 @@ suite("Language feature integration", () => {
     suiteTeardown(async () => {
       await updateHaproxySetting("diagnostics.enabled", true);
       await clearHaproxySetting("diagnostics.unusedSymbols.sections");
-      await updateHaproxySetting("diagnostics.unusedSymbols", false);
+      await updateHaproxySetting("diagnostics.unusedSymbols", true);
     });
 
     test("diagnostics refresh after document edits", async () => {
@@ -245,29 +245,29 @@ suite("Language feature integration", () => {
       assert.strictEqual(errors.length, 0, "Expected no errors after save refresh");
     });
 
-    test("unused symbol diagnostics stay off by default", async () => {
+    test("unused symbol diagnostics are on by default", async () => {
       const doc = await openHaproxyDocument(
         "frontend web\n    bind :80\n    acl blocked path_beg /admin\nbackend old_api\n    server s1 127.0.0.1:80\n",
       );
-      const diagnostics = await waitForSchemaDiagnostics(doc.uri, 0);
-      assert.strictEqual(
-        diagnostics.filter((diag) => formatDiagnosticCode(diag.code).startsWith("unused-")).length,
-        0,
-        "Unused diagnostics should be disabled by default",
-      );
-    });
-
-    test("enabling unused symbol diagnostics surfaces ACL and section hints", async () => {
-      const doc = await openHaproxyDocument(
-        "frontend web\n    bind :80\n    acl blocked path_beg /admin\nbackend old_api\n    server s1 127.0.0.1:80\n",
-      );
-
-      await updateHaproxySetting("diagnostics.unusedSymbols", true);
       const diagnostics = await waitForSchemaDiagnostics(doc.uri, 2);
       assertDiagnosticCounts(
         diagnostics,
         { "unused-acl": 1, "unused-section": 1 },
-        "unused diagnostics enabled",
+        "unused diagnostics enabled by default",
+      );
+    });
+
+    test("disabling unused symbol diagnostics suppresses ACL and section hints", async () => {
+      const doc = await openHaproxyDocument(
+        "frontend web\n    bind :80\n    acl blocked path_beg /admin\nbackend old_api\n    server s1 127.0.0.1:80\n",
+      );
+
+      await updateHaproxySetting("diagnostics.unusedSymbols", false);
+      const diagnostics = await waitForSchemaDiagnostics(doc.uri, 0);
+      assert.strictEqual(
+        diagnostics.filter((diag) => formatDiagnosticCode(diag.code).startsWith("unused-")).length,
+        0,
+        "Unused diagnostics should be disabled when setting is false",
       );
     });
   });

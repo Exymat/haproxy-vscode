@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.12.11
+
+- Unused symbol hints are enabled by default and fade entire ACL/server lines (not just the symbol name).
+- Removed the separate `haproxy.diagnostics.unusedSymbols.sections` setting; section blocks are included whenever unused symbol hints are on.
+- Hover on sample fetches such as `req.hdr` in rule actions (e.g. `http-request set-var(...) req.hdr(host)`) shows fetch docs instead of the parent directive.
+
 ## 0.12.10
 
 - Format Document collapses multiple blank lines between sections to one, removes trailing blank lines at end of file, and keeps blank lines within a section.

@@ -12,7 +12,6 @@ interface DiagnosticsCacheKey {
   languageData: HaproxyLanguageData | undefined;
   deprecatedWarnings: boolean;
   unusedSymbols: boolean;
-  unusedSymbolSections: boolean;
   maxLines: number | undefined;
 }
 
@@ -30,7 +29,6 @@ export interface ComputeDiagnosticsOptions {
   languageData?: HaproxyLanguageData;
   deprecatedWarnings?: boolean;
   unusedSymbols?: boolean;
-  unusedSymbolSections?: boolean;
   maxLines?: number;
 }
 
@@ -43,7 +41,6 @@ function diagnosticsCacheKey(
     languageData: options.languageData,
     deprecatedWarnings: options.deprecatedWarnings !== false,
     unusedSymbols: options.unusedSymbols === true,
-    unusedSymbolSections: options.unusedSymbolSections ?? true,
     maxLines: options.maxLines,
   };
 }
@@ -54,7 +51,6 @@ function sameCacheKey(left: DiagnosticsCacheKey, right: DiagnosticsCacheKey): bo
     left.languageData === right.languageData &&
     left.deprecatedWarnings === right.deprecatedWarnings &&
     left.unusedSymbols === right.unusedSymbols &&
-    left.unusedSymbolSections === right.unusedSymbolSections &&
     left.maxLines === right.maxLines
   );
 }
@@ -108,7 +104,6 @@ export function computeDiagnostics(
       diagnostics.push(
         ...unusedSymbolDiagnostics(document, ctx.parsed, index, {
           enabled: true,
-          includeSections: options.unusedSymbolSections ?? true,
         }),
       );
     }

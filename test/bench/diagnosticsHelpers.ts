@@ -14,7 +14,6 @@ export interface DiagnosticsBundle {
 export interface DiagnosticsRunOptions {
   deprecatedWarnings?: boolean;
   unusedSymbols?: boolean;
-  unusedSymbolSections?: boolean;
   maxLines?: number;
 }
 
@@ -26,7 +25,6 @@ function computeOptions(
     languageData: bundle.languageData,
     deprecatedWarnings: options.deprecatedWarnings ?? true,
     unusedSymbols: options.unusedSymbols,
-    unusedSymbolSections: options.unusedSymbolSections,
     maxLines: options.maxLines,
   };
 }

@@ -330,7 +330,7 @@ export async function resetHaproxySettings(): Promise<void> {
     ["diagnostics.enabled", true],
     ["diagnostics.deprecatedWarnings", true],
     ["diagnostics.maxLines", 4000],
-    ["diagnostics.unusedSymbols", false],
+    ["diagnostics.unusedSymbols", true],
   ];
   for (const [key, value] of defaults) {
     await config.update(key, value, vscode.ConfigurationTarget.Global);

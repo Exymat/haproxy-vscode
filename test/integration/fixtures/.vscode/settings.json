@@ -7,5 +7,5 @@
   "haproxy.format.enabled": true,
   "haproxy.format.indent": "spaces-4",
   "haproxy.format.insertBlankLineBetweenSections": true,
-  "haproxy.diagnostics.unusedSymbols": false
+  "haproxy.diagnostics.unusedSymbols": true
 }
