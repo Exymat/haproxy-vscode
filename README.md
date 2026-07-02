@@ -8,7 +8,7 @@
 
 **Schema-driven language support for HAProxy configuration files** in Visual Studio Code and compatible editors.
 
-Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, schema-based diagnostics, **go to definition** and **find all references**, document formatting, and section outline — all tuned to the HAProxy release you run in production (**2.6**, **2.8**, **3.0**, **3.2**, or **3.4**).
+Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, log-format intelligence, schema-based diagnostics, **go to definition** and **find all references**, document formatting, and section outline — all tuned to the HAProxy release you run in production (**2.6**, **2.8**, **3.0**, **3.2**, or **3.4**).
 
 ---
 
@@ -24,22 +24,47 @@ Colorization is generated from HAProxy's own keyword inventory (`haproxy -dKall`
 
 Suggestions follow where you are in the file:
 
-- **Global and section headers** (`global`, `defaults`, `frontend`, `backend`, `listen`, …)
+- **Global and section headers** (`global`, `defaults`, `frontend`, `backend`, `listen`, …), including partial matches on new top-level lines (`fron` → `frontend`)
 - **Directives and keywords** valid for the current section
 - **`option` / `default-server` values**, HTTP/TCP rule actions, ACL criteria
 - **`bind` and `server` parameters**, stick-table keys, filter/trace arguments
 - **Sample fetches and converters** inside expressions
+- **Log-format aliases and flags** inside format strings (see **Log-format support** below)
 - **Enum argument values** where the schema defines allowed choices (e.g. `mode tcp|http`)
 
 Completion reloads immediately when you change the configured HAProxy version.
 
 ![Context-aware completion for section directives](docs/images/completion-directives.png)
 
+![Partial section header completion while typing](docs/images/partial-section-completion.png)
+
 ### Inline documentation
 
-Hover any supported keyword to read summaries sourced from HAProxy's official `configuration.txt`. Many entries include a **link to the upstream HAProxy documentation** for the full reference. Conditional block directives (`.if`, `.elif`, `.else`, `.endif`) are documented as well, and hovers distinguish section scope such as **Valid in sections: defaults, frontend, listen, backend** from mode scope such as **Valid in modes: tcp, http, log** when available.
+Hover any supported keyword to read summaries sourced from HAProxy's official `configuration.txt`. Many entries include a **link to the upstream HAProxy documentation** for the full reference. Conditional block directives (`.if`, `.elif`, `.else`, `.endif`) and status directives (`.diag`, `.notice`, `.warning`, `.alert`) are documented as well, and hovers distinguish section scope such as **Valid in sections: defaults, frontend, listen, backend** from mode scope such as **Valid in modes: tcp, http, log** when available.
+
+- **`bind` / `server` line options** — nested sub-options (e.g. `source … interface`), manual ASCII tables rendered as markdown
+- **Rule actions** — parenthesized actions (`set-var(...)`) and sample fetches (`req.hdr(...)`) show distinct documentation
+- **Examples** from the manual where available
 
 ![Hover documentation with signature and upstream doc link](docs/images/hover-documentation.png)
+
+![Bind line option hover for alpn](docs/images/bind-server-hover-1.png)
+
+![Server line option hover for source and nested sub-options](docs/images/bind-server-hover-2.png)
+
+### Log-format support
+
+Format strings in directives such as `log-format`, `error-log-format`, `unique-id-format`, `set-var-fmt`, and `log-format-sd` get dedicated language support:
+
+- **Completion** of log-format aliases and `{+flag}` modifiers inside format strings
+- **Hover** on aliases and flags (including combined modifiers like `{+Q+E}`)
+- **Diagnostics** for unknown aliases or flags
+
+![Log-format flag hover for {+Q}](docs/images/log-format1.png)
+
+![Log-format alias hover for %t with upstream doc link](docs/images/log-format-2.png)
+
+![Sample fetch hover inside set-var-fmt format string](docs/images/log-format-3.png)
 
 ### Real-time diagnostics
 
@@ -51,14 +76,21 @@ Catch common mistakes while you type:
 | Structure   | Nested `option` / parameter misuse; keywords marked `(!)` in anonymous `defaults`; modifier-prefixed directives/actions |
 | Arguments   | Missing or extra arguments for known statement shapes                                                                   |
 | Expressions | Invalid sample fetch / converter references, ACL-only criteria misuse                                                   |
+| Delimiters  | Unclosed or mismatched `()`, `[]`, `{}`, quotes on a line (e.g. `%[req.hdr(host)`)                                      |
+| Addresses   | Invalid bind/server/source/usesrc forms, MPTCP and address-prefix rules                                                 |
+| Log format  | Unknown alias or flag inside format strings                                                                             |
 | Context     | Mode-aware `wrong-context` checks for directives/options that only apply to specific modes                              |
 | Rules       | Unknown or **deprecated** `http-request` / `tcp-request` action, unknown `use-service` target                           |
 
 Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Context checks use the effective runtime mode inferred from your section/config flow, but you should still validate with your real binary before deploying.
 
-**Unused symbol hints** (opt-in via `haproxy.diagnostics.unusedSymbols`) fade ACLs, servers, and whole section blocks that appear unreferenced in the current file — similar to unused-code hints in Ty or Pylance. Analysis is single-file and heuristic: it does not follow `include` directives or detect runtime-only references.
+**Unused symbol hints** (on by default via `haproxy.diagnostics.unusedSymbols`) fade unused ACL lines (full-line) and unreferenced section blocks (backends, named defaults, cache, userlist, resolvers, peers) — similar to unused-code hints in Ty or Pylance. Server lines are not flagged; `use-server` is optional and pool members are valid without it. Frontends and listens without a `bind` or `bind-process` directive (including inherited defaults in the same file) are reported as **warnings** because they cannot accept connections. Analysis is single-file and heuristic: it does not follow `include` directives or detect runtime-only references.
 
 ![Wrong-section diagnostic with inline directive help](docs/images/diagnostics-wrong-section.png)
+
+![Unclosed delimiter diagnostic on a sample expression](docs/images/delimiter-diagnostic.png)
+
+![Unused ACL and unreferenced backend section hints](docs/images/unused-symbols.png)
 
 ### Document formatting
 
@@ -67,8 +99,11 @@ Run **Format Document** (or enable format-on-save) to normalize layout according
 - Section headers (`global`, `frontend`, …) stay left-aligned; directives inside a section are indented consistently.
 - Comments and quoted strings are preserved; inline `#` comments stay on the same line.
 - Optional blank lines are inserted before each new section header.
+- Multiple blank lines between sections collapse to one; trailing blank lines at end of file are removed.
 
 Indent style (4 spaces, 2 spaces, or tab) and blank-line behavior are configurable — see **Settings** below.
+
+![Format Document normalizing section layout and blank lines](docs/images/format-document.gif)
 
 ### Outline and folding
 
@@ -77,15 +112,19 @@ Navigate large configs with built-in structure support:
 - **Outline** — lists every top-level section (`frontend www`, `backend api`, …) so you can jump quickly.
 - **Folding** — collapse a section's body while keeping its header visible.
 
+![Outline view and section folding](docs/images/outline-folding.gif)
+
 ### Go to definition and find references
 
 Jump across related config with standard editor navigation (**Go to Definition**, **Go to References**, peek view):
 
 - **Frontends / backends / listen** — `use_backend`, `default_backend`, and section headers link to the matching proxy section
-- **ACLs** — definitions and uses in `if` / `unless` conditions within the same section (including negated forms like `!is_api`)
+- **ACLs** — definitions and uses in `if` / `unless` conditions within the same section (including negated forms like `!is_api`), inline `{ … }` conditions, and compound `&&` / `||` expressions
 - **Servers** — `server` lines and `use-server` references inside a backend or listen
 - **Defaults profiles** — `defaults … from <profile>` links to the named profile
 - **Filters, cache, userlist, resolvers, peers** — section and statement definitions indexed from the schema
+
+Reference resolution is **schema-driven** via reference patterns in the bundled language data, not hardcoded heuristics.
 
 ![Find references for a backend used from a frontend](docs/images/febe-findreferences.png)
 
@@ -96,10 +135,10 @@ Jump across related config with standard editor navigation (**Go to Definition**
 ## Getting started
 
 1. **Install** the extension from the Marketplace (or load a `.vsix` locally).
-2. **Open** a HAProxy config (`.cfg` extension is recognized automatically).
+2. **Open** a HAProxy config (`.cfg` extension is recognized automatically; `#` line comments, bracket matching, and auto-closing pairs are enabled).
 3. **Choose your HAProxy version** so completion, hover, diagnostics, formatting, and highlighting match your deployment (see below).
 
-No extra runtime is required for day-to-day editing — schemas and grammars ship with the extension.
+No extra runtime is required for day-to-day editing — schemas and grammars ship with the extension. If bundled schema or language data fails to load, the extension shows a one-time error notification.
 
 ---
 
@@ -131,20 +170,21 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 
 ## Settings
 
-| Setting                                         | Default    | Description                                                                                                                                                    |
-| ----------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `haproxy.version`                               | `3.2`      | HAProxy release used for completion, diagnostics, hover, and syntax highlighting                                                                               |
-| `haproxy.diagnostics.enabled`                   | `true`     | Turn off if opening very large `.cfg` files feels slow                                                                                                         |
-| `haproxy.diagnostics.debounceMs`                | `500`      | Delay after edits before recomputing diagnostics (100-5000 ms)                                                                                                 |
-| `haproxy.diagnostics.maxLines`                  | `4000`     | Skip diagnostics above this line count to limit memory use                                                                                                     |
-| `haproxy.diagnostics.deprecatedWarnings`        | `true`     | Warn on directives and rule actions marked `(deprecated)` in the official docs. Warnings are suppressed when `global` contains `expose-deprecated-directives`. |
-| `haproxy.diagnostics.unusedSymbols`             | `false`    | Hint and fade ACLs, servers, and sections that appear unused in the current file (Ty-style unnecessary-code styling).                                          |
-| `haproxy.diagnostics.unusedSymbols.sections`    | `true`     | When unused hints are enabled, include whole unused section blocks (backends, named defaults, cache, userlist, resolvers, peers).                              |
-| `haproxy.format.enabled`                        | `true`     | Enable **Format Document** for HAProxy configs                                                                                                                 |
-| `haproxy.format.indent`                         | `spaces-4` | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                                                                                                  |
-| `haproxy.format.insertBlankLineBetweenSections` | `true`     | Insert a blank line before each new section header when formatting                                                                                             |
+| Setting                                         | Default    | Description                                                                                                                                                              |
+| ----------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `haproxy.version`                               | `3.2`      | HAProxy release used for completion, diagnostics, hover, and syntax highlighting                                                                                         |
+| `haproxy.diagnostics.enabled`                   | `true`     | Turn off if opening very large `.cfg` files feels slow                                                                                                                   |
+| `haproxy.diagnostics.debounceMs`                | `500`      | Delay after edits before recomputing diagnostics (100-5000 ms)                                                                                                           |
+| `haproxy.diagnostics.maxLines`                  | `4000`     | Skip diagnostics above this line count to limit memory use                                                                                                               |
+| `haproxy.diagnostics.deprecatedWarnings`        | `true`     | Warn on directives and rule actions marked `(deprecated)` in the official docs. Warnings are suppressed when `global` contains `expose-deprecated-directives`.           |
+| `haproxy.diagnostics.unusedSymbols`             | `true`     | Hint and fade unused ACL lines and unreferenced section blocks in the current file (Ty-style unnecessary-code styling). Turn off if you prefer a cleaner Problems panel. |
+| `haproxy.format.enabled`                        | `true`     | Enable **Format Document** for HAProxy configs                                                                                                                           |
+| `haproxy.format.indent`                         | `spaces-4` | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                                                                                                            |
+| `haproxy.format.insertBlankLineBetweenSections` | `true`     | Insert a blank line before each new section header when formatting                                                                                                       |
 
 The extension also raises `editor.maxTokenizationLineLength` for HAProxy files so long `server` / `bind` lines tokenize correctly.
+
+Pre-0.12 settings `haproxy.format.indentStyle` and `haproxy.format.indentSize` are still honored as a fallback when `haproxy.format.indent` is unset.
 
 ![Extension settings in the VS Code Settings UI](docs/images/settings.png)
 

@@ -18,9 +18,9 @@ const SECTION_BLOCK_KINDS = new Set<SymbolKind>([
   "peers",
 ]);
 
-const ENTRY_POINT_TOKENS = new Set(["bind", "bind-process"]);
-
 const SKIPPED_UNUSED_KINDS = new Set<SymbolKind>(["filter", "server"]);
+
+const ENTRY_POINT_PROXY_SECTIONS = new Set(["frontend", "listen"]);
 
 function sectionOutlineByStartLine(
   document: vscode.TextDocument,
@@ -36,13 +36,9 @@ function sectionOutlineByStartLine(
 function sectionBlockBounds(
   outline: SectionSymbolInfo | undefined,
   site: SymbolSite,
-  kind: SymbolKind,
 ): { startLine: number; endLine: number } {
   if (outline) {
     return { startLine: outline.startLine, endLine: outline.endLine };
-  }
-  if (SECTION_BLOCK_KINDS.has(kind)) {
-    return { startLine: site.line, endLine: site.line };
   }
   return { startLine: site.line, endLine: site.line };
 }
@@ -53,7 +49,7 @@ function sectionBlockRange(
   kind: SymbolKind,
   document: vscode.TextDocument,
 ): vscode.Range {
-  const block = sectionBlockBounds(outline, site, kind);
+  const block = sectionBlockBounds(outline, site);
   const endColumn =
     outline && outline.endLine === block.endLine
       ? outline.endColumn
@@ -69,40 +65,17 @@ function proxySectionType(parsed: ParsedLine[], defLine: number): string | null 
   return line.tokens[0].text.toLowerCase();
 }
 
-function sectionBodyHasEntryPoint(
-  parsed: ParsedLine[],
-  startLine: number,
-  endLine: number,
-): boolean {
-  for (let i = startLine + 1; i <= endLine; i += 1) {
-    const line = parsed[i];
-    for (const token of line.tokens) {
-      if (ENTRY_POINT_TOKENS.has(token.text.toLowerCase())) {
-        return true;
-      }
-    }
-  }
-  return false;
+function isEntryPointProxySection(parsed: ParsedLine[], defLine: number): boolean {
+  const sectionType = proxySectionType(parsed, defLine);
+  return sectionType !== null && ENTRY_POINT_PROXY_SECTIONS.has(sectionType);
 }
 
-function isExemptProxySection(
-  parsed: ParsedLine[],
-  site: SymbolSite,
-  block: { startLine: number; endLine: number },
-): boolean {
-  const sectionType = proxySectionType(parsed, site.line);
-  if (sectionType !== "frontend" && sectionType !== "listen") {
-    return false;
-  }
-  return sectionBodyHasEntryPoint(parsed, block.startLine, block.endLine);
-}
-
-function unusedMessage(kind: SymbolKind, name: string, sectionType: string | null): string {
+function unusedMessage(kind: SymbolKind, name: string): string {
   switch (kind) {
     case "acl":
       return `ACL '${name}' is defined but never referenced in this section`;
     case "proxy-section":
-      return `${sectionType ?? "Section"} '${name}' is never referenced by use_backend or default_backend`;
+      return `Backend '${name}' is never referenced by use_backend or default_backend`;
     case "defaults-profile":
       return `Defaults profile '${name}' is never referenced by 'from'`;
     case "cache":
@@ -171,18 +144,16 @@ export function unusedSymbolDiagnostics(
       continue;
     }
 
+    if (kind === "proxy-section" && isEntryPointProxySection(parsed, site.line)) {
+      continue;
+    }
+
     if (hasReferences(index, kind, site.name, site.scopeKey)) {
       continue;
     }
 
     const outline = outlineByStartLine.get(site.line);
-    const block = sectionBlockBounds(outline, site, kind);
-    if (kind === "proxy-section" && isExemptProxySection(parsed, site, block)) {
-      continue;
-    }
-
-    const sectionType = kind === "proxy-section" ? proxySectionType(parsed, site.line) : null;
-    const message = unusedMessage(kind, site.name, sectionType);
+    const message = unusedMessage(kind, site.name);
     const code = unusedCode(kind);
 
     if (SECTION_BLOCK_KINDS.has(kind)) {

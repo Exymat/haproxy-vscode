@@ -1,4 +1,6 @@
 import * as vscode from "vscode";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { computeDiagnostics } from "../../src/diagnostics";
@@ -16,6 +18,8 @@ import { formatDiagnosticCode } from "../helpers/diagnosticFormat";
 import { loadSchema } from "../helpers/schema";
 
 const schema = loadSchema("3.4");
+const fixturesDir = join(__dirname, "..", "fixtures");
+const hapeeAclSnippet = readFileSync(join(fixturesDir, "hapee-acl-snippet.cfg"), "utf-8");
 
 function unusedDiags(content: string): vscode.Diagnostic[] {
   const document = createDocument(content);
@@ -23,6 +27,14 @@ function unusedDiags(content: string): vscode.Diagnostic[] {
     unusedSymbols: true,
     maxLines: 4000,
   }).filter((diag) => formatDiagnosticCode(diag.code).startsWith("unused-"));
+}
+
+function symbolHintDiags(content: string): vscode.Diagnostic[] {
+  const document = createDocument(content);
+  return computeDiagnostics(document, schema, {
+    unusedSymbols: true,
+    maxLines: 4000,
+  });
 }
 
 describe("unusedSymbolDiagnostics", () => {
@@ -76,6 +88,40 @@ describe("unusedSymbolDiagnostics", () => {
   it("does not report frontend with bind as unused", () => {
     const diags = unusedDiags("frontend web\n    bind :80");
     expect(diags.filter((d) => d.code === "unused-section")).toHaveLength(0);
+  });
+
+  it("does not report frontend without bind as unused section", () => {
+    const diags = unusedDiags(hapeeAclSnippet);
+    expect(diags.filter((d) => d.code === "unused-section")).toHaveLength(0);
+  });
+
+  it("warns when frontend has no bind directive in file", () => {
+    const diags = symbolHintDiags(hapeeAclSnippet);
+    const bindDiag = diags.find((d) => d.code === "no-bind-entry-point");
+    expect(bindDiag).toBeDefined();
+    expect(bindDiag?.severity).toBe(vscode.DiagnosticSeverity.Warning);
+    expect(bindDiag?.message).toContain("test_acl");
+    expect(bindDiag?.tags ?? []).not.toContain(vscode.DiagnosticTag.Unnecessary);
+  });
+
+  it("suppresses no-bind warning when bind is inherited from defaults", () => {
+    const diags = symbolHintDiags(
+      "defaults default\n    bind :80\nfrontend test_acl from default\n    mode http\n",
+    );
+    expect(diags.filter((d) => d.code === "no-bind-entry-point")).toHaveLength(0);
+  });
+
+  it("does not report listen section without bind as unused section", () => {
+    const diags = unusedDiags("listen combined\n    mode http");
+    expect(diags.filter((d) => d.code === "unused-section")).toHaveLength(0);
+  });
+
+  it("warns when listen section has no bind directive", () => {
+    const diags = symbolHintDiags("listen combined\n    mode http");
+    const bindDiag = diags.find((d) => d.code === "no-bind-entry-point");
+    expect(bindDiag).toBeDefined();
+    expect(bindDiag?.severity).toBe(vscode.DiagnosticSeverity.Warning);
+    expect(bindDiag?.message).toContain("combined");
   });
 
   it("reports unused named defaults profile spanning the full section block", () => {
@@ -312,7 +358,7 @@ describe("symbolIndex reference expansion", () => {
     expect(orphanDiag).toHaveLength(1);
     expect(orphanDiag[0]?.range.start.line).toBe(99);
 
-    const misfiledFrontendIndex: SymbolIndex = {
+    const misfiledBackendIndex: SymbolIndex = {
       definitions: new Map([
         [
           symbolKey("proxy-section", "wide", null),
@@ -320,10 +366,10 @@ describe("symbolIndex reference expansion", () => {
             {
               kind: "proxy-section",
               name: "wide",
-              line: 1,
+              line: 0,
               start: 4,
               end: 8,
-              scopeKey: "frontend:wide",
+              scopeKey: "backend:wide",
               role: "definition",
             },
           ],
@@ -334,12 +380,42 @@ describe("symbolIndex reference expansion", () => {
       scopeKeyByLine: [],
     };
     const misfiledDiag = unusedSymbolDiagnostics(
-      createDocument("frontend wide\n    mode http"),
-      parseDocument(createDocument("frontend wide\n    mode http")),
-      misfiledFrontendIndex,
+      createDocument("backend wide\n    mode http"),
+      parseDocument(createDocument("backend wide\n    mode http")),
+      misfiledBackendIndex,
       { enabled: true },
     );
     expect(misfiledDiag).toHaveLength(1);
-    expect(misfiledDiag[0]?.message).toContain("Section 'wide'");
+    expect(misfiledDiag[0]?.message).toContain("Backend 'wide'");
+
+    const inlineFrontendIndex: SymbolIndex = {
+      definitions: new Map([
+        [
+          symbolKey("proxy-section", "ghost", "frontend:web"),
+          [
+            {
+              kind: "proxy-section",
+              name: "ghost",
+              line: 1,
+              start: 4,
+              end: 9,
+              scopeKey: "frontend:web",
+              role: "definition",
+            },
+          ],
+        ],
+      ]),
+      references: [],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [],
+    };
+    const inlineFrontendDiag = unusedSymbolDiagnostics(
+      createDocument("frontend web\n    bind :80"),
+      parseDocument(createDocument("frontend web\n    bind :80")),
+      inlineFrontendIndex,
+      { enabled: true },
+    );
+    expect(inlineFrontendDiag).toHaveLength(1);
+    expect(inlineFrontendDiag[0]?.message).toContain("Backend 'ghost'");
   });
 });

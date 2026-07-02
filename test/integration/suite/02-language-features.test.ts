@@ -270,6 +270,31 @@ suite("Language feature integration", () => {
         "Unused diagnostics should be disabled when setting is false",
       );
     });
+
+    test("warns when frontend has no bind directive", async () => {
+      const doc = await openHaproxyDocument(
+        "defaults default\n    bind :80\nfrontend test_acl from default\n    http-request redirect scheme https if { dst_port -m int 80 }\n",
+      );
+      const diagnostics = await waitForSchemaDiagnostics(doc.uri);
+      assert.strictEqual(
+        diagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "no-bind-entry-point")
+          .length,
+        0,
+        "Frontends inheriting bind from defaults should not warn",
+      );
+
+      const unreachableDoc = await openHaproxyDocument(
+        "frontend test_acl\n    http-request redirect scheme https if { dst_port -m int 80 }\n",
+      );
+      const unreachableDiagnostics = await waitForSchemaDiagnostics(unreachableDoc.uri, 1);
+      assert.strictEqual(
+        unreachableDiagnostics.filter(
+          (diag) => formatDiagnosticCode(diag.code) === "no-bind-entry-point",
+        ).length,
+        1,
+        "Frontends without bind should warn as unreachable",
+      );
+    });
   });
 
   suite("Completion and hover coverage", () => {

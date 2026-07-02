@@ -5,6 +5,7 @@ import { DiagnosticContext } from "./diagnosticContext";
 import { HaproxyLanguageData } from "./languageData";
 import { HaproxySchema } from "./schema";
 import { getSymbolIndex } from "./symbolIndex";
+import { entryPointWithoutBindDiagnostics } from "./entryPointDiagnostics";
 import { unusedSymbolDiagnostics } from "./unusedSymbolDiagnostics";
 
 interface DiagnosticsCacheKey {
@@ -107,6 +108,7 @@ export function computeDiagnostics(
         }),
       );
     }
+    diagnostics.push(...entryPointWithoutBindDiagnostics(document, ctx.parsed));
   }
 
   diagnosticsCache.set(document, {
