@@ -25008,7 +25008,7 @@
     },
     "no option start-on-reload": {
       "arguments": [],
-      "description": "Start (or not) a new instance of the program upon a reload of the master. The default is to start a new instance. This option may only be used in a program section.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+      "description": "Start (or not) a new instance of the program upon a reload of the master. The default is to start a new instance. This option may only be used in a program section.\n\n/*",
       "docsUrl": "https://docs.haproxy.org/3.2/configuration.html#12.9-no%20option%20start-on-reload",
       "examples": [],
       "name": "no option start-on-reload",
@@ -25023,7 +25023,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Start (or not) a new instance of the program upon a reload of the master. The default is to start a new instance. This option may only be used in a program section.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Start (or not) a new instance of the program upon a reload of the master. The default is to start a new instance. This option may only be used in a program section.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.2/configuration.html#12.9-no%20option%20start-on-reload",
           "examples": [],
           "sections": [
@@ -28284,7 +28284,7 @@
     },
     "option start-on-reload": {
       "arguments": [],
-      "description": "Start (or not) a new instance of the program upon a reload of the master. The default is to start a new instance. This option may only be used in a program section.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+      "description": "Start (or not) a new instance of the program upon a reload of the master. The default is to start a new instance. This option may only be used in a program section.\n\n/*",
       "docsUrl": "https://docs.haproxy.org/3.2/configuration.html#12.9-option%20start-on-reload",
       "examples": [],
       "name": "option start-on-reload",
@@ -28299,7 +28299,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Start (or not) a new instance of the program upon a reload of the master. The default is to start a new instance. This option may only be used in a program section.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Start (or not) a new instance of the program upon a reload of the master. The default is to start a new instance. This option may only be used in a program section.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.2/configuration.html#12.9-option%20start-on-reload",
           "examples": [],
           "sections": [

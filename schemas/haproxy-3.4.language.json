@@ -34612,7 +34612,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20comment",
           "examples": [],
           "sections": [
@@ -34876,7 +34876,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20connect",
           "examples": [],
           "sections": [
@@ -35100,7 +35100,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20expect",
           "examples": [],
           "sections": [
@@ -35204,7 +35204,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20send",
           "examples": [],
           "sections": [
@@ -35308,7 +35308,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20send-binary",
           "examples": [],
           "sections": [
@@ -35412,7 +35412,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20send-binary-lf",
           "examples": [],
           "sections": [
@@ -35516,7 +35516,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20send-lf",
           "examples": [],
           "sections": [
@@ -35610,7 +35610,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20set-var",
           "examples": [],
           "sections": [
@@ -35704,7 +35704,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20set-var-fmt",
           "examples": [],
           "sections": [
@@ -35766,7 +35766,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/* * Local variables: *  fill-column: 79 * End: */",
+          "description": "Add a specific tcp-check rule for a \"tcp-check\" healthcheck. The same syntax than the corresponding proxy's directives is used. See the corresponding proxy documentation for details.\n\n/*",
           "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#12.9-tcp-check%20unset-var",
           "examples": [],
           "sections": [
