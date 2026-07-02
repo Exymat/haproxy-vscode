@@ -232,5 +232,9 @@
     "vitest": "^4.1.8",
     "vscode-oniguruma": "^2.0.1",
     "vscode-textmate": "^9.3.2"
+  },
+  "overrides": {
+    "diff": "^8.0.3",
+    "serialize-javascript": "^7.0.7"
   }
 }

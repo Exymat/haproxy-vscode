@@ -24,13 +24,14 @@ jobs:
         version: ["2.6", "2.8", "3.0", "3.2", "3.4"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
         with:
           node-version: 24
+          cache: npm
 
       - name: Install dependencies
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version }}
@@ -63,7 +64,7 @@ jobs:
 
       - name: Upload parity reports
         if: ${{ always() && (github.event_name != 'workflow_dispatch' || inputs.version == 'all' || inputs.version == matrix.version) }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: haproxy-parity-${{ matrix.version }}
           path: |
