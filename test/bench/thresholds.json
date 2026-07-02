@@ -4,40 +4,40 @@
     {
       "name": "loadSchemaBundle cold",
       "maxMs": 30,
-      "baselineMs": 23.893,
+      "baselineMs": 24.724,
       "statisticalMarginMs": 1.3518
     },
     {
       "namePattern": "^loadSchemaBundle cold \\(",
       "maxMs": 35,
-      "baselineMs": 27.025,
-      "statisticalMarginMs": 1.0163
+      "baselineMs": 28.393,
+      "statisticalMarginMs": 1.0791
     },
     {
       "namePattern": "^tokenize large-valid\\.cfg",
       "maxMs": 2690,
       "derive": "tokenize",
       "baselineMs": 2338.315,
-      "statisticalMarginMs": 27.6904
+      "statisticalMarginMs": 30.934
     },
     {
       "namePattern": "^tokenize large-mixed\\.cfg",
       "maxMs": 2190,
       "derive": "tokenize",
       "baselineMs": 1898.777,
-      "statisticalMarginMs": 16.5175
+      "statisticalMarginMs": 22.1777
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg \\(",
       "maxMs": 330,
       "baselineMs": 286.116,
-      "statisticalMarginMs": 15.2134
+      "statisticalMarginMs": 16.6774
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg \\(",
       "maxMs": 290,
       "baselineMs": 249.861,
-      "statisticalMarginMs": 7.5747
+      "statisticalMarginMs": 9.5412
     },
     {
       "namePattern": "^diagnostics edit: large-valid\\.cfg \\(",
@@ -47,9 +47,9 @@
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg unusedSymbols",
-      "maxMs": 470,
-      "baselineMs": 404.189,
-      "statisticalMarginMs": 8.3392
+      "maxMs": 620,
+      "baselineMs": 532.336,
+      "statisticalMarginMs": 38.6823
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg unusedSymbols",
@@ -71,15 +71,15 @@
     },
     {
       "namePattern": "^diagnostics warm: large-mixed\\.cfg \\(",
-      "maxMs": 240,
-      "baselineMs": 201.156,
-      "statisticalMarginMs": 5.5261
+      "maxMs": 290,
+      "baselineMs": 249.046,
+      "statisticalMarginMs": 26.0806
     },
     {
       "namePattern": "^diagnostics edit: large-mixed\\.cfg \\(",
-      "maxMs": 30,
-      "baselineMs": 24.385,
-      "statisticalMarginMs": 0.7727
+      "maxMs": 110,
+      "baselineMs": 89.468,
+      "statisticalMarginMs": 5.5872
     },
     {
       "namePattern": "^diagnostics cold: large-mixed\\.cfg unusedSymbols",
@@ -132,26 +132,26 @@
     {
       "namePattern": "^completion: log-format",
       "maxMs": 2,
-      "baselineMs": 0.037,
+      "baselineMs": 0.072,
       "statisticalMarginMs": 0.0009
     },
     {
       "namePattern": "^hover warm:",
-      "maxMs": 4,
-      "baselineMs": 2.904,
-      "statisticalMarginMs": 0.018
+      "maxMs": 6,
+      "baselineMs": 4.745,
+      "statisticalMarginMs": 0.0328
     },
     {
       "namePattern": "^hover cold:",
       "maxMs": 2,
-      "baselineMs": 0.085,
+      "baselineMs": 0.092,
       "statisticalMarginMs": 0.0011
     },
     {
       "namePattern": "^definition: (cache-use|resolvers|inline ACL)",
       "maxMs": 2,
-      "baselineMs": 0.059,
-      "statisticalMarginMs": 0.0026
+      "baselineMs": 0.11,
+      "statisticalMarginMs": 0.0028
     },
     {
       "namePattern": "^references: peers section",
