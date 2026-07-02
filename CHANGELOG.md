@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.13.2
+
+- Warns when a `frontend` or `listen` section has no `bind` or `bind-process` directive and cannot accept connections (including when bind would need to come from inherited defaults in the same file).
+- Frontends and listens are no longer reported as unused sections; unreachable entry points get the no-bind warning instead.
+- Unused backend hints use a clearer message — `Backend '…' is never referenced by use_backend or default_backend`.
+
 ## 0.13.1
 
 - Fixed unused section fading: unreferenced section blocks (backends, cache, userlist, resolvers, peers, named defaults) again use unnecessary-code diagnostics across the full section, not just a squiggle on the header keyword.
