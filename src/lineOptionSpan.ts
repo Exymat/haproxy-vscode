@@ -269,7 +269,7 @@ export function resolveNestedLineOptionSpan(
       ctx.line.section,
     );
 
-  for (let i = lineOptionStart; i < limit; ) {
+  for (let i = lineOptionStart; i < limit;) {
     const option = ctx.line.tokens[i].text.toLowerCase().replace(/\*$/, "");
     if (!allowed.has(option)) {
       i += 1;

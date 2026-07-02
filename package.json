@@ -212,13 +212,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/glob": "^9.0.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^26.1.0",
     "@types/vscode": "^1.105.0",
     "@vitest/coverage-v8": "^4.1.8",
     "@vitest/eslint-plugin": "^1.6.19",
-    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
     "@vscode/vsce": "^3.9.1",
     "eslint": "^10.6.0",
@@ -235,6 +234,7 @@
   },
   "overrides": {
     "diff": "^8.0.3",
+    "glob": "^13.0.6",
     "serialize-javascript": "^7.0.7"
   }
 }

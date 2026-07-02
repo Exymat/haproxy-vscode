@@ -105,13 +105,11 @@ function logformatSlots(schema: HaproxySchema): LogformatSlot[] {
     fromSchema.length > 0
       ? fromSchema
       : [
-          ...[...FALLBACK_LINE_TAIL_DIRECTIVES].map(
-            (directive): LogformatSlot => ({
-              kind: "line_tail",
-              directive,
-              skip: directive === "set-var-fmt" ? 1 : 0,
-            }),
-          ),
+          ...[...FALLBACK_LINE_TAIL_DIRECTIVES].map((directive): LogformatSlot => ({
+            kind: "line_tail",
+            directive,
+            skip: directive === "set-var-fmt" ? 1 : 0,
+          })),
           ...FALLBACK_PREFIX_SLOTS,
         ];
   logformatSlotCache.set(schema, slots);
