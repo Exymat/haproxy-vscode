@@ -60,7 +60,7 @@ export function createBundleLoader(
             applyLoadedSchema(loaded.schema);
             resolve(loaded);
           })().catch((error) => {
-            /* c8 ignore next 3 -- stale load discarded after deactivate/reload */
+            /* v8 ignore next 3 -- stale load discarded after deactivate/reload */
             if (isStale()) {
               return;
             }
@@ -68,7 +68,7 @@ export function createBundleLoader(
           });
         });
       });
-      /* c8 ignore next 4 -- defensive recovery path for transient async load failures */
+      /* v8 ignore next 4 -- defensive recovery path for transient async load failures */
       bundleLoadPromise = bundleLoadPromise.catch((error) => {
         if (isStale()) {
           throw error;

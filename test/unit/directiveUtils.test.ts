@@ -296,4 +296,34 @@ describe("directiveUtils", () => {
       completionValuesForPosition(schemaKw as never, undefined, 1, line, 0, "testpacked"),
     ).toEqual([]);
   });
+
+  it("handles packed fallback branches when schema slots or previous args are missing", () => {
+    const line = lineAt("defaults\n    testpacked", 1);
+    expect(completionValuesForPosition(undefined, undefined, 0, line, 0, "testpacked")).toEqual([]);
+
+    const schemaKw = {
+      name: "testpacked",
+      sections: ["defaults"],
+      signatures: [],
+      sources: [],
+      contexts: [],
+      argument_model: {
+        min_args: 1,
+        max_args: 2,
+        slots: [{ optional: false, value_kind: "name", enum: [] }],
+      },
+    };
+    expect(
+      completionValuesForPosition(schemaKw as never, undefined, 0, line, 0, "testpacked"),
+    ).toEqual([]);
+  });
+
+  it("returns empty when fallback slot values are unavailable", () => {
+    const params = [
+      { parameter: "<first>", description: "", values: [{ name: "a", description: "" }] },
+      { parameter: "<second>", description: "" },
+    ];
+    const line = lineAt("defaults\n    directive first", 1);
+    expect(argumentValuesForPosition(params as never, 5, line, 0)).toEqual([]);
+  });
 });

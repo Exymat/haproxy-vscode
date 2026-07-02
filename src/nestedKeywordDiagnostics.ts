@@ -58,7 +58,7 @@ function modeContextDiagnostic(
   mode: RuntimeMode | null,
 ): vscode.Diagnostic | null {
   if (!mode || contexts.length === 0) {
-    /* c8 ignore next -- contextDiagnostics callers already guarantee both mode and non-empty contexts */
+    /* v8 ignore next -- contextDiagnostics callers already guarantee both mode and non-empty contexts */
     return null;
   }
   let hasModeContext = false;

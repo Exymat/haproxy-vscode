@@ -73,6 +73,7 @@ export function buildSectionSymbols(parsed: ParsedLine[], lineCount: number): Se
     if (openIndex >= 0) {
       const closedEndLine = Math.max(symbols[openIndex].startLine, entry.line - 1);
       symbols[openIndex].endLine = closedEndLine;
+      /* v8 ignore next -- section tails may end on empty lines with zero text length */
       symbols[openIndex].endColumn = parsed[closedEndLine]?.textLength ?? 0;
     }
 

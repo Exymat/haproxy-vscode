@@ -272,6 +272,7 @@ suite("Language feature integration", () => {
     });
 
     test("warns when frontend has no bind directive", async () => {
+      await updateHaproxySetting("diagnostics.unusedSymbols", true);
       const doc = await openHaproxyDocument(
         "defaults default\n    bind :80\nfrontend test_acl from default\n    http-request redirect scheme https if { dst_port -m int 80 }\n",
       );

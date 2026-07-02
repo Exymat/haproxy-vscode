@@ -381,5 +381,20 @@ describe("hover handlers", () => {
         tryLogFormatHover(logFormatHoverContext(noDocFlagLine, noDocFlagLine.indexOf("Q"))),
       ).toBeNull();
     });
+
+    it("covers directive hover argument fallback behavior", () => {
+      const noArgDescHover = tryDirectiveHover(
+        optionHoverContext("http", {
+          kind: "directive-argument",
+          tokenIndex: 2,
+          token: { text: "http", start: 9, end: 13 },
+        }),
+      );
+      expect(noArgDescHover).not.toBeNull();
+      if (noArgDescHover === null) {
+        throw new Error("expected hover");
+      }
+      expect(hoverText(noArgDescHover)).toContain("HTTP");
+    });
   });
 });

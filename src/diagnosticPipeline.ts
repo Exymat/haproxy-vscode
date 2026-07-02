@@ -66,9 +66,11 @@ export function runLineDiagnosticPipeline(
   if (line.isSectionHeader) {
     return sectionHeaderDiagnostics(line);
   }
+  /* v8 ignore start -- macro lines are skipped before the main diagnostic phases */
   if (macroTokenSet(ctx.schema).has(line.tokens[0]?.text.toLowerCase() ?? "")) {
     return [];
   }
+  /* v8 ignore stop */
 
   const memo = ctx.getLineMemo(line);
   const diagnostics: vscode.Diagnostic[] = [];

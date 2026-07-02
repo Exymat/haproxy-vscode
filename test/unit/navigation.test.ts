@@ -283,4 +283,31 @@ describe("navigation", () => {
       provideReferences(doc as never, pos(1, col), { includeDeclaration: true }, schema, 4000),
     ).toEqual([]);
   });
+
+  it("resolves section header references and fallback scopes directly", () => {
+    const doc = createDocument(
+      "defaults profile_default\nfrontend FRONTEND_PRD from profile_default",
+    );
+    const fromCol = "frontend FRONTEND_PRD from profile_default".indexOf("profile_default");
+    expect(resolveSymbolAtPosition(doc as never, pos(1, fromCol), schema)).toEqual({
+      kind: "defaults-profile",
+      name: "profile_default",
+      scopeKey: null,
+    });
+  });
+
+  it("handles empty lines, out-of-token positions, and direct helper fallbacks", () => {
+    const doc = createDocument("frontend web\n    bind :80");
+    expect(resolveSymbolAtPosition(doc as never, pos(5, 0), schema)).toBeNull();
+    expect(resolveSymbolAtPosition(doc as never, pos(1, 0), schema)).toBeNull();
+
+    const index = {
+      definitions: new Map(),
+      references: [],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [null],
+    };
+    expect(findDefinitions(index as never, "acl", "missing", null)).toEqual([]);
+    expect(findAllSites(index as never, "acl", "missing", null)).toEqual([]);
+  });
 });

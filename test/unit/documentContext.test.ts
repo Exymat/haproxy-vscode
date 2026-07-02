@@ -157,6 +157,72 @@ describe("documentContext", () => {
     expect(hit?.kind).toBe("directive-argument");
   });
 
+  it("classifies rules that use each token-index fallback", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = [
+      { keyword: "min-rule", kind: "bind", minimum_token_index: 2 },
+      { keyword: "value-rule", kind: "directive", value_token_index: 1 },
+      { keyword: "action-rule", kind: "http-request", action_token_index: 1 },
+      { keyword: "nested-rule", kind: "server", nested_start_index: 1 },
+      { keyword: "phase-rule", kind: "tcp-request", phase_token_index: 1 },
+      { keyword: "plain-rule", kind: "filter" },
+    ];
+
+    expect(
+      getDocumentContext(
+        createDocument("defaults\n    min-rule x y"),
+        { line: 1, character: "    min-rule x y".length } as never,
+        customSchema,
+      )?.kind,
+    ).toBe("bind");
+    expect(
+      getDocumentContext(
+        createDocument("defaults\n    value-rule x"),
+        { line: 1, character: "    value-rule x".length } as never,
+        customSchema,
+      )?.kind,
+    ).toBe("directive-argument");
+    expect(
+      getDocumentContext(
+        createDocument("frontend web\n    action-rule deny"),
+        { line: 1, character: "    action-rule deny".length } as never,
+        customSchema,
+      )?.kind,
+    ).toBe("http-request");
+    expect(
+      getDocumentContext(
+        createDocument("backend api\n    nested-rule x"),
+        { line: 1, character: "    nested-rule x".length } as never,
+        customSchema,
+      )?.kind,
+    ).toBe("server");
+    expect(
+      getDocumentContext(
+        createDocument("frontend web\n    phase-rule content"),
+        { line: 1, character: "    phase-rule content".length } as never,
+        customSchema,
+      )?.kind,
+    ).toBe("tcp-request");
+    expect(
+      getDocumentContext(
+        createDocument("backend api\n    plain-rule x"),
+        { line: 1, character: "    plain-rule x".length } as never,
+        customSchema,
+      )?.kind,
+    ).toBe("filter");
+  });
+
+  it("falls back to directive classification when statement rules are absent", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = [];
+    const hit = getDocumentContext(
+      createDocument("defaults\n    custom"),
+      { line: 1, character: "    custom".length } as never,
+      customSchema,
+    );
+    expect(hit?.kind).toBe("directive");
+  });
+
   it("returns directive kind for comment lines", () => {
     expect(ctx("defaults\n    # comment", 1, 6)?.kind).toBe("directive");
   });

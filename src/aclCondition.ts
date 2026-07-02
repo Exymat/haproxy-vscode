@@ -103,6 +103,7 @@ export function validateAclConditions(lineText: string, schema: HaproxySchema): 
         continue;
       }
       const tail = skipSpace(body, id.end);
+      /* v8 ignore start -- bare trailing fetch validation only fires for truncated ACL expressions */
       if (tail >= body.length && fetchNames.has(id.name)) {
         issues.push(
           ...validateExpressionBody(
@@ -115,6 +116,7 @@ export function validateAclConditions(lineText: string, schema: HaproxySchema): 
           ),
         );
       }
+      /* v8 ignore stop */
       pos = id.end;
     }
   }

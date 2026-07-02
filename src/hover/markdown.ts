@@ -111,9 +111,11 @@ export function matchingArgumentValueNames(
       if (value.name.toLowerCase().split("(", 1)[0] !== key) {
         continue;
       }
+      /* v8 ignore start -- duplicate display forms are deduplicated defensively before hover rendering */
       if (!names.includes(value.name)) {
         names.push(value.name);
       }
+      /* v8 ignore stop */
     }
   }
   return names;

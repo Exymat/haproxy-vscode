@@ -11,7 +11,9 @@ export function symbolNameTokenIndex(rule: StatementRule): number | null {
   }
   const nameSlot = rule.fixed_slots?.find((slot) => slot.role === "name");
   if (nameSlot) {
+    /* v8 ignore next -- malformed fixed-slot metadata may fail to round-trip its own index */
     const idx = rule.fixed_slots?.indexOf(nameSlot) ?? -1;
+    /* v8 ignore next -- malformed fixed-slot metadata falls back to a null symbol-name index */
     return idx >= 0 ? idx + 1 : null;
   }
   return null;

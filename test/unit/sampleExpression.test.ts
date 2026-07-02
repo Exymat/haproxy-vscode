@@ -31,6 +31,11 @@ describe("extractExpressionSpans", () => {
 });
 
 describe("validateSampleExpressions inline", () => {
+  it("returns no issue for empty or identifier-free bodies without a fetch call", () => {
+    expect(validateExpressionBody("", 0, {}, {}, new Set(), new Set())).toEqual([]);
+    expect(validateExpressionBody("   ", 0, {}, {}, new Set(), new Set())).toEqual([]);
+  });
+
   it("reports missing fetch for parenthesized body", () => {
     expect(codesForLine("http-request add-header n %[()]")).toContain("sample-missing-fetch");
   });
@@ -267,6 +272,29 @@ describe("validateSampleExpressions inline", () => {
         new Set(["noargs"]),
       )[0]?.code,
     ).toBe("sample-converter-args");
+  });
+
+  it("uses fetch and converter name sets when metadata entries are absent", () => {
+    expect(validateExpressionBody("known", 0, {}, {}, new Set(["known"]), new Set())).toEqual([]);
+    expect(
+      validateExpressionBody(
+        "src,fallbackconv",
+        0,
+        schema32.sample_fetches ?? {},
+        {},
+        new Set(Object.keys(schema32.sample_fetches ?? {})),
+        new Set(["fallbackconv"]),
+      ),
+    ).toEqual([]);
+  });
+
+  it("handles schemas without sample fetch or converter maps", () => {
+    const schema = { ...schema32 };
+    schema.sample_fetches = undefined as never;
+    schema.sample_converters = undefined as never;
+    expect(
+      validateSampleExpressions("http-request add-header n %[not_a_fetch]", schema as never),
+    ).toEqual([expect.objectContaining({ code: "sample-unknown-fetch" })]);
   });
 });
 

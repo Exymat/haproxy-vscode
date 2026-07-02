@@ -100,4 +100,40 @@ describe("sectionMode", () => {
     expect(result.modes).not.toBe(cached.modes);
     expect(result.modes[2]).toBe("http");
   });
+
+  it("handles malformed headers and missing defaults parents", () => {
+    const parsed = [
+      { line: 0, tokens: [], isSectionHeader: true, section: null },
+      ...parseDocument(
+        createDocument(["frontend web from missing", "    mode invalid"].join("\n")),
+      ),
+    ] as never;
+    const modes = runtimeModeForLine(parsed);
+    expect(modes[0]).toBeNull();
+    expect(modes[1]).toBeNull();
+  });
+
+  it("recomputes modes when the cached version or line count no longer match", () => {
+    const parsed = parseDocument(createDocument(["defaults", "    mode http"].join("\n")));
+    const cached = runtimeModeForDocument(parsed, 1, craftedReuse({ previousVersion: null }));
+
+    const versionMismatch = runtimeModeForDocument(
+      parsed,
+      2,
+      craftedReuse({ previousVersion: 999, prefixLines: parsed.length }),
+      cached,
+    );
+    expect(versionMismatch.modes).not.toBe(cached.modes);
+
+    const longer = parseDocument(
+      createDocument(["defaults", "    mode http", "backend api"].join("\n")),
+    );
+    const lengthMismatch = runtimeModeForDocument(
+      longer,
+      2,
+      craftedReuse({ previousVersion: 1, prefixLines: longer.length }),
+      cached,
+    );
+    expect(lengthMismatch.modes).not.toBe(cached.modes);
+  });
 });

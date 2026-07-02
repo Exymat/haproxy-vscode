@@ -116,6 +116,21 @@ describe("contextDiagnostics", () => {
     expect(contextDiagnostics(ctx, line).some((d) => d.code === "wrong-context")).toBe(true);
   });
 
+  it("ignores directive contexts that do not participate in mode matching", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.customctx = {
+      name: "customctx",
+      sections: ["frontend"],
+      signatures: ["customctx"],
+      sources: [],
+      contexts: ["spop"],
+    };
+    const doc = createDocument("frontend x\n    mode http\n    customctx");
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[2];
+    expect(contextDiagnostics(ctx, line)).toEqual([]);
+  });
+
   it("reports wrong-context for options in incompatible modes", () => {
     const { ctx, line } = lineAt("defaults\n    mode tcp\n    option httplog", 2);
     expect(
@@ -204,6 +219,11 @@ describe("unknownNestedDiagnostics", () => {
     expect(unknownNestedDiagnostics(ctx, line).some((d) => d.code === "unknown-value")).toBe(true);
   });
 
+  it("accepts known stats socket levels without diagnostics", () => {
+    const { ctx, line } = lineAt("global\n    stats socket /tmp/haproxy level admin");
+    expect(unknownNestedDiagnostics(ctx, line)).toEqual([]);
+  });
+
   it("returns no diagnostics for inspect-delay rules", () => {
     const { ctx, line } = lineAt("frontend x\n    tcp-request inspect-delay 5s if TRUE");
     expect(unknownNestedDiagnostics(ctx, line)).toEqual([]);
@@ -268,6 +288,19 @@ describe("unknownNestedDiagnostics", () => {
     schema.keyword_groups.services = [];
     const doc = createDocument(
       "frontend x\n    bind :80\n    http-request use-service missing if TRUE",
+    );
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[2];
+    expect(
+      unknownNestedDiagnostics(ctx, line).filter((d) => d.code === "unknown-service"),
+    ).toHaveLength(0);
+  });
+
+  it("does not report lua-prefixed service names", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keyword_groups.services = ["known-service"];
+    const doc = createDocument(
+      "frontend x\n    bind :80\n    http-request use-service lua.custom if TRUE",
     );
     const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
     const line = parseDocument(doc)[2];

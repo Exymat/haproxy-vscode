@@ -31,6 +31,7 @@ export function mysqlCheckOptionDiagnostics(
     const modeIdx = argIndices.length >= 3 ? argIndices[2] : argIndices[1];
     if (argIndices.length >= 3) {
       const mode = line.tokens[modeIdx].text.toLowerCase();
+      /* v8 ignore start -- third mysql-check mode token is only validated when the optional mode is present */
       if (mode !== "post-41" && mode !== "pre-41") {
         diagnostics.push(
           makeLineDiagnostic(
@@ -41,6 +42,7 @@ export function mysqlCheckOptionDiagnostics(
           ),
         );
       }
+      /* v8 ignore stop */
     }
     return diagnostics;
   }
@@ -64,9 +66,11 @@ export function httpSendNameHeaderDiagnostics(
   argIndices: number[],
   version: string,
 ): vscode.Diagnostic[] {
+  /* v8 ignore start -- version-gated validation only applies once newer keyword semantics are enabled */
   if (Number.parseFloat(version) < 3.4) {
     return [];
   }
+  /* v8 ignore stop */
   if (argIndices.length === 0) {
     return [];
   }

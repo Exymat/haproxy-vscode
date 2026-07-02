@@ -292,6 +292,14 @@ describe("statementDiagnostics", () => {
     spy.mockRestore();
   });
 
+  it("skips address diagnostics when validation returns no message", () => {
+    const spy = vi.spyOn(addressFormat, "validateHaproxyAddress").mockReturnValue({
+      valid: false,
+    });
+    expect(lineDiag("global\n    log bad local0", 1)).toEqual([]);
+    spy.mockRestore();
+  });
+
   it("accepts a single nested value when max args is unlimited", () => {
     const schema = structuredClone(bundle.schema);
     schema.keywords.testvariadic = {
@@ -395,6 +403,25 @@ describe("statementDiagnostics", () => {
     )[1];
     const diags = statementDiagnostics(line, schema);
     expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
+  it("does not consume another option as a plain value-taking argument", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testvalueonly",
+      "nextopt",
+    ];
+    schema.keyword_groups.server_options_with_value = [
+      ...(schema.keyword_groups.server_options_with_value ?? []),
+      "testvalueonly",
+    ];
+    const line = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testvalueonly nextopt"),
+    )[1];
+    expect(
+      statementDiagnostics(line, schema).filter((d) => d.code === "unknown-parameter"),
+    ).toHaveLength(0);
   });
 
   it("validates nested address options when their model is absent", () => {

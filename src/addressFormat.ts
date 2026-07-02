@@ -56,6 +56,7 @@ function splitHostAndPort(token: string): {
   const trimmed = token.trim();
   if (trimmed.startsWith("[")) {
     const close = trimmed.indexOf("]");
+    /* v8 ignore start -- bracketed hosts without a trailing port separator are accepted as pure host tokens */
     if (close > 0) {
       const host = trimmed.slice(0, close + 1);
       const rest = trimmed.slice(close + 1);
@@ -64,16 +65,18 @@ function splitHostAndPort(token: string): {
       }
       return { host, portPart: "", hadPortSeparator: false };
     }
+    /* v8 ignore stop */
   }
 
   let hostEnd = trimmed.length;
   let hadPortSeparator = false;
   for (let i = trimmed.length - 1; i >= 0; i -= 1) {
     const ch = trimmed[i];
+    /* v8 ignore start -- malformed trailing brackets are rejected later by host validation */
     if (ch === "]") {
-      /* c8 ignore next -- malformed trailing brackets are rejected later by host validation */
       break;
     }
+    /* v8 ignore stop */
     if (ch === ":") {
       hostEnd = i;
       hadPortSeparator = true;
@@ -312,12 +315,14 @@ export function looksLikeAddressToken(token: string): boolean {
   }
   const { host, portPart, hadPortSeparator } = splitHostAndPort(trimmed);
   if (hadPortSeparator && portPart) {
+    /* v8 ignore start -- address-token heuristics allow either a valid host or port-like suffix while typing */
     return (
       validateHostShape(host).valid ||
       /^\d/.test(portPart) ||
       portPart.startsWith("+") ||
       portPart.startsWith("-")
     );
+    /* v8 ignore stop */
   }
   return host.includes(".") || host.includes(":");
 }

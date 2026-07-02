@@ -102,6 +102,12 @@ describe("provideHover formatting", () => {
     );
   });
 
+  it("handles non-structured blocks, diagram-like blocks, and short candidate tables", () => {
+    expect(formatHoverText("plain text\nstill plain")).toBe("plain text\nstill plain");
+    expect(formatHoverText("A | B\nx | y")).toContain("```text");
+    expect(formatHoverText("------\n| node |\n------")).toContain("```text");
+  });
+
   it("formats parameter labels with trimming and backtick escaping", () => {
     expect(formatParameterExtra("  user`name  ")).toBe("**Parameter:** `user\\`name`");
     expect(formatParameterExtra("   ")).toBe("**Parameter:** `argument`");

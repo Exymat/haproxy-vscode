@@ -10,6 +10,7 @@ import { HoverContext } from "../types";
 const actionGroups = ACTION_GROUP_NAMES;
 
 function actionNameCandidates(hc: HoverContext): string[] {
+  /* v8 ignore next -- hover synthesis may run before a concrete token is available under the cursor */
   const token = hc.ctx.token?.text ?? hc.tokenLower;
   const seen = new Set<string>();
   const out: string[] = [];

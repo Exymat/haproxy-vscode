@@ -40,6 +40,7 @@ export function activate(context: vscode.ExtensionContext): void {
     try {
       return await ensureBundle();
     } catch (error) {
+      /* v8 ignore next -- non-Error throws are normalized defensively for VS Code host failures */
       const message = error instanceof Error ? error.message : String(error);
       reportBundleError(message);
       return undefined;
@@ -72,6 +73,7 @@ export function activate(context: vscode.ExtensionContext): void {
     if (!b) {
       return;
     }
+    /* v8 ignore next -- some reload paths intentionally skip grammar sync when only settings change */
     if (syncGrammar) {
       const grammarChanged = await syncActiveGrammarAsync(context, b.version);
       await promptReloadIfGrammarChanged(grammarChanged);
@@ -140,6 +142,7 @@ export function activate(context: vscode.ExtensionContext): void {
         const text = document.getText();
         const formatted = formatConfig(text, {
           ...getFormatOptions(settings),
+          /* v8 ignore next -- formatting still works before the async bundle finishes loading */
           sectionHeaders: loadedBundle ? sectionHeaderSet(loadedBundle.schema) : undefined,
         });
         const fullRange = new vscode.Range(

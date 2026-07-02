@@ -15,4 +15,14 @@ describe("diagnosticPipeline macro lines", () => {
     const macroLine = parseDocument(doc)[1];
     expect(runLineDiagnosticPipeline(ctx, macroLine)).toEqual([]);
   });
+
+  it("skips deprecated diagnostics when no deprecated index is present", () => {
+    const doc = createDocument("defaults\n    mode http");
+    const ctx = new DiagnosticContext(doc, bundle.schema, {
+      languageData: bundle.languageData,
+      deprecatedWarnings: false,
+    });
+    const line = parseDocument(doc)[1];
+    expect(runLineDiagnosticPipeline(ctx, line)).toEqual([]);
+  });
 });

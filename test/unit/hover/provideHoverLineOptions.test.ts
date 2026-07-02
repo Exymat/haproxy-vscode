@@ -2,7 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { addSectionExtra } from "../../../src/hover/markdown";
 import {
+  buildLineOptionAllowedSet,
   computeLineOptionArgumentEnd,
+  lineOptionConditionalLimit,
   resolveLineOptionStartIndex,
   resolveNestedLineOptionSpan,
 } from "../../../src/lineOptionSpan";
@@ -16,6 +18,8 @@ import { bundles, hoverMarkdown, hoverText } from "./helpers";
 import { provideHover } from "../../../src/hover";
 import {
   LINE_OPTION_CHAPTER_BIND,
+  LINE_OPTION_CHAPTER_SERVER,
+  lineOptionChapter,
   resolveLineOptionSchemaKeyword,
   resolveNestedOptionKeyword,
 } from "../../../src/lineOptionKeyword";
@@ -203,6 +207,56 @@ describe("provideHover nested line options", () => {
     expect(resolveLineOptionSchemaKeyword(schema, "novariant", "bind", null)?.chapter).not.toBe(
       LINE_OPTION_CHAPTER_BIND,
     );
+  });
+
+  it("covers line-option keyword fallback branches and chapter selection", () => {
+    expect(lineOptionChapter("server")).toBe(LINE_OPTION_CHAPTER_SERVER);
+
+    const schema = structuredClone(bundles["3.4"].schema);
+    schema.keywords.testtoplevel = {
+      name: "testtoplevel",
+      sections: ["backend"],
+      signatures: ["testtoplevel <base>"],
+      sources: [],
+      contexts: ["tcp"],
+      arguments: [{ parameter: "base", description: "base", values: [] }],
+      argument_model: {
+        min_args: 2,
+        max_args: 2,
+        slots: [
+          { enum: [], optional: false, value_kind: "name", variadic: false },
+          { enum: [], optional: false, value_kind: "name", variadic: false },
+        ],
+      },
+      variants: [
+        {
+          chapter: "5.2",
+          sections: [],
+          signatures: [],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 1,
+            slots: [{ enum: [], optional: false, value_kind: "name", variadic: false }],
+          },
+        },
+      ],
+    };
+    schema.keywords.testtoplevel.line_option_semantics = [
+      {
+        parent_kind: "server",
+        option_group: "server_options",
+        chapter: "5.2",
+      },
+    ];
+    const resolved = resolveLineOptionSchemaKeyword(schema, "testtoplevel", "server", "backend");
+    expect(resolved?.sections).toEqual(["backend"]);
+    expect(resolved?.signatures).toEqual(["testtoplevel <base>"]);
+    expect(resolved?.arguments).toEqual(schema.keywords.testtoplevel.arguments);
+    expect(resolved?.contexts).toEqual(["tcp"]);
+
+    expect(resolveLineOptionSchemaKeyword(schema, "missing", "server", "backend")).toBeUndefined();
   });
 
   it("covers direct line-option argument span fallbacks", () => {
@@ -600,5 +654,66 @@ describe("provideHover nested line options", () => {
     addSectionExtra(extras, undefined);
     addSectionExtra(extras, []);
     expect(extras).toEqual([]);
+  });
+
+  it("covers additional line-option span helpers and boundary behavior", () => {
+    const schema = structuredClone(bundles["3.4"].schema);
+    schema.keyword_groups.server_options = ["flagopt"];
+    schema.keyword_groups.server_options_with_value = ["valueopt"];
+
+    const allowed = buildLineOptionAllowedSet(schema, "server_options");
+    expect(allowed.allowed.has("flagopt")).toBe(true);
+    expect(allowed.allowed.has("valueopt")).toBe(true);
+
+    const parsed = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 valueopt unless cond"),
+    )[1];
+    expect(lineOptionConditionalLimit(parsed)).toBe(parsed.tokens.indexOf(parsed.tokens[4]));
+
+    const bindRule = bundles["3.4"].schema.statement_rules.find((rule) => rule.kind === "bind");
+    expect(resolveLineOptionStartIndex(parsed, bindRule)).toBe(bindRule?.nested_start_index ?? -1);
+
+    const valueSchema = structuredClone(bundles["3.4"].schema);
+    valueSchema.keywords.valueopt = {
+      name: "valueopt",
+      sections: ["backend"],
+      signatures: ["valueopt <value>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      line_option_semantics: [
+        {
+          parent_kind: "server",
+          option_group: "server_options",
+          chapter: "5.2",
+          takes_value: true,
+        },
+      ],
+    };
+    valueSchema.keyword_groups.server_options = ["valueopt", "nextopt"];
+    valueSchema.keyword_groups.server_options_with_value = ["valueopt"];
+    const valueLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 valueopt nextopt"),
+    )[1];
+    expect(
+      computeLineOptionArgumentEnd(
+        valueSchema,
+        valueLine,
+        3,
+        valueLine.tokens.length,
+        "server_options",
+        "server",
+        "backend",
+      ),
+    ).toBe(4);
+
+    const ctx = {
+      kind: "server",
+      line: valueLine,
+      tokenIndex: valueLine.tokens.length - 1,
+    };
+    expect(resolveNestedLineOptionSpan(valueSchema, ctx, "server_options", 3)?.keyword).toBe(
+      "nextopt",
+    );
   });
 });

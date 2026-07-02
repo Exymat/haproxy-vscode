@@ -7,6 +7,7 @@ import {
   clearLanguageDataIndexCache,
   findIndexedGroupItem,
   indexedGroupItems,
+  indexedGroupItemsByName,
   indexedKeywordNameSetForSection,
   indexedKeywordsForSection,
   indexedResolvedKeywordsForSection,
@@ -64,6 +65,12 @@ describe("languageDataIndexes", () => {
     expect(indexedKeywordNameSetForSection(data, null)).toEqual(new Set());
   });
 
+  it("returns empty indexes for unknown groups and sections", () => {
+    expect(indexedGroupItemsByName(data, "missing-group")).toEqual(new Map());
+    expect(indexedKeywordsForSection(data, "missing-section")).toEqual([]);
+    expect(indexedKeywordNameSetForSection(data, "missing-section")).toEqual(new Set());
+  });
+
   it("skips keywords whose variants do not resolve for a section", () => {
     const custom = structuredClone(data);
     custom.keywords.sectiononly = {
@@ -87,6 +94,24 @@ describe("languageDataIndexes", () => {
     clearLanguageDataIndexCache();
     const resolved = indexedResolvedKeywordsForSection(custom, "frontend");
     expect(resolved.some((kw) => kw.name === "sectiononly")).toBe(true);
+  });
+
+  it("ignores keywords without sections when building section indexes", () => {
+    const custom = structuredClone(data);
+    Object.assign(custom.keywords as Record<string, unknown>, {
+      nosections: {
+        name: "nosections",
+        signatures: ["nosections"],
+        arguments: [],
+        description: "",
+        docsUrl: "",
+      },
+    });
+    clearLanguageDataIndexCache();
+    const indexes = languageDataIndexes(custom);
+    expect(indexes.keywordsBySection.get("frontend")?.some((kw) => kw.name === "nosections")).toBe(
+      false,
+    );
   });
 });
 

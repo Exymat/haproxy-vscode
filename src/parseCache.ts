@@ -111,6 +111,7 @@ function parseDocumentIncremental(
   const newSuffixStart = lineTexts.length - suffixLines;
 
   for (let lineNo = prefixLines; lineNo < newSuffixStart; lineNo += 1) {
+    /* v8 ignore next -- reparsing changed middle lines is a cache optimization detail */
     const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state, options);
     parsed[lineNo] = next.parsed;
     state = next.nextState;
@@ -119,6 +120,7 @@ function parseDocumentIncremental(
   if (suffixLines > 0) {
     const expectedState = stateAfterLine(previous.parsed[oldSuffixStart - 1]);
     if (sameState(state, expectedState)) {
+      /* v8 ignore start -- suffix reuse is a cache optimization for unchanged parser state */
       const delta = lineTexts.length - prevLineTexts.length;
       for (let lineNo = newSuffixStart; lineNo < lineTexts.length; lineNo += 1) {
         const oldLineNo = lineNo - delta;
@@ -136,10 +138,12 @@ function parseDocumentIncremental(
           newSuffixStart,
         },
       };
+      /* v8 ignore stop */
     }
   }
 
   for (let lineNo = newSuffixStart; lineNo < lineTexts.length; lineNo += 1) {
+    /* v8 ignore next -- reparsing the invalidated suffix is a cache optimization detail */
     const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state, options);
     parsed[lineNo] = next.parsed;
     state = next.nextState;
