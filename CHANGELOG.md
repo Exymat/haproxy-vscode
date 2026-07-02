@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.13.1
+
+- Fixed unused section fading: unreferenced section blocks (backends, cache, userlist, resolvers, peers, named defaults) again use unnecessary-code diagnostics across the full section, not just a squiggle on the header keyword.
+
 ## 0.13.0
 
 - Refreshed generated HAProxy 2.6, 2.8, 3.0, 3.2, and 3.4 schema, language data, and TextMate grammars.

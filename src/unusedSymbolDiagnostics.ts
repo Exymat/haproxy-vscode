@@ -47,19 +47,18 @@ function sectionBlockBounds(
   return { startLine: site.line, endLine: site.line };
 }
 
-function sectionHeaderRange(
-  site: SymbolSite,
+function sectionBlockRange(
   outline: SectionSymbolInfo | undefined,
+  site: SymbolSite,
+  kind: SymbolKind,
+  document: vscode.TextDocument,
 ): vscode.Range {
-  if (outline) {
-    return new vscode.Range(
-      outline.startLine,
-      outline.selectionStart,
-      outline.startLine,
-      outline.selectionEnd,
-    );
-  }
-  return new vscode.Range(site.line, site.start, site.line, site.end);
+  const block = sectionBlockBounds(outline, site, kind);
+  const endColumn =
+    outline && outline.endLine === block.endLine
+      ? outline.endColumn
+      : document.lineAt(block.endLine).text.length;
+  return new vscode.Range(block.startLine, 0, block.endLine, endColumn);
 }
 
 function proxySectionType(parsed: ParsedLine[], defLine: number): string | null {
@@ -145,18 +144,6 @@ function makeUnusedLineDiagnostic(
   return diagnostic;
 }
 
-/** Information severity: squiggle on the section header keyword only. */
-function makeUnusedSectionDiagnostic(
-  range: vscode.Range,
-  message: string,
-  code: string,
-): vscode.Diagnostic {
-  const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Information);
-  diagnostic.source = DIAG_SOURCE;
-  diagnostic.code = code;
-  return diagnostic;
-}
-
 export function unusedSymbolDiagnostics(
   document: vscode.TextDocument,
   parsed: ParsedLine[],
@@ -200,7 +187,7 @@ export function unusedSymbolDiagnostics(
 
     if (SECTION_BLOCK_KINDS.has(kind)) {
       diagnostics.push(
-        makeUnusedSectionDiagnostic(sectionHeaderRange(site, outline), message, code),
+        makeUnusedLineDiagnostic(sectionBlockRange(outline, site, kind, document), message, code),
       );
       continue;
     }

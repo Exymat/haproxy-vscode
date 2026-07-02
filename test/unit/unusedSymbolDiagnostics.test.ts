@@ -52,18 +52,17 @@ describe("unusedSymbolDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unused-acl")).toHaveLength(0);
   });
 
-  it("reports unused backend with a squiggle on the section header", () => {
+  it("reports unused backend spanning the full section block", () => {
     const diags = unusedDiags(
       "frontend web\n    bind :80\nbackend old_api\n    server s1 127.0.0.1:80",
     );
     const sectionDiag = diags.find((d) => d.code === "unused-section");
     expect(sectionDiag).toBeDefined();
     expect(sectionDiag?.severity).toBe(vscode.DiagnosticSeverity.Information);
-    expect(sectionDiag?.tags ?? []).not.toContain(vscode.DiagnosticTag.Unnecessary);
+    expect(sectionDiag?.tags).toContain(vscode.DiagnosticTag.Unnecessary);
     expect(sectionDiag?.range.start.line).toBe(2);
-    expect(sectionDiag?.range.end.line).toBe(2);
+    expect(sectionDiag?.range.end.line).toBe(3);
     expect(sectionDiag?.range.start.character).toBe(0);
-    expect(sectionDiag?.range.end.character).toBe("backend old_api".length);
     expect(sectionDiag?.message).toContain("old_api");
   });
 
@@ -79,14 +78,14 @@ describe("unusedSymbolDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unused-section")).toHaveLength(0);
   });
 
-  it("reports unused named defaults profile on the header keyword", () => {
+  it("reports unused named defaults profile spanning the full section block", () => {
     const diags = unusedDiags("defaults profile_a\n    timeout connect 5s");
     const profileDiag = diags.find((d) => d.code === "unused-defaults-profile");
     expect(profileDiag).toBeDefined();
     expect(profileDiag?.severity).toBe(vscode.DiagnosticSeverity.Information);
+    expect(profileDiag?.tags).toContain(vscode.DiagnosticTag.Unnecessary);
     expect(profileDiag?.range.start.line).toBe(0);
-    expect(profileDiag?.range.end.line).toBe(0);
-    expect(profileDiag?.range.end.character).toBe("defaults profile_a".length);
+    expect(profileDiag?.range.end.line).toBe(1);
   });
 
   it("suppresses unused defaults profile referenced by from", () => {
@@ -192,6 +191,17 @@ describe("symbolIndex reference expansion", () => {
         (d) => d.message.includes("mypeers"),
       ),
     ).toBe(true);
+  });
+
+  it("fades unused peers section across the full block", () => {
+    const diags = unusedDiags(
+      "peers bench_peers\n    peer node1 127.0.0.1:10000\n    peer node2 127.0.0.1:10001\nfrontend web\n    bind :80",
+    );
+    const peersDiag = diags.find((d) => d.message.includes("bench_peers"));
+    expect(peersDiag).toBeDefined();
+    expect(peersDiag?.tags).toContain(vscode.DiagnosticTag.Unnecessary);
+    expect(peersDiag?.range.start.line).toBe(0);
+    expect(peersDiag?.range.end.line).toBe(2);
   });
 
   it("unusedSymbolDiagnostics direct API respects enabled flag", () => {
