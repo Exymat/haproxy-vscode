@@ -1,7 +1,7 @@
 {
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
-  "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, and go-to-definition — version-aware (2.6-3.4).",
+  "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, and go-to-definition — LTS versions (2.6 - 3.4) supported.",
   "version": "0.13.3",
   "publisher": "Exymat",
   "icon": "icon.png",
