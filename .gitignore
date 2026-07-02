@@ -6,6 +6,7 @@ Thumbs.db
 .vscode/**
 dkall.output
 *.cpuprofile
+.cursorignore
 
 # TypeScript compile output (regenerate with npm run compile)
 out/
@@ -28,3 +29,4 @@ coverage/
 .nvmrc
 scripts/reports/*
 scripts/compare-haproxy-c-*-report.json
+

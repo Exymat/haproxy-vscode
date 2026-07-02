@@ -1,20 +1,151 @@
 name: Test
 
 on:
+  workflow_dispatch:
   push:
-    paths-ignore:
+    paths:
       - "**/*.md"
+      - "docs/**"
+      - "package.json"
+      - "package-lock.json"
+      - "src/**"
+      - "test/**"
+      - "syntaxes/**"
+      - "schemas/**"
+      - "scripts/**"
+      - "tsconfig*.json"
+      - "eslint.config.mjs"
+      - "vitest*.ts"
+      - "language-configuration.json"
+      - ".vscodeignore"
+      - ".vscode-test.js"
+      - ".prettierrc"
+      - ".prettierignore"
+      - ".github/workflows/**"
   pull_request:
-    paths-ignore:
+    paths:
       - "**/*.md"
+      - "docs/**"
+      - "package.json"
+      - "package-lock.json"
+      - "src/**"
+      - "test/**"
+      - "syntaxes/**"
+      - "schemas/**"
+      - "scripts/**"
+      - "tsconfig*.json"
+      - "eslint.config.mjs"
+      - "vitest*.ts"
+      - "language-configuration.json"
+      - ".vscodeignore"
+      - ".vscode-test.js"
+      - ".prettierrc"
+      - ".prettierignore"
+      - ".github/workflows/**"
 
 concurrency:
   group: test-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      docs: ${{ steps.filter.outputs.docs }}
+      package: ${{ steps.filter.outputs.package }}
+      deps: ${{ steps.filter.outputs.deps }}
+      extension: ${{ steps.filter.outputs.extension }}
+      scripts: ${{ steps.filter.outputs.scripts }}
+      tooling: ${{ steps.filter.outputs.tooling }}
+      workflows: ${{ steps.filter.outputs.workflows }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            docs:
+              - '**/*.md'
+              - 'docs/**'
+            package:
+              - 'package.json'
+            deps:
+              - 'package-lock.json'
+            extension:
+              - 'src/**'
+              - 'test/**'
+              - 'syntaxes/**'
+              - 'schemas/**'
+              - 'language-configuration.json'
+            scripts:
+              - 'scripts/**'
+            tooling:
+              - 'tsconfig*.json'
+              - 'eslint.config.mjs'
+              - 'vitest*.ts'
+              - '.vscodeignore'
+              - '.vscode-test.js'
+              - '.prettierrc'
+              - '.prettierignore'
+            workflows:
+              - '.github/workflows/**'
+
+  format-docs:
+    name: Format docs
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check markdown formatting
+        run: npm run format:check:docs
+
+  validate-package:
+    name: Validate manifest
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.package == 'true' ||
+      needs.changes.outputs.workflows == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check package.json formatting
+        run: npx prettier --check package.json
+
+      - name: Validate extension manifest
+        run: npm run validate:manifest
+
   lint:
     name: Lint
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.extension == 'true' ||
+      needs.changes.outputs.scripts == 'true' ||
+      needs.changes.outputs.tooling == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -32,6 +163,11 @@ jobs:
 
   audit:
     name: Dependency audit
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.deps == 'true' ||
+      needs.changes.outputs.package == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -49,6 +185,14 @@ jobs:
 
   format:
     name: Format check
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.extension == 'true' ||
+      needs.changes.outputs.scripts == 'true' ||
+      needs.changes.outputs.tooling == 'true' ||
+      needs.changes.outputs.package == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -66,6 +210,11 @@ jobs:
 
   bench-fixture:
     name: Benchmark fixtures
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.scripts == 'true' ||
+      needs.changes.outputs.extension == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -83,6 +232,12 @@ jobs:
 
   compile:
     name: Compile (${{ matrix.os }})
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.extension == 'true' ||
+      needs.changes.outputs.scripts == 'true' ||
+      needs.changes.outputs.tooling == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -104,6 +259,10 @@ jobs:
 
   unit:
     name: Unit tests (${{ matrix.os }})
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.extension == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -132,6 +291,11 @@ jobs:
 
   integration:
     name: Integration tests (${{ matrix.os }})
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.extension == 'true' ||
+      needs.changes.outputs.tooling == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -158,6 +322,11 @@ jobs:
 
   bench:
     name: Performance benchmarks
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.extension == 'true' ||
+      needs.changes.outputs.scripts == 'true'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:

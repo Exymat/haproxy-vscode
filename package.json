@@ -172,6 +172,8 @@
     "lint:fix": "eslint . --fix --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "format:check:docs": "prettier --check \"**/*.md\"",
+    "validate:manifest": "node scripts/validate-manifest.mjs",
     "compile": "tsc -p ./",
     "compile:integration": "tsc -p tsconfig.integration.json",
     "watch": "tsc -watch -p ./",

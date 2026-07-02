@@ -1,12 +1,41 @@
 name: CodeQL
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
+    paths:
+      - "src/**"
+      - "test/**"
+      - "syntaxes/**"
+      - "schemas/**"
+      - "scripts/**"
+      - "package-lock.json"
+      - "tsconfig*.json"
+      - "eslint.config.mjs"
+      - "vitest*.ts"
+      - "language-configuration.json"
+      - ".vscodeignore"
+      - ".vscode-test.js"
+      - ".github/workflows/**"
   pull_request:
     branches:
       - main
+    paths:
+      - "src/**"
+      - "test/**"
+      - "syntaxes/**"
+      - "schemas/**"
+      - "scripts/**"
+      - "package-lock.json"
+      - "tsconfig*.json"
+      - "eslint.config.mjs"
+      - "vitest*.ts"
+      - "language-configuration.json"
+      - ".vscodeignore"
+      - ".vscode-test.js"
+      - ".github/workflows/**"
   schedule:
     - cron: "0 6 * * 1"
 
