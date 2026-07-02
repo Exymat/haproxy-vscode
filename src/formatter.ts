@@ -119,6 +119,7 @@ export function formatConfig(
     const { code, commentSuffix } = splitLineAtComment(rawLine);
 
     if (code.length === 0) {
+      /* v8 ignore next -- comment-only formatting only reaches an empty fallback with synthetic split results */
       outputLines.push(commentSuffix ?? "");
       continue;
     }

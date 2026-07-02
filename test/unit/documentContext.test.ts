@@ -5,7 +5,9 @@ import {
   keywordsForSection,
   sectionKeywordNames,
 } from "../../src/documentContext";
+import { DiagnosticContext } from "../../src/diagnosticContext";
 import * as parseCache from "../../src/parseCache";
+import { parseDocument } from "../../src/parser";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 
@@ -221,6 +223,16 @@ describe("documentContext", () => {
       customSchema,
     );
     expect(hit?.kind).toBe("directive");
+  });
+
+  it("memoizes log-format regions per line", () => {
+    const doc = createDocument("defaults\n    log-format %ci");
+    const ctx = new DiagnosticContext(doc, schema, { languageData });
+    const line = parseDocument(doc)[1];
+    const first = ctx.getLogFormatMemo(line);
+    const second = ctx.getLogFormatMemo(line);
+    expect(second).toBe(first);
+    expect(first.regions.length).toBeGreaterThan(0);
   });
 
   it("returns directive kind for comment lines", () => {

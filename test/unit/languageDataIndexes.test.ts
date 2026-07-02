@@ -98,15 +98,14 @@ describe("languageDataIndexes", () => {
 
   it("ignores keywords without sections when building section indexes", () => {
     const custom = structuredClone(data);
-    Object.assign(custom.keywords as Record<string, unknown>, {
-      nosections: {
-        name: "nosections",
-        signatures: ["nosections"],
-        arguments: [],
-        description: "",
-        docsUrl: "",
-      },
-    });
+    const invalidKeyword = {
+      name: "nosections",
+      signatures: ["nosections"],
+      arguments: [],
+      description: "",
+      docsUrl: "",
+    };
+    (custom.keywords as Record<string, unknown>).nosections = invalidKeyword;
     clearLanguageDataIndexCache();
     const indexes = languageDataIndexes(custom);
     expect(indexes.keywordsBySection.get("frontend")?.some((kw) => kw.name === "nosections")).toBe(
