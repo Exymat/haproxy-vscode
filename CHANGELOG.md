@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.13.3
+
+- Improved escaping in hover markdown for inline code and table cells.
+
 ## 0.13.2
 
 - Warns when a `frontend` or `listen` section has no `bind` or `bind-process` directive and cannot accept connections (including when bind would need to come from inherited defaults in the same file).
