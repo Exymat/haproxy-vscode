@@ -14,7 +14,14 @@ eslint.config.mjs
 package-lock.json
 .npmrc
 .gitignore
+.cursorignore
+.nvmrc
+.prettierignore
+.vscode-test.js
+docs/fixtures/**
+SECURITY.md
 node_modules/**
 *.vsix
 dkall.output
 syntaxes/haproxy.tmLanguage.json
+syntaxes/tmlanguage.schema.json

@@ -58,6 +58,7 @@ jobs:
       extension: ${{ steps.filter.outputs.extension }}
       scripts: ${{ steps.filter.outputs.scripts }}
       tooling: ${{ steps.filter.outputs.tooling }}
+      packaging: ${{ steps.filter.outputs.packaging }}
       workflows: ${{ steps.filter.outputs.workflows }}
     steps:
       - uses: actions/checkout@v7
@@ -84,10 +85,11 @@ jobs:
               - 'tsconfig*.json'
               - 'eslint.config.mjs'
               - 'vitest*.ts'
-              - '.vscodeignore'
               - '.vscode-test.js'
               - '.prettierrc'
               - '.prettierignore'
+            packaging:
+              - '.vscodeignore'
             workflows:
               - '.github/workflows/**'
 
@@ -136,6 +138,33 @@ jobs:
 
       - name: Validate extension manifest
         run: npm run validate:manifest
+
+  validate-packaging:
+    name: Validate packaging
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.packaging == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync active grammar
+        run: npm run sync:active-grammar
+
+      - name: Compile
+        run: npm run compile
+
+      - name: Package extension
+        run: npx @vscode/vsce package --no-dependencies --out /tmp/haproxy-test.vsix
 
   lint:
     name: Lint
@@ -231,7 +260,7 @@ jobs:
         run: npm run bench:fixture:check
 
   compile:
-    name: Compile (${{ matrix.os }})
+    name: Compile
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
@@ -258,7 +287,7 @@ jobs:
         run: npm run compile
 
   unit:
-    name: Unit tests (${{ matrix.os }})
+    name: Unit tests
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
@@ -290,7 +319,7 @@ jobs:
           name: coverage-${{ matrix.os }}
 
   integration:
-    name: Integration tests (${{ matrix.os }})
+    name: Integration tests
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
