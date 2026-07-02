@@ -1,7 +1,7 @@
 {
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
-  "description": "HAProxy config highlighting, completion, hover docs, and schema diagnostics",
+  "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, and go-to-definition — version-aware (2.6-3.4).",
   "version": "0.13.3",
   "publisher": "Exymat",
   "icon": "icon.png",
@@ -24,7 +24,9 @@
     "backend",
     "acl",
     "devops",
-    "networking"
+    "networking",
+    "formatting",
+    "devops"
   ],
   "repository": {
     "type": "git",
@@ -47,8 +49,14 @@
   },
   "categories": [
     "Programming Languages",
-    "Linters"
+    "Linters",
+    "Formatters",
+    "Other"
   ],
+  "galleryBanner": {
+    "color": "#101215",
+    "theme": "dark"
+  },
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
