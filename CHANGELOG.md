@@ -2,6 +2,11 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.13.4
+
+- Smaller published extension package — dev files, doc fixtures, and repo-only assets are excluded from the Marketplace/Open VSX install.
+- Updated Marketplace listing (description, categories, gallery banner).
+
 ## 0.13.3
 
 - Improved escaping in hover markdown for inline code and table cells.
