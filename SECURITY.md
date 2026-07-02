@@ -7,10 +7,10 @@ Security fixes are provided for the latest release published on the
 and [Open VSX](https://open-vsx.org/extension/Exymat/haproxy-config).
 Older versions are not supported.
 
-| Version | Supported |
-| ------- | --------- |
-| Latest on Marketplace or Open VSX | Yes |
-| Older releases | No |
+| Version                           | Supported |
+| --------------------------------- | --------- |
+| Latest on Marketplace or Open VSX | Yes       |
+| Older releases                    | No        |
 
 ## Reporting a Vulnerability
 

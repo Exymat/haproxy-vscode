@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve, basename, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 
 import { parseVersionArgs } from "./lib/cli.mjs";
 import { collectCfgFiles, schemaPath } from "./lib/fs-utils.mjs";
@@ -170,17 +170,14 @@ function runHaproxyCheck(filePath) {
   }
 
   const cfgPath = process.platform === "win32" ? wslPath(filePath) : filePath;
-  try {
-    const raw = execSync(`${HAPROXY_CMD} -c -f ${JSON.stringify(cfgPath)} 2>&1`, {
-      encoding: "utf-8",
-      stdio: ["pipe", "pipe", "pipe"],
-    });
-    return interpretHaproxyCheck(0, raw, false);
-  } catch (error) {
-    const raw = `${error.stdout ?? ""}${error.stderr ?? ""}${error.message ?? ""}`.trim();
-    const status = typeof error.status === "number" ? error.status : 1;
-    return interpretHaproxyCheck(status, raw, false);
-  }
+  const haproxyCmd = HAPROXY_CMD.trim().split(/\s+/).filter(Boolean);
+  const args = [...haproxyCmd.slice(1), "-c", "-f", cfgPath];
+  const res = spawnSync(haproxyCmd[0] ?? "haproxy", args, {
+    encoding: "utf-8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  const raw = `${res.stdout ?? ""}${res.stderr ?? ""}${res.error?.message ?? ""}`.trim();
+  return interpretHaproxyCheck(res.status ?? 1, raw, Boolean(res.error));
 }
 
 function extensionErrorLines(filePath, content) {

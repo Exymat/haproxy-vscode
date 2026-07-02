@@ -8,7 +8,7 @@ const helperLines = lines
   .map((line) =>
     line
       .replace(/\.\.\/\.\.\/src\//g, "../../../src/")
-      .replace(/\.\.\/\.\.\/helpers\//g, "../../helpers/"),
+      .replace(/\.\.\/helpers\//g, "../../helpers/"),
   );
 const provideLines = lines.slice(123, 1436);
 const handlerLines = lines.slice(1436, 1660);

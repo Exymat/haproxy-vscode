@@ -27,6 +27,10 @@ function splitAsciiTableRow(line: string): string[] | null {
   return line.split("|").map((cell) => cell.trim());
 }
 
+function escapeMarkdownTableCell(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/\|/g, "\\|");
+}
+
 function normalizeTableCells(cells: string[], width: number): string[] {
   const normalized = cells.slice(0, width);
   while (normalized.length < width) {
@@ -103,13 +107,12 @@ function parseAsciiTableBlock(lines: string[]): string | null {
   /* v8 ignore stop */
 
   if (dconvRows) {
-    const escapeCell = (value: string): string => value.replace(/\|/g, "\\|");
     const normalizedRows = dconvRows.map((row) => normalizeTableCells(row, width));
     const md: string[] = [];
-    md.push(`| ${normalizedRows[0].map(escapeCell).join(" | ")} |`);
+    md.push(`| ${normalizedRows[0].map(escapeMarkdownTableCell).join(" | ")} |`);
     md.push(`| ${Array.from({ length: width }, () => "---").join(" | ")} |`);
     for (const row of normalizedRows.slice(1)) {
-      md.push(`| ${row.map(escapeCell).join(" | ")} |`);
+      md.push(`| ${row.map(escapeMarkdownTableCell).join(" | ")} |`);
     }
     return md.join("\n");
   }
@@ -158,14 +161,13 @@ function parseAsciiTableBlock(lines: string[]): string | null {
     return cells.map((parts) => parts.join("<br>"));
   };
 
-  const escapeCell = (value: string): string => value.replace(/\|/g, "\\|");
   const header = collapseGroup(groups[0]);
   const rows = groups.slice(1).map(collapseGroup);
   const md: string[] = [];
-  md.push(`| ${header.map(escapeCell).join(" | ")} |`);
+  md.push(`| ${header.map(escapeMarkdownTableCell).join(" | ")} |`);
   md.push(`| ${Array.from({ length: width }, () => "---").join(" | ")} |`);
   for (const row of rows) {
-    md.push(`| ${row.map(escapeCell).join(" | ")} |`);
+    md.push(`| ${row.map(escapeMarkdownTableCell).join(" | ")} |`);
   }
   return md.join("\n");
 }

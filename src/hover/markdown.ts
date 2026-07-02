@@ -80,8 +80,12 @@ export function escapeMarkdownText(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+function escapeMarkdownInlineCode(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/`/g, "\\`");
+}
+
 export function formatParameterExtra(parameter: string): string {
-  const label = (parameter.trim() || "argument").replace(/`/g, "\\`");
+  const label = escapeMarkdownInlineCode(parameter.trim() || "argument");
   return `**Parameter:** \`${label}\``;
 }
 
