@@ -171,6 +171,11 @@ describe("statementDiagnostics", () => {
     const line = parseDocument(createDocument("frontend web\n    bind bad-address:80"))[1];
     const diags = statementDiagnostics(line, schema);
     expect(diags.some((d) => d.code === "invalid-address")).toBe(true);
+
+    const unix = parseDocument(createDocument("frontend web\n    bind /tmp/haproxy.sock"))[1];
+    expect(statementDiagnostics(unix, schema).filter((d) => d.code === "invalid-address")).toEqual(
+      [],
+    );
   });
 
   it("returns empty for rules without option groups", () => {
@@ -386,6 +391,97 @@ describe("statementDiagnostics", () => {
     const diags = statementDiagnostics(line, schema);
     expect(diags.filter((d) => d.code === "missing-argument")).toHaveLength(0);
     expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
+  it("consumes plain values for value-taking bind options without argument models", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keyword_groups.bind_options = [
+      ...(schema.keyword_groups.bind_options ?? []),
+      "testvalueonly",
+    ];
+    schema.keyword_groups.bind_options_with_value = [
+      ...(schema.keyword_groups.bind_options_with_value ?? []),
+      "testvalueonly",
+    ];
+    const line = parseDocument(createDocument("frontend web\n    bind :80 testvalueonly value"))[1];
+    expect(
+      statementDiagnostics(line, schema).filter((d) => d.code === "unknown-parameter"),
+    ).toHaveLength(0);
+  });
+
+  it("validates fixed slots when nested_start_index is absent", () => {
+    const schema = structuredClone(bundle.schema);
+    const serverRule = schema.statement_rules.find((r) => r.keyword === "server");
+    if (!serverRule) {
+      throw new Error("expected server statement rule");
+    }
+    schema.statement_rules = [
+      {
+        ...serverRule,
+        nested_start_index: undefined,
+      },
+    ];
+    const line = parseDocument(createDocument("backend api\n    server s1 bad-address:80"))[1];
+    expect(statementDiagnostics(line, schema).some((d) => d.code === "invalid-address")).toBe(true);
+  });
+
+  it("accepts enum keywords that do not require trailing arguments", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.testplainenum = {
+      name: "testplainenum",
+      sections: ["backend"],
+      signatures: ["testplainenum on"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testplainenum on"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 1,
+            slots: [{ enum: ["on"], optional: false, value_kind: "enum", variadic: false }],
+          },
+        },
+      ],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testplainenum",
+      "check",
+    ];
+    const line = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testplainenum on check"),
+    )[1];
+    expect(statementDiagnostics(line, schema).filter((d) => d.code === "missing-argument")).toEqual(
+      [],
+    );
+  });
+
+  it("scans nested options for non-server statement kinds without value catalogs", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.statement_rules = [
+      {
+        keyword: "custom",
+        kind: "custom",
+        group: "server_options",
+        nested_start_index: 1,
+        fixed_slots: [],
+      },
+    ];
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testnoval",
+      "inter",
+    ];
+    const line = parseDocument(createDocument("backend api\n    custom testnoval inter 2s"))[1];
+    expect(
+      statementDiagnostics(line, schema).filter((d) => d.code === "unknown-parameter"),
+    ).toEqual([]);
   });
 
   it("consumes plain values for value-taking options without argument models", () => {

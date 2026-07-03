@@ -229,6 +229,11 @@ describe("unknownNestedDiagnostics", () => {
     expect(unknownNestedDiagnostics(ctx, line)).toEqual([]);
   });
 
+  it("returns no diagnostics for tcp-response inspect-delay rules", () => {
+    const { ctx, line } = lineAt("frontend x\n    tcp-response inspect-delay 5s if TRUE");
+    expect(unknownNestedDiagnostics(ctx, line)).toEqual([]);
+  });
+
   it("reports unknown http-request actions", () => {
     const { ctx, line } = lineAt("frontend x\n    bind :80\n    http-request notreal if TRUE", 2);
     expect(unknownNestedDiagnostics(ctx, line).some((d) => d.code === "unknown-action")).toBe(true);
