@@ -131,6 +131,38 @@ describe("validateLineDelimiters", () => {
     expect(validateLineDelimiters("    http-request set-header x %[req.hdr(host)]")).toEqual([]);
   });
 
+  it("accepts log-format flag blocks with bracketed sample expressions", () => {
+    expect(
+      validateLineDelimiters(
+        "    http-request set-header ssl_client_cert_dn %{+Q}[ssl_c_s_dn] if { ssl_fc_has_crt }",
+      ),
+    ).toEqual([]);
+    expect(
+      validateLineDelimiters(
+        "    http-request set-header ssl_client_cert_issuer %{+Q}[ssl_c_i_dn] if { ssl_fc_has_crt }",
+      ),
+    ).toEqual([]);
+    expect(
+      validateLineDelimiters("    http-request set-header X-SSL-Client-CN %{+Q}[ssl_c_s_dn(cn)]"),
+    ).toEqual([]);
+    expect(validateLineDelimiters("    http-request add-header name %{+Q}[hdr(arg))]")).toEqual([]);
+    expect(validateLineDelimiters("    http-request set-header X-SSL %[ssl_fc]")).toEqual([]);
+    expect(validateLineDelimiters("    http-request set-header X-SSL %(var)[ssl_fc]")).toEqual([]);
+  });
+
+  it("accepts escaped percent sequences", () => {
+    expect(validateLineDelimiters("    %%")).toEqual([]);
+  });
+
+  it("reports unclosed parens in named log-format prefixes", () => {
+    expect(validateLineDelimiters("    %(open")).toEqual([
+      expect.objectContaining({
+        code: "delimiter-unclosed",
+        message: "missing closing ')'",
+      }),
+    ]);
+  });
+
   it("ignores inner delimiters inside acl and sample expression regions", () => {
     expect(validateLineDelimiters("    http-request deny if { req.hdr( }")).toEqual([]);
     expect(validateLineDelimiters("    http-request add-header name %[req.hdr(]")).toEqual([]);
@@ -208,6 +240,17 @@ describe("computeDiagnostics delimiter integration", () => {
       ),
     ).toBe(true);
     expect(diagnostics.some((diag) => diag.range.start.line === 1)).toBe(true);
+  });
+
+  it("does not flag log-format bracket expressions in set-header values", () => {
+    const content = [
+      "frontend x",
+      "    http-request set-header ssl_client_cert_dn %{+Q}[ssl_c_s_dn] if { ssl_fc_has_crt }",
+      "    http-request set-header ssl_client_cert_issuer %{+Q}[ssl_c_i_dn] if { ssl_fc_has_crt }",
+    ].join("\n");
+    const diagnostics = runDiagnostics(createDocument(content), defaultSchema);
+    expect(diagnostics.some((diag) => diag.message === "unexpected ']'")).toBe(false);
+    expect(diagnostics.some((diag) => diag.code === "delimiter-unexpected")).toBe(false);
   });
 
   it("does not add duplicate expected ')' when delimiter diagnostics cover it", () => {

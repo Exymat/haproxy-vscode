@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.13.5
+
+- Fewer false delimiter warnings on `http-request set-header` values using log-format flag blocks with bracketed sample expressions (e.g. `%{+Q}[ssl_c_s_dn]`, `%(var)[ssl_fc]`).
+
 ## 0.13.4
 
 - Smaller published extension package — dev files, doc fixtures, and repo-only assets are excluded from the Marketplace/Open VSX install.

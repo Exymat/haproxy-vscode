@@ -60,7 +60,7 @@ function mightContainDelimiters(lineText: string): boolean {
     lineText.includes("#") ||
     lineText.includes('"') ||
     lineText.includes("'") ||
-    lineText.includes("%[") ||
+    lineText.includes("%") ||
     lineText.includes("(") ||
     lineText.includes(")") ||
     lineText.includes("[") ||
@@ -68,6 +68,38 @@ function mightContainDelimiters(lineText: string): boolean {
     lineText.includes("{") ||
     lineText.includes("}")
   );
+}
+
+/** Skip %[expr] and %{flags}[expr] log-format sample wrappers (inner delimiters ignored). */
+function advancePastPercentBracketExpr(
+  lineText: string,
+  start: number,
+): { end: number; unclosedBracketStart: number } | null {
+  if (lineText[start] !== "%" || start + 1 >= lineText.length) {
+    return null;
+  }
+  if (lineText[start + 1] === "%") {
+    return { end: start + 1, unclosedBracketStart: -1 };
+  }
+
+  let pos = start + 1;
+  if (lineText[pos] === "(") {
+    const close = lineText.indexOf(")", pos + 1);
+    pos = close >= 0 ? close + 1 : lineText.length;
+  }
+  if (pos < lineText.length && lineText[pos] === "{") {
+    const close = lineText.indexOf("}", pos + 1);
+    pos = close >= 0 ? close + 1 : lineText.length;
+  }
+  if (pos >= lineText.length || lineText[pos] !== "[") {
+    return null;
+  }
+
+  const close = lineText.indexOf("]", pos + 1);
+  if (close < 0) {
+    return { end: pos, unclosedBracketStart: pos };
+  }
+  return { end: close, unclosedBracketStart: -1 };
 }
 
 /** Line-oriented delimiter balance check (strings and # comments respected). */
@@ -123,20 +155,20 @@ export function validateLineDelimiters(lineText: string): DelimiterDiagnostic[] 
       continue;
     }
 
-    if (ch === "%" && i + 1 < lineText.length && lineText[i + 1] === "[") {
-      const close = lineText.indexOf("]", i + 2);
-      if (close < 0) {
-        stack.push({ kind: "[", start: i + 1 });
+    const percentBracketExpr = advancePastPercentBracketExpr(lineText, i);
+    if (percentBracketExpr) {
+      if (percentBracketExpr.unclosedBracketStart >= 0) {
+        stack.push({ kind: "[", start: percentBracketExpr.unclosedBracketStart });
         break;
       }
-      i = close + 1;
+      i = percentBracketExpr.end;
       continue;
     }
 
     if (ch === "{") {
       const close = findClosingBrace(lineText, i);
       if (close >= 0) {
-        i = close + 1;
+        i = close;
         continue;
       }
       stack.push({ kind: ch, start: i });
