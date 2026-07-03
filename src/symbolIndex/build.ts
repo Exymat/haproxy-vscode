@@ -130,7 +130,6 @@ function collectConfiguredReferences(
         for (const raw of names) {
           const name = raw.trim();
           if (!name) {
-            /* v8 ignore next -- empty split segments are skipped defensively */
             offset += raw.length + pattern.split.length;
             continue;
           }
@@ -268,26 +267,20 @@ function collectStatementRuleSites(
 
     if (rule.definition_kind) {
       const idx = symbolNameTokenIndex(rule);
-      /* v8 ignore start -- symbol-name indices are schema metadata and normally align with parsed tokens */
       if (idx !== null) {
         const token = line.tokens[idx];
-        /* v8 ignore start -- mismatched rule indices are tolerated defensively */
         if (token) {
           const kind = rule.definition_kind as SymbolKind;
           const site = siteFromToken(kind, token.text, line, idx, scopeKey, "definition");
           addSite(definitions, references, site);
         }
-        /* v8 ignore stop */
       }
-      /* v8 ignore stop */
     }
 
     if (rule.reference_kind) {
       const idx = symbolNameTokenIndex(rule);
-      /* v8 ignore start -- symbol-name indices are schema metadata and normally align with parsed tokens */
       if (idx !== null) {
         const token = line.tokens[idx];
-        /* v8 ignore start -- mismatched rule indices are tolerated defensively */
         if (token) {
           const kind = rule.reference_kind as SymbolKind;
           const site = siteFromToken(
@@ -300,15 +293,12 @@ function collectStatementRuleSites(
           );
           addSite(definitions, references, site);
         }
-        /* v8 ignore stop */
       }
-      /* v8 ignore stop */
     }
   }
 
   collectAclReferences(line, scopeKey, references);
   collectFilterSelfReference(line, scopeKey, references);
-  /* v8 ignore next -- configured reference-pattern expansion is additive metadata, not core symbol indexing */
   collectConfiguredReferences(line, scopeKey, references, schema.reference_patterns ?? []);
 }
 
@@ -322,7 +312,6 @@ export function buildScopeKeyByLine(parsed: ParsedLine[]): (string | null)[] {
       currentScopeKey = PROXY_SECTIONS.has(sectionType)
         ? proxyScopeKey(sectionType, line.tokens[1].text)
         : null;
-      /* v8 ignore next -- malformed top-level headers intentionally reset the active proxy scope */
     } else if (isTopLevelSectionHeader(line)) {
       currentScopeKey = null;
     }

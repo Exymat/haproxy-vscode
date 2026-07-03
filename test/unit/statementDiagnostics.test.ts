@@ -248,6 +248,89 @@ describe("statementDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
   });
 
+  it("consumes raw trailing arguments for enum-style nested keywords", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.testrequiresvalue = {
+      name: "testrequiresvalue",
+      sections: ["backend"],
+      signatures: ["testrequiresvalue on <value>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testrequiresvalue on <value>"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 1,
+            slots: [
+              {
+                enum: ["on"],
+                optional: false,
+                value_kind: "enum",
+                variadic: false,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testrequiresvalue",
+    ];
+    const line = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testrequiresvalue on raw"),
+    )[1];
+    const diags = statementDiagnostics(line, schema);
+    expect(diags.filter((d) => d.code === "missing-argument")).toHaveLength(0);
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
+  it("skips optional keyword/value nested option pairs as a unit", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords.testoptionalpair = {
+      name: "testoptionalpair",
+      sections: ["backend"],
+      signatures: ["testoptionalpair [via <value>] later"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["testoptionalpair [via <value>] later"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 3,
+            slots: [
+              { enum: ["via"], optional: true, value_kind: "enum", variadic: false },
+              { enum: [], optional: true, value_kind: "name", variadic: false },
+              { enum: ["later"], optional: false, value_kind: "enum", variadic: false },
+            ],
+          },
+        },
+      ],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testoptionalpair",
+    ];
+    const line = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 testoptionalpair later"),
+    )[1];
+    const diags = statementDiagnostics(line, schema);
+    expect(diags.filter((d) => d.code === "missing-argument")).toHaveLength(0);
+    expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
+  });
+
   it("uses bind chapter variants for nested bind options", () => {
     const schema = structuredClone(bundle.schema);
     schema.keywords.testbindvariant = {

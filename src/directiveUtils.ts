@@ -166,19 +166,15 @@ function fallbackSchemaEnumNamesForPackedValueSlot(
   line: ParsedLine,
   directiveEnd: number,
 ): string[] {
-  /* v8 ignore start -- packed-value fallback only applies to generic optional compatibility slots */
   const slots = schemaKw?.argument_model?.slots ?? [];
   const slot = slots[position];
   if (!slot?.optional || slot.value_kind !== "generic" || (slot.enum?.length ?? 0) > 0) {
     return [];
   }
-  /* v8 ignore stop */
-  /* v8 ignore start -- the previous argument may be absent while the user is still typing */
   const previousArg = line.tokens[directiveEnd + position]?.text ?? "";
   if (!isAddressOrPathToken(previousArg)) {
     return [];
   }
-  /* v8 ignore stop */
 
   for (let next = position + 1; next < slots.length; next += 1) {
     const names = enumNamesForArgumentPosition(schemaKw, langKw, next);

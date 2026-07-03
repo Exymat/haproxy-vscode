@@ -25,7 +25,6 @@ function scopeKeyForLine(
   parsed: ParsedLine[],
 ): string | null {
   if (scopeKeyByLine) {
-    /* v8 ignore next -- callers normally provide scope arrays aligned with parsed line indices */
     return scopeKeyByLine[lineNo] ?? null;
   }
   return buildScopeKeyByLine(parsed)[lineNo] ?? null;
@@ -50,9 +49,7 @@ function resolveSectionHeaderSymbol(
   }
 
   for (let i = 2; i < line.tokens.length - 1; i += 1) {
-    /* v8 ignore next -- section headers rarely navigate via inherited defaults-profile references */
     if (line.tokens[i].text.toLowerCase() === "from" && tokenIndex === i + 1) {
-      /* v8 ignore next -- section-header navigation only needs the explicit from-target fallback */
       return { kind: "defaults-profile", name: line.tokens[i + 1].text, scopeKey: null };
     }
   }
@@ -74,68 +71,47 @@ function resolveStatementRuleSymbol(
 
     if (rule.definition_kind) {
       const idx = symbolNameTokenIndex(rule);
-      /* v8 ignore start -- symbol-name indices are schema metadata and normally align with cursor tokens */
       if (idx === tokenIndex) {
-        const token = line.tokens[idx];
-        /* v8 ignore start -- rule/token index mismatches are a defensive safeguard */
-        if (token) {
-          return {
-            kind: rule.definition_kind as SymbolKind,
-            name: token.text,
-            scopeKey,
-          };
-        }
-        /* v8 ignore stop */
+        const token = line.tokens[tokenIndex];
+        return {
+          kind: rule.definition_kind as SymbolKind,
+          name: token.text,
+          scopeKey,
+        };
       }
-      /* v8 ignore stop */
     }
 
     if (rule.reference_kind) {
       const idx = symbolNameTokenIndex(rule);
-      /* v8 ignore start -- symbol-name indices are schema metadata and normally align with cursor tokens */
       if (idx === tokenIndex) {
-        const token = line.tokens[idx];
-        /* v8 ignore start -- rule/token index mismatches are a defensive safeguard */
-        if (token) {
-          const kind = rule.reference_kind as SymbolKind;
-          return {
-            kind,
-            /* v8 ignore next -- reference resolution keeps the original token text unless a higher-level pattern rewrites it */
-            name: token.text,
-            scopeKey: effectiveScopeKey(kind, scopeKey),
-          };
-        }
-        /* v8 ignore stop */
+        const token = line.tokens[tokenIndex];
+        const kind = rule.reference_kind as SymbolKind;
+        return {
+          kind,
+          name: token.text,
+          scopeKey: effectiveScopeKey(kind, scopeKey),
+        };
       }
-      /* v8 ignore stop */
     }
   }
 
-  /* v8 ignore start -- ACL references are a dedicated section-scoped fallback path */
   if (scopeKey) {
     const hit = aclReferenceAt(line, tokenIndex);
     if (hit) {
-      /* v8 ignore start -- ACL references are a dedicated section-scoped fallback path */
       return { kind: "acl", name: hit.name, scopeKey };
-      /* v8 ignore stop */
     }
   }
-  /* v8 ignore stop */
 
-  /* v8 ignore start -- pattern-based references are optional additive metadata over core rule matching */
   for (const pattern of schema.reference_patterns ?? []) {
     const hit = findReferencePatternAtToken(line.tokens, pattern, tokenIndex);
     if (hit) {
       return {
         kind: pattern.reference_kind as SymbolKind,
-        /* v8 ignore next -- pattern matches may target a narrowed token rather than the raw cursor token */
         name: hit.targetToken.text,
-        /* v8 ignore next -- only section-scoped patterns carry the current scope */
         scopeKey: pattern.scope === "section" ? scopeKey : null,
       };
     }
   }
-  /* v8 ignore stop */
 
   return null;
 }
@@ -178,7 +154,6 @@ export function findDefinitions(
   name: string,
   scopeKey: string | null,
 ): SymbolSite[] {
-  /* v8 ignore next -- absent keys are expected for unresolved navigation lookups */
   return index.definitions.get(symbolKey(kind, name, scopeKey)) ?? [];
 }
 

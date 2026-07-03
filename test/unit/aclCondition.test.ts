@@ -57,6 +57,24 @@ describe("validateAclConditions", () => {
     expect(issues).toEqual([]);
   });
 
+  it("validates truncated bare fetches that require arguments", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.sample_fetches = {
+      ...customSchema.sample_fetches,
+      needs_arg: {
+        name: "needs_arg",
+        args: ["string"],
+        out_type: "str",
+        min_args: 1,
+        max_args: 1,
+      },
+    };
+    const issues = validateAclConditions("deny if { needs_arg }", customSchema);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ code: "sample-fetch-args" });
+    expect(issues[0]?.message).toContain("expected type 'string'");
+  });
+
   it("validates function calls that are not acl-only", () => {
     const issues = validateAclConditions("deny if { path(0) }", schema);
     expect(issues.some((i) => i.code === "sample-fetch-args")).toBe(true);
@@ -70,5 +88,14 @@ describe("validateAclConditions", () => {
   it("parses fetch calls with single-quoted arguments", () => {
     const issues = validateAclConditions("deny if { req.hdr('host') }", schema);
     expect(issues).toEqual([]);
+  });
+
+  it("handles schemas without sample fetch or converter maps", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.sample_fetches = undefined as never;
+    customSchema.sample_converters = undefined as never;
+    expect(validateAclConditions("deny if { not_a_fetch() }", customSchema)).toEqual([
+      expect.objectContaining({ code: "sample-unknown-fetch" }),
+    ]);
   });
 });

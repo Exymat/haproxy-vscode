@@ -89,13 +89,14 @@ function policyForSlot(rule: StatementRule, spec: FixedSlotSpec, token: string):
   return ADDRESS_POLICIES.server;
 }
 
-function validateFixedSlots(line: ParsedLine, rule: StatementRule): vscode.Diagnostic[] {
+function validateFixedSlots(
+  line: ParsedLine,
+  rule: StatementRule,
+  slots: FixedSlotSpec[],
+): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
-  /* v8 ignore next -- validateFixedSlots is only called when fixed_slots is present */
-  const slots = rule.fixed_slots ?? [];
   const nestedStart = resolveLineOptionStartIndex(line, rule);
   const condStart = conditionalStartIndex(line, 0);
-  /* v8 ignore next -- nested option scanning falls back when no nested_start_index is declared */
   const limit = Math.min(condStart, nestedStart >= 0 ? nestedStart : 1 + slots.length);
 
   for (let slotIdx = 0; slotIdx < slots.length; slotIdx += 1) {
@@ -131,7 +132,6 @@ function validateFixedSlots(line: ParsedLine, rule: StatementRule): vscode.Diagn
       continue;
     }
 
-    /* v8 ignore next -- name slots continue before the address-role branch */
     if (spec.role === "address") {
       if (rule.kind === "server" && isServerMainAddressPlaceholder(token)) {
         continue;
@@ -169,7 +169,6 @@ function optionValuePolicy(
     }
   }
   if (rule.kind === "bind" && optionsWithValue?.has(lower)) {
-    /* v8 ignore next 2 -- bind value-only options are consumed before address policy lookup */
     return null;
   }
   return null;
@@ -201,7 +200,6 @@ function consumeOptionArguments(
       return optionIndex + 2;
     }
 
-    /* v8 ignore next -- value catalogs are only available for server and bind option groups */
     const takesValue = valueOptions?.has(option) ?? false;
     if (takesValue && optionIndex + 1 < condStart) {
       const next = normalizedOptionToken(line.tokens[optionIndex + 1].text);
@@ -212,8 +210,7 @@ function consumeOptionArguments(
     return optionIndex + 1;
   }
 
-  /* v8 ignore next -- argument models without explicit slots use an empty slot list */
-  const slots = model.slots ?? [];
+  const slots = model.slots;
   const maxArgs = model.max_args === null ? Number.POSITIVE_INFINITY : model.max_args;
   let pos = optionIndex + 1;
   let slotIdx = 0;
@@ -238,29 +235,23 @@ function consumeOptionArguments(
 
     if (allowedValues.length > 0) {
       if (allowedValues.includes(lower) || allowedValues.includes(base)) {
-        /* v8 ignore start -- only enum keywords with trailing-argument signatures keep a pending keyword value */
         pendingValueKeyword = signatureRequiresTrailingArgument(schemaKw?.signatures ?? [], token)
           ? { text: token, tokenIndex: pos }
           : null;
-        /* v8 ignore stop */
         pos += 1;
         consumed += 1;
         slotIdx += 1;
         continue;
       }
       if (slot.optional) {
-        /* v8 ignore next -- optional keyword/value slot pairs are skipped together */
         if (isKeywordValuePair(slot, slots[slotIdx + 1])) {
-          /* v8 ignore start -- optional keyword/value slot pairs are skipped together */
           slotIdx = skipOptionalSlotGroup(model, slotIdx);
           continue;
-          /* v8 ignore stop */
         }
         if (matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)) {
           slotIdx += 1;
           continue;
         }
-        /* v8 ignore next -- optional enum mismatches without a pending keyword value advance normally */
         if (pendingValueKeyword) {
           const policyName = SERVER_ADDRESS_OPTION_POLICIES[lowerToken(pendingValueKeyword.text)];
           if (policyName) {
@@ -317,22 +308,18 @@ function consumeOptionArguments(
   if (pendingValueKeyword) {
     if (pos < condStart) {
       const next = normalizedOptionToken(line.tokens[pos].text);
-      /* v8 ignore next 2 -- requires a synthetic trailing-value token outside the option set */
       if (!allowed.has(next)) {
         return pos + 1;
       }
     }
-    /* v8 ignore next -- pending keyword arguments are only missing when the next token is absent or unknown */
-    if (pos >= condStart || allowed.has(normalizedOptionToken(line.tokens[pos].text))) {
-      diagnostics.push(
-        makeStmtDiagnostic(
-          line,
-          pendingValueKeyword.tokenIndex,
-          `'${line.tokens[pendingValueKeyword.tokenIndex].text}' is missing required argument`,
-          "missing-argument",
-        ),
-      );
-    }
+    diagnostics.push(
+      makeStmtDiagnostic(
+        line,
+        pendingValueKeyword.tokenIndex,
+        `'${line.tokens[pendingValueKeyword.tokenIndex].text}' is missing required argument`,
+        "missing-argument",
+      ),
+    );
   }
 
   if (consumed < model.min_args) {
@@ -357,7 +344,6 @@ function scanNestedOptions(
   const diagnostics: vscode.Diagnostic[] = [];
   const nestedStart = resolveLineOptionStartIndex(line, rule);
   const groupName = rule.group;
-  /* v8 ignore next -- statement rules without nested groups are filtered before nested scanning */
   if (!groupName) {
     return diagnostics;
   }
@@ -412,8 +398,7 @@ function scanNestedOptions(
 const LOG_ADDRESS_SKIP = new Set(["global", "stdout", "stderr"]);
 
 function logLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
-  /* v8 ignore next -- sparse token arrays may omit the first token */
-  if (lowerToken(line.tokens[0]?.text ?? "") !== "log" || line.tokens.length < 2) {
+  if (line.tokens.length < 2) {
     return [];
   }
   const target = line.tokens[1].text;
@@ -432,8 +417,7 @@ function logLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
 }
 
 function sourceLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
-  /* v8 ignore next -- sparse token arrays may omit the first token */
-  if (lowerToken(line.tokens[0]?.text ?? "") !== "source" || line.tokens.length < 2) {
+  if (line.tokens.length < 2) {
     return [];
   }
   const diagnostics: vscode.Diagnostic[] = [];
@@ -466,7 +450,6 @@ export function statementDiagnostics(
   schema: HaproxySchema,
   rule: StatementRule | undefined = findStatementRule(schema, line),
 ): vscode.Diagnostic[] {
-  /* v8 ignore next -- sparse token arrays may omit the first token */
   const t0 = lowerToken(line.tokens[0]?.text ?? "");
 
   if (t0 === "log") {
@@ -484,8 +467,9 @@ export function statementDiagnostics(
   }
 
   const diagnostics: vscode.Diagnostic[] = [];
-  if (rule.fixed_slots?.length) {
-    diagnostics.push(...validateFixedSlots(line, rule));
+  const fixedSlots = rule.fixed_slots;
+  if (fixedSlots?.length) {
+    diagnostics.push(...validateFixedSlots(line, rule, fixedSlots));
   }
   diagnostics.push(...scanNestedOptions(line, rule, schema));
   return diagnostics;

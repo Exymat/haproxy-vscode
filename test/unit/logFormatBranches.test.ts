@@ -127,11 +127,11 @@ describe("logFormat branches", () => {
     const schema: HaproxySchema = { ...schemaStub, logformat_aliases: undefined, tokens: {} };
     expect(logformatAliasNames(schema)).toEqual(new Set());
     expect(logformatFlagNames(schema)).toEqual(new Set());
-    expect(
-      validateLogFormatItems("%ci %{+Q}o", 0, schema).some(
-        (issue) => issue.code === "logformat-unknown-alias",
-      ),
-    ).toBe(true);
+    expect(validateLogFormatItems("%ci %{+Q}o", 0, schema).map((issue) => issue.code)).toEqual([
+      "logformat-unknown-alias",
+      "logformat-unknown-alias",
+      "logformat-unknown-flag",
+    ]);
     const line = 'log-format "%zz"';
     const tokens = tokenizeLine(line);
     const regions = extractLogFormatRegions(line, tokens, schemaStub);
@@ -141,6 +141,17 @@ describe("logFormat branches", () => {
       ),
     ).toBe(true);
     expect(logFormatCompletionPrefix("%(name){+Q}o", 12)).toBe("Q}o");
+  });
+
+  it("uses fallback log-format slots when schema omits slot metadata", () => {
+    const schema = { ...schemaStub, logformat_slots: undefined };
+    expect(
+      extractLogFormatRegions(
+        'unique-id-format "%ci"',
+        tokenizeLine('unique-id-format "%ci"'),
+        schema as HaproxySchema,
+      ),
+    ).toEqual([expect.objectContaining({ text: '"%ci"' })]);
   });
 
   it("covers diagnostics, flags, and prefix-duplication branches", () => {

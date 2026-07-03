@@ -55,12 +55,8 @@ function modeContextDiagnostic(
   tokenIndex: number,
   keyword: string,
   contexts: string[],
-  mode: RuntimeMode | null,
+  mode: RuntimeMode,
 ): vscode.Diagnostic | null {
-  /* v8 ignore next 3 -- contextDiagnostics only calls this with a mode and non-empty contexts */
-  if (!mode || contexts.length === 0) {
-    return null;
-  }
   let hasModeContext = false;
   let modeSupported = false;
   for (const context of contexts) {
@@ -110,9 +106,7 @@ export function topLevelDiagnostics(ctx: DiagnosticContext, line: ParsedLine): v
     ];
   }
 
-  /* v8 ignore next -- sparse token arrays may omit the first token */
   const prefix = lowerToken(line.tokens[0]?.text ?? "");
-  /* v8 ignore next -- prefix-family lookup is skipped when the prefix is empty */
   if (prefix && prefixFamilySet(ctx.schema).has(prefix)) {
     const sub = resolveSubcommandSpan(
       line,
@@ -120,7 +114,6 @@ export function topLevelDiagnostics(ctx: DiagnosticContext, line: ParsedLine): v
       prefix,
       prefixSubcommandSet(ctx.schema, prefix),
     );
-    /* v8 ignore next -- resolveSubcommandSpan returns null when no subcommand vocabulary exists */
     if (sub && !sub.matched) {
       return [
         makeDiagnostic(
@@ -161,7 +154,6 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
   }
   const { directiveMatch: top, statementRule: rule } = ctx.getLineMemo(line);
   const diagnostics: vscode.Diagnostic[] = [];
-  /* v8 ignore next -- sparse token arrays fall back to an empty directive prefix */
   const t0 = lowerToken(line.tokens[0]?.text ?? "");
 
   if (top.matched) {
@@ -176,12 +168,9 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
 
   if (isOptionLine(line)) {
     const idx = optionNameTokenIndex(line);
-    /* v8 ignore next -- partial option lines may omit the option-name token */
     const option = lowerToken(line.tokens[idx]?.text ?? "");
-    /* v8 ignore next -- partial option lines omit the option-name token */
     if (option) {
       const contexts = ctx.schema.keyword_group_contexts?.options?.[option];
-      /* v8 ignore next -- options without declared runtime contexts are ignored */
       if (contexts?.length) {
         const diag = modeContextDiagnostic(line, idx, `option ${option}`, contexts, mode);
         if (diag) {
@@ -195,7 +184,6 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
     const groupName = rule?.group;
     const start = resolveLineOptionStartIndex(line, rule);
     if (groupName && start >= 0) {
-      /* v8 ignore next -- keyword_group_contexts is always present in bundled schemas */
       const groupContexts = ctx.schema.keyword_group_contexts?.[groupName] ?? {};
       if (Object.keys(groupContexts).length === 0) {
         return diagnostics;
@@ -232,9 +220,7 @@ function handleOptionLine(ctx: DiagnosticContext, line: ParsedLine): vscode.Diag
     return null;
   }
   const idx = optionNameTokenIndex(line);
-  /* v8 ignore next -- partial option lines may omit the option-name token */
   const value = lowerToken(line.tokens[idx]?.text ?? "");
-  /* v8 ignore next -- partial option lines omit the option-name token */
   if (value && !keywordGroupSet(ctx.schema, "options").has(value)) {
     return [
       makeDiagnostic(
@@ -252,7 +238,6 @@ function handleSkippedKeywordLine(
   _ctx: DiagnosticContext,
   line: ParsedLine,
 ): vscode.Diagnostic[] | null {
-  /* v8 ignore next -- sparse token arrays fall back to an empty directive prefix */
   const t0 = lowerToken(line.tokens[0]?.text ?? "");
   if (t0 && STATEMENT_RULE_KEYWORDS.has(t0)) {
     return [];
@@ -261,7 +246,6 @@ function handleSkippedKeywordLine(
 }
 
 function handleAclLine(ctx: DiagnosticContext, line: ParsedLine): vscode.Diagnostic[] | null {
-  /* v8 ignore next -- sparse token arrays fall back to an empty directive prefix */
   const t0 = lowerToken(line.tokens[0]?.text ?? "");
   if (t0 !== "acl" || line.tokens.length < 3) {
     return null;
@@ -293,9 +277,7 @@ function handleStatsSocketLine(
   ctx: DiagnosticContext,
   line: ParsedLine,
 ): vscode.Diagnostic[] | null {
-  /* v8 ignore next -- sparse token arrays may omit the first token */
   const t0 = lowerToken(line.tokens[0]?.text ?? "");
-  /* v8 ignore next -- sparse token arrays may omit the second token */
   const t1 = lowerToken(line.tokens[1]?.text ?? "");
   if (t0 !== "stats" || t1 !== "socket") {
     return null;
@@ -326,9 +308,7 @@ function handleTcpInspectDelayLine(
   _ctx: DiagnosticContext,
   line: ParsedLine,
 ): vscode.Diagnostic[] | null {
-  /* v8 ignore next -- sparse token arrays may omit the first token */
   const t0 = lowerToken(line.tokens[0]?.text ?? "");
-  /* v8 ignore next -- inspect-delay rules always include a second token when parsed */
   const t1 = lowerToken(line.tokens[1]?.text ?? "");
   if ((t0 === "tcp-request" || t0 === "tcp-response") && t1 === "inspect-delay") {
     return [];
@@ -370,7 +350,6 @@ export function unknownNestedDiagnostics(
     const phase = lowerToken(line.tokens[phaseIdx].text);
     if (!phases.has(phase)) {
       const groupName = ruleActionGroup(rule);
-      /* v8 ignore next -- statement rules without nested groups fall back to an empty allow-list */
       const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : new Set<string>();
       if (!allowed.has(phase)) {
         diagnostics.push(
@@ -390,7 +369,6 @@ export function unknownNestedDiagnostics(
     const rawToken = line.tokens[actionIdx].text;
     const token = normalizeActionName(rawToken);
     const groupName = ruleActionGroup(rule);
-    /* v8 ignore next -- statement rules without nested groups fall back to an empty allow-list */
     const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : new Set<string>();
     if (token && !token.startsWith("lua.") && !allowed.has(token)) {
       diagnostics.push(

@@ -81,7 +81,6 @@ export function buildLineOptionAllowedSet(
   schema: HaproxySchema,
   lineOptionGroup: string,
 ): { allowed: Set<string>; valueOptions: Set<string> } {
-  /* v8 ignore next -- missing groups fall back to an empty compatibility set */
   const allowed = new Set(
     (schema.keyword_groups[lineOptionGroup] ?? []).map((v) => v.toLowerCase()),
   );
@@ -140,9 +139,7 @@ function consumeLineOptionSlots(
   schemaKw: ReturnType<typeof resolveLineOptionSchemaKeyword>,
   allowed: Set<string>,
 ): number {
-  /* v8 ignore next -- some synthetic tests use argument models without declared slots */
   const slots = model.slots ?? [];
-  /* v8 ignore next -- null max-args is treated as an unbounded compatibility model */
   const maxArgs = model.max_args === null ? Number.POSITIVE_INFINITY : (model.max_args ?? 0);
   let pos = optionIndex + 1;
   let slotIdx = 0;
@@ -157,7 +154,6 @@ function consumeLineOptionSlots(
     const slot = slots[slotIdx];
     const allowedValues = enumValuesForSlotLower(slot, schemaKw, slotIdx);
 
-    /* v8 ignore start -- overlap between nested-option parsing and slot parsing is defensive only */
     if (
       tokenStartsOption &&
       remainingRequiredSlots(slots, slotIdx) === 0 &&
@@ -165,10 +161,8 @@ function consumeLineOptionSlots(
     ) {
       break;
     }
-    /* v8 ignore stop */
     if (allowedValues.length > 0) {
       if (allowedValues.includes(lower) || allowedValues.includes(base)) {
-        /* v8 ignore next -- trailing-value signatures are rare compatibility metadata */
         pendingValueKeyword = signatureRequiresTrailingArgument(schemaKw?.signatures ?? [], token)
           ? { tokenIndex: pos }
           : null;
@@ -178,36 +172,26 @@ function consumeLineOptionSlots(
         continue;
       }
       if (slot.optional) {
-        /* v8 ignore next -- optional keyword/value compatibility pairs are handled as a special-case fast path */
         if (isKeywordValuePair(slot, slots[slotIdx + 1])) {
-          /* v8 ignore start -- optional keyword/value pairs are skipped as a unit */
           slotIdx = skipOptionalSlotGroup(model, slotIdx);
           continue;
-          /* v8 ignore stop */
         }
         if (matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)) {
-          /* v8 ignore start -- synthetic later-slot jumps are already covered in higher-level parsing */
           slotIdx += 1;
           continue;
-          /* v8 ignore stop */
         }
         pos += 1;
         consumed += 1;
         slotIdx += 1;
         continue;
       }
-      /* v8 ignore start -- active-option resolution guards this overlap before slot walking */
       if (tokenStartsOption) {
-        /* v8 ignore next -- guarded by higher-level active-option resolution */
         break;
       }
-      /* v8 ignore start -- defensive consume path for unmatched free-form enum slots */
       pos += 1;
       consumed += 1;
       slotIdx += 1;
       continue;
-      /* v8 ignore stop */
-      /* v8 ignore stop */
     }
     if (slot.optional && matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)) {
       slotIdx += 1;
@@ -221,13 +205,10 @@ function consumeLineOptionSlots(
   }
 
   if (pendingValueKeyword && pos < limit) {
-    /* v8 ignore start -- only reachable with synthetic trailing-value signatures */
     const next = line.tokens[pos].text.toLowerCase().replace(/\*$/, "");
     if (!allowed.has(next)) {
-      /* v8 ignore next -- synthetic trailing-value spans may consume one last raw token */
       return pos + 1;
     }
-    /* v8 ignore stop */
   }
 
   return pos;
@@ -280,7 +261,6 @@ export function resolveNestedLineOptionSpan(
       const exactOption = ctx.line.tokens[ctx.tokenIndex]?.text.toLowerCase().replace(/\*$/, "");
       if (ctx.tokenIndex > i && exactOption && allowed.has(exactOption)) {
         const nestedEnd = Math.max(spanEnd(ctx.tokenIndex), ctx.tokenIndex + 1);
-        /* v8 ignore next -- exact boundary cursors fall back to the parent option span */
         if (ctx.tokenIndex < nestedEnd) {
           return { optionIndex: ctx.tokenIndex, end: nestedEnd, keyword: exactOption };
         }

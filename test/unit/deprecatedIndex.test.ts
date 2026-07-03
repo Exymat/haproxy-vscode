@@ -39,6 +39,17 @@ describe("deprecatedIndex", () => {
         out_type: "str",
         max_args: 0,
       },
+      signature_conv: {
+        name: "signature_conv",
+        signature: "signature_conv() (deprecated)",
+        args: [],
+        chapter: "7.3.1",
+        contexts: [],
+        description: "",
+        in_type: "str",
+        out_type: "str",
+        max_args: 0,
+      },
     };
     const data = structuredClone(bundle.languageData);
     data.groups.sample_converters = [
@@ -52,6 +63,7 @@ describe("deprecatedIndex", () => {
     ];
     const index = buildDeprecatedIndex(schema, data);
     expect(index.sampleConverters.has("legacy_conv")).toBe(true);
+    expect(index.sampleConverters.has("signature_conv")).toBe(true);
     expect(index.sampleConverters.has("lang_conv")).toBe(true);
   });
 
@@ -59,6 +71,17 @@ describe("deprecatedIndex", () => {
     const schema = structuredClone(bundle.schema);
     schema.sample_fetches = {
       ...schema.sample_fetches,
+      deprecated_fetch: {
+        name: "deprecated_fetch",
+        signature: "deprecated_fetch()",
+        deprecated: true,
+        args: [],
+        out_type: "str",
+        chapter: "7.3",
+        contexts: [],
+        description: "",
+        max_args: 0,
+      },
       legacy_fetch: {
         name: "legacy_fetch",
         signature: "legacy_fetch() (deprecated)",
@@ -81,6 +104,7 @@ describe("deprecatedIndex", () => {
       },
     ];
     const index = buildDeprecatedIndex(schema, data);
+    expect(index.sampleFetches.has("deprecated_fetch")).toBe(true);
     expect(index.sampleFetches.has("legacy_fetch")).toBe(true);
     expect(index.sampleFetches.has("lang_fetch")).toBe(true);
   });

@@ -166,6 +166,23 @@ describe("symbolIndex extended", () => {
     });
   });
 
+  it("resolveSymbolAtPosition uses caller-provided scope arrays", () => {
+    const document = doc("backend api\n    server s1 127.0.0.1:80");
+    const serverCol = "    server s1".indexOf("s1");
+    expect(
+      resolveSymbolAtPosition(document, pos(1, serverCol), schema, [null, "backend:other"]),
+    ).toEqual({
+      kind: "server",
+      name: "s1",
+      scopeKey: "backend:other",
+    });
+    expect(resolveSymbolAtPosition(document, pos(1, serverCol), schema, [null])).toEqual({
+      kind: "server",
+      name: "s1",
+      scopeKey: null,
+    });
+  });
+
   it("resolveSymbolAtPosition resolves defaults from references", () => {
     const document = doc("defaults profile_a\nfrontend web from profile_a");
     const fromCol = "frontend web from profile_a".indexOf("profile_a");
@@ -174,6 +191,12 @@ describe("symbolIndex extended", () => {
       name: "profile_a",
       scopeKey: null,
     });
+  });
+
+  it("resolveSymbolAtPosition ignores the section-header from keyword itself", () => {
+    const document = doc("defaults profile_a\nfrontend web from profile_a");
+    const fromCol = "frontend web from profile_a".indexOf("from");
+    expect(resolveSymbolAtPosition(document, pos(1, fromCol), schema)).toBeNull();
   });
 
   it("resolveSymbolAtPosition returns null for unknown tokens in scope", () => {
@@ -282,6 +305,28 @@ describe("symbolIndex extended", () => {
     expect(index.references.length).toBeGreaterThanOrEqual(0);
   });
 
+  it("buildSymbolIndex skips matching symbol rules without name-token metadata", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = [
+      {
+        keyword: "custom-rule",
+        kind: "directive",
+        definition_kind: "acl",
+      },
+      {
+        keyword: "custom-rule",
+        kind: "directive",
+        reference_kind: "acl",
+      },
+    ];
+    customSchema.reference_patterns = undefined;
+
+    const parsed = parseDocument(doc("frontend web\n    custom-rule value"));
+    const index = buildSymbolIndex(parsed, customSchema);
+    expect(index.definitions.get("acl:frontend:web:value")).toBeUndefined();
+    expect(index.references).toEqual([]);
+  });
+
   it("resolveSymbolAtPosition keeps null scope in non-proxy sections", () => {
     const customSchema = structuredClone(schema);
     customSchema.statement_rules = [
@@ -299,6 +344,12 @@ describe("symbolIndex extended", () => {
       name: "api",
       scopeKey: null,
     });
+  });
+
+  it("resolveSymbolAtPosition ignores reference rules when the cursor is not on the target", () => {
+    const document = doc("frontend web\n    use_backend api");
+    const directiveCol = "    use_backend api".indexOf("use_backend");
+    expect(resolveSymbolAtPosition(document, pos(1, directiveCol), schema)).toBeNull();
   });
 
   it("buildSymbolIndex skips references when statement rule token is missing", () => {
@@ -386,6 +437,26 @@ describe("symbolIndex extended", () => {
       kind: "resolvers",
       name: "dns-main",
       scopeKey: null,
+    });
+  });
+
+  it("resolves configured section-scoped reference-pattern symbols at the cursor", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = [];
+    customSchema.reference_patterns = [
+      {
+        match_tokens: ["set-filter"],
+        reference_kind: "filter",
+        target_token_index: 1,
+        scope: "section",
+      },
+    ];
+    const document = doc("backend api\n    set-filter compression");
+    const col = "    set-filter compression".indexOf("compression");
+    expect(resolveSymbolAtPosition(document, pos(1, col), customSchema)).toEqual({
+      kind: "filter",
+      name: "compression",
+      scopeKey: "backend:api",
     });
   });
 

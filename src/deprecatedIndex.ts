@@ -63,36 +63,28 @@ export function buildDeprecatedIndex(
 
   const sampleFetches = new Set<string>();
   for (const [name, sample] of Object.entries(schema.sample_fetches ?? {})) {
-    /* v8 ignore start -- fallback covers schemas that omit explicit deprecation metadata */
     if (sample.deprecated || DEPRECATED_MARK.test(sample.signature ?? "")) {
       sampleFetches.add(name.toLowerCase());
     }
-    /* v8 ignore stop */
   }
 
   const sampleConverters = new Set<string>();
   for (const [name, sample] of Object.entries(schema.sample_converters ?? {})) {
-    /* v8 ignore start -- fallback covers schemas that omit explicit deprecation metadata */
     if (sample.deprecated || DEPRECATED_MARK.test(sample.signature ?? "")) {
       sampleConverters.add(name.toLowerCase());
     }
-    /* v8 ignore stop */
   }
 
   if (languageData) {
     for (const item of languageData.groups.sample_fetches ?? []) {
-      /* v8 ignore start -- language-data overlays rarely repeat schema deprecation marks verbatim */
       if (DEPRECATED_MARK.test(item.signature)) {
         sampleFetches.add(item.name.toLowerCase());
       }
-      /* v8 ignore stop */
     }
     for (const item of languageData.groups.sample_converters ?? []) {
-      /* v8 ignore start -- language-data overlays rarely repeat schema deprecation marks verbatim */
       if (DEPRECATED_MARK.test(item.signature)) {
         sampleConverters.add(item.name.toLowerCase());
       }
-      /* v8 ignore stop */
     }
   }
 
