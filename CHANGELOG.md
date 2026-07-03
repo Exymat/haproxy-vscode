@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.13.6
+
+- Improved `bind`/`server` line-option validation — value-taking keywords no longer consume the next option as their argument (e.g. `cookie check`); optional keyword/value pairs and enum-style slots are handled more reliably.
+
 ## 0.13.5
 
 - Fewer false delimiter warnings on `http-request set-header` values using log-format flag blocks with bracketed sample expressions (e.g. `%{+Q}[ssl_c_s_dn]`, `%(var)[ssl_fc]`).
