@@ -143,7 +143,7 @@ export function computeDiagnostics(
     const index = getSymbolIndex(document, schema, maxLines);
     if (index) {
       cachedSymbolIndex = index;
-      if (cached?.cachedSymbolIndex === index) {
+      if (cached?.cachedSymbolIndex === index && sameCacheKey(cached.key, key)) {
         documentSymbolDiagnostics = cached.documentSymbolDiagnostics;
       } else {
         documentSymbolDiagnostics = computeDocumentSymbolDiagnostics(document, ctx, index, options);

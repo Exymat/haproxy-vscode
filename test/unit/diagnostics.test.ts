@@ -276,4 +276,27 @@ describe("diagnostics", () => {
     });
     expect(second.some((diag) => diag.code === "missing-reference")).toBe(true);
   });
+
+  it("recomputes document-level symbol diagnostics when options change", () => {
+    const doc = createDocument(
+      "frontend web\n    bind :80\n    acl blocked path_beg /admin\nbackend old_api\n    server s1 127.0.0.1:80\n",
+    );
+    const withUnused = computeDiagnostics(doc, defaultSchema, {
+      ...diagnosticOptions(DEFAULT_VERSION),
+      unusedSymbols: true,
+      missingReferences: false,
+    });
+    expect(withUnused.some((diag) => formatDiagnosticCode(diag.code).startsWith("unused-"))).toBe(
+      true,
+    );
+
+    const withoutUnused = computeDiagnostics(doc, defaultSchema, {
+      ...diagnosticOptions(DEFAULT_VERSION),
+      unusedSymbols: false,
+      missingReferences: false,
+    });
+    expect(
+      withoutUnused.some((diag) => formatDiagnosticCode(diag.code).startsWith("unused-")),
+    ).toBe(false);
+  });
 });

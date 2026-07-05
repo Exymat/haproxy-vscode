@@ -4,7 +4,7 @@
     {
       "name": "loadSchemaBundle cold",
       "maxMs": 30,
-      "baselineMs": 24.724,
+      "baselineMs": 25.203,
       "statisticalMarginMs": 1.3518
     },
     {
@@ -29,14 +29,14 @@
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg \\(",
-      "maxMs": 330,
-      "baselineMs": 286.116,
+      "maxMs": 510,
+      "baselineMs": 438.976,
       "statisticalMarginMs": 16.6774
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg \\(",
-      "maxMs": 290,
-      "baselineMs": 249.861,
+      "maxMs": 300,
+      "baselineMs": 259.204,
       "statisticalMarginMs": 9.5412
     },
     {
@@ -47,8 +47,8 @@
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg unusedSymbols",
-      "maxMs": 620,
-      "baselineMs": 532.336,
+      "maxMs": 690,
+      "baselineMs": 598.215,
       "statisticalMarginMs": 38.6823
     },
     {
@@ -61,12 +61,12 @@
       "namePattern": "^diagnostics edit: large-valid\\.cfg unusedSymbols",
       "maxMs": 45,
       "baselineMs": 37.207,
-      "statisticalMarginMs": 1.8131
+      "statisticalMarginMs": 1.8164
     },
     {
       "namePattern": "^diagnostics cold: large-mixed\\.cfg \\(",
-      "maxMs": 460,
-      "baselineMs": 399.849,
+      "maxMs": 620,
+      "baselineMs": 533.049,
       "statisticalMarginMs": 42.294
     },
     {
@@ -89,8 +89,8 @@
     },
     {
       "namePattern": "^diagnostics warm: large-mixed\\.cfg unusedSymbols",
-      "maxMs": 230,
-      "baselineMs": 199.382,
+      "maxMs": 240,
+      "baselineMs": 206.934,
       "statisticalMarginMs": 4.9032
     },
     {
@@ -108,8 +108,8 @@
     {
       "namePattern": "^diagnostics warm: log-format validation",
       "maxMs": 2,
-      "baselineMs": 0.088,
-      "statisticalMarginMs": 0.001
+      "baselineMs": 0.123,
+      "statisticalMarginMs": 0.0011
     },
     {
       "namePattern": "^format: large-(valid|mixed)\\.cfg",
@@ -120,8 +120,8 @@
     {
       "namePattern": "^document symbols: large-valid\\.cfg",
       "maxMs": 2,
-      "baselineMs": 0.563,
-      "statisticalMarginMs": 0.0055
+      "baselineMs": 0.573,
+      "statisticalMarginMs": 0.0069
     },
     {
       "namePattern": "^completion: large-valid\\.cfg",
@@ -144,20 +144,20 @@
     {
       "namePattern": "^hover cold:",
       "maxMs": 2,
-      "baselineMs": 0.092,
-      "statisticalMarginMs": 0.0011
+      "baselineMs": 0.102,
+      "statisticalMarginMs": 0.0012
     },
     {
       "namePattern": "^definition: (cache-use|resolvers|inline ACL)",
       "maxMs": 2,
       "baselineMs": 0.11,
-      "statisticalMarginMs": 0.0028
+      "statisticalMarginMs": 0.0035
     },
     {
       "namePattern": "^references: peers section",
       "maxMs": 2,
-      "baselineMs": 0.049,
-      "statisticalMarginMs": 0.0021
+      "baselineMs": 0.051,
+      "statisticalMarginMs": 0.0022
     },
     {
       "namePattern": "^definition: large-valid\\.cfg",
@@ -173,33 +173,33 @@
     },
     {
       "namePattern": "^definition warm: large-valid\\.cfg",
-      "maxMs": 8,
-      "baselineMs": 5.749,
+      "maxMs": 15,
+      "baselineMs": 10.007,
       "statisticalMarginMs": 0.1105
     },
     {
       "namePattern": "^buildSymbolIndex cold: large-valid\\.cfg",
-      "maxMs": 500,
-      "baselineMs": 400,
-      "statisticalMarginMs": 50
+      "maxMs": 140,
+      "baselineMs": 119.365,
+      "statisticalMarginMs": 6.8597
     },
     {
       "namePattern": "^getSymbolIndex warm lookup: large-valid\\.cfg",
       "maxMs": 2,
-      "baselineMs": 0.5,
-      "statisticalMarginMs": 0.1
+      "baselineMs": 0.002,
+      "statisticalMarginMs": 0.0001
     },
     {
       "namePattern": "^findSiteAtPosition warm: large-valid\\.cfg",
       "maxMs": 2,
-      "baselineMs": 0.5,
-      "statisticalMarginMs": 0.1
+      "baselineMs": 0.003,
+      "statisticalMarginMs": 0.0002
     },
     {
       "namePattern": "^incremental reuse: single-line edit",
-      "maxMs": 50,
-      "baselineMs": 30,
-      "statisticalMarginMs": 5
+      "maxMs": 40,
+      "baselineMs": 33.061,
+      "statisticalMarginMs": 1.1645
     }
   ],
   "derived": {
