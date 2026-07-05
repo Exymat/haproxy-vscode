@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 import {
+  hasArgumentModelValidation,
   isKeywordValuePair,
   matchesLaterEnumSlotInModel,
   skipOptionalSlotGroup,
@@ -79,7 +80,7 @@ export function argumentModelDiagnostics(
     return specialResult;
   }
 
-  if (!model || model.max_args === null || model.max_args === undefined) {
+  if (!hasArgumentModelValidation(model)) {
     return [];
   }
 
@@ -161,7 +162,7 @@ export function argumentModelDiagnostics(
         continue;
       }
 
-      if (slotIdx >= model.max_args) {
+      if (model.max_args !== null && model.max_args !== undefined && slotIdx >= model.max_args) {
         break;
       }
 
@@ -171,11 +172,15 @@ export function argumentModelDiagnostics(
     }
 
     if (!placed) {
+      const maxHint =
+        model.max_args !== null && model.max_args !== undefined
+          ? String(model.max_args)
+          : String(model.slots.length);
       diagnostics.push(
         makeArgDiagnostic(
           line,
           tokenIdx,
-          `'${keyword}' accepts at most ${model.max_args} argument(s); '${value}' is unexpected`,
+          `'${keyword}' accepts at most ${maxHint} argument(s); '${value}' is unexpected`,
           "extra-argument",
         ),
       );

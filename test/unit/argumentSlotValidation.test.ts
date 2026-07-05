@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { isKeywordValuePair, skipOptionalSlotGroup } from "../../src/argumentSlotValidation";
+import {
+  hasArgumentModelValidation,
+  isKeywordValuePair,
+  skipOptionalSlotGroup,
+  slotForPosition,
+} from "../../src/argumentSlotValidation";
 import { ArgumentModel } from "../../src/schema";
 
 describe("argumentSlotValidation", () => {
@@ -39,6 +44,12 @@ describe("argumentSlotValidation", () => {
         { optional: true, value_kind: "generic", variadic: false },
       ),
     ).toBe(true);
+    expect(
+      isKeywordValuePair(
+        { optional: true, enum: ["check_post"], value_kind: "enum", variadic: false },
+        { optional: true, enum: [], value_kind: "generic", variadic: true },
+      ),
+    ).toBe(false);
   });
 
   it("skipOptionalSlotGroup leaves index unchanged for normal slots", () => {
@@ -48,5 +59,52 @@ describe("argumentSlotValidation", () => {
       slots: [{ optional: false, enum: ["http", "tcp"], value_kind: "enum", variadic: false }],
     };
     expect(skipOptionalSlotGroup(model, 0)).toBe(1);
+  });
+
+  it("slotForPosition resolves in-range and variadic tail slots", () => {
+    const model: ArgumentModel = {
+      min_args: 1,
+      max_args: null,
+      slots: [
+        { optional: false, enum: [], value_kind: "name", variadic: false },
+        { optional: true, enum: [], value_kind: "generic", variadic: true },
+      ],
+    };
+    expect(slotForPosition(model, 0)?.value_kind).toBe("name");
+    expect(slotForPosition(model, 1)?.variadic).toBe(true);
+    expect(slotForPosition(model, 3)?.variadic).toBe(true);
+  });
+
+  it("slotForPosition returns undefined past fixed slots without a variadic tail", () => {
+    const model: ArgumentModel = {
+      min_args: 1,
+      max_args: 2,
+      slots: [
+        { optional: false, enum: [], value_kind: "name", variadic: false },
+        { optional: true, enum: ["check_post"], value_kind: "enum", variadic: false },
+      ],
+    };
+    expect(slotForPosition(model, 2)).toBeUndefined();
+  });
+
+  it("hasArgumentModelValidation detects models worth validating", () => {
+    expect(hasArgumentModelValidation(undefined)).toBe(false);
+    expect(
+      hasArgumentModelValidation({ min_args: 0, max_args: 1, slots: [{ optional: true }] }),
+    ).toBe(true);
+    expect(
+      hasArgumentModelValidation({
+        min_args: 0,
+        max_args: null,
+        slots: [{ optional: true, enum: ["foo"], value_kind: "enum", variadic: false }],
+      }),
+    ).toBe(true);
+    expect(
+      hasArgumentModelValidation({
+        min_args: 0,
+        max_args: null,
+        slots: [{ optional: true, value_kind: "generic", variadic: false }],
+      }),
+    ).toBe(false);
   });
 });

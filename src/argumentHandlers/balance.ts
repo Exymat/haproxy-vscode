@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 
+import { slotForPosition as argumentSlotForPosition } from "../argumentSlotValidation";
 import { enumNamesForSlotLower } from "../argumentEnumUtils";
 import { makeLineDiagnostic } from "../diagnosticUtils";
 import { ResolvedSchemaKeyword } from "../keywordVariant";
@@ -75,7 +76,7 @@ export function balanceArgumentDiagnostics(
   if (algoBase === "url_param") {
     const variant = schema.keywords["balance url_param"];
     const variantModel = variant?.argument_model;
-    if (!variantModel || variantModel.max_args === null || variantModel.max_args === undefined) {
+    if (!variantModel) {
       return diagnostics;
     }
     const variantArgs = argIndices.slice(1);
@@ -97,10 +98,13 @@ export function balanceArgumentDiagnostics(
     }
     for (let pos = 0; pos < variantArgs.length; pos += 1) {
       const tokenIdx = variantArgs[pos];
-      const slot = variantModel.slots[pos];
+      const slot = argumentSlotForPosition(variantModel, pos);
       const value = line.tokens[tokenIdx].text;
-      const allowedValues = enumValuesForSlot(slot, variant, pos);
-      if (variantModel.max_args !== null && pos >= variantModel.max_args) {
+      if (
+        variantModel.max_args !== null &&
+        variantModel.max_args !== undefined &&
+        pos >= variantModel.max_args
+      ) {
         diagnostics.push(
           makeLineDiagnostic(
             line,
@@ -111,6 +115,18 @@ export function balanceArgumentDiagnostics(
         );
         continue;
       }
+      if (!slot) {
+        diagnostics.push(
+          makeLineDiagnostic(
+            line,
+            tokenIdx,
+            `'balance url_param' accepts at most ${variantModel.slots.length} argument(s); '${value}' is unexpected`,
+            "extra-argument",
+          ),
+        );
+        continue;
+      }
+      const allowedValues = enumValuesForSlot(slot, variant, pos);
       if (allowedValues.length === 0) {
         continue;
       }

@@ -3928,7 +3928,7 @@
     },
     "balance url_param": {
       "argument_model": {
-        "max_args": 2,
+        "max_args": null,
         "min_args": 1,
         "slots": [
           {
@@ -3944,6 +3944,12 @@
             "optional": true,
             "value_kind": "enum",
             "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "generic",
+            "variadic": true
           }
         ]
       },
@@ -4041,7 +4047,7 @@
       "variants": [
         {
           "argument_model": {
-            "max_args": 2,
+            "max_args": null,
             "min_args": 1,
             "slots": [
               {
@@ -4057,6 +4063,12 @@
                 "optional": true,
                 "value_kind": "enum",
                 "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "generic",
+                "variadic": true
               }
             ]
           },

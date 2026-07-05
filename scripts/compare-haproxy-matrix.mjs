@@ -41,6 +41,10 @@ for (const version of versions) {
     );
     if (result.status !== 0) {
       failures += 1;
+      if (result.status === 2) {
+        console.error("\nMatrix comparison stopped: HAProxy runtime is unavailable.");
+        process.exit(2);
+      }
     }
   }
 }

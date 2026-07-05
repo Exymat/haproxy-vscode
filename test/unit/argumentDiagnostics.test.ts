@@ -1,4 +1,5 @@
 import { argumentModelDiagnostics } from "../../src/argumentDiagnostics";
+import { argumentTokenIndices } from "../../src/directiveUtils";
 import {
   allowsMissingArgs,
   balanceArgumentDiagnostics,
@@ -95,6 +96,7 @@ describe("argumentDiagnostics", () => {
   it("accepts balance url_param forms", () => {
     expect(argDiags("backend x\n    balance url_param foo", 1)).toEqual([]);
     expect(argDiags("backend x\n    balance url_param foo check_post", 1)).toEqual([]);
+    expect(argDiags("backend x\n    balance url_param session_id check_post 64", 1)).toEqual([]);
   });
 
   it("reports invalid trailing value for balance url_param", () => {
@@ -121,11 +123,18 @@ describe("argumentDiagnostics", () => {
     expect(diags.some((d) => d.code === "missing-argument")).toBe(true);
   });
 
-  it("reports extra argument for balance url_param variant", () => {
+  it("reports extra argument for balance url_param variant when arity is capped", () => {
+    const schema = structuredClone(bundle.schema);
+    const variant = schema.keywords["balance url_param"];
+    if (!variant?.argument_model) {
+      throw new Error("Expected balance url_param argument model in test schema");
+    }
+    variant.argument_model.max_args = 2;
+
     const diags = argDiagsForBundleWithAllowed(
       "backend x\n    balance url_param foo check_post trailing",
       1,
-      bundle.schema,
+      schema,
       (allowed) => allowed.delete("balance url_param"),
     );
     expect(diags.some((d) => d.code === "extra-argument")).toBe(true);
@@ -474,5 +483,40 @@ describe("argumentDiagnostics", () => {
         new Set(["if", "unless"]),
       ),
     ).toEqual([]);
+
+    const urlParamLine = parseDocument(
+      createDocument("backend x\n    balance url_param foo check_post extra"),
+    )[1];
+    const schemaWithFixedUrlParamSlots = structuredClone(bundle.schema);
+    const urlParamVariant = schemaWithFixedUrlParamSlots.keywords["balance url_param"];
+    if (!urlParamVariant?.argument_model) {
+      throw new Error("Expected balance url_param argument model in test schema");
+    }
+    urlParamVariant.argument_model.max_args = null;
+    urlParamVariant.argument_model.slots = [
+      { enum: [], optional: false, value_kind: "name", variadic: false },
+      { enum: ["check_post"], optional: true, value_kind: "enum", variadic: false },
+    ];
+    const balanceModel = bundle.schema.keywords.balance.argument_model;
+    if (!balanceModel) {
+      throw new Error("Expected balance argument model in test schema");
+    }
+    const urlParamDiags = balanceArgumentDiagnostics(
+      urlParamLine,
+      { end: 0 },
+      argumentTokenIndices(urlParamLine, 0),
+      balanceModel,
+      bundle.schema.keywords.balance,
+      schemaWithFixedUrlParamSlots,
+      new Set(["if", "unless"]),
+    );
+    expect(
+      urlParamDiags.some(
+        (d) =>
+          d.code === "extra-argument" &&
+          d.message.includes("accepts at most 2 argument(s)") &&
+          d.message.includes("'extra'"),
+      ),
+    ).toBe(true);
   });
 });

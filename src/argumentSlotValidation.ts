@@ -62,7 +62,8 @@ export function isKeywordValuePair(
     slot?.optional &&
     (slot.enum?.length ?? 0) > 0 &&
     nextSlot?.optional &&
-    !(nextSlot.enum?.length ?? 0),
+    !(nextSlot.enum?.length ?? 0) &&
+    !nextSlot?.variadic,
   );
 }
 
@@ -73,4 +74,24 @@ export function skipOptionalSlotGroup(model: ArgumentModel, slotIdx: number): nu
     next += 1;
   }
   return next;
+}
+
+export function slotForPosition(model: ArgumentModel, position: number): ArgumentSlot | undefined {
+  if (position < model.slots.length) {
+    return model.slots[position];
+  }
+  const tail = model.slots.at(-1);
+  return tail?.variadic ? tail : undefined;
+}
+
+export function hasArgumentModelValidation(
+  model: ArgumentModel | undefined,
+): model is ArgumentModel {
+  if (!model) {
+    return false;
+  }
+  if (model.max_args !== null && model.max_args !== undefined) {
+    return true;
+  }
+  return model.slots.some((slot) => (slot.enum?.length ?? 0) > 0);
 }

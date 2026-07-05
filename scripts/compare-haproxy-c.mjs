@@ -55,6 +55,8 @@ const SKIPPABLE_HAPROXY_FAILURE_RE =
   /unable to stat SSL|Couldn't open the ca-file|Couldn't open the crt-file|lua-load|lua_load|failed to load lua|Cannot load lua|error in Lua file|external-check|ext-check/i;
 const DOCKER_INFRA_FAILURE_RE =
   /invalid volume specification|Cannot connect to the Docker daemon|error during connect|is the docker daemon running|docker: command not found/i;
+const WSL_INFRA_FAILURE_RE =
+  /Windows Subsystem for Linux.*no installed distributions|Sous-syst[eè]me Windows pour Linux.*aucune distribution|wsl\.exe --install/i;
 
 /** HAProxy upstream configs that intentionally exercise sample-expression validation. */
 const SAMPLE_EXPRESSION_TEST_FILES = new Set([
@@ -83,6 +85,9 @@ function isInfrastructureFailure(haproxy) {
   if (haproxy.spawnError) {
     return true;
   }
+  if (WSL_INFRA_FAILURE_RE.test(haproxy.raw)) {
+    return true;
+  }
   if (DOCKER_INFRA_FAILURE_RE.test(haproxy.raw)) {
     return true;
   }
@@ -90,6 +95,10 @@ function isInfrastructureFailure(haproxy) {
     return true;
   }
   return false;
+}
+
+function normalizeProcessOutput(raw) {
+  return raw.replace(/\0/g, "").trim();
 }
 
 function comparableExtensionDiagnostics(filePath, content, { errorsOnly = false } = {}) {
@@ -165,7 +174,9 @@ function runHaproxyCheck(filePath) {
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "pipe"],
     });
-    const raw = `${res.stdout ?? ""}${res.stderr ?? ""}${res.error?.message ?? ""}`.trim();
+    const raw = normalizeProcessOutput(
+      `${res.stdout ?? ""}${res.stderr ?? ""}${res.error?.message ?? ""}`,
+    );
     return interpretHaproxyCheck(res.status, raw, Boolean(res.error));
   }
 
@@ -176,7 +187,9 @@ function runHaproxyCheck(filePath) {
     encoding: "utf-8",
     stdio: ["ignore", "pipe", "pipe"],
   });
-  const raw = `${res.stdout ?? ""}${res.stderr ?? ""}${res.error?.message ?? ""}`.trim();
+  const raw = normalizeProcessOutput(
+    `${res.stdout ?? ""}${res.stderr ?? ""}${res.error?.message ?? ""}`,
+  );
   return interpretHaproxyCheck(res.status ?? 1, raw, Boolean(res.error));
 }
 
@@ -219,6 +232,16 @@ for (const file of files) {
     extensionCount: extDetail.length,
     issues: [],
   };
+
+  if (isInfrastructureFailure(haproxy)) {
+    entry.issues.push({
+      kind: "haproxy-runtime-unavailable",
+      message: "HAProxy runtime failed before checking the config",
+      haproxyRaw: haproxy.raw.slice(0, 500),
+    });
+    report.push(entry);
+    break;
+  }
 
   if (haproxy.ok && extDiagLines.length > 0) {
     entry.issues.push({
@@ -287,8 +310,9 @@ for (const r of drift) {
       console.log(`    haproxy lines: ${r.haproxyLines.join(", ")}`);
     }
     if (issue.haproxyRaw) {
+      const firstRawLine = issue.haproxyRaw.split("\n").find((l) => l.trim());
       console.log(
-        `    haproxy: ${issue.haproxyRaw.split("\n").find((l) => l.includes("ALERT") || l.includes("parsing")) ?? ""}`,
+        `    haproxy: ${issue.haproxyRaw.split("\n").find((l) => l.includes("ALERT") || l.includes("parsing")) ?? firstRawLine ?? ""}`,
       );
     }
     if (issue.kind === "extension-only" || issue.kind === "extension-only-lines") {
@@ -309,4 +333,7 @@ for (const r of drift) {
   }
 }
 
-process.exit(drift.length > 0 ? 1 : 0);
+const hasInfrastructureFailure = drift.some((r) =>
+  r.issues.some((issue) => issue.kind === "haproxy-runtime-unavailable"),
+);
+process.exit(hasInfrastructureFailure ? 2 : drift.length > 0 ? 1 : 0);
