@@ -182,4 +182,13 @@ describe("entryPointDiagnostics", () => {
 
     expect(sectionHasBind(parsed, blocks, 2, memo, resolving, bindTokens)).toBe(false);
   });
+
+  it("reuses cached entry-point diagnostics at the same document version", () => {
+    const document = createDocument("frontend web\n    mode http");
+    const parsed = parseDocument(document);
+    const first = entryPointWithoutBindDiagnostics(document, parsed, entryCtx);
+    const second = entryPointWithoutBindDiagnostics(document, parsed, entryCtx);
+    expect(second).toBe(first);
+    expect(first.some((diag) => diag.code === "no-bind-entry-point")).toBe(true);
+  });
 });

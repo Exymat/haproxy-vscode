@@ -2,11 +2,7 @@ import { bench, describe } from "vitest";
 
 import { getParsedDocument } from "../../src/parseCache";
 import { parseDocument } from "../../src/parser";
-import {
-  buildSymbolIndex,
-  findSiteAtPosition,
-  getSymbolIndex,
-} from "../../src/symbolIndex";
+import { buildSymbolIndex, findSiteAtPosition, getSymbolIndex } from "../../src/symbolIndex";
 import { loadSchemaBundle } from "../helpers/schema";
 import { createDocument, updateDocument } from "../helpers/document";
 import { BENCH_LARGE_MAX_LINES, findLineContaining, readFixture } from "./helpers";

@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -11,6 +11,7 @@ import {
   schemas,
   type DiagnosticExpectations,
 } from "../helpers/diagnostics";
+import { formatDiagnosticCode } from "../helpers/diagnosticFormat";
 import { createDocument, updateDocument } from "../helpers/document";
 import { computeDiagnostics } from "../../src/diagnostics";
 
@@ -238,5 +239,41 @@ describe("diagnostics", () => {
     );
 
     expect(incremental).toEqual(fresh);
+  });
+
+  it("reports missing references without unused-symbol diagnostics", () => {
+    const doc = createDocument("frontend web\n    use_backend missing\n    bind :80");
+    const diags = computeDiagnostics(doc, defaultSchema, {
+      ...diagnosticOptions(DEFAULT_VERSION),
+      unusedSymbols: false,
+      missingReferences: true,
+    });
+    expect(diags.some((diag) => diag.code === "missing-reference")).toBe(true);
+    expect(diags.some((diag) => formatDiagnosticCode(diag.code).startsWith("unused-"))).toBe(false);
+  });
+
+  it("skips missing-reference diagnostics when disabled", () => {
+    const doc = createDocument("frontend web\n    use_backend missing\n    bind :80");
+    const diags = computeDiagnostics(doc, defaultSchema, {
+      ...diagnosticOptions(DEFAULT_VERSION),
+      unusedSymbols: true,
+      missingReferences: false,
+    });
+    expect(diags.some((diag) => diag.code === "missing-reference")).toBe(false);
+  });
+
+  it("reuses document-level symbol diagnostics when the symbol index is unchanged", () => {
+    const doc = createDocument("frontend web\n    use_backend missing\n    bind :80");
+    computeDiagnostics(doc, defaultSchema, {
+      ...diagnosticOptions(DEFAULT_VERSION),
+      unusedSymbols: true,
+      missingReferences: true,
+    });
+    const second = computeDiagnostics(doc, defaultSchema, {
+      ...diagnosticOptions(DEFAULT_VERSION),
+      unusedSymbols: true,
+      missingReferences: true,
+    });
+    expect(second.some((diag) => diag.code === "missing-reference")).toBe(true);
   });
 });

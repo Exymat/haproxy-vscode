@@ -148,7 +148,10 @@ export function unusedSymbolDiagnostics(
       continue;
     }
 
-    if (kind === "proxy-section" && isEntryPointProxySection(parsed, site.line, ctx.entryPointSections)) {
+    if (
+      kind === "proxy-section" &&
+      isEntryPointProxySection(parsed, site.line, ctx.entryPointSections)
+    ) {
       continue;
     }
 

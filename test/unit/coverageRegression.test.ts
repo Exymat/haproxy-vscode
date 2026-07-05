@@ -86,9 +86,9 @@ describe("coverage regression", () => {
       ).keyword,
     ).toBe("set-var");
     expect(buildSectionSymbols([], 3)).toEqual([]);
-    expect(buildLineFingerprints(parseDocument(createDocument("backend api")), bundle.schema)).toHaveLength(
-      1,
-    );
+    expect(
+      buildLineFingerprints(parseDocument(createDocument("backend api")), bundle.schema),
+    ).toHaveLength(1);
     const indexDoc = createDocument("backend api\n    server s1 127.0.0.1:80");
     expect(getSymbolIndexVersion(indexDoc)).toBeUndefined();
     expect(getSymbolIndex(indexDoc, bundle.schema, 100)).toBeTruthy();

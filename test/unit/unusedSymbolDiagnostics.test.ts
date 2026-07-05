@@ -276,21 +276,21 @@ describe("symbolIndex reference expansion", () => {
     const parsed = parseDocument(document);
 
     const filterDefs = new Map<string, SymbolSite[]>([
+      [
+        key("filter", "f1", "frontend:web"),
         [
-          key("filter", "f1", "frontend:web"),
-          [
-            {
-              kind: "filter",
-              name: "f1",
-              line: 1,
-              start: 4,
-              end: 10,
-              scopeKey: "frontend:web",
-              role: "definition",
-            },
-          ],
+          {
+            kind: "filter",
+            name: "f1",
+            line: 1,
+            start: 4,
+            end: 10,
+            scopeKey: "frontend:web",
+            role: "definition",
+          },
         ],
-      ]);
+      ],
+    ]);
     const filterIndex: SymbolIndex = {
       definitions: filterDefs,
       references: [],
@@ -323,21 +323,21 @@ describe("symbolIndex reference expansion", () => {
     ).toHaveLength(0);
 
     const unknownDefs = new Map<string, SymbolSite[]>([
+      [
+        "custom:widget",
         [
-          "custom:widget",
-          [
-            {
-              kind: "widget" as SymbolKind,
-              name: "widget",
-              line: 1,
-              start: 4,
-              end: 10,
-              scopeKey: "frontend:web",
-              role: "definition",
-            },
-          ],
+          {
+            kind: "widget" as SymbolKind,
+            name: "widget",
+            line: 1,
+            start: 4,
+            end: 10,
+            scopeKey: "frontend:web",
+            role: "definition",
+          },
         ],
-      ]);
+      ],
+    ]);
     const unknownKindIndex: SymbolIndex = {
       definitions: unknownDefs,
       references: [],
@@ -354,21 +354,21 @@ describe("symbolIndex reference expansion", () => {
     expect(unknownDiag[0]?.message).toContain("appears unused");
 
     const orphanDefs = new Map<string, SymbolSite[]>([
+      [
+        key("cache", "orphan", null),
         [
-          key("cache", "orphan", null),
-          [
-            {
-              kind: "cache",
-              name: "orphan",
-              line: 99,
-              start: 0,
-              end: 6,
-              scopeKey: null,
-              role: "definition",
-            },
-          ],
+          {
+            kind: "cache",
+            name: "orphan",
+            line: 99,
+            start: 0,
+            end: 6,
+            scopeKey: null,
+            role: "definition",
+          },
         ],
-      ]);
+      ],
+    ]);
     const orphanSectionIndex: SymbolIndex = {
       definitions: orphanDefs,
       references: [],
@@ -387,21 +387,21 @@ describe("symbolIndex reference expansion", () => {
     const misfiledBackendDoc = createDocument("backend wide\n    mode http");
     const misfiledBackendParsed = parseDocument(misfiledBackendDoc);
     const misfiledDefs = new Map<string, SymbolSite[]>([
+      [
+        key("proxy-section", "wide", null),
         [
-          key("proxy-section", "wide", null),
-          [
-            {
-              kind: "proxy-section",
-              name: "wide",
-              line: 0,
-              start: 4,
-              end: 8,
-              scopeKey: "backend:wide",
-              role: "definition",
-            },
-          ],
+          {
+            kind: "proxy-section",
+            name: "wide",
+            line: 0,
+            start: 4,
+            end: 8,
+            scopeKey: "backend:wide",
+            role: "definition",
+          },
         ],
-      ]);
+      ],
+    ]);
     const misfiledBackendIndex: SymbolIndex = {
       definitions: misfiledDefs,
       references: [],
@@ -424,21 +424,21 @@ describe("symbolIndex reference expansion", () => {
     const inlineFrontendDoc = createDocument("frontend web\n    bind :80");
     const inlineFrontendParsed = parseDocument(inlineFrontendDoc);
     const inlineFrontendDefs = new Map<string, SymbolSite[]>([
+      [
+        key("proxy-section", "ghost", "frontend:web"),
         [
-          key("proxy-section", "ghost", "frontend:web"),
-          [
-            {
-              kind: "proxy-section",
-              name: "ghost",
-              line: 1,
-              start: 4,
-              end: 9,
-              scopeKey: "frontend:web",
-              role: "definition",
-            },
-          ],
+          {
+            kind: "proxy-section",
+            name: "ghost",
+            line: 1,
+            start: 4,
+            end: 9,
+            scopeKey: "frontend:web",
+            role: "definition",
+          },
         ],
-      ]);
+      ],
+    ]);
     const inlineFrontendIndex: SymbolIndex = {
       definitions: inlineFrontendDefs,
       references: [],

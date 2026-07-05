@@ -52,6 +52,20 @@ describe("symbolIndex extended", () => {
     expect(first?.definitions.get("proxy-section:api")?.length).toBe(1);
   });
 
+  it("lazy-builds sitesByLine on first findSiteAtPosition after cold index", () => {
+    const document = doc("backend api\n    server s1 127.0.0.1:80");
+    const index = getSymbolIndex(document, schema, 4000);
+    expect(index?.sitesByLine).toEqual([]);
+    expect(index).not.toBeNull();
+    if (!index) {
+      return;
+    }
+    const character = "    server s1 127.0.0.1:80".indexOf("s1");
+    const site = findSiteAtPosition(index, pos(1, character));
+    expect(site?.kind).toBe("server");
+    expect(index?.sitesByLine.length).toBe(2);
+  });
+
   it("getSymbolIndex returns null above max lines", () => {
     const lines = Array.from({ length: 5000 }, (_, i) => (i === 0 ? "global" : "    # pad"));
     const document = doc(lines.join("\n"));
@@ -77,6 +91,7 @@ describe("symbolIndex extended", () => {
     const second = getSymbolIndex(document, schema, 4000);
     expect(second).not.toBe(first);
     expect(second?.definitions.get("server:backend:api:s2")).toHaveLength(1);
+    expect(second?.definitions.get("proxy-section:api")).toHaveLength(1);
   });
 
   it("getSymbolIndex rebuilds when a single-line edit changes a symbol reference", () => {

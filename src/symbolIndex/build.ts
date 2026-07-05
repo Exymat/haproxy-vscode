@@ -20,7 +20,13 @@ import {
   SymbolKind,
   SymbolSite,
 } from "./types";
-import { addSite, buildReferencesByKey, buildSitesByLine, symbolNameTokenIndex } from "./utils";
+import {
+  addSite,
+  buildReferencesByKey,
+  buildSitesByLine,
+  ensureSitesByLine,
+  symbolNameTokenIndex,
+} from "./utils";
 
 function aclConditionOperators(schema: HaproxySchema): Set<string> {
   return new Set(symbolStringList(schema, "acl_condition_operators"));
@@ -469,6 +475,44 @@ export function buildScopeKeyByLine(
   return scopeKeyByLine;
 }
 
+export interface SymbolIndexBuildOptions {
+  /** When false, returns empty fingerprint slots without per-line hashing. */
+  computeFingerprints?: boolean;
+  /** When false, defers sitesByLine until navigation lookup. */
+  buildSitesByLine?: boolean;
+}
+
+function collectLineSitesInto(
+  line: ParsedLine,
+  schema: HaproxySchema,
+  scopeKey: string | null,
+  definitions: Map<string, SymbolSite[]>,
+  references: SymbolSite[],
+  context: SymbolBuildContext,
+): void {
+  if (isTopLevelSectionHeader(line)) {
+    collectSectionHeaderSites(line, schema, definitions, references, context.scopedSymbolKinds);
+    return;
+  }
+  collectStatementRuleSites(line, schema, scopeKey, definitions, references, context);
+}
+
+function updateScopeKeyForLine(
+  line: ParsedLine,
+  proxySections: Set<string>,
+  state: { currentScopeKey: string | null },
+): string | null {
+  if (isTopLevelSectionHeader(line) && line.tokens.length >= 2) {
+    const sectionType = line.tokens[0].text.toLowerCase();
+    state.currentScopeKey = proxySections.has(sectionType)
+      ? proxyScopeKey(sectionType, line.tokens[1].text)
+      : null;
+  } else if (isTopLevelSectionHeader(line)) {
+    state.currentScopeKey = null;
+  }
+  return state.currentScopeKey;
+}
+
 /** Collect definition/reference sites contributed by a single parsed line. */
 export function collectLineSymbolSites(
   line: ParsedLine,
@@ -480,11 +524,7 @@ export function collectLineSymbolSites(
   const references: SymbolSite[] = [];
   const context = buildContext ?? createSymbolBuildContext(schema);
 
-  if (isTopLevelSectionHeader(line)) {
-    collectSectionHeaderSites(line, schema, definitions, references, context.scopedSymbolKinds);
-  } else {
-    collectStatementRuleSites(line, schema, scopeKey, definitions, references, context);
-  }
+  collectLineSitesInto(line, schema, scopeKey, definitions, references, context);
 
   const sites: SymbolSite[] = [...references];
   for (const defs of definitions.values()) {
@@ -533,20 +573,32 @@ function collectUnresolvedReferences(
 export function buildSymbolIndexWithFingerprints(
   parsed: ParsedLine[],
   schema: HaproxySchema,
+  options: SymbolIndexBuildOptions = {},
 ): SymbolIndexBuildResult {
+  const computeFingerprints = options.computeFingerprints !== false;
+  const buildSitesByLineNow = options.buildSitesByLine !== false;
   const definitions = new Map<string, SymbolSite[]>();
   const references: SymbolSite[] = [];
   const lineFingerprints: string[] = Array.from({ length: parsed.length }, () => "");
-  const scopeKeyByLine = buildScopeKeyByLine(parsed, schema);
+  const scopeKeyByLine: (string | null)[] = Array.from({ length: parsed.length }, () => null);
   const buildContext = createSymbolBuildContext(schema);
+  const proxySections = proxySectionSet(schema);
+  const scopeState = { currentScopeKey: null as string | null };
 
   for (const line of parsed) {
-    const scopeKey = scopeKeyByLine[line.line] ?? null;
-    const sites = collectLineSymbolSites(line, schema, scopeKey, buildContext);
-    lineFingerprints[line.line] = symbolSiteFingerprint(sites);
-    for (const site of sites) {
-      addSite(buildContext.scopedSymbolKinds, definitions, references, site);
+    const scopeKey = updateScopeKeyForLine(line, proxySections, scopeState);
+    scopeKeyByLine[line.line] = scopeKey;
+
+    if (computeFingerprints) {
+      const sites = collectLineSymbolSites(line, schema, scopeKey, buildContext);
+      lineFingerprints[line.line] = symbolSiteFingerprint(sites);
+      for (const site of sites) {
+        addSite(buildContext.scopedSymbolKinds, definitions, references, site);
+      }
+      continue;
     }
+
+    collectLineSitesInto(line, schema, scopeKey, definitions, references, buildContext);
   }
 
   const referencesByKey = buildReferencesByKey(buildContext.scopedSymbolKinds, references);
@@ -557,7 +609,9 @@ export function buildSymbolIndexWithFingerprints(
     referencesByKey,
     scopeKeyByLine,
     scopedSymbolKinds: buildContext.scopedSymbolKinds,
-    sitesByLine: buildSitesByLine(parsed.length, definitions, references),
+    sitesByLine: buildSitesByLineNow
+      ? buildSitesByLine(parsed.length, definitions, references)
+      : [],
     unresolvedReferences: collectUnresolvedReferences(definitions, referencesByKey),
   };
 
@@ -587,6 +641,7 @@ export function patchSymbolIndexLine(
   }
 
   const references = index.references.filter((entry) => entry.line !== line.line);
+  ensureSitesByLine(index);
   const sitesByLine = index.sitesByLine.slice();
 
   for (const site of sites) {

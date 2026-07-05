@@ -2,6 +2,15 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.14.0
+
+- **Missing-reference warnings** — new setting `haproxy.diagnostics.missingReferences` (default on). Warns when a named reference has no definition in the current file: ACL, backend, cache, peers, resolvers, userlist, or named defaults profile (`missing-reference`).
+- **Rename Symbol** — rename a backend, ACL, defaults profile, server, or other indexed symbol; all in-scope references in the file are updated. Invalid characters and duplicate names in the same scope are rejected.
+- **Symbol hover** — hover on indexed names shows symbol kind, the definition line (or that none exists in this file), a reference count, and a **Peek Definition** link when a definition is found.
+- **Refreshed schemas (2.6–3.4)** — generated metadata now drives address/port policies, log-format slot boundaries, section and keyword sets, sample-expression types, and symbol indexing rules (section definitions, scoped ACL/filter/server symbols, sample-fetch references such as `http_auth(userlist)`, and `filter` self-references). Hardcoded fallback lists were removed.
+- **Faster diagnostics on edits** — unused-symbol and missing-reference diagnostics reuse the symbol index across recomputes when it has not changed; entry-point no-bind checks read bind/section keywords from the schema.
+- **Faster cold symbol index** — on first open of a large file, the index skips per-line fingerprint hashing and per-line site maps until hover, rename, or go-to-definition needs them; incremental edits after the first build still track fingerprints for patch updates.
+
 ## 0.13.6
 
 - Improved `bind`/`server` line-option validation — value-taking keywords no longer consume the next option as their argument (e.g. `cookie check`); optional keyword/value pairs and enum-style slots are handled more reliably.

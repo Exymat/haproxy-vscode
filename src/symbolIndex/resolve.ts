@@ -4,12 +4,18 @@ import { getParsedDocument } from "../parseCache";
 import { ParsedLine } from "../parser";
 import { findReferencePatternAtToken } from "../referencePatternMatching";
 import { isTopLevelSectionHeader } from "../sectionUtils";
-import { HaproxySchema, sectionHeaderSet, StatementRule, symbolStringList, sampleExpressionNameSets } from "../schema";
+import {
+  HaproxySchema,
+  sectionHeaderSet,
+  StatementRule,
+  symbolStringList,
+  sampleExpressionNameSets,
+} from "../schema";
 import { ruleMatchesLine } from "../statementLayout";
 import { tokenIndexAtPosition } from "../tokenUtils";
 
 import { aclReferenceAt, buildScopeKeyByLine } from "./build";
-import { symbolNameTokenIndex } from "./utils";
+import { symbolNameTokenIndex, ensureSitesByLine } from "./utils";
 import {
   effectiveScopeKeyForSchema,
   sectionDefinitionKinds,
@@ -212,6 +218,7 @@ export function findSiteAtPosition(
   index: SymbolIndex,
   position: vscode.Position,
 ): SymbolSite | null {
+  ensureSitesByLine(index);
   const lineSites = index.sitesByLine[position.line];
   if (!lineSites || lineSites.length === 0) {
     return null;

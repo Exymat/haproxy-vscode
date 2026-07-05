@@ -110,7 +110,12 @@ export function getSymbolIndex(
       const scopeKey = hit.index.scopeKeyByLine[dirtyLineNo] ?? null;
       const buildContext = createSymbolBuildContext(schema);
       const sites = collectLineSymbolSites(line, schema, scopeKey, buildContext);
-      const { index, lineFingerprints } = patchSymbolIndexLine(hit.index, line, sites, buildContext);
+      const { index, lineFingerprints } = patchSymbolIndexLine(
+        hit.index,
+        line,
+        sites,
+        buildContext,
+      );
       const nextFingerprints = [...hit.lineFingerprints];
       nextFingerprints[dirtyLineNo] = lineFingerprints[0] ?? "";
       indexCache.set(document, {
@@ -122,7 +127,10 @@ export function getSymbolIndex(
     }
   }
 
-  const { index, lineFingerprints } = buildSymbolIndexWithFingerprints(parseEntry.parsed, schema);
+  const { index, lineFingerprints } = buildSymbolIndexWithFingerprints(parseEntry.parsed, schema, {
+    computeFingerprints: Boolean(hit),
+    buildSitesByLine: Boolean(hit),
+  });
   indexCache.set(document, {
     version: document.version,
     index,

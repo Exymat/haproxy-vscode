@@ -1,4 +1,9 @@
-export { buildScopeKeyByLine, buildSymbolIndex, buildSymbolIndexWithFingerprints, patchSymbolIndexLine } from "./build";
+export {
+  buildScopeKeyByLine,
+  buildSymbolIndex,
+  buildSymbolIndexWithFingerprints,
+  patchSymbolIndexLine,
+} from "./build";
 export { getSymbolIndex, getSymbolIndexVersion } from "./cache";
 export { scopedSymbolKindSet, symbolKeyForSchema, symbolKeyForScopedKinds } from "./types";
 export {

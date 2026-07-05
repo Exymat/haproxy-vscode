@@ -1,6 +1,6 @@
 import { StatementRule } from "../schema";
 
-import { SymbolKind, symbolKeyForScopedKinds, SymbolSite } from "./types";
+import { SymbolIndex, SymbolKind, symbolKeyForScopedKinds, SymbolSite } from "./types";
 
 export function symbolNameTokenIndex(rule: StatementRule): number | null {
   if (rule.symbol_name_token_index != null) {
@@ -67,4 +67,15 @@ export function buildReferencesByKey(
     }
   }
   return map;
+}
+
+export function ensureSitesByLine(index: SymbolIndex): void {
+  if (index.sitesByLine.length === index.scopeKeyByLine.length) {
+    return;
+  }
+  index.sitesByLine = buildSitesByLine(
+    index.scopeKeyByLine.length,
+    index.definitions,
+    index.references,
+  );
 }
