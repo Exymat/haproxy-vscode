@@ -48,8 +48,8 @@ export function provideHover(
     tryLogFormatHover(hc) ??
     tryExpressionHover(hc) ??
     tryActionHover(hc) ??
+    trySymbolHover(hc) ??
     tryAclRefHover(hc) ??
-    tryDirectiveHover(hc) ??
-    trySymbolHover(hc)
+    tryDirectiveHover(hc)
   );
 }

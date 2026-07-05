@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.14.1
+
+- **Symbol hover on references** — hovering a symbol reference (e.g. `use_backend api`, `default_backend api`, `if is_api`) shows the defining line in a HAProxy code block. No hover on the definition itself or when the reference has no definition in the file.
+- **Symbol hover priority** — the definition preview takes precedence over directive argument documentation on reference tokens, so `use_backend` / `default_backend` backend names show the backend header instead of generic argument docs.
+- **Diagnostics settings fix** — toggling `haproxy.diagnostics.unusedSymbols` or `haproxy.diagnostics.missingReferences` now correctly refreshes document-level diagnostics instead of reusing a stale cached result when the symbol index is unchanged.
+
 ## 0.14.0
 
 - **Missing-reference warnings** — new setting `haproxy.diagnostics.missingReferences` (default on). Warns when a named reference has no definition in the current file: ACL, backend, cache, peers, resolvers, userlist, or named defaults profile (`missing-reference`).

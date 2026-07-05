@@ -1,29 +1,16 @@
 import * as vscode from "vscode";
 
-import {
-  findDefinitions,
-  findReferences,
-  findSiteAtPosition,
-  getSymbolIndex,
-  SymbolSite,
-} from "../../symbolIndex";
-import { escapeMarkdownText } from "../markdown";
+import { findDefinitions, findSiteAtPosition, getSymbolIndex, SymbolSite } from "../../symbolIndex";
 import { HoverContext } from "../types";
 
 function symbolRange(site: SymbolSite): vscode.Range {
   return new vscode.Range(site.line, site.start, site.line, site.end);
 }
 
-function symbolLabel(kind: string): string {
-  return kind
-    .split("-")
-    .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function commandUri(document: vscode.TextDocument, site: SymbolSite): string {
-  const args = encodeURIComponent(JSON.stringify([document.uri.toString(), site.line, site.start]));
-  return `command:haproxy.peekDefinitionAtPosition?${args}`;
+function isDefinitionSite(site: SymbolSite, definition: SymbolSite): boolean {
+  return (
+    site.line === definition.line && site.start === definition.start && site.end === definition.end
+  );
 }
 
 export function trySymbolHover(hc: HoverContext): vscode.Hover | null {
@@ -39,23 +26,14 @@ export function trySymbolHover(hc: HoverContext): vscode.Hover | null {
   }
 
   const definitions = findDefinitions(index, site.kind, site.name, site.scopeKey);
-  const references = findReferences(index, site.kind, site.name, site.scopeKey);
-  const title = `${symbolLabel(site.kind)} '${escapeMarkdownText(site.name)}'`;
-  const md = new vscode.MarkdownString();
-  md.appendMarkdown(`**${title}**`);
-
   const definition = definitions[0];
-  if (definition) {
-    md.appendMarkdown(`\n\nDefined on line ${definition.line + 1}.`);
-  } else {
-    md.appendMarkdown("\n\nNo definition found in this file.");
+  if (!definition || definitions.some((def) => isDefinitionSite(site, def))) {
+    return null;
   }
 
-  md.appendMarkdown(`\n\nReferences: ${references.length}`);
-  if (definition) {
-    md.appendMarkdown(`\n\n[Peek Definition](${commandUri(hc.document, site)})`);
-    md.isTrusted = { enabledCommands: ["haproxy.peekDefinitionAtPosition"] };
-  }
+  const definitionText = hc.document.lineAt(definition.line).text;
+  const md = new vscode.MarkdownString();
+  md.appendMarkdown(["```haproxy", definitionText, "```"].join("\n"));
 
   return new vscode.Hover(md, symbolRange(site));
 }

@@ -1,4 +1,5 @@
 import { trySymbolHover } from "../../../src/hover/handlers/symbolHover";
+import { provideHover } from "../../../src/hover";
 import { getLineSemanticContext } from "../../../src/lineSemanticContext";
 import { createDocument } from "../../helpers/document";
 import { hoverText, bundles } from "./helpers";
@@ -36,31 +37,51 @@ function context(
 }
 
 describe("symbol hover", () => {
-  it("shows definition, reference count, and peek link for known symbols", () => {
+  it("shows the definition line for known symbol references", () => {
     const content = "backend api\nfrontend web\n    use_backend api";
     const hc = context(content, 2, "    use_backend ".length);
     const hover = trySymbolHover(hc);
     expect(hover).not.toBeNull();
     const text = hoverText(hover as never);
-    expect(text).toContain("**Proxy Section 'api'**");
-    expect(text).toContain("Defined on line 1.");
-    expect(text).toContain("References: 1");
-    expect(text).toContain("command:haproxy.peekDefinitionAtPosition");
+    expect(text).toBe(["```haproxy", "backend api", "```"].join("\n"));
   });
 
-  it("shows missing definition text without a peek link", () => {
+  it("returns null when a symbol reference has no definition", () => {
     const content = "frontend web\n    use_backend missing";
     const hc = context(content, 1, "    use_backend ".length);
-    const hover = trySymbolHover(hc);
-    expect(hover).not.toBeNull();
-    const text = hoverText(hover as never);
-    expect(text).toContain("No definition found in this file.");
-    expect(text).not.toContain("Peek Definition");
+    expect(trySymbolHover(hc)).toBeNull();
   });
 
-  it("returns null when indexing is unavailable or no symbol is under the cursor", () => {
+  it("returns null when indexing is unavailable, no symbol is under the cursor, or the cursor is on a definition", () => {
     const content = "backend api\nfrontend web\n    use_backend api";
     expect(trySymbolHover(context(content, 2, "    use_backend ".length, 1))).toBeNull();
-    expect(trySymbolHover(context(content, 2, 4))).toBeNull();
+    expect(trySymbolHover(context(content, 2, "    ".length))).toBeNull();
+    expect(
+      trySymbolHover(context("frontend web\n    acl is_api path /api", 1, "    acl ".length)),
+    ).toBeNull();
+  });
+
+  it("takes priority over directive argument hover on symbol references", () => {
+    const content = "backend api\nfrontend web\n    use_backend api";
+    const bundle = bundles["3.4"];
+    const hover = provideHover(
+      createDocument(content),
+      { line: 2, character: "    use_backend ".length } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    expect(hoverText(hover as never)).toBe(["```haproxy", "backend api", "```"].join("\n"));
+  });
+
+  it("shows the definition line for default_backend references", () => {
+    const content = "backend api\nfrontend web\n    default_backend api";
+    const bundle = bundles["3.4"];
+    const hover = provideHover(
+      createDocument(content),
+      { line: 2, character: "    default_backend ".length } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+    expect(hoverText(hover as never)).toBe(["```haproxy", "backend api", "```"].join("\n"));
   });
 });
