@@ -1,5 +1,5 @@
 import { ParsedToken } from "./parser";
-import { HaproxySchema, LogformatAlias, LogformatSlot } from "./schema";
+import { HaproxySchema, logformatStopTokenSet, LogformatAlias, LogformatSlot } from "./schema";
 
 export type { LogformatAlias, LogformatSlot };
 
@@ -31,67 +31,6 @@ export interface LogFormatDiagnostic {
   code: string;
 }
 
-const DEFAULT_FMT_STOP_TOKENS = new Set([
-  "-m",
-  "body",
-  "body-lf",
-  "comment",
-  "content-type",
-  "default-errorfiles",
-  "errorfile",
-  "errorfiles",
-  "error-status",
-  "file",
-  "fhdr",
-  "hdr",
-  "if",
-  "lf-file",
-  "lf-string",
-  "meth",
-  "min-recv",
-  "name",
-  "name-lf",
-  "ok-status",
-  "on-error",
-  "on-success",
-  "send-binary-lf",
-  "send-lf",
-  "status",
-  "status-code",
-  "string",
-  "string-lf",
-  "tout-status",
-  "unless",
-  "uri",
-  "uri-lf",
-  "value",
-  "value-lf",
-  "ver",
-]);
-
-const FALLBACK_LINE_TAIL_DIRECTIVES = new Set([
-  "log-format",
-  "log-format-sd",
-  "error-log-format",
-  "unique-id-format",
-  "set-var-fmt",
-]);
-
-const FALLBACK_PREFIX_SLOTS: LogformatSlot[] = [
-  { kind: "prefix", prefix: "uri-lf", skip: 0 },
-  { kind: "prefix", prefix: "body-lf", skip: 0 },
-  { kind: "prefix", prefix: "on-success", skip: 0 },
-  { kind: "prefix", prefix: "on-error", skip: 0 },
-  { kind: "prefix", prefix: "string-lf", skip: 0 },
-  { kind: "prefix", prefix: "name-lf", skip: 0 },
-  { kind: "prefix", prefix: "value-lf", skip: 0 },
-  { kind: "prefix", prefix: "lf-string", skip: 0 },
-  { kind: "prefix", prefix: "lf-file", skip: 0 },
-  { kind: "prefix", prefix: "send-lf", skip: 0 },
-  { kind: "prefix", prefix: "hdr", skip: 1 },
-  { kind: "prefix", prefix: "set-var-fmt", skip: 0 },
-];
-
 const logformatSlotCache = new WeakMap<HaproxySchema, LogformatSlot[]>();
 
 function logformatSlots(schema: HaproxySchema): LogformatSlot[] {
@@ -100,18 +39,10 @@ function logformatSlots(schema: HaproxySchema): LogformatSlot[] {
     return cached;
   }
 
-  const fromSchema = schema.logformat_slots ?? [];
-  const slots =
-    fromSchema.length > 0
-      ? fromSchema
-      : [
-          ...[...FALLBACK_LINE_TAIL_DIRECTIVES].map((directive): LogformatSlot => ({
-            kind: "line_tail",
-            directive,
-            skip: directive === "set-var-fmt" ? 1 : 0,
-          })),
-          ...FALLBACK_PREFIX_SLOTS,
-        ];
+  if (!schema.logformat_slots || schema.logformat_slots.length === 0) {
+    throw new Error("HAProxy schema is missing required generated metadata: logformat_slots");
+  }
+  const slots = schema.logformat_slots;
   logformatSlotCache.set(schema, slots);
   return slots;
 }
@@ -120,9 +51,9 @@ function tokenKey(token: ParsedToken): string {
   return token.text.toLowerCase();
 }
 
-function isStopToken(text: string): boolean {
+function isStopToken(text: string, schema: HaproxySchema): boolean {
   const lower = text.toLowerCase();
-  if (DEFAULT_FMT_STOP_TOKENS.has(lower)) {
+  if (logformatStopTokenSet(schema).has(lower)) {
     return true;
   }
   return lower.startsWith("set-var-fmt");
@@ -132,6 +63,7 @@ function regionFromTokens(
   lineText: string,
   tokens: ParsedToken[],
   startIndex: number,
+  schema: HaproxySchema,
 ): LogFormatRegion | null {
   /* v8 ignore next -- malformed slot metadata may point past the available token list */
   if (startIndex >= tokens.length) {
@@ -139,7 +71,7 @@ function regionFromTokens(
   }
 
   let endIndex = startIndex;
-  while (endIndex < tokens.length && !isStopToken(tokens[endIndex].text)) {
+  while (endIndex < tokens.length && !isStopToken(tokens[endIndex].text, schema)) {
     endIndex += 1;
   }
   /* v8 ignore next -- empty regions are preserved as a single-token fallback for partial edits */
@@ -158,6 +90,7 @@ function lineTailRegion(
   tokens: ParsedToken[],
   directive: string,
   skip: number,
+  schema: HaproxySchema,
 ): LogFormatRegion | null {
   /* v8 ignore next -- empty token lists can appear transiently while VS Code reparses a line */
   if (tokens.length === 0) {
@@ -169,7 +102,7 @@ function lineTailRegion(
     return null;
   }
   const startIndex = 1 + skip;
-  return regionFromTokens(lineText, tokens, startIndex);
+  return regionFromTokens(lineText, tokens, startIndex, schema);
 }
 
 function prefixRegion(
@@ -177,6 +110,7 @@ function prefixRegion(
   tokens: ParsedToken[],
   prefix: string,
   skip: number,
+  schema: HaproxySchema,
 ): LogFormatRegion[] {
   const regions: LogFormatRegion[] = [];
   const needle = prefix.toLowerCase();
@@ -189,7 +123,7 @@ function prefixRegion(
     if (!matched) {
       continue;
     }
-    const region = regionFromTokens(lineText, tokens, i + 1 + skip);
+    const region = regionFromTokens(lineText, tokens, i + 1 + skip, schema);
     if (region) {
       regions.push(region);
     }
@@ -208,7 +142,7 @@ export function extractLogFormatRegions(
 
   for (const slot of logformatSlots(schema)) {
     if (slot.kind === "line_tail" && slot.directive) {
-      const region = lineTailRegion(lineText, tokens, slot.directive, slot.skip ?? 0);
+      const region = lineTailRegion(lineText, tokens, slot.directive, slot.skip ?? 0, schema);
       if (region) {
         const key = `${region.start}:${region.end}`;
         if (!seen.has(key)) {
@@ -220,7 +154,7 @@ export function extractLogFormatRegions(
     }
 
     if (slot.kind === "prefix" && slot.prefix) {
-      for (const region of prefixRegion(lineText, tokens, slot.prefix, slot.skip ?? 0)) {
+      for (const region of prefixRegion(lineText, tokens, slot.prefix, slot.skip ?? 0, schema)) {
         const key = `${region.start}:${region.end}`;
         if (!seen.has(key)) {
           seen.add(key);

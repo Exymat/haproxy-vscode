@@ -855,6 +855,7 @@
               "name": "keyword.other.option.haproxy"
             },
             "2": {
+              "name": "string.unquoted.haproxy",
               "patterns": [
                 {
                   "include": "#log-format-content"
@@ -888,6 +889,7 @@
               "name": "keyword.other.directive.haproxy"
             },
             "2": {
+              "name": "string.unquoted.haproxy",
               "patterns": [
                 {
                   "include": "#log-format-content"

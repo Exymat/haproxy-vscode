@@ -1,3 +1,5 @@
+import { HaproxySchema, symbolStringList, symbolStringMap } from "../schema";
+
 export type SymbolKind =
   | "proxy-section"
   | "defaults-profile"
@@ -24,33 +26,49 @@ export interface SymbolIndex {
   references: SymbolSite[];
   referencesByKey: Map<string, SymbolSite[]>;
   scopeKeyByLine: (string | null)[];
+  scopedSymbolKinds: Set<SymbolKind>;
 }
 
-export const PROXY_SECTIONS = new Set(["frontend", "backend", "listen"]);
-
-export const SECTION_DEFINITION_KINDS: Record<string, SymbolKind> = {
-  frontend: "proxy-section",
-  backend: "proxy-section",
-  listen: "proxy-section",
-  defaults: "defaults-profile",
-  cache: "cache",
-  userlist: "userlist",
-  resolvers: "resolvers",
-  peers: "peers",
-};
-
-export const SCOPED_SYMBOL_KINDS = new Set<SymbolKind>(["server", "acl", "filter"]);
-
-export function effectiveScopeKey(kind: SymbolKind, scopeKey: string | null): string | null {
-  return SCOPED_SYMBOL_KINDS.has(kind) ? scopeKey : null;
+export function proxySectionSet(schema: HaproxySchema): Set<string> {
+  return new Set(symbolStringList(schema, "proxy_sections"));
 }
 
-export function symbolKey(kind: SymbolKind, name: string, scopeKey: string | null): string {
+export function sectionDefinitionKinds(schema: HaproxySchema): Record<string, SymbolKind> {
+  return symbolStringMap(schema, "section_definition_kinds") as Record<string, SymbolKind>;
+}
+
+export function scopedSymbolKindSet(schema: HaproxySchema): Set<SymbolKind> {
+  return new Set(symbolStringList(schema, "scoped_symbol_kinds") as SymbolKind[]);
+}
+
+export function effectiveScopeKeyForSchema(
+  schema: HaproxySchema,
+  kind: SymbolKind,
+  scopeKey: string | null,
+): string | null {
+  return scopedSymbolKindSet(schema).has(kind) ? scopeKey : null;
+}
+
+export function symbolKeyForScopedKinds(
+  scopedKinds: Set<SymbolKind>,
+  kind: SymbolKind,
+  name: string,
+  scopeKey: string | null,
+): string {
   const lower = name.toLowerCase();
-  if (scopeKey && SCOPED_SYMBOL_KINDS.has(kind)) {
+  if (scopeKey && scopedKinds.has(kind)) {
     return `${kind}:${scopeKey}:${lower}`;
   }
   return `${kind}:${lower}`;
+}
+
+export function symbolKeyForSchema(
+  schema: HaproxySchema,
+  kind: SymbolKind,
+  name: string,
+  scopeKey: string | null,
+): string {
+  return symbolKeyForScopedKinds(scopedSymbolKindSet(schema), kind, name, scopeKey);
 }
 
 export function proxyScopeKey(sectionType: string, sectionName: string): string {

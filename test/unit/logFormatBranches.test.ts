@@ -17,6 +17,7 @@ import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 
 const schemaStub: HaproxySchema = {
+  ...loadSchema("3.4"),
   version: "3.4",
   sections: {},
   keywords: {},
@@ -53,15 +54,15 @@ const schemaStub: HaproxySchema = {
 };
 
 describe("logFormat branches", () => {
-  it("covers fallback slots and duplicate region handling", () => {
+  it("requires generated slots and covers duplicate region handling", () => {
     const schema = { ...schemaStub, logformat_slots: [] };
-    expect(
+    expect(() =>
       extractLogFormatRegions(
         'error-log-format "%ci"',
         tokenizeLine('error-log-format "%ci"'),
         schema,
       ),
-    ).toEqual([expect.objectContaining({ text: '"%ci"' })]);
+    ).toThrow(/logformat_slots/);
     const dupSchema: HaproxySchema = {
       ...schemaStub,
       logformat_slots: [
@@ -143,15 +144,15 @@ describe("logFormat branches", () => {
     expect(logFormatCompletionPrefix("%(name){+Q}o", 12)).toBe("Q}o");
   });
 
-  it("uses fallback log-format slots when schema omits slot metadata", () => {
+  it("requires log-format slot metadata", () => {
     const schema = { ...schemaStub, logformat_slots: undefined };
-    expect(
+    expect(() =>
       extractLogFormatRegions(
         'unique-id-format "%ci"',
         tokenizeLine('unique-id-format "%ci"'),
         schema as HaproxySchema,
       ),
-    ).toEqual([expect.objectContaining({ text: '"%ci"' })]);
+    ).toThrow(/logformat_slots/);
   });
 
   it("covers diagnostics, flags, and prefix-duplication branches", () => {

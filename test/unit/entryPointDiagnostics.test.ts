@@ -6,13 +6,18 @@ import {
   sectionHasBind,
 } from "../../src/entryPointDiagnostics";
 import { parseDocument, type ParsedLine } from "../../src/parser";
+import { symbolStringList } from "../../src/schema";
 import { createDocument } from "../helpers/document";
+import { loadSchema } from "../helpers/schema";
+
+const schema = loadSchema("3.4");
+const bindTokens = new Set(symbolStringList(schema, "bind_detect_keywords"));
 
 describe("entryPointDiagnostics", () => {
   it("returns no diagnostics when there are no section blocks", () => {
     const document = createDocument("# only comments");
     const parsed = parseDocument(document);
-    expect(entryPointWithoutBindDiagnostics(document, parsed)).toEqual([]);
+    expect(entryPointWithoutBindDiagnostics(document, parsed, schema)).toEqual([]);
   });
 
   it("skips malformed section headers when building blocks", () => {
@@ -33,19 +38,21 @@ describe("entryPointDiagnostics", () => {
       },
     ];
     expect(buildSectionBlocks(crafted)).toEqual([]);
-    expect(entryPointWithoutBindDiagnostics(createDocument("frontend web"), crafted)).toEqual([]);
+    expect(
+      entryPointWithoutBindDiagnostics(createDocument("frontend web"), crafted, schema),
+    ).toEqual([]);
   });
 
   it("treats bind-process as a bind directive", () => {
     const document = createDocument("frontend web\n    bind-process 1");
     const parsed = parseDocument(document);
-    expect(entryPointWithoutBindDiagnostics(document, parsed)).toEqual([]);
+    expect(entryPointWithoutBindDiagnostics(document, parsed, schema)).toEqual([]);
   });
 
   it("inherits bind from previous unnamed defaults", () => {
     const document = createDocument("defaults\n    bind :80\nfrontend web\n    mode http");
     const parsed = parseDocument(document);
-    expect(entryPointWithoutBindDiagnostics(document, parsed)).toEqual([]);
+    expect(entryPointWithoutBindDiagnostics(document, parsed, schema)).toEqual([]);
   });
 
   it("reuses memoized bind lookups", () => {
@@ -56,8 +63,8 @@ describe("entryPointDiagnostics", () => {
     const memo = new Map<number, boolean>();
     const resolving = new Set<number>();
 
-    expect(sectionHasBind(parsed, blocks, feIdx, memo, resolving)).toBe(true);
-    expect(sectionHasBind(parsed, blocks, feIdx, memo, resolving)).toBe(true);
+    expect(sectionHasBind(parsed, blocks, feIdx, memo, resolving, bindTokens)).toBe(true);
+    expect(sectionHasBind(parsed, blocks, feIdx, memo, resolving, bindTokens)).toBe(true);
   });
 
   it("stops resolving circular defaults inheritance", () => {
@@ -70,8 +77,8 @@ describe("entryPointDiagnostics", () => {
     const memo = new Map<number, boolean>();
     const resolving = new Set<number>();
 
-    expect(sectionHasBind(parsed, blocks, feIdx, memo, resolving)).toBe(false);
-    const diags = entryPointWithoutBindDiagnostics(document, parsed);
+    expect(sectionHasBind(parsed, blocks, feIdx, memo, resolving, bindTokens)).toBe(false);
+    const diags = entryPointWithoutBindDiagnostics(document, parsed, schema);
     expect(diags.some((diag) => diag.code === "no-bind-entry-point")).toBe(true);
   });
 
@@ -103,7 +110,7 @@ describe("entryPointDiagnostics", () => {
     const memo = new Map<number, boolean>();
     const resolving = new Set<number>();
 
-    expect(sectionHasBind(parsed, blocks, 0, memo, resolving)).toBe(false);
+    expect(sectionHasBind(parsed, blocks, 0, memo, resolving, bindTokens)).toBe(false);
   });
 
   it("returns false when bind resolution is already in progress", () => {
@@ -129,7 +136,7 @@ describe("entryPointDiagnostics", () => {
     const memo = new Map<number, boolean>();
     const resolving = new Set<number>([0]);
 
-    expect(sectionHasBind(parsed, blocks, 0, memo, resolving)).toBe(false);
+    expect(sectionHasBind(parsed, blocks, 0, memo, resolving, bindTokens)).toBe(false);
   });
 
   it("returns false when defaults inheritance cycles", () => {
@@ -169,6 +176,6 @@ describe("entryPointDiagnostics", () => {
     const memo = new Map<number, boolean>();
     const resolving = new Set<number>();
 
-    expect(sectionHasBind(parsed, blocks, 2, memo, resolving)).toBe(false);
+    expect(sectionHasBind(parsed, blocks, 2, memo, resolving, bindTokens)).toBe(false);
   });
 });

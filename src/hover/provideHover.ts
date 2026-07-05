@@ -11,6 +11,7 @@ import { tryExpressionHover } from "./handlers/expressionHover";
 import { tryLogFormatHover } from "./handlers/logFormatHover";
 import { tryLineOptionHover } from "./handlers/lineOptionHover";
 import { tryOptionHover } from "./handlers/optionHover";
+import { trySymbolHover } from "./handlers/symbolHover";
 import { DocumentContextWithToken, HoverContext } from "./types";
 
 export function provideHover(
@@ -18,6 +19,7 @@ export function provideHover(
   position: vscode.Position,
   data: HaproxyLanguageData,
   schema: HaproxySchema,
+  maxSymbolLines?: number,
 ): vscode.Hover | null {
   const semantic = getLineSemanticContext(document, position, schema, data);
   const ctx = semantic?.ctx;
@@ -36,6 +38,7 @@ export function provideHover(
     cursorOffset: position.character - ctx.token.start,
     tokenLower: ctx.token.text.toLowerCase(),
     analyzed: semantic.analyzed,
+    maxSymbolLines,
   };
 
   return (
@@ -46,6 +49,7 @@ export function provideHover(
     tryExpressionHover(hc) ??
     tryActionHover(hc) ??
     tryAclRefHover(hc) ??
-    tryDirectiveHover(hc)
+    tryDirectiveHover(hc) ??
+    trySymbolHover(hc)
   );
 }

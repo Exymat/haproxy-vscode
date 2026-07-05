@@ -7,10 +7,12 @@ import {
   findAllSites,
   findDefinitions,
   findReferences,
+  findSiteAtPosition,
   getSymbolIndex,
   resolveSymbolAtPosition,
-  symbolKey,
+  symbolKeyForSchema,
 } from "../../src/symbolIndex";
+import { effectiveScopeKeyForSchema } from "../../src/symbolIndex/types";
 import { createDocument, updateDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 import type { Position, TextDocument } from "vscode";
@@ -406,7 +408,14 @@ describe("symbolIndex extended", () => {
     const parsed = parseDocument(doc("frontend web\n    use_backend api"));
     const index = buildSymbolIndex(parsed, customSchema);
     expect(findDefinitions(index, "proxy-section", "api", "frontend:web")).toHaveLength(1);
-    expect(symbolKey("proxy-section", "Api", "frontend:web")).toBe("proxy-section:api");
+    expect(symbolKeyForSchema(schema, "proxy-section", "Api", "frontend:web")).toBe(
+      "proxy-section:api",
+    );
+  });
+
+  it("uses schema metadata to decide scoped symbol kinds", () => {
+    expect(effectiveScopeKeyForSchema(schema, "server", "backend:api")).toBe("backend:api");
+    expect(effectiveScopeKeyForSchema(schema, "proxy-section", "frontend:web")).toBeNull();
   });
 
   it("findAllSites returns both definitions and references", () => {
@@ -421,6 +430,39 @@ describe("symbolIndex extended", () => {
     const parsed = parseDocument(doc("backend api\n    server s1 127.0.0.1:80"));
     const index = buildSymbolIndex(parsed, schema);
     expect(findReferences(index, "acl", "missing", "backend:api")).toEqual([]);
+  });
+
+  it("findSiteAtPosition returns the narrowest overlapping site", () => {
+    const wide = {
+      kind: "proxy-section",
+      name: "wide",
+      line: 0,
+      start: 0,
+      end: 10,
+      scopeKey: null,
+      role: "reference",
+    } as const;
+    const narrow = {
+      kind: "acl",
+      name: "narrow",
+      line: 0,
+      start: 2,
+      end: 5,
+      scopeKey: "frontend:web",
+      role: "reference",
+    } as const;
+    expect(
+      findSiteAtPosition(
+        {
+          definitions: new Map(),
+          references: [wide, narrow],
+          referencesByKey: new Map(),
+          scopeKeyByLine: [null],
+          scopedSymbolKinds: new Set(["acl", "server", "filter"]),
+        },
+        pos(0, 3),
+      ),
+    ).toEqual(narrow);
   });
 
   it("tracks configured global reference patterns from schema", () => {
@@ -483,6 +525,27 @@ describe("symbolIndex extended", () => {
     expect(collectLineSymbolSites(parsed[2], customSchema, "backend:api")).toEqual([]);
   });
 
+  it("tracks sample-fetch references from non-first arguments with precise ranges", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.symbols = {
+      ...customSchema.symbols,
+      sample_fetch_references: {
+        custom_auth: {
+          argument_index: 1,
+          reference_kind: "userlist",
+          scope: "global",
+        },
+      },
+    };
+    const content = "frontend web\n    http-request deny if custom_auth(primary,stats-auth)";
+    const parsed = parseDocument(doc(content));
+    const index = buildSymbolIndex(parsed, customSchema);
+    const refs = findReferences(index, "userlist", "stats-auth", null);
+    expect(refs).toHaveLength(1);
+    expect(refs[0]?.start).toBe(content.split(/\r?\n/)[1].indexOf("stats-auth"));
+    expect(refs[0]?.end).toBe(refs[0]?.start + "stats-auth".length);
+  });
+
   it("tracks defaults from references after unrelated section-header tokens", () => {
     const parsed = parseDocument(doc("frontend web extra from base"));
     const sites = collectLineSymbolSites(parsed[0], schema, null);
@@ -493,12 +556,73 @@ describe("symbolIndex extended", () => {
 
   it("covers defensive symbol-index helpers directly", () => {
     const line = parseDocument(doc("frontend web\n    http-request deny if acl1"))[1];
-    expect(aclReferenceAt(line, 99)).toBeNull();
+    expect(aclReferenceAt(schema, line, 99)).toBeNull();
 
     const sparse = {
       ...line,
       tokens: [{ text: "http_auth()", start: 0, end: 11 }, undefined as never],
     };
     expect(collectLineSymbolSites(sparse as never, schema, "frontend:web")).toEqual([]);
+
+    const malformedFetchSchema = structuredClone(schema);
+    malformedFetchSchema.symbols = {
+      ...malformedFetchSchema.symbols,
+      sample_fetch_references: { http_auth: [], http_auth_group: { argument_index: 0 } },
+    };
+    expect(
+      collectLineSymbolSites(
+        {
+          ...line,
+          tokens: [{ text: "http_auth(users)", start: 0, end: 16 }],
+        },
+        malformedFetchSchema,
+        "frontend:web",
+      ),
+    ).toEqual([]);
+
+    expect(
+      collectLineSymbolSites(
+        {
+          ...line,
+          tokens: [{ text: "http_auth_group(users)", start: 0, end: 22 }],
+        },
+        malformedFetchSchema,
+        "frontend:web",
+      ),
+    ).toEqual([]);
+
+    const malformedSelfRefSchema = structuredClone(schema);
+    malformedSelfRefSchema.symbols = {
+      ...malformedSelfRefSchema.symbols,
+      self_reference_keywords: { filter: { reference_kind: 1, token_index: 1 } },
+    };
+    malformedSelfRefSchema.statement_rules = [];
+    expect(
+      collectLineSymbolSites(
+        parseDocument(doc("frontend web\n    filter trace"))[1],
+        malformedSelfRefSchema,
+        "frontend:web",
+      ),
+    ).toEqual([]);
+
+    const globalSelfRefSchema = structuredClone(schema);
+    globalSelfRefSchema.statement_rules = [];
+    globalSelfRefSchema.symbols = {
+      ...globalSelfRefSchema.symbols,
+      self_reference_keywords: { filter: { reference_kind: "filter" } },
+    };
+    expect(
+      collectLineSymbolSites(
+        parseDocument(doc("frontend web\n    filter trace"))[1],
+        globalSelfRefSchema,
+        "frontend:web",
+      ),
+    ).toEqual([
+      expect.objectContaining({
+        kind: "filter",
+        name: "trace",
+        scopeKey: null,
+      }),
+    ]);
   });
 });

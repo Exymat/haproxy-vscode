@@ -121,7 +121,7 @@ describe("refactor helpers", () => {
       "utf-8",
     );
     clearSchemaCache();
-    expect(() => loadSchema(context, "3.4")).toThrow(/missing tokens/);
+    expect(() => loadSchema(context, "3.4")).toThrow(/missing address_policies/);
 
     writeFileSync(
       join(schemasDir, "haproxy-3.4.schema.json"),

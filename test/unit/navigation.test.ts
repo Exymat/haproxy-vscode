@@ -233,6 +233,12 @@ describe("navigation", () => {
     expect(provideDefinition(doc as never, pos(1, col), schema, 4000)).toBeNull();
   });
 
+  it("provideDefinition returns null for indexed references without definitions", () => {
+    const doc = createDocument("frontend web\n    use_backend missing");
+    const col = "    use_backend missing".indexOf("missing");
+    expect(provideDefinition(doc as never, pos(1, col), schema, 4000)).toBeNull();
+  });
+
   it("provideDefinition returns a single location when exactly one definition exists", () => {
     const doc = createDocument("backend api\nfrontend web\n    use_backend api");
     const col = "    use_backend api".indexOf("api");
@@ -252,6 +258,7 @@ describe("navigation", () => {
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [null, null],
+      scopedSymbolKinds: symbolIndex.scopedSymbolKindSet(schema),
     });
     vi.spyOn(symbolIndex, "resolveSymbolAtPosition").mockReturnValueOnce({
       kind: "proxy-section",

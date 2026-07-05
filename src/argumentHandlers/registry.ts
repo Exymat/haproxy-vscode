@@ -27,7 +27,13 @@ function handleCookie(ctx: SpecialArgumentContext): vscode.Diagnostic[] | null {
     return null;
   }
   const argIndices = argumentTokenIndices(ctx.line, ctx.match.end);
-  return cookieArgumentDiagnostics(ctx.line, ctx.match, argIndices, ctx.getConditionals());
+  return cookieArgumentDiagnostics(
+    ctx.line,
+    ctx.match,
+    argIndices,
+    ctx.getConditionals(),
+    ctx.schema,
+  );
 }
 
 function handleBalance(ctx: SpecialArgumentContext): vscode.Diagnostic[] | null {
@@ -55,7 +61,13 @@ function handleMysqlCheckOption(ctx: SpecialArgumentContext): vscode.Diagnostic[
     return null;
   }
   const argIndices = argumentTokenIndices(ctx.line, ctx.match.end);
-  return mysqlCheckOptionDiagnostics(ctx.line, ctx.match, argIndices, ctx.getConditionals());
+  return mysqlCheckOptionDiagnostics(
+    ctx.line,
+    ctx.match,
+    argIndices,
+    ctx.getConditionals(),
+    ctx.schema,
+  );
 }
 
 function handleHttpSendNameHeader(ctx: SpecialArgumentContext): vscode.Diagnostic[] | null {
@@ -63,7 +75,7 @@ function handleHttpSendNameHeader(ctx: SpecialArgumentContext): vscode.Diagnosti
     return null;
   }
   const argIndices = argumentTokenIndices(ctx.line, ctx.match.end);
-  return httpSendNameHeaderDiagnostics(ctx.line, argIndices, ctx.schema.version);
+  return httpSendNameHeaderDiagnostics(ctx.line, argIndices, ctx.schema.version, ctx.schema);
 }
 
 /** Special-case argument validators tried before generic argument_model validation. */

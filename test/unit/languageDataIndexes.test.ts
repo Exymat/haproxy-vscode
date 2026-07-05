@@ -2,7 +2,7 @@ import {
   actionGroupForCompletionKind,
   lineOptionGroupForKind,
   sampleExpressionGroupForKind,
-} from "../../src/domainMaps";
+} from "../../src/schema";
 import {
   clearLanguageDataIndexCache,
   findIndexedGroupItem,
@@ -13,7 +13,7 @@ import {
   indexedResolvedKeywordsForSection,
   languageDataIndexes,
 } from "../../src/languageDataIndexes";
-import { loadLanguageData } from "../helpers/schema";
+import { loadLanguageData, loadSchema } from "../helpers/schema";
 
 describe("languageDataIndexes", () => {
   const data = loadLanguageData("3.2");
@@ -116,13 +116,14 @@ describe("languageDataIndexes", () => {
 
 describe("domainMaps", () => {
   it("maps completion kinds to domain groups", () => {
-    expect(actionGroupForCompletionKind("http-request")).toBe("http_request_actions");
-    expect(actionGroupForCompletionKind("unknown-kind")).toBeNull();
-    expect(lineOptionGroupForKind("bind")).toBe("bind_options");
-    expect(lineOptionGroupForKind("server")).toBe("server_options");
-    expect(lineOptionGroupForKind("frontend")).toBeNull();
-    expect(sampleExpressionGroupForKind("expression-fetch")).toBe("sample_fetches");
-    expect(sampleExpressionGroupForKind("expression-converter")).toBe("sample_converters");
-    expect(sampleExpressionGroupForKind("none")).toBeNull();
+    const schema = loadSchema("3.2");
+    expect(actionGroupForCompletionKind(schema, "http-request")).toBe("http_request_actions");
+    expect(actionGroupForCompletionKind(schema, "unknown-kind")).toBeNull();
+    expect(lineOptionGroupForKind(schema, "bind")).toBe("bind_options");
+    expect(lineOptionGroupForKind(schema, "server")).toBe("server_options");
+    expect(lineOptionGroupForKind(schema, "frontend")).toBeNull();
+    expect(sampleExpressionGroupForKind(schema, "expression-fetch")).toBe("sample_fetches");
+    expect(sampleExpressionGroupForKind(schema, "expression-converter")).toBe("sample_converters");
+    expect(sampleExpressionGroupForKind(schema, "none")).toBeNull();
   });
 });

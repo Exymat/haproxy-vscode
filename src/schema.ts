@@ -90,6 +90,13 @@ export interface FixedSlotSpec {
   address_policy?: string | null;
 }
 
+export interface SchemaAddressPolicy {
+  portOk: boolean;
+  portMandatory: boolean;
+  portRange: boolean;
+  portOffset: boolean;
+}
+
 export interface StatementRule {
   keyword: string;
   kind: string;
@@ -136,6 +143,12 @@ export interface HaproxySchema {
   version: string;
   sections: Record<string, SchemaSection>;
   keywords: Record<string, SchemaKeyword>;
+  address_policies: Record<string, SchemaAddressPolicy>;
+  sample_types: string[];
+  sample_casts: boolean[][];
+  symbols: Record<string, unknown>;
+  semantic_groups: Record<string, unknown>;
+  validation_rules: Record<string, unknown>;
   keyword_groups: Record<string, string[]>;
   keyword_group_contexts?: Record<string, Record<string, string[]>>;
   statement_rules: StatementRule[];
@@ -175,47 +188,141 @@ const tcpResponsePhaseCache = new WeakMap<HaproxySchema, Set<string>>();
 const statsSocketLevelCache = new WeakMap<HaproxySchema, Set<string>>();
 const sectionHeaderSetCache = new WeakMap<HaproxySchema, Set<string>>();
 
-const FALLBACK_SECTION_HEADERS = [
-  "global",
-  "defaults",
-  "frontend",
-  "backend",
-  "listen",
-  "peers",
-  "userlist",
-  "resolvers",
-  "mailers",
-  "program",
-  "healthcheck",
-  "http-errors",
-  "ring",
-  "cache",
-  "crt-list",
-  "crt-store",
-  "traces",
-  "acme",
-  "log-forward",
-  "log-profile",
-] as const;
+function metadataContractError(path: string): Error {
+  return new Error(`HAProxy schema is missing required generated metadata: ${path}`);
+}
 
-const FALLBACK_PREFIX_FAMILIES = [
-  "stats",
-  "timeout",
-  "tcp-check",
-  "http-check",
-  "capture",
-  "tcp-request",
-  "tcp-response",
-] as const;
+function recordValue(
+  data: Record<string, unknown>,
+  key: string,
+  namespace: string,
+): Record<string, unknown> {
+  const value = data[key];
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw metadataContractError(`${namespace}.${key}`);
+  }
+  return value as Record<string, unknown>;
+}
 
-const FALLBACK_STATS_SOCKET_LEVELS = ["user", "operator", "admin"] as const;
+function stringArrayValue(value: unknown, path: string): string[] {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
+    throw metadataContractError(path);
+  }
+  return value as string[];
+}
+
+function stringMapValue(
+  data: Record<string, unknown>,
+  key: string,
+  namespace: string,
+): Record<string, string> {
+  const record = recordValue(data, key, namespace);
+  if (Object.values(record).some((value) => typeof value !== "string")) {
+    throw metadataContractError(`${namespace}.${key}`);
+  }
+  return record as Record<string, string>;
+}
+
+export function schemaAddressPolicies(schema: HaproxySchema): Record<string, SchemaAddressPolicy> {
+  if (!schema.address_policies || Object.keys(schema.address_policies).length === 0) {
+    throw metadataContractError("address_policies");
+  }
+  return schema.address_policies;
+}
+
+export function schemaAddressPolicy(schema: HaproxySchema, name: string): SchemaAddressPolicy {
+  const policy = schemaAddressPolicies(schema)[name];
+  if (!policy) {
+    throw metadataContractError(`address_policies.${name}`);
+  }
+  return policy;
+}
+
+export function schemaSampleTypes(schema: HaproxySchema): string[] {
+  const types = stringArrayValue(schema.sample_types, "sample_types");
+  if (types.length === 0) {
+    throw metadataContractError("sample_types");
+  }
+  return types;
+}
+
+export function schemaSampleCasts(schema: HaproxySchema): boolean[][] {
+  if (!Array.isArray(schema.sample_casts) || schema.sample_casts.length === 0) {
+    throw metadataContractError("sample_casts");
+  }
+  return schema.sample_casts;
+}
+
+export function symbolStringList(schema: HaproxySchema, key: string): string[] {
+  return stringArrayValue(schema.symbols[key], `symbols.${key}`);
+}
+
+export function symbolStringMap(schema: HaproxySchema, key: string): Record<string, string> {
+  return stringMapValue(schema.symbols, key, "symbols");
+}
+
+export function symbolRecord(schema: HaproxySchema, key: string): Record<string, unknown> {
+  return recordValue(schema.symbols, key, "symbols");
+}
+
+export function semanticStringList(schema: HaproxySchema, key: string): string[] {
+  return stringArrayValue(schema.semantic_groups[key], `semantic_groups.${key}`);
+}
+
+export function semanticStringMap(schema: HaproxySchema, key: string): Record<string, string> {
+  return stringMapValue(schema.semantic_groups, key, "semantic_groups");
+}
+
+export function semanticRecord(schema: HaproxySchema, key: string): Record<string, unknown> {
+  return recordValue(schema.semantic_groups, key, "semantic_groups");
+}
+
+export function validationStringList(schema: HaproxySchema, key: string): string[] {
+  return stringArrayValue(schema.validation_rules[key], `validation_rules.${key}`);
+}
+
+export function validationStringMap(schema: HaproxySchema, key: string): Record<string, string> {
+  return stringMapValue(schema.validation_rules, key, "validation_rules");
+}
+
+export function validationRecord(schema: HaproxySchema, key: string): Record<string, unknown> {
+  return recordValue(schema.validation_rules, key, "validation_rules");
+}
+
+export function actionGroupNames(schema: HaproxySchema): string[] {
+  return semanticStringList(schema, "action_groups");
+}
+
+export function deprecatedActionGroupNames(schema: HaproxySchema): string[] {
+  return semanticStringList(schema, "deprecated_action_groups");
+}
+
+export function actionGroupForCompletionKind(schema: HaproxySchema, kind: string): string | null {
+  return semanticStringMap(schema, "completion_kind_to_action_group")[kind] ?? null;
+}
+
+export function lineOptionGroupForKind(schema: HaproxySchema, kind: string): string | null {
+  return semanticStringMap(schema, "line_option_group_for_kind")[kind] ?? null;
+}
+
+export function sampleExpressionGroupForKind(schema: HaproxySchema, kind: string): string | null {
+  return semanticStringMap(schema, "sample_expression_group_for_kind")[kind] ?? null;
+}
+
+export function dynamicActionPrefixes(schema: HaproxySchema): string[] {
+  return semanticStringList(schema, "dynamic_action_prefixes");
+}
+
+export function logformatStopTokenSet(schema: HaproxySchema): Set<string> {
+  return new Set(validationStringList(schema, "logformat_stop_tokens"));
+}
 
 export function clearSchemaCache(): void {
   schemaCache.clear();
 }
 
 export function prefixFamilies(schema: HaproxySchema): string[] {
-  return schema.line_layout?.prefix_families ?? [...FALLBACK_PREFIX_FAMILIES];
+  return schema.line_layout?.prefix_families ?? [];
 }
 
 export function prefixFamilySet(schema: HaproxySchema): Set<string> {
@@ -365,27 +472,11 @@ export function tcpResponsePhaseSet(schema: HaproxySchema): Set<string> {
   return tcpRulePhaseSet(schema, "tcp-response");
 }
 
-function optionTakesValueFallback(option: string): boolean {
-  const lower = option.toLowerCase();
-  return ["-file", "-path", "-addr", "-port", "-name", "-inter"].some((hint) =>
-    lower.includes(hint),
-  );
-}
-
 export function optionsWithValueSet(schema: HaproxySchema, groupName: string): Set<string> {
   return optionsWithValueCached(schema, groupName, () => {
     const explicitKey = `${groupName}_with_value`;
     const explicit = schema.keyword_groups[explicitKey] ?? [];
-    if (explicit.length > 0) {
-      return new Set(explicit.map((v) => v.toLowerCase()));
-    }
-    const result = new Set<string>();
-    for (const option of schema.keyword_groups[groupName] ?? []) {
-      if (optionTakesValueFallback(option)) {
-        result.add(option.toLowerCase());
-      }
-    }
-    return result;
+    return new Set(explicit.map((v) => v.toLowerCase()));
   });
 }
 
@@ -412,7 +503,7 @@ export function statsSocketLevelSet(schema: HaproxySchema): Set<string> {
   if (cached) {
     return cached;
   }
-  const levels = schema.line_layout?.stats_socket_levels ?? [...FALLBACK_STATS_SOCKET_LEVELS];
+  const levels = schema.line_layout?.stats_socket_levels ?? [];
   const result = new Set(levels.map((v) => v.toLowerCase()));
   statsSocketLevelCache.set(schema, result);
   return result;
@@ -521,10 +612,7 @@ export function sectionHeaderSet(schema: HaproxySchema): Set<string> {
     return cached;
   }
   const fromLayout = schema.line_layout?.section_headers;
-  const headers =
-    fromLayout && fromLayout.length > 0
-      ? fromLayout
-      : [...new Set([...sectionNames(schema), ...FALLBACK_SECTION_HEADERS])];
+  const headers = fromLayout && fromLayout.length > 0 ? fromLayout : sectionNames(schema);
   const set = new Set(headers.map((header) => header.toLowerCase()));
   sectionHeaderSetCache.set(schema, set);
   return set;
@@ -542,6 +630,24 @@ function assertSchemaContract(data: HaproxySchema): void {
   }
   if (!Array.isArray(data.statement_rules)) {
     throw new Error("HAProxy schema is missing statement_rules");
+  }
+  if (!data.address_policies || typeof data.address_policies !== "object") {
+    throw new Error("HAProxy schema is missing address_policies");
+  }
+  if (!Array.isArray(data.sample_types)) {
+    throw new Error("HAProxy schema is missing sample_types");
+  }
+  if (!Array.isArray(data.sample_casts)) {
+    throw new Error("HAProxy schema is missing sample_casts");
+  }
+  if (!data.symbols || typeof data.symbols !== "object") {
+    throw new Error("HAProxy schema is missing symbols");
+  }
+  if (!data.semantic_groups || typeof data.semantic_groups !== "object") {
+    throw new Error("HAProxy schema is missing semantic_groups");
+  }
+  if (!data.validation_rules || typeof data.validation_rules !== "object") {
+    throw new Error("HAProxy schema is missing validation_rules");
   }
   if (!data.tokens || typeof data.tokens !== "object") {
     throw new Error("HAProxy schema is missing tokens");

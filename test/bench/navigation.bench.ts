@@ -1,7 +1,9 @@
 import { bench, describe } from "vitest";
 
 import { provideDocumentSymbols } from "../../src/documentSymbols";
+import { missingReferenceDiagnostics } from "../../src/missingReferenceDiagnostics";
 import { provideDefinition, provideReferences } from "../../src/navigation";
+import { getSymbolIndex } from "../../src/symbolIndex";
 import { loadSchemaBundle } from "../helpers/schema";
 import { createDocument } from "../helpers/document";
 import { BENCH_LARGE_MAX_LINES, findLineContaining, readFixture } from "./helpers";
@@ -172,6 +174,13 @@ describe("navigation", () => {
       bundle.schema,
       BENCH_LARGE_MAX_LINES,
     );
+  });
+
+  bench("missing references warm: large-valid.cfg", () => {
+    const index = getSymbolIndex(largeDoc, bundle.schema, BENCH_LARGE_MAX_LINES);
+    if (index) {
+      missingReferenceDiagnostics(index);
+    }
   });
 
   bench(

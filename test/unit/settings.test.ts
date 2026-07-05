@@ -20,6 +20,7 @@ describe("settings", () => {
       formatInsertBlankLineBetweenSections: true,
       deprecatedWarnings: true,
       unusedSymbols: true,
+      missingReferences: true,
     });
   });
 

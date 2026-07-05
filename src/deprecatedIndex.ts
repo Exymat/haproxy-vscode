@@ -1,9 +1,7 @@
 import { HaproxyLanguageData } from "./languageData";
-import { HaproxySchema } from "./schema";
+import { deprecatedActionGroupNames, HaproxySchema } from "./schema";
 
 const DEPRECATED_MARK = /\(deprecated\)/i;
-
-import { DEPRECATED_ACTION_GROUP_NAMES } from "./domainMaps";
 
 export interface DeprecatedIndex {
   keywords: Set<string>;
@@ -52,7 +50,7 @@ export function buildDeprecatedIndex(
 
   const actions = new Set<string>();
   if (languageData) {
-    for (const groupKey of DEPRECATED_ACTION_GROUP_NAMES) {
+    for (const groupKey of deprecatedActionGroupNames(schema)) {
       for (const item of languageData.groups[groupKey] ?? []) {
         if (DEPRECATED_MARK.test(item.signature)) {
           actions.add(item.name.toLowerCase());

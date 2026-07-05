@@ -1,11 +1,14 @@
 import { parseDocument } from "../../src/parser";
 import { aclNameDiagnostics, sectionHeaderDiagnostics } from "../../src/sectionDiagnostics";
 import { createDocument } from "../helpers/document";
+import { loadSchema } from "../helpers/schema";
+
+const schema = loadSchema("3.4");
 
 function headerDiagnosticCodes(content: string, lineNo = 0): string[] {
   const doc = createDocument(content);
   const parsed = parseDocument(doc);
-  return sectionHeaderDiagnostics(parsed[lineNo]).map((d) => d.code as string);
+  return sectionHeaderDiagnostics(parsed[lineNo], schema).map((d) => d.code as string);
 }
 
 function aclDiagnosticCodes(content: string, lineNo = 1): string[] {

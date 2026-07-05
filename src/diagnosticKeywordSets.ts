@@ -1,35 +1,13 @@
-/** Keywords handled by statement rules or nested diagnostics — skip generic argument_model validation. */
-export const ARGUMENT_MODEL_SKIP_KEYWORDS = new Set([
-  "bind",
-  "server",
-  "acl",
-  "option",
-  "stats",
-  "http-request",
-  "http-response",
-  "tcp-request",
-  "tcp-response",
-  "http-after-response",
-  "http-check",
-  "tcp-check",
-]);
+import { HaproxySchema, validationStringList } from "./schema";
 
-/** First-token keywords routed to nested/unknown keyword diagnostics. */
-export const NESTED_DIAGNOSTIC_KEYWORDS = new Set([
-  "option",
-  "no",
-  "acl",
-  "stats",
-  "tcp-request",
-  "tcp-response",
-  "http-request",
-  "http-response",
-  "http-after-response",
-  "mode",
-  "balance",
-  "bind",
-  "server",
-]);
+export function argumentModelSkipKeywordSet(schema: HaproxySchema): Set<string> {
+  return new Set(validationStringList(schema, "argument_model_skip_keywords"));
+}
 
-/** Keywords validated by statement rules — nested diagnostics return early with no issues. */
-export const STATEMENT_RULE_KEYWORDS = new Set(["mode", "balance", "bind", "server"]);
+export function nestedDiagnosticKeywordSet(schema: HaproxySchema): Set<string> {
+  return new Set(validationStringList(schema, "nested_diagnostic_keywords"));
+}
+
+export function statementRuleKeywordSet(schema: HaproxySchema): Set<string> {
+  return new Set(validationStringList(schema, "statement_rule_keywords"));
+}

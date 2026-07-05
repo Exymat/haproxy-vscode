@@ -1,11 +1,10 @@
-import { HaproxySchema, sampleExpressionNameSets, SampleFunction } from "./schema";
 import {
-  CONV_MIN_ARGS,
-  canCast,
-  resolveOutType,
-  SampleDiagnostic,
-  sampleIssue,
-} from "./expressionTypes";
+  HaproxySchema,
+  sampleExpressionNameSets,
+  SampleFunction,
+  validationRecord,
+} from "./schema";
+import { canCast, resolveOutType, SampleDiagnostic, sampleIssue } from "./expressionTypes";
 import {
   parseArgList,
   readIdentifier,
@@ -140,6 +139,7 @@ export function validateExpressionBody(
   converters: Record<string, SampleFunction>,
   fetchNames: Set<string>,
   convNames: Set<string>,
+  schema: HaproxySchema,
 ): SampleDiagnostic[] {
   const issues: SampleDiagnostic[] = [];
   let pos = 0;
@@ -178,7 +178,7 @@ export function validateExpressionBody(
     pos,
     spanStart,
     spec.args,
-    sampleMinArgs(spec, id.name, 0),
+    Number(validationRecord(schema, "fetch_min_args")[id.name]) || sampleMinArgs(spec, id.name, 0),
   );
   const fetchArgIssue = validateFetchArgs(id.name, spec, parsedFetch, spanStart);
   if (fetchArgIssue) {
@@ -237,7 +237,7 @@ export function validateExpressionBody(
     const cspec = convSpec ?? { name: convId.name, args: [], in_type: "any", out_type: "any" };
     /* v8 ignore next -- compatibility converter specs may omit in_type and fall back to "any" */
     const inType = cspec.in_type || "any";
-    if (!canCast(sampleType, inType)) {
+    if (!canCast(sampleType, inType, schema)) {
       issues.push(
         sampleIssue(
           spanStart + (convId.end - convId.name.length),
@@ -255,7 +255,7 @@ export function validateExpressionBody(
       pos,
       spanStart,
       cspec.args,
-      CONV_MIN_ARGS[convId.name] ?? 0,
+      Number(validationRecord(schema, "converter_min_args")[convId.name]) || 0,
       "sample-converter-args",
     );
     const convArgIssue = validateConverterArgs(convId.name, cspec, parsedConv, convStart);
@@ -264,7 +264,7 @@ export function validateExpressionBody(
       return issues;
     }
     pos = parsedConv.end;
-    sampleType = resolveOutType(sampleType, cspec);
+    sampleType = resolveOutType(sampleType, cspec, schema);
   }
 
   pos = skipSpace(body, pos);
@@ -293,7 +293,15 @@ export function validateSampleExpressions(
   const issues: SampleDiagnostic[] = [];
   for (const span of extractExpressionSpans(lineText)) {
     issues.push(
-      ...validateExpressionBody(span.text, span.start, fetches, converters, fetchNames, convNames),
+      ...validateExpressionBody(
+        span.text,
+        span.start,
+        fetches,
+        converters,
+        fetchNames,
+        convNames,
+        schema,
+      ),
     );
   }
   return issues;

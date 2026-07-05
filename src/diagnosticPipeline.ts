@@ -64,7 +64,7 @@ export function runLineDiagnosticPipeline(
     return [];
   }
   if (line.isSectionHeader) {
-    return sectionHeaderDiagnostics(line);
+    return sectionHeaderDiagnostics(line, ctx.schema);
   }
   if (macroTokenSet(ctx.schema).has(line.tokens[0]?.text.toLowerCase() ?? "")) {
     return [];

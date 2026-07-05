@@ -2,6 +2,8 @@
  * HAProxy address + port validation aligned with str2sa_range() (tools.c) and PA_O_PORT_* flags.
  */
 
+import { HaproxySchema, schemaAddressPolicies, schemaAddressPolicy } from "./schema";
+
 export interface PortAddressPolicy {
   portOk: boolean;
   portMandatory: boolean;
@@ -9,19 +11,13 @@ export interface PortAddressPolicy {
   portOffset: boolean;
 }
 
-/** Mirrors include/haproxy/tools-t.h PA_O_PORT_* usage per keyword. */
-export const ADDRESS_POLICIES = {
-  bind: { portOk: true, portMandatory: true, portRange: true, portOffset: false },
-  log: { portOk: true, portMandatory: false, portRange: false, portOffset: false },
-  source: { portOk: true, portMandatory: false, portRange: false, portOffset: false },
-  server: { portOk: true, portMandatory: false, portRange: false, portOffset: true },
-  serverSource: { portOk: true, portMandatory: false, portRange: true, portOffset: false },
-  serverUsesrc: { portOk: true, portMandatory: false, portRange: false, portOffset: false },
-  serverSocks4: { portOk: true, portMandatory: true, portRange: false, portOffset: false },
-  tcpCheckAddr: { portOk: true, portMandatory: false, portRange: false, portOffset: false },
-} as const satisfies Record<string, PortAddressPolicy>;
+export function addressPolicyForSchema(schema: HaproxySchema, name: string): PortAddressPolicy {
+  return schemaAddressPolicy(schema, name);
+}
 
-export type AddressPolicyName = keyof typeof ADDRESS_POLICIES;
+export function addressPoliciesForSchema(schema: HaproxySchema): Record<string, PortAddressPolicy> {
+  return schemaAddressPolicies(schema);
+}
 
 export interface AddressValidationResult {
   valid: boolean;

@@ -4,8 +4,8 @@ import { HaproxySchema } from "./schema";
 import {
   findAllSites,
   findDefinitions,
+  findSiteAtPosition,
   getSymbolIndex,
-  resolveSymbolAtPosition,
   SymbolSite,
 } from "./symbolIndex";
 
@@ -27,7 +27,7 @@ export function provideDefinition(
     return null;
   }
 
-  const symbol = resolveSymbolAtPosition(document, position, schema, index.scopeKeyByLine);
+  const symbol = findSiteAtPosition(index, position);
   if (!symbol) {
     return null;
   }
@@ -56,7 +56,7 @@ export function provideReferences(
     return [];
   }
 
-  const symbol = resolveSymbolAtPosition(document, position, schema, index.scopeKeyByLine);
+  const symbol = findSiteAtPosition(index, position);
   if (!symbol) {
     return [];
   }

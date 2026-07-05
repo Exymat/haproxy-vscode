@@ -69,6 +69,7 @@ export function validateAclConditions(lineText: string, schema: HaproxySchema): 
             converters,
             fetchNames,
             convNames,
+            schema,
           ),
         );
         pos = end;
@@ -97,6 +98,7 @@ export function validateAclConditions(lineText: string, schema: HaproxySchema): 
             converters,
             fetchNames,
             convNames,
+            schema,
           ),
         );
         pos = end;
@@ -112,6 +114,7 @@ export function validateAclConditions(lineText: string, schema: HaproxySchema): 
             converters,
             fetchNames,
             convNames,
+            schema,
           ),
         );
       }

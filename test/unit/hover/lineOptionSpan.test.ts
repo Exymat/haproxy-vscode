@@ -60,6 +60,7 @@ describe("line option span helpers", () => {
     const bindRule = bundles["3.4"].schema.statement_rules.find((rule) => rule.kind === "bind");
     expect(
       resolveLineOptionStartIndex(
+        schema,
         parseDocument(createDocument("frontend web\n    bind ,"))[1],
         bindRule,
       ),
@@ -130,7 +131,9 @@ describe("line option span helpers", () => {
     expect(lineOptionConditionalLimit(parsed)).toBe(parsed.tokens.indexOf(parsed.tokens[4]));
 
     const bindRule = bundles["3.4"].schema.statement_rules.find((rule) => rule.kind === "bind");
-    expect(resolveLineOptionStartIndex(parsed, bindRule)).toBe(bindRule?.nested_start_index ?? -1);
+    expect(resolveLineOptionStartIndex(schema, parsed, bindRule)).toBe(
+      bindRule?.nested_start_index ?? -1,
+    );
 
     const valueSchema = structuredClone(bundles["3.4"].schema);
     valueSchema.keywords.valueopt = {

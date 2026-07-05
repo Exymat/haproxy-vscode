@@ -9,17 +9,29 @@ import {
   modifierPrefixSet,
   namedDefaultsKeywordSet,
   noPrefixKeywordSet,
+  keywordGroupSet,
   optionsWithValueSet,
   prefixFamilies,
   prefixFamilySet,
   prefixSubcommandSet,
+  actionGroupForCompletionKind,
+  schemaAddressPolicies,
   sampleExpressionNameSets,
+  schemaAddressPolicy,
+  schemaSampleCasts,
+  schemaSampleTypes,
   sectionKeywordSet,
   sectionHeaderSet,
   sectionNames,
+  semanticStringMap,
+  semanticStringList,
   statsSocketLevelSet,
+  symbolStringMap,
+  symbolStringList,
   tcpRequestPhaseSet,
   tcpResponsePhaseSet,
+  validationStringMap,
+  validationStringList,
 } from "../../src/schema";
 import { resetVscodeMock } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
@@ -61,6 +73,49 @@ describe("loadSchema", () => {
     expect(() => loadSchema({ extensionPath: "/nonexistent" } as never, "3.4")).toThrow(
       /Failed to load HAProxy schema for 3\.4/,
     );
+  });
+
+  it("rejects schemas missing required generated metadata collections", () => {
+    const valid = {
+      version: "3.4",
+      sections: {},
+      keywords: {},
+      statement_rules: [],
+      address_policies: {
+        bind: { portOk: true, portMandatory: true, portRange: true, portOffset: false },
+      },
+      sample_types: ["any"],
+      sample_casts: [[true]],
+      symbols: {},
+      semantic_groups: {},
+      validation_rules: {},
+      tokens: {},
+    };
+    const cases = [
+      "sample_types",
+      "sample_casts",
+      "symbols",
+      "semantic_groups",
+      "validation_rules",
+      "tokens",
+    ] as const;
+
+    for (const missing of cases) {
+      const fixture = createTempSchemaFixture(`haproxy-missing-${missing}-`, {
+        "haproxy-3.4.schema.json": JSON.stringify({
+          ...valid,
+          [missing]: undefined,
+        }),
+      });
+      try {
+        clearSchemaCache();
+        expect(() => loadSchema({ extensionPath: fixture.extensionPath } as never, "3.4")).toThrow(
+          new RegExp(`missing ${missing}`),
+        );
+      } finally {
+        fixture.cleanup();
+      }
+    }
   });
 
   it("throws when async schema load fails", async () => {
@@ -171,12 +226,72 @@ describe("schema helpers", () => {
     expect(statsSocketLevelSet(schema)).toBe(statsSocketLevelSet(schema));
   });
 
+  it("exposes generated source metadata payloads", () => {
+    expect(schemaAddressPolicy(schema, "bind")).toEqual({
+      portOk: true,
+      portMandatory: true,
+      portRange: true,
+      portOffset: false,
+    });
+    expect(() => schemaAddressPolicy(schema, "missing-policy")).toThrow(/address_policies/);
+    expect(schemaSampleTypes(schema)).toEqual([
+      "any",
+      "same",
+      "bool",
+      "sint",
+      "addr",
+      "ipv4",
+      "ipv6",
+      "str",
+      "bin",
+      "meth",
+    ]);
+    expect(schemaSampleCasts(schema)[0][0]).toBe(true);
+    expect(symbolStringList(schema, "runtime_modes")).toContain("http");
+    expect(semanticStringList(schema, "action_groups")).toContain("http_request_actions");
+    expect(actionGroupForCompletionKind(schema, "http-request")).toBe("http_request_actions");
+    expect(validationStringList(schema, "log_address_skip")).toContain("stdout");
+  });
+
   it("falls back when line_layout metadata is absent", () => {
     const bare = structuredClone(schema);
     bare.line_layout = {};
+    expect(sectionHeaderSet(bare).has("global")).toBe(true);
     expect(prefixSubcommandSet(bare, "stats").size).toBeGreaterThan(0);
     expect(tcpRequestPhaseSet(bare).size).toBeGreaterThan(0);
     expect(tcpResponsePhaseSet(bare).size).toBeGreaterThan(0);
+  });
+
+  it("requires generated source metadata", () => {
+    const bare = structuredClone(schema);
+    bare.address_policies = {};
+    bare.sample_types = [];
+    bare.sample_casts = [];
+    bare.symbols = { malformed_list: ["ok", 1], malformed_map: { ok: "yes", bad: 1 } };
+    bare.semantic_groups = {
+      malformed_list: ["ok", 1],
+      malformed_map: { ok: "yes", bad: 1 },
+    };
+    bare.validation_rules = {
+      malformed_list: ["ok", 1],
+      malformed_map: { ok: "yes", bad: 1 },
+    };
+
+    expect(() => schemaAddressPolicies(bare)).toThrow(/address_policies/);
+    expect(() => schemaSampleTypes(bare)).toThrow(/sample_types/);
+    expect(() => schemaSampleCasts(bare)).toThrow(/sample_casts/);
+    expect(() => symbolStringList(bare, "missing")).toThrow(/symbols\.missing/);
+    expect(() => symbolStringList(bare, "malformed_list")).toThrow(/malformed_list/);
+    expect(() => symbolStringMap(bare, "malformed_map")).toThrow(/malformed_map/);
+    expect(() => semanticStringList(bare, "missing")).toThrow(/semantic_groups\.missing/);
+    expect(() => semanticStringList(bare, "malformed_list")).toThrow(/malformed_list/);
+    expect(() => semanticStringMap(bare, "missing")).toThrow(/semantic_groups\.missing/);
+    expect(() => semanticStringMap(bare, "malformed_map")).toThrow(/malformed_map/);
+    expect(() => validationStringList(bare, "missing")).toThrow(/validation_rules\.missing/);
+    expect(() => validationStringList(bare, "malformed_list")).toThrow(/malformed_list/);
+    expect(() => validationStringMap(bare, "missing")).toThrow(/validation_rules\.missing/);
+    expect(() => validationStringMap(bare, "malformed_map")).toThrow(/malformed_map/);
+    expect(keywordGroupSet(bare, "missing")).toEqual(new Set());
   });
 
   it("uses keyword scan for tcp phases when layout phases are missing", () => {
@@ -195,13 +310,13 @@ describe("schema helpers", () => {
     expect(optionsWithValueSet(schema, "server_options").has("cookie")).toBe(true);
   });
 
-  it("falls back to suffix heuristics when *_with_value is absent", () => {
+  it("uses only generated *_with_value metadata for value-taking options", () => {
     const bare = structuredClone(schema);
     delete bare.keyword_groups.bind_options_with_value;
     bare.keyword_groups.bind_options = ["ca-file", "strict-sni", "sni"];
 
     const values = optionsWithValueSet(bare, "bind_options");
-    expect(values.has("ca-file")).toBe(true);
+    expect(values.has("ca-file")).toBe(false);
     expect(values.has("strict-sni")).toBe(false);
     expect(values.has("sni")).toBe(false);
   });
@@ -221,7 +336,7 @@ describe("schema helpers", () => {
     expect(sectionKeywordSet(bare, "nonexistent")).toEqual(new Set());
   });
 
-  it("covers sample expression and stats fallback branches", () => {
+  it("covers sample expression metadata branches", () => {
     const bare = structuredClone(schema);
     bare.sample_fetches = {};
     bare.sample_converters = {};
@@ -231,7 +346,7 @@ describe("schema helpers", () => {
     const sets = sampleExpressionNameSets(bare);
     expect(sets.fetchNames.has("hdr")).toBe(true);
     expect(sets.convNames.has("lower")).toBe(true);
-    expect(statsSocketLevelSet(bare)).toEqual(new Set(["user", "operator", "admin"]));
+    expect(statsSocketLevelSet(bare)).toEqual(new Set());
   });
 
   it("handles missing sample maps and unknown option groups", () => {
@@ -245,13 +360,13 @@ describe("schema helpers", () => {
     expect(optionsWithValueSet(bare, "nonexistent_group")).toEqual(new Set());
   });
 
-  it("falls back to default prefix families without line layout", () => {
+  it("uses generated prefix families only", () => {
     const bare = structuredClone(schema);
     bare.line_layout = undefined;
-    expect(prefixFamilies(bare)).toContain("stats");
+    expect(prefixFamilies(bare)).toEqual([]);
   });
 
-  it("normalizes missing schema collections via loadSchema", () => {
+  it("rejects schemas without generated source metadata", () => {
     clearSchemaCache();
     const fixture = createTempSchemaFixture("haproxy-schema-test-", {
       "haproxy-3.4.schema.json": JSON.stringify({
@@ -263,12 +378,9 @@ describe("schema helpers", () => {
       }),
     });
     try {
-      const loaded = loadSchema({ extensionPath: fixture.extensionPath } as never, "3.4");
-      expect(loaded.statement_rules).toEqual([]);
-      expect(loaded.sample_fetches).toEqual({});
-      expect(loaded.sample_converters).toEqual({});
-      expect(loaded.keyword_group_contexts).toEqual({});
-      expect(loaded.line_layout).toEqual({});
+      expect(() => loadSchema({ extensionPath: fixture.extensionPath } as never, "3.4")).toThrow(
+        /missing address_policies/,
+      );
     } finally {
       fixture.cleanup();
     }

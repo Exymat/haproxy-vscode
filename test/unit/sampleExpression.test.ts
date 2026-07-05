@@ -32,8 +32,8 @@ describe("extractExpressionSpans", () => {
 
 describe("validateSampleExpressions inline", () => {
   it("returns no issue for empty or identifier-free bodies without a fetch call", () => {
-    expect(validateExpressionBody("", 0, {}, {}, new Set(), new Set())).toEqual([]);
-    expect(validateExpressionBody("   ", 0, {}, {}, new Set(), new Set())).toEqual([]);
+    expect(validateExpressionBody("", 0, {}, {}, new Set(), new Set(), schema32)).toEqual([]);
+    expect(validateExpressionBody("   ", 0, {}, {}, new Set(), new Set(), schema32)).toEqual([]);
   });
 
   it("reports missing fetch for parenthesized body", () => {
@@ -126,6 +126,7 @@ describe("validateSampleExpressions inline", () => {
         {},
         new Set(["custom"]),
         new Set(),
+        schema32,
       ).map((d) => d.code),
     ).toContain("sample-syntax");
     expect(codesForLine("http-request add-header n %[payload_lv(1,2,x,extra)]")).toContain(
@@ -140,6 +141,7 @@ describe("validateSampleExpressions inline", () => {
         { same_conv: { name: "same_conv", args: [], in_type: "str", out_type: "same" } },
         new Set(Object.keys(schema32.sample_fetches ?? {})),
         new Set(["same_conv"]),
+        schema32,
       ),
     ).toEqual([]);
     expect(
@@ -150,6 +152,7 @@ describe("validateSampleExpressions inline", () => {
         { addr_conv: { name: "addr_conv", args: [], in_type: "addr", out_type: "addr" } },
         new Set(Object.keys(schema32.sample_fetches ?? {})),
         new Set(["addr_conv"]),
+        schema32,
       ).some((d) => d.code === "sample-converter-cast"),
     ).toBe(true);
     expect(
@@ -160,6 +163,7 @@ describe("validateSampleExpressions inline", () => {
         schema32.sample_converters ?? {},
         new Set(["custom_fetch"]),
         new Set(Object.keys(schema32.sample_converters ?? {})),
+        schema32,
       ),
     ).toEqual([]);
     expect(
@@ -170,6 +174,7 @@ describe("validateSampleExpressions inline", () => {
         { same_out: { name: "same_out", args: [], in_type: "same", out_type: "same" } },
         new Set(["custom_fetch"]),
         new Set(["same_out"]),
+        schema32,
       ),
     ).toEqual([]);
     expect(codesForLine('http-request add-header n %[payload_lv("0" junk)]')).toContain(
@@ -186,6 +191,7 @@ describe("validateSampleExpressions inline", () => {
         { no_cast: { name: "no_cast", args: [], in_type: "bin", out_type: "same" } },
         new Set(Object.keys(schema32.sample_fetches ?? {})),
         new Set(["no_cast"]),
+        schema32,
       ),
     ).toEqual([]);
     expect(
@@ -196,6 +202,7 @@ describe("validateSampleExpressions inline", () => {
         { any_in: { name: "any_in", args: [], in_type: "not-a-type", out_type: "str" } },
         new Set(Object.keys(schema32.sample_fetches ?? {})),
         new Set(["any_in"]),
+        schema32,
       ),
     ).toEqual([]);
     expect(codesForLine("http-request add-header n %[path(0 junk)]")).toContain(
@@ -237,6 +244,7 @@ describe("validateSampleExpressions inline", () => {
         {},
         new Set(["required_fetch"]),
         new Set(),
+        schema32,
       )[0]?.code,
     ).toBe("sample-fetch-args");
     expect(
@@ -247,6 +255,7 @@ describe("validateSampleExpressions inline", () => {
         {},
         new Set(["required_fetch"]),
         new Set(),
+        schema32,
       )[0]?.code,
     ).toBe("sample-fetch-args");
   });
@@ -260,6 +269,7 @@ describe("validateSampleExpressions inline", () => {
         { mask6: { name: "mask6", args: ["IPv6 mask"], in_type: "str", out_type: "str" } },
         new Set(Object.keys(schema32.sample_fetches ?? {})),
         new Set(["mask6"]),
+        schema32,
       ),
     ).toEqual([]);
     expect(
@@ -270,12 +280,15 @@ describe("validateSampleExpressions inline", () => {
         { noargs: { name: "noargs", args: [], in_type: "str", out_type: "str" } },
         new Set(Object.keys(schema32.sample_fetches ?? {})),
         new Set(["noargs"]),
+        schema32,
       )[0]?.code,
     ).toBe("sample-converter-args");
   });
 
   it("uses fetch and converter name sets when metadata entries are absent", () => {
-    expect(validateExpressionBody("known", 0, {}, {}, new Set(["known"]), new Set())).toEqual([]);
+    expect(
+      validateExpressionBody("known", 0, {}, {}, new Set(["known"]), new Set(), schema32),
+    ).toEqual([]);
     expect(
       validateExpressionBody(
         "src,fallbackconv",
@@ -284,6 +297,7 @@ describe("validateSampleExpressions inline", () => {
         {},
         new Set(Object.keys(schema32.sample_fetches ?? {})),
         new Set(["fallbackconv"]),
+        schema32,
       ),
     ).toEqual([]);
   });

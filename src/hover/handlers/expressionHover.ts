@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 
 import { CompletionKind } from "../../documentContext";
-import { ACTION_GROUP_NAMES, actionGroupForCompletionKind } from "../../domainMaps";
 import { findIndexedGroupItem } from "../../languageDataIndexes";
 import { LanguageGroupItem } from "../../languageData";
+import { actionGroupForCompletionKind, actionGroupNames } from "../../schema";
 import { normalizeActionName } from "../../tokenUtils";
 import { findGroupItem, sampleTokenCandidates } from "../helpers";
 import { hoverMarkdown } from "../markdown";
@@ -17,10 +17,8 @@ const RULE_KINDS = new Set<CompletionKind>([
   "tcp-response",
 ]);
 
-const EXPRESSION_GROUPS = ["sample_fetches", "sample_converters", "acl_criteria"] as const;
-
 function isInExpressionGroups(data: HoverContext["data"], candidate: string): boolean {
-  for (const groupName of EXPRESSION_GROUPS) {
+  for (const groupName of ["sample_fetches", "sample_converters", "acl_criteria"]) {
     if (findIndexedGroupItem(data, groupName, candidate)) {
       return true;
     }
@@ -28,18 +26,15 @@ function isInExpressionGroups(data: HoverContext["data"], candidate: string): bo
   return false;
 }
 
-function isActionToken(
-  data: HoverContext["data"],
-  candidate: string,
-  kind: CompletionKind,
-): boolean {
+function isActionToken(hc: HoverContext, candidate: string, kind: CompletionKind): boolean {
   const actionName = normalizeActionName(candidate);
-  const preferred = actionGroupForCompletionKind(kind);
+  const actionGroups = actionGroupNames(hc.schema);
+  const preferred = actionGroupForCompletionKind(hc.schema, kind);
   const groups = preferred
-    ? [preferred, ...ACTION_GROUP_NAMES.filter((group) => group !== preferred)]
-    : ACTION_GROUP_NAMES;
+    ? [preferred, ...actionGroups.filter((group) => group !== preferred)]
+    : actionGroups;
   for (const group of groups) {
-    if (findIndexedGroupItem(data, group, actionName)) {
+    if (findIndexedGroupItem(hc.data, group, actionName)) {
       return true;
     }
   }
@@ -53,7 +48,7 @@ function resolvesAsSampleFetch(hc: HoverContext): boolean {
   }
 
   for (const candidate of sampleTokenCandidates(ctx.token.text, cursorOffset)) {
-    if (isInExpressionGroups(data, candidate) && !isActionToken(data, candidate, ctx.kind)) {
+    if (isInExpressionGroups(data, candidate) && !isActionToken(hc, candidate, ctx.kind)) {
       return true;
     }
   }

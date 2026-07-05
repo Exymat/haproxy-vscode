@@ -28,7 +28,11 @@ const cases: Array<{
   version?: typeof DEFAULT_VERSION | "3.4";
 }> = [
   { name: "valid snippet", content: validSnippet, expectations: { total: 0 } },
-  { name: "hapee acl snippet", content: hapeeAclSnippet, expectations: { total: 0 } },
+  {
+    name: "hapee acl snippet",
+    content: hapeeAclSnippet,
+    expectations: { total: 1, counts: { "missing-reference": 1 } },
+  },
   {
     name: "bind in global",
     content: "frontend x\n\texternal-check\n",

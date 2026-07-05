@@ -2,9 +2,7 @@ import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
-
-const ENTRY_POINT_SECTIONS = new Set(["frontend", "listen"]);
-const BIND_TOKENS = new Set(["bind", "bind-process"]);
+import { HaproxySchema, symbolStringList } from "./schema";
 
 interface SectionBlock {
   kind: string;
@@ -62,21 +60,26 @@ function buildSectionBlocks(parsed: ParsedLine[]): SectionBlock[] {
   return blocks;
 }
 
-function lineHasBindToken(line: ParsedLine | undefined): boolean {
+function lineHasBindToken(line: ParsedLine | undefined, bindTokens: Set<string>): boolean {
   if (!line) {
     return false;
   }
   for (const token of line.tokens) {
-    if (BIND_TOKENS.has(token.text.toLowerCase())) {
+    if (bindTokens.has(token.text.toLowerCase())) {
       return true;
     }
   }
   return false;
 }
 
-function blockBodyHasBind(parsed: ParsedLine[], startLine: number, endLine: number): boolean {
+function blockBodyHasBind(
+  parsed: ParsedLine[],
+  startLine: number,
+  endLine: number,
+  bindTokens: Set<string>,
+): boolean {
   for (let i = startLine + 1; i <= endLine; i += 1) {
-    if (lineHasBindToken(parsed[i])) {
+    if (lineHasBindToken(parsed[i], bindTokens)) {
       return true;
     }
   }
@@ -107,6 +110,7 @@ function sectionHasBind(
   idx: number,
   memo: Map<number, boolean>,
   resolving: Set<number>,
+  bindTokens: Set<string>,
 ): boolean {
   const cached = memo.get(idx);
   if (cached !== undefined) {
@@ -118,7 +122,7 @@ function sectionHasBind(
   resolving.add(idx);
 
   const block = blocks[idx];
-  let hasBind = blockBodyHasBind(parsed, block.startLine, block.endLine);
+  let hasBind = blockBodyHasBind(parsed, block.startLine, block.endLine, bindTokens);
   if (!hasBind) {
     let parent = -1;
     if (block.fromDefaults) {
@@ -127,7 +131,7 @@ function sectionHasBind(
       parent = findPreviousDefaults(blocks, idx);
     }
     if (parent >= 0) {
-      hasBind = sectionHasBind(parsed, blocks, parent, memo, resolving);
+      hasBind = sectionHasBind(parsed, blocks, parent, memo, resolving, bindTokens);
     }
   }
 
@@ -161,6 +165,7 @@ function makeNoBindWarning(
 export function entryPointWithoutBindDiagnostics(
   document: vscode.TextDocument,
   parsed: ParsedLine[],
+  schema: HaproxySchema,
 ): vscode.Diagnostic[] {
   const blocks = buildSectionBlocks(parsed);
   if (blocks.length === 0) {
@@ -170,13 +175,15 @@ export function entryPointWithoutBindDiagnostics(
   const memo = new Map<number, boolean>();
   const resolving = new Set<number>();
   const diagnostics: vscode.Diagnostic[] = [];
+  const entryPointSections = new Set(symbolStringList(schema, "entry_point_sections"));
+  const bindTokens = new Set(symbolStringList(schema, "bind_detect_keywords"));
 
   for (let i = 0; i < blocks.length; i += 1) {
     const block = blocks[i];
-    if (!ENTRY_POINT_SECTIONS.has(block.kind)) {
+    if (!entryPointSections.has(block.kind)) {
       continue;
     }
-    if (sectionHasBind(parsed, blocks, i, memo, resolving)) {
+    if (sectionHasBind(parsed, blocks, i, memo, resolving, bindTokens)) {
       continue;
     }
     diagnostics.push(makeNoBindWarning(document, block.headerLine, block.kind, block.name));

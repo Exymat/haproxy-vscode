@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
 
 import { indexedGroupItems, indexedGroupItemsByName } from "../../languageDataIndexes";
-import { actionGroupForCompletionKind } from "../../domainMaps";
+import { actionGroupForCompletionKind } from "../../schema";
 import { CompletionContext } from "../types";
 import { filterByPrefix, markdownDoc } from "../helpers";
 
 export function tryActionCompletion(cc: CompletionContext): vscode.CompletionItem[] | null {
-  const actionKind = actionGroupForCompletionKind(cc.ctx.kind);
+  const actionKind = actionGroupForCompletionKind(cc.schema, cc.ctx.kind);
   if (!actionKind) {
     return null;
   }

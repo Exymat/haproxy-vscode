@@ -3,18 +3,22 @@ import * as vscode from "vscode";
 import { findInvalidNameChar, looksLikeListenAddress } from "./nameValidation";
 import { makeError } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
+import { HaproxySchema, symbolStringList } from "./schema";
 
-const NAMED_SECTIONS = new Set(["frontend", "backend", "listen", "defaults", "peers", "userlist"]);
-
-export function sectionHeaderDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
+export function sectionHeaderDiagnostics(
+  line: ParsedLine,
+  schema: HaproxySchema,
+): vscode.Diagnostic[] {
   if (!line.isSectionHeader || line.tokens.length < 2) {
     return [];
   }
 
   const section = line.tokens[0].text.toLowerCase();
   const diagnostics: vscode.Diagnostic[] = [];
+  const namedSections = new Set(symbolStringList(schema, "named_sections"));
+  const entrySections = new Set(symbolStringList(schema, "entry_point_sections"));
 
-  if (NAMED_SECTIONS.has(section)) {
+  if (namedSections.has(section)) {
     const name = line.tokens[1].text;
     const bad = findInvalidNameChar(name);
     if (bad !== null) {
@@ -29,7 +33,7 @@ export function sectionHeaderDiagnostics(line: ParsedLine): vscode.Diagnostic[] 
     }
   }
 
-  if (section === "frontend" || section === "listen") {
+  if (entrySections.has(section)) {
     for (let i = 2; i < line.tokens.length; i += 1) {
       const tok = line.tokens[i].text.toLowerCase();
       if (tok === "from") {

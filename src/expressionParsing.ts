@@ -1,5 +1,4 @@
 import {
-  FETCH_MIN_ARGS,
   INTEGER_ARG,
   MSK4_ARG,
   MSK6_ARG,
@@ -269,10 +268,11 @@ export function parseArgList(
 }
 
 export function sampleMinArgs(spec: SampleFunction, name: string, fallback = 0): number {
+  void name;
   if (spec.min_args !== undefined && spec.min_args !== null) {
     return spec.min_args;
   }
-  return FETCH_MIN_ARGS[name] ?? fallback;
+  return fallback;
 }
 
 export function sampleMaxArgs(spec: SampleFunction): number {

@@ -17,7 +17,11 @@ const haproxyGitRoot = resolve(extensionRoot, "..", "haproxy_git");
 const VERSIONS = SUPPORTED_VERSIONS;
 
 const EXAMPLES_SKIP_BY_VERSION = {
-  3.4: new Set(["keylog-test.cfg"]),
+  2.6: new Set(["wurfl-example.cfg"]),
+  2.8: new Set(["wurfl-example.cfg"]),
+  "3.0": new Set(["wurfl-example.cfg"]),
+  3.2: new Set(["wurfl-example.cfg"]),
+  3.4: new Set(["keylog-test.cfg", "wurfl-example.cfg"]),
 };
 
 const { computeDiagnostics } = loadCompiledModule("diagnostics.js");

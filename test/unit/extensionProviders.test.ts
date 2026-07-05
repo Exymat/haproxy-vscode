@@ -1,6 +1,8 @@
 import { activate, deactivate } from "../../src/extension";
 import * as schema from "../../src/schema";
 import {
+  commands,
+  getRegisteredCommand,
   getLastDiagnosticCollection,
   languages,
   mockTextDocuments,
@@ -82,6 +84,10 @@ describe("extension providers", () => {
       capturedProviders.references = provider;
       return { provider, dispose: () => {} };
     });
+    vi.spyOn(languages, "registerRenameProvider").mockImplementation((_s, provider) => {
+      capturedProviders.rename = provider;
+      return { provider, dispose: () => {} };
+    });
     vi.spyOn(languages, "registerDocumentSymbolProvider").mockImplementation((_s, provider) => {
       capturedProviders.symbols = provider;
       return { provider, dispose: () => {} };
@@ -135,6 +141,14 @@ describe("extension providers", () => {
         ctx: { includeDeclaration: boolean },
       ) => Promise<unknown>;
     };
+    const rename = capturedProviders.rename as {
+      prepareRename: (doc: unknown, pos: { line: number; character: number }) => Promise<unknown>;
+      provideRenameEdits: (
+        doc: unknown,
+        pos: { line: number; character: number },
+        name: string,
+      ) => Promise<unknown>;
+    };
     const symbols = capturedProviders.symbols as {
       provideDocumentSymbols: (doc: unknown) => unknown;
     };
@@ -150,8 +164,23 @@ describe("extension providers", () => {
       { line: 4, character: 6 },
       { includeDeclaration: true },
     );
+    await rename.prepareRename(doc, { line: 6, character: "backend ".length });
+    await rename.provideRenameEdits(doc, { line: 6, character: "backend ".length }, "api_v2");
     expect(symbols.provideDocumentSymbols(doc)).toBeDefined();
     expect(folding.provideFoldingRanges(doc)).toBeDefined();
+  });
+
+  it("runs the internal peek definition command", async () => {
+    const doc = haproxyDocument("backend api\nfrontend web\n    use_backend api");
+    mockTextDocuments.push(doc);
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    const command = getRegisteredCommand("haproxy.peekDefinitionAtPosition");
+    expect(command).toBeDefined();
+    await command?.("file:///test.cfg", 2, "    use_backend ".length);
+    expect(commands.executeCommand).toHaveBeenCalledWith("editor.action.peekDefinition");
   });
 
   it("returns empty results when bundle load fails", async () => {
@@ -183,6 +212,14 @@ describe("extension providers", () => {
         ctx: { includeDeclaration: boolean },
       ) => Promise<unknown>;
     };
+    const rename = capturedProviders.rename as {
+      prepareRename: (doc: unknown, pos: { line: number; character: number }) => Promise<unknown>;
+      provideRenameEdits: (
+        doc: unknown,
+        pos: { line: number; character: number },
+        name: string,
+      ) => Promise<unknown>;
+    };
 
     expect(await completion.provideCompletionItems(doc, { line: 1, character: 4 })).toEqual([]);
     expect(await hover.provideHover(doc, { line: 1, character: 4 })).toBeNull();
@@ -194,6 +231,8 @@ describe("extension providers", () => {
         { includeDeclaration: true },
       ),
     ).toEqual([]);
+    expect(await rename.prepareRename(doc, { line: 1, character: 4 })).toBeNull();
+    expect(await rename.provideRenameEdits(doc, { line: 1, character: 4 }, "renamed")).toBeNull();
   });
 
   it("returns no format edits when formatting disabled", async () => {

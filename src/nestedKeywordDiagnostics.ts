@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { DiagnosticContext } from "./diagnosticContext";
 import { diagRange, diagRangeForTokens, makeDiagnostic } from "./diagnosticUtils";
 import { conditionalStartIndex } from "./directiveUtils";
-import { NESTED_DIAGNOSTIC_KEYWORDS, STATEMENT_RULE_KEYWORDS } from "./diagnosticKeywordSets";
+import { nestedDiagnosticKeywordSet, statementRuleKeywordSet } from "./diagnosticKeywordSets";
 import { resolveLineOptionStartIndex } from "./lineOptionSpan";
 import { isOptionLine, optionNameTokenIndex } from "./optionLine";
 import { ParsedLine } from "./parser";
@@ -13,7 +13,9 @@ import {
   keywordGroupSet,
   prefixFamilySet,
   prefixSubcommandSet,
+  semanticRecord,
   statsSocketLevelSet,
+  dynamicActionPrefixes,
   tcpRequestPhaseSet,
   tcpResponsePhaseSet,
 } from "./schema";
@@ -182,7 +184,7 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
 
   if (t0 === "bind" || t0 === "server" || t0 === "default-server") {
     const groupName = rule?.group;
-    const start = resolveLineOptionStartIndex(line, rule);
+    const start = resolveLineOptionStartIndex(ctx.schema, line, rule);
     if (groupName && start >= 0) {
       const groupContexts = ctx.schema.keyword_group_contexts?.[groupName] ?? {};
       if (Object.keys(groupContexts).length === 0) {
@@ -235,11 +237,11 @@ function handleOptionLine(ctx: DiagnosticContext, line: ParsedLine): vscode.Diag
 }
 
 function handleSkippedKeywordLine(
-  _ctx: DiagnosticContext,
+  ctx: DiagnosticContext,
   line: ParsedLine,
 ): vscode.Diagnostic[] | null {
   const t0 = lowerToken(line.tokens[0]?.text ?? "");
-  if (t0 && STATEMENT_RULE_KEYWORDS.has(t0)) {
+  if (t0 && statementRuleKeywordSet(ctx.schema).has(t0)) {
     return [];
   }
   return null;
@@ -329,7 +331,7 @@ export function unknownNestedDiagnostics(
   line: ParsedLine,
 ): vscode.Diagnostic[] {
   const t0 = lowerToken(line.tokens[0]?.text ?? "");
-  if (!t0 || !NESTED_DIAGNOSTIC_KEYWORDS.has(t0)) {
+  if (!t0 || !nestedDiagnosticKeywordSet(ctx.schema).has(t0)) {
     return [];
   }
 
@@ -370,7 +372,9 @@ export function unknownNestedDiagnostics(
     const token = normalizeActionName(rawToken);
     const groupName = ruleActionGroup(rule);
     const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : new Set<string>();
-    if (token && !token.startsWith("lua.") && !allowed.has(token)) {
+    const dynamicPrefixes = dynamicActionPrefixes(ctx.schema);
+    const hasDynamicPrefix = dynamicPrefixes.some((prefix) => token.startsWith(prefix));
+    if (token && !hasDynamicPrefix && !allowed.has(token)) {
       diagnostics.push(
         makeDiagnostic(
           diagRange(line, actionIdx),
@@ -379,14 +383,14 @@ export function unknownNestedDiagnostics(
           "unknown-action",
         ),
       );
-    } else if (token === "use-service" && actionIdx + 1 < line.tokens.length) {
+    } else if (token === useServiceAction(ctx.schema) && actionIdx + 1 < line.tokens.length) {
       const serviceIdx = actionIdx + 1;
       const serviceName = lowerToken(line.tokens[serviceIdx].text);
       const services = keywordGroupSet(ctx.schema, "services");
       if (
         services.size > 0 &&
         serviceName &&
-        !serviceName.startsWith("lua.") &&
+        !dynamicPrefixes.some((prefix) => serviceName.startsWith(prefix)) &&
         !services.has(serviceName)
       ) {
         diagnostics.push(
@@ -402,4 +406,14 @@ export function unknownNestedDiagnostics(
   }
 
   return diagnostics;
+}
+
+function useServiceAction(schema: HaproxySchema): string {
+  const rule = semanticRecord(schema, "use_service");
+  if (typeof rule.action !== "string") {
+    throw new Error(
+      "HAProxy schema is missing required generated metadata: semantic_groups.use_service.action",
+    );
+  }
+  return rule.action;
 }

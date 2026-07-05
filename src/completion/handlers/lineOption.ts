@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { argumentPosition, completionValuesForPosition } from "../../directiveUtils";
 import { indexedGroupItems, indexedGroupItemsByName } from "../../languageDataIndexes";
-import { lineOptionGroupForKind } from "../../domainMaps";
+import { lineOptionGroupForKind } from "../../schema";
 import { resolveLineOptionSchemaKeyword } from "../../lineOptionKeyword";
 import { resolveLineOptionStartIndex, resolveNestedLineOptionSpan } from "../../lineOptionSpan";
 import { resolveLanguageKeyword } from "../../keywordVariant";
@@ -14,9 +14,9 @@ export function tryLineOptionCompletion(cc: CompletionContext): vscode.Completio
   if (cc.ctx.kind !== "bind" && cc.ctx.kind !== "server") {
     return null;
   }
-  const lineOptionGroup = lineOptionGroupForKind(cc.ctx.kind)!;
+  const lineOptionGroup = lineOptionGroupForKind(cc.schema, cc.ctx.kind)!;
   const lineOptionRule = findStatementRule(cc.schema, cc.ctx.line);
-  const lineOptionStart = resolveLineOptionStartIndex(cc.ctx.line, lineOptionRule);
+  const lineOptionStart = resolveLineOptionStartIndex(cc.schema, cc.ctx.line, lineOptionRule);
   if (lineOptionStart < 0 || cc.ctx.tokenIndex < lineOptionStart) {
     return [];
   }

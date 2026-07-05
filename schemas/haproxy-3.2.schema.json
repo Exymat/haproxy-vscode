@@ -1,4 +1,54 @@
 {
+  "address_policies": {
+    "bind": {
+      "portMandatory": true,
+      "portOffset": false,
+      "portOk": true,
+      "portRange": true
+    },
+    "log": {
+      "portMandatory": false,
+      "portOffset": false,
+      "portOk": true,
+      "portRange": false
+    },
+    "server": {
+      "portMandatory": false,
+      "portOffset": true,
+      "portOk": true,
+      "portRange": false
+    },
+    "serverSocks4": {
+      "portMandatory": true,
+      "portOffset": false,
+      "portOk": true,
+      "portRange": false
+    },
+    "serverSource": {
+      "portMandatory": false,
+      "portOffset": false,
+      "portOk": true,
+      "portRange": true
+    },
+    "serverUsesrc": {
+      "portMandatory": false,
+      "portOffset": false,
+      "portOk": true,
+      "portRange": false
+    },
+    "source": {
+      "portMandatory": false,
+      "portOffset": false,
+      "portOk": true,
+      "portRange": false
+    },
+    "tcpCheckAddr": {
+      "portMandatory": false,
+      "portOffset": false,
+      "portOk": true,
+      "portRange": false
+    }
+  },
   "keyword_group_contexts": {
     "bind_options": {
       "idle-ping": [
@@ -55234,6 +55284,128 @@
       "target_token_index": 2
     }
   ],
+  "sample_casts": [
+    [
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      true,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ],
+    [
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  ],
   "sample_converters": {
     "add": {
       "args": [
@@ -77870,6 +78042,18 @@
       "signature": "waiting_entity"
     }
   },
+  "sample_types": [
+    "any",
+    "same",
+    "bool",
+    "sint",
+    "addr",
+    "ipv4",
+    "ipv6",
+    "str",
+    "bin",
+    "meth"
+  ],
   "sections": {
     "acme": {
       "keywords": [
@@ -79186,6 +79370,67 @@
       "name": "userlist"
     }
   },
+  "semantic_groups": {
+    "acl_criterion_groups": [
+      "acl_criteria",
+      "sample_fetches"
+    ],
+    "action_groups": [
+      "http_request_actions",
+      "http_response_actions",
+      "http_after_response_actions",
+      "tcp_request_actions",
+      "tcp_response_actions"
+    ],
+    "common_language_groups": {
+      "filters": "filters",
+      "options": "options",
+      "services": "services"
+    },
+    "completion_kind_to_action_group": {
+      "http-after-response": "http_after_response_actions",
+      "http-request": "http_request_actions",
+      "http-response": "http_response_actions",
+      "tcp-request": "tcp_request_actions",
+      "tcp-response": "tcp_response_actions"
+    },
+    "deprecated_action_groups": [
+      "http_request_actions",
+      "http_response_actions",
+      "http_after_response_actions",
+      "tcp_request_actions",
+      "tcp_response_actions",
+      "quic_initial_actions"
+    ],
+    "dynamic_action_prefixes": [
+      "lua."
+    ],
+    "line_option_group_for_kind": {
+      "bind": "bind_options",
+      "server": "server_options"
+    },
+    "log_format_groups": {
+      "aliases": "logformat_aliases",
+      "flags": "logformat_flags"
+    },
+    "sample_expression_group_for_kind": {
+      "expression-converter": "sample_converters",
+      "expression-fetch": "sample_fetches"
+    },
+    "use_service": {
+      "action": "use-service",
+      "allow_prefixes": [
+        "lua."
+      ],
+      "rule_kinds": [
+        "http-request",
+        "http-response",
+        "tcp-request",
+        "tcp-response"
+      ],
+      "service_group": "services"
+    }
+  },
   "statement_rules": [
     {
       "action_token_index": null,
@@ -79510,6 +79755,74 @@
       "value_token_index": 1
     }
   ],
+  "symbols": {
+    "acl_condition_operators": [
+      "&&",
+      "||"
+    ],
+    "bind_detect_keywords": [
+      "bind",
+      "bind-process"
+    ],
+    "entry_point_sections": [
+      "frontend",
+      "listen"
+    ],
+    "named_sections": [
+      "frontend",
+      "backend",
+      "listen",
+      "defaults",
+      "peers",
+      "userlist"
+    ],
+    "proxy_sections": [
+      "frontend",
+      "backend",
+      "listen"
+    ],
+    "runtime_modes": [
+      "tcp",
+      "http",
+      "log",
+      "spop",
+      "haterm"
+    ],
+    "sample_fetch_references": {
+      "http_auth": {
+        "argument_index": 0,
+        "reference_kind": "userlist",
+        "scope": "global"
+      },
+      "http_auth_group": {
+        "argument_index": 0,
+        "reference_kind": "userlist",
+        "scope": "global"
+      }
+    },
+    "scoped_symbol_kinds": [
+      "server",
+      "acl",
+      "filter"
+    ],
+    "section_definition_kinds": {
+      "backend": "proxy-section",
+      "cache": "cache",
+      "defaults": "defaults-profile",
+      "frontend": "proxy-section",
+      "listen": "proxy-section",
+      "peers": "peers",
+      "resolvers": "resolvers",
+      "userlist": "userlist"
+    },
+    "self_reference_keywords": {
+      "filter": {
+        "reference_kind": "filter",
+        "scope": "section",
+        "token_index": 1
+      }
+    }
+  },
   "tokens": {
     "acl_flags": [
       "--",
@@ -79650,6 +79963,138 @@
       "option tcp-smart-accept",
       "option tcp-smart-connect",
       "option transparent"
+    ]
+  },
+  "validation_rules": {
+    "argument_model_skip_keywords": [
+      "bind",
+      "server",
+      "acl",
+      "option",
+      "stats",
+      "http-request",
+      "http-response",
+      "tcp-request",
+      "tcp-response",
+      "http-after-response",
+      "http-check",
+      "tcp-check"
+    ],
+    "converter_min_args": {
+      "ipmask": 1,
+      "map": 1,
+      "map_beg": 1,
+      "map_dir": 1,
+      "map_end": 1,
+      "map_str": 1,
+      "map_sub": 1
+    },
+    "fetch_min_args": {
+      "payload_lv": 2
+    },
+    "log_address_skip": [
+      "global",
+      "stdout",
+      "stderr"
+    ],
+    "logformat_stop_tokens": [
+      "-m",
+      "body",
+      "body-lf",
+      "comment",
+      "content-type",
+      "default-errorfiles",
+      "errorfile",
+      "errorfiles",
+      "error-status",
+      "file",
+      "fhdr",
+      "hdr",
+      "if",
+      "lf-file",
+      "lf-string",
+      "meth",
+      "min-recv",
+      "name",
+      "name-lf",
+      "ok-status",
+      "on-error",
+      "on-success",
+      "send-binary-lf",
+      "send-lf",
+      "status",
+      "status-code",
+      "string",
+      "string-lf",
+      "tout-status",
+      "unless",
+      "uri",
+      "uri-lf",
+      "value",
+      "value-lf",
+      "ver"
+    ],
+    "nested_diagnostic_keywords": [
+      "option",
+      "no",
+      "acl",
+      "stats",
+      "tcp-request",
+      "tcp-response",
+      "http-request",
+      "http-response",
+      "http-after-response",
+      "mode",
+      "balance",
+      "bind",
+      "server"
+    ],
+    "server_address_option_policies": {
+      "socks4": "serverSocks4",
+      "source": "serverSource",
+      "usesrc": "serverUsesrc"
+    },
+    "special_argument_rules": {
+      "balance": {
+        "variant_algorithms": {
+          "url_param": "balance url_param"
+        }
+      },
+      "cookie": {
+        "modes": [
+          "indirect",
+          "insert",
+          "nocache",
+          "prefix",
+          "rewrite",
+          "postonly",
+          "preserve",
+          "httponly",
+          "secure",
+          "domain",
+          "attr"
+        ]
+      },
+      "http-send-name-header": {
+        "forbidden_first_arg_by_min_version": {}
+      },
+      "option mysql-check": {
+        "modes": [
+          "post-41",
+          "pre-41"
+        ],
+        "values": [
+          "user",
+          "post-41",
+          "pre-41"
+        ]
+      }
+    },
+    "statement_rule_keywords": [
+      "mode",
+      "balance",
+      "bind",
+      "server"
     ]
   },
   "version": "3.2"

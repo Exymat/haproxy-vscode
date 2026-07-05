@@ -37,7 +37,7 @@ export function resolveStatement(line: ParsedLine, schema: HaproxySchema): Resol
     rule,
     actionTokenIndex: resolveActionTokenIndex(rule, line),
     phaseTokenIndex: resolvePhaseTokenIndex(rule, line),
-    lineOptionStart: resolveLineOptionStartIndex(line, rule),
+    lineOptionStart: resolveLineOptionStartIndex(schema, line, rule),
   };
 }
 

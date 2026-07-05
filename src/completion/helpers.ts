@@ -3,10 +3,9 @@ import * as vscode from "vscode";
 import { groupItems } from "../documentContext";
 import { HaproxyLanguageData, LanguageExample } from "../languageData";
 import { findIndexedGroupItem } from "../languageDataIndexes";
-import { LOG_FORMAT_GROUPS } from "../domainMaps";
 import { languageDocMarkdown } from "../hover/markdown";
 import { logFormatCompletionPrefix } from "../logFormat";
-import { HaproxySchema } from "../schema";
+import { HaproxySchema, semanticStringMap } from "../schema";
 
 export function markdownDoc(
   description: string,
@@ -33,13 +32,14 @@ export function logFormatCompletionItems(
   const prefix = logFormatCompletionPrefix(formatText, localOffset) ?? "";
   const before = formatText.slice(0, localOffset);
   const inFlags = before.lastIndexOf("{") > before.lastIndexOf("}");
+  const logFormatGroups = semanticStringMap(schema, "log_format_groups");
 
   if (inFlags) {
     const flags = schema.tokens.logformat_flags ?? [];
     return filterByPrefix(flags, prefix).map((name) => {
       const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.EnumMember);
       item.detail = "log-format flag";
-      const group = findIndexedGroupItem(data, LOG_FORMAT_GROUPS.flags, name);
+      const group = findIndexedGroupItem(data, logFormatGroups.flags, name);
       if (group?.description) {
         item.documentation = markdownDoc(group.description);
       }
@@ -47,7 +47,7 @@ export function logFormatCompletionItems(
     });
   }
 
-  const aliases = groupItems(data, LOG_FORMAT_GROUPS.aliases);
+  const aliases = groupItems(data, logFormatGroups.aliases);
   return aliases
     .filter((alias) => {
       const body = alias.name.replace(/^%/, "");

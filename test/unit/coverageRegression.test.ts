@@ -60,8 +60,10 @@ describe("coverage regression", () => {
       commentSuffix: "# comment only",
     });
     expect(formatConfig("# comment only")).toBe("# comment only");
-    expect(canCast("missing-row", "str")).toBe(true);
-    expect(resolveOutType("str", { out_type: "same", in_type: "sint" })).toBe("sint");
+    expect(canCast("missing-row", "str", bundle.schema)).toBe(true);
+    expect(resolveOutType("str", { out_type: "same", in_type: "sint" }, bundle.schema)).toBe(
+      "sint",
+    );
   });
 
   it("keeps indexing and outline glue regressions", () => {
@@ -76,7 +78,7 @@ describe("coverage regression", () => {
       symbolNameTokenIndex({ keyword: "x", kind: "directive", fixed_slots: [{ role: "other" }] }),
     ).toBeNull();
     expect(
-      buildReferencesByKey([
+      buildReferencesByKey(bundle.schema, [
         {
           kind: "acl",
           name: "a",

@@ -13,8 +13,10 @@ import {
 } from "../../src/logFormat";
 import { tokenizeLine } from "../../src/parser";
 import type { HaproxySchema } from "../../src/schema";
+import { loadSchema } from "../helpers/schema";
 
 const schemaStub: HaproxySchema = {
+  ...loadSchema("3.4"),
   version: "3.4",
   sections: {},
   keywords: {},

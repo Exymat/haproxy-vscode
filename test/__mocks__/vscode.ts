@@ -17,6 +17,12 @@ export class Range {
   }
 }
 
+export class Selection extends Range {
+  constructor(start: Position, end: Position) {
+    super(start.line, start.character, end.line, end.character);
+  }
+}
+
 export class Diagnostic {
   source?: string;
   code?: string;
@@ -67,6 +73,7 @@ export class Hover {
 
 export class MarkdownString {
   value = "";
+  isTrusted?: boolean | { enabledCommands: string[] };
 
   appendMarkdown(text: string): void {
     this.value += text;
@@ -100,6 +107,18 @@ export class Location {
     public uri: unknown,
     public range: Range,
   ) {}
+}
+
+export class WorkspaceEdit {
+  edits: Array<{ uri: unknown; range: Range; newText: string }> = [];
+
+  get size(): number {
+    return this.edits.length;
+  }
+
+  replace(uri: unknown, range: Range, newText: string): void {
+    this.edits.push({ uri, range, newText });
+  }
 }
 
 export interface ReferenceContext {
@@ -231,6 +250,9 @@ export const workspace = {
   get workspaceFolders() {
     return mockWorkspaceFolders;
   },
+  openTextDocument(_uri: unknown) {
+    return Promise.resolve(mockTextDocuments[0]);
+  },
   onDidChangeConfiguration(
     listener: (event: { affectsConfiguration: (section: string) => boolean }) => void,
   ) {
@@ -268,6 +290,9 @@ export const window = {
   },
   createStatusBarItem(_alignment?: number, _priority?: number) {
     return new StatusBarItem();
+  },
+  showTextDocument(document: (typeof mockTextDocuments)[0], _options?: unknown) {
+    return Promise.resolve({ document, selection: undefined });
   },
   onDidChangeActiveTextEditor(listener: () => void) {
     activeEditorListeners.push(listener);
@@ -320,6 +345,10 @@ export const languages = {
     registeredDisposables.push({ dispose: () => {} });
     return { provider, dispose: () => {} };
   },
+  registerRenameProvider(_selector: unknown, provider: unknown) {
+    registeredDisposables.push({ dispose: () => {} });
+    return { provider, dispose: () => {} };
+  },
 };
 
 export const commands = {
@@ -328,6 +357,15 @@ export const commands = {
     return { dispose: () => {} };
   },
   executeCommand: vi.fn(() => Promise.resolve(undefined)),
+};
+
+export const Uri = {
+  parse(value: string) {
+    return { toString: () => value, fsPath: value };
+  },
+  file(value: string) {
+    return { toString: () => value, fsPath: value };
+  },
 };
 
 export function createMockExtensionContext(extensionPath: string) {

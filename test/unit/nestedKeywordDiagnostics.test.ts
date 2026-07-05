@@ -288,6 +288,20 @@ describe("unknownNestedDiagnostics", () => {
     );
   });
 
+  it("requires generated use-service action metadata", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.semantic_groups = {
+      ...schema.semantic_groups,
+      use_service: { rule_kinds: ["http-request"], action: 1, service_group: "services" },
+    };
+    const doc = createDocument(
+      "frontend x\n    bind :80\n    http-request use-service missing-service if TRUE",
+    );
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[2];
+    expect(() => unknownNestedDiagnostics(ctx, line)).toThrow(/semantic_groups\.use_service/);
+  });
+
   it("does not report unknown service when the service catalog is empty", () => {
     const schema = structuredClone(bundle.schema);
     schema.keyword_groups.services = [];

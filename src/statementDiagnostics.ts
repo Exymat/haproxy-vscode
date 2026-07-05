@@ -10,11 +10,10 @@ import {
 } from "./argumentSlotValidation";
 import { resolveNestedOptionKeyword } from "./lineOptionKeyword";
 import {
-  ADDRESS_POLICIES,
-  AddressPolicyName,
   AddressValidationResult,
   isServerMainAddressPlaceholder,
   PortAddressPolicy,
+  addressPolicyForSchema,
   validateHaproxyAddress,
 } from "./addressFormat";
 import { conditionalStartIndex } from "./directiveUtils";
@@ -28,6 +27,8 @@ import {
   lineOptionSet,
   optionsWithValueSet,
   StatementRule,
+  validationStringList,
+  validationStringMap,
 } from "./schema";
 import { findStatementRule } from "./statementLayout";
 import { lowerToken, normalizedOptionToken } from "./tokenUtils";
@@ -43,12 +44,6 @@ type StmtDiagCode =
   | "unexpected-argument"
   | "unknown-parameter"
   | "reserved-name";
-
-const SERVER_ADDRESS_OPTION_POLICIES: Record<string, AddressPolicyName> = {
-  source: "serverSource",
-  usesrc: "serverUsesrc",
-  socks4: "serverSocks4",
-};
 
 function makeStmtDiagnostic(
   line: ParsedLine,
@@ -73,29 +68,35 @@ function pushAddressResult(
   diagnostics.push(makeStmtDiagnostic(line, tokenIndex, result.message, code));
 }
 
-function policyForSlot(rule: StatementRule, spec: FixedSlotSpec, token: string): PortAddressPolicy {
-  if (spec.address_policy && spec.address_policy in ADDRESS_POLICIES) {
-    const named = spec.address_policy as AddressPolicyName;
+function policyForSlot(
+  schema: HaproxySchema,
+  rule: StatementRule,
+  spec: FixedSlotSpec,
+  token: string,
+): PortAddressPolicy {
+  if (spec.address_policy) {
+    const named = spec.address_policy;
+    const policy = addressPolicyForSchema(schema, named);
     if (named === "bind" && token.startsWith("/")) {
-      return { ...ADDRESS_POLICIES.bind, portMandatory: false };
+      return { ...policy, portMandatory: false };
     }
-    return ADDRESS_POLICIES[named];
+    return policy;
   }
   if (rule.kind === "bind") {
-    return token.startsWith("/")
-      ? { ...ADDRESS_POLICIES.bind, portMandatory: false }
-      : ADDRESS_POLICIES.bind;
+    const bindPolicy = addressPolicyForSchema(schema, "bind");
+    return token.startsWith("/") ? { ...bindPolicy, portMandatory: false } : bindPolicy;
   }
-  return ADDRESS_POLICIES.server;
+  return addressPolicyForSchema(schema, "server");
 }
 
 function validateFixedSlots(
   line: ParsedLine,
+  schema: HaproxySchema,
   rule: StatementRule,
   slots: FixedSlotSpec[],
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
-  const nestedStart = resolveLineOptionStartIndex(line, rule);
+  const nestedStart = resolveLineOptionStartIndex(schema, line, rule);
   const condStart = conditionalStartIndex(line, 0);
   const limit = Math.min(condStart, nestedStart >= 0 ? nestedStart : 1 + slots.length);
 
@@ -136,7 +137,7 @@ function validateFixedSlots(
       if (rule.kind === "server" && isServerMainAddressPlaceholder(token)) {
         continue;
       }
-      const policy = policyForSlot(rule, spec, token);
+      const policy = policyForSlot(schema, rule, spec, token);
       const addressParts =
         rule.kind === "bind"
           ? token
@@ -154,15 +155,16 @@ function validateFixedSlots(
 }
 
 function optionValuePolicy(
+  schema: HaproxySchema,
   rule: StatementRule,
   option: string,
   optionsWithValue: Set<string> | null,
 ): PortAddressPolicy | null {
   const lower = lowerToken(option);
   if (rule.kind === "server") {
-    const named = SERVER_ADDRESS_OPTION_POLICIES[lower];
+    const named = validationStringMap(schema, "server_address_option_policies")[lower];
     if (named) {
-      return ADDRESS_POLICIES[named];
+      return addressPolicyForSchema(schema, named);
     }
     if (optionsWithValue?.has(lower)) {
       return null;
@@ -189,7 +191,7 @@ function consumeOptionArguments(
   const model = schemaKw?.argument_model;
 
   if (!model || model.max_args === undefined) {
-    const addrPolicy = optionValuePolicy(rule, option, valueOptions);
+    const addrPolicy = optionValuePolicy(schema, rule, option, valueOptions);
     if (addrPolicy && optionIndex + 1 < condStart) {
       pushAddressResult(
         line,
@@ -253,12 +255,14 @@ function consumeOptionArguments(
           continue;
         }
         if (pendingValueKeyword) {
-          const policyName = SERVER_ADDRESS_OPTION_POLICIES[lowerToken(pendingValueKeyword.text)];
+          const policyName = validationStringMap(schema, "server_address_option_policies")[
+            lowerToken(pendingValueKeyword.text)
+          ];
           if (policyName) {
             pushAddressResult(
               line,
               pos,
-              validateHaproxyAddress(token, ADDRESS_POLICIES[policyName]),
+              validateHaproxyAddress(token, addressPolicyForSchema(schema, policyName)),
               diagnostics,
             );
           }
@@ -294,7 +298,7 @@ function consumeOptionArguments(
     pendingValueKeyword = null;
 
     if (slot.value_kind === "address" && slotIdx === 0) {
-      const addrPolicy = optionValuePolicy(rule, option, valueOptions);
+      const addrPolicy = optionValuePolicy(schema, rule, option, valueOptions);
       if (addrPolicy) {
         pushAddressResult(line, pos, validateHaproxyAddress(token, addrPolicy), diagnostics);
       }
@@ -342,7 +346,7 @@ function scanNestedOptions(
   schema: HaproxySchema,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
-  const nestedStart = resolveLineOptionStartIndex(line, rule);
+  const nestedStart = resolveLineOptionStartIndex(schema, line, rule);
   const groupName = rule.group;
   if (!groupName) {
     return diagnostics;
@@ -395,16 +399,15 @@ function scanNestedOptions(
   return diagnostics;
 }
 
-const LOG_ADDRESS_SKIP = new Set(["global", "stdout", "stderr"]);
-
-function logLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
+function logLineDiagnostics(line: ParsedLine, schema: HaproxySchema): vscode.Diagnostic[] {
   if (line.tokens.length < 2) {
     return [];
   }
   const target = line.tokens[1].text;
   const lower = lowerToken(target);
+  const logAddressSkip = new Set(validationStringList(schema, "log_address_skip"));
   if (
-    LOG_ADDRESS_SKIP.has(lower) ||
+    logAddressSkip.has(lower) ||
     lower.startsWith("@") ||
     lower.startsWith("ring@") ||
     target.startsWith("/")
@@ -412,11 +415,16 @@ function logLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
     return [];
   }
   const diagnostics: vscode.Diagnostic[] = [];
-  pushAddressResult(line, 1, validateHaproxyAddress(target, ADDRESS_POLICIES.log), diagnostics);
+  pushAddressResult(
+    line,
+    1,
+    validateHaproxyAddress(target, addressPolicyForSchema(schema, "log")),
+    diagnostics,
+  );
   return diagnostics;
 }
 
-function sourceLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
+function sourceLineDiagnostics(line: ParsedLine, schema: HaproxySchema): vscode.Diagnostic[] {
   if (line.tokens.length < 2) {
     return [];
   }
@@ -424,20 +432,23 @@ function sourceLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
   pushAddressResult(
     line,
     1,
-    validateHaproxyAddress(line.tokens[1].text, ADDRESS_POLICIES.source),
+    validateHaproxyAddress(line.tokens[1].text, addressPolicyForSchema(schema, "source")),
     diagnostics,
   );
   return diagnostics;
 }
 
-function tcpCheckLineDiagnostics(line: ParsedLine): vscode.Diagnostic[] {
+function tcpCheckLineDiagnostics(line: ParsedLine, schema: HaproxySchema): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   for (let i = 1; i < line.tokens.length - 1; i += 1) {
     if (lowerToken(line.tokens[i].text) === "addr") {
       pushAddressResult(
         line,
         i + 1,
-        validateHaproxyAddress(line.tokens[i + 1].text, ADDRESS_POLICIES.tcpCheckAddr),
+        validateHaproxyAddress(
+          line.tokens[i + 1].text,
+          addressPolicyForSchema(schema, "tcpCheckAddr"),
+        ),
         diagnostics,
       );
     }
@@ -453,13 +464,13 @@ export function statementDiagnostics(
   const t0 = lowerToken(line.tokens[0]?.text ?? "");
 
   if (t0 === "log") {
-    return logLineDiagnostics(line);
+    return logLineDiagnostics(line, schema);
   }
   if (t0 === "source") {
-    return sourceLineDiagnostics(line);
+    return sourceLineDiagnostics(line, schema);
   }
   if (t0 === "tcp-check" || t0 === "http-check") {
-    return tcpCheckLineDiagnostics(line);
+    return tcpCheckLineDiagnostics(line, schema);
   }
 
   if (!rule) {
@@ -469,7 +480,7 @@ export function statementDiagnostics(
   const diagnostics: vscode.Diagnostic[] = [];
   const fixedSlots = rule.fixed_slots;
   if (fixedSlots?.length) {
-    diagnostics.push(...validateFixedSlots(line, rule, fixedSlots));
+    diagnostics.push(...validateFixedSlots(line, schema, rule, fixedSlots));
   }
   diagnostics.push(...scanNestedOptions(line, rule, schema));
   return diagnostics;

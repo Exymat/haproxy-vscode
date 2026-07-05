@@ -6,7 +6,7 @@ import {
   signatureRequiresTrailingArgument,
   skipOptionalSlotGroup,
 } from "./argumentSlotValidation";
-import { ADDRESS_POLICIES, validateHaproxyAddress } from "./addressFormat";
+import { addressPolicyForSchema, validateHaproxyAddress } from "./addressFormat";
 import { resolveLineOptionSchemaKeyword } from "./lineOptionKeyword";
 import { ParsedLine } from "./parser";
 import {
@@ -29,7 +29,7 @@ export interface LineOptionSpan {
   keyword: string;
 }
 
-function isValidBindAddressListToken(token: string): boolean {
+function isValidBindAddressListToken(schema: HaproxySchema, token: string): boolean {
   const parts = token
     .split(",")
     .map((part) => part.trim())
@@ -37,15 +37,15 @@ function isValidBindAddressListToken(token: string): boolean {
   if (parts.length === 0) {
     return false;
   }
+  const bindPolicy = addressPolicyForSchema(schema, "bind");
   return parts.every((part) => {
-    const policy = part.startsWith("/")
-      ? { ...ADDRESS_POLICIES.bind, portMandatory: false }
-      : ADDRESS_POLICIES.bind;
+    const policy = part.startsWith("/") ? { ...bindPolicy, portMandatory: false } : bindPolicy;
     return validateHaproxyAddress(part, policy).valid;
   });
 }
 
 export function resolveLineOptionStartIndex(
+  schema: HaproxySchema,
   line: ParsedLine,
   rule: StatementRule | undefined,
 ): number {
@@ -59,7 +59,7 @@ export function resolveLineOptionStartIndex(
 
   let index = 1;
   while (index < line.tokens.length) {
-    if (!isValidBindAddressListToken(line.tokens[index].text)) {
+    if (!isValidBindAddressListToken(schema, line.tokens[index].text)) {
       break;
     }
     index += 1;

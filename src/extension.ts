@@ -8,6 +8,7 @@ import { formatConfig } from "./formatter";
 import { promptReloadIfGrammarChanged, syncActiveGrammarAsync } from "./grammar";
 import { provideHover } from "./hover";
 import { provideDefinition, provideReferences } from "./navigation";
+import { prepareRename, provideRenameEdits } from "./rename";
 import { createBundleLoader, getLoadedBundle, invalidateBundleLoad } from "./extensionBundle";
 import { getExtensionSettings, getFormatOptions, onSettingsChanged } from "./settings";
 import { sectionHeaderSet } from "./schema";
@@ -109,6 +110,17 @@ export function activate(context: vscode.ExtensionContext): void {
   const selector: vscode.DocumentSelector = { language: "haproxy" };
 
   context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "haproxy.peekDefinitionAtPosition",
+      async (uriString: string, line: number, character: number) => {
+        const uri = vscode.Uri.parse(uriString);
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document, { preview: false });
+        const position = new vscode.Position(line, character);
+        editor.selection = new vscode.Selection(position, position);
+        await vscode.commands.executeCommand("editor.action.peekDefinition");
+      },
+    ),
     vscode.languages.registerCompletionItemProvider(
       selector,
       {
@@ -129,7 +141,13 @@ export function activate(context: vscode.ExtensionContext): void {
         if (!b) {
           return null;
         }
-        return provideHover(document, position, b.languageData, b.schema);
+        return provideHover(
+          document,
+          position,
+          b.languageData,
+          b.schema,
+          cachedSettings.maxDiagnosticsLines,
+        );
       },
     }),
     vscode.languages.registerDocumentFormattingEditProvider(selector, {
@@ -183,6 +201,30 @@ export function activate(context: vscode.ExtensionContext): void {
           document,
           position,
           refContext,
+          b.schema,
+          settings.maxDiagnosticsLines,
+        );
+      },
+    }),
+    vscode.languages.registerRenameProvider(selector, {
+      async prepareRename(document, position) {
+        const b = await safeEnsureBundle();
+        if (!b) {
+          return null;
+        }
+        const settings = cachedSettings;
+        return prepareRename(document, position, b.schema, settings.maxDiagnosticsLines);
+      },
+      async provideRenameEdits(document, position, newName) {
+        const b = await safeEnsureBundle();
+        if (!b) {
+          return null;
+        }
+        const settings = cachedSettings;
+        return provideRenameEdits(
+          document,
+          position,
+          newName,
           b.schema,
           settings.maxDiagnosticsLines,
         );

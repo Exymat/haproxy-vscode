@@ -1,34 +1,45 @@
 import { ParsedLine } from "../parser";
 import { findReferencePatternMatches } from "../referencePatternMatching";
 import { isTopLevelSectionHeader } from "../sectionUtils";
-import { HaproxySchema, ReferencePattern, StatementRule } from "../schema";
+import {
+  HaproxySchema,
+  ReferencePattern,
+  sampleExpressionNameSets,
+  StatementRule,
+  symbolRecord,
+  symbolStringList,
+} from "../schema";
 import { ruleMatchesLine } from "../statementLayout";
 
 import {
-  effectiveScopeKey,
-  PROXY_SECTIONS,
+  effectiveScopeKeyForSchema,
   proxyScopeKey,
-  SECTION_DEFINITION_KINDS,
+  proxySectionSet,
+  sectionDefinitionKinds,
+  scopedSymbolKindSet,
   SymbolIndex,
   SymbolKind,
   SymbolSite,
 } from "./types";
 import { addSite, buildReferencesByKey, symbolNameTokenIndex } from "./utils";
 
-const ACL_CONDITION_OPS = new Set(["&&", "||"]);
+function aclConditionOperators(schema: HaproxySchema): Set<string> {
+  return new Set(symbolStringList(schema, "acl_condition_operators"));
+}
 
-function aclConditionIntroducer(text: string | undefined): boolean {
+function aclConditionIntroducer(schema: HaproxySchema, text: string | undefined): boolean {
   if (!text) {
     return false;
   }
   const lower = text.toLowerCase();
-  return lower === "if" || lower === "unless" || ACL_CONDITION_OPS.has(text);
+  return lower === "if" || lower === "unless" || aclConditionOperators(schema).has(text);
 }
 
 function aclReferenceAt(
+  schema: HaproxySchema,
   line: ParsedLine,
   tokenIndex: number,
-): { name: string; tokenIndex: number } | null {
+): { name: string; tokenIndex: number; start: number; end: number } | null {
   const tokens = line.tokens;
   const token = tokens[tokenIndex];
   if (!token) {
@@ -39,18 +50,22 @@ function aclReferenceAt(
     token.text === "{" ||
     token.text === "}" ||
     token.text === "!" ||
-    ACL_CONDITION_OPS.has(token.text)
+    aclConditionOperators(schema).has(token.text)
   ) {
     return null;
   }
 
   const prev = tokens[tokenIndex - 1]?.text;
 
-  if (aclConditionIntroducer(prev) || prev === "{") {
+  if (prev === "{" && sampleExpressionNameSets(schema).fetchNames.has(token.text.toLowerCase())) {
+    return null;
+  }
+
+  if (aclConditionIntroducer(schema, prev) || prev === "{") {
     if (token.text.startsWith("!") && token.text.length > 1) {
-      return { name: token.text.slice(1), tokenIndex };
+      return { name: token.text.slice(1), tokenIndex, start: token.start + 1, end: token.end };
     }
-    return { name: token.text, tokenIndex };
+    return { name: token.text, tokenIndex, start: token.start, end: token.end };
   }
 
   return null;
@@ -76,9 +91,60 @@ function pushReference(
   });
 }
 
+function pushReferenceRange(
+  references: SymbolSite[],
+  kind: SymbolKind,
+  name: string,
+  line: ParsedLine,
+  start: number,
+  end: number,
+  scopeKey: string | null,
+): void {
+  references.push({
+    kind,
+    name,
+    line: line.line,
+    start,
+    end,
+    scopeKey,
+    role: "reference",
+  });
+}
+
 const SAMPLE_FETCH_REF = /^([a-z_][\w.-]*)\(([^)]*)\)$/i;
 
-function collectSampleFetchReferences(line: ParsedLine, references: SymbolSite[]): void {
+interface FetchReferenceRule {
+  reference_kind: string;
+  argument_index?: number;
+  scope?: string;
+}
+
+function fetchReferenceRules(schema: HaproxySchema): Record<string, FetchReferenceRule> {
+  const raw = symbolRecord(schema, "sample_fetch_references");
+  const result: Record<string, FetchReferenceRule> = {};
+  for (const [name, value] of Object.entries(raw)) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      continue;
+    }
+    const rule = value as Record<string, unknown>;
+    if (typeof rule.reference_kind === "string") {
+      result[name] = {
+        reference_kind: rule.reference_kind,
+        argument_index: typeof rule.argument_index === "number" ? rule.argument_index : undefined,
+        scope: typeof rule.scope === "string" ? rule.scope : undefined,
+      };
+    }
+  }
+  return result;
+}
+
+function collectSampleFetchReferences(
+  line: ParsedLine,
+  scopeKey: string | null,
+  references: SymbolSite[],
+  schema: HaproxySchema,
+): void {
+  const rules = fetchReferenceRules(schema);
   for (let i = 0; i < line.tokens.length; i += 1) {
     const token = line.tokens[i];
     if (!token) {
@@ -89,13 +155,35 @@ function collectSampleFetchReferences(line: ParsedLine, references: SymbolSite[]
       continue;
     }
     const fetch = match[1].toLowerCase();
-    const arg = match[2].trim();
+    const rule = rules[fetch];
+    if (!rule) {
+      continue;
+    }
+    const argIndex = rule.argument_index ?? 0;
+    const rawArgs = match[2];
+    const rawArg = rawArgs.split(",")[argIndex] ?? "";
+    const arg = rawArg.trim();
     if (!arg) {
       continue;
     }
-    if (fetch === "http_auth" || fetch === "http_auth_group") {
-      pushReference(references, "userlist", arg, line, i, null);
+    const refScope = rule.scope === "section" ? scopeKey : null;
+    const openParen = token.text.indexOf("(");
+    const argParts = rawArgs.split(",");
+    let rawArgStart = 0;
+    for (let partIndex = 0; partIndex < argIndex; partIndex += 1) {
+      rawArgStart += (argParts[partIndex]?.length ?? 0) + 1;
     }
+    const trimOffset = rawArg.indexOf(arg);
+    const start = token.start + openParen + 1 + rawArgStart + trimOffset;
+    pushReferenceRange(
+      references,
+      rule.reference_kind as SymbolKind,
+      arg,
+      line,
+      start,
+      start + arg.length,
+      refScope,
+    );
   }
 }
 
@@ -103,15 +191,31 @@ function collectFilterSelfReference(
   line: ParsedLine,
   scopeKey: string | null,
   references: SymbolSite[],
+  schema: HaproxySchema,
 ): void {
   if (!scopeKey || line.tokens.length < 2) {
     return;
   }
   const keyword = line.tokens[0]?.text.toLowerCase();
-  if (keyword !== "filter") {
+  const ruleRaw = symbolRecord(schema, "self_reference_keywords")[keyword];
+  if (!ruleRaw || typeof ruleRaw !== "object" || Array.isArray(ruleRaw)) {
     return;
   }
-  pushReference(references, "filter", line.tokens[1].text, line, 1, scopeKey);
+  const rule = ruleRaw as Record<string, unknown>;
+  const tokenIndex = typeof rule.token_index === "number" ? rule.token_index : 1;
+  const referenceKind = typeof rule.reference_kind === "string" ? rule.reference_kind : null;
+  if (!referenceKind || !line.tokens[tokenIndex]) {
+    return;
+  }
+  const refScope = rule.scope === "section" ? scopeKey : null;
+  pushReference(
+    references,
+    referenceKind as SymbolKind,
+    line.tokens[tokenIndex].text,
+    line,
+    tokenIndex,
+    refScope,
+  );
 }
 
 function collectConfiguredReferences(
@@ -119,6 +223,7 @@ function collectConfiguredReferences(
   scopeKey: string | null,
   references: SymbolSite[],
   patterns: ReferencePattern[],
+  schema: HaproxySchema,
 ): void {
   for (const pattern of patterns) {
     for (const hit of findReferencePatternMatches(line.tokens, pattern)) {
@@ -159,29 +264,29 @@ function collectConfiguredReferences(
     }
   }
 
-  collectSampleFetchReferences(line, references);
+  collectSampleFetchReferences(line, scopeKey, references, schema);
 }
 
 function collectAclReferences(
   line: ParsedLine,
   scopeKey: string | null,
   references: SymbolSite[],
+  schema: HaproxySchema,
 ): void {
   if (!scopeKey) {
     return;
   }
   for (let i = 1; i < line.tokens.length; i += 1) {
-    const hit = aclReferenceAt(line, i);
+    const hit = aclReferenceAt(schema, line, i);
     if (!hit) {
       continue;
     }
-    const token = line.tokens[hit.tokenIndex];
     references.push({
       kind: "acl",
       name: hit.name,
       line: line.line,
-      start: token.start,
-      end: token.end,
+      start: hit.start,
+      end: hit.end,
       scopeKey,
       role: "reference",
     });
@@ -190,11 +295,12 @@ function collectAclReferences(
 
 function collectSectionHeaderSites(
   line: ParsedLine,
+  schema: HaproxySchema,
   definitions: Map<string, SymbolSite[]>,
   references: SymbolSite[],
 ): void {
   const sectionType = line.tokens[0].text.toLowerCase();
-  const defKind = SECTION_DEFINITION_KINDS[sectionType];
+  const defKind = sectionDefinitionKinds(schema)[sectionType];
   if (!defKind || line.tokens.length < 2) {
     return;
   }
@@ -209,14 +315,14 @@ function collectSectionHeaderSites(
     scopeKey: null,
     role: "definition",
   };
-  addSite(definitions, references, defSite);
+  addSite(schema, definitions, references, defSite);
 
   for (let i = 2; i < line.tokens.length - 1; i += 1) {
     if (line.tokens[i].text.toLowerCase() !== "from") {
       continue;
     }
     const refToken = line.tokens[i + 1];
-    addSite(definitions, references, {
+    addSite(schema, definitions, references, {
       kind: "defaults-profile",
       name: refToken.text,
       line: line.line,
@@ -272,7 +378,7 @@ function collectStatementRuleSites(
         if (token) {
           const kind = rule.definition_kind as SymbolKind;
           const site = siteFromToken(kind, token.text, line, idx, scopeKey, "definition");
-          addSite(definitions, references, site);
+          addSite(schema, definitions, references, site);
         }
       }
     }
@@ -288,28 +394,32 @@ function collectStatementRuleSites(
             token.text,
             line,
             idx,
-            effectiveScopeKey(kind, scopeKey),
+            effectiveScopeKeyForSchema(schema, kind, scopeKey),
             "reference",
           );
-          addSite(definitions, references, site);
+          addSite(schema, definitions, references, site);
         }
       }
     }
   }
 
-  collectAclReferences(line, scopeKey, references);
-  collectFilterSelfReference(line, scopeKey, references);
-  collectConfiguredReferences(line, scopeKey, references, schema.reference_patterns ?? []);
+  collectAclReferences(line, scopeKey, references, schema);
+  collectFilterSelfReference(line, scopeKey, references, schema);
+  collectConfiguredReferences(line, scopeKey, references, schema.reference_patterns ?? [], schema);
 }
 
-export function buildScopeKeyByLine(parsed: ParsedLine[]): (string | null)[] {
+export function buildScopeKeyByLine(
+  parsed: ParsedLine[],
+  schema: HaproxySchema,
+): (string | null)[] {
   const scopeKeyByLine: (string | null)[] = Array.from({ length: parsed.length }, () => null);
   let currentScopeKey: string | null = null;
+  const proxySections = proxySectionSet(schema);
 
   for (const line of parsed) {
     if (isTopLevelSectionHeader(line) && line.tokens.length >= 2) {
       const sectionType = line.tokens[0].text.toLowerCase();
-      currentScopeKey = PROXY_SECTIONS.has(sectionType)
+      currentScopeKey = proxySections.has(sectionType)
         ? proxyScopeKey(sectionType, line.tokens[1].text)
         : null;
     } else if (isTopLevelSectionHeader(line)) {
@@ -332,7 +442,7 @@ export function collectLineSymbolSites(
   const rules = schema.statement_rules ?? [];
 
   if (isTopLevelSectionHeader(line)) {
-    collectSectionHeaderSites(line, definitions, references);
+    collectSectionHeaderSites(line, schema, definitions, references);
   } else {
     collectStatementRuleSites(line, schema, rules, scopeKey, definitions, references);
   }
@@ -356,7 +466,7 @@ export function symbolSiteFingerprint(sites: SymbolSite[]): string {
 }
 
 export function buildLineFingerprints(parsed: ParsedLine[], schema: HaproxySchema): string[] {
-  const scopeKeyByLine = buildScopeKeyByLine(parsed);
+  const scopeKeyByLine = buildScopeKeyByLine(parsed, schema);
   return parsed.map((line) =>
     symbolSiteFingerprint(collectLineSymbolSites(line, schema, scopeKeyByLine[line.line] ?? null)),
   );
@@ -365,20 +475,21 @@ export function buildLineFingerprints(parsed: ParsedLine[], schema: HaproxySchem
 export function buildSymbolIndex(parsed: ParsedLine[], schema: HaproxySchema): SymbolIndex {
   const definitions = new Map<string, SymbolSite[]>();
   const references: SymbolSite[] = [];
-  const scopeKeyByLine = buildScopeKeyByLine(parsed);
+  const scopeKeyByLine = buildScopeKeyByLine(parsed, schema);
 
   for (const line of parsed) {
     const scopeKey = scopeKeyByLine[line.line] ?? null;
     for (const site of collectLineSymbolSites(line, schema, scopeKey)) {
-      addSite(definitions, references, site);
+      addSite(schema, definitions, references, site);
     }
   }
 
   return {
     definitions,
     references,
-    referencesByKey: buildReferencesByKey(references),
+    referencesByKey: buildReferencesByKey(schema, references),
     scopeKeyByLine,
+    scopedSymbolKinds: scopedSymbolKindSet(schema),
   };
 }
 

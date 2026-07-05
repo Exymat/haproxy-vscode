@@ -1,3 +1,4 @@
+import { provideCompletionItems } from "../../src/completion";
 import { tryDirectiveArgumentCompletion } from "../../src/completion/handlers/directiveArgument";
 import * as documentContext from "../../src/documentContext";
 import * as directiveUtils from "../../src/directiveUtils";
@@ -51,6 +52,47 @@ describe("completion core", () => {
       return origGroupItems(data, group);
     });
     expect(completionLabels("frontend web\n    http-request use-service ", 1)).toContain("ping");
+  });
+
+  it("requires use-service metadata", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.semantic_groups = { ...schema.semantic_groups, use_service: [] };
+    const doc = createDocument("frontend web\n    http-request use-service ");
+    expect(() =>
+      provideCompletionItems(
+        doc,
+        cursorAtLineEnd("frontend web\n    http-request use-service ", 1),
+        bundle.languageData,
+        schema,
+      ),
+    ).toThrow(/semantic_groups\.use_service/);
+
+    const malformed = structuredClone(bundle.schema);
+    malformed.semantic_groups = {
+      ...malformed.semantic_groups,
+      use_service: { rule_kinds: ["http-request"], action: 1, service_group: "services" },
+    };
+    expect(() =>
+      provideCompletionItems(
+        doc,
+        cursorAtLineEnd("frontend web\n    http-request use-service ", 1),
+        bundle.languageData,
+        malformed,
+      ),
+    ).toThrow(/semantic_groups\.use_service/);
+
+    malformed.semantic_groups = {
+      ...malformed.semantic_groups,
+      use_service: { rule_kinds: "http-request", action: "use-service", service_group: "services" },
+    };
+    expect(() =>
+      provideCompletionItems(
+        doc,
+        cursorAtLineEnd("frontend web\n    http-request use-service ", 1),
+        bundle.languageData,
+        malformed,
+      ),
+    ).toThrow(/semantic_groups\.use_service/);
   });
 
   it("suggests action, filter, expression, and acl completions", () => {

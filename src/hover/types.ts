@@ -22,4 +22,5 @@ export interface HoverContext {
   cursorOffset: number;
   tokenLower: string;
   analyzed?: AnalyzedLine;
+  maxSymbolLines?: number;
 }

@@ -67,6 +67,7 @@ export class DiagnosticContext {
       document.version,
       this.parsedEntry.reuse,
       previousModes,
+      schema,
     );
     runtimeModeCache.set(document, nextModes);
     this.modesByLine = nextModes.modes;

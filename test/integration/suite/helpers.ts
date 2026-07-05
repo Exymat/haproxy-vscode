@@ -180,6 +180,19 @@ export async function referenceLocationsAt(
   return normalizeLocations(value);
 }
 
+export async function renameEditsAt(
+  uri: vscode.Uri,
+  position: vscode.Position,
+  newName: string,
+): Promise<vscode.WorkspaceEdit | undefined> {
+  return vscode.commands.executeCommand<vscode.WorkspaceEdit>(
+    "vscode.executeDocumentRenameProvider",
+    uri,
+    position,
+    newName,
+  );
+}
+
 export async function replaceDocumentContent(
   document: vscode.TextDocument,
   content: string,
@@ -331,6 +344,7 @@ export async function resetHaproxySettings(): Promise<void> {
     ["diagnostics.deprecatedWarnings", true],
     ["diagnostics.maxLines", 4000],
     ["diagnostics.unusedSymbols", true],
+    ["diagnostics.missingReferences", true],
   ];
   for (const [key, value] of defaults) {
     await config.update(key, value, vscode.ConfigurationTarget.Global);

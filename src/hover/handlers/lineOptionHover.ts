@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 
 import { findArgumentValue, getKeywordFromSchema } from "../../directiveUtils";
-import { lineOptionGroupForKind } from "../../domainMaps";
 import { findIndexedGroupItem } from "../../languageDataIndexes";
+import { lineOptionGroupForKind } from "../../schema";
 import { findStatementRule } from "../../statementLayout";
 import { findGroupItem } from "../helpers";
 import { lineOptionChapter } from "../../lineOptionKeyword";
@@ -13,11 +13,11 @@ import { HoverContext } from "../types";
 export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
   const { ctx, data, schema, range, tokenLower } = hc;
 
-  const lineOptionGroup = lineOptionGroupForKind(ctx.kind);
+  const lineOptionGroup = lineOptionGroupForKind(schema, ctx.kind);
   const lineOptionRule = lineOptionGroup
     ? (hc.analyzed?.statement.rule ?? findStatementRule(schema, ctx.line))
     : undefined;
-  const lineOptionStart = resolveLineOptionStartIndex(ctx.line, lineOptionRule);
+  const lineOptionStart = resolveLineOptionStartIndex(schema, ctx.line, lineOptionRule);
   if (!lineOptionGroup || lineOptionStart < 0 || ctx.tokenIndex < lineOptionStart) {
     return null;
   }

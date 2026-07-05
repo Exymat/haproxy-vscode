@@ -15,6 +15,7 @@ import {
   openHaproxyDocument,
   openTempFixtureDocument,
   referenceLocationsAt,
+  renameEditsAt,
   replaceDocumentContent,
   resetHaproxySettings,
   updateHaproxySetting,
@@ -169,6 +170,50 @@ suite("Language feature integration", () => {
         [0, 3],
       );
     });
+
+    test("rename provider edits backend, ACL, defaults, and server references", async () => {
+      const doc = await openHaproxyDocument(NAVIGATION_CONFIG);
+
+      let edit = await renameEditsAt(
+        doc.uri,
+        new vscode.Position(5, "    use_backend ".length),
+        "api_v2",
+      );
+      assert.ok(edit, "Expected backend rename edit");
+      let applied = await vscode.workspace.applyEdit(edit);
+      assert.strictEqual(applied, true, "Expected backend rename edit to apply");
+      assert.ok(doc.getText().includes("backend api_v2"));
+      assert.ok(doc.getText().includes("use_backend api_v2"));
+
+      edit = await renameEditsAt(
+        doc.uri,
+        new vscode.Position(5, "    use_backend api_v2 if ".length),
+        "is_v2",
+      );
+      assert.ok(edit, "Expected ACL rename edit");
+      applied = await vscode.workspace.applyEdit(edit);
+      assert.strictEqual(applied, true, "Expected ACL rename edit to apply");
+      assert.ok(doc.getText().includes("acl is_v2"));
+      assert.ok(doc.getText().includes("if is_v2"));
+
+      edit = await renameEditsAt(
+        doc.uri,
+        new vscode.Position(2, "frontend web from ".length),
+        "base_v2",
+      );
+      assert.ok(edit, "Expected defaults rename edit");
+      applied = await vscode.workspace.applyEdit(edit);
+      assert.strictEqual(applied, true, "Expected defaults rename edit to apply");
+      assert.ok(doc.getText().includes("defaults base_v2"));
+      assert.ok(doc.getText().includes("from base_v2"));
+
+      edit = await renameEditsAt(doc.uri, new vscode.Position(8, "    use-server ".length), "web2");
+      assert.ok(edit, "Expected server rename edit");
+      applied = await vscode.workspace.applyEdit(edit);
+      assert.strictEqual(applied, true, "Expected server rename edit to apply");
+      assert.ok(doc.getText().includes("server web2"));
+      assert.ok(doc.getText().includes("use-server web2"));
+    });
   });
 
   suite("Outline and folding", () => {
@@ -229,6 +274,18 @@ suite("Language feature integration", () => {
         errors.length,
         0,
         `Expected diagnostics to clear after edit, got: ${errors.map((d) => d.message).join(", ")}`,
+      );
+    });
+
+    test("reports missing symbol references", async () => {
+      const doc = await openHaproxyDocument(
+        "frontend web\n    use_backend missing\n    http-request deny if missing_acl\n",
+      );
+      const diagnostics = await waitForSchemaDiagnostics(doc.uri, 2);
+      assertDiagnosticCounts(
+        diagnostics,
+        { "missing-reference": 2 },
+        "missing backend and ACL references",
       );
     });
 

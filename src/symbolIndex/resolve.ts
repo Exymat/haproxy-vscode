@@ -11,9 +11,9 @@ import { tokenIndexAtPosition } from "../tokenUtils";
 import { aclReferenceAt, buildScopeKeyByLine } from "./build";
 import { symbolNameTokenIndex } from "./utils";
 import {
-  effectiveScopeKey,
-  SECTION_DEFINITION_KINDS,
-  symbolKey,
+  effectiveScopeKeyForSchema,
+  sectionDefinitionKinds,
+  symbolKeyForScopedKinds,
   SymbolIndex,
   SymbolKind,
   SymbolSite,
@@ -23,23 +23,25 @@ function scopeKeyForLine(
   lineNo: number,
   scopeKeyByLine: (string | null)[] | undefined,
   parsed: ParsedLine[],
+  schema: HaproxySchema,
 ): string | null {
   if (scopeKeyByLine) {
     return scopeKeyByLine[lineNo] ?? null;
   }
-  return buildScopeKeyByLine(parsed)[lineNo] ?? null;
+  return buildScopeKeyByLine(parsed, schema)[lineNo] ?? null;
 }
 
 function resolveSectionHeaderSymbol(
   line: ParsedLine,
   tokenIndex: number,
+  schema: HaproxySchema,
 ): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
   if (!isTopLevelSectionHeader(line) || line.tokens.length < 2) {
     return null;
   }
 
   const sectionType = line.tokens[0].text.toLowerCase();
-  const defKind = SECTION_DEFINITION_KINDS[sectionType];
+  const defKind = sectionDefinitionKinds(schema)[sectionType];
   if (!defKind) {
     return null;
   }
@@ -89,14 +91,14 @@ function resolveStatementRuleSymbol(
         return {
           kind,
           name: token.text,
-          scopeKey: effectiveScopeKey(kind, scopeKey),
+          scopeKey: effectiveScopeKeyForSchema(schema, kind, scopeKey),
         };
       }
     }
   }
 
   if (scopeKey) {
-    const hit = aclReferenceAt(line, tokenIndex);
+    const hit = aclReferenceAt(schema, line, tokenIndex);
     if (hit) {
       return { kind: "acl", name: hit.name, scopeKey };
     }
@@ -134,10 +136,10 @@ export function resolveSymbolAtPosition(
   }
 
   if (line.isSectionHeader) {
-    return resolveSectionHeaderSymbol(line, tokenIndex);
+    return resolveSectionHeaderSymbol(line, tokenIndex, schema);
   }
 
-  const scopeKey = scopeKeyForLine(position.line, scopeKeyByLine, parsed);
+  const scopeKey = scopeKeyForLine(position.line, scopeKeyByLine, parsed, schema);
 
   return resolveStatementRuleSymbol(
     line,
@@ -154,7 +156,10 @@ export function findDefinitions(
   name: string,
   scopeKey: string | null,
 ): SymbolSite[] {
-  return index.definitions.get(symbolKey(kind, name, scopeKey)) ?? [];
+  return (
+    index.definitions.get(symbolKeyForScopedKinds(index.scopedSymbolKinds, kind, name, scopeKey)) ??
+    []
+  );
 }
 
 export function findReferences(
@@ -163,7 +168,7 @@ export function findReferences(
   name: string,
   scopeKey: string | null,
 ): SymbolSite[] {
-  const key = symbolKey(kind, name, scopeKey);
+  const key = symbolKeyForScopedKinds(index.scopedSymbolKinds, kind, name, scopeKey);
   const refs = index.referencesByKey.get(key);
   if (refs) {
     return refs;
@@ -177,7 +182,9 @@ export function hasReferences(
   name: string,
   scopeKey: string | null,
 ): boolean {
-  return index.referencesByKey.has(symbolKey(kind, name, scopeKey));
+  return index.referencesByKey.has(
+    symbolKeyForScopedKinds(index.scopedSymbolKinds, kind, name, scopeKey),
+  );
 }
 
 export function findAllSites(
@@ -189,4 +196,34 @@ export function findAllSites(
   const defs = findDefinitions(index, kind, name, scopeKey);
   const refs = findReferences(index, kind, name, scopeKey);
   return [...defs, ...refs];
+}
+
+function siteContainsPosition(site: SymbolSite, position: vscode.Position): boolean {
+  return (
+    site.line === position.line &&
+    position.character >= site.start &&
+    position.character <= site.end
+  );
+}
+
+function allDefinitionSites(index: SymbolIndex): SymbolSite[] {
+  const sites: SymbolSite[] = [];
+  for (const defs of index.definitions.values()) {
+    sites.push(...defs);
+  }
+  return sites;
+}
+
+export function findSiteAtPosition(
+  index: SymbolIndex,
+  position: vscode.Position,
+): SymbolSite | null {
+  const hits = [...index.references, ...allDefinitionSites(index)].filter((site) =>
+    siteContainsPosition(site, position),
+  );
+  if (hits.length === 0) {
+    return null;
+  }
+  hits.sort((a, b) => a.end - a.start - (b.end - b.start));
+  return hits[0] ?? null;
 }

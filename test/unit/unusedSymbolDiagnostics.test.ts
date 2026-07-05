@@ -8,7 +8,8 @@ import { parseDocument } from "../../src/parser";
 import {
   buildSymbolIndex,
   findReferences,
-  symbolKey,
+  scopedSymbolKindSet,
+  symbolKeyForScopedKinds,
   type SymbolIndex,
   type SymbolKind,
 } from "../../src/symbolIndex";
@@ -18,8 +19,13 @@ import { formatDiagnosticCode } from "../helpers/diagnosticFormat";
 import { loadSchema } from "../helpers/schema";
 
 const schema = loadSchema("3.4");
+const scopedSymbolKinds = scopedSymbolKindSet(schema);
 const fixturesDir = join(__dirname, "..", "fixtures");
 const hapeeAclSnippet = readFileSync(join(fixturesDir, "hapee-acl-snippet.cfg"), "utf-8");
+
+function key(kind: SymbolKind, name: string, scopeKey: string | null): string {
+  return symbolKeyForScopedKinds(scopedSymbolKinds, kind, name, scopeKey);
+}
 
 function unusedDiags(content: string): vscode.Diagnostic[] {
   const document = createDocument(content);
@@ -255,7 +261,7 @@ describe("symbolIndex reference expansion", () => {
     const parsed = parseDocument(document);
     const index = buildSymbolIndex(parsed, schema);
     expect(
-      unusedSymbolDiagnostics(document, parsed, index, {
+      unusedSymbolDiagnostics(document, parsed, index, schema, {
         enabled: false,
       }),
     ).toHaveLength(0);
@@ -268,7 +274,7 @@ describe("symbolIndex reference expansion", () => {
     const filterIndex: SymbolIndex = {
       definitions: new Map([
         [
-          symbolKey("filter", "f1", "frontend:web"),
+          key("filter", "f1", "frontend:web"),
           [
             {
               kind: "filter",
@@ -285,21 +291,23 @@ describe("symbolIndex reference expansion", () => {
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
+      scopedSymbolKinds,
     };
     expect(
-      unusedSymbolDiagnostics(document, parsed, filterIndex, {
+      unusedSymbolDiagnostics(document, parsed, filterIndex, schema, {
         enabled: true,
       }),
     ).toHaveLength(0);
 
     const emptyDefsIndex: SymbolIndex = {
-      definitions: new Map([[symbolKey("acl", "x", "frontend:web"), []]]),
+      definitions: new Map([[key("acl", "x", "frontend:web"), []]]),
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
+      scopedSymbolKinds,
     };
     expect(
-      unusedSymbolDiagnostics(document, parsed, emptyDefsIndex, {
+      unusedSymbolDiagnostics(document, parsed, emptyDefsIndex, schema, {
         enabled: true,
       }),
     ).toHaveLength(0);
@@ -324,8 +332,9 @@ describe("symbolIndex reference expansion", () => {
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
+      scopedSymbolKinds,
     };
-    const unknownDiag = unusedSymbolDiagnostics(document, parsed, unknownKindIndex, {
+    const unknownDiag = unusedSymbolDiagnostics(document, parsed, unknownKindIndex, schema, {
       enabled: true,
     });
     expect(unknownDiag).toHaveLength(1);
@@ -334,7 +343,7 @@ describe("symbolIndex reference expansion", () => {
     const orphanSectionIndex: SymbolIndex = {
       definitions: new Map([
         [
-          symbolKey("cache", "orphan", null),
+          key("cache", "orphan", null),
           [
             {
               kind: "cache",
@@ -351,8 +360,9 @@ describe("symbolIndex reference expansion", () => {
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
+      scopedSymbolKinds,
     };
-    const orphanDiag = unusedSymbolDiagnostics(document, parsed, orphanSectionIndex, {
+    const orphanDiag = unusedSymbolDiagnostics(document, parsed, orphanSectionIndex, schema, {
       enabled: true,
     });
     expect(orphanDiag).toHaveLength(1);
@@ -361,7 +371,7 @@ describe("symbolIndex reference expansion", () => {
     const misfiledBackendIndex: SymbolIndex = {
       definitions: new Map([
         [
-          symbolKey("proxy-section", "wide", null),
+          key("proxy-section", "wide", null),
           [
             {
               kind: "proxy-section",
@@ -378,11 +388,13 @@ describe("symbolIndex reference expansion", () => {
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
+      scopedSymbolKinds,
     };
     const misfiledDiag = unusedSymbolDiagnostics(
       createDocument("backend wide\n    mode http"),
       parseDocument(createDocument("backend wide\n    mode http")),
       misfiledBackendIndex,
+      schema,
       { enabled: true },
     );
     expect(misfiledDiag).toHaveLength(1);
@@ -391,7 +403,7 @@ describe("symbolIndex reference expansion", () => {
     const inlineFrontendIndex: SymbolIndex = {
       definitions: new Map([
         [
-          symbolKey("proxy-section", "ghost", "frontend:web"),
+          key("proxy-section", "ghost", "frontend:web"),
           [
             {
               kind: "proxy-section",
@@ -408,11 +420,13 @@ describe("symbolIndex reference expansion", () => {
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
+      scopedSymbolKinds,
     };
     const inlineFrontendDiag = unusedSymbolDiagnostics(
       createDocument("frontend web\n    bind :80"),
       parseDocument(createDocument("frontend web\n    bind :80")),
       inlineFrontendIndex,
+      schema,
       { enabled: true },
     );
     expect(inlineFrontendDiag).toHaveLength(1);

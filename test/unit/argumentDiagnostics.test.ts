@@ -239,9 +239,71 @@ describe("argumentDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
   });
 
-  it("rejects host for http-send-name-header", () => {
+  it("accepts host for http-send-name-header", () => {
     const diags = argDiags("listen l1\n    http-send-name-header host", 1);
-    expect(diags.some((d) => d.code === "unknown-value")).toBe(true);
+    expect(diags.some((d) => d.code === "unknown-value")).toBe(false);
+  });
+
+  it("honors schema-provided forbidden http-send-name-header values", () => {
+    const customSchema = structuredClone(bundle.schema);
+    customSchema.validation_rules = {
+      ...customSchema.validation_rules,
+      special_argument_rules: {
+        ...(customSchema.validation_rules?.special_argument_rules ?? {}),
+        "http-send-name-header": {
+          forbidden_first_arg_by_min_version: { "3.4": ["host"], "9.9": ["future"] },
+        },
+      },
+    };
+    const host = argDiagsForBundle("listen l1\n    http-send-name-header host", 1, customSchema);
+    expect(host.some((d) => d.code === "unknown-value")).toBe(true);
+
+    const future = argDiagsForBundle(
+      "listen l1\n    http-send-name-header future",
+      1,
+      customSchema,
+    );
+    expect(future.some((d) => d.code === "unknown-value")).toBe(false);
+  });
+
+  it("requires special argument rule metadata", () => {
+    const customSchema = structuredClone(bundle.schema);
+    customSchema.validation_rules = {
+      ...customSchema.validation_rules,
+      special_argument_rules: {
+        "option mysql-check": {
+          first_values: "malformed",
+          modes: "malformed",
+        },
+        "http-send-name-header": {
+          forbidden_first_arg_by_min_version: "malformed",
+        },
+        cookie: {
+          modes: "malformed",
+        },
+      },
+    };
+    expect(() =>
+      argDiagsForBundle("defaults\n    option mysql-check bogus", 1, customSchema),
+    ).toThrow(/special_argument_rules/);
+    expect(() =>
+      argDiagsForBundle("listen l1\n    http-send-name-header host", 1, customSchema),
+    ).toThrow(/special_argument_rules/);
+    expect(() =>
+      argDiagsForBundle("backend b\n    cookie SRV insert bogus", 1, customSchema),
+    ).toThrow(/special_argument_rules/);
+
+    const missingRuleSchema = structuredClone(bundle.schema);
+    missingRuleSchema.validation_rules = {
+      ...missingRuleSchema.validation_rules,
+      special_argument_rules: {},
+    };
+    expect(() =>
+      argDiagsForBundle("defaults\n    option mysql-check bogus", 1, missingRuleSchema),
+    ).toThrow(/special_argument_rules/);
+    expect(() =>
+      argDiagsForBundle("backend b\n    cookie SRV insert bogus", 1, missingRuleSchema),
+    ).toThrow(/special_argument_rules/);
   });
 
   it("accepts host for http-send-name-header on pre-3.4 schemas", () => {
@@ -396,6 +458,9 @@ describe("argumentDiagnostics", () => {
         "one",
       ]),
     ).toBe(true);
+    expect(allowsMissingArgs(undefined, { min_args: 1, max_args: 1, slots: [] }, undefined)).toBe(
+      false,
+    );
 
     const line = parseDocument(createDocument("backend x\n    balance roundrobin"))[1];
     expect(

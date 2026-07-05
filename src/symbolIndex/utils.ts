@@ -1,6 +1,6 @@
-import { StatementRule } from "../schema";
+import { HaproxySchema, StatementRule } from "../schema";
 
-import { symbolKey, SymbolSite } from "./types";
+import { scopedSymbolKindSet, symbolKeyForScopedKinds, SymbolSite } from "./types";
 
 export function symbolNameTokenIndex(rule: StatementRule): number | null {
   if (rule.symbol_name_token_index != null) {
@@ -20,11 +20,17 @@ export function symbolNameTokenIndex(rule: StatementRule): number | null {
 }
 
 export function addSite(
+  schema: HaproxySchema,
   definitions: Map<string, SymbolSite[]>,
   references: SymbolSite[],
   site: SymbolSite,
 ): void {
-  const key = symbolKey(site.kind, site.name, site.scopeKey);
+  const key = symbolKeyForScopedKinds(
+    scopedSymbolKindSet(schema),
+    site.kind,
+    site.name,
+    site.scopeKey,
+  );
   if (site.role === "definition") {
     const list = definitions.get(key) ?? [];
     list.push(site);
@@ -34,10 +40,14 @@ export function addSite(
   }
 }
 
-export function buildReferencesByKey(references: SymbolSite[]): Map<string, SymbolSite[]> {
+export function buildReferencesByKey(
+  schema: HaproxySchema,
+  references: SymbolSite[],
+): Map<string, SymbolSite[]> {
   const map = new Map<string, SymbolSite[]>();
+  const scopedKinds = scopedSymbolKindSet(schema);
   for (const site of references) {
-    const key = symbolKey(site.kind, site.name, site.scopeKey);
+    const key = symbolKeyForScopedKinds(scopedKinds, site.kind, site.name, site.scopeKey);
     const list = map.get(key);
     if (list) {
       list.push(site);

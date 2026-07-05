@@ -6,6 +6,7 @@ import { HaproxyLanguageData } from "./languageData";
 import { HaproxySchema } from "./schema";
 import { getSymbolIndex } from "./symbolIndex";
 import { entryPointWithoutBindDiagnostics } from "./entryPointDiagnostics";
+import { missingReferenceDiagnostics } from "./missingReferenceDiagnostics";
 import { unusedSymbolDiagnostics } from "./unusedSymbolDiagnostics";
 
 interface DiagnosticsCacheKey {
@@ -13,6 +14,7 @@ interface DiagnosticsCacheKey {
   languageData: HaproxyLanguageData | undefined;
   deprecatedWarnings: boolean;
   unusedSymbols: boolean;
+  missingReferences: boolean;
   maxLines: number | undefined;
 }
 
@@ -30,6 +32,7 @@ export interface ComputeDiagnosticsOptions {
   languageData?: HaproxyLanguageData;
   deprecatedWarnings?: boolean;
   unusedSymbols?: boolean;
+  missingReferences?: boolean;
   maxLines?: number;
 }
 
@@ -42,6 +45,7 @@ function diagnosticsCacheKey(
     languageData: options.languageData,
     deprecatedWarnings: options.deprecatedWarnings !== false,
     unusedSymbols: options.unusedSymbols === true,
+    missingReferences: options.missingReferences !== false,
     maxLines: options.maxLines,
   };
 }
@@ -52,6 +56,7 @@ function sameCacheKey(left: DiagnosticsCacheKey, right: DiagnosticsCacheKey): bo
     left.languageData === right.languageData &&
     left.deprecatedWarnings === right.deprecatedWarnings &&
     left.unusedSymbols === right.unusedSymbols &&
+    left.missingReferences === right.missingReferences &&
     left.maxLines === right.maxLines
   );
 }
@@ -104,18 +109,25 @@ export function computeDiagnostics(
 
   const diagnostics = flattenDiagnostics(lineDiagnostics);
 
-  if (options.unusedSymbols) {
+  if (options.unusedSymbols || options.missingReferences !== false) {
     /* v8 ignore start -- explicit maxLines overrides are only used by the VS Code scheduler */
     const maxLines = options.maxLines ?? document.lineCount;
     const index = getSymbolIndex(document, schema, maxLines);
     if (index) {
-      diagnostics.push(
-        ...unusedSymbolDiagnostics(document, ctx.parsed, index, {
-          enabled: true,
-        }),
-      );
+      if (options.unusedSymbols) {
+        diagnostics.push(
+          ...unusedSymbolDiagnostics(document, ctx.parsed, index, ctx.schema, {
+            enabled: true,
+          }),
+        );
+      }
+      if (options.missingReferences !== false) {
+        diagnostics.push(...missingReferenceDiagnostics(index));
+      }
     }
-    diagnostics.push(...entryPointWithoutBindDiagnostics(document, ctx.parsed));
+    if (options.unusedSymbols) {
+      diagnostics.push(...entryPointWithoutBindDiagnostics(document, ctx.parsed, ctx.schema));
+    }
     /* v8 ignore stop */
   }
 

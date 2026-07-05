@@ -15,7 +15,7 @@ import { resolveSchemaKeyword } from "./keywordVariant";
 import { conditionalTokenSet, HaproxySchema, prefixFamilySet } from "./schema";
 import { isLikelyValue } from "./tokenUtils";
 
-import { ARGUMENT_MODEL_SKIP_KEYWORDS } from "./diagnosticKeywordSets";
+import { argumentModelSkipKeywordSet } from "./diagnosticKeywordSets";
 
 function makeArgDiagnostic(
   line: ParsedLine,
@@ -39,7 +39,7 @@ export function argumentModelDiagnostics(
   }
 
   const keyword = match.keyword.toLowerCase();
-  if (ARGUMENT_MODEL_SKIP_KEYWORDS.has(keyword)) {
+  if (argumentModelSkipKeywordSet(schema).has(keyword)) {
     return [];
   }
 

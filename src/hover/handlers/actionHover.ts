@@ -1,13 +1,11 @@
 import * as vscode from "vscode";
 
-import { ACTION_GROUP_NAMES, actionGroupForCompletionKind } from "../../domainMaps";
 import { findIndexedGroupItem } from "../../languageDataIndexes";
+import { actionGroupForCompletionKind, actionGroupNames } from "../../schema";
 import { normalizeActionName } from "../../tokenUtils";
 import { sampleTokenCandidates } from "../helpers";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
-
-const actionGroups = ACTION_GROUP_NAMES;
 
 function actionNameCandidates(hc: HoverContext): string[] {
   /* v8 ignore next -- hover synthesis may run before a concrete token is available under the cursor */
@@ -30,8 +28,9 @@ function actionNameCandidates(hc: HoverContext): string[] {
   return out;
 }
 
-function actionGroupsToSearch(hc: HoverContext): readonly (typeof ACTION_GROUP_NAMES)[number][] {
-  const preferred = actionGroupForCompletionKind(hc.ctx.kind);
+function actionGroupsToSearch(hc: HoverContext): string[] {
+  const actionGroups = actionGroupNames(hc.schema);
+  const preferred = actionGroupForCompletionKind(hc.schema, hc.ctx.kind);
   if (!preferred) {
     return actionGroups;
   }

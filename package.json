@@ -102,6 +102,11 @@
           "default": true,
           "description": "Hint when ACLs or sections appear unused. Unused ACL lines and unreferenced section blocks use unnecessary-code diagnostics that fade the full line or section."
         },
+        "haproxy.diagnostics.missingReferences": {
+          "type": "boolean",
+          "default": true,
+          "description": "Warn when a named HAProxy reference points to no definition in the current file, such as a missing ACL, backend, cache, peers, resolvers, userlist, or named defaults profile."
+        },
         "haproxy.format.enabled": {
           "type": "boolean",
           "default": true,

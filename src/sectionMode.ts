@@ -1,5 +1,6 @@
 import { ParsedLine } from "./parser";
 import { ParsedDocumentReuse } from "./parseCache";
+import { HaproxySchema, symbolStringList } from "./schema";
 
 export type RuntimeMode = "tcp" | "http" | "log" | "spop" | "haterm";
 
@@ -35,13 +36,18 @@ function parseSectionHeader(line: ParsedLine): SectionBlock | null {
   return { kind, name, fromDefaults, explicitMode: null };
 }
 
-function isRuntimeMode(value: string): value is RuntimeMode {
-  return (
-    value === "tcp" || value === "http" || value === "log" || value === "spop" || value === "haterm"
-  );
+function runtimeModeSet(schema: HaproxySchema): Set<string> {
+  return new Set(symbolStringList(schema, "runtime_modes"));
 }
 
-export function runtimeModeForLine(parsed: ParsedLine[]): Array<RuntimeMode | null> {
+function isRuntimeMode(value: string, schema: HaproxySchema): value is RuntimeMode {
+  return runtimeModeSet(schema).has(value);
+}
+
+export function runtimeModeForLine(
+  parsed: ParsedLine[],
+  schema: HaproxySchema,
+): Array<RuntimeMode | null> {
   const blocks: SectionBlock[] = [];
   const blockByLine = new Map<number, number>();
   let currentBlock = -1;
@@ -56,7 +62,7 @@ export function runtimeModeForLine(parsed: ParsedLine[]): Array<RuntimeMode | nu
     blockByLine.set(line.line, currentBlock);
     const t0 = line.tokens[0]?.text.toLowerCase();
     const t1 = line.tokens[1]?.text.toLowerCase();
-    if (currentBlock >= 0 && t0 === "mode" && t1 && isRuntimeMode(t1)) {
+    if (currentBlock >= 0 && t0 === "mode" && t1 && isRuntimeMode(t1, schema)) {
       blocks[currentBlock].explicitMode = t1;
     }
   }
@@ -139,7 +145,8 @@ export function runtimeModeForDocument(
   parsed: ParsedLine[],
   version: number,
   reuse: ParsedDocumentReuse,
-  previous?: RuntimeModeCacheEntry,
+  previous: RuntimeModeCacheEntry | undefined,
+  schema: HaproxySchema,
 ): RuntimeModeCacheEntry {
   if (
     previous &&
@@ -154,6 +161,6 @@ export function runtimeModeForDocument(
   }
   return {
     version,
-    modes: runtimeModeForLine(parsed),
+    modes: runtimeModeForLine(parsed, schema),
   };
 }

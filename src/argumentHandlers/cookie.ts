@@ -2,27 +2,15 @@ import * as vscode from "vscode";
 
 import { makeLineDiagnostic } from "../diagnosticUtils";
 import { ParsedLine } from "../parser";
+import { HaproxySchema, validationRecord } from "../schema";
 import { isLikelyValue } from "../tokenUtils";
-
-export const COOKIE_MODES = new Set([
-  "indirect",
-  "insert",
-  "nocache",
-  "prefix",
-  "rewrite",
-  "postonly",
-  "preserve",
-  "httponly",
-  "secure",
-  "domain",
-  "attr",
-]);
 
 export function cookieArgumentDiagnostics(
   line: ParsedLine,
   match: { end: number },
   argIndices: number[],
   conditionals: Set<string>,
+  schema: HaproxySchema,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   if (argIndices.length === 0) {
@@ -38,10 +26,24 @@ export function cookieArgumentDiagnostics(
     return diagnostics;
   }
 
+  const specialRules = validationRecord(schema, "special_argument_rules");
+  const cookieRule =
+    specialRules.cookie && typeof specialRules.cookie === "object"
+      ? (specialRules.cookie as Record<string, unknown>)
+      : undefined;
+  if (!cookieRule || !Array.isArray(cookieRule.modes)) {
+    throw new Error(
+      "HAProxy schema is missing required generated metadata: validation_rules.special_argument_rules.cookie.modes",
+    );
+  }
+  const modes = new Set(
+    cookieRule.modes.filter((mode): mode is string => typeof mode === "string"),
+  );
+
   for (let pos = 1; pos < argIndices.length; pos += 1) {
     const tokenIdx = argIndices[pos];
     const value = line.tokens[tokenIdx].text.toLowerCase();
-    if (!COOKIE_MODES.has(value) && !isLikelyValue(value, conditionals)) {
+    if (!modes.has(value) && !isLikelyValue(value, conditionals)) {
       diagnostics.push(
         makeLineDiagnostic(
           line,
