@@ -6,14 +6,34 @@ import {
   findReferences,
   findSiteAtPosition,
   getSymbolIndex,
+  resolveSymbolAtPosition,
   SymbolSite,
 } from "./symbolIndex";
+
+interface ResolvedNavigationSymbol {
+  kind: SymbolSite["kind"];
+  name: string;
+  scopeKey: string | null;
+}
 
 function siteToLocation(document: vscode.TextDocument, site: SymbolSite): vscode.Location {
   return new vscode.Location(
     document.uri,
     new vscode.Range(site.line, site.start, site.line, site.end),
   );
+}
+
+function resolveNavigationSymbol(
+  document: vscode.TextDocument,
+  position: vscode.Position,
+  schema: HaproxySchema,
+  index: NonNullable<ReturnType<typeof getSymbolIndex>>,
+): ResolvedNavigationSymbol | null {
+  const site = findSiteAtPosition(index, position);
+  if (site) {
+    return site;
+  }
+  return resolveSymbolAtPosition(document, position, schema, index.scopeKeyByLine);
 }
 
 export function provideDefinition(
@@ -27,7 +47,7 @@ export function provideDefinition(
     return null;
   }
 
-  const symbol = findSiteAtPosition(index, position);
+  const symbol = resolveNavigationSymbol(document, position, schema, index);
   if (!symbol) {
     return null;
   }
@@ -56,7 +76,7 @@ export function provideReferences(
     return [];
   }
 
-  const symbol = findSiteAtPosition(index, position);
+  const symbol = resolveNavigationSymbol(document, position, schema, index);
   if (!symbol) {
     return [];
   }

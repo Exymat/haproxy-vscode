@@ -43,7 +43,10 @@ describe("symbol hover", () => {
     const hover = trySymbolHover(hc);
     expect(hover).not.toBeNull();
     const text = hoverText(hover as never);
-    expect(text).toBe(["```haproxy", "backend api", "```"].join("\n"));
+    expect(text).toContain(["```haproxy", "backend api", "```"].join("\n"));
+    expect(text).toContain("command:haproxy.peekDefinitionAtPosition");
+    expect(text).not.toContain("Defined on line");
+    expect(text).not.toContain("References:");
   });
 
   it("returns null when a symbol reference has no definition", () => {
@@ -70,7 +73,7 @@ describe("symbol hover", () => {
       bundle.languageData,
       bundle.schema,
     );
-    expect(hoverText(hover as never)).toBe(["```haproxy", "backend api", "```"].join("\n"));
+    expect(hoverText(hover as never)).toContain(["```haproxy", "backend api", "```"].join("\n"));
   });
 
   it("shows the definition line for default_backend references", () => {
@@ -82,6 +85,6 @@ describe("symbol hover", () => {
       bundle.languageData,
       bundle.schema,
     );
-    expect(hoverText(hover as never)).toBe(["```haproxy", "backend api", "```"].join("\n"));
+    expect(hoverText(hover as never)).toContain(["```haproxy", "backend api", "```"].join("\n"));
   });
 });

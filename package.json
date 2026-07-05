@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, and go-to-definition — LTS versions (2.6 - 3.4) supported.",
-  "version": "0.14.2",
+  "version": "0.14.3",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",

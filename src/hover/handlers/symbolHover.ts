@@ -13,6 +13,11 @@ function isDefinitionSite(site: SymbolSite, definition: SymbolSite): boolean {
   );
 }
 
+function commandUri(document: vscode.TextDocument, site: SymbolSite): string {
+  const args = encodeURIComponent(JSON.stringify([document.uri.toString(), site.line, site.start]));
+  return `command:haproxy.peekDefinitionAtPosition?${args}`;
+}
+
 export function trySymbolHover(hc: HoverContext): vscode.Hover | null {
   const maxLines = hc.maxSymbolLines ?? hc.document.lineCount;
   const index = getSymbolIndex(hc.document, hc.schema, maxLines);
@@ -34,6 +39,8 @@ export function trySymbolHover(hc: HoverContext): vscode.Hover | null {
   const definitionText = hc.document.lineAt(definition.line).text;
   const md = new vscode.MarkdownString();
   md.appendMarkdown(["```haproxy", definitionText, "```"].join("\n"));
+  md.appendMarkdown(`\n\n[Peek Definition](${commandUri(hc.document, site)})`);
+  md.isTrusted = { enabledCommands: ["haproxy.peekDefinitionAtPosition"] };
 
   return new vscode.Hover(md, symbolRange(site));
 }

@@ -247,6 +247,24 @@ describe("navigation", () => {
     expect(location).not.toBeNull();
   });
 
+  it("provideDefinition works at every character in a symbol reference", () => {
+    const doc = createDocument("backend api\nfrontend web\n    use_backend api");
+    const col = "    use_backend api".indexOf("api");
+    for (let offset = 0; offset <= "api".length; offset += 1) {
+      const location = provideDefinition(doc, pos(2, col + offset), schema, 4000);
+      expect(location).not.toBeNull();
+    }
+  });
+
+  it("provideDefinition falls back to parser resolution when exact site lookup misses", () => {
+    const doc = createDocument("backend api\nfrontend web\n    use_backend api");
+    const col = "    use_backend api".indexOf("api");
+    vi.spyOn(symbolIndex, "findSiteAtPosition").mockReturnValueOnce(null);
+    const location = provideDefinition(doc, pos(2, col), schema, 4000);
+    expect(location).not.toBeNull();
+    expect(Array.isArray(location)).toBe(false);
+  });
+
   it("provideDefinition returns null when indexing is unavailable or no definitions remain", () => {
     const doc = createDocument("frontend web\n    use_backend api");
     const col = "    use_backend api".indexOf("api");

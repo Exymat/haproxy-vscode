@@ -71,6 +71,22 @@ suite("Language feature integration", () => {
       assert.strictEqual(defaultsDefs[0]?.range.start.line, 0);
     });
 
+    test("editor Go to Definition command navigates from backend reference", async () => {
+      const doc = await openHaproxyDocument(NAVIGATION_CONFIG);
+      const editor = await vscode.window.showTextDocument(doc);
+      const refPosition = new vscode.Position(5, "    use_backend ".length + 1);
+      editor.selection = new vscode.Selection(refPosition, refPosition);
+
+      await vscode.commands.executeCommand("editor.action.revealDefinition");
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      const active = vscode.window.activeTextEditor;
+      assert.ok(active, "Expected an active editor after Go to Definition");
+      assert.strictEqual(active.document.uri.toString(), doc.uri.toString());
+      assert.strictEqual(active.selection.active.line, 6);
+      assert.strictEqual(active.selection.active.character, "backend ".length);
+    });
+
     test("find references returns ACL definition and frontend condition usage", async () => {
       const doc = await openHaproxyDocument(NAVIGATION_CONFIG);
       const pos = new vscode.Position(5, "    use_backend api if ".length);

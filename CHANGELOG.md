@@ -2,6 +2,11 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.14.3
+
+- **Go to Definition and Find References** — work at any cursor position within a symbol reference name (e.g. any character of `api` in `use_backend api`); falls back to parser-based symbol resolution when the exact index span does not match.
+- **Symbol hover Peek Definition** — reference hovers again include a **Peek Definition** link below the defining-line preview.
+
 ## 0.14.2
 
 - **Fixed `balance url_param` validation** — accepts the optional `check_post` modifier plus trailing arguments (e.g. `balance url_param session_id check_post 64`). Schemas 2.6–3.4 now model a variadic tail slot; argument validation runs for open-ended models when enum slots are present and no longer mis-treats `check_post` as starting a keyword/value pair.
