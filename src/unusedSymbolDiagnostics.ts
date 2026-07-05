@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";
+import { DiagnosticContext } from "./diagnosticContext";
 import { ParsedLine } from "./parser";
 import { getSectionOutline, SectionSymbolInfo } from "./sectionOutline";
-import { HaproxySchema, symbolStringList } from "./schema";
 import { hasReferences, SymbolIndex, SymbolKind, SymbolSite } from "./symbolIndex";
 
 export interface UnusedSymbolOptions {
@@ -67,13 +67,10 @@ function proxySectionType(parsed: ParsedLine[], defLine: number): string | null 
 function isEntryPointProxySection(
   parsed: ParsedLine[],
   defLine: number,
-  schema: HaproxySchema,
+  entryPointSections: Set<string>,
 ): boolean {
   const sectionType = proxySectionType(parsed, defLine);
-  return (
-    sectionType !== null &&
-    new Set(symbolStringList(schema, "entry_point_sections")).has(sectionType)
-  );
+  return sectionType !== null && entryPointSections.has(sectionType);
 }
 
 function unusedMessage(kind: SymbolKind, name: string): string {
@@ -127,7 +124,7 @@ export function unusedSymbolDiagnostics(
   document: vscode.TextDocument,
   parsed: ParsedLine[],
   index: SymbolIndex,
-  schema: HaproxySchema,
+  ctx: Pick<DiagnosticContext, "entryPointSections">,
   options: UnusedSymbolOptions,
 ): vscode.Diagnostic[] {
   if (!options.enabled) {
@@ -151,7 +148,7 @@ export function unusedSymbolDiagnostics(
       continue;
     }
 
-    if (kind === "proxy-section" && isEntryPointProxySection(parsed, site.line, schema)) {
+    if (kind === "proxy-section" && isEntryPointProxySection(parsed, site.line, ctx.entryPointSections)) {
       continue;
     }
 

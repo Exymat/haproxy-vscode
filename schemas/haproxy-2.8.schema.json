@@ -45183,7 +45183,6 @@
   "sample_casts": [
     [
       true,
-      false,
       true,
       true,
       true,
@@ -45194,20 +45193,7 @@
       true
     ],
     [
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
       true,
-      false,
       true,
       true,
       false,
@@ -45219,7 +45205,6 @@
     ],
     [
       true,
-      false,
       true,
       true,
       true,
@@ -45234,6 +45219,16 @@
       false,
       false,
       false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      true,
+      false,
+      true,
       true,
       true,
       true,
@@ -45250,36 +45245,21 @@
       true,
       true,
       true,
-      true,
       false
     ],
     [
       true,
-      false,
-      false,
-      false,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false
-    ],
-    [
-      true,
-      false,
       true,
       true,
       true,
       true,
       true,
       true,
-      false,
+      true,
       true
     ],
     [
       true,
-      false,
       false,
       false,
       false,
@@ -45291,7 +45271,6 @@
     ],
     [
       true,
-      false,
       false,
       false,
       false,
@@ -61183,7 +61162,6 @@
   },
   "sample_types": [
     "any",
-    "same",
     "bool",
     "sint",
     "addr",
@@ -62323,9 +62301,10 @@
       "sample_fetches"
     ],
     "action_groups": [
+      "http_after_response_actions",
       "http_request_actions",
       "http_response_actions",
-      "http_after_response_actions",
+      "quic_initial_actions",
       "tcp_request_actions",
       "tcp_response_actions"
     ],
@@ -62342,12 +62321,12 @@
       "tcp-response": "tcp_response_actions"
     },
     "deprecated_action_groups": [
+      "http_after_response_actions",
       "http_request_actions",
       "http_response_actions",
-      "http_after_response_actions",
+      "quic_initial_actions",
       "tcp_request_actions",
-      "tcp_response_actions",
-      "quic_initial_actions"
+      "tcp_response_actions"
     ],
     "dynamic_action_prefixes": [
       "lua."
@@ -62371,9 +62350,7 @@
       ],
       "rule_kinds": [
         "http-request",
-        "http-response",
-        "tcp-request",
-        "tcp-response"
+        "tcp-request"
       ],
       "service_group": "services"
     }
@@ -62729,11 +62706,8 @@
       "listen"
     ],
     "runtime_modes": [
-      "tcp",
       "http",
-      "log",
-      "spop",
-      "haterm"
+      "tcp"
     ],
     "sample_fetch_references": {
       "http_auth": {
@@ -62748,9 +62722,9 @@
       }
     },
     "scoped_symbol_kinds": [
-      "server",
       "acl",
-      "filter"
+      "filter",
+      "server"
     ],
     "section_definition_kinds": {
       "backend": "proxy-section",
@@ -62910,30 +62884,55 @@
   },
   "validation_rules": {
     "argument_model_skip_keywords": [
-      "bind",
-      "server",
       "acl",
-      "option",
-      "stats",
-      "http-request",
-      "http-response",
-      "tcp-request",
-      "tcp-response",
+      "bind",
       "http-after-response",
       "http-check",
-      "tcp-check"
+      "http-request",
+      "http-response",
+      "option",
+      "server",
+      "stats",
+      "tcp-check",
+      "tcp-request",
+      "tcp-response"
     ],
     "converter_min_args": {
       "ipmask": 1,
       "map": 1,
       "map_beg": 1,
+      "map_beg_int": 1,
+      "map_beg_ip": 1,
       "map_dir": 1,
+      "map_dir_int": 1,
+      "map_dir_ip": 1,
+      "map_dom": 1,
+      "map_dom_int": 1,
+      "map_dom_ip": 1,
       "map_end": 1,
+      "map_end_int": 1,
+      "map_end_ip": 1,
+      "map_int": 1,
+      "map_int_int": 1,
+      "map_int_ip": 1,
+      "map_ip": 1,
+      "map_ip_int": 1,
+      "map_ip_ip": 1,
+      "map_reg": 1,
+      "map_reg_int": 1,
+      "map_reg_ip": 1,
+      "map_regm": 1,
       "map_str": 1,
-      "map_sub": 1
+      "map_str_int": 1,
+      "map_str_ip": 1,
+      "map_sub": 1,
+      "map_sub_int": 1,
+      "map_sub_ip": 1
     },
     "fetch_min_args": {
-      "payload_lv": 2
+      "payload_lv": 2,
+      "req.payload_lv": 2,
+      "res.payload_lv": 2
     },
     "log_address_skip": [
       "global",
@@ -62978,19 +62977,19 @@
       "ver"
     ],
     "nested_diagnostic_keywords": [
-      "option",
-      "no",
       "acl",
-      "stats",
-      "tcp-request",
-      "tcp-response",
-      "http-request",
-      "http-response",
-      "http-after-response",
-      "mode",
       "balance",
       "bind",
-      "server"
+      "http-after-response",
+      "http-request",
+      "http-response",
+      "mode",
+      "no",
+      "option",
+      "server",
+      "stats",
+      "tcp-request",
+      "tcp-response"
     ],
     "server_address_option_policies": {
       "socks4": "serverSocks4",
@@ -63005,17 +63004,20 @@
       },
       "cookie": {
         "modes": [
+          "attr",
+          "domain",
+          "dynamic",
+          "httponly",
           "indirect",
           "insert",
+          "maxidle",
+          "maxlife",
           "nocache",
-          "prefix",
-          "rewrite",
           "postonly",
+          "prefix",
           "preserve",
-          "httponly",
-          "secure",
-          "domain",
-          "attr"
+          "rewrite",
+          "secure"
         ]
       },
       "http-send-name-header": {
@@ -63027,16 +63029,16 @@
           "pre-41"
         ],
         "values": [
-          "user",
           "post-41",
-          "pre-41"
+          "pre-41",
+          "user"
         ]
       }
     },
     "statement_rule_keywords": [
-      "mode",
       "balance",
       "bind",
+      "mode",
       "server"
     ]
   },

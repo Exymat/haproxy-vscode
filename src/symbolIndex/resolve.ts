@@ -4,7 +4,7 @@ import { getParsedDocument } from "../parseCache";
 import { ParsedLine } from "../parser";
 import { findReferencePatternAtToken } from "../referencePatternMatching";
 import { isTopLevelSectionHeader } from "../sectionUtils";
-import { HaproxySchema, sectionHeaderSet, StatementRule } from "../schema";
+import { HaproxySchema, sectionHeaderSet, StatementRule, symbolStringList, sampleExpressionNameSets } from "../schema";
 import { ruleMatchesLine } from "../statementLayout";
 import { tokenIndexAtPosition } from "../tokenUtils";
 
@@ -98,7 +98,9 @@ function resolveStatementRuleSymbol(
   }
 
   if (scopeKey) {
-    const hit = aclReferenceAt(schema, line, tokenIndex);
+    const aclOperators = new Set(symbolStringList(schema, "acl_condition_operators"));
+    const fetchNames = sampleExpressionNameSets(schema).fetchNames;
+    const hit = aclReferenceAt(schema, line, tokenIndex, aclOperators, fetchNames);
     if (hit) {
       return { kind: "acl", name: hit.name, scopeKey };
     }
@@ -206,24 +208,26 @@ function siteContainsPosition(site: SymbolSite, position: vscode.Position): bool
   );
 }
 
-function allDefinitionSites(index: SymbolIndex): SymbolSite[] {
-  const sites: SymbolSite[] = [];
-  for (const defs of index.definitions.values()) {
-    sites.push(...defs);
-  }
-  return sites;
-}
-
 export function findSiteAtPosition(
   index: SymbolIndex,
   position: vscode.Position,
 ): SymbolSite | null {
-  const hits = [...index.references, ...allDefinitionSites(index)].filter((site) =>
-    siteContainsPosition(site, position),
-  );
-  if (hits.length === 0) {
+  const lineSites = index.sitesByLine[position.line];
+  if (!lineSites || lineSites.length === 0) {
     return null;
   }
-  hits.sort((a, b) => a.end - a.start - (b.end - b.start));
-  return hits[0] ?? null;
+
+  let best: SymbolSite | null = null;
+  let bestSpan = Number.POSITIVE_INFINITY;
+  for (const site of lineSites) {
+    if (!siteContainsPosition(site, position)) {
+      continue;
+    }
+    const span = site.end - site.start;
+    if (span < bestSpan) {
+      bestSpan = span;
+      best = site;
+    }
+  }
+  return best;
 }

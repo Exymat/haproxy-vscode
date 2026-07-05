@@ -6,18 +6,22 @@ import {
   sectionHasBind,
 } from "../../src/entryPointDiagnostics";
 import { parseDocument, type ParsedLine } from "../../src/parser";
-import { symbolStringList } from "../../src/schema";
+import { bindDetectKeywordSet, entryPointSectionSet } from "../../src/schema";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 
 const schema = loadSchema("3.4");
-const bindTokens = new Set(symbolStringList(schema, "bind_detect_keywords"));
+const bindTokens = bindDetectKeywordSet(schema);
+const entryCtx = {
+  entryPointSections: entryPointSectionSet(schema),
+  bindDetectKeywords: bindTokens,
+};
 
 describe("entryPointDiagnostics", () => {
   it("returns no diagnostics when there are no section blocks", () => {
     const document = createDocument("# only comments");
     const parsed = parseDocument(document);
-    expect(entryPointWithoutBindDiagnostics(document, parsed, schema)).toEqual([]);
+    expect(entryPointWithoutBindDiagnostics(document, parsed, entryCtx)).toEqual([]);
   });
 
   it("skips malformed section headers when building blocks", () => {
@@ -39,20 +43,20 @@ describe("entryPointDiagnostics", () => {
     ];
     expect(buildSectionBlocks(crafted)).toEqual([]);
     expect(
-      entryPointWithoutBindDiagnostics(createDocument("frontend web"), crafted, schema),
+      entryPointWithoutBindDiagnostics(createDocument("frontend web"), crafted, entryCtx),
     ).toEqual([]);
   });
 
   it("treats bind-process as a bind directive", () => {
     const document = createDocument("frontend web\n    bind-process 1");
     const parsed = parseDocument(document);
-    expect(entryPointWithoutBindDiagnostics(document, parsed, schema)).toEqual([]);
+    expect(entryPointWithoutBindDiagnostics(document, parsed, entryCtx)).toEqual([]);
   });
 
   it("inherits bind from previous unnamed defaults", () => {
     const document = createDocument("defaults\n    bind :80\nfrontend web\n    mode http");
     const parsed = parseDocument(document);
-    expect(entryPointWithoutBindDiagnostics(document, parsed, schema)).toEqual([]);
+    expect(entryPointWithoutBindDiagnostics(document, parsed, entryCtx)).toEqual([]);
   });
 
   it("reuses memoized bind lookups", () => {
@@ -78,7 +82,7 @@ describe("entryPointDiagnostics", () => {
     const resolving = new Set<number>();
 
     expect(sectionHasBind(parsed, blocks, feIdx, memo, resolving, bindTokens)).toBe(false);
-    const diags = entryPointWithoutBindDiagnostics(document, parsed, schema);
+    const diags = entryPointWithoutBindDiagnostics(document, parsed, entryCtx);
     expect(diags.some((diag) => diag.code === "no-bind-entry-point")).toBe(true);
   });
 

@@ -1,5 +1,5 @@
-export { buildScopeKeyByLine, buildSymbolIndex } from "./build";
-export { getSymbolIndex } from "./cache";
+export { buildScopeKeyByLine, buildSymbolIndex, buildSymbolIndexWithFingerprints, patchSymbolIndexLine } from "./build";
+export { getSymbolIndex, getSymbolIndexVersion } from "./cache";
 export { scopedSymbolKindSet, symbolKeyForSchema, symbolKeyForScopedKinds } from "./types";
 export {
   findAllSites,

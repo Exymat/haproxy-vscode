@@ -33,7 +33,7 @@ function statementRulesByFirstToken(schema: HaproxySchema): Map<string, Statemen
   return index;
 }
 
-function candidateRules(schema: HaproxySchema, line: ParsedLine | ParsedToken[]): StatementRule[] {
+export function candidateRules(schema: HaproxySchema, line: ParsedLine | ParsedToken[]): StatementRule[] {
   /* v8 ignore start -- callers normally pass parsed lines; token-array fallback exists for shared helpers/tests */
   const tokens = Array.isArray(line) ? line : line.tokens;
   const t0 = tokens[0]?.text.toLowerCase();

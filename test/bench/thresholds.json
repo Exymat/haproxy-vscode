@@ -176,6 +176,30 @@
       "maxMs": 8,
       "baselineMs": 5.749,
       "statisticalMarginMs": 0.1105
+    },
+    {
+      "namePattern": "^buildSymbolIndex cold: large-valid\\.cfg",
+      "maxMs": 500,
+      "baselineMs": 400,
+      "statisticalMarginMs": 50
+    },
+    {
+      "namePattern": "^getSymbolIndex warm lookup: large-valid\\.cfg",
+      "maxMs": 2,
+      "baselineMs": 0.5,
+      "statisticalMarginMs": 0.1
+    },
+    {
+      "namePattern": "^findSiteAtPosition warm: large-valid\\.cfg",
+      "maxMs": 2,
+      "baselineMs": 0.5,
+      "statisticalMarginMs": 0.1
+    },
+    {
+      "namePattern": "^incremental reuse: single-line edit",
+      "maxMs": 50,
+      "baselineMs": 30,
+      "statisticalMarginMs": 5
     }
   ],
   "derived": {

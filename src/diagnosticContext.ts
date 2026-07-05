@@ -6,13 +6,16 @@ import { HaproxyLanguageData } from "./languageData";
 import { getParsedDocumentEntry, ParsedDocumentEntry } from "./parseCache";
 import { ParsedLine } from "./parser";
 import {
+  bindDetectKeywordSet,
+  entryPointSectionSet,
   HaproxySchema,
-  StatementRule,
   modifierPrefixSet,
+  namedSectionSet,
   noPrefixKeywordSet,
   sectionHeaderSet,
   sectionHasOptionKeywords,
   sectionKeywordSet,
+  StatementRule,
 } from "./schema";
 import { analyzeLine, AnalyzedLine } from "./lineAnalysis";
 import { LogFormatLineMemo, extractLogFormatRegions } from "./logFormat";
@@ -45,6 +48,9 @@ export class DiagnosticContext {
   readonly lineTexts: string[];
   readonly noPrefix: Set<string>;
   readonly modifierPrefixes: Set<string>;
+  readonly namedSections: Set<string>;
+  readonly entryPointSections: Set<string>;
+  readonly bindDetectKeywords: Set<string>;
   readonly deprecatedIndex: DeprecatedIndex | undefined;
   readonly suppressDeprecated: boolean;
 
@@ -74,6 +80,9 @@ export class DiagnosticContext {
     this.lineTexts = this.parsedEntry.lineTexts;
     this.noPrefix = noPrefixKeywordSet(schema);
     this.modifierPrefixes = modifierPrefixSet(schema);
+    this.namedSections = namedSectionSet(schema);
+    this.entryPointSections = entryPointSectionSet(schema);
+    this.bindDetectKeywords = bindDetectKeywordSet(schema);
     const deprecatedWarnings = options.deprecatedWarnings !== false;
     this.deprecatedIndex = deprecatedWarnings
       ? buildDeprecatedIndex(schema, options.languageData)

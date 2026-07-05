@@ -2,8 +2,8 @@ import * as vscode from "vscode";
 
 import { HaproxySchema } from "./schema";
 import {
-  findAllSites,
   findDefinitions,
+  findReferences,
   findSiteAtPosition,
   getSymbolIndex,
   SymbolSite,
@@ -61,16 +61,19 @@ export function provideReferences(
     return [];
   }
 
-  const sites = findAllSites(index, symbol.kind, symbol.name, symbol.scopeKey);
-  if (sites.length === 0) {
+  if (context.includeDeclaration) {
+    const definitions = findDefinitions(index, symbol.kind, symbol.name, symbol.scopeKey);
+    const references = findReferences(index, symbol.kind, symbol.name, symbol.scopeKey);
+    if (definitions.length === 0 && references.length === 0) {
+      return [];
+    }
+    return [...definitions, ...references].map((site) => siteToLocation(document, site));
+  }
+
+  const references = findReferences(index, symbol.kind, symbol.name, symbol.scopeKey);
+  if (references.length === 0) {
     return [];
   }
 
-  if (context.includeDeclaration) {
-    return sites.map((site) => siteToLocation(document, site));
-  }
-
-  return sites
-    .filter((site) => site.role === "reference")
-    .map((site) => siteToLocation(document, site));
+  return references.map((site) => siteToLocation(document, site));
 }

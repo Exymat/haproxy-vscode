@@ -187,6 +187,9 @@ const tcpRequestPhaseCache = new WeakMap<HaproxySchema, Set<string>>();
 const tcpResponsePhaseCache = new WeakMap<HaproxySchema, Set<string>>();
 const statsSocketLevelCache = new WeakMap<HaproxySchema, Set<string>>();
 const sectionHeaderSetCache = new WeakMap<HaproxySchema, Set<string>>();
+const sortedSectionHeaderCache = new WeakMap<HaproxySchema, string[]>();
+const symbolStringSetCache = new WeakMap<HaproxySchema, Map<string, Set<string>>>();
+const logFormatDirectiveKeywordCache = new WeakMap<HaproxySchema, Set<string>>();
 
 function metadataContractError(path: string): Error {
   return new Error(`HAProxy schema is missing required generated metadata: ${path}`);
@@ -255,6 +258,33 @@ export function schemaSampleCasts(schema: HaproxySchema): boolean[][] {
 
 export function symbolStringList(schema: HaproxySchema, key: string): string[] {
   return stringArrayValue(schema.symbols[key], `symbols.${key}`);
+}
+
+export function symbolStringSet(schema: HaproxySchema, key: string): Set<string> {
+  let perSchema = symbolStringSetCache.get(schema);
+  if (!perSchema) {
+    perSchema = new Map();
+    symbolStringSetCache.set(schema, perSchema);
+  }
+  const cached = perSchema.get(key);
+  if (cached) {
+    return cached;
+  }
+  const result = new Set(symbolStringList(schema, key));
+  perSchema.set(key, result);
+  return result;
+}
+
+export function namedSectionSet(schema: HaproxySchema): Set<string> {
+  return symbolStringSet(schema, "named_sections");
+}
+
+export function entryPointSectionSet(schema: HaproxySchema): Set<string> {
+  return symbolStringSet(schema, "entry_point_sections");
+}
+
+export function bindDetectKeywordSet(schema: HaproxySchema): Set<string> {
+  return symbolStringSet(schema, "bind_detect_keywords");
 }
 
 export function symbolStringMap(schema: HaproxySchema, key: string): Record<string, string> {
@@ -616,6 +646,31 @@ export function sectionHeaderSet(schema: HaproxySchema): Set<string> {
   const set = new Set(headers.map((header) => header.toLowerCase()));
   sectionHeaderSetCache.set(schema, set);
   return set;
+}
+
+export function sortedSectionHeaders(schema: HaproxySchema): string[] {
+  const cached = sortedSectionHeaderCache.get(schema);
+  if (cached) {
+    return cached;
+  }
+  const sorted = [...sectionHeaderSet(schema)].sort();
+  sortedSectionHeaderCache.set(schema, sorted);
+  return sorted;
+}
+
+export function logFormatDirectiveKeywordSet(schema: HaproxySchema): Set<string> {
+  const cached = logFormatDirectiveKeywordCache.get(schema);
+  if (cached) {
+    return cached;
+  }
+  const keywords = new Set<string>();
+  for (const slot of schema.logformat_slots ?? []) {
+    if (slot.directive) {
+      keywords.add(slot.directive.toLowerCase());
+    }
+  }
+  logFormatDirectiveKeywordCache.set(schema, keywords);
+  return keywords;
 }
 
 function assertSchemaContract(data: HaproxySchema): void {

@@ -5,9 +5,10 @@ import { isTopLevelSectionHeader } from "../sectionUtils";
 import { HaproxySchema, sectionHeaderSet } from "../schema";
 
 import {
-  buildLineFingerprints,
-  buildSymbolIndex,
+  buildSymbolIndexWithFingerprints,
   collectLineSymbolSites,
+  createSymbolBuildContext,
+  patchSymbolIndexLine,
   symbolSiteFingerprint,
 } from "./build";
 import { SymbolIndex } from "./types";
@@ -25,11 +26,23 @@ function dirtyLineCount(entry: ParsedDocumentEntry): number {
   return parsed.length - reuse.prefixLines - reuse.suffixLines;
 }
 
+function singleDirtyLineNo(parseEntry: ParsedDocumentEntry): number | null {
+  if (dirtyLineCount(parseEntry) !== 1) {
+    return null;
+  }
+  return parseEntry.reuse.prefixLines;
+}
+
 function canReuseSymbolIndex(
   cached: IndexCacheEntry,
   parseEntry: ParsedDocumentEntry,
   schema: HaproxySchema,
 ): boolean {
+  const dirtyLineNo = singleDirtyLineNo(parseEntry);
+  if (dirtyLineNo === null) {
+    return false;
+  }
+
   const { reuse, parsed } = parseEntry;
   if (reuse.previousVersion === null) {
     return false;
@@ -37,19 +50,31 @@ function canReuseSymbolIndex(
   if (parsed.length !== cached.lineFingerprints.length) {
     return false;
   }
-  if (dirtyLineCount(parseEntry) !== 1) {
-    return false;
-  }
 
-  const dirtyLineNo = reuse.prefixLines;
   const line = parsed[dirtyLineNo];
   if (!line || isTopLevelSectionHeader(line)) {
     return false;
   }
 
   const scopeKey = cached.index.scopeKeyByLine[dirtyLineNo] ?? null;
-  const newFingerprint = symbolSiteFingerprint(collectLineSymbolSites(line, schema, scopeKey));
+  const buildContext = createSymbolBuildContext(schema);
+  const newFingerprint = symbolSiteFingerprint(
+    collectLineSymbolSites(line, schema, scopeKey, buildContext),
+  );
   return newFingerprint === cached.lineFingerprints[dirtyLineNo];
+}
+
+function canIncrementalPatch(parseEntry: ParsedDocumentEntry): boolean {
+  const dirtyLineNo = singleDirtyLineNo(parseEntry);
+  if (dirtyLineNo === null) {
+    return false;
+  }
+  const line = parseEntry.parsed[dirtyLineNo];
+  return Boolean(line && !isTopLevelSectionHeader(line));
+}
+
+export function getSymbolIndexVersion(document: vscode.TextDocument): number | undefined {
+  return indexCache.get(document)?.version;
 }
 
 export function getSymbolIndex(
@@ -78,11 +103,30 @@ export function getSymbolIndex(
     return hit.index;
   }
 
-  const index = buildSymbolIndex(parseEntry.parsed, schema);
+  if (hit && canIncrementalPatch(parseEntry)) {
+    const dirtyLineNo = parseEntry.reuse.prefixLines;
+    const line = parseEntry.parsed[dirtyLineNo];
+    if (line) {
+      const scopeKey = hit.index.scopeKeyByLine[dirtyLineNo] ?? null;
+      const buildContext = createSymbolBuildContext(schema);
+      const sites = collectLineSymbolSites(line, schema, scopeKey, buildContext);
+      const { index, lineFingerprints } = patchSymbolIndexLine(hit.index, line, sites, buildContext);
+      const nextFingerprints = [...hit.lineFingerprints];
+      nextFingerprints[dirtyLineNo] = lineFingerprints[0] ?? "";
+      indexCache.set(document, {
+        version: document.version,
+        index,
+        lineFingerprints: nextFingerprints,
+      });
+      return index;
+    }
+  }
+
+  const { index, lineFingerprints } = buildSymbolIndexWithFingerprints(parseEntry.parsed, schema);
   indexCache.set(document, {
     version: document.version,
     index,
-    lineFingerprints: buildLineFingerprints(parseEntry.parsed, schema),
+    lineFingerprints,
   });
   return index;
 }

@@ -239,9 +239,9 @@ describe("argumentDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
   });
 
-  it("accepts host for http-send-name-header", () => {
+  it("rejects host for http-send-name-header on source-validated schemas", () => {
     const diags = argDiags("listen l1\n    http-send-name-header host", 1);
-    expect(diags.some((d) => d.code === "unknown-value")).toBe(false);
+    expect(diags.some((d) => d.code === "unknown-value")).toBe(true);
   });
 
   it("honors schema-provided forbidden http-send-name-header values", () => {

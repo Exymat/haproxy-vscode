@@ -13,6 +13,7 @@ import {
   symbolKeyForSchema,
 } from "../../src/symbolIndex";
 import { effectiveScopeKeyForSchema } from "../../src/symbolIndex/types";
+import { buildSitesByLine } from "../../src/symbolIndex/utils";
 import { createDocument, updateDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 import type { Position, TextDocument } from "vscode";
@@ -459,6 +460,8 @@ describe("symbolIndex extended", () => {
           referencesByKey: new Map(),
           scopeKeyByLine: [null],
           scopedSymbolKinds: new Set(["acl", "server", "filter"]),
+          sitesByLine: buildSitesByLine(1, new Map(), [wide, narrow]),
+          unresolvedReferences: [],
         },
         pos(0, 3),
       ),
@@ -556,7 +559,11 @@ describe("symbolIndex extended", () => {
 
   it("covers defensive symbol-index helpers directly", () => {
     const line = parseDocument(doc("frontend web\n    http-request deny if acl1"))[1];
-    expect(aclReferenceAt(schema, line, 99)).toBeNull();
+    const aclOperators = new Set<string>(
+      (schema.symbols?.acl_condition_operators as string[] | undefined) ?? [],
+    );
+    const fetchNames = new Set<string>();
+    expect(aclReferenceAt(schema, line, 99, aclOperators, fetchNames)).toBeNull();
 
     const sparse = {
       ...line,

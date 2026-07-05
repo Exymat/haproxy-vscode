@@ -36,8 +36,16 @@ function parseSectionHeader(line: ParsedLine): SectionBlock | null {
   return { kind, name, fromDefaults, explicitMode: null };
 }
 
+const runtimeModeSetCache = new WeakMap<HaproxySchema, Set<string>>();
+
 function runtimeModeSet(schema: HaproxySchema): Set<string> {
-  return new Set(symbolStringList(schema, "runtime_modes"));
+  const cached = runtimeModeSetCache.get(schema);
+  if (cached) {
+    return cached;
+  }
+  const result = new Set(symbolStringList(schema, "runtime_modes"));
+  runtimeModeSetCache.set(schema, result);
+  return result;
 }
 
 function isRuntimeMode(value: string, schema: HaproxySchema): value is RuntimeMode {

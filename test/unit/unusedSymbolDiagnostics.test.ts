@@ -12,7 +12,10 @@ import {
   symbolKeyForScopedKinds,
   type SymbolIndex,
   type SymbolKind,
+  type SymbolSite,
 } from "../../src/symbolIndex";
+import { buildSitesByLine } from "../../src/symbolIndex/utils";
+import { entryPointSectionSet } from "../../src/schema";
 import { unusedSymbolDiagnostics } from "../../src/unusedSymbolDiagnostics";
 import { createDocument } from "../helpers/document";
 import { formatDiagnosticCode } from "../helpers/diagnosticFormat";
@@ -20,6 +23,7 @@ import { loadSchema } from "../helpers/schema";
 
 const schema = loadSchema("3.4");
 const scopedSymbolKinds = scopedSymbolKindSet(schema);
+const unusedCtx = { entryPointSections: entryPointSectionSet(schema) };
 const fixturesDir = join(__dirname, "..", "fixtures");
 const hapeeAclSnippet = readFileSync(join(fixturesDir, "hapee-acl-snippet.cfg"), "utf-8");
 
@@ -261,7 +265,7 @@ describe("symbolIndex reference expansion", () => {
     const parsed = parseDocument(document);
     const index = buildSymbolIndex(parsed, schema);
     expect(
-      unusedSymbolDiagnostics(document, parsed, index, schema, {
+      unusedSymbolDiagnostics(document, parsed, index, unusedCtx, {
         enabled: false,
       }),
     ).toHaveLength(0);
@@ -271,8 +275,7 @@ describe("symbolIndex reference expansion", () => {
     const document = createDocument("frontend web\n    bind :80");
     const parsed = parseDocument(document);
 
-    const filterIndex: SymbolIndex = {
-      definitions: new Map([
+    const filterDefs = new Map<string, SymbolSite[]>([
         [
           key("filter", "f1", "frontend:web"),
           [
@@ -287,33 +290,39 @@ describe("symbolIndex reference expansion", () => {
             },
           ],
         ],
-      ]),
+      ]);
+    const filterIndex: SymbolIndex = {
+      definitions: filterDefs,
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
       scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(parsed.length, filterDefs, []),
+      unresolvedReferences: [],
     };
     expect(
-      unusedSymbolDiagnostics(document, parsed, filterIndex, schema, {
+      unusedSymbolDiagnostics(document, parsed, filterIndex, unusedCtx, {
         enabled: true,
       }),
     ).toHaveLength(0);
 
+    const emptyDefs = new Map<string, SymbolSite[]>([[key("acl", "x", "frontend:web"), []]]);
     const emptyDefsIndex: SymbolIndex = {
-      definitions: new Map([[key("acl", "x", "frontend:web"), []]]),
+      definitions: emptyDefs,
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
       scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(parsed.length, emptyDefs, []),
+      unresolvedReferences: [],
     };
     expect(
-      unusedSymbolDiagnostics(document, parsed, emptyDefsIndex, schema, {
+      unusedSymbolDiagnostics(document, parsed, emptyDefsIndex, unusedCtx, {
         enabled: true,
       }),
     ).toHaveLength(0);
 
-    const unknownKindIndex: SymbolIndex = {
-      definitions: new Map([
+    const unknownDefs = new Map<string, SymbolSite[]>([
         [
           "custom:widget",
           [
@@ -328,20 +337,23 @@ describe("symbolIndex reference expansion", () => {
             },
           ],
         ],
-      ]),
+      ]);
+    const unknownKindIndex: SymbolIndex = {
+      definitions: unknownDefs,
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
       scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(parsed.length, unknownDefs, []),
+      unresolvedReferences: [],
     };
-    const unknownDiag = unusedSymbolDiagnostics(document, parsed, unknownKindIndex, schema, {
+    const unknownDiag = unusedSymbolDiagnostics(document, parsed, unknownKindIndex, unusedCtx, {
       enabled: true,
     });
     expect(unknownDiag).toHaveLength(1);
     expect(unknownDiag[0]?.message).toContain("appears unused");
 
-    const orphanSectionIndex: SymbolIndex = {
-      definitions: new Map([
+    const orphanDefs = new Map<string, SymbolSite[]>([
         [
           key("cache", "orphan", null),
           [
@@ -356,20 +368,25 @@ describe("symbolIndex reference expansion", () => {
             },
           ],
         ],
-      ]),
+      ]);
+    const orphanSectionIndex: SymbolIndex = {
+      definitions: orphanDefs,
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
       scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(parsed.length, orphanDefs, []),
+      unresolvedReferences: [],
     };
-    const orphanDiag = unusedSymbolDiagnostics(document, parsed, orphanSectionIndex, schema, {
+    const orphanDiag = unusedSymbolDiagnostics(document, parsed, orphanSectionIndex, unusedCtx, {
       enabled: true,
     });
     expect(orphanDiag).toHaveLength(1);
     expect(orphanDiag[0]?.range.start.line).toBe(99);
 
-    const misfiledBackendIndex: SymbolIndex = {
-      definitions: new Map([
+    const misfiledBackendDoc = createDocument("backend wide\n    mode http");
+    const misfiledBackendParsed = parseDocument(misfiledBackendDoc);
+    const misfiledDefs = new Map<string, SymbolSite[]>([
         [
           key("proxy-section", "wide", null),
           [
@@ -384,24 +401,29 @@ describe("symbolIndex reference expansion", () => {
             },
           ],
         ],
-      ]),
+      ]);
+    const misfiledBackendIndex: SymbolIndex = {
+      definitions: misfiledDefs,
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
       scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(misfiledBackendParsed.length, misfiledDefs, []),
+      unresolvedReferences: [],
     };
     const misfiledDiag = unusedSymbolDiagnostics(
-      createDocument("backend wide\n    mode http"),
-      parseDocument(createDocument("backend wide\n    mode http")),
+      misfiledBackendDoc,
+      misfiledBackendParsed,
       misfiledBackendIndex,
-      schema,
+      unusedCtx,
       { enabled: true },
     );
     expect(misfiledDiag).toHaveLength(1);
     expect(misfiledDiag[0]?.message).toContain("Backend 'wide'");
 
-    const inlineFrontendIndex: SymbolIndex = {
-      definitions: new Map([
+    const inlineFrontendDoc = createDocument("frontend web\n    bind :80");
+    const inlineFrontendParsed = parseDocument(inlineFrontendDoc);
+    const inlineFrontendDefs = new Map<string, SymbolSite[]>([
         [
           key("proxy-section", "ghost", "frontend:web"),
           [
@@ -416,17 +438,21 @@ describe("symbolIndex reference expansion", () => {
             },
           ],
         ],
-      ]),
+      ]);
+    const inlineFrontendIndex: SymbolIndex = {
+      definitions: inlineFrontendDefs,
       references: [],
       referencesByKey: new Map(),
       scopeKeyByLine: [],
       scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(inlineFrontendParsed.length, inlineFrontendDefs, []),
+      unresolvedReferences: [],
     };
     const inlineFrontendDiag = unusedSymbolDiagnostics(
-      createDocument("frontend web\n    bind :80"),
-      parseDocument(createDocument("frontend web\n    bind :80")),
+      inlineFrontendDoc,
+      inlineFrontendParsed,
       inlineFrontendIndex,
-      schema,
+      unusedCtx,
       { enabled: true },
     );
     expect(inlineFrontendDiag).toHaveLength(1);

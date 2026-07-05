@@ -4,8 +4,8 @@ import { HaproxyLanguageData } from "./languageData";
 import { isConditionalOrStatusDirective } from "./conditionalDirectives";
 import { getParsedDocument } from "./parseCache";
 import { ParsedLine, ParsedToken } from "./parser";
-import { HaproxySchema, sectionHeaderSet, StatementRule } from "./schema";
-import { ruleMatchesLine } from "./statementLayout";
+import { HaproxySchema, sectionHeaderSet, sortedSectionHeaders } from "./schema";
+import { candidateRules, ruleMatchesLine } from "./statementLayout";
 import { keywordsForSection } from "./languageDataIndexes";
 import { isSectionHeaderCompletionContext } from "./sectionUtils";
 import { resolveTokenIndex } from "./tokenUtils";
@@ -41,11 +41,11 @@ function linePrefixBeforeCursor(lineText: string, character: number): string {
 }
 
 function classifyByRules(
-  rules: StatementRule[],
+  schema: HaproxySchema,
   line: ParsedLine,
   tokenIndex: number,
 ): CompletionKind | null {
-  for (const rule of rules) {
+  for (const rule of candidateRules(schema, line)) {
     if (!ruleMatchesLine(rule, line.tokens)) {
       continue;
     }
@@ -114,7 +114,7 @@ export function getDocumentContext(
     return { line, lineText, tokenIndex, token, kind: "section", prefix };
   }
 
-  const fromRules = classifyByRules(schema.statement_rules ?? [], line, tokenIndex);
+  const fromRules = classifyByRules(schema, line, tokenIndex);
   if (fromRules) {
     return { line, lineText, tokenIndex, token, kind: fromRules, prefix };
   }
@@ -133,5 +133,5 @@ export function sectionKeywordNames(data: HaproxyLanguageData, section: string |
 }
 
 export function getSectionKeywords(schema: HaproxySchema): string[] {
-  return [...sectionHeaderSet(schema)].sort();
+  return sortedSectionHeaders(schema);
 }

@@ -259,11 +259,17 @@ describe("navigation", () => {
       referencesByKey: new Map(),
       scopeKeyByLine: [null, null],
       scopedSymbolKinds: symbolIndex.scopedSymbolKindSet(schema),
+      sitesByLine: [[], []],
+      unresolvedReferences: [],
     });
-    vi.spyOn(symbolIndex, "resolveSymbolAtPosition").mockReturnValueOnce({
+    vi.spyOn(symbolIndex, "findSiteAtPosition").mockReturnValueOnce({
       kind: "proxy-section",
       name: "api",
+      line: 1,
+      start: 16,
+      end: 19,
       scopeKey: null,
+      role: "reference",
     });
     vi.spyOn(symbolIndex, "findDefinitions").mockReturnValueOnce([]);
     expect(provideDefinition(doc as never, pos(1, col), schema, 4000)).toBeNull();
@@ -280,12 +286,17 @@ describe("navigation", () => {
   it("provideReferences returns empty when symbol has no sites", () => {
     const doc = createDocument("frontend web\n    use_backend api");
     const col = "    use_backend api".indexOf("api");
-    vi.spyOn(symbolIndex, "resolveSymbolAtPosition").mockReturnValue({
+    vi.spyOn(symbolIndex, "findSiteAtPosition").mockReturnValue({
       kind: "proxy-section",
       name: "api",
+      line: 1,
+      start: 16,
+      end: 19,
       scopeKey: null,
+      role: "reference",
     });
-    vi.spyOn(symbolIndex, "findAllSites").mockReturnValue([]);
+    vi.spyOn(symbolIndex, "findDefinitions").mockReturnValue([]);
+    vi.spyOn(symbolIndex, "findReferences").mockReturnValue([]);
     expect(
       provideReferences(doc as never, pos(1, col), { includeDeclaration: true }, schema, 4000),
     ).toEqual([]);

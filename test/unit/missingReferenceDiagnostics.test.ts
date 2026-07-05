@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import { computeDiagnostics } from "../../src/diagnostics";
 import { missingReferenceDiagnostics } from "../../src/missingReferenceDiagnostics";
 import { SymbolIndex } from "../../src/symbolIndex";
+import { buildSitesByLine } from "../../src/symbolIndex/utils";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 
@@ -118,6 +119,8 @@ describe("missingReferenceDiagnostics", () => {
       referencesByKey: new Map(),
       scopeKeyByLine: [null],
       scopedSymbolKinds: new Set(["acl", "server", "filter"]),
+      sitesByLine: buildSitesByLine(1, new Map(), [ref, ref]),
+      unresolvedReferences: [ref],
     };
     expect(missingReferenceDiagnostics(index)).toHaveLength(1);
   });

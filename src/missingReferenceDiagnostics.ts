@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { makeDiagnostic } from "./diagnosticUtils";
-import { findDefinitions, SymbolIndex, SymbolKind, SymbolSite } from "./symbolIndex";
+import { SymbolIndex, SymbolKind, SymbolSite } from "./symbolIndex";
 
 function siteRange(site: SymbolSite): vscode.Range {
   return new vscode.Range(site.line, site.start, site.line, site.end);
@@ -35,10 +35,7 @@ export function missingReferenceDiagnostics(index: SymbolIndex): vscode.Diagnost
   const diagnostics: vscode.Diagnostic[] = [];
   const reported = new Set<string>();
 
-  for (const reference of index.references) {
-    if (findDefinitions(index, reference.kind, reference.name, reference.scopeKey).length > 0) {
-      continue;
-    }
+  for (const reference of index.unresolvedReferences) {
     const key = siteKey(reference);
     if (reported.has(key)) {
       continue;

@@ -27,18 +27,41 @@ export interface SymbolIndex {
   referencesByKey: Map<string, SymbolSite[]>;
   scopeKeyByLine: (string | null)[];
   scopedSymbolKinds: Set<SymbolKind>;
+  /** Symbol sites indexed by line for O(1) position lookup. */
+  sitesByLine: SymbolSite[][];
+  /** Precomputed missing-reference sites; populated at index build. */
+  unresolvedReferences: SymbolSite[];
 }
 
+const proxySectionCache = new WeakMap<HaproxySchema, Set<string>>();
+const sectionDefinitionKindsCache = new WeakMap<HaproxySchema, Record<string, SymbolKind>>();
+const scopedSymbolKindCache = new WeakMap<HaproxySchema, Set<SymbolKind>>();
+
 export function proxySectionSet(schema: HaproxySchema): Set<string> {
-  return new Set(symbolStringList(schema, "proxy_sections"));
+  let cached = proxySectionCache.get(schema);
+  if (!cached) {
+    cached = new Set(symbolStringList(schema, "proxy_sections"));
+    proxySectionCache.set(schema, cached);
+  }
+  return cached;
 }
 
 export function sectionDefinitionKinds(schema: HaproxySchema): Record<string, SymbolKind> {
-  return symbolStringMap(schema, "section_definition_kinds") as Record<string, SymbolKind>;
+  let cached = sectionDefinitionKindsCache.get(schema);
+  if (!cached) {
+    cached = symbolStringMap(schema, "section_definition_kinds") as Record<string, SymbolKind>;
+    sectionDefinitionKindsCache.set(schema, cached);
+  }
+  return cached;
 }
 
 export function scopedSymbolKindSet(schema: HaproxySchema): Set<SymbolKind> {
-  return new Set(symbolStringList(schema, "scoped_symbol_kinds") as SymbolKind[]);
+  let cached = scopedSymbolKindCache.get(schema);
+  if (!cached) {
+    cached = new Set(symbolStringList(schema, "scoped_symbol_kinds") as SymbolKind[]);
+    scopedSymbolKindCache.set(schema, cached);
+  }
+  return cached;
 }
 
 export function effectiveScopeKeyForSchema(
@@ -47,6 +70,14 @@ export function effectiveScopeKeyForSchema(
   scopeKey: string | null,
 ): string | null {
   return scopedSymbolKindSet(schema).has(kind) ? scopeKey : null;
+}
+
+export function effectiveScopeKey(
+  scopedKinds: Set<SymbolKind>,
+  kind: SymbolKind,
+  scopeKey: string | null,
+): string | null {
+  return scopedKinds.has(kind) ? scopeKey : null;
 }
 
 export function symbolKeyForScopedKinds(

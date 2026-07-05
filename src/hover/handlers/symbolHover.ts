@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 
 import {
-  findAllSites,
   findDefinitions,
+  findReferences,
   findSiteAtPosition,
   getSymbolIndex,
   SymbolSite,
@@ -39,9 +39,7 @@ export function trySymbolHover(hc: HoverContext): vscode.Hover | null {
   }
 
   const definitions = findDefinitions(index, site.kind, site.name, site.scopeKey);
-  const references = findAllSites(index, site.kind, site.name, site.scopeKey).filter(
-    (s) => s.role === "reference",
-  );
+  const references = findReferences(index, site.kind, site.name, site.scopeKey);
   const title = `${symbolLabel(site.kind)} '${escapeMarkdownText(site.name)}'`;
   const md = new vscode.MarkdownString();
   md.appendMarkdown(`**${title}**`);

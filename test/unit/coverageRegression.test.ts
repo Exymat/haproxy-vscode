@@ -3,14 +3,26 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createDiagnosticScheduler } from "../../src/diagnosticScheduler";
 import { DiagnosticContext } from "../../src/diagnosticContext";
 import { runLineDiagnosticPipeline } from "../../src/diagnosticPipeline";
+import { getDocumentContext } from "../../src/documentContext";
 import { buildDeprecatedIndex } from "../../src/deprecatedIndex";
 import { canCast, resolveOutType } from "../../src/expressionTypes";
 import { formatConfig, splitLineAtComment } from "../../src/formatter";
 import { clearLanguageDataIndexCache, languageDataIndexes } from "../../src/languageDataIndexes";
+import { missingReferenceDiagnostics } from "../../src/missingReferenceDiagnostics";
+import { provideReferences } from "../../src/navigation";
 import { getParsedDocumentEntry } from "../../src/parseCache";
 import { parseDocument, parseDocumentLines, tokenizeLine } from "../../src/parser";
 import { buildSectionSymbols } from "../../src/sectionOutline";
+import {
+  getSymbolIndex,
+  getSymbolIndexVersion,
+  scopedSymbolKindSet,
+  type SymbolIndex,
+  type SymbolSite,
+} from "../../src/symbolIndex";
+import { buildLineFingerprints } from "../../src/symbolIndex/build";
 import { buildReferencesByKey, symbolNameTokenIndex } from "../../src/symbolIndex/utils";
+import { tryLogFormatCompletion } from "../../src/completion/handlers/logFormat";
 import { resolveLongestDirectiveMatch } from "../../src/tokenUtils";
 import { createDocument, updateDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
@@ -74,11 +86,27 @@ describe("coverage regression", () => {
       ).keyword,
     ).toBe("set-var");
     expect(buildSectionSymbols([], 3)).toEqual([]);
+    expect(buildLineFingerprints(parseDocument(createDocument("backend api")), bundle.schema)).toHaveLength(
+      1,
+    );
+    const indexDoc = createDocument("backend api\n    server s1 127.0.0.1:80");
+    expect(getSymbolIndexVersion(indexDoc)).toBeUndefined();
+    expect(getSymbolIndex(indexDoc, bundle.schema, 100)).toBeTruthy();
+    expect(getSymbolIndexVersion(indexDoc)).toBe(indexDoc.version);
+    expect(
+      provideReferences(
+        indexDoc,
+        new vscode.Position(0, 8),
+        { includeDeclaration: false },
+        bundle.schema,
+        100,
+      ),
+    ).toEqual([]);
     expect(
       symbolNameTokenIndex({ keyword: "x", kind: "directive", fixed_slots: [{ role: "other" }] }),
     ).toBeNull();
     expect(
-      buildReferencesByKey(bundle.schema, [
+      buildReferencesByKey(scopedSymbolKindSet(bundle.schema), [
         {
           kind: "acl",
           name: "a",
@@ -99,6 +127,26 @@ describe("coverage regression", () => {
         },
       ]).get("acl:frontend:web:a")?.length,
     ).toBe(2);
+
+    const unresolved: SymbolSite = {
+      kind: "userlist",
+      name: "missing-users",
+      line: 1,
+      start: 10,
+      end: 23,
+      scopeKey: null,
+      role: "reference",
+    };
+    const duplicateIndex: SymbolIndex = {
+      definitions: new Map(),
+      references: [],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [],
+      scopedSymbolKinds: scopedSymbolKindSet(bundle.schema),
+      sitesByLine: [],
+      unresolvedReferences: [unresolved, unresolved],
+    };
+    expect(missingReferenceDiagnostics(duplicateIndex)).toHaveLength(1);
   });
 
   it("keeps diagnostic pipeline and index fallback regressions", () => {
@@ -126,5 +174,23 @@ describe("coverage regression", () => {
     expect(buildDeprecatedIndex(deprecatedSchema).sampleConverters.has("sig_conv")).toBe(true);
     const indexes = languageDataIndexes(structuredClone(bundle.languageData));
     expect(indexes.keywordsBySection.get("frontend")?.length).toBeGreaterThan(0);
+
+    const logDoc = createDocument("defaults\n    log-format");
+    const logPosition = new vscode.Position(1, "    log-format".length);
+    const logCtx = getDocumentContext(logDoc, logPosition, bundle.schema);
+    expect(logCtx).not.toBeNull();
+    if (!logCtx) {
+      throw new Error("expected log-format document context");
+    }
+    expect(
+      tryLogFormatCompletion({
+        document: logDoc,
+        position: logPosition,
+        data: bundle.languageData,
+        schema: bundle.schema,
+        ctx: logCtx,
+        partial: "",
+      }),
+    ).toBeNull();
   });
 });

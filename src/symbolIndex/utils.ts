@@ -1,6 +1,6 @@
-import { HaproxySchema, StatementRule } from "../schema";
+import { StatementRule } from "../schema";
 
-import { scopedSymbolKindSet, symbolKeyForScopedKinds, SymbolSite } from "./types";
+import { SymbolKind, symbolKeyForScopedKinds, SymbolSite } from "./types";
 
 export function symbolNameTokenIndex(rule: StatementRule): number | null {
   if (rule.symbol_name_token_index != null) {
@@ -20,17 +20,12 @@ export function symbolNameTokenIndex(rule: StatementRule): number | null {
 }
 
 export function addSite(
-  schema: HaproxySchema,
+  scopedKinds: Set<SymbolKind>,
   definitions: Map<string, SymbolSite[]>,
   references: SymbolSite[],
   site: SymbolSite,
 ): void {
-  const key = symbolKeyForScopedKinds(
-    scopedSymbolKindSet(schema),
-    site.kind,
-    site.name,
-    site.scopeKey,
-  );
+  const key = symbolKeyForScopedKinds(scopedKinds, site.kind, site.name, site.scopeKey);
   if (site.role === "definition") {
     const list = definitions.get(key) ?? [];
     list.push(site);
@@ -40,12 +35,28 @@ export function addSite(
   }
 }
 
+export function buildSitesByLine(
+  lineCount: number,
+  definitions: Map<string, SymbolSite[]>,
+  references: SymbolSite[],
+): SymbolSite[][] {
+  const sitesByLine: SymbolSite[][] = Array.from({ length: lineCount }, () => []);
+  for (const site of references) {
+    sitesByLine[site.line]?.push(site);
+  }
+  for (const defs of definitions.values()) {
+    for (const site of defs) {
+      sitesByLine[site.line]?.push(site);
+    }
+  }
+  return sitesByLine;
+}
+
 export function buildReferencesByKey(
-  schema: HaproxySchema,
+  scopedKinds: Set<SymbolKind>,
   references: SymbolSite[],
 ): Map<string, SymbolSite[]> {
   const map = new Map<string, SymbolSite[]>();
-  const scopedKinds = scopedSymbolKindSet(schema);
   for (const site of references) {
     const key = symbolKeyForScopedKinds(scopedKinds, site.kind, site.name, site.scopeKey);
     const list = map.get(key);

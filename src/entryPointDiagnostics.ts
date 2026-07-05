@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";
+import { DiagnosticContext } from "./diagnosticContext";
 import { ParsedLine } from "./parser";
-import { HaproxySchema, symbolStringList } from "./schema";
+import { getSectionOutline } from "./sectionOutline";
 
 interface SectionBlock {
   kind: string;
@@ -162,11 +163,20 @@ function makeNoBindWarning(
   return diagnostic;
 }
 
-export function entryPointWithoutBindDiagnostics(
+interface EntryPointDiagCacheEntry {
+  version: number;
+  outlineVersion: number;
+  diagnostics: vscode.Diagnostic[];
+}
+
+const entryPointDiagCache = new WeakMap<vscode.TextDocument, EntryPointDiagCacheEntry>();
+
+function computeEntryPointDiagnostics(
   document: vscode.TextDocument,
   parsed: ParsedLine[],
-  schema: HaproxySchema,
+  ctx: Pick<DiagnosticContext, "entryPointSections" | "bindDetectKeywords">,
 ): vscode.Diagnostic[] {
+  getSectionOutline(document, parsed);
   const blocks = buildSectionBlocks(parsed);
   if (blocks.length === 0) {
     return [];
@@ -175,20 +185,37 @@ export function entryPointWithoutBindDiagnostics(
   const memo = new Map<number, boolean>();
   const resolving = new Set<number>();
   const diagnostics: vscode.Diagnostic[] = [];
-  const entryPointSections = new Set(symbolStringList(schema, "entry_point_sections"));
-  const bindTokens = new Set(symbolStringList(schema, "bind_detect_keywords"));
 
   for (let i = 0; i < blocks.length; i += 1) {
     const block = blocks[i];
-    if (!entryPointSections.has(block.kind)) {
+    if (!ctx.entryPointSections.has(block.kind)) {
       continue;
     }
-    if (sectionHasBind(parsed, blocks, i, memo, resolving, bindTokens)) {
+    if (sectionHasBind(parsed, blocks, i, memo, resolving, ctx.bindDetectKeywords)) {
       continue;
     }
     diagnostics.push(makeNoBindWarning(document, block.headerLine, block.kind, block.name));
   }
 
+  return diagnostics;
+}
+
+export function entryPointWithoutBindDiagnostics(
+  document: vscode.TextDocument,
+  parsed: ParsedLine[],
+  ctx: Pick<DiagnosticContext, "entryPointSections" | "bindDetectKeywords">,
+): vscode.Diagnostic[] {
+  const hit = entryPointDiagCache.get(document);
+  if (hit && hit.version === document.version) {
+    return hit.diagnostics;
+  }
+
+  const diagnostics = computeEntryPointDiagnostics(document, parsed, ctx);
+  entryPointDiagCache.set(document, {
+    version: document.version,
+    outlineVersion: document.version,
+    diagnostics,
+  });
   return diagnostics;
 }
 

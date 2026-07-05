@@ -8,6 +8,7 @@ import { getSymbolIndex } from "./symbolIndex";
 import { entryPointWithoutBindDiagnostics } from "./entryPointDiagnostics";
 import { missingReferenceDiagnostics } from "./missingReferenceDiagnostics";
 import { unusedSymbolDiagnostics } from "./unusedSymbolDiagnostics";
+import type { SymbolIndex } from "./symbolIndex";
 
 interface DiagnosticsCacheKey {
   schema: HaproxySchema;
@@ -24,6 +25,8 @@ interface DiagnosticsCacheEntry {
   suppressDeprecated: boolean;
   lineDiagnostics: vscode.Diagnostic[][];
   diagnostics: vscode.Diagnostic[];
+  cachedSymbolIndex: SymbolIndex | null;
+  documentSymbolDiagnostics: vscode.Diagnostic[];
 }
 
 const diagnosticsCache = new WeakMap<vscode.TextDocument, DiagnosticsCacheEntry>();
@@ -63,6 +66,27 @@ function sameCacheKey(left: DiagnosticsCacheKey, right: DiagnosticsCacheKey): bo
 
 function flattenDiagnostics(lineDiagnostics: vscode.Diagnostic[][]): vscode.Diagnostic[] {
   return lineDiagnostics.flatMap((diags) => diags);
+}
+
+function computeDocumentSymbolDiagnostics(
+  document: vscode.TextDocument,
+  ctx: DiagnosticContext,
+  index: SymbolIndex,
+  options: ComputeDiagnosticsOptions,
+): vscode.Diagnostic[] {
+  const diagnostics: vscode.Diagnostic[] = [];
+
+  if (options.unusedSymbols) {
+    diagnostics.push(
+      ...unusedSymbolDiagnostics(document, ctx.parsed, index, ctx, { enabled: true }),
+    );
+    diagnostics.push(...entryPointWithoutBindDiagnostics(document, ctx.parsed, ctx));
+  }
+  if (options.missingReferences !== false) {
+    diagnostics.push(...missingReferenceDiagnostics(index));
+  }
+
+  return diagnostics;
 }
 
 export function computeDiagnostics(
@@ -109,24 +133,24 @@ export function computeDiagnostics(
 
   const diagnostics = flattenDiagnostics(lineDiagnostics);
 
-  if (options.unusedSymbols || options.missingReferences !== false) {
+  const needSymbolDiagnostics = options.unusedSymbols || options.missingReferences !== false;
+  let documentSymbolDiagnostics: vscode.Diagnostic[] = [];
+  let cachedSymbolIndex: SymbolIndex | null = null;
+
+  if (needSymbolDiagnostics) {
     /* v8 ignore start -- explicit maxLines overrides are only used by the VS Code scheduler */
     const maxLines = options.maxLines ?? document.lineCount;
     const index = getSymbolIndex(document, schema, maxLines);
     if (index) {
-      if (options.unusedSymbols) {
-        diagnostics.push(
-          ...unusedSymbolDiagnostics(document, ctx.parsed, index, ctx.schema, {
-            enabled: true,
-          }),
-        );
+      cachedSymbolIndex = index;
+      if (cached?.cachedSymbolIndex === index) {
+        documentSymbolDiagnostics = cached.documentSymbolDiagnostics;
+      } else {
+        documentSymbolDiagnostics = computeDocumentSymbolDiagnostics(document, ctx, index, options);
       }
-      if (options.missingReferences !== false) {
-        diagnostics.push(...missingReferenceDiagnostics(index));
-      }
-    }
-    if (options.unusedSymbols) {
-      diagnostics.push(...entryPointWithoutBindDiagnostics(document, ctx.parsed, ctx.schema));
+      diagnostics.push(...documentSymbolDiagnostics);
+    } else if (options.unusedSymbols) {
+      diagnostics.push(...entryPointWithoutBindDiagnostics(document, ctx.parsed, ctx));
     }
     /* v8 ignore stop */
   }
@@ -139,6 +163,8 @@ export function computeDiagnostics(
     /* v8 ignore start -- cached flattened diagnostics only affect reuse, not diagnostic semantics */
     diagnostics,
     /* v8 ignore stop */
+    cachedSymbolIndex,
+    documentSymbolDiagnostics,
   });
 
   return diagnostics;
