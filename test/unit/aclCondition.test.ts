@@ -90,6 +90,27 @@ describe("validateAclConditions", () => {
     expect(issues).toEqual([]);
   });
 
+  it("ignores parentheses inside quoted regex patterns", () => {
+    const issues = validateAclConditions(
+      'use_backend non_www if { var(http_host) -m reg -p "^(?!www\\.).*" }',
+      schema,
+    );
+    expect(issues).toEqual([]);
+  });
+
+  it("ignores parentheses inside single-quoted regex patterns", () => {
+    const issues = validateAclConditions(
+      "deny if { var(http_host) -m reg -p '(?!group)' }",
+      schema,
+    );
+    expect(issues).toEqual([]);
+  });
+
+  it("validates var() fetches in inline conditions", () => {
+    const issues = validateAclConditions("deny if { var(txn.myip) -m found }", schema);
+    expect(issues).toEqual([]);
+  });
+
   it("handles schemas without sample fetch or converter maps", () => {
     const customSchema = structuredClone(schema);
     customSchema.sample_fetches = undefined as never;

@@ -9,6 +9,7 @@ import {
   symbolStringList,
 } from "../schema";
 import { ruleMatchesLine, candidateRules } from "../statementLayout";
+import { isLikelyValue } from "../tokenUtils";
 
 import {
   effectiveScopeKey,
@@ -135,6 +136,11 @@ function aclReferenceAt(
   const allowChainedReferences = braceDepthAt(tokens, tokenIndex, conditionStart) === 0;
 
   if (prev === "{" && fetchNames.has(token.text.toLowerCase())) {
+    return null;
+  }
+
+  const fetchCall = SAMPLE_FETCH_REF.exec(token.text);
+  if (prev === "{" && fetchCall && fetchNames.has(fetchCall[1].toLowerCase())) {
     return null;
   }
 
@@ -488,7 +494,7 @@ function collectStatementRuleSites(
       const idx = symbolNameTokenIndex(rule);
       if (idx !== null) {
         const token = line.tokens[idx];
-        if (token) {
+        if (token && !isLikelyValue(token.text)) {
           const kind = rule.reference_kind as SymbolKind;
           const site = siteFromToken(
             kind,

@@ -26,4 +26,15 @@ describe("bundled config fixtures", () => {
     });
     expect(diags.length).toBeGreaterThan(0);
   });
+
+  it("has no false positives in use_backend-var.cfg", () => {
+    const content = readFixture("use_backend-var.cfg");
+    const doc = createDocument(content, "file://fixtures/use_backend-var.cfg");
+    const diags = computeDiagnostics(doc, bundle.schema, {
+      languageData: bundle.languageData,
+      missingReferences: true,
+      unusedSymbols: false,
+    });
+    expect(diags).toEqual([]);
+  });
 });

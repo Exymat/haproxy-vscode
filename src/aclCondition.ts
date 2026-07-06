@@ -1,5 +1,11 @@
 import { HaproxySchema, keywordGroupSet, sampleExpressionNameSets } from "./schema";
-import { findClosingBrace, findExprEnd, readIdentifier, skipSpace } from "./expressionParsing";
+import {
+  findClosingBrace,
+  findExprEnd,
+  isInsideQuotedString,
+  readIdentifier,
+  skipSpace,
+} from "./expressionParsing";
 import { ExpressionSpan, SampleDiagnostic, validateExpressionBody } from "./sampleExpression";
 
 function isAclOnlyCriterion(
@@ -58,7 +64,7 @@ export function validateAclConditions(lineText: string, schema: HaproxySchema): 
       if (pos >= body.length) {
         break;
       }
-      if (body[pos] === "(") {
+      if (body[pos] === "(" && !isInsideQuotedString(body, pos)) {
         const end = findExprEnd(body, pos);
         const slice = body.slice(pos, end);
         issues.push(

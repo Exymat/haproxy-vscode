@@ -312,6 +312,24 @@ export function findExprEnd(text: string, openParen: number): number {
   return text.length;
 }
 
+/** True when `pos` lies inside a single- or double-quoted span in `text`. */
+export function isInsideQuotedString(text: string, pos: number): boolean {
+  let squote = false;
+  let dquote = false;
+  for (let i = 0; i < pos; i += 1) {
+    const ch = text[i];
+    if (ch === '"' && !squote) {
+      dquote = !dquote;
+      continue;
+    }
+    if (ch === "'" && !dquote) {
+      squote = !squote;
+      continue;
+    }
+  }
+  return squote || dquote;
+}
+
 export function findClosingBrace(lineText: string, open: number): number {
   let depth = 0;
   let squote = false;

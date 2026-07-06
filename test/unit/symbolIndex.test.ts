@@ -406,6 +406,24 @@ describe("symbolIndex extended", () => {
     expect(refs[0]?.name).toBe("blocked");
   });
 
+  it("does not treat inline sample fetches as acl references", () => {
+    const parsed = parseDocument(
+      doc("frontend web\n    use_backend www if { var(http_host) -m found }"),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+    expect(findReferences(index, "acl", "var(http_host)", "frontend:web")).toHaveLength(0);
+  });
+
+  it("does not register sample-expression use_backend targets as proxy references", () => {
+    const parsed = parseDocument(
+      doc("frontend web\n    use_backend %[var(http_host)] if { var(http_host) }"),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+    expect(
+      index.references.some((site) => site.kind === "proxy-section" && site.name.startsWith("%[")),
+    ).toBe(false);
+  });
+
   it("tracks acl references inside inline brace blocks", () => {
     const parsed = parseDocument(
       doc(
@@ -626,15 +644,27 @@ describe("symbolIndex extended", () => {
           reference_kind: "userlist",
           scope: "global",
         },
+        triple_auth: {
+          argument_index: 2,
+          reference_kind: "userlist",
+          scope: "global",
+        },
       },
     };
-    const content = "frontend web\n    http-request deny if custom_auth(primary,stats-auth)";
+    const content = [
+      "frontend web",
+      "    http-request deny if custom_auth(primary,stats-auth)",
+      "    http-request deny if triple_auth(ignored,skipped,third-user)",
+    ].join("\n");
     const parsed = parseDocument(doc(content));
     const index = buildSymbolIndex(parsed, customSchema);
     const refs = findReferences(index, "userlist", "stats-auth", null);
     expect(refs).toHaveLength(1);
     expect(refs[0]?.start).toBe(content.split(/\r?\n/)[1].indexOf("stats-auth"));
     expect(refs[0]?.end).toBe(refs[0]?.start + "stats-auth".length);
+    const thirdRefs = findReferences(index, "userlist", "third-user", null);
+    expect(thirdRefs).toHaveLength(1);
+    expect(thirdRefs[0]?.start).toBe(content.split(/\r?\n/)[2].indexOf("third-user"));
   });
 
   it("tracks sample-fetch references with default metadata", () => {
@@ -727,6 +757,12 @@ describe("symbolIndex extended", () => {
     )[1];
     const dstPortIdx = inlineFetch.tokens.findIndex((token) => token.text === "dst_port");
     expect(aclReferenceAt(schema, inlineFetch, dstPortIdx, aclOperators, fetchNames)).toBeNull();
+
+    const varFetch = parseDocument(
+      doc("frontend web\n    use_backend www if { var(http_host) -m found }"),
+    )[1];
+    const varIdx = varFetch.tokens.findIndex((token) => token.text === "var(http_host)");
+    expect(aclReferenceAt(schema, varFetch, varIdx, aclOperators, fetchNames)).toBeNull();
 
     const inBrace = parseDocument(
       doc(

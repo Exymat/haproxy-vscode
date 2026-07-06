@@ -1,5 +1,14 @@
 import { parseDocument, tokenizeLine, DEFAULT_SECTION_HEADERS } from "../../src/parser";
+import { isInsideQuotedString } from "../../src/expressionParsing";
 import { createDocument } from "../helpers/document";
+
+describe("isInsideQuotedString", () => {
+  it("detects positions inside double- and single-quoted spans", () => {
+    expect(isInsideQuotedString('reg "a(b)"', 6)).toBe(true);
+    expect(isInsideQuotedString("reg 'a(b)'", 6)).toBe(true);
+    expect(isInsideQuotedString('reg "a(b)"', 3)).toBe(false);
+  });
+});
 
 describe("tokenizeLine", () => {
   it("handles escaped characters inside double quotes", () => {

@@ -80,6 +80,18 @@ describe("missingReferenceDiagnostics", () => {
     expect(authDiag?.range.start.character).toBe("    acl AUTH http_auth(".length);
   });
 
+  it("does not treat inline sample fetches or dynamic backends as missing references", () => {
+    const content = [
+      "frontend web",
+      '    use_backend www if { var(http_host) -m reg -p "^www\\." }',
+      '    use_backend non_www if { var(http_host) -m reg -p "^(?!www\\.).*" }',
+      "    use_backend %[var(http_host)] if { var(http_host) }",
+      "backend www",
+      "backend non_www",
+    ].join("\n");
+    expect(missingRefs(content)).toEqual([]);
+  });
+
   it("does not report references that have matching definitions", () => {
     const content = [
       "defaults base",
