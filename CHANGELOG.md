@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.14.5
+
+- **Quoted regex in ACL conditions** — parentheses inside single- or double-quoted `-p` patterns (e.g. `-p "^(?!www\.).*"`) no longer trigger false inline-expression delimiter errors.
+- **Dynamic `use_backend` targets** — `use_backend %[var(...)]` is no longer indexed as a backend reference or reported as a missing proxy section.
+- **Inline sample fetches in conditions** — tokens such as `var(http_host)` inside `{ … }` blocks are no longer mistaken for ACL name references in symbol indexing, missing-reference warnings, or navigation.
+
 ## 0.14.4
 
 - **Chained ACL references in conditions** — Go to Definition, Find References, Rename, symbol hover, missing-reference warnings, and unused-ACL hints now recognize ACL names chained after `if`/`unless` (implicit AND), including negated forms (`!acl_name`) and mixes with `&&` / `||` / parentheses (e.g. `if is_static !is_image !is_video`, `if !acl_name_1 acl_name_2 { … } || !acl_name_1`). ACL names inside `{ … }` inline blocks are still indexed; chained-reference detection stays outside braces so sample fetches after `{` are not mistaken for ACLs.
