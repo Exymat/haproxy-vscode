@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.14.4
+
+- **Chained ACL references in conditions** — Go to Definition, Find References, Rename, symbol hover, missing-reference warnings, and unused-ACL hints now recognize ACL names chained after `if`/`unless` (implicit AND), including negated forms (`!acl_name`) and mixes with `&&` / `||` / parentheses (e.g. `if is_static !is_image !is_video`, `if !acl_name_1 acl_name_2 { … } || !acl_name_1`). ACL names inside `{ … }` inline blocks are still indexed; chained-reference detection stays outside braces so sample fetches after `{` are not mistaken for ACLs.
+
 ## 0.14.3
 
 - **Go to Definition and Find References** — work at any cursor position within a symbol reference name (e.g. any character of `api` in `use_backend api`); falls back to parser-based symbol resolution when the exact index span does not match.
