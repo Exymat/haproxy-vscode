@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.14.6
+
+- **Minimum VS Code 1.125** — raised the extension engine requirement from 1.105.
+
 ## 0.14.5
 
 - **Quoted regex in ACL conditions** — parentheses inside single- or double-quoted `-p` patterns (e.g. `-p "^(?!www\.).*"`) no longer trigger false inline-expression delimiter errors.

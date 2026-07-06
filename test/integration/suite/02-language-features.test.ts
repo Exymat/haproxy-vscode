@@ -12,8 +12,10 @@ import {
   filterDiagnostics,
   formatDocumentContent,
   hoverTextAt,
+  openFixture,
   openHaproxyDocument,
   openTempFixtureDocument,
+  positionOf,
   referenceLocationsAt,
   renameEditsAt,
   replaceDocumentContent,
@@ -46,6 +48,73 @@ suite("Language feature integration", () => {
   });
 
   suite("Navigation providers", () => {
+    test("file-backed fixture resolves backend, server, defaults, and ACL targets", async () => {
+      const doc = await openFixture("symbol-graph.cfg");
+
+      const backendDefs = await definitionLocationsAt(doc.uri, positionOf(doc, "api if is_api"));
+      assert.strictEqual(backendDefs.length, 1, "Expected one backend definition");
+      assert.strictEqual(
+        backendDefs[0]?.range.start.line,
+        positionOf(doc, "backend api\n    server").line,
+      );
+
+      const serverDefs = await definitionLocationsAt(doc.uri, positionOf(doc, "web1 if is_api"));
+      assert.strictEqual(serverDefs.length, 1, "Expected one server definition");
+      assert.strictEqual(serverDefs[0]?.range.start.line, positionOf(doc, "server web1").line);
+
+      const defaultsDefs = await definitionLocationsAt(
+        doc.uri,
+        positionOf(doc, "profile_default", 1),
+      );
+      assert.strictEqual(defaultsDefs.length, 1, "Expected one defaults profile definition");
+      assert.strictEqual(
+        defaultsDefs[0]?.range.start.line,
+        positionOf(doc, "defaults profile_default").line,
+      );
+
+      const aclRefs = await referenceLocationsAt(doc.uri, positionOf(doc, "is_api", 1), true);
+      assert.deepStrictEqual(
+        aclRefs.map((location) => location.range.start.line).sort((a, b) => a - b),
+        [positionOf(doc, "acl is_api").line, positionOf(doc, "api if is_api").line],
+      );
+    });
+
+    test("file-backed fixture resolves cache, resolvers, userlist, peers, and filters", async () => {
+      const doc = await openFixture("symbol-graph.cfg");
+
+      for (const [label, needle, expectedNeedles] of [
+        ["cache", "bench_cache", ["cache bench_cache", "cache-use bench_cache"]],
+        ["resolvers", "mydns", ["resolvers mydns", "resolvers mydns check"]],
+        ["userlist", "stats-auth", ["userlist stats-auth", "http_auth(stats-auth)"]],
+        ["peers", "mypeers", ["peers mypeers", "peers mypeers"]],
+        ["filter", "comp-res", ["filter comp-res", "comp-req,comp-res"]],
+      ] as const) {
+        const references = await referenceLocationsAt(doc.uri, positionOf(doc, needle), true);
+        const actualLines = references
+          .map((location) => location.range.start.line)
+          .sort((a, b) => a - b);
+        const expectedLines = expectedNeedles
+          .map((expectedNeedle, occurrence) =>
+            label === "peers"
+              ? positionOf(doc, expectedNeedle, occurrence).line
+              : positionOf(doc, expectedNeedle).line,
+          )
+          .sort((a, b) => a - b);
+        assert.deepStrictEqual(actualLines, expectedLines, `Unexpected ${label} references`);
+      }
+    });
+
+    test("file-backed fixture renames one split filter-sequence reference", async () => {
+      const doc = await openFixture("symbol-graph.cfg");
+      const edit = await renameEditsAt(doc.uri, positionOf(doc, "comp-res", 1), "comp-alt");
+      assert.ok(edit, "Expected filter rename edit");
+      const applied = await vscode.workspace.applyEdit(edit);
+      assert.strictEqual(applied, true, "Expected filter rename edit to apply");
+      assert.ok(doc.getText().includes("filter comp-alt"));
+      assert.ok(doc.getText().includes("filter-sequence request comp-req,comp-alt"));
+      assert.ok(doc.getText().includes("filter comp-req"));
+    });
+
     test("go to definition resolves backend, server, and defaults profile targets", async () => {
       const doc = await openHaproxyDocument(NAVIGATION_CONFIG);
 
@@ -374,6 +443,23 @@ suite("Language feature integration", () => {
   suite("Completion and hover coverage", () => {
     suiteTeardown(async () => {
       await ensureHaproxyVersion("3.2");
+    });
+
+    test("file-backed basic-check fixture provides stats hover and tcp-check completion", async () => {
+      const doc = await openFixture("valid-basic-check.cfg");
+      const statsHover = await hoverTextAt(doc.uri, positionOf(doc, "stats socket"));
+      assert.ok(statsHover.length > 0, "Expected stats socket hover");
+      assert.ok(statsHover.toLowerCase().includes("stats"), "Expected stats hover text");
+
+      const optionLine = positionOf(doc, "\t\n\tserver");
+      const labels = await completionLabelsAt(
+        doc.uri,
+        new vscode.Position(optionLine.line, "\t".length),
+      );
+      assert.ok(
+        labels.some((label) => label.startsWith("tcp-check")),
+        `Expected tcp-check directive completion, got: ${labels.join(", ")}`,
+      );
     });
 
     test("mode completion and hover update across supported versions", async () => {

@@ -3,7 +3,11 @@ import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
 
-import { assertDiagnosticCounts as assertCounts } from "../../helpers/diagnosticCounts";
+import {
+  assertDiagnosticCounts as assertCounts,
+  countDiagnosticsByCode,
+  formatDiagnostics,
+} from "../../helpers/diagnosticCounts";
 
 const EXTENSION_ID = "Exymat.haproxy-config";
 const FIXTURES_DIR = path.resolve(__dirname, "../../../../test/integration/fixtures");
@@ -291,6 +295,42 @@ export function assertDiagnosticCounts(
   label: string,
 ): void {
   assertCounts(diags, expected, label);
+}
+
+export function diagnosticCount(diags: vscode.Diagnostic[], code: string): number {
+  return countDiagnosticsByCode(diags).get(code) ?? 0;
+}
+
+export function assertDiagnosticMinimumCounts(
+  diags: vscode.Diagnostic[],
+  expected: Record<string, number>,
+  label: string,
+): void {
+  const counts = countDiagnosticsByCode(diags);
+  for (const [code, count] of Object.entries(expected)) {
+    const actual = counts.get(code) ?? 0;
+    if (actual < count) {
+      throw new Error(
+        `${label}: expected at least ${count} '${code}' diagnostic(s), got ${actual}\n${formatDiagnostics(diags)}`,
+      );
+    }
+  }
+}
+
+export function positionOf(
+  document: vscode.TextDocument,
+  needle: string,
+  occurrence = 0,
+): vscode.Position {
+  const text = document.getText();
+  let index = -1;
+  let searchFrom = 0;
+  for (let i = 0; i <= occurrence; i += 1) {
+    index = text.indexOf(needle, searchFrom);
+    assert.ok(index >= 0, `Expected to find '${needle}' occurrence ${occurrence}`);
+    searchFrom = index + needle.length;
+  }
+  return document.positionAt(index);
 }
 
 export async function formatDocumentContent(content: string): Promise<string> {

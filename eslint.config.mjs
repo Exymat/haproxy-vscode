@@ -75,7 +75,12 @@ export default defineConfig(
       "vitest/expect-expect": [
         "error",
         {
-          assertFunctionNames: ["expect", "assert", "assertDiagnosticCounts"],
+          assertFunctionNames: [
+            "expect",
+            "assert",
+            "assertDiagnosticCounts",
+            "assertDiagnosticMinimumCounts",
+          ],
           additionalTestBlockFunctions: ["test"],
         },
       ],

@@ -2,7 +2,9 @@ import * as assert from "node:assert";
 import * as vscode from "vscode";
 
 import {
+  assertDiagnosticMinimumCounts,
   assertDiagnosticCounts,
+  diagnosticCount,
   ensureHaproxyVersion,
   filterDiagnostics,
   formatDocumentContent,
@@ -85,6 +87,104 @@ suite("Integration coverage", () => {
       await waitForDiagnosticsReady(500);
       const diags = haproxyDiagnostics(vscode.languages.getDiagnostics(doc.uri));
       assert.strictEqual(diags.length, 0, "Diagnostics should be skipped above maxLines");
+    });
+  });
+
+  suite("Promoted fixtures", () => {
+    suiteSetup(async () => {
+      await updateHaproxySetting("diagnostics.enabled", true);
+      await updateHaproxySetting("diagnostics.deprecatedWarnings", true);
+      await updateHaproxySetting("diagnostics.missingReferences", true);
+      await updateHaproxySetting("diagnostics.unusedSymbols", true);
+      await ensureHaproxyVersion("3.2");
+    });
+
+    suiteTeardown(async () => {
+      await ensureHaproxyVersion("3.2");
+    });
+
+    test("reports the promoted diagnostics matrix fixture", async () => {
+      const doc = await openFixture("diagnostics-matrix.cfg");
+      const diagnostics = await waitForSchemaDiagnostics(doc.uri, 6);
+      assertDiagnosticCounts(
+        diagnostics,
+        {
+          "unknown-option": 1,
+          "unknown-value": 1,
+          "unknown-keyword": 1,
+          "unknown-criterion": 1,
+          "unknown-action": 1,
+          "wrong-section": 1,
+        },
+        "diagnostics matrix fixture",
+      );
+    });
+
+    test("does not flag regex or sample-expression backend targets as missing", async () => {
+      const doc = await openFixture("dynamic-backends.cfg");
+      const diagnostics = await waitForSchemaDiagnostics(doc.uri, 0);
+      assert.strictEqual(
+        diagnosticCount(diagnostics, "missing-reference"),
+        0,
+        `Expected no missing references, got: ${diagnostics.map((d) => d.message).join(", ")}`,
+      );
+    });
+
+    test("keeps the promoted valid basic-check fixture error-free", async () => {
+      const doc = await openFixture("valid-basic-check.cfg");
+      const diagnostics = await waitForSchemaDiagnostics(doc.uri, 0);
+      const errors = filterDiagnostics(diagnostics, vscode.DiagnosticSeverity.Error);
+      assert.strictEqual(
+        errors.length,
+        0,
+        `Unexpected valid fixture errors: ${errors.map((e) => e.message).join(", ")}`,
+      );
+    });
+
+    test("reports sample expression fetch and converter errors from a file-backed fixture", async () => {
+      const doc = await openFixture("sample-expression-errors.cfg");
+      const diagnostics = await waitForSchemaDiagnostics(doc.uri, 6);
+      assertDiagnosticMinimumCounts(
+        diagnostics,
+        {
+          "sample-missing-fetch": 1,
+          "sample-unknown-fetch": 1,
+          "sample-fetch-args": 1,
+          "sample-unknown-converter": 1,
+          "sample-converter-cast": 1,
+          "sample-converter-args": 1,
+        },
+        "sample expression errors fixture",
+      );
+    });
+
+    test("reports promoted name and address diagnostics", async () => {
+      const doc = await openFixture("name-address-diagnostics.cfg");
+      const diagnostics = await waitForSchemaDiagnostics(doc.uri, 6);
+      assertDiagnosticCounts(
+        diagnostics,
+        {
+          "invalid-name": 2,
+          "legacy-bind-syntax": 2,
+          "invalid-address": 1,
+          "missing-port": 1,
+          "port-range-not-permitted": 1,
+          "port-offset-not-permitted": 1,
+        },
+        "name and address diagnostics fixture",
+      );
+    });
+
+    test("reports anonymous named-defaults-only keywords on 3.4", async () => {
+      await ensureHaproxyVersion("3.4");
+      const doc = await openFixture("named-defaults-required.cfg");
+      const diagnostics = await waitForSchemaDiagnostics(doc.uri, 2);
+      assertDiagnosticCounts(
+        diagnostics,
+        { "named-defaults-required": 2 },
+        "named defaults required fixture",
+      );
+      await ensureHaproxyVersion("3.2");
     });
   });
 
