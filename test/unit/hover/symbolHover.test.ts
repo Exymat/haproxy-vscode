@@ -87,4 +87,26 @@ describe("symbol hover", () => {
     );
     expect(hoverText(hover as never)).toContain(["```haproxy", "backend api", "```"].join("\n"));
   });
+
+  it("shows peek definition for chained acl references around inline expressions", () => {
+    const content =
+      "frontend web\n    acl acl_name_1 path_beg /a1\n    acl acl_name_2 path_beg /a2\n    http-request deny if !acl_name_1 acl_name_2 { dst_port -m int 80 } || !acl_name_1";
+    const lineText = content.split(/\r?\n/)[3];
+    const bundle = bundles["3.4"];
+
+    for (const [needle, definition] of [
+      ["acl_name_1", "    acl acl_name_1 path_beg /a1"],
+      ["acl_name_2", "    acl acl_name_2 path_beg /a2"],
+    ] as const) {
+      const hover = provideHover(
+        createDocument(content),
+        { line: 3, character: lineText.indexOf(needle) } as never,
+        bundle.languageData,
+        bundle.schema,
+      );
+      const text = hoverText(hover as never);
+      expect(text).toContain(["```haproxy", definition, "```"].join("\n"));
+      expect(text).toContain("command:haproxy.peekDefinitionAtPosition");
+    }
+  });
 });

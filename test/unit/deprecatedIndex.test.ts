@@ -108,4 +108,32 @@ describe("deprecatedIndex", () => {
     expect(index.sampleFetches.has("legacy_fetch")).toBe(true);
     expect(index.sampleFetches.has("lang_fetch")).toBe(true);
   });
+
+  it("handles schemas without sample expression maps", () => {
+    const schema = structuredClone(bundle.schema);
+    delete (schema as Partial<typeof schema>).sample_fetches;
+    delete (schema as Partial<typeof schema>).sample_converters;
+    const index = buildDeprecatedIndex(schema, bundle.languageData);
+    expect(index.sampleFetches.size).toBeGreaterThanOrEqual(0);
+    expect(index.sampleConverters.size).toBeGreaterThanOrEqual(0);
+  });
+
+  it("ignores non-deprecated sample expressions with missing signatures", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.sample_fetches = {
+      plain_fetch: {
+        name: "plain_fetch",
+        deprecated: false,
+      } as never,
+    };
+    schema.sample_converters = {
+      plain_conv: {
+        name: "plain_conv",
+        deprecated: false,
+      } as never,
+    };
+    const index = buildDeprecatedIndex(schema);
+    expect(index.sampleFetches.has("plain_fetch")).toBe(false);
+    expect(index.sampleConverters.has("plain_conv")).toBe(false);
+  });
 });

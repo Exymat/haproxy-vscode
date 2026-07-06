@@ -34,14 +34,74 @@ function aclConditionOperators(schema: HaproxySchema): Set<string> {
 
 function aclConditionIntroducer(
   schema: HaproxySchema,
-  text: string | undefined,
+  text: string,
   aclOperators: Set<string>,
 ): boolean {
-  if (!text) {
-    return false;
-  }
   const lower = text.toLowerCase();
   return lower === "if" || lower === "unless" || aclOperators.has(text);
+}
+
+function isNegatedAclToken(text: string): boolean {
+  return text.startsWith("!") && text.length > 1;
+}
+
+function isPlainAclNameToken(text: string): boolean {
+  if (isNegatedAclToken(text)) {
+    return true;
+  }
+  return /^[A-Za-z_][A-Za-z0-9_.-]*$/.test(text);
+}
+
+function braceDepthAt(
+  tokens: ParsedLine["tokens"],
+  tokenIndex: number,
+  conditionStart: number,
+): number {
+  let depth = 0;
+  for (let i = conditionStart; i < tokenIndex; i += 1) {
+    const text = tokens[i]?.text;
+    if (text === "{") {
+      depth += 1;
+    } else if (text === "}") {
+      depth -= 1;
+    }
+  }
+  return depth;
+}
+
+function aclReferenceContextAfterPrev(
+  schema: HaproxySchema,
+  prev: string | undefined,
+  aclOperators: Set<string>,
+  allowChainedReferences: boolean,
+): boolean {
+  if (!prev) {
+    return false;
+  }
+  if (
+    aclConditionIntroducer(schema, prev, aclOperators) ||
+    prev === "{" ||
+    prev === "}" ||
+    prev === "!" ||
+    prev === "(" ||
+    prev === ")"
+  ) {
+    return true;
+  }
+  if (!allowChainedReferences) {
+    return false;
+  }
+  return isPlainAclNameToken(prev);
+}
+
+function aclConditionStartIndex(tokens: ParsedLine["tokens"]): number | null {
+  for (let i = 0; i < tokens.length; i += 1) {
+    const lower = tokens[i].text.toLowerCase();
+    if (lower === "if" || lower === "unless") {
+      return i + 1;
+    }
+  }
+  return null;
 }
 
 function aclReferenceAt(
@@ -57,6 +117,11 @@ function aclReferenceAt(
     return null;
   }
 
+  const conditionStart = aclConditionStartIndex(tokens);
+  if (conditionStart === null || tokenIndex < conditionStart) {
+    return null;
+  }
+
   if (
     token.text === "{" ||
     token.text === "}" ||
@@ -67,19 +132,24 @@ function aclReferenceAt(
   }
 
   const prev = tokens[tokenIndex - 1]?.text;
+  const allowChainedReferences = braceDepthAt(tokens, tokenIndex, conditionStart) === 0;
 
   if (prev === "{" && fetchNames.has(token.text.toLowerCase())) {
     return null;
   }
 
-  if (aclConditionIntroducer(schema, prev, aclOperators) || prev === "{") {
-    if (token.text.startsWith("!") && token.text.length > 1) {
-      return { name: token.text.slice(1), tokenIndex, start: token.start + 1, end: token.end };
-    }
-    return { name: token.text, tokenIndex, start: token.start, end: token.end };
+  if (!aclReferenceContextAfterPrev(schema, prev, aclOperators, allowChainedReferences)) {
+    return null;
   }
 
-  return null;
+  if (!isPlainAclNameToken(token.text)) {
+    return null;
+  }
+
+  if (isNegatedAclToken(token.text)) {
+    return { name: token.text.slice(1), tokenIndex, start: token.start + 1, end: token.end };
+  }
+  return { name: token.text, tokenIndex, start: token.start, end: token.end };
 }
 
 interface SymbolBuildContext {

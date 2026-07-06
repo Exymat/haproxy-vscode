@@ -37,6 +37,11 @@ describe("topLevelDiagnostics", () => {
     expect(topLevelDiagnostics(ctx, line)).toEqual([]);
   });
 
+  it("does not apply option-line allowance in sections without option keywords", () => {
+    const { ctx, line } = lineAt("global\n    option httplog");
+    expect(topLevelDiagnostics(ctx, line).some((d) => d.code === "wrong-section")).toBe(true);
+  });
+
   it("reports wrong-section before listing sections when many are allowed", () => {
     const { ctx, line } = lineAt("global\n    mode");
     const diags = topLevelDiagnostics(ctx, line);
@@ -70,6 +75,22 @@ describe("topLevelDiagnostics", () => {
     expect(
       diags.some((d) => d.code === "unknown-keyword" && d.message.includes("subcommand")),
     ).toBe(true);
+  });
+
+  it("falls through for known prefix subcommands without subcommand diagnostics", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.line_layout = {
+      ...(schema.line_layout ?? {}),
+      prefix_families: ["customprefix"],
+      prefix_subcommands: { customprefix: ["enable"] },
+    };
+    const doc = createDocument("global\n    customprefix enable");
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[1];
+    const diags = topLevelDiagnostics(ctx, line);
+    expect(
+      diags.filter((d) => d.code === "unknown-keyword" && d.message.includes("subcommand")),
+    ).toHaveLength(0);
   });
 
   it("accepts known prefix subcommands without subcommand diagnostics", () => {
@@ -357,14 +378,42 @@ describe("topLevelDiagnostics fallbacks", () => {
 
 describe("contextDiagnostics edge paths", () => {
   it("skips option context checks when the option name token is missing", () => {
-    const { ctx, line } = lineAt("defaults\n    option");
+    const { ctx, line } = lineAt("defaults\n    mode http\n    option", 2);
     expect(contextDiagnostics(ctx, line)).toEqual([]);
+  });
+
+  it("skips option context checks when no context metadata exists for the option", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keyword_group_contexts = {
+      ...schema.keyword_group_contexts,
+      options: {},
+    };
+    const doc = createDocument("defaults\n    mode http\n    option httplog");
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[2];
+    expect(contextDiagnostics(ctx, line)).toEqual([]);
+  });
+
+  it("handles sparse token arrays after line memoization", () => {
+    const { ctx, line } = lineAt("frontend x\n    mode http\n    notreal", 2);
+    ctx.getLineMemo(line);
+    expect(contextDiagnostics(ctx, { ...line, tokens: [undefined as never] })).toEqual([]);
   });
 
   it("skips bind option checks when the statement rule has no option group", () => {
     const schema = structuredClone(bundle.schema);
     schema.statement_rules = schema.statement_rules.filter((rule) => rule.group !== "bind_options");
     const doc = createDocument("frontend x\n    mode http\n    bind :80 ssl");
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[2];
+    expect(contextDiagnostics(ctx, line)).toEqual([]);
+  });
+
+  it("skips bind option checks when group context metadata is absent", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keyword_group_contexts = { ...schema.keyword_group_contexts };
+    delete schema.keyword_group_contexts.bind_options;
+    const doc = createDocument("frontend x\n    mode tcp\n    bind :80 idle-ping");
     const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
     const line = parseDocument(doc)[2];
     expect(contextDiagnostics(ctx, line)).toEqual([]);
@@ -384,8 +433,98 @@ describe("contextDiagnostics edge paths", () => {
     expect(contextDiagnostics(ctx, line).some((d) => d.code === "wrong-context")).toBe(false);
   });
 
+  it("accepts bind option contexts that match the active mode", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keyword_group_contexts = {
+      ...schema.keyword_group_contexts,
+      bind_options: {
+        "idle-ping": ["tcp"],
+      },
+    };
+    const doc = createDocument("frontend x\n    mode tcp\n    bind :80 idle-ping");
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[2];
+    expect(contextDiagnostics(ctx, line).filter((d) => d.code === "wrong-context")).toHaveLength(0);
+  });
+
   it("accepts directives whose runtime context matches the section mode", () => {
     const { ctx, line } = lineAt("frontend x\n    mode http\n    option httplog", 2);
     expect(contextDiagnostics(ctx, line).filter((d) => d.code === "wrong-context")).toHaveLength(0);
+  });
+});
+
+describe("unknownNestedDiagnostics edge paths", () => {
+  it("accepts option lines without an option name", () => {
+    const { ctx, line } = lineAt("defaults\n    option");
+    expect(unknownNestedDiagnostics(ctx, line)).toEqual([]);
+  });
+
+  it("falls through stats socket handling when only the stats keyword is present", () => {
+    const { ctx, line } = lineAt("global\n    stats");
+    expect(unknownNestedDiagnostics(ctx, line)).toEqual([]);
+  });
+
+  it("falls through tcp inspect-delay handling when only the tcp-request keyword is present", () => {
+    const { ctx, line } = lineAt("frontend x\n    tcp-request");
+    expect(unknownNestedDiagnostics(ctx, line)).toEqual([]);
+  });
+
+  it("reports unknown parenthesized ACL criteria by base name", () => {
+    const { ctx, line } = lineAt("frontend web\n    acl bad-name not-a-criterion()");
+    expect(unknownNestedDiagnostics(ctx, line).some((d) => d.code === "unknown-criterion")).toBe(
+      true,
+    );
+  });
+
+  it("does not report a tcp-request phase when the token is a known action", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords["tcp-request"] = {
+      ...(schema.keywords["tcp-request content"] ?? { sections: ["frontend"] }),
+      sections: ["frontend"],
+    };
+    const doc = createDocument("frontend x\n    tcp-request accept if TRUE");
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[1];
+    expect(
+      unknownNestedDiagnostics(ctx, line).filter((d) => d.code === "unknown-value"),
+    ).toHaveLength(0);
+  });
+
+  it("reports unknown tcp-response phases", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords["tcp-response"] = {
+      ...(schema.keywords["tcp-response content"] ?? { sections: ["frontend"] }),
+      sections: ["frontend"],
+    };
+    const doc = createDocument("frontend x\n    tcp-response notreal if TRUE");
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[1];
+    expect(unknownNestedDiagnostics(ctx, line).some((d) => d.code === "unknown-value")).toBe(true);
+  });
+
+  it("uses an empty action set when a statement rule has no action group", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.statement_rules = schema.statement_rules.map((rule) =>
+      rule.keyword === "http-request" ? { ...rule, group: undefined } : rule,
+    );
+    const doc = createDocument("frontend x\n    http-request deny if TRUE");
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[1];
+    expect(unknownNestedDiagnostics(ctx, line).some((d) => d.code === "unknown-action")).toBe(true);
+  });
+
+  it("uses an empty phase action set when a phase rule has no action group", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keywords["tcp-request"] = {
+      ...(schema.keywords["tcp-request content"] ?? { sections: ["frontend"] }),
+      sections: ["frontend"],
+    };
+    schema.statement_rules = schema.statement_rules.map((rule) =>
+      rule.keyword === "tcp-request" ? { ...rule, group: undefined } : rule,
+    );
+    const doc = createDocument("frontend x\n    tcp-request notreal if TRUE");
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[1];
+    expect(unknownNestedDiagnostics(ctx, line).some((d) => d.code === "unknown-value")).toBe(true);
   });
 });

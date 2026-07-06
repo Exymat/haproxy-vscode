@@ -74,6 +74,13 @@ describe("unusedSymbolDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unused-acl")).toHaveLength(0);
   });
 
+  it("suppresses unused ACL when referenced in chained if conditions", () => {
+    const diags = unusedDiags(
+      "frontend web\n    acl is_static path_beg /static/\n    acl is_image path_beg /images/\n    acl is_video path_beg /videos/\n    http-request set-header X-Is-Static if is_static !is_image !is_video\n    http-request set-header X-Is-Image-Or-Video if is_image is_video || !is_static\n    http-request deny if !is_static !is_image !is_video",
+    );
+    expect(diags.filter((d) => d.code === "unused-acl")).toHaveLength(0);
+  });
+
   it("reports unused backend spanning the full section block", () => {
     const diags = unusedDiags(
       "frontend web\n    bind :80\nbackend old_api\n    server s1 127.0.0.1:80",

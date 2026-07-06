@@ -1,7 +1,11 @@
 import { parseDocument } from "../../src/parser";
 import * as parseCache from "../../src/parseCache";
 import { getParsedDocument, getParsedDocumentEntry } from "../../src/parseCache";
-import { aclReferenceAt, collectLineSymbolSites } from "../../src/symbolIndex/build";
+import {
+  aclReferenceAt,
+  buildScopeKeyByLine,
+  collectLineSymbolSites,
+} from "../../src/symbolIndex/build";
 import {
   buildSymbolIndex,
   findAllSites,
@@ -14,6 +18,7 @@ import {
 } from "../../src/symbolIndex";
 import { effectiveScopeKeyForSchema } from "../../src/symbolIndex/types";
 import { buildSitesByLine } from "../../src/symbolIndex/utils";
+import { sampleExpressionNameSets } from "../../src/schema";
 import { createDocument, updateDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 import type { Position, TextDocument } from "vscode";
@@ -411,6 +416,74 @@ describe("symbolIndex extended", () => {
     expect(findReferences(index, "acl", "blocked", "frontend:web")).toHaveLength(1);
   });
 
+  it("tracks chained acl references in implicit-and conditions", () => {
+    const parsed = parseDocument(
+      doc(
+        "frontend web\n    acl is_static path_beg /static/\n    acl is_image path_beg /images/\n    acl is_video path_beg /videos/\n    http-request set-header X-Is-Static if is_static !is_image !is_video\n    http-request set-header X-Is-Image-Or-Video if is_image is_video || !is_static\n    http-request deny if !is_static !is_image !is_video",
+      ),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+    expect(findReferences(index, "acl", "is_static", "frontend:web").length).toBeGreaterThanOrEqual(
+      3,
+    );
+    expect(findReferences(index, "acl", "is_image", "frontend:web").length).toBeGreaterThanOrEqual(
+      3,
+    );
+    expect(findReferences(index, "acl", "is_video", "frontend:web").length).toBeGreaterThanOrEqual(
+      3,
+    );
+  });
+
+  it("tracks acl references in mixed inline and named conditions", () => {
+    const defs =
+      "frontend web\n    acl acl_name_1 path_beg /a1\n    acl acl_name_2 path_beg /a2\n    acl acl_name_3 path_beg /a3\n";
+    const cases = [
+      "    http-request deny if { dst_port -m int 80 } || !acl_name_1 && acl_name_2 !acl_name_3",
+      "    http-request deny if { dst_port -m int 80 } || ( !acl_name_1 && acl_name_2 ) !acl_name_3",
+      "    http-request deny if { dst_port -m int 80 } || acl_name_1 && acl_name_2 acl_name_3",
+      "    http-request deny if !acl_name_1 acl_name_2 { dst_port -m int 80 }",
+      "    http-request deny if { dst_port -m int 80 } !acl_name_1 acl_name_2",
+    ];
+    for (const condition of cases) {
+      const index = buildSymbolIndex(parseDocument(doc(defs + condition)), schema);
+      expect(findReferences(index, "acl", "acl_name_1", "frontend:web")).toHaveLength(1);
+      expect(findReferences(index, "acl", "acl_name_2", "frontend:web")).toHaveLength(1);
+      const expectedAcl3Refs = condition.includes("acl_name_3") ? 1 : 0;
+      expect(findReferences(index, "acl", "acl_name_3", "frontend:web")).toHaveLength(
+        expectedAcl3Refs,
+      );
+    }
+  });
+
+  it("resolves chained acl references for navigation and hover", () => {
+    const defs = "frontend web\n    acl acl_name_1 path_beg /a1\n    acl acl_name_2 path_beg /a2\n";
+    const condition =
+      "    http-request deny if !acl_name_1 acl_name_2 { dst_port -m int 80 } || !acl_name_1";
+    const content = defs + condition;
+    const document = doc(content);
+    const parsed = parseDocument(document);
+    const index = buildSymbolIndex(parsed, schema);
+    const lineNo = parsed[parsed.length - 1].line;
+    const lineText = document.lineAt(lineNo).text;
+    const col = (needle: string) => lineText.indexOf(needle);
+
+    for (const [acl, character] of [
+      ["acl_name_1", col("acl_name_1")],
+      ["acl_name_2", col("acl_name_2")],
+    ] as const) {
+      expect(resolveSymbolAtPosition(document, pos(lineNo, character), schema)).toEqual({
+        kind: "acl",
+        name: acl,
+        scopeKey: "frontend:web",
+      });
+      expect(findSiteAtPosition(index, pos(lineNo, character))).toMatchObject({
+        kind: "acl",
+        name: acl,
+        role: "reference",
+      });
+    }
+  });
+
   it("uses value token indexes for definitions and unscoped symbol keys", () => {
     const customSchema = structuredClone(schema);
     customSchema.statement_rules = [
@@ -564,6 +637,63 @@ describe("symbolIndex extended", () => {
     expect(refs[0]?.end).toBe(refs[0]?.start + "stats-auth".length);
   });
 
+  it("tracks sample-fetch references with default metadata", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.symbols = {
+      ...customSchema.symbols,
+      sample_fetch_references: {
+        simple_auth: {
+          reference_kind: "userlist",
+        },
+        scoped_auth: {
+          reference_kind: "userlist",
+          scope: "section",
+        },
+        missing_arg: {
+          reference_kind: "userlist",
+          argument_index: 1,
+        },
+      },
+    };
+    const parsed = parseDocument(
+      doc(
+        [
+          "frontend web",
+          "    http-request deny if simple_auth(global-users)",
+          "    http-request deny if scoped_auth(section-users)",
+          "    http-request deny if missing_arg(only-one)",
+        ].join("\n"),
+      ),
+    );
+
+    const globalRefs = collectLineSymbolSites(parsed[1], customSchema, "frontend:web").filter(
+      (site) => site.kind === "userlist",
+    );
+    expect(globalRefs).toEqual([
+      expect.objectContaining({
+        name: "global-users",
+        scopeKey: null,
+      }),
+    ]);
+
+    const scopedRefs = collectLineSymbolSites(parsed[2], customSchema, "frontend:web").filter(
+      (site) => site.kind === "userlist",
+    );
+    expect(scopedRefs).toEqual([
+      expect.objectContaining({
+        name: "section-users",
+        scopeKey: "frontend:web",
+      }),
+    ]);
+
+    expect(collectLineSymbolSites(parsed[3], customSchema, "frontend:web")).toEqual([]);
+  });
+
+  it("buildScopeKeyByLine clears scope for named non-proxy sections", () => {
+    const parsed = parseDocument(doc("frontend web\ncache c1\n    total-max-size 4"));
+    expect(buildScopeKeyByLine(parsed, schema)).toEqual(["frontend:web", null, null]);
+  });
+
   it("tracks defaults from references after unrelated section-header tokens", () => {
     const parsed = parseDocument(doc("frontend web extra from base"));
     const sites = collectLineSymbolSites(parsed[0], schema, null);
@@ -577,8 +707,42 @@ describe("symbolIndex extended", () => {
     const aclOperators = new Set<string>(
       (schema.symbols?.acl_condition_operators as string[] | undefined) ?? [],
     );
-    const fetchNames = new Set<string>();
+    const fetchNames = sampleExpressionNameSets(schema).fetchNames;
     expect(aclReferenceAt(schema, line, 99, aclOperators, fetchNames)).toBeNull();
+
+    const gapAfterIf = {
+      ...line,
+      tokens: [
+        { text: "http-request", start: 4, end: 16 },
+        { text: "deny", start: 17, end: 21 },
+        { text: "if", start: 22, end: 24 },
+        undefined as never,
+        { text: "acl1", start: 26, end: 30 },
+      ],
+    };
+    expect(aclReferenceAt(schema, gapAfterIf as never, 4, aclOperators, fetchNames)).toBeNull();
+
+    const inlineFetch = parseDocument(
+      doc("frontend web\n    http-request deny if { dst_port -m int 80 }"),
+    )[1];
+    const dstPortIdx = inlineFetch.tokens.findIndex((token) => token.text === "dst_port");
+    expect(aclReferenceAt(schema, inlineFetch, dstPortIdx, aclOperators, fetchNames)).toBeNull();
+
+    const inBrace = parseDocument(
+      doc(
+        "frontend web\n    acl blocked path_beg /x\n    http-request deny if { blocked -m found }",
+      ),
+    )[2];
+    const foundIdx = inBrace.tokens.findIndex((token) => token.text === "found");
+    expect(aclReferenceAt(schema, inBrace, foundIdx, aclOperators, fetchNames)).toBeNull();
+
+    const afterBrace = parseDocument(
+      doc(
+        "frontend web\n    acl a1 path_beg /a\n    http-request deny if { dst_port -m int 80 } a1",
+      ),
+    )[2];
+    const a1Idx = afterBrace.tokens.findIndex((token) => token.text === "a1");
+    expect(aclReferenceAt(schema, afterBrace, a1Idx, aclOperators, fetchNames)?.name).toBe("a1");
 
     const sparse = {
       ...line,
