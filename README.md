@@ -8,7 +8,7 @@
 
 **Schema-driven language support for HAProxy configuration files** in Visual Studio Code and compatible editors.
 
-Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, log-format intelligence, schema-based diagnostics, **go to definition** and **find all references**, document formatting, and section outline — all tuned to the HAProxy release you run in production (**2.6**, **2.8**, **3.0**, **3.2**, or **3.4**).
+Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, log-format intelligence, schema-based diagnostics, **rename symbol**, **symbol hover on references**, **go to definition** and **find all references** (including cross-file when the workspace graph is active), document formatting, and section outline — all tuned to the HAProxy release you run in production (**2.6**, **2.8**, **3.0**, **3.2**, or **3.4**).
 
 ---
 
@@ -45,6 +45,7 @@ Hover any supported keyword to read summaries sourced from HAProxy's official `c
 - **`bind` / `server` line options** — nested sub-options (e.g. `source … interface`), manual ASCII tables rendered as markdown
 - **Rule actions** — parenthesized actions (`set-var(...)`) and sample fetches (`req.hdr(...)`) show distinct documentation
 - **Examples** from the manual where available
+- **Symbol references** — hover a backend name, ACL, server, defaults profile, or other indexed reference to preview the defining line or full section body in a code block, with a **Peek Definition** link
 
 ![Hover documentation with signature and upstream doc link](docs/images/hover-documentation.png)
 
@@ -70,21 +71,25 @@ Format strings in directives such as `log-format`, `error-log-format`, `unique-i
 
 Catch common mistakes while you type:
 
-| Category    | Examples                                                                                                                |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Keywords    | Unknown directive, keyword used in the wrong section, **deprecated** keyword                                            |
-| Structure   | Nested `option` / parameter misuse; keywords marked `(!)` in anonymous `defaults`; modifier-prefixed directives/actions |
-| Arguments   | Missing or extra arguments for known statement shapes                                                                   |
-| Expressions | Invalid sample fetch / converter references, ACL-only criteria misuse                                                   |
-| Delimiters  | Unclosed or mismatched `()`, `[]`, `{}`, quotes on a line (e.g. `%[req.hdr(host)`)                                      |
-| Addresses   | Invalid bind/server/source/usesrc forms, MPTCP and address-prefix rules                                                 |
-| Log format  | Unknown alias or flag inside format strings                                                                             |
-| Context     | Mode-aware `wrong-context` checks for directives/options that only apply to specific modes                              |
-| Rules       | Unknown or **deprecated** `http-request` / `tcp-request` action, unknown `use-service` target                           |
+| Category     | Examples                                                                                                                                                                 |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Keywords     | Unknown directive, keyword used in the wrong section, **deprecated** keyword                                                                                             |
+| Structure    | Nested `option` / parameter misuse; keywords marked `(!)` in anonymous `defaults`; modifier-prefixed directives/actions                                                  |
+| Arguments    | Missing or extra arguments for known statement shapes                                                                                                                    |
+| Expressions  | Invalid sample fetch / converter references, ACL-only criteria misuse                                                                                                    |
+| Delimiters   | Unclosed or mismatched `()`, `[]`, `{}`, quotes on a line (e.g. `%[req.hdr(host)`)                                                                                       |
+| Addresses    | Invalid bind/server/source/usesrc forms, MPTCP and address-prefix rules                                                                                                  |
+| Log format   | Unknown alias or flag inside format strings                                                                                                                              |
+| Context      | Mode-aware `wrong-context` checks for directives/options that only apply to specific modes                                                                               |
+| Rules        | Unknown or **deprecated** `http-request` / `tcp-request` action, unknown `use-service` target                                                                            |
+| Symbols      | Missing ACL, backend, cache, userlist, resolvers, peers, or defaults profile (`missing-reference`); duplicate named section across workspace files (`duplicate-section`) |
+| Entry points | Frontend or listen without `bind` / `bind-process` and no inherited bind in the same file (`no-bind-entry-point`)                                                        |
 
 Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Context checks use the effective runtime mode inferred from your section/config flow, but you should still validate with your real binary before deploying.
 
-**Unused symbol hints** (on by default via `haproxy.diagnostics.unusedSymbols`) fade unused ACL lines (full-line) and unreferenced section blocks (backends, named defaults, cache, userlist, resolvers, peers) — similar to unused-code hints in Ty or Pylance. Server lines are not flagged; `use-server` is optional and pool members are valid without it. Frontends and listens without a `bind` or `bind-process` directive (including inherited defaults in the same file) are reported as **warnings** because they cannot accept connections. Analysis is single-file and heuristic: it does not follow `include` directives or detect runtime-only references.
+**Missing-reference warnings** (on by default via `haproxy.diagnostics.missingReferences`) flag named references with no matching definition — ACLs, backends, cache, userlist, resolvers, peers, and named defaults profiles. When the workspace symbol graph is active, definitions in other indexed `.cfg` files satisfy the reference; environment variables are never flagged (external `$VAR` names without a local `setenv` simply have no jump target).
+
+**Unused symbol hints** (on by default via `haproxy.diagnostics.unusedSymbols`) fade unused ACL lines (full-line) and unreferenced section blocks (backends, named defaults, cache, userlist, resolvers, peers) — similar to unused-code hints in Ty or Pylance. Server lines are not flagged; `use-server` is optional and pool members are valid without it. Frontends and listens without a `bind` or `bind-process` directive (including inherited defaults in the same file) are reported as **warnings** because they cannot accept connections. When the workspace symbol graph is active, a backend referenced from another file is not reported as unused. With the graph disabled or over its limits, analysis falls back to the current file only. The graph indexes workspace files by glob — it does **not** follow HAProxy `include` directives or detect runtime-only references.
 
 ![Wrong-section diagnostic with inline directive help](docs/images/diagnostics-wrong-section.png)
 
@@ -114,17 +119,31 @@ Navigate large configs with built-in structure support:
 
 ![Outline view and section folding](docs/images/outline-folding.gif)
 
-### Go to definition and find references
+### Workspace symbol graph
 
-Jump across related config with standard editor navigation (**Go to Definition**, **Go to References**, peek view):
+Split HAProxy layouts — separate files for frontends, backends, ACLs, or shared defaults — are indexed into a **workspace symbol graph** (on by default via `haproxy.workspaceSymbols.enabled`):
 
-- **Frontends / backends / listen** — `use_backend`, `default_backend`, and section headers link to the matching proxy section
-- **ACLs** — definitions and uses in `if` / `unless` conditions within the same section (including negated forms like `!is_api`), inline `{ … }` conditions, and compound `&&` / `||` expressions
+- **Discovery** — matches workspace `.cfg` files using `haproxy.workspaceSymbols.include` (default `**/*.cfg`), excluding common build/vendor paths
+- **Cross-file Go to Definition and Find References** — jump from `use_backend api` in one file to `backend api` in another; reference lists include usages across indexed files
+- **Cross-file symbol diagnostics** — missing-reference and unused-section checks consult workspace definitions, so a backend used only from another file is not flagged
+- **Duplicate section warnings** — warns when the same named frontend, backend, listen, defaults profile, cache, userlist, resolvers, or peers block is defined in more than one indexed file
+- **Limits and fallback** — when disabled or when `maxFiles` / `maxTotalLines` are exceeded, navigation and symbol diagnostics fall back to single-file behavior
+
+The graph rebuilds after workspace file changes (debounced via `haproxy.workspaceSymbols.debounceMs`). It indexes files on disk in the workspace — not HAProxy `include` paths.
+
+### Go to definition, find references, and rename
+
+Jump across related config with standard editor navigation (**Go to Definition**, **Go to References**, **Rename Symbol**, peek view):
+
+- **Frontends / backends / listen** — `use_backend`, `default_backend`, and section headers link to the matching proxy section; **Go to Definition** on a section highlights the full section body, not just the header line
+- **ACLs** — definitions and uses in `if` / `unless` conditions within the same section (including negated forms like `!is_api`), chained implicit-AND references (`if is_static !is_image`), inline `{ … }` conditions, and compound `&&` / `||` expressions
 - **Servers** — `server` lines and `use-server` references inside a backend or listen
 - **Defaults profiles** — `defaults … from <profile>` links to the named profile
 - **Filters, cache, userlist, resolvers, peers** — section and statement definitions indexed from the schema
+- **Environment variables** — `setenv` / `presetenv` definitions and references from `unsetenv` / `resetenv`, double-quoted `$VAR` / `${VAR}` / `${VAR-default}` / `${VAR-sub}`, and `env(VAR)` sample fetches (single-file navigation and rename; not part of the workspace graph)
+- **Rename Symbol** (F2) — rename a backend, ACL, defaults profile, server, filter, or environment variable; all in-scope references in the **current file** are updated, with validation for invalid or duplicate names
 
-Reference resolution is **schema-driven** via reference patterns in the bundled language data, not hardcoded heuristics.
+Reference resolution is **schema-driven** via reference patterns in the bundled language data, not hardcoded heuristics. With the workspace graph active, definitions and references can span multiple `.cfg` files; rename remains single-file.
 
 ![Find references for a backend used from a frontend](docs/images/febe-findreferences.png)
 
@@ -135,7 +154,7 @@ Reference resolution is **schema-driven** via reference patterns in the bundled 
 ## Getting started
 
 1. **Install** the extension from the Marketplace (or load a `.vsix` locally).
-2. **Open** a HAProxy config (`.cfg` extension is recognized automatically; `#` line comments, bracket matching, and auto-closing pairs are enabled).
+2. **Open** a HAProxy config (`.cfg` extension is recognized automatically; `#` line comments, bracket matching, and auto-closing pairs are enabled). For cross-file navigation and workspace symbol diagnostics, open a **workspace folder** containing your `.cfg` files.
 3. **Choose your HAProxy version** so completion, hover, diagnostics, formatting, and highlighting match your deployment (see below).
 
 No extra runtime is required for day-to-day editing — schemas and grammars ship with the extension. If bundled schema or language data fails to load, the extension shows a one-time error notification.
@@ -170,17 +189,24 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 
 ## Settings
 
-| Setting                                         | Default    | Description                                                                                                                                                              |
-| ----------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `haproxy.version`                               | `3.2`      | HAProxy release used for completion, diagnostics, hover, and syntax highlighting                                                                                         |
-| `haproxy.diagnostics.enabled`                   | `true`     | Turn off if opening very large `.cfg` files feels slow                                                                                                                   |
-| `haproxy.diagnostics.debounceMs`                | `500`      | Delay after edits before recomputing diagnostics (100-5000 ms)                                                                                                           |
-| `haproxy.diagnostics.maxLines`                  | `4000`     | Skip diagnostics above this line count to limit memory use                                                                                                               |
-| `haproxy.diagnostics.deprecatedWarnings`        | `true`     | Warn on directives and rule actions marked `(deprecated)` in the official docs. Warnings are suppressed when `global` contains `expose-deprecated-directives`.           |
-| `haproxy.diagnostics.unusedSymbols`             | `true`     | Hint and fade unused ACL lines and unreferenced section blocks in the current file (Ty-style unnecessary-code styling). Turn off if you prefer a cleaner Problems panel. |
-| `haproxy.format.enabled`                        | `true`     | Enable **Format Document** for HAProxy configs                                                                                                                           |
-| `haproxy.format.indent`                         | `spaces-4` | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                                                                                                            |
-| `haproxy.format.insertBlankLineBetweenSections` | `true`     | Insert a blank line before each new section header when formatting                                                                                                       |
+| Setting                                         | Default         | Description                                                                                                                                                              |
+| ----------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `haproxy.version`                               | `3.2`           | HAProxy release used for completion, diagnostics, hover, and syntax highlighting                                                                                         |
+| `haproxy.diagnostics.enabled`                   | `true`          | Turn off if opening very large `.cfg` files feels slow                                                                                                                   |
+| `haproxy.diagnostics.debounceMs`                | `500`           | Delay after edits before recomputing diagnostics (100-5000 ms)                                                                                                           |
+| `haproxy.diagnostics.maxLines`                  | `4000`          | Skip diagnostics above this line count to limit memory use                                                                                                               |
+| `haproxy.diagnostics.deprecatedWarnings`        | `true`          | Warn on directives and rule actions marked `(deprecated)` in the official docs. Warnings are suppressed when `global` contains `expose-deprecated-directives`.           |
+| `haproxy.diagnostics.unusedSymbols`             | `true`          | Hint and fade unused ACL lines and unreferenced section blocks in the current file (Ty-style unnecessary-code styling). Turn off if you prefer a cleaner Problems panel. |
+| `haproxy.diagnostics.missingReferences`         | `true`          | Warn when a named reference (ACL, backend, cache, userlist, resolvers, peers, defaults profile) has no definition in the current file or workspace graph.                |
+| `haproxy.workspaceSymbols.enabled`              | `true`          | Build a workspace-level symbol graph for cross-file navigation and symbol diagnostics across split `.cfg` layouts.                                                       |
+| `haproxy.workspaceSymbols.include`              | `["**/*.cfg"]`  | Glob patterns for HAProxy files included in the workspace symbol graph.                                                                                                  |
+| `haproxy.workspaceSymbols.exclude`              | see description | Glob patterns excluded from workspace indexing (default: `.git`, `node_modules`, `dist`, `out`, `vendor`).                                                               |
+| `haproxy.workspaceSymbols.maxFiles`             | `300`           | Maximum indexed files before the workspace graph falls back to single-file behavior.                                                                                     |
+| `haproxy.workspaceSymbols.maxTotalLines`        | `100000`        | Maximum total indexed lines before the workspace graph falls back to single-file behavior.                                                                               |
+| `haproxy.workspaceSymbols.debounceMs`           | `750`           | Delay after workspace file changes before rebuilding the symbol graph (100-10000 ms).                                                                                    |
+| `haproxy.format.enabled`                        | `true`          | Enable **Format Document** for HAProxy configs                                                                                                                           |
+| `haproxy.format.indent`                         | `spaces-4`      | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                                                                                                            |
+| `haproxy.format.insertBlankLineBetweenSections` | `true`          | Insert a blank line before each new section header when formatting                                                                                                       |
 
 The extension also raises `editor.maxTokenizationLineLength` for HAProxy files so long `server` / `bind` lines tokenize correctly.
 
