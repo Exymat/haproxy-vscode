@@ -2,6 +2,21 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.15.0
+
+- **Workspace symbol graph** (enabled by default) — indexes matching workspace `.cfg` files into a shared symbol graph for split HAProxy layouts. New settings:
+  - `haproxy.workspaceSymbols.enabled` (default `true`)
+  - `haproxy.workspaceSymbols.include` (default `**/*.cfg`)
+  - `haproxy.workspaceSymbols.exclude` (default `.git`, `node_modules`, `dist`, `out`, `vendor`)
+  - `haproxy.workspaceSymbols.maxFiles` (default `300`)
+  - `haproxy.workspaceSymbols.maxTotalLines` (default `100000`)
+  - `haproxy.workspaceSymbols.debounceMs` (default `750`)
+  The graph rebuilds after workspace file changes (debounced) and falls back to single-file behavior when disabled or when file/line limits are exceeded.
+- **Cross-file Go to Definition and Find References** — when the workspace graph is active, jump from a reference in one file to section definitions in another (backend, cache, resolvers, defaults profile, etc.); Find References lists declaration and usages across indexed files.
+- **Cross-file missing-reference and unused-section diagnostics** — a backend referenced only from another file no longer gets `missing-reference` or `unused-section` warnings; unresolved references are checked against workspace definitions, not just the current file.
+- **Duplicate section warnings** — warns when the same named section is defined in more than one indexed file (`duplicate-section`): proxy sections (frontend/backend/listen), named defaults profiles, cache, userlist, resolvers, and peers.
+- **Environment variable symbols** — within a file, indexes `setenv` / `presetenv` definitions and references from `unsetenv` / `resetenv`, double-quoted `$VAR` / `${VAR}` / `${VAR-default}` / `${VAR-sub}`, and `env(VAR)` sample fetches. Supports Go to Definition, Find References, and Rename (single-file) with env-specific name validation. Environment variables are never reported as missing references; external names without a local `setenv` simply have no definition target.
+
 ## 0.14.7
 
 - **Go to Definition for proxy sections** — jumping to a backend, frontend, or other section definition now highlights the full section (header plus body) instead of only the header line.
