@@ -158,6 +158,7 @@ const configListeners: Array<
   (event: { affectsConfiguration: (section: string) => boolean }) => void
 > = [];
 const activeEditorListeners: Array<() => void> = [];
+const mockWorkspaceFiles = new Map<string, string>();
 
 export let mockTextDocuments: Array<{
   uri: { toString: () => string };
@@ -174,6 +175,7 @@ export let mockWorkspaceFolders: Array<{ uri: { fsPath: string } }> | undefined;
 
 export function resetVscodeMock(): void {
   configValues.clear();
+  mockWorkspaceFiles.clear();
   configListeners.length = 0;
   activeEditorListeners.length = 0;
   mockTextDocuments = [];
@@ -206,6 +208,10 @@ export function setMockInfoMessageResult(result: typeof lastInfoMessageResult): 
 
 export function setMockConfig(section: string, key: string, value: unknown): void {
   configValues.set(`${section}.${key}`, value);
+}
+
+export function setMockWorkspaceFile(path: string, content: string): void {
+  mockWorkspaceFiles.set(path, content);
 }
 
 export function triggerMockConfigurationChange(section = "haproxy"): void {
@@ -259,8 +265,59 @@ export const workspace = {
   get workspaceFolders() {
     return mockWorkspaceFolders;
   },
+  findFiles(_include: string, _exclude?: string, maxResults?: number) {
+    const uris = [...mockWorkspaceFiles.keys()]
+      .filter((path) => path.endsWith(".cfg"))
+      .slice(0, maxResults)
+      .map((path) => Uri.file(path));
+    return Promise.resolve(uris);
+  },
+  fs: {
+    readFile(uri: { fsPath?: string; toString: () => string }) {
+      const key = uri.fsPath ?? uri.toString();
+      const content = mockWorkspaceFiles.get(key) ?? "";
+      return Promise.resolve(new TextEncoder().encode(content));
+    },
+  },
   openTextDocument(_uri: unknown) {
     return Promise.resolve(mockTextDocuments[0]);
+  },
+  createFileSystemWatcher(_globPattern: unknown) {
+    const listeners = {
+      create: [] as Array<() => void>,
+      change: [] as Array<() => void>,
+      delete: [] as Array<() => void>,
+    };
+    return {
+      onDidCreate(listener: () => void) {
+        listeners.create.push(listener);
+        return { dispose: () => {} };
+      },
+      onDidChange(listener: () => void) {
+        listeners.change.push(listener);
+        return { dispose: () => {} };
+      },
+      onDidDelete(listener: () => void) {
+        listeners.delete.push(listener);
+        return { dispose: () => {} };
+      },
+      dispose: vi.fn(),
+      triggerCreate() {
+        for (const listener of listeners.create) {
+          listener();
+        }
+      },
+      triggerChange() {
+        for (const listener of listeners.change) {
+          listener();
+        }
+      },
+      triggerDelete() {
+        for (const listener of listeners.delete) {
+          listener();
+        }
+      },
+    };
   },
   onDidChangeConfiguration(
     listener: (event: { affectsConfiguration: (section: string) => boolean }) => void,

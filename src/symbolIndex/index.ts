@@ -14,4 +14,21 @@ export {
   hasReferences,
   resolveSymbolAtPosition,
 } from "./resolve";
+export {
+  clearWorkspaceSymbolIndex,
+  buildWorkspaceSymbolIndexFromOpenDocuments,
+  findWorkspaceDefinitions,
+  findWorkspaceReferences,
+  getWorkspaceSymbolIndex,
+  refreshWorkspaceSymbolIndexNow,
+  scheduleWorkspaceSymbolIndexRebuild,
+  setWorkspaceSymbolIndexChangeListener,
+  symbolIndexForWorkspaceDiagnostics,
+  workspaceSiteRange,
+} from "./workspace";
 export type { SymbolIndex, SymbolKind, SymbolSite } from "./types";
+export type {
+  WorkspaceSymbolIndex,
+  WorkspaceSymbolSettings,
+  WorkspaceSymbolSite,
+} from "./workspace";

@@ -77,6 +77,87 @@ describe("symbolIndex extended", () => {
     expect(getSymbolIndex(document, schema, 4000)).toBeNull();
   });
 
+  it("tracks environment variable definitions and references", () => {
+    const content = [
+      "global",
+      "    setenv FOO bar",
+      "    presetenv BAR baz",
+      '    log "${FOO-default}:514" local0',
+      '    user "$BAR"',
+      '    http-request set-header X-Foo "%[env(FOO)]"',
+      "    http-request deny if { env(BAR) -m found }",
+      "    unsetenv FOO",
+      "    resetenv FOO BAR",
+    ].join("\n");
+    const parsed = parseDocument(doc(content));
+    const index = buildSymbolIndex(parsed, schema);
+
+    expect(findDefinitions(index, "environment-variable", "FOO", null)).toHaveLength(1);
+    expect(findDefinitions(index, "environment-variable", "BAR", null)).toHaveLength(1);
+
+    const fooRefs = findReferences(index, "environment-variable", "FOO", null);
+    expect(fooRefs.map((ref) => [ref.line, ref.start, ref.end])).toEqual([
+      [3, '    log "${'.length, '    log "${FOO'.length],
+      [
+        5,
+        '    http-request set-header X-Foo "%[env('.length,
+        '    http-request set-header X-Foo "%[env(FOO'.length,
+      ],
+      [7, "    unsetenv ".length, "    unsetenv FOO".length],
+      [8, "    resetenv ".length, "    resetenv FOO".length],
+    ]);
+
+    const barRefs = findReferences(index, "environment-variable", "BAR", null);
+    expect(barRefs.map((ref) => [ref.line, ref.start, ref.end])).toEqual([
+      [4, '    user "$'.length, '    user "$BAR'.length],
+      [6, "    http-request deny if { env(".length, "    http-request deny if { env(BAR".length],
+      [8, "    resetenv FOO ".length, "    resetenv FOO BAR".length],
+    ]);
+  });
+
+  it("skips invalid resetenv names and resolves valid unset/reset references", () => {
+    const document = doc("global\n    resetenv 1BAD FOO\n    unsetenv FOO");
+    const parsed = parseDocument(document);
+    const index = buildSymbolIndex(parsed, schema);
+
+    expect(index.references.filter((site) => site.kind === "environment-variable")).toHaveLength(2);
+    expect(
+      resolveSymbolAtPosition(document as never, pos(1, "    resetenv 1BAD ".length), schema),
+    ).toEqual({
+      kind: "environment-variable",
+      name: "FOO",
+      scopeKey: null,
+    });
+    expect(
+      resolveSymbolAtPosition(document as never, pos(2, "    unsetenv ".length), schema),
+    ).toEqual({
+      kind: "environment-variable",
+      name: "FOO",
+      scopeKey: null,
+    });
+  });
+
+  it("tracks only documented environment variable reference forms", () => {
+    const content = [
+      "global",
+      "    setenv LIST one two",
+      '    log "${LIST[*]}" local0',
+      "    log $LIST local0",
+      "    log '$LIST' local0",
+      '    log "\\$LIST" local0',
+    ].join("\n");
+    const parsed = parseDocument(doc(content));
+    const index = buildSymbolIndex(parsed, schema);
+
+    expect(findReferences(index, "environment-variable", "LIST", null)).toHaveLength(1);
+    const [ref] = findReferences(index, "environment-variable", "LIST", null);
+    expect(ref).toMatchObject({
+      line: 2,
+      start: '    log "${'.length,
+      end: '    log "${LIST'.length,
+    });
+  });
+
   it("getSymbolIndex reuses index when a single-line edit does not change symbols", () => {
     const document = doc("global\n    maxconn 4096\nbackend api\n    server s1 127.0.0.1:80");
     getParsedDocument(document);
@@ -187,6 +268,32 @@ describe("symbolIndex extended", () => {
       name: "s1",
       scopeKey: "backend:api",
     });
+  });
+
+  it("resolveSymbolAtPosition resolves environment variables in definitions and references", () => {
+    const document = doc(
+      [
+        "global",
+        "    setenv FOO bar",
+        '    log "${FOO-default}:514" local0',
+        '    user "$FOO"',
+        "    http-request deny if { env(FOO) -m found }",
+      ].join("\n"),
+    );
+
+    for (const [line, needle] of [
+      [1, "FOO bar"],
+      [2, "FOO-default"],
+      [3, "FOO"],
+      [4, "FOO)"],
+    ] as const) {
+      const col = document.lineAt(line).text.indexOf(needle);
+      expect(resolveSymbolAtPosition(document, pos(line, col), schema)).toEqual({
+        kind: "environment-variable",
+        name: "FOO",
+        scopeKey: null,
+      });
+    }
   });
 
   it("resolveSymbolAtPosition uses caller-provided scope arrays", () => {

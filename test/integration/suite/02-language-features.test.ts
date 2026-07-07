@@ -9,6 +9,7 @@ import {
   completionItemsAt,
   definitionLocationsAt,
   ensureHaproxyVersion,
+  fixturePath,
   filterDiagnostics,
   formatDocumentContent,
   hoverTextAt,
@@ -36,6 +37,81 @@ const NAVIGATION_CONFIG = [
   "    use-server web1 if is_api",
 ].join("\n");
 
+async function waitForDefinitionTarget(
+  uri: vscode.Uri,
+  position: vscode.Position,
+  expectedUriSuffix: string,
+): Promise<vscode.Location[]> {
+  const deadline = Date.now() + 10000;
+  let locations: vscode.Location[] = [];
+  while (Date.now() < deadline) {
+    locations = await definitionLocationsAt(uri, position);
+    if (locations.some((location) => location.uri.toString().endsWith(expectedUriSuffix))) {
+      return locations;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  return locations;
+}
+
+async function waitForReferenceUris(
+  uri: vscode.Uri,
+  position: vscode.Position,
+  expectedUriSuffixes: string[],
+): Promise<vscode.Location[]> {
+  const deadline = Date.now() + 10000;
+  let locations: vscode.Location[] = [];
+  while (Date.now() < deadline) {
+    locations = await referenceLocationsAt(uri, position, true);
+    const actual = new Set(locations.map((location) => location.uri.toString()));
+    if (
+      expectedUriSuffixes.every((suffix) =>
+        [...actual].some((actualUri) => actualUri.endsWith(suffix)),
+      )
+    ) {
+      return locations;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  return locations;
+}
+
+function pathSuffix(uri: vscode.Uri): string {
+  const path = uri.path.replace(/\\/g, "/");
+  const marker = "/workspace-symbols/";
+  const markerIndex = path.indexOf(marker);
+  return markerIndex >= 0 ? path.slice(markerIndex) : path;
+}
+
+async function waitForNoDiagnosticCode(
+  uri: vscode.Uri,
+  code: string,
+): Promise<vscode.Diagnostic[]> {
+  const deadline = Date.now() + 10000;
+  let diagnostics: vscode.Diagnostic[] = [];
+  while (Date.now() < deadline) {
+    diagnostics = await waitForSchemaDiagnostics(uri, 0, 2000);
+    if (!diagnostics.some((diag) => formatDiagnosticCode(diag.code) === code)) {
+      return diagnostics;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  return diagnostics;
+}
+
+async function waitForDiagnosticCode(uri: vscode.Uri, code: string): Promise<vscode.Diagnostic[]> {
+  const deadline = Date.now() + 10000;
+  let diagnostics: vscode.Diagnostic[] = [];
+  while (Date.now() < deadline) {
+    diagnostics = await waitForSchemaDiagnostics(uri, 0, 2000);
+    if (diagnostics.some((diag) => formatDiagnosticCode(diag.code) === code)) {
+      return diagnostics;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  return diagnostics;
+}
+
 suite("Language feature integration", () => {
   suiteSetup(async function () {
     this.timeout(60000);
@@ -48,6 +124,15 @@ suite("Language feature integration", () => {
   });
 
   suite("Navigation providers", () => {
+    suiteSetup(async () => {
+      await updateHaproxySetting("workspaceSymbols.enabled", false);
+    });
+
+    suiteTeardown(async () => {
+      await resetHaproxySettings();
+      await ensureHaproxyVersion("3.2");
+    });
+
     test("file-backed fixture resolves backend, server, defaults, and ACL targets", async () => {
       const doc = await openFixture("symbol-graph.cfg");
 
@@ -115,6 +200,123 @@ suite("Language feature integration", () => {
       assert.ok(doc.getText().includes("filter comp-req"));
     });
 
+    suite("Workspace symbol graph", () => {
+      suiteSetup(async () => {
+        await updateHaproxySetting("workspaceSymbols.enabled", true);
+        await updateHaproxySetting("workspaceSymbols.include", ["**/workspace-symbols/**/*.cfg"]);
+        await updateHaproxySetting("workspaceSymbols.exclude", []);
+        await updateHaproxySetting("workspaceSymbols.maxFiles", 20);
+        await updateHaproxySetting("workspaceSymbols.maxTotalLines", 1000);
+        await updateHaproxySetting("workspaceSymbols.debounceMs", 100);
+        await updateHaproxySetting("diagnostics.missingReferences", true);
+        await updateHaproxySetting("diagnostics.unusedSymbols", true);
+      });
+
+      suiteTeardown(async () => {
+        await updateHaproxySetting("workspaceSymbols.enabled", false);
+      });
+
+      test("go to definition crosses files for backend, cache, and resolvers", async () => {
+        const frontend = await openFixture("workspace-symbols/frontends/web.cfg");
+        const backendTarget = await waitForDefinitionTarget(
+          frontend.uri,
+          positionOf(frontend, "api"),
+          "/workspace-symbols/backends/api.cfg",
+        );
+        assert.strictEqual(backendTarget.length, 1, "Expected one cross-file backend definition");
+        assert.ok(
+          backendTarget[0]?.uri.toString().endsWith("/workspace-symbols/backends/api.cfg"),
+          `Expected backend definition in api.cfg, got ${backendTarget[0]?.uri.toString()}`,
+        );
+        assert.strictEqual(backendTarget[0]?.range.start.line, 0);
+
+        const cacheTarget = await waitForDefinitionTarget(
+          frontend.uri,
+          positionOf(frontend, "shared_cache"),
+          "/workspace-symbols/shared/cache.cfg",
+        );
+        assert.strictEqual(cacheTarget.length, 1, "Expected one cross-file cache definition");
+        assert.ok(cacheTarget[0]?.uri.toString().endsWith("/workspace-symbols/shared/cache.cfg"));
+
+        const backend = await vscode.workspace.openTextDocument(
+          vscode.Uri.file(fixturePath("workspace-symbols/backends/api.cfg")),
+        );
+        const resolverTarget = await waitForDefinitionTarget(
+          backend.uri,
+          positionOf(backend, "dns-main"),
+          "/workspace-symbols/shared/dns.cfg",
+        );
+        assert.strictEqual(resolverTarget.length, 1, "Expected one cross-file resolver definition");
+        assert.ok(resolverTarget[0]?.uri.toString().endsWith("/workspace-symbols/shared/dns.cfg"));
+      });
+
+      test("find references returns declaration and usage across files", async () => {
+        const backend = await openFixture("workspace-symbols/backends/api.cfg");
+        const references = await waitForReferenceUris(backend.uri, positionOf(backend, "api"), [
+          "/workspace-symbols/backends/api.cfg",
+          "/workspace-symbols/frontends/web.cfg",
+        ]);
+
+        assert.deepStrictEqual(
+          references.map((location) => pathSuffix(location.uri)).sort(),
+          ["/workspace-symbols/backends/api.cfg", "/workspace-symbols/frontends/web.cfg"].sort(),
+        );
+      });
+
+      test("diagnostics use workspace definitions and references", async () => {
+        const frontend = await openFixture("workspace-symbols/frontends/web.cfg");
+        const frontendDiagnostics = await waitForNoDiagnosticCode(
+          frontend.uri,
+          "missing-reference",
+        );
+        assert.strictEqual(
+          frontendDiagnostics.filter(
+            (diag) => formatDiagnosticCode(diag.code) === "missing-reference",
+          ).length,
+          0,
+          `Expected no missing references in frontend, got ${frontendDiagnostics
+            .map((diag) => diag.message)
+            .join(", ")}`,
+        );
+
+        const backend = await openFixture("workspace-symbols/backends/api.cfg");
+        const backendDiagnostics = await waitForNoDiagnosticCode(backend.uri, "unused-section");
+        assert.strictEqual(
+          backendDiagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "unused-section")
+            .length,
+          0,
+          `Expected backend reference from frontend to suppress unused-section, got ${backendDiagnostics
+            .map((diag) => diag.message)
+            .join(", ")}`,
+        );
+      });
+
+      test("diagnostics report duplicate sections across workspace files", async () => {
+        const first = await openFixture("workspace-symbols/backends/duplicate-a.cfg");
+        const firstDiagnostics = await waitForDiagnosticCode(first.uri, "duplicate-section");
+        assert.strictEqual(
+          firstDiagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "duplicate-section")
+            .length,
+          1,
+          `Expected duplicate-section in first duplicate backend, got ${firstDiagnostics
+            .map((diag) => `[${formatDiagnosticCode(diag.code)}] ${diag.message}`)
+            .join(", ")}`,
+        );
+
+        const second = await openFixture("workspace-symbols/backends/duplicate-b.cfg");
+        const secondDiagnostics = await waitForDiagnosticCode(second.uri, "duplicate-section");
+        assert.strictEqual(
+          secondDiagnostics.filter(
+            (diag) => formatDiagnosticCode(diag.code) === "duplicate-section",
+          ).length,
+          1,
+          `Expected duplicate-section in second duplicate backend, got ${secondDiagnostics
+            .map((diag) => `[${formatDiagnosticCode(diag.code)}] ${diag.message}`)
+            .join(", ")}`,
+        );
+      });
+    });
+
     test("go to definition resolves backend, server, and defaults profile targets", async () => {
       const doc = await openHaproxyDocument(NAVIGATION_CONFIG);
 
@@ -166,6 +368,42 @@ suite("Language feature integration", () => {
         references.map((location) => location.range.start.line).sort((a, b) => a - b),
         [4, 5],
       );
+    });
+
+    test("environment variable navigation resolves definitions and references", async () => {
+      const doc = await openHaproxyDocument(
+        [
+          "global",
+          "    setenv FOO bar",
+          '    log "${FOO-default}:514" local0',
+          "    http-request deny if { env(FOO) -m found }",
+          '    user "$HAPROXY_USER"',
+        ].join("\n"),
+      );
+
+      const defs = await definitionLocationsAt(
+        doc.uri,
+        new vscode.Position(2, '    log "${'.length),
+      );
+      assert.strictEqual(defs.length, 1, "Expected one environment variable definition");
+      assert.strictEqual(defs[0]?.range.start.line, 1);
+      assert.strictEqual(defs[0]?.range.start.character, "    setenv ".length);
+
+      const references = await referenceLocationsAt(
+        doc.uri,
+        new vscode.Position(1, "    setenv ".length),
+        true,
+      );
+      assert.deepStrictEqual(
+        references.map((location) => location.range.start.line).sort((a, b) => a - b),
+        [1, 2, 3],
+      );
+
+      const externalDefs = await definitionLocationsAt(
+        doc.uri,
+        new vscode.Position(4, '    user "$'.length),
+      );
+      assert.strictEqual(externalDefs.length, 0, "Expected no synthetic definition for externals");
     });
 
     test("find references resolves backend, server, and defaults profile sites", async () => {

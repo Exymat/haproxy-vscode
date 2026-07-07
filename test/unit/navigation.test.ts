@@ -239,6 +239,51 @@ describe("navigation", () => {
     expect(provideDefinition(doc as never, pos(1, col), schema, 4000)).toBeNull();
   });
 
+  it("provides definitions and references for environment variables", () => {
+    const doc = createDocument(
+      [
+        "global",
+        "    setenv FOO bar",
+        '    log "${FOO-default}:514" local0',
+        "    http-request deny if { env(FOO) -m found }",
+      ].join("\n"),
+    );
+    const refCol = '    log "${'.length;
+    const definition = provideDefinition(doc, pos(2, refCol), schema, 4000);
+    expect(definition).not.toBeNull();
+    expect(Array.isArray(definition)).toBe(false);
+    expect(
+      (definition as { range: { start: { line: number; character: number } } }).range.start,
+    ).toEqual({
+      line: 1,
+      character: "    setenv ".length,
+    });
+
+    const references = provideReferences(
+      doc,
+      pos(1, "    setenv ".length),
+      { includeDeclaration: true },
+      schema,
+      4000,
+    );
+    expect(
+      references.map((location) => [location.range.start.line, location.range.start.character]),
+    ).toEqual([
+      [1, "    setenv ".length],
+      [2, refCol],
+      [3, "    http-request deny if { env(".length],
+    ]);
+  });
+
+  it("returns references but no definition for external environment variables", () => {
+    const doc = createDocument('global\n    user "$HAPROXY_USER"');
+    const col = '    user "$'.length;
+    expect(provideDefinition(doc, pos(1, col), schema, 4000)).toBeNull();
+    expect(
+      provideReferences(doc, pos(1, col), { includeDeclaration: true }, schema, 4000),
+    ).toHaveLength(1);
+  });
+
   it("provideDefinition returns a LocationLink spanning the section for proxy-section", () => {
     const doc = createDocument(
       "backend api\n    server s1 127.0.0.1:8080\nfrontend web\n    use_backend api",

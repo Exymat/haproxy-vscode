@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 
+import { isEnvironmentVariableName } from "./environmentVariables";
 import { findInvalidNameChar } from "./nameValidation";
 import { HaproxySchema } from "./schema";
 import { findAllSites, findDefinitions, findSiteAtPosition, getSymbolIndex } from "./symbolIndex";
@@ -26,7 +27,19 @@ function resolveRenameSite(
   return { index, site };
 }
 
-function validateNewName(newName: string): void {
+function validateNewName(newName: string, kind: SymbolSite["kind"]): void {
+  if (kind === "environment-variable") {
+    if (!newName) {
+      throw new Error("HAProxy environment variable names cannot be empty.");
+    }
+    if (!isEnvironmentVariableName(newName)) {
+      throw new Error(
+        "HAProxy environment variable names must start with a letter or underscore and contain only letters, digits, and underscores.",
+      );
+    }
+    return;
+  }
+
   const invalid = findInvalidNameChar(newName);
   if (invalid !== null) {
     if (invalid === "") {
@@ -68,7 +81,7 @@ export function provideRenameEdits(
     return null;
   }
 
-  validateNewName(newName);
+  validateNewName(newName, resolved.site.kind);
 
   const { index, site } = resolved;
   const oldName = site.name;

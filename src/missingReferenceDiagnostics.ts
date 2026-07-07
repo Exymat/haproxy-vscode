@@ -36,6 +36,9 @@ export function missingReferenceDiagnostics(index: SymbolIndex): vscode.Diagnost
   const reported = new Set<string>();
 
   for (const reference of index.unresolvedReferences) {
+    if (reference.kind === "environment-variable") {
+      continue;
+    }
     const key = siteKey(reference);
     if (reported.has(key)) {
       continue;

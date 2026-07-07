@@ -94,6 +94,16 @@ describe("missingReferenceDiagnostics", () => {
     expect(missingRefs(content)).toEqual([]);
   });
 
+  it("does not report missing environment variables", () => {
+    const content = [
+      "global",
+      '    user "$HAPROXY_USER"',
+      "    http-request deny if { env(EXTERNAL_FLAG) -m found }",
+      "    unsetenv SECRET_TOKEN",
+    ].join("\n");
+    expect(missingRefs(content)).toEqual([]);
+  });
+
   it("does not report references that have matching definitions", () => {
     const content = [
       "defaults base",
@@ -137,5 +147,27 @@ describe("missingReferenceDiagnostics", () => {
       unresolvedReferences: [ref],
     };
     expect(missingReferenceDiagnostics(index)).toHaveLength(1);
+  });
+
+  it("skips unresolved environment variable references defensively", () => {
+    const ref = {
+      kind: "environment-variable",
+      name: "EXTERNAL",
+      line: 0,
+      start: 1,
+      end: 9,
+      scopeKey: null,
+      role: "reference",
+    } as const;
+    const index: SymbolIndex = {
+      definitions: new Map(),
+      references: [ref],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [null],
+      scopedSymbolKinds: new Set(["acl", "server", "filter"]),
+      sitesByLine: buildSitesByLine(1, new Map(), [ref]),
+      unresolvedReferences: [ref],
+    };
+    expect(missingReferenceDiagnostics(index)).toEqual([]);
   });
 });

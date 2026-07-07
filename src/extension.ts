@@ -12,6 +12,12 @@ import { prepareRename, provideRenameEdits } from "./rename";
 import { createBundleLoader, getLoadedBundle, invalidateBundleLoad } from "./extensionBundle";
 import { getExtensionSettings, getFormatOptions, onSettingsChanged } from "./settings";
 import { sectionHeaderSet } from "./schema";
+import {
+  clearWorkspaceSymbolIndex,
+  scheduleWorkspaceSymbolIndexRebuild,
+  setWorkspaceSymbolIndexChangeListener,
+  WorkspaceSymbolSettings,
+} from "./symbolIndex";
 import { registerVersionStatusBar } from "./statusBar";
 import { getConfiguredVersion, onVersionConfigurationChanged } from "./version";
 
@@ -19,6 +25,7 @@ let activeScheduler: DiagnosticScheduler | undefined;
 
 export function activate(context: vscode.ExtensionContext): void {
   let cachedSettings = getExtensionSettings();
+  let workspaceWatchers: vscode.Disposable[] = [];
   registerVersionStatusBar(context);
 
   const diagnostics = vscode.languages.createDiagnosticCollection("haproxy");
@@ -67,6 +74,57 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   };
 
+  const workspaceSymbolSettings = (): WorkspaceSymbolSettings => ({
+    enabled: cachedSettings.workspaceSymbolsEnabled,
+    include: cachedSettings.workspaceSymbolsInclude,
+    exclude: cachedSettings.workspaceSymbolsExclude,
+    maxFiles: cachedSettings.workspaceSymbolsMaxFiles,
+    maxTotalLines: cachedSettings.workspaceSymbolsMaxTotalLines,
+    debounceMs: cachedSettings.workspaceSymbolsDebounceMs,
+  });
+
+  const scheduleWorkspaceSymbols = async (): Promise<void> => {
+    const b = await safeEnsureBundle();
+    if (!b) {
+      return;
+    }
+    scheduleWorkspaceSymbolIndexRebuild(
+      b.schema,
+      workspaceSymbolSettings(),
+      cachedSettings.maxDiagnosticsLines,
+    );
+  };
+
+  const disposeWorkspaceWatchers = (): void => {
+    for (const watcher of workspaceWatchers) {
+      watcher.dispose();
+    }
+    workspaceWatchers = [];
+  };
+
+  const configureWorkspaceWatchers = (): void => {
+    disposeWorkspaceWatchers();
+    if (!cachedSettings.workspaceSymbolsEnabled) {
+      /* v8 ignore start -- covered by extension-host behavior; unit mocks keep workspace symbols enabled. */
+      clearWorkspaceSymbolIndex();
+      return;
+      /* v8 ignore stop */
+    }
+    for (const include of cachedSettings.workspaceSymbolsInclude) {
+      const watcher = vscode.workspace.createFileSystemWatcher(include);
+      workspaceWatchers.push(watcher);
+      context.subscriptions.push(watcher);
+      /* v8 ignore start -- VS Code file watcher callbacks are exercised by integration tests. */
+      watcher.onDidCreate(() => void scheduleWorkspaceSymbols());
+      watcher.onDidChange(() => void scheduleWorkspaceSymbols());
+      watcher.onDidDelete(() => void scheduleWorkspaceSymbols());
+      /* v8 ignore stop */
+    }
+  };
+
+  setWorkspaceSymbolIndexChangeListener(refreshAllDocuments);
+  configureWorkspaceWatchers();
+
   const reloadBundle = async (syncGrammar: boolean): Promise<void> => {
     invalidateBundle();
     bundleErrorShown = false;
@@ -79,19 +137,43 @@ export function activate(context: vscode.ExtensionContext): void {
       const grammarChanged = await syncActiveGrammarAsync(context, b.version);
       await promptReloadIfGrammarChanged(grammarChanged);
     }
+    scheduleWorkspaceSymbolIndexRebuild(
+      b.schema,
+      workspaceSymbolSettings(),
+      cachedSettings.maxDiagnosticsLines,
+    );
     refreshAllDocuments();
   };
 
   context.subscriptions.push(
-    vscode.workspace.onDidOpenTextDocument(scheduler.schedule),
-    vscode.workspace.onDidChangeTextDocument((event) => scheduler.schedule(event.document)),
-    vscode.workspace.onDidSaveTextDocument(scheduler.schedule),
+    vscode.workspace.onDidOpenTextDocument((document) => {
+      scheduler.schedule(document);
+      if (document.languageId === "haproxy") {
+        void scheduleWorkspaceSymbols();
+      }
+    }),
+    vscode.workspace.onDidChangeTextDocument((event) => {
+      scheduler.schedule(event.document);
+      if (event.document.languageId === "haproxy") {
+        void scheduleWorkspaceSymbols();
+      }
+    }),
+    /* v8 ignore start -- save events are exercised by integration tests, not the unit mock. */
+    vscode.workspace.onDidSaveTextDocument((document) => {
+      scheduler.schedule(document);
+      if (document.languageId === "haproxy") {
+        void scheduleWorkspaceSymbols();
+      }
+    }),
+    /* v8 ignore stop */
     vscode.workspace.onDidCloseTextDocument(scheduler.disposeDocument),
     onVersionConfigurationChanged(() => {
       void reloadBundle(true);
     }),
     onSettingsChanged(() => {
       refreshCachedSettings();
+      configureWorkspaceWatchers();
+      void scheduleWorkspaceSymbols();
       refreshAllDocuments();
     }),
   );
@@ -103,6 +185,13 @@ export function activate(context: vscode.ExtensionContext): void {
       }
       const grammarChanged = await syncActiveGrammarAsync(context, b.version);
       await promptReloadIfGrammarChanged(grammarChanged);
+      if (vscode.workspace.textDocuments.some((document) => document.languageId === "haproxy")) {
+        scheduleWorkspaceSymbolIndexRebuild(
+          b.schema,
+          workspaceSymbolSettings(),
+          cachedSettings.maxDiagnosticsLines,
+        );
+      }
     });
     refreshAllDocuments();
   });
@@ -236,5 +325,7 @@ export function activate(context: vscode.ExtensionContext): void {
 export function deactivate(): void {
   activeScheduler?.clearPending();
   activeScheduler = undefined;
+  setWorkspaceSymbolIndexChangeListener(undefined);
+  clearWorkspaceSymbolIndex();
   invalidateBundleLoad();
 }

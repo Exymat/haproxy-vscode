@@ -52,11 +52,11 @@ export function buildSitesByLine(
   return sitesByLine;
 }
 
-export function buildReferencesByKey(
+export function buildReferencesByKey<T extends SymbolSite>(
   scopedKinds: Set<SymbolKind>,
-  references: SymbolSite[],
-): Map<string, SymbolSite[]> {
-  const map = new Map<string, SymbolSite[]>();
+  references: T[],
+): Map<string, T[]> {
+  const map = new Map<string, T[]>();
   for (const site of references) {
     const key = symbolKeyForScopedKinds(scopedKinds, site.kind, site.name, site.scopeKey);
     const list = map.get(key);

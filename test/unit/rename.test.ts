@@ -88,6 +88,35 @@ describe("rename provider", () => {
     );
   });
 
+  it("renames environment variable definitions and references with env-name validation", () => {
+    const doc = createDocument(
+      [
+        "global",
+        "    setenv FOO bar",
+        '    log "${FOO-default}:514" local0',
+        "    http-request deny if { env(FOO) -m found }",
+      ].join("\n"),
+    );
+    const edit = provideRenameEdits(doc, pos(2, '    log "${'.length), "FOO_V2", schema, 4000);
+    expect(editRanges(edit as vscode.WorkspaceEdit)).toEqual([
+      { line: 1, start: "    setenv ".length, end: "    setenv FOO".length, text: "FOO_V2" },
+      { line: 2, start: '    log "${'.length, end: '    log "${FOO'.length, text: "FOO_V2" },
+      {
+        line: 3,
+        start: "    http-request deny if { env(".length,
+        end: "    http-request deny if { env(FOO".length,
+        text: "FOO_V2",
+      },
+    ]);
+
+    expect(() =>
+      provideRenameEdits(doc, pos(1, "    setenv ".length), "bad-name", schema, 4000),
+    ).toThrow("environment variable names");
+    expect(() => provideRenameEdits(doc, pos(1, "    setenv ".length), "", schema, 4000)).toThrow(
+      "environment variable names cannot be empty",
+    );
+  });
+
   it("returns null when no renameable symbol can be resolved", () => {
     const doc = createDocument("frontend web\n    use_backend api");
     expect(prepareRename(doc, pos(1, 0), schema, 4000)).toBeNull();

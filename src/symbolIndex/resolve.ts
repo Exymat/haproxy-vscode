@@ -1,5 +1,9 @@
 import * as vscode from "vscode";
 
+import {
+  findEnvironmentVariableReferences,
+  isEnvironmentVariableName,
+} from "../environmentVariables";
 import { getParsedDocument } from "../parseCache";
 import { ParsedLine } from "../parser";
 import { findReferencePatternAtToken } from "../referencePatternMatching";
@@ -72,7 +76,13 @@ function resolveStatementRuleSymbol(
   schema: HaproxySchema,
   rules: StatementRule[],
   scopeKey: string | null,
+  positionCharacter: number,
 ): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
+  const envSymbol = resolveEnvironmentVariableSymbol(line, tokenIndex, positionCharacter);
+  if (envSymbol) {
+    return envSymbol;
+  }
+
   for (const rule of rules) {
     if (!ruleMatchesLine(rule, line.tokens)) {
       continue;
@@ -128,6 +138,43 @@ function resolveStatementRuleSymbol(
   return null;
 }
 
+function resolveEnvironmentVariableSymbol(
+  line: ParsedLine,
+  tokenIndex: number,
+  positionCharacter: number,
+): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
+  const token = line.tokens[tokenIndex];
+  if (!token) {
+    /* v8 ignore next -- tokenIndexAtPosition only returns indexes for existing tokens. */
+    return null;
+  }
+
+  const keyword = line.tokens[0]?.text.toLowerCase();
+  if (
+    (keyword === "setenv" || keyword === "presetenv") &&
+    tokenIndex === 1 &&
+    isEnvironmentVariableName(token.text)
+  ) {
+    return { kind: "environment-variable", name: token.text, scopeKey: null };
+  }
+
+  if (
+    (keyword === "unsetenv" || keyword === "resetenv") &&
+    tokenIndex >= 1 &&
+    isEnvironmentVariableName(token.text)
+  ) {
+    return { kind: "environment-variable", name: token.text, scopeKey: null };
+  }
+
+  for (const hit of findEnvironmentVariableReferences(token)) {
+    if (positionCharacter >= hit.start && positionCharacter <= hit.end) {
+      return { kind: "environment-variable", name: hit.name, scopeKey: null };
+    }
+  }
+
+  return null;
+}
+
 export function resolveSymbolAtPosition(
   document: vscode.TextDocument,
   position: vscode.Position,
@@ -157,6 +204,7 @@ export function resolveSymbolAtPosition(
     schema,
     schema.statement_rules ?? [],
     scopeKey,
+    position.character,
   );
 }
 

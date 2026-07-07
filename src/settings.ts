@@ -20,6 +20,12 @@ export interface HaproxyExtensionSettings {
   deprecatedWarnings: boolean;
   unusedSymbols: boolean;
   missingReferences: boolean;
+  workspaceSymbolsEnabled: boolean;
+  workspaceSymbolsInclude: string[];
+  workspaceSymbolsExclude: string[];
+  workspaceSymbolsMaxFiles: number;
+  workspaceSymbolsMaxTotalLines: number;
+  workspaceSymbolsDebounceMs: number;
 }
 
 function readFormatIndent(config: vscode.WorkspaceConfiguration): FormatIndent {
@@ -48,6 +54,24 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
     deprecatedWarnings: config.get<boolean>("diagnostics.deprecatedWarnings", true),
     unusedSymbols: config.get<boolean>("diagnostics.unusedSymbols", true),
     missingReferences: config.get<boolean>("diagnostics.missingReferences", true),
+    workspaceSymbolsEnabled: config.get<boolean>("workspaceSymbols.enabled", true),
+    workspaceSymbolsInclude: config.get<string[]>("workspaceSymbols.include", ["**/*.cfg"]),
+    workspaceSymbolsExclude: config.get<string[]>("workspaceSymbols.exclude", [
+      "**/.git/**",
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/out/**",
+      "**/vendor/**",
+    ]),
+    workspaceSymbolsMaxFiles: Math.max(1, config.get<number>("workspaceSymbols.maxFiles", 300)),
+    workspaceSymbolsMaxTotalLines: Math.max(
+      100,
+      config.get<number>("workspaceSymbols.maxTotalLines", 100000),
+    ),
+    workspaceSymbolsDebounceMs: Math.max(
+      100,
+      config.get<number>("workspaceSymbols.debounceMs", 750),
+    ),
   };
 }
 

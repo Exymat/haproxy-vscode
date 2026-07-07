@@ -9,7 +9,8 @@ export type SymbolKind =
   | "cache"
   | "userlist"
   | "resolvers"
-  | "peers";
+  | "peers"
+  | "environment-variable";
 
 export interface SymbolSite {
   kind: SymbolKind;

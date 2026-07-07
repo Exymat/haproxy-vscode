@@ -107,6 +107,54 @@
           "default": true,
           "description": "Warn when a named HAProxy reference points to no definition in the current file, such as a missing ACL, backend, cache, peers, resolvers, userlist, or named defaults profile."
         },
+        "haproxy.workspaceSymbols.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Build a bounded workspace-level symbol graph for split HAProxy configurations."
+        },
+        "haproxy.workspaceSymbols.include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/*.cfg"
+          ],
+          "description": "Glob patterns for HAProxy files that belong to the workspace symbol graph."
+        },
+        "haproxy.workspaceSymbols.exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/.git/**",
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/out/**",
+            "**/vendor/**"
+          ],
+          "description": "Glob patterns excluded from workspace symbol indexing."
+        },
+        "haproxy.workspaceSymbols.maxFiles": {
+          "type": "number",
+          "default": 300,
+          "minimum": 1,
+          "description": "Maximum number of HAProxy files to index before workspace symbol analysis falls back to single-file behavior."
+        },
+        "haproxy.workspaceSymbols.maxTotalLines": {
+          "type": "number",
+          "default": 100000,
+          "minimum": 100,
+          "description": "Maximum total HAProxy lines to index before workspace symbol analysis falls back to single-file behavior."
+        },
+        "haproxy.workspaceSymbols.debounceMs": {
+          "type": "number",
+          "default": 750,
+          "minimum": 100,
+          "maximum": 10000,
+          "description": "Milliseconds to wait after workspace HAProxy file changes before rebuilding the workspace symbol graph."
+        },
         "haproxy.format.enabled": {
           "type": "boolean",
           "default": true,
@@ -168,7 +216,7 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run compile && npm run verify:package-assets",
     "package": "vsce package",
     "typecheck": "tsc -p ./ --noEmit",
     "typecheck:test": "tsc -p tsconfig.test.json --noEmit",
@@ -178,8 +226,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "format:check:docs": "prettier --check \"**/*.md\"",
+    "format:generated": "node scripts/normalize-generated-json.mjs",
     "validate:manifest": "node scripts/validate-manifest.mjs",
-    "compile": "tsc -p ./",
+    "verify:package-assets": "node scripts/verify-package-assets.mjs",
+    "clean:out": "node scripts/clean-out.mjs",
+    "compile": "npm run clean:out && tsc -p ./",
     "compile:integration": "tsc -p tsconfig.integration.json",
     "watch": "tsc -watch -p ./",
     "verify:highlight": "node scripts/verify-highlight.mjs ../haproxy_git/haproxy-3.2/tests/conf",
@@ -210,7 +261,7 @@
     "compare:haproxy:docker:matrix": "node scripts/compare-haproxy-matrix.mjs --runtime docker",
     "test:all": "npm run compile && npm run test:grammar-coverage && npm run test && npm run test:upstream && npm run compare:haproxy:matrix",
     "generate:schema": "npm run generate:schema:all",
-    "generate:schema:all": "npm run generate:schema:2.6 && npm run generate:schema:2.8 && npm run generate:schema:3.0 && npm run generate:schema:3.2 && npm run generate:schema:3.4",
+    "generate:schema:all": "npm run generate:schema:2.6 && npm run generate:schema:2.8 && npm run generate:schema:3.0 && npm run generate:schema:3.2 && npm run generate:schema:3.4 && npm run format:generated && npm run sync:active-grammar",
     "generate:schema:3.2": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-3.2/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-3.2.txt --out ./schemas/haproxy-3.2.schema.json --language-data-out ./schemas/haproxy-3.2.language.json --grammar-out ./syntaxes/haproxy-3.2.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-3.2.json --metadata-provenance-out ../haproxy-schema/haproxy_schema/schema-metadata-provenance-3.2.json --version 3.2",
     "generate:dkall:2.6": "powershell -ExecutionPolicy Bypass -File ../haproxy-schema/scripts/generate-dkall.ps1 -Version 2.6",
     "generate:dkall:2.8": "powershell -ExecutionPolicy Bypass -File ../haproxy-schema/scripts/generate-dkall.ps1 -Version 2.8",

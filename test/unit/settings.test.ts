@@ -21,6 +21,18 @@ describe("settings", () => {
       deprecatedWarnings: true,
       unusedSymbols: true,
       missingReferences: true,
+      workspaceSymbolsEnabled: true,
+      workspaceSymbolsInclude: ["**/*.cfg"],
+      workspaceSymbolsExclude: [
+        "**/.git/**",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/out/**",
+        "**/vendor/**",
+      ],
+      workspaceSymbolsMaxFiles: 300,
+      workspaceSymbolsMaxTotalLines: 100000,
+      workspaceSymbolsDebounceMs: 750,
     });
   });
 
@@ -30,6 +42,16 @@ describe("settings", () => {
     const settings = getExtensionSettings();
     expect(settings.diagnosticsDebounceMs).toBe(100);
     expect(settings.maxDiagnosticsLines).toBe(100);
+  });
+
+  it("clamps workspace symbol limits to minimums", () => {
+    setMockConfig("haproxy", "workspaceSymbols.maxFiles", 0);
+    setMockConfig("haproxy", "workspaceSymbols.maxTotalLines", 10);
+    setMockConfig("haproxy", "workspaceSymbols.debounceMs", 50);
+    const settings = getExtensionSettings();
+    expect(settings.workspaceSymbolsMaxFiles).toBe(1);
+    expect(settings.workspaceSymbolsMaxTotalLines).toBe(100);
+    expect(settings.workspaceSymbolsDebounceMs).toBe(100);
   });
 
   it("uses format.indent when valid", () => {

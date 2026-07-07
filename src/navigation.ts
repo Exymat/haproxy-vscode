@@ -7,9 +7,15 @@ import {
   findDefinitions,
   findReferences,
   findSiteAtPosition,
+  findWorkspaceDefinitions,
+  findWorkspaceReferences,
   getSymbolIndex,
+  getWorkspaceSymbolIndex,
   resolveSymbolAtPosition,
   SymbolSite,
+  WorkspaceSymbolIndex,
+  WorkspaceSymbolSite,
+  workspaceSiteRange,
 } from "./symbolIndex";
 
 interface ResolvedNavigationSymbol {
@@ -47,15 +53,12 @@ function sectionOutlineForDocument(
   return sectionOutlineByStartLine(document, parsed);
 }
 
-function siteToLocation(document: vscode.TextDocument, site: SymbolSite): vscode.Location {
-  return new vscode.Location(
-    document.uri,
-    new vscode.Range(site.line, site.start, site.line, site.end),
-  );
+function siteToLocation(uri: vscode.Uri, site: SymbolSite): vscode.Location {
+  return new vscode.Location(uri, new vscode.Range(site.line, site.start, site.line, site.end));
 }
 
 function siteToDefinitionTarget(
-  document: vscode.TextDocument,
+  uri: vscode.Uri,
   site: SymbolSite,
   sectionsByStartLine: Map<number, SectionSymbolInfo>,
 ): DefinitionResult {
@@ -64,13 +67,29 @@ function siteToDefinitionTarget(
     const section = sectionsByStartLine.get(site.line);
     if (section) {
       return {
-        targetUri: document.uri,
+        targetUri: uri,
         targetRange: new vscode.Range(section.startLine, 0, section.endLine, section.endColumn),
         targetSelectionRange: selectionRange,
       };
     }
   }
-  return siteToLocation(document, site);
+  return siteToLocation(uri, site);
+}
+
+function workspaceSiteToDefinitionTarget(
+  workspaceIndex: WorkspaceSymbolIndex,
+  site: WorkspaceSymbolSite,
+): DefinitionResult {
+  const selectionRange = new vscode.Range(site.line, site.start, site.line, site.end);
+  const section = site.role === "definition" ? workspaceSiteRange(workspaceIndex, site) : undefined;
+  if (section) {
+    return {
+      targetUri: site.uri,
+      targetRange: new vscode.Range(site.line, 0, section.endLine, section.endColumn),
+      targetSelectionRange: selectionRange,
+    };
+  }
+  return siteToLocation(site.uri, site);
 }
 
 function resolveNavigationSymbol(
@@ -84,6 +103,14 @@ function resolveNavigationSymbol(
     return site;
   }
   return resolveSymbolAtPosition(document, position, schema, index.scopeKeyByLine);
+}
+
+function workspaceIndexForDocument(document: vscode.TextDocument): WorkspaceSymbolIndex | null {
+  const workspaceIndex = getWorkspaceSymbolIndex();
+  if (!workspaceIndex?.documents.has(document.uri.toString())) {
+    return null;
+  }
+  return workspaceIndex;
 }
 
 export function provideDefinition(
@@ -102,6 +129,21 @@ export function provideDefinition(
     return null;
   }
 
+  const workspaceIndex = workspaceIndexForDocument(document);
+  if (workspaceIndex && symbol.kind !== "environment-variable") {
+    const definitions = findWorkspaceDefinitions(
+      workspaceIndex,
+      symbol.kind,
+      symbol.name,
+      symbol.scopeKey,
+    );
+    if (definitions.length > 0) {
+      return toProviderResult(
+        definitions.map((site) => workspaceSiteToDefinitionTarget(workspaceIndex, site)),
+      );
+    }
+  }
+
   const definitions = findDefinitions(index, symbol.kind, symbol.name, symbol.scopeKey);
   if (definitions.length === 0) {
     return null;
@@ -109,7 +151,7 @@ export function provideDefinition(
 
   const sectionsByStartLine = sectionOutlineForDocument(document, schema);
   const targets = definitions.map((site) =>
-    siteToDefinitionTarget(document, site, sectionsByStartLine),
+    siteToDefinitionTarget(document.uri, site, sectionsByStartLine),
   );
   return toProviderResult(targets);
 }
@@ -131,13 +173,37 @@ export function provideReferences(
     return [];
   }
 
+  const workspaceIndex = workspaceIndexForDocument(document);
+  if (workspaceIndex && symbol.kind !== "environment-variable") {
+    const references = findWorkspaceReferences(
+      workspaceIndex,
+      symbol.kind,
+      symbol.name,
+      symbol.scopeKey,
+    );
+    if (context.includeDeclaration) {
+      const definitions = findWorkspaceDefinitions(
+        workspaceIndex,
+        symbol.kind,
+        symbol.name,
+        symbol.scopeKey,
+      );
+      if (definitions.length === 0 && references.length === 0) {
+        /* v8 ignore next -- workspace graphs contain the defining site for locally resolved symbols. */
+        return [];
+      }
+      return [...definitions, ...references].map((site) => siteToLocation(site.uri, site));
+    }
+    return references.map((site) => siteToLocation(site.uri, site));
+  }
+
   if (context.includeDeclaration) {
     const definitions = findDefinitions(index, symbol.kind, symbol.name, symbol.scopeKey);
     const references = findReferences(index, symbol.kind, symbol.name, symbol.scopeKey);
     if (definitions.length === 0 && references.length === 0) {
       return [];
     }
-    return [...definitions, ...references].map((site) => siteToLocation(document, site));
+    return [...definitions, ...references].map((site) => siteToLocation(document.uri, site));
   }
 
   const references = findReferences(index, symbol.kind, symbol.name, symbol.scopeKey);
@@ -145,5 +211,5 @@ export function provideReferences(
     return [];
   }
 
-  return references.map((site) => siteToLocation(document, site));
+  return references.map((site) => siteToLocation(document.uri, site));
 }

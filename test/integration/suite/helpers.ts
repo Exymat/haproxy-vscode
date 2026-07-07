@@ -385,6 +385,15 @@ export async function resetHaproxySettings(): Promise<void> {
     ["diagnostics.maxLines", 4000],
     ["diagnostics.unusedSymbols", true],
     ["diagnostics.missingReferences", true],
+    ["workspaceSymbols.enabled", true],
+    ["workspaceSymbols.include", ["**/*.cfg"]],
+    [
+      "workspaceSymbols.exclude",
+      ["**/.git/**", "**/node_modules/**", "**/dist/**", "**/out/**", "**/vendor/**"],
+    ],
+    ["workspaceSymbols.maxFiles", 300],
+    ["workspaceSymbols.maxTotalLines", 100000],
+    ["workspaceSymbols.debounceMs", 750],
   ];
   for (const [key, value] of defaults) {
     await config.update(key, value, vscode.ConfigurationTarget.Global);

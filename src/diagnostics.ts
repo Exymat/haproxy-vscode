@@ -4,11 +4,16 @@ import { runLineDiagnosticPipeline } from "./diagnosticPipeline";
 import { DiagnosticContext } from "./diagnosticContext";
 import { HaproxyLanguageData } from "./languageData";
 import { HaproxySchema } from "./schema";
-import { getSymbolIndex } from "./symbolIndex";
+import {
+  getSymbolIndex,
+  getWorkspaceSymbolIndex,
+  symbolIndexForWorkspaceDiagnostics,
+} from "./symbolIndex";
 import { entryPointWithoutBindDiagnostics } from "./entryPointDiagnostics";
 import { missingReferenceDiagnostics } from "./missingReferenceDiagnostics";
 import { unusedSymbolDiagnostics } from "./unusedSymbolDiagnostics";
-import type { SymbolIndex } from "./symbolIndex";
+import { duplicateSectionDiagnostics } from "./duplicateSymbolDiagnostics";
+import type { SymbolIndex, WorkspaceSymbolIndex } from "./symbolIndex";
 
 interface DiagnosticsCacheKey {
   schema: HaproxySchema;
@@ -17,6 +22,7 @@ interface DiagnosticsCacheKey {
   unusedSymbols: boolean;
   missingReferences: boolean;
   maxLines: number | undefined;
+  workspaceGeneration: number | null;
 }
 
 interface DiagnosticsCacheEntry {
@@ -42,6 +48,7 @@ export interface ComputeDiagnosticsOptions {
 function diagnosticsCacheKey(
   schema: HaproxySchema,
   options: ComputeDiagnosticsOptions,
+  workspaceIndex: WorkspaceSymbolIndex | null,
 ): DiagnosticsCacheKey {
   return {
     schema,
@@ -50,6 +57,7 @@ function diagnosticsCacheKey(
     unusedSymbols: options.unusedSymbols === true,
     missingReferences: options.missingReferences !== false,
     maxLines: options.maxLines,
+    workspaceGeneration: workspaceIndex?.generation ?? null,
   };
 }
 
@@ -60,7 +68,8 @@ function sameCacheKey(left: DiagnosticsCacheKey, right: DiagnosticsCacheKey): bo
     left.deprecatedWarnings === right.deprecatedWarnings &&
     left.unusedSymbols === right.unusedSymbols &&
     left.missingReferences === right.missingReferences &&
-    left.maxLines === right.maxLines
+    left.maxLines === right.maxLines &&
+    left.workspaceGeneration === right.workspaceGeneration
   );
 }
 
@@ -72,19 +81,22 @@ function computeDocumentSymbolDiagnostics(
   document: vscode.TextDocument,
   ctx: DiagnosticContext,
   index: SymbolIndex,
+  workspaceIndex: WorkspaceSymbolIndex | null,
   options: ComputeDiagnosticsOptions,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
+  const effectiveIndex = symbolIndexForWorkspaceDiagnostics(document, index, workspaceIndex);
 
   if (options.unusedSymbols) {
     diagnostics.push(
-      ...unusedSymbolDiagnostics(document, ctx.parsed, index, ctx, { enabled: true }),
+      ...unusedSymbolDiagnostics(document, ctx.parsed, effectiveIndex, ctx, { enabled: true }),
     );
     diagnostics.push(...entryPointWithoutBindDiagnostics(document, ctx.parsed, ctx));
   }
   if (options.missingReferences !== false) {
-    diagnostics.push(...missingReferenceDiagnostics(index));
+    diagnostics.push(...missingReferenceDiagnostics(effectiveIndex));
   }
+  diagnostics.push(...duplicateSectionDiagnostics(document, ctx.parsed, workspaceIndex));
 
   return diagnostics;
 }
@@ -95,7 +107,8 @@ export function computeDiagnostics(
   options: ComputeDiagnosticsOptions = {},
 ): vscode.Diagnostic[] {
   const ctx = new DiagnosticContext(document, schema, options);
-  const key = diagnosticsCacheKey(schema, options);
+  const workspaceIndex = getWorkspaceSymbolIndex();
+  const key = diagnosticsCacheKey(schema, options, workspaceIndex);
   const cached = diagnosticsCache.get(document);
   const reuse = ctx.parsedEntry.reuse;
   const canReuseLines =
@@ -146,7 +159,13 @@ export function computeDiagnostics(
       if (cached?.cachedSymbolIndex === index && sameCacheKey(cached.key, key)) {
         documentSymbolDiagnostics = cached.documentSymbolDiagnostics;
       } else {
-        documentSymbolDiagnostics = computeDocumentSymbolDiagnostics(document, ctx, index, options);
+        documentSymbolDiagnostics = computeDocumentSymbolDiagnostics(
+          document,
+          ctx,
+          index,
+          workspaceIndex,
+          options,
+        );
       }
       diagnostics.push(...documentSymbolDiagnostics);
     } else if (options.unusedSymbols) {
