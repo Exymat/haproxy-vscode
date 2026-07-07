@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.14.7
+
+- **Go to Definition for proxy sections** — jumping to a backend, frontend, or other section definition now highlights the full section (header plus body) instead of only the header line.
+- **Symbol hover on section references** — the definition preview shows the entire section when the target is a proxy section.
+- **ACL criteria in inline conditions** — ACL-only criteria such as `path_beg` inside `{ … }` blocks are no longer mistaken for ACL name references in symbol indexing, missing-reference warnings, or navigation.
+
 ## 0.14.6
 
 - **Minimum VS Code 1.125** — raised the extension engine requirement from 1.105.

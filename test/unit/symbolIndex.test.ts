@@ -18,7 +18,7 @@ import {
 } from "../../src/symbolIndex";
 import { effectiveScopeKeyForSchema } from "../../src/symbolIndex/types";
 import { buildSitesByLine } from "../../src/symbolIndex/utils";
-import { sampleExpressionNameSets } from "../../src/schema";
+import { keywordGroupSet, sampleExpressionNameSets } from "../../src/schema";
 import { createDocument, updateDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 import type { Position, TextDocument } from "vscode";
@@ -738,7 +738,8 @@ describe("symbolIndex extended", () => {
       (schema.symbols?.acl_condition_operators as string[] | undefined) ?? [],
     );
     const fetchNames = sampleExpressionNameSets(schema).fetchNames;
-    expect(aclReferenceAt(schema, line, 99, aclOperators, fetchNames)).toBeNull();
+    const aclCriteria = keywordGroupSet(schema, "acl_criteria");
+    expect(aclReferenceAt(schema, line, 99, aclOperators, fetchNames, aclCriteria)).toBeNull();
 
     const gapAfterIf = {
       ...line,
@@ -750,19 +751,33 @@ describe("symbolIndex extended", () => {
         { text: "acl1", start: 26, end: 30 },
       ],
     };
-    expect(aclReferenceAt(schema, gapAfterIf as never, 4, aclOperators, fetchNames)).toBeNull();
+    expect(
+      aclReferenceAt(schema, gapAfterIf as never, 4, aclOperators, fetchNames, aclCriteria),
+    ).toBeNull();
 
     const inlineFetch = parseDocument(
       doc("frontend web\n    http-request deny if { dst_port -m int 80 }"),
     )[1];
     const dstPortIdx = inlineFetch.tokens.findIndex((token) => token.text === "dst_port");
-    expect(aclReferenceAt(schema, inlineFetch, dstPortIdx, aclOperators, fetchNames)).toBeNull();
+    expect(
+      aclReferenceAt(schema, inlineFetch, dstPortIdx, aclOperators, fetchNames, aclCriteria),
+    ).toBeNull();
+
+    const inlineAclCriterion = parseDocument(
+      doc("frontend web\n    use_backend dynamic if { path_beg /dynamic }"),
+    )[1];
+    const pathBegIdx = inlineAclCriterion.tokens.findIndex((token) => token.text === "path_beg");
+    expect(
+      aclReferenceAt(schema, inlineAclCriterion, pathBegIdx, aclOperators, fetchNames, aclCriteria),
+    ).toBeNull();
 
     const varFetch = parseDocument(
       doc("frontend web\n    use_backend www if { var(http_host) -m found }"),
     )[1];
     const varIdx = varFetch.tokens.findIndex((token) => token.text === "var(http_host)");
-    expect(aclReferenceAt(schema, varFetch, varIdx, aclOperators, fetchNames)).toBeNull();
+    expect(
+      aclReferenceAt(schema, varFetch, varIdx, aclOperators, fetchNames, aclCriteria),
+    ).toBeNull();
 
     const inBrace = parseDocument(
       doc(
@@ -770,7 +785,9 @@ describe("symbolIndex extended", () => {
       ),
     )[2];
     const foundIdx = inBrace.tokens.findIndex((token) => token.text === "found");
-    expect(aclReferenceAt(schema, inBrace, foundIdx, aclOperators, fetchNames)).toBeNull();
+    expect(
+      aclReferenceAt(schema, inBrace, foundIdx, aclOperators, fetchNames, aclCriteria),
+    ).toBeNull();
 
     const afterBrace = parseDocument(
       doc(
@@ -778,7 +795,9 @@ describe("symbolIndex extended", () => {
       ),
     )[2];
     const a1Idx = afterBrace.tokens.findIndex((token) => token.text === "a1");
-    expect(aclReferenceAt(schema, afterBrace, a1Idx, aclOperators, fetchNames)?.name).toBe("a1");
+    expect(
+      aclReferenceAt(schema, afterBrace, a1Idx, aclOperators, fetchNames, aclCriteria)?.name,
+    ).toBe("a1");
 
     const sparse = {
       ...line,

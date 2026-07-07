@@ -1,6 +1,7 @@
 import { trySymbolHover } from "../../../src/hover/handlers/symbolHover";
 import { provideHover } from "../../../src/hover";
 import { getLineSemanticContext } from "../../../src/lineSemanticContext";
+import * as symbolIndex from "../../../src/symbolIndex";
 import { createDocument } from "../../helpers/document";
 import { hoverText, bundles } from "./helpers";
 import type { DocumentContextWithToken, HoverContext } from "../../../src/hover/types";
@@ -37,6 +38,42 @@ function context(
 }
 
 describe("symbol hover", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("shows the full section body for proxy-section references", () => {
+    const content = "backend api\n    server s1 127.0.0.1:8080\nfrontend web\n    use_backend api";
+    const hc = context(content, 3, "    use_backend ".length);
+    const hover = trySymbolHover(hc);
+    expect(hover).not.toBeNull();
+    const text = hoverText(hover as never);
+    expect(text).toContain(
+      ["```haproxy", "backend api\n    server s1 127.0.0.1:8080", "```"].join("\n"),
+    );
+    expect(text).toContain("command:haproxy.peekDefinitionAtPosition");
+  });
+
+  it("shows the reference line text when the resolved definition site is not a definition role", () => {
+    const content = "backend api\nfrontend web\n    use_backend api";
+    const hc = context(content, 2, "    use_backend ".length);
+    vi.spyOn(symbolIndex, "findDefinitions").mockReturnValue([
+      {
+        kind: "proxy-section",
+        name: "api",
+        line: 0,
+        start: 8,
+        end: 11,
+        scopeKey: null,
+        role: "reference",
+      },
+    ]);
+    const hover = trySymbolHover(hc);
+    expect(hover).not.toBeNull();
+    const text = hoverText(hover as never);
+    expect(text).toContain(["```haproxy", "backend api", "```"].join("\n"));
+  });
+
   it("shows the definition line for known symbol references", () => {
     const content = "backend api\nfrontend web\n    use_backend api";
     const hc = context(content, 2, "    use_backend ".length);

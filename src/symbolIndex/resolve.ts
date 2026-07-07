@@ -6,6 +6,7 @@ import { findReferencePatternAtToken } from "../referencePatternMatching";
 import { isTopLevelSectionHeader } from "../sectionUtils";
 import {
   HaproxySchema,
+  keywordGroupSet,
   sectionHeaderSet,
   StatementRule,
   symbolStringList,
@@ -106,7 +107,8 @@ function resolveStatementRuleSymbol(
   if (scopeKey) {
     const aclOperators = new Set(symbolStringList(schema, "acl_condition_operators"));
     const fetchNames = sampleExpressionNameSets(schema).fetchNames;
-    const hit = aclReferenceAt(schema, line, tokenIndex, aclOperators, fetchNames);
+    const aclCriteria = keywordGroupSet(schema, "acl_criteria");
+    const hit = aclReferenceAt(schema, line, tokenIndex, aclOperators, fetchNames, aclCriteria);
     if (hit) {
       return { kind: "acl", name: hit.name, scopeKey };
     }

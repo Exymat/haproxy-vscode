@@ -1,5 +1,8 @@
 import * as vscode from "vscode";
 
+import { getParsedDocument } from "../../parseCache";
+import { sectionHeaderSet } from "../../schema";
+import { sectionOutlineByStartLine, sectionText } from "../../sectionOutline";
 import { findDefinitions, findSiteAtPosition, getSymbolIndex, SymbolSite } from "../../symbolIndex";
 import { HoverContext } from "../types";
 
@@ -16,6 +19,20 @@ function isDefinitionSite(site: SymbolSite, definition: SymbolSite): boolean {
 function commandUri(document: vscode.TextDocument, site: SymbolSite): string {
   const args = encodeURIComponent(JSON.stringify([document.uri.toString(), site.line, site.start]));
   return `command:haproxy.peekDefinitionAtPosition?${args}`;
+}
+
+function definitionPreviewText(hc: HoverContext, definition: SymbolSite): string {
+  if (definition.role !== "definition") {
+    return hc.document.lineAt(definition.line).text;
+  }
+  const parsed = getParsedDocument(hc.document, {
+    sectionHeaders: sectionHeaderSet(hc.schema),
+  });
+  const section = sectionOutlineByStartLine(hc.document, parsed).get(definition.line);
+  if (!section) {
+    return hc.document.lineAt(definition.line).text;
+  }
+  return sectionText(hc.document, section);
 }
 
 export function trySymbolHover(hc: HoverContext): vscode.Hover | null {
@@ -36,7 +53,7 @@ export function trySymbolHover(hc: HoverContext): vscode.Hover | null {
     return null;
   }
 
-  const definitionText = hc.document.lineAt(definition.line).text;
+  const definitionText = definitionPreviewText(hc, definition);
   const md = new vscode.MarkdownString();
   md.appendMarkdown(["```haproxy", definitionText, "```"].join("\n"));
   md.appendMarkdown(`\n\n[Peek Definition](${commandUri(hc.document, site)})`);

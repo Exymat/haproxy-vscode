@@ -98,3 +98,20 @@ export function buildSectionFoldRanges(sections: SectionSymbolInfo[]): SectionFo
       endLine: section.endLine,
     }));
 }
+
+export function sectionOutlineByStartLine(
+  document: vscode.TextDocument,
+  parsed: ParsedLine[],
+): Map<number, SectionSymbolInfo> {
+  return new Map(
+    getSectionOutline(document, parsed).map((section) => [section.startLine, section]),
+  );
+}
+
+export function sectionText(document: vscode.TextDocument, section: SectionSymbolInfo): string {
+  const lines: string[] = [];
+  for (let line = section.startLine; line <= section.endLine; line += 1) {
+    lines.push(document.lineAt(line).text);
+  }
+  return lines.join("\n");
+}

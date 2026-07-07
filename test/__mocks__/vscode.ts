@@ -109,6 +109,15 @@ export class Location {
   ) {}
 }
 
+export class LocationLink {
+  constructor(
+    public targetUri: unknown,
+    public targetRange: Range,
+    public targetSelectionRange?: Range,
+    public originSelectionRange?: Range,
+  ) {}
+}
+
 export class WorkspaceEdit {
   edits: Array<{ uri: unknown; range: Range; newText: string }> = [];
 

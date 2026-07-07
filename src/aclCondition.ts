@@ -8,7 +8,7 @@ import {
 } from "./expressionParsing";
 import { ExpressionSpan, SampleDiagnostic, validateExpressionBody } from "./sampleExpression";
 
-function isAclOnlyCriterion(
+export function isAclOnlyCriterion(
   name: string,
   aclCriteria: Set<string>,
   fetchNames: Set<string>,

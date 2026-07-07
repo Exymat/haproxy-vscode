@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 
-import { HaproxySchema } from "./schema";
+import { getParsedDocument } from "./parseCache";
+import { HaproxySchema, sectionHeaderSet } from "./schema";
+import { sectionOutlineByStartLine, SectionSymbolInfo } from "./sectionOutline";
 import {
   findDefinitions,
   findReferences,
@@ -16,11 +18,59 @@ interface ResolvedNavigationSymbol {
   scopeKey: string | null;
 }
 
+type DefinitionResult = vscode.Location | vscode.LocationLink;
+
+function isLocationLink(target: DefinitionResult): target is vscode.LocationLink {
+  return "targetUri" in target;
+}
+
+function toProviderResult(
+  targets: DefinitionResult[],
+): vscode.Definition | vscode.DefinitionLink[] | null {
+  if (targets.length === 1) {
+    const [target] = targets;
+    return isLocationLink(target) ? [target] : target;
+  }
+  if (targets.every(isLocationLink)) {
+    return targets;
+  }
+  return targets as vscode.Location[];
+}
+
+function sectionOutlineForDocument(
+  document: vscode.TextDocument,
+  schema: HaproxySchema,
+): Map<number, SectionSymbolInfo> {
+  const parsed = getParsedDocument(document, {
+    sectionHeaders: sectionHeaderSet(schema),
+  });
+  return sectionOutlineByStartLine(document, parsed);
+}
+
 function siteToLocation(document: vscode.TextDocument, site: SymbolSite): vscode.Location {
   return new vscode.Location(
     document.uri,
     new vscode.Range(site.line, site.start, site.line, site.end),
   );
+}
+
+function siteToDefinitionTarget(
+  document: vscode.TextDocument,
+  site: SymbolSite,
+  sectionsByStartLine: Map<number, SectionSymbolInfo>,
+): DefinitionResult {
+  const selectionRange = new vscode.Range(site.line, site.start, site.line, site.end);
+  if (site.role === "definition") {
+    const section = sectionsByStartLine.get(site.line);
+    if (section) {
+      return {
+        targetUri: document.uri,
+        targetRange: new vscode.Range(section.startLine, 0, section.endLine, section.endColumn),
+        targetSelectionRange: selectionRange,
+      };
+    }
+  }
+  return siteToLocation(document, site);
 }
 
 function resolveNavigationSymbol(
@@ -41,7 +91,7 @@ export function provideDefinition(
   position: vscode.Position,
   schema: HaproxySchema,
   maxLines: number,
-): vscode.Location | vscode.Location[] | null {
+): vscode.Definition | vscode.DefinitionLink[] | null {
   const index = getSymbolIndex(document, schema, maxLines);
   if (!index) {
     return null;
@@ -57,11 +107,11 @@ export function provideDefinition(
     return null;
   }
 
-  if (definitions.length === 1) {
-    return siteToLocation(document, definitions[0]);
-  }
-
-  return definitions.map((site) => siteToLocation(document, site));
+  const sectionsByStartLine = sectionOutlineForDocument(document, schema);
+  const targets = definitions.map((site) =>
+    siteToDefinitionTarget(document, site, sectionsByStartLine),
+  );
+  return toProviderResult(targets);
 }
 
 export function provideReferences(

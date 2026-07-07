@@ -85,9 +85,11 @@ describe("missingReferenceDiagnostics", () => {
       "frontend web",
       '    use_backend www if { var(http_host) -m reg -p "^www\\." }',
       '    use_backend non_www if { var(http_host) -m reg -p "^(?!www\\.).*" }',
+      "    use_backend dynamic if { path_beg /dynamic }",
       "    use_backend %[var(http_host)] if { var(http_host) }",
       "backend www",
       "backend non_www",
+      "backend dynamic",
     ].join("\n");
     expect(missingRefs(content)).toEqual([]);
   });

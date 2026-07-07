@@ -239,12 +239,68 @@ describe("navigation", () => {
     expect(provideDefinition(doc as never, pos(1, col), schema, 4000)).toBeNull();
   });
 
-  it("provideDefinition returns a single location when exactly one definition exists", () => {
+  it("provideDefinition returns a LocationLink spanning the section for proxy-section", () => {
+    const doc = createDocument(
+      "backend api\n    server s1 127.0.0.1:8080\nfrontend web\n    use_backend api",
+    );
+    const col = "    use_backend api".indexOf("api");
+    const location = provideDefinition(doc, pos(3, col), schema, 4000);
+    expect(Array.isArray(location)).toBe(true);
+    expect(location).not.toBeNull();
+    const link = (location as unknown[])[0] as {
+      targetRange: { start: { line: number }; end: { line: number } };
+      targetSelectionRange: { start: { line: number; character: number } };
+    };
+    expect(link.targetRange.start.line).toBe(0);
+    expect(link.targetRange.end.line).toBe(1);
+    expect(link.targetSelectionRange.start.character).toBe("backend api".indexOf("api"));
+  });
+
+  it("provideDefinition returns Location[] for multiple non-link definition targets", () => {
+    const doc = createDocument("backend api\nfrontend web\n    use_backend api");
+    const col = "    use_backend api".indexOf("api");
+    vi.spyOn(symbolIndex, "findSiteAtPosition").mockReturnValue({
+      kind: "proxy-section",
+      name: "api",
+      line: 2,
+      start: col,
+      end: col + 3,
+      scopeKey: null,
+      role: "reference",
+    });
+    vi.spyOn(symbolIndex, "findDefinitions").mockReturnValue([
+      {
+        kind: "proxy-section",
+        name: "api",
+        line: 0,
+        start: 8,
+        end: 11,
+        scopeKey: null,
+        role: "reference",
+      },
+      {
+        kind: "proxy-section",
+        name: "api",
+        line: 0,
+        start: 8,
+        end: 11,
+        scopeKey: null,
+        role: "reference",
+      },
+    ]);
+    const location = provideDefinition(doc, pos(2, col), schema, 4000);
+    expect(Array.isArray(location)).toBe(true);
+    expect((location as unknown[]).length).toBe(2);
+    expect((location as unknown[])[0]).not.toHaveProperty("targetUri");
+  });
+
+  it("provideDefinition returns a single LocationLink when exactly one section definition exists", () => {
     const doc = createDocument("backend api\nfrontend web\n    use_backend api");
     const col = "    use_backend api".indexOf("api");
     const location = provideDefinition(doc, pos(2, col), schema, 4000);
-    expect(Array.isArray(location)).toBe(false);
+    expect(Array.isArray(location)).toBe(true);
     expect(location).not.toBeNull();
+    expect((location as unknown[]).length).toBe(1);
   });
 
   it("provideDefinition works at every character in a symbol reference", () => {
@@ -262,7 +318,7 @@ describe("navigation", () => {
     vi.spyOn(symbolIndex, "findSiteAtPosition").mockReturnValueOnce(null);
     const location = provideDefinition(doc, pos(2, col), schema, 4000);
     expect(location).not.toBeNull();
-    expect(Array.isArray(location)).toBe(false);
+    expect(Array.isArray(location)).toBe(true);
   });
 
   it("provideDefinition returns null when indexing is unavailable or no definitions remain", () => {

@@ -1,8 +1,10 @@
+import { isAclOnlyCriterion } from "../aclCondition";
 import { ParsedLine } from "../parser";
 import { findReferencePatternMatches } from "../referencePatternMatching";
 import { isTopLevelSectionHeader } from "../sectionUtils";
 import {
   HaproxySchema,
+  keywordGroupSet,
   ReferencePattern,
   sampleExpressionNameSets,
   symbolRecord,
@@ -111,6 +113,7 @@ function aclReferenceAt(
   tokenIndex: number,
   aclOperators: Set<string>,
   fetchNames: Set<string>,
+  aclCriteria: Set<string>,
 ): { name: string; tokenIndex: number; start: number; end: number } | null {
   const tokens = line.tokens;
   const token = tokens[tokenIndex];
@@ -144,6 +147,13 @@ function aclReferenceAt(
     return null;
   }
 
+  if (
+    prev === "{" &&
+    isAclOnlyCriterion(token.text, aclCriteria, fetchNames, schema.sample_fetches ?? {})
+  ) {
+    return null;
+  }
+
   if (!aclReferenceContextAfterPrev(schema, prev, aclOperators, allowChainedReferences)) {
     return null;
   }
@@ -159,6 +169,7 @@ function aclReferenceAt(
 }
 
 interface SymbolBuildContext {
+  aclCriteria: Set<string>;
   aclOperators: Set<string>;
   fetchNames: Set<string>;
   fetchRules: Record<string, FetchReferenceRule>;
@@ -168,6 +179,7 @@ interface SymbolBuildContext {
 
 function createSymbolBuildContext(schema: HaproxySchema): SymbolBuildContext {
   return {
+    aclCriteria: keywordGroupSet(schema, "acl_criteria"),
     aclOperators: aclConditionOperators(schema),
     fetchNames: sampleExpressionNameSets(schema).fetchNames,
     fetchRules: fetchReferenceRules(schema),
@@ -378,12 +390,13 @@ function collectAclReferences(
   schema: HaproxySchema,
   aclOperators: Set<string>,
   fetchNames: Set<string>,
+  aclCriteria: Set<string>,
 ): void {
   if (!scopeKey) {
     return;
   }
   for (let i = 1; i < line.tokens.length; i += 1) {
-    const hit = aclReferenceAt(schema, line, i, aclOperators, fetchNames);
+    const hit = aclReferenceAt(schema, line, i, aclOperators, fetchNames, aclCriteria);
     if (!hit) {
       continue;
     }
@@ -517,6 +530,7 @@ function collectStatementRuleSites(
     schema,
     context.aclOperators,
     context.fetchNames,
+    context.aclCriteria,
   );
   collectFilterSelfReference(line, scopeKey, references, context.selfReferenceKeywords);
   collectConfiguredReferences(

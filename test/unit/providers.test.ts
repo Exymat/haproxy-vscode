@@ -42,18 +42,35 @@ describe("provideDefinition", () => {
     expect(provideDefinition(doc as never, pos(1, 2), schema, 4000)).toBeNull();
   });
 
-  it("returns a single location for one definition", () => {
+  it("returns a LocationLink spanning the full section for proxy-section definitions", () => {
     const doc = createDocument(
       "backend api\n    server s1 127.0.0.1:8080\nfrontend web\n    use_backend api",
     );
     const useBackendCol = "    use_backend api".indexOf("api");
     const location = provideDefinition(doc, pos(3, useBackendCol), schema, 4000);
     expect(location).not.toBeNull();
-    expect(Array.isArray(location)).toBe(false);
-    expect((location as { range: { start: { line: number } } }).range.start.line).toBe(0);
+    expect(Array.isArray(location)).toBe(true);
+    const link = (location as unknown[])[0] as {
+      targetRange: { start: { line: number }; end: { line: number } };
+      targetSelectionRange: { start: { line: number; character: number } };
+    };
+    expect(link.targetRange.start.line).toBe(0);
+    expect(link.targetRange.end.line).toBe(1);
+    expect(link.targetSelectionRange.start.line).toBe(0);
+    expect(link.targetSelectionRange.start.character).toBe("backend api".indexOf("api"));
   });
 
-  it("returns multiple locations for duplicate section names", () => {
+  it("returns a plain Location for in-section symbol definitions", () => {
+    const doc = createDocument("backend api\n    server s1 127.0.0.1:8080\n    use-server s1");
+    const useServerCol = "    use-server s1".indexOf("s1");
+    const location = provideDefinition(doc, pos(2, useServerCol), schema, 4000);
+    expect(location).not.toBeNull();
+    expect(Array.isArray(location)).toBe(false);
+    expect("range" in (location as object)).toBe(true);
+    expect((location as { range: { start: { line: number } } }).range.start.line).toBe(1);
+  });
+
+  it("returns multiple LocationLinks for duplicate section names", () => {
     const doc = createDocument(
       "backend api\n    server s1 127.0.0.1:8080\nbackend api\n    server s2 127.0.0.1:8081\nfrontend web\n    use_backend api",
     );
@@ -61,6 +78,11 @@ describe("provideDefinition", () => {
     const locations = provideDefinition(doc, pos(5, useBackendCol), schema, 4000);
     expect(Array.isArray(locations)).toBe(true);
     expect((locations as unknown[]).length).toBe(2);
+    for (const location of locations as Array<{
+      targetRange: { start: { line: number }; end: { line: number } };
+    }>) {
+      expect(location.targetRange.end.line).toBeGreaterThan(location.targetRange.start.line);
+    }
   });
 });
 
