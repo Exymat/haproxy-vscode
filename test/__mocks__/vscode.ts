@@ -214,6 +214,55 @@ export function setMockWorkspaceFile(path: string, content: string): void {
   mockWorkspaceFiles.set(path, content);
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+}
+
+function globPatternToRegExp(pattern: string): RegExp {
+  const normalized = pattern.replace(/\\/g, "/");
+  let source = "";
+  for (let i = 0; i < normalized.length; i += 1) {
+    const ch = normalized[i];
+    if (ch === "*") {
+      const next = normalized[i + 1];
+      if (next === "*") {
+        const after = normalized[i + 2];
+        if (after === "/") {
+          source += "(?:.*/)?";
+          i += 2;
+        } else {
+          source += ".*";
+          i += 1;
+        }
+        continue;
+      }
+      source += "[^/]*";
+      continue;
+    }
+    if (ch === "?") {
+      source += "[^/]";
+      continue;
+    }
+    source += escapeRegExp(ch);
+  }
+  return new RegExp(`^${source}$`, "i");
+}
+
+function expandBracePattern(pattern: string): string[] {
+  if (!pattern.startsWith("{") || !pattern.endsWith("}")) {
+    return [pattern];
+  }
+  return pattern.slice(1, -1).split(",");
+}
+
+function globMatches(pattern: string | undefined, value: string): boolean {
+  if (!pattern) {
+    return true;
+  }
+  const normalized = value.replace(/\\/g, "/");
+  return expandBracePattern(pattern).some((part) => globPatternToRegExp(part).test(normalized));
+}
+
 export function triggerMockConfigurationChange(section = "haproxy"): void {
   for (const listener of configListeners) {
     listener({
@@ -265,9 +314,11 @@ export const workspace = {
   get workspaceFolders() {
     return mockWorkspaceFolders;
   },
-  findFiles(_include: string, _exclude?: string, maxResults?: number) {
+  findFiles(include: string, exclude?: string, maxResults?: number) {
     const uris = [...mockWorkspaceFiles.keys()]
       .filter((path) => path.endsWith(".cfg"))
+      .filter((path) => globMatches(include, path))
+      .filter((path) => (exclude ? !globMatches(exclude, path) : true))
       .slice(0, maxResults)
       .map((path) => Uri.file(path));
     return Promise.resolve(uris);

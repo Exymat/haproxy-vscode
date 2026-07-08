@@ -24,6 +24,7 @@ export {
   scheduleWorkspaceSymbolIndexRebuild,
   setWorkspaceSymbolIndexChangeListener,
   symbolIndexForWorkspaceDiagnostics,
+  workspaceUriKey,
   workspaceSiteRange,
 } from "./workspace";
 export type { SymbolIndex, SymbolKind, SymbolSite } from "./types";

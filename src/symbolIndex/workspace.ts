@@ -57,8 +57,18 @@ let activeSchema: HaproxySchema | null = null;
 let activeMaxLines = 0;
 let onDidChangeWorkspaceIndex: (() => void) | undefined;
 
-function uriKey(uri: vscode.Uri): string {
-  return uri.toString();
+export function workspaceUriKey(uri: vscode.Uri): string {
+  const value = uri.toString();
+  const isFileUri = uri.scheme === "file" || value.toLowerCase().startsWith("file:");
+  if (!isFileUri) {
+    return value;
+  }
+  const fsPath = uri.fsPath ?? "";
+  const isWindowsFileUri =
+    process.platform === "win32" ||
+    /^[a-z]:[\\/]/i.test(fsPath) ||
+    /^file:\/\/\/[a-z]%3a/i.test(value);
+  return isWindowsFileUri ? value.toLowerCase() : value;
 }
 
 function textDocumentContent(document: vscode.TextDocument): { text: string; lines: string[] } {
@@ -86,7 +96,7 @@ function sectionRanges(parsed: ParsedLine[], lineTexts: string[]): Map<number, S
 }
 
 function siteWithUri(site: SymbolSite, uri: vscode.Uri): WorkspaceSymbolSite {
-  return { ...site, uri, uriKey: uriKey(uri) };
+  return { ...site, uri, uriKey: workspaceUriKey(uri) };
 }
 
 function aggregateDocuments(
@@ -125,8 +135,8 @@ function aggregateDocuments(
 }
 
 function openDocumentForUri(uri: vscode.Uri): vscode.TextDocument | undefined {
-  const key = uriKey(uri);
-  return vscode.workspace.textDocuments.find((document) => uriKey(document.uri) === key);
+  const key = workspaceUriKey(uri);
+  return vscode.workspace.textDocuments.find((document) => workspaceUriKey(document.uri) === key);
 }
 
 function createOpenDocumentEntry(
@@ -146,7 +156,7 @@ function createOpenDocumentEntry(
   const { text, lines } = textDocumentContent(document);
   return {
     uri: document.uri,
-    uriKey: uriKey(document.uri),
+    uriKey: workspaceUriKey(document.uri),
     version: document.version,
     fingerprint: fingerprintText(text),
     parsed,
@@ -191,7 +201,7 @@ async function createDiskEntry(
   const index = buildSymbolIndex(parsed, schema);
   return {
     uri,
-    uriKey: uriKey(uri),
+    uriKey: workspaceUriKey(uri),
     version: null,
     fingerprint: fingerprintText(text),
     parsed,
@@ -214,7 +224,7 @@ async function discoverUris(settings: WorkspaceSymbolSettings): Promise<vscode.U
   for (const include of settings.include) {
     const uris = await vscode.workspace.findFiles(include, exclude, settings.maxFiles + 1);
     for (const uri of uris) {
-      discovered.set(uriKey(uri), uri);
+      discovered.set(workspaceUriKey(uri), uri);
       if (discovered.size > settings.maxFiles) {
         return null;
       }
@@ -376,7 +386,7 @@ export function symbolIndexForWorkspaceDiagnostics(
   localIndex: SymbolIndex,
   workspaceIndex: WorkspaceSymbolIndex | null,
 ): SymbolIndex {
-  if (!workspaceIndex || !workspaceIndex.documents.has(uriKey(document.uri))) {
+  if (!workspaceIndex || !workspaceIndex.documents.has(workspaceUriKey(document.uri))) {
     return localIndex;
   }
 

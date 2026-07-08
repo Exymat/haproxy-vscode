@@ -10,6 +10,7 @@ import {
   refreshWorkspaceSymbolIndexNow,
   scheduleWorkspaceSymbolIndexRebuild,
   setWorkspaceSymbolIndexChangeListener,
+  workspaceUriKey,
   type WorkspaceSymbolIndex,
 } from "../../src/symbolIndex";
 import { mockTextDocuments, resetVscodeMock, setMockWorkspaceFile } from "../__mocks__/vscode";
@@ -23,12 +24,12 @@ function pos(line: number, character: number) {
   return { line, character } as never;
 }
 
-async function buildWorkspace(maxFiles = 300, maxTotalLines = 100000) {
+async function buildWorkspace(maxFiles = 300, maxTotalLines = 100000, include = ["**/*.cfg"]) {
   scheduleWorkspaceSymbolIndexRebuild(
     schema,
     {
       enabled: true,
-      include: ["**/*.cfg"],
+      include,
       exclude: [],
       maxFiles,
       maxTotalLines,
@@ -70,6 +71,11 @@ describe("workspace symbol index", () => {
     vi.useRealTimers();
   });
 
+  it("preserves non-file URI keys", () => {
+    const uri = { scheme: "untitled", toString: () => "untitled:HAProxy.cfg" };
+    expect(workspaceUriKey(uri as never)).toBe("untitled:HAProxy.cfg");
+  });
+
   it("aggregates backend definitions and references across files", async () => {
     setMockWorkspaceFile("file:///frontends/web.cfg", "frontend web\n    use_backend api");
     setMockWorkspaceFile("file:///backends/api.cfg", "backend api\n    server s1 127.0.0.1:80");
@@ -78,6 +84,47 @@ describe("workspace symbol index", () => {
 
     expect(findWorkspaceDefinitions(workspaceIndex, "proxy-section", "api", null)).toHaveLength(1);
     expect(findWorkspaceReferences(workspaceIndex, "proxy-section", "api", null)).toHaveLength(1);
+  });
+
+  it("indexes split haproxy.d layouts with configured include globs", async () => {
+    const frontendContent = [
+      "frontend fe_www",
+      "    bind 127.0.0.1:80",
+      "    acl url_www path_beg www",
+      "    use_backend be_www if url_www",
+    ].join("\n");
+    const backendContent = [
+      "backend be_www",
+      "    server web1 192.168.1.100:80",
+      "    server web2 192.168.1.101:80",
+    ].join("\n");
+    setMockWorkspaceFile("file:///repo/haproxy.d/default.cfg", "defaults default\n    mode http");
+    setMockWorkspaceFile("file:///repo/haproxy.d/global.cfg", "global\n    daemon");
+    setMockWorkspaceFile("file:///repo/haproxy.d/frontends/FE_WWW.cfg", frontendContent);
+    setMockWorkspaceFile("file:///repo/haproxy.d/backends/BE_WWW.cfg", backendContent);
+
+    const frontend = createDocument(frontendContent, "file:///repo/haproxy.d/frontends/fe_www.cfg");
+    mockTextDocuments.push(frontend as never);
+
+    const workspaceIndex = expectWorkspaceIndex(
+      await buildWorkspace(300, 100000, [
+        "**/haproxy.d/**/*.cfg",
+        "**/haproxy.d/*.cfg",
+        "**/*.cfg",
+      ]),
+    );
+
+    expect(findWorkspaceDefinitions(workspaceIndex, "proxy-section", "be_www", null)).toHaveLength(
+      1,
+    );
+    const diagnostics = computeDiagnostics(frontend, schema, {
+      unusedSymbols: false,
+      missingReferences: true,
+      maxLines: 4000,
+    });
+    expect(
+      diagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "missing-reference"),
+    ).toHaveLength(0);
   });
 
   it("aggregates defaults and global referenced sections across files", async () => {

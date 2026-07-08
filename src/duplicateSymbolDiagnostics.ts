@@ -3,7 +3,11 @@ import * as vscode from "vscode";
 import { makeDiagnostic } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
 import type { SymbolKind } from "./symbolIndex/types";
-import type { WorkspaceSymbolIndex, WorkspaceSymbolSite } from "./symbolIndex/workspace";
+import {
+  workspaceUriKey,
+  type WorkspaceSymbolIndex,
+  type WorkspaceSymbolSite,
+} from "./symbolIndex/workspace";
 
 const DUPLICATE_SECTION_KINDS = new Set<SymbolKind>([
   "proxy-section",
@@ -19,7 +23,7 @@ function siteRange(site: WorkspaceSymbolSite): vscode.Range {
 }
 
 function currentUriKey(document: vscode.TextDocument): string {
-  return document.uri.toString();
+  return workspaceUriKey(document.uri);
 }
 
 function sectionLabel(parsed: ParsedLine[], site: WorkspaceSymbolSite): string {

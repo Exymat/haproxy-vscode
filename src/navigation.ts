@@ -16,6 +16,7 @@ import {
   WorkspaceSymbolIndex,
   WorkspaceSymbolSite,
   workspaceSiteRange,
+  workspaceUriKey,
 } from "./symbolIndex";
 
 interface ResolvedNavigationSymbol {
@@ -107,7 +108,7 @@ function resolveNavigationSymbol(
 
 function workspaceIndexForDocument(document: vscode.TextDocument): WorkspaceSymbolIndex | null {
   const workspaceIndex = getWorkspaceSymbolIndex();
-  if (!workspaceIndex?.documents.has(document.uri.toString())) {
+  if (!workspaceIndex?.documents.has(workspaceUriKey(document.uri))) {
     return null;
   }
   return workspaceIndex;

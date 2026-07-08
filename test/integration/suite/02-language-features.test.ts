@@ -315,6 +315,42 @@ suite("Language feature integration", () => {
             .join(", ")}`,
         );
       });
+
+      test("diagnostics resolve split haproxy.d layouts with configured globs", async () => {
+        await updateHaproxySetting("workspaceSymbols.maxFiles", 300);
+        await updateHaproxySetting("workspaceSymbols.maxTotalLines", 100000);
+        await updateHaproxySetting("workspaceSymbols.include", [
+          "**/haproxy-tests/haproxy.d/**/*.cfg",
+          "**/haproxy-tests/haproxy.d/*.cfg",
+          "**/*.cfg",
+        ]);
+
+        const frontend = await openFixture("haproxy-tests/haproxy.d/frontends/FE_WWW.cfg");
+        const frontendDiagnostics = await waitForNoDiagnosticCode(
+          frontend.uri,
+          "missing-reference",
+        );
+        assert.strictEqual(
+          frontendDiagnostics.filter(
+            (diag) => formatDiagnosticCode(diag.code) === "missing-reference",
+          ).length,
+          0,
+          `Expected split frontend references to resolve, got ${frontendDiagnostics
+            .map((diag) => `[${formatDiagnosticCode(diag.code)}] ${diag.message}`)
+            .join(", ")}`,
+        );
+
+        const backend = await openFixture("haproxy-tests/haproxy.d/backends/BE_WWW.cfg");
+        const backendDiagnostics = await waitForNoDiagnosticCode(backend.uri, "unused-section");
+        assert.strictEqual(
+          backendDiagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "unused-section")
+            .length,
+          0,
+          `Expected split backend usage to resolve, got ${backendDiagnostics
+            .map((diag) => `[${formatDiagnosticCode(diag.code)}] ${diag.message}`)
+            .join(", ")}`,
+        );
+      });
     });
 
     test("go to definition resolves backend, server, and defaults profile targets", async () => {
