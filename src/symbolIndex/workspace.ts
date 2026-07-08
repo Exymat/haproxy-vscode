@@ -49,7 +49,9 @@ export interface WorkspaceSymbolIndex {
   scopedSymbolKinds: Set<SymbolKind>;
 }
 
-let activeWorkspaceIndex: WorkspaceSymbolIndex | null = null;
+const GLOBAL_WORKSPACE_FOLDER_KEY = "<global>";
+
+let activeWorkspaceIndexes = new Map<string, WorkspaceSymbolIndex>();
 let activeGeneration = 0;
 let rebuildTimer: NodeJS.Timeout | undefined;
 let activeSettings: WorkspaceSymbolSettings | null = null;
@@ -139,6 +141,33 @@ function openDocumentForUri(uri: vscode.Uri): vscode.TextDocument | undefined {
   return vscode.workspace.textDocuments.find((document) => workspaceUriKey(document.uri) === key);
 }
 
+function workspaceFolderKey(folder: vscode.WorkspaceFolder | undefined): string {
+  return folder ? workspaceUriKey(folder.uri) : GLOBAL_WORKSPACE_FOLDER_KEY;
+}
+
+function workspaceFolderForUri(uri: vscode.Uri): vscode.WorkspaceFolder | undefined {
+  return vscode.workspace.getWorkspaceFolder?.(uri);
+}
+
+function activeWorkspaceFolders(): Array<vscode.WorkspaceFolder | undefined> {
+  const folders = vscode.workspace.workspaceFolders;
+  if (!folders || folders.length === 0) {
+    return [undefined];
+  }
+
+  const active = new Map<string, vscode.WorkspaceFolder>();
+  for (const document of vscode.workspace.textDocuments) {
+    if (document.languageId !== "haproxy") {
+      continue;
+    }
+    const folder = workspaceFolderForUri(document.uri);
+    if (folder) {
+      active.set(workspaceFolderKey(folder), folder);
+    }
+  }
+  return [...active.values()];
+}
+
 function createOpenDocumentEntry(
   document: vscode.TextDocument,
   schema: HaproxySchema,
@@ -218,11 +247,25 @@ function excludePattern(settings: WorkspaceSymbolSettings): string | undefined {
   return `{${settings.exclude.join(",")}}`;
 }
 
-async function discoverUris(settings: WorkspaceSymbolSettings): Promise<vscode.Uri[] | null> {
+function relativePattern(
+  folder: vscode.WorkspaceFolder | undefined,
+  pattern: string,
+): vscode.GlobPattern {
+  return folder ? new vscode.RelativePattern(folder, pattern) : pattern;
+}
+
+async function discoverUris(
+  settings: WorkspaceSymbolSettings,
+  folder: vscode.WorkspaceFolder | undefined,
+): Promise<vscode.Uri[] | null> {
   const discovered = new Map<string, vscode.Uri>();
   const exclude = excludePattern(settings);
   for (const include of settings.include) {
-    const uris = await vscode.workspace.findFiles(include, exclude, settings.maxFiles + 1);
+    const uris = await vscode.workspace.findFiles(
+      relativePattern(folder, include),
+      exclude ? relativePattern(folder, exclude) : undefined,
+      settings.maxFiles + 1,
+    );
     for (const uri of uris) {
       discovered.set(workspaceUriKey(uri), uri);
       if (discovered.size > settings.maxFiles) {
@@ -233,7 +276,7 @@ async function discoverUris(settings: WorkspaceSymbolSettings): Promise<vscode.U
   return [...discovered.values()];
 }
 
-async function rebuildWorkspaceIndex(
+async function rebuildWorkspaceIndexes(
   schema: HaproxySchema,
   settings: WorkspaceSymbolSettings,
   maxLines: number,
@@ -241,43 +284,48 @@ async function rebuildWorkspaceIndex(
 ): Promise<void> {
   if (!settings.enabled) {
     if (generation === activeGeneration) {
-      activeWorkspaceIndex = null;
+      activeWorkspaceIndexes = new Map();
       onDidChangeWorkspaceIndex?.();
     }
     return;
   }
 
-  const uris = await discoverUris(settings);
-  /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-  if (generation !== activeGeneration) {
-    return;
-  }
-  /* v8 ignore stop */
-  if (!uris) {
-    activeWorkspaceIndex = aggregateDocuments(generation, true, new Map());
-    onDidChangeWorkspaceIndex?.();
-    return;
-  }
-
-  const documents = new Map<string, WorkspaceDocumentSymbols>();
-  let totalLines = 0;
-  for (const uri of uris) {
-    const entry = await createDiskEntry(uri, schema, maxLines);
+  const nextIndexes = new Map<string, WorkspaceSymbolIndex>();
+  for (const folder of activeWorkspaceFolders()) {
+    const folderKey = workspaceFolderKey(folder);
+    const uris = await discoverUris(settings, folder);
     /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
     if (generation !== activeGeneration) {
       return;
     }
     /* v8 ignore stop */
-    if (!entry) {
+    if (!uris) {
+      nextIndexes.set(folderKey, aggregateDocuments(generation, true, new Map()));
       continue;
     }
-    totalLines += entry.parsed.length;
-    if (totalLines > settings.maxTotalLines) {
-      activeWorkspaceIndex = aggregateDocuments(generation, true, new Map());
-      onDidChangeWorkspaceIndex?.();
-      return;
+
+    const documents = new Map<string, WorkspaceDocumentSymbols>();
+    let totalLines = 0;
+    for (const uri of uris) {
+      const entry = await createDiskEntry(uri, schema, maxLines);
+      /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
+      if (generation !== activeGeneration) {
+        return;
+      }
+      /* v8 ignore stop */
+      if (!entry) {
+        continue;
+      }
+      totalLines += entry.parsed.length;
+      if (totalLines > settings.maxTotalLines) {
+        nextIndexes.set(folderKey, aggregateDocuments(generation, true, new Map()));
+        break;
+      }
+      documents.set(entry.uriKey, entry);
     }
-    documents.set(entry.uriKey, entry);
+    if (!nextIndexes.has(folderKey)) {
+      nextIndexes.set(folderKey, aggregateDocuments(generation, false, documents));
+    }
   }
 
   /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
@@ -285,12 +333,25 @@ async function rebuildWorkspaceIndex(
     return;
   }
   /* v8 ignore stop */
-  activeWorkspaceIndex = aggregateDocuments(generation, false, documents);
+  activeWorkspaceIndexes = nextIndexes;
   onDidChangeWorkspaceIndex?.();
 }
 
-export function getWorkspaceSymbolIndex(): WorkspaceSymbolIndex | null {
-  return activeWorkspaceIndex?.capped ? null : activeWorkspaceIndex;
+export function getWorkspaceSymbolIndex(
+  document?: vscode.TextDocument,
+): WorkspaceSymbolIndex | null {
+  if (document) {
+    const index = activeWorkspaceIndexes.get(
+      workspaceFolderKey(workspaceFolderForUri(document.uri)),
+    );
+    return index?.capped ? null : (index ?? null);
+  }
+
+  if (activeWorkspaceIndexes.size !== 1) {
+    return null;
+  }
+  const [index] = activeWorkspaceIndexes.values();
+  return index?.capped ? null : index;
 }
 
 export function scheduleWorkspaceSymbolIndexRebuild(
@@ -308,7 +369,7 @@ export function scheduleWorkspaceSymbolIndexRebuild(
   }
   rebuildTimer = setTimeout(() => {
     rebuildTimer = undefined;
-    void rebuildWorkspaceIndex(schema, settings, maxLines, generation);
+    void rebuildWorkspaceIndexes(schema, settings, maxLines, generation);
   }, settings.debounceMs);
 }
 
@@ -325,7 +386,7 @@ export function clearWorkspaceSymbolIndex(): void {
     clearTimeout(rebuildTimer);
     rebuildTimer = undefined;
   }
-  activeWorkspaceIndex = null;
+  activeWorkspaceIndexes = new Map();
   activeSettings = null;
   activeSchema = null;
   activeMaxLines = 0;

@@ -107,7 +107,7 @@ export function computeDiagnostics(
   options: ComputeDiagnosticsOptions = {},
 ): vscode.Diagnostic[] {
   const ctx = new DiagnosticContext(document, schema, options);
-  const workspaceIndex = getWorkspaceSymbolIndex();
+  const workspaceIndex = getWorkspaceSymbolIndex(document);
   const key = diagnosticsCacheKey(schema, options, workspaceIndex);
   const cached = diagnosticsCache.get(document);
   const reuse = ctx.parsedEntry.reuse;

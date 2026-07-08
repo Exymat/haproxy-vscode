@@ -127,7 +127,7 @@ Split HAProxy layouts — separate files for frontends, backends, ACLs, or share
 - **Cross-file Go to Definition and Find References** — jump from `use_backend api` in one file to `backend api` in another; reference lists include usages across indexed files
 - **Cross-file symbol diagnostics** — missing-reference and unused-section checks consult workspace definitions, so a backend used only from another file is not flagged
 - **Duplicate section warnings** — warns when the same named frontend, backend, listen, defaults profile, cache, userlist, resolvers, or peers block is defined in more than one indexed file
-- **Limits and fallback** — when disabled or when `maxFiles` / `maxTotalLines` are exceeded, navigation and symbol diagnostics fall back to single-file behavior
+- **Limits and fallback** — when disabled or when `maxFiles` / `maxTotalLines` are exceeded for a VS Code workspace folder, navigation and symbol diagnostics in that folder fall back to single-file behavior
 
 The graph rebuilds after workspace file changes (debounced via `haproxy.workspaceSymbols.debounceMs`). It indexes files on disk in the workspace — not HAProxy `include` paths.
 
@@ -201,8 +201,8 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 | `haproxy.workspaceSymbols.enabled`              | `true`          | Build a workspace-level symbol graph for cross-file navigation and symbol diagnostics across split `.cfg` layouts.                                                       |
 | `haproxy.workspaceSymbols.include`              | `["**/*.cfg"]`  | Glob patterns for HAProxy files included in the workspace symbol graph.                                                                                                  |
 | `haproxy.workspaceSymbols.exclude`              | see description | Glob patterns excluded from workspace indexing (default: `.git`, `node_modules`, `dist`, `out`, `vendor`).                                                               |
-| `haproxy.workspaceSymbols.maxFiles`             | `300`           | Maximum indexed files before the workspace graph falls back to single-file behavior.                                                                                     |
-| `haproxy.workspaceSymbols.maxTotalLines`        | `100000`        | Maximum total indexed lines before the workspace graph falls back to single-file behavior.                                                                               |
+| `haproxy.workspaceSymbols.maxFiles`             | `1000`          | Maximum indexed files per VS Code workspace folder before that folder falls back to single-file behavior.                                                                |
+| `haproxy.workspaceSymbols.maxTotalLines`        | `100000`        | Maximum total indexed lines per VS Code workspace folder before that folder falls back to single-file behavior.                                                          |
 | `haproxy.workspaceSymbols.debounceMs`           | `750`           | Delay after workspace file changes before rebuilding the symbol graph (100-10000 ms).                                                                                    |
 | `haproxy.format.enabled`                        | `true`          | Enable **Format Document** for HAProxy configs                                                                                                                           |
 | `haproxy.format.indent`                         | `spaces-4`      | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                                                                                                            |

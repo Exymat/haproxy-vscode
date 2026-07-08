@@ -73,6 +73,10 @@ function isEntryPointProxySection(
   return sectionType !== null && entryPointSections.has(sectionType);
 }
 
+function isConventionalDefaultProfile(site: SymbolSite): boolean {
+  return site.kind === "defaults-profile" && site.name.toLowerCase() === "default";
+}
+
 function unusedMessage(kind: SymbolKind, name: string): string {
   switch (kind) {
     case "acl":
@@ -152,6 +156,10 @@ export function unusedSymbolDiagnostics(
       kind === "proxy-section" &&
       isEntryPointProxySection(parsed, site.line, ctx.entryPointSections)
     ) {
+      continue;
+    }
+
+    if (isConventionalDefaultProfile(site)) {
       continue;
     }
 

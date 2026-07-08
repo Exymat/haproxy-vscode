@@ -63,7 +63,7 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
       "**/out/**",
       "**/vendor/**",
     ]),
-    workspaceSymbolsMaxFiles: Math.max(1, config.get<number>("workspaceSymbols.maxFiles", 300)),
+    workspaceSymbolsMaxFiles: Math.max(1, config.get<number>("workspaceSymbols.maxFiles", 1000)),
     workspaceSymbolsMaxTotalLines: Math.max(
       100,
       config.get<number>("workspaceSymbols.maxTotalLines", 100000),

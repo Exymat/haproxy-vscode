@@ -107,7 +107,7 @@ function resolveNavigationSymbol(
 }
 
 function workspaceIndexForDocument(document: vscode.TextDocument): WorkspaceSymbolIndex | null {
-  const workspaceIndex = getWorkspaceSymbolIndex();
+  const workspaceIndex = getWorkspaceSymbolIndex(document);
   if (!workspaceIndex?.documents.has(workspaceUriKey(document.uri))) {
     return null;
   }

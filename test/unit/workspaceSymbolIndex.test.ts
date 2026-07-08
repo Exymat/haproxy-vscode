@@ -13,7 +13,12 @@ import {
   workspaceUriKey,
   type WorkspaceSymbolIndex,
 } from "../../src/symbolIndex";
-import { mockTextDocuments, resetVscodeMock, setMockWorkspaceFile } from "../__mocks__/vscode";
+import {
+  mockTextDocuments,
+  resetVscodeMock,
+  setMockWorkspaceFile,
+  setMockWorkspaceFolders,
+} from "../__mocks__/vscode";
 import { createDocument } from "../helpers/document";
 import { formatDiagnosticCode } from "../helpers/diagnosticFormat";
 import { loadSchema } from "../helpers/schema";
@@ -24,7 +29,11 @@ function pos(line: number, character: number) {
   return { line, character } as never;
 }
 
-async function buildWorkspace(maxFiles = 300, maxTotalLines = 100000, include = ["**/*.cfg"]) {
+function workspaceFolder(uri: string) {
+  return { uri: { fsPath: uri, toString: () => uri } };
+}
+
+async function buildWorkspace(maxFiles = 1000, maxTotalLines = 100000, include = ["**/*.cfg"]) {
   scheduleWorkspaceSymbolIndexRebuild(
     schema,
     {
@@ -134,6 +143,71 @@ describe("workspace symbol index", () => {
     expect(
       diagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "missing-reference"),
     ).toHaveLength(0);
+  });
+
+  it("does not index open files that are not matched by workspace globs", async () => {
+    const frontendContent = "frontend fe_www\n    use_backend be_www";
+    const frontend = createDocument(frontendContent, "file:///external/haproxy.d/frontends/FE.cfg");
+    mockTextDocuments.push(frontend as never);
+
+    const workspaceIndex = expectWorkspaceIndex(
+      await buildWorkspace(1000, 100000, ["**/does-not-match/**/*.cfg"]),
+    );
+
+    expect(workspaceIndex.documents.size).toBe(0);
+    const diagnostics = computeDiagnostics(frontend, schema, {
+      unusedSymbols: false,
+      missingReferences: true,
+      maxLines: 4000,
+    });
+    expect(
+      diagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "missing-reference"),
+    ).toHaveLength(1);
+  });
+
+  it("indexes and caps each VS Code workspace folder independently", async () => {
+    setMockWorkspaceFolders([
+      workspaceFolder("file:///git_repo_1"),
+      workspaceFolder("file:///git_repo_2"),
+      workspaceFolder("file:///git_repo_3"),
+    ]);
+
+    setMockWorkspaceFile(
+      "file:///git_repo_1/haproxy.d/frontends/FE_WWW.cfg",
+      "frontend fe_www\n    use_backend be_www",
+    );
+    setMockWorkspaceFile("file:///git_repo_1/haproxy.d/backends/BE_WWW.cfg", "backend be_www");
+    setMockWorkspaceFile(
+      "file:///git_repo_2/haproxy.d/frontends/FE_API.cfg",
+      "frontend fe_api\n    use_backend be_api",
+    );
+    setMockWorkspaceFile("file:///git_repo_2/haproxy.d/backends/BE_API.cfg", "backend be_api");
+    setMockWorkspaceFile("file:///git_repo_2/haproxy.d/default.cfg", "defaults default");
+    setMockWorkspaceFile("file:///git_repo_3/haproxy.d/backends/BE_OTHER.cfg", "backend be_other");
+
+    const repo1Frontend = createDocument(
+      "frontend fe_www\n    use_backend be_www",
+      "file:///git_repo_1/haproxy.d/frontends/FE_WWW.cfg",
+    );
+    const plaintext = createDocument("not haproxy", "file:///git_repo_3/haproxy.d/notes.cfg");
+    Object.defineProperty(plaintext, "languageId", { value: "plaintext" });
+    mockTextDocuments.push(repo1Frontend as never, plaintext as never);
+
+    await buildWorkspace(2, 100000, ["**/haproxy.d/**/*.cfg", "**/haproxy.d/*.cfg"]);
+    const repo1Index = expectWorkspaceIndex(getWorkspaceSymbolIndex(repo1Frontend));
+    expect(repo1Index.documents.size).toBe(2);
+    expect(findWorkspaceDefinitions(repo1Index, "proxy-section", "be_www", null)).toHaveLength(1);
+    expect(findWorkspaceDefinitions(repo1Index, "proxy-section", "be_api", null)).toHaveLength(0);
+
+    const repo2Frontend = createDocument(
+      "frontend fe_api\n    use_backend be_api",
+      "file:///git_repo_2/haproxy.d/frontends/FE_API.cfg",
+    );
+    mockTextDocuments.push(repo2Frontend as never);
+
+    await buildWorkspace(2, 100000, ["**/haproxy.d/**/*.cfg", "**/haproxy.d/*.cfg"]);
+    expect(getWorkspaceSymbolIndex(repo2Frontend)).toBeNull();
+    expect(findWorkspaceDefinitions(repo1Index, "proxy-section", "be_www", null)).toHaveLength(1);
   });
 
   it("aggregates defaults and global referenced sections across files", async () => {

@@ -30,7 +30,7 @@ describe("settings", () => {
         "**/out/**",
         "**/vendor/**",
       ],
-      workspaceSymbolsMaxFiles: 300,
+      workspaceSymbolsMaxFiles: 1000,
       workspaceSymbolsMaxTotalLines: 100000,
       workspaceSymbolsDebounceMs: 750,
     });

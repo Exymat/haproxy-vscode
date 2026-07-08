@@ -153,6 +153,24 @@ export class StatusBarItem {
 
 export const ConfigurationTarget = { Global: 1, Workspace: 2 };
 
+export class RelativePattern {
+  baseUri: { fsPath?: string; toString: () => string };
+
+  constructor(
+    base: {
+      uri?: { fsPath?: string; toString: () => string };
+      fsPath?: string;
+      toString?: () => string;
+    },
+    public pattern: string,
+  ) {
+    this.baseUri =
+      "uri" in base && base.uri
+        ? base.uri
+        : { fsPath: base.fsPath, toString: () => base.toString?.() ?? base.fsPath ?? "" };
+  }
+}
+
 const configValues = new Map<string, unknown>();
 const configListeners: Array<
   (event: { affectsConfiguration: (section: string) => boolean }) => void
@@ -171,7 +189,8 @@ export let mockTextDocuments: Array<{
 }> = [];
 
 export let mockActiveTextEditor: { document: (typeof mockTextDocuments)[0] } | undefined;
-export let mockWorkspaceFolders: Array<{ uri: { fsPath: string } }> | undefined;
+export let mockWorkspaceFolders:
+  Array<{ uri: { fsPath?: string; toString: () => string } }> | undefined;
 
 export function resetVscodeMock(): void {
   configValues.clear();
@@ -263,6 +282,35 @@ function globMatches(pattern: string | undefined, value: string): boolean {
   return expandBracePattern(pattern).some((part) => globPatternToRegExp(part).test(normalized));
 }
 
+function uriKey(value: { toString: () => string }): string {
+  return value.toString().toLowerCase().replace(/\/+$/, "");
+}
+
+function relativePatternParts(pattern: string | RelativePattern): {
+  base?: string;
+  pattern: string;
+} {
+  if (pattern instanceof RelativePattern) {
+    return { base: uriKey(pattern.baseUri), pattern: pattern.pattern };
+  }
+  return { pattern };
+}
+
+function relativePath(base: string | undefined, path: string): string | null {
+  if (!base) {
+    return path;
+  }
+  const normalized = path.replace(/\\/g, "/");
+  const lower = normalized.toLowerCase();
+  if (lower === base) {
+    return "";
+  }
+  if (!lower.startsWith(`${base}/`)) {
+    return null;
+  }
+  return normalized.slice(base.length + 1);
+}
+
 export function triggerMockConfigurationChange(section = "haproxy"): void {
   for (const listener of configListeners) {
     listener({
@@ -314,14 +362,36 @@ export const workspace = {
   get workspaceFolders() {
     return mockWorkspaceFolders;
   },
-  findFiles(include: string, exclude?: string, maxResults?: number) {
+  findFiles(
+    include: string | RelativePattern,
+    exclude?: string | RelativePattern,
+    maxResults?: number,
+  ) {
+    const includeParts = relativePatternParts(include);
+    const excludeParts = exclude ? relativePatternParts(exclude) : undefined;
     const uris = [...mockWorkspaceFiles.keys()]
       .filter((path) => path.endsWith(".cfg"))
-      .filter((path) => globMatches(include, path))
-      .filter((path) => (exclude ? !globMatches(exclude, path) : true))
+      .filter((path) => {
+        const rel = relativePath(includeParts.base, path);
+        return rel !== null && globMatches(includeParts.pattern, rel);
+      })
+      .filter((path) => {
+        if (!excludeParts) {
+          return true;
+        }
+        const rel = relativePath(excludeParts.base, path);
+        return rel === null || !globMatches(excludeParts.pattern, rel);
+      })
       .slice(0, maxResults)
       .map((path) => Uri.file(path));
     return Promise.resolve(uris);
+  },
+  getWorkspaceFolder(uri: { toString: () => string }) {
+    const key = uriKey(uri);
+    return mockWorkspaceFolders?.find((folder) => {
+      const folderKey = uriKey(folder.uri);
+      return key === folderKey || key.startsWith(`${folderKey}/`);
+    });
   },
   fs: {
     readFile(uri: { fsPath?: string; toString: () => string }) {

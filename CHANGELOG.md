@@ -2,6 +2,14 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.15.2
+
+- **Per-folder workspace symbol graphs** — the workspace symbol graph is built separately for each VS Code workspace folder that has open HAProxy files. Include/exclude globs are resolved with `RelativePattern` per folder, so split `haproxy.d` layouts work in multi-root workspaces without mixing symbols across unrelated repos.
+- **Per-folder limits** — `haproxy.workspaceSymbols.maxFiles` and `haproxy.workspaceSymbols.maxTotalLines` apply per workspace folder; when a folder exceeds its limits, navigation and symbol diagnostics in that folder fall back to single-file behavior while other folders keep the graph.
+- **Higher default `maxFiles`** — `haproxy.workspaceSymbols.maxFiles` default raised from `300` to `1000`.
+- **Include globs gate indexing** — only files matching `workspaceSymbols.include` are indexed; an open `.cfg` outside the configured globs does not join the workspace graph.
+- **Conventional default defaults profile** — `defaults default` is no longer reported as an unused defaults profile.
+
 ## 0.15.1
 
 - **Windows workspace symbol graph** — file URI keys are normalized case-insensitively on Windows so the workspace graph reliably matches open editors to indexed files. Fixes cross-file Go to Definition, Find References, missing-reference/unused-section diagnostics, and duplicate-section warnings when `findFiles` and the active editor use different URI casing for the same path.
@@ -15,7 +23,7 @@ All notable user-facing changes to **HAProxy Language Support**.
   - `haproxy.workspaceSymbols.maxFiles` (default `300`)
   - `haproxy.workspaceSymbols.maxTotalLines` (default `100000`)
   - `haproxy.workspaceSymbols.debounceMs` (default `750`)
-    The graph rebuilds after workspace file changes (debounced) and falls back to single-file behavior when disabled or when file/line limits are exceeded.
+  The graph rebuilds after workspace file changes (debounced) and falls back to single-file behavior when disabled or when file/line limits are exceeded.
 - **Cross-file Go to Definition and Find References** — when the workspace graph is active, jump from a reference in one file to section definitions in another (backend, cache, resolvers, defaults profile, etc.); Find References lists declaration and usages across indexed files.
 - **Cross-file missing-reference and unused-section diagnostics** — a backend referenced only from another file no longer gets `missing-reference` or `unused-section` warnings; unresolved references are checked against workspace definitions, not just the current file.
 - **Duplicate section warnings** — warns when the same named section is defined in more than one indexed file (`duplicate-section`): proxy sections (frontend/backend/listen), named defaults profiles, cache, userlist, resolvers, and peers.

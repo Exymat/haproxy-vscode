@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, and go-to-definition — LTS versions (2.6 - 3.4) supported.",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
@@ -138,15 +138,15 @@
         },
         "haproxy.workspaceSymbols.maxFiles": {
           "type": "number",
-          "default": 300,
+          "default": 1000,
           "minimum": 1,
-          "description": "Maximum number of HAProxy files to index before workspace symbol analysis falls back to single-file behavior."
+          "description": "Maximum number of HAProxy files to index per VS Code workspace folder before that folder falls back to single-file behavior."
         },
         "haproxy.workspaceSymbols.maxTotalLines": {
           "type": "number",
           "default": 100000,
           "minimum": 100,
-          "description": "Maximum total HAProxy lines to index before workspace symbol analysis falls back to single-file behavior."
+          "description": "Maximum total HAProxy lines to index per VS Code workspace folder before that folder falls back to single-file behavior."
         },
         "haproxy.workspaceSymbols.debounceMs": {
           "type": "number",

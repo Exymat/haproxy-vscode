@@ -151,6 +151,11 @@ describe("unusedSymbolDiagnostics", () => {
     expect(profileDiag?.range.end.line).toBe(1);
   });
 
+  it("does not report the conventional default defaults profile as unused", () => {
+    const diags = unusedDiags("defaults default\n    timeout connect 5s");
+    expect(diags.filter((d) => d.code === "unused-defaults-profile")).toHaveLength(0);
+  });
+
   it("suppresses unused defaults profile referenced by from", () => {
     const diags = unusedDiags("defaults profile_a\nfrontend web from profile_a\n    bind :80");
     expect(diags.filter((d) => d.code === "unused-defaults-profile")).toHaveLength(0);
