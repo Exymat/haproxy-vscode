@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.16.0
+
+- **Cross-file Rename Symbol** — when the workspace symbol graph is active, Rename Symbol updates all matching definitions and references across indexed files in the same workspace folder (e.g. renaming `api` updates both `backend api` in `backends/api.cfg` and `use_backend api` in `frontends/web.cfg`). Duplicate names in the same scope are rejected workspace-wide.
+- **Incremental workspace symbol graph** — editing a `.cfg` file updates only that file in the graph instead of rescanning the whole folder; file watchers use per-folder include globs and respect exclude patterns on create/change/delete events.
+- **Faster reopen and tab switching** — parsed config, symbol index, and diagnostics are cached by file URI and content fingerprint; reopening an unchanged file or switching back to a recently viewed tab reuses the warm cache and refreshes diagnostics immediately.
+
 ## 0.15.4
 
 - **Symbol reference completion** — suggests defined symbol names when typing at reference positions: backends (`use_backend`, `default_backend`), defaults profiles (`from`), scoped ACLs and predefined ACLs in `if`/`unless` conditions, servers, filters (including comma-separated filter-sequence references), cache, resolvers, peers, and userlists (`cache-use`, `resolvers`, `http_auth(…)`, etc.). Each item shows its symbol kind in the detail field (e.g. `backend`, `ACL`).
