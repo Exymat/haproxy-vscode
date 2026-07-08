@@ -218,7 +218,13 @@ export function activate(context: vscode.ExtensionContext): void {
           if (!b) {
             return [];
           }
-          return provideCompletionItems(document, position, b.languageData, b.schema);
+          return provideCompletionItems(
+            document,
+            position,
+            b.languageData,
+            b.schema,
+            cachedSettings.maxDiagnosticsLines,
+          );
         },
       },
       " ",

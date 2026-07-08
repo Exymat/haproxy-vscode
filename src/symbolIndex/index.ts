@@ -15,6 +15,11 @@ export {
   resolveSymbolAtPosition,
 } from "./resolve";
 export {
+  listDefinitionNames,
+  resolveExpectedSymbolReferenceAtCompletion,
+} from "./expectedReference";
+export type { ExpectedSymbolReference } from "./expectedReference";
+export {
   clearWorkspaceSymbolIndex,
   buildWorkspaceSymbolIndexFromOpenDocuments,
   findWorkspaceDefinitions,

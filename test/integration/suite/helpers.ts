@@ -8,6 +8,7 @@ import {
   countDiagnosticsByCode,
   formatDiagnostics,
 } from "../../helpers/diagnosticCounts";
+import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 
 const EXTENSION_ID = "Exymat.haproxy-config";
 const FIXTURES_DIR = path.resolve(__dirname, "../../../../test/integration/fixtures");
@@ -400,4 +401,111 @@ export async function resetHaproxySettings(): Promise<void> {
     await config.update(key, value, vscode.ConfigurationTarget.Workspace);
   }
   await waitForDiagnosticsReady(500);
+}
+
+export const NAVIGATION_CONFIG = [
+  "defaults profile_default",
+  "    mode http",
+  "frontend web from profile_default",
+  "    bind :80",
+  "    acl is_api path_beg /api",
+  "    use_backend api if is_api",
+  "backend api",
+  "    server web1 127.0.0.1:8080 check",
+  "    use-server web1 if is_api",
+].join("\n");
+
+export async function waitForDefinitionTarget(
+  uri: vscode.Uri,
+  position: vscode.Position,
+  expectedUriSuffix: string,
+): Promise<vscode.Location[]> {
+  const deadline = Date.now() + 10000;
+  let locations: vscode.Location[] = [];
+  while (Date.now() < deadline) {
+    locations = await definitionLocationsAt(uri, position);
+    if (locations.some((location) => location.uri.toString().endsWith(expectedUriSuffix))) {
+      return locations;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  return locations;
+}
+
+export async function waitForReferenceUris(
+  uri: vscode.Uri,
+  position: vscode.Position,
+  expectedUriSuffixes: string[],
+): Promise<vscode.Location[]> {
+  const deadline = Date.now() + 10000;
+  let locations: vscode.Location[] = [];
+  while (Date.now() < deadline) {
+    locations = await referenceLocationsAt(uri, position, true);
+    const actual = new Set(locations.map((location) => location.uri.toString()));
+    if (
+      expectedUriSuffixes.every((suffix) =>
+        [...actual].some((actualUri) => actualUri.endsWith(suffix)),
+      )
+    ) {
+      return locations;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  return locations;
+}
+
+export async function waitForHoverTextContaining(
+  uri: vscode.Uri,
+  position: vscode.Position,
+  expectedText: string,
+): Promise<string> {
+  const deadline = Date.now() + 10000;
+  let text = "";
+  while (Date.now() < deadline) {
+    text = await hoverTextAt(uri, position);
+    if (text.includes(expectedText)) {
+      return text;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  return text;
+}
+
+export function pathSuffix(uri: vscode.Uri): string {
+  const path = uri.path.replace(/\\/g, "/");
+  const marker = "/workspace-symbols/";
+  const markerIndex = path.indexOf(marker);
+  return markerIndex >= 0 ? path.slice(markerIndex) : path;
+}
+
+export async function waitForNoDiagnosticCode(
+  uri: vscode.Uri,
+  code: string,
+): Promise<vscode.Diagnostic[]> {
+  const deadline = Date.now() + 10000;
+  let diagnostics: vscode.Diagnostic[] = [];
+  while (Date.now() < deadline) {
+    diagnostics = await waitForSchemaDiagnostics(uri, 0, 2000);
+    if (!diagnostics.some((diag) => formatDiagnosticCode(diag.code) === code)) {
+      return diagnostics;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  return diagnostics;
+}
+
+export async function waitForDiagnosticCode(
+  uri: vscode.Uri,
+  code: string,
+): Promise<vscode.Diagnostic[]> {
+  const deadline = Date.now() + 10000;
+  let diagnostics: vscode.Diagnostic[] = [];
+  while (Date.now() < deadline) {
+    diagnostics = await waitForSchemaDiagnostics(uri, 0, 2000);
+    if (diagnostics.some((diag) => formatDiagnosticCode(diag.code) === code)) {
+      return diagnostics;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  return diagnostics;
 }

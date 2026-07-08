@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { getDocumentContext } from "./documentContext";
 import { HaproxyLanguageData } from "./languageData";
 import { HaproxySchema } from "./schema";
-import { COMPLETION_HANDLERS } from "./completion/registry";
+import { runCompletionHandlers } from "./completion/registry";
 import { CompletionContext } from "./completion/types";
 
 export { groupItems, keywordsForSection } from "./languageDataIndexes";
@@ -13,6 +13,7 @@ export function provideCompletionItems(
   position: vscode.Position,
   data: HaproxyLanguageData,
   schema: HaproxySchema,
+  maxSymbolLines = Number.POSITIVE_INFINITY,
 ): vscode.CompletionItem[] {
   const ctx = getDocumentContext(document, position, schema);
   if (!ctx) {
@@ -31,12 +32,5 @@ export function provideCompletionItems(
     partial,
   };
 
-  for (const handler of COMPLETION_HANDLERS) {
-    const items = handler(cc);
-    if (items !== null) {
-      return items;
-    }
-  }
-
-  return [];
+  return runCompletionHandlers(cc, { maxSymbolLines });
 }

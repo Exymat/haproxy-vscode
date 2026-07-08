@@ -97,7 +97,13 @@ export function getDocumentContext(
   const prefix = linePrefixBeforeCursor(lineText, position.character);
 
   if (line.isSectionHeader && tokenIndex > 0) {
-    return null;
+    const fromIndex = line.tokens.findIndex(
+      (tok, index) => index >= 2 && tok.text.toLowerCase() === "from",
+    );
+    if (fromIndex < 0 || tokenIndex < fromIndex + 1) {
+      return null;
+    }
+    return { line, lineText, tokenIndex, token, kind: "directive-argument", prefix };
   }
 
   const firstToken = line.tokens[0]?.text;

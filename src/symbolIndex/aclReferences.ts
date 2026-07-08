@@ -78,6 +78,59 @@ function aclConditionStartIndex(tokens: ParsedLine["tokens"]): number | null {
   return null;
 }
 
+export function aclReferenceExpectedAt(
+  schema: HaproxySchema,
+  line: ParsedLine,
+  tokenIndex: number,
+  aclOperators: Set<string>,
+  fetchNames: Set<string>,
+  aclCriteria: Set<string>,
+): boolean {
+  const tokens = line.tokens;
+  const conditionStart = aclConditionStartIndex(tokens);
+  if (conditionStart === null || tokenIndex < conditionStart) {
+    return false;
+  }
+
+  const token = tokens[tokenIndex];
+  const prev = tokens[tokenIndex - 1]?.text;
+  const allowChainedReferences = braceDepthAt(tokens, tokenIndex, conditionStart) === 0;
+
+  if (token) {
+    if (
+      token.text === "{" ||
+      token.text === "}" ||
+      token.text === "!" ||
+      aclOperators.has(token.text)
+    ) {
+      return false;
+    }
+    if (prev === "{" && fetchNames.has(token.text.toLowerCase())) {
+      return false;
+    }
+    const fetchCall = SAMPLE_FETCH_REF.exec(token.text);
+    if (prev === "{" && fetchCall && fetchNames.has(fetchCall[1].toLowerCase())) {
+      return false;
+    }
+    if (
+      prev === "{" &&
+      isAclOnlyCriterion(token.text, aclCriteria, fetchNames, schema.sample_fetches ?? {})
+    ) {
+      return false;
+    }
+    if (!aclReferenceContextAfterPrev(schema, prev, aclOperators, allowChainedReferences)) {
+      return false;
+    }
+    return isPlainAclNameToken(token.text);
+  }
+
+  if (!aclReferenceContextAfterPrev(schema, prev, aclOperators, allowChainedReferences)) {
+    return false;
+  }
+
+  return true;
+}
+
 export function aclReferenceAt(
   schema: HaproxySchema,
   line: ParsedLine,

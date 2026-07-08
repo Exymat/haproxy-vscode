@@ -36,6 +36,11 @@ describe("documentContext", () => {
     expect(ctx("global\n    .if { always_true }", 1, 5)).toBeNull();
   });
 
+  it("allows completion on inherited defaults profile references", () => {
+    const hit = ctx("defaults base\nfrontend web from ", 1, "frontend web from ".length);
+    expect(hit?.kind).toBe("directive-argument");
+  });
+
   it("classifies top-level empty lines as section completion", () => {
     const hit = ctx("global\n    daemon\n\n    mode http", 2, 0);
     expect(hit?.kind).toBe("section");
