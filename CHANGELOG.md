@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.15.3
+
+- **Cross-file symbol hover** — when the workspace symbol graph is active, hovering a reference whose definition lives in another indexed file shows that definition in a `haproxy` code block (full section body for section definitions, e.g. the whole `backend api` block from `backends/api.cfg` when hovering `use_backend api` in a frontend file), with a **Peek Definition** link.
+- **Full-section same-file symbol hover** — reference hovers for section definitions in the current file now preview the entire section block, not just the header line.
+- **Symbol hover before action docs** — symbol definition previews take precedence over rule-action documentation when both could apply on the same token.
+
 ## 0.15.2
 
 - **Per-folder workspace symbol graphs** — the workspace symbol graph is built separately for each VS Code workspace folder that has open HAProxy files. Include/exclude globs are resolved with `RelativePattern` per folder, so split `haproxy.d` layouts work in multi-root workspaces without mixing symbols across unrelated repos.
