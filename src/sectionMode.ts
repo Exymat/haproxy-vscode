@@ -18,7 +18,6 @@ interface SectionBlock {
 
 function parseSectionHeader(line: ParsedLine): SectionBlock | null {
   if (!line.isSectionHeader || line.tokens.length === 0) {
-    /* v8 ignore next -- runtimeModeForLine only calls this for section headers with tokens */
     return null;
   }
   const kind = line.tokens[0].text.toLowerCase();
@@ -76,11 +75,9 @@ export function runtimeModeForLine(
   }
 
   const memo = new Map<number, RuntimeMode | null>();
-  const resolving = new Set<number>();
   const findNamedDefaultsBefore = (idx: number, name: string): number =>
     (() => {
       for (let i = idx - 1; i >= 0; i -= 1) {
-        /* v8 ignore next -- named-defaults fallback is only used when a matching profile exists */
         if (blocks[i].kind === "defaults" && blocks[i].name === name) {
           return i;
         }
@@ -102,11 +99,6 @@ export function runtimeModeForLine(
     if (hit !== undefined) {
       return hit;
     }
-    /* v8 ignore next -- defaults inheritance only resolves backward, so cycles are unreachable */
-    if (resolving.has(idx)) {
-      return null;
-    }
-    resolving.add(idx);
     const block = blocks[idx];
     let mode: RuntimeMode | null = block.explicitMode;
     if (!block.explicitMode) {
@@ -120,14 +112,12 @@ export function runtimeModeForLine(
         mode = resolveMode(parent);
       }
     }
-    resolving.delete(idx);
     memo.set(idx, mode);
     return mode;
   };
 
   return parsed.map((line) => {
-    /* v8 ignore next -- sparse block maps fall back to null for out-of-block lines */
-    const idx = blockByLine.get(line.line) ?? -1;
+    const idx = blockByLine.get(line.line)!;
     return idx >= 0 ? resolveMode(idx) : null;
   });
 }

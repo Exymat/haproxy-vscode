@@ -133,6 +133,29 @@ describe("extension", () => {
     expect((edits[0] as { newText: string }).newText).toContain("bind :443");
   });
 
+  it("formats document before the async schema bundle is loaded", () => {
+    let formatProvider:
+      | { provideDocumentFormattingEdits: (doc: (typeof mockTextDocuments)[0]) => unknown[] }
+      | undefined;
+    vi.spyOn(languages, "registerDocumentFormattingEditProvider").mockImplementation(
+      (_selector, provider) => {
+        formatProvider = provider as typeof formatProvider;
+        return { provider, dispose: () => {} };
+      },
+    );
+
+    const doc = haproxyDocument("frontend web\n      bind :443");
+    activate(mockExtensionContext() as never);
+
+    expect(formatProvider).toBeDefined();
+    if (formatProvider === undefined) {
+      throw new Error("format provider not registered");
+    }
+    const edits = formatProvider.provideDocumentFormattingEdits(doc);
+    expect(edits.length).toBe(1);
+    expect((edits[0] as { newText: string }).newText).toContain("bind :443");
+  });
+
   it("reloads bundle on version configuration change", async () => {
     setMockConfig("haproxy", "version", "3.2");
     activate(mockExtensionContext() as never);
@@ -251,6 +274,71 @@ describe("extension", () => {
     await vi.waitFor(() => {
       expect(collection?.set).toHaveBeenCalledWith(doc.uri, []);
     });
+  });
+
+  it("returns empty completion items when provider bundle loading fails", async () => {
+    vi.spyOn(schema, "loadSchemaAsync").mockRejectedValue("provider string failure");
+    let completionProvider:
+      | {
+          provideCompletionItems: (
+            doc: (typeof mockTextDocuments)[0],
+            position: unknown,
+          ) => unknown;
+        }
+      | undefined;
+    vi.spyOn(languages, "registerCompletionItemProvider").mockImplementation(
+      (_selector, provider) => {
+        completionProvider = provider as typeof completionProvider;
+        return { provider, dispose: () => {} };
+      },
+    );
+
+    const doc = haproxyDocument("frontend web\n    ");
+    activate(mockExtensionContext() as never);
+
+    expect(completionProvider).toBeDefined();
+    if (completionProvider === undefined) {
+      throw new Error("completion provider not registered");
+    }
+    const promise = completionProvider.provideCompletionItems(doc, { line: 1, character: 4 });
+    await vi.runAllTimersAsync();
+
+    await expect(promise).resolves.toEqual([]);
+    expect(window.showErrorMessage).toHaveBeenCalledWith(
+      expect.stringContaining("provider string failure"),
+    );
+  });
+
+  it("returns empty completion items when provider bundle loading throws Error", async () => {
+    vi.spyOn(schema, "loadSchemaAsync").mockRejectedValue(new Error("provider error failure"));
+    let completionProvider:
+      | {
+          provideCompletionItems: (
+            doc: (typeof mockTextDocuments)[0],
+            position: unknown,
+          ) => unknown;
+        }
+      | undefined;
+    vi.spyOn(languages, "registerCompletionItemProvider").mockImplementation(
+      (_selector, provider) => {
+        completionProvider = provider as typeof completionProvider;
+        return { provider, dispose: () => {} };
+      },
+    );
+
+    const doc = haproxyDocument("frontend web\n    ");
+    activate(mockExtensionContext() as never);
+
+    if (completionProvider === undefined) {
+      throw new Error("completion provider not registered");
+    }
+    const promise = completionProvider.provideCompletionItems(doc, { line: 1, character: 4 });
+    await vi.runAllTimersAsync();
+
+    await expect(promise).resolves.toEqual([]);
+    expect(window.showErrorMessage).toHaveBeenCalledWith(
+      expect.stringContaining("provider error failure"),
+    );
   });
 
   it("wraps non-Error bundle load failures on activation", async () => {

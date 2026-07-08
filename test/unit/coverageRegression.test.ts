@@ -149,6 +149,26 @@ describe("coverage regression", () => {
     expect(missingReferenceDiagnostics(duplicateIndex)).toHaveLength(1);
   });
 
+  it("covers macro pipeline branches", () => {
+    const macroDoc = createDocument("global\n    .if TRUE");
+    const macroCtx = new DiagnosticContext(macroDoc, bundle.schema, {
+      languageData: bundle.languageData,
+    });
+    expect(runLineDiagnosticPipeline(macroCtx, parseDocument(macroDoc)[1])).toEqual([]);
+    expect(canCast("bool", "meth", bundle.schema)).toBe(false);
+    expect(resolveOutType("bool", { out_type: "same", in_type: "meth" }, bundle.schema)).toBe(
+      "bool",
+    );
+    const sparseSchema = {
+      ...bundle.schema,
+      sample_types: ["from", "to"],
+      sample_casts: [[]],
+    };
+    expect(canCast("from", "to", sparseSchema)).toBe(false);
+    expect(resolveOutType("str", {}, bundle.schema)).toBe("str");
+    expect(resolveOutType("str", { out_type: "bin" }, bundle.schema)).toBe("bin");
+  });
+
   it("keeps diagnostic pipeline and index fallback regressions", () => {
     const macroDoc = createDocument("global\n    .endif");
     const macroCtx = new DiagnosticContext(macroDoc, bundle.schema, {

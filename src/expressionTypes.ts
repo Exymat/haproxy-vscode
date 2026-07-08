@@ -44,14 +44,11 @@ export function resolveOutType(
   conv: { out_type?: string; in_type?: string },
   schema: HaproxySchema,
 ): string {
-  /* v8 ignore next -- converter metadata may omit an explicit out_type in compatibility overlays */
   const out = conv.out_type?.toLowerCase() ?? "";
-  /* v8 ignore next -- converter metadata may omit an explicit in_type in compatibility overlays */
   const inn = conv.in_type?.toLowerCase() ?? "";
   if (out && out !== "same") {
     return out;
   }
-  /* v8 ignore next -- "same" and non-castable compatibility cases intentionally preserve the previous type */
   if (inn && canCast(prev, inn, schema) && inn !== "same") {
     return inn;
   }

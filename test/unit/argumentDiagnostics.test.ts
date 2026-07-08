@@ -204,6 +204,9 @@ describe("argumentDiagnostics", () => {
     const badMode = argDiags("defaults\n    option mysql-check user haproxy bogus", 1);
     expect(badMode.some((d) => d.code === "unknown-value")).toBe(true);
 
+    const validMode = argDiags("defaults\n    option mysql-check user haproxy post-41", 1);
+    expect(validMode.some((d) => d.code === "unknown-value")).toBe(false);
+
     const badFirst = argDiags("defaults\n    option mysql-check bogus", 1);
     expect(badFirst.some((d) => d.code === "unknown-value")).toBe(true);
   });

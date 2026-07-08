@@ -327,6 +327,25 @@ describe("hover handlers", () => {
       }
       expect(hoverText(aliasHover)).toContain("%ci");
 
+      const origFindIndexedGroupItem = languageDataIndexes.findIndexedGroupItem;
+      const aliasSpy = vi
+        .spyOn(languageDataIndexes, "findIndexedGroupItem")
+        .mockImplementation((data, group, name) => {
+          if (group === "logformat_aliases") {
+            return undefined;
+          }
+          return origFindIndexedGroupItem(data, group, name);
+        });
+      const schemaAliasHover = tryLogFormatHover(
+        logFormatHoverContext(aliasLine, aliasLine.indexOf("ci") + 1),
+      );
+      expect(schemaAliasHover).not.toBeNull();
+      if (schemaAliasHover === null) {
+        throw new Error("expected schema alias hover");
+      }
+      expect(hoverText(schemaAliasHover)).toContain("client_ip");
+      aliasSpy.mockRestore();
+
       const flagLine = '    log-format "%{+Q}"';
       const flagHover = tryLogFormatHover(logFormatHoverContext(flagLine, flagLine.indexOf("Q")));
       expect(flagHover).not.toBeNull();
@@ -367,7 +386,6 @@ describe("hover handlers", () => {
       );
       expect(minusFlagHover).not.toBeNull();
 
-      const origFindIndexedGroupItem = languageDataIndexes.findIndexedGroupItem;
       vi.spyOn(languageDataIndexes, "findIndexedGroupItem").mockImplementation(
         (data, group, name) => {
           if (group === "logformat_flags") {

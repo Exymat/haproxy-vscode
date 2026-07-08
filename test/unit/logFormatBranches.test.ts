@@ -98,6 +98,7 @@ describe("logFormat branches", () => {
         paren,
       ),
     ).toEqual([expect.objectContaining({ text: "%ci" })]);
+    expect(extractLogFormatRegions("log-format", [], paren)).toEqual([]);
   });
 
   it("covers prefix regions and stop-token behavior", () => {
@@ -122,6 +123,25 @@ describe("logFormat branches", () => {
         schemaStub,
       ),
     ).toEqual([expect.objectContaining({ text: "if" })]);
+    expect(
+      extractLogFormatRegions(
+        "http-check send uri-lf %ci",
+        tokenizeLine("http-check send uri-lf %ci"),
+        { ...schemaStub, logformat_slots: [{ kind: "prefix", prefix: "uri-lf" }] },
+      ),
+    ).toEqual([expect.objectContaining({ text: "%ci" })]);
+    expect(
+      extractLogFormatRegions("http-check send uri-lf", tokenizeLine("http-check send uri-lf"), {
+        ...schemaStub,
+        logformat_slots: [{ kind: "prefix", prefix: "uri-lf" }],
+      }),
+    ).toEqual([]);
+    expect(
+      extractLogFormatRegions('log-format "%ci"', tokenizeLine('log-format "%ci"'), {
+        ...schemaStub,
+        logformat_slots: [{ kind: "line_tail", directive: "log-format" }],
+      }),
+    ).toEqual([expect.objectContaining({ text: '"%ci"' })]);
   });
 
   it("covers absent catalogs, cached validation, and prefix tails", () => {
@@ -142,6 +162,9 @@ describe("logFormat branches", () => {
       ),
     ).toBe(true);
     expect(logFormatCompletionPrefix("%(name){+Q}o", 12)).toBe("Q}o");
+    expect(logFormatCompletionPrefix("%(name)o", "%(name)o".length)).toBe("o");
+    expect(validateLogFormatItems("%(name)", 0, schemaStub)).toEqual([]);
+    expect(validateLogFormatItems("%{+Q}o", 0, schemaStub)).toEqual([]);
   });
 
   it("requires log-format slot metadata", () => {
@@ -188,6 +211,7 @@ describe("logFormat branches", () => {
       extractLogFormatRegions("log-format if", tokenizeLine("log-format if"), schemaStub),
     ).toEqual([expect.objectContaining({ text: "if" })]);
     expect(logFormatFlagAtOffset("%{+Q}o", 3)?.flag).toBe("Q");
+    expect(logFormatFlagSpans("%{+}o")).toEqual([]);
     expect(logFormatFlagSpans("%{+Q")).toEqual([]);
     expect(logFormatCompletionPrefix("%%ci", 4)).toBeNull();
     expect(logFormatCompletionPrefix("%[src]", 5)).toBeNull();

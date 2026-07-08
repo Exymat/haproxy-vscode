@@ -40,7 +40,6 @@ function normalizeTableCells(cells: string[], width: number): string[] {
 }
 
 function parseDconvPipeTable(lines: string[]): string[][] | null {
-  /* v8 ignore next -- short blocks are filtered before dconv parsing in normal hover formatting */
   if (lines.length < 3) {
     return null;
   }
@@ -50,7 +49,6 @@ function parseDconvPipeTable(lines: string[]): string[][] | null {
   }
   const separator = lines[separatorIndex].trim();
   const header = splitAsciiTableRow(lines[separatorIndex - 1]);
-  /* v8 ignore next -- structured-block detection already filters out headerless table candidates */
   if (!header) {
     return null;
   }
@@ -60,11 +58,9 @@ function parseDconvPipeTable(lines: string[]): string[][] | null {
   for (let idx = separatorIndex + 1; idx < lines.length; idx += 1) {
     const line = lines[idx];
     if (isAsciiTableBorder(line)) {
-      /* v8 ignore next -- mixed border styles are treated as opaque text blocks */
       if (line.trim() !== separator) {
         return null;
       }
-      /* v8 ignore next -- row flushing only matters for multi-line wrapped dconv cells */
       if (current.length > 0) {
         rows.push(current);
         current = [];
@@ -100,11 +96,9 @@ function parseAsciiTableBlock(lines: string[]): string | null {
       .map((line) => splitAsciiTableRow(line))
       .filter((cells): cells is string[] => cells !== null);
   const width = parsedRows.reduce((max, cells) => Math.max(max, cells.length), 0);
-  /* v8 ignore start -- table parsing only reaches this point for multi-column candidates */
   if (width < 2) {
     return null;
   }
-  /* v8 ignore stop */
 
   if (dconvRows) {
     const normalizedRows = dconvRows.map((row) => normalizeTableCells(row, width));
@@ -121,7 +115,6 @@ function parseAsciiTableBlock(lines: string[]): string | null {
   let currentGroup: string[][] = [];
   for (const line of lines) {
     if (isAsciiTableBorder(line)) {
-      /* v8 ignore next -- border-only separators are folded out unless we already have row data */
       if (currentGroup.length > 0) {
         groups.push(currentGroup);
         currentGroup = [];
@@ -130,7 +123,6 @@ function parseAsciiTableBlock(lines: string[]): string | null {
     }
     const cells = splitAsciiTableRow(line);
     if (!cells) {
-      /* v8 ignore next -- malformed mixed-content blocks are preserved as plain text */
       if (currentGroup.length > 0) {
         groups.push(currentGroup);
         currentGroup = [];
@@ -152,7 +144,6 @@ function parseAsciiTableBlock(lines: string[]): string | null {
     for (const row of group) {
       for (let idx = 0; idx < width; idx += 1) {
         const value = row[idx]?.trim();
-        /* v8 ignore next -- empty cells are intentionally collapsed out of the markdown rendering */
         if (value) {
           cells[idx].push(value);
         }

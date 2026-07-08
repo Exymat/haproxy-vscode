@@ -3,8 +3,18 @@ import * as vscode from "vscode";
 import { isEnvironmentVariableName } from "./environmentVariables";
 import { findInvalidNameChar } from "./nameValidation";
 import { HaproxySchema } from "./schema";
-import { findAllSites, findDefinitions, findSiteAtPosition, getSymbolIndex } from "./symbolIndex";
+import {
+  findAllSites,
+  findAllWorkspaceSites,
+  findDefinitions,
+  findSiteAtPosition,
+  findWorkspaceDefinitions,
+  getSymbolIndex,
+  getWorkspaceSymbolIndex,
+  workspaceUriKey,
+} from "./symbolIndex";
 import { SymbolSite } from "./symbolIndex/types";
+import { WorkspaceSymbolSite } from "./symbolIndex/workspace";
 
 function siteRange(site: SymbolSite): vscode.Range {
   return new vscode.Range(site.line, site.start, site.line, site.end);
@@ -49,8 +59,17 @@ function validateNewName(newName: string, kind: SymbolSite["kind"]): void {
   }
 }
 
-function siteEditKey(site: SymbolSite): string {
-  return [site.line, site.start, site.end].join(":");
+function siteEditKey(site: SymbolSite | WorkspaceSymbolSite): string {
+  const uriKey = "uriKey" in site ? site.uriKey : "local";
+  return [uriKey, site.line, site.start, site.end].join(":");
+}
+
+function workspaceIndexForDocument(document: vscode.TextDocument) {
+  const workspaceIndex = getWorkspaceSymbolIndex(document);
+  if (!workspaceIndex?.documents.has(workspaceUriKey(document.uri))) {
+    return null;
+  }
+  return workspaceIndex;
 }
 
 export function prepareRename(
@@ -86,19 +105,33 @@ export function provideRenameEdits(
   const { index, site } = resolved;
   const oldName = site.name;
   const caseOnlyRename = oldName.toLowerCase() === newName.toLowerCase();
-  if (!caseOnlyRename && findDefinitions(index, site.kind, newName, site.scopeKey).length > 0) {
-    throw new Error(`A ${site.kind} named '${newName}' already exists in this scope.`);
+  const workspaceIndex = workspaceIndexForDocument(document);
+
+  if (!caseOnlyRename) {
+    if (workspaceIndex && site.kind !== "environment-variable") {
+      if (findWorkspaceDefinitions(workspaceIndex, site.kind, newName, site.scopeKey).length > 0) {
+        throw new Error(`A ${site.kind} named '${newName}' already exists in this scope.`);
+      }
+    } else if (findDefinitions(index, site.kind, newName, site.scopeKey).length > 0) {
+      throw new Error(`A ${site.kind} named '${newName}' already exists in this scope.`);
+    }
   }
 
   const edit = new vscode.WorkspaceEdit();
   const edited = new Set<string>();
-  for (const target of findAllSites(index, site.kind, oldName, site.scopeKey)) {
+  const targets =
+    workspaceIndex && site.kind !== "environment-variable"
+      ? findAllWorkspaceSites(workspaceIndex, site.kind, oldName, site.scopeKey)
+      : findAllSites(index, site.kind, oldName, site.scopeKey);
+
+  for (const target of targets) {
     const key = siteEditKey(target);
     if (edited.has(key)) {
       continue;
     }
     edited.add(key);
-    edit.replace(document.uri, siteRange(target), newName);
+    const uri = "uri" in target ? (target as WorkspaceSymbolSite).uri : document.uri;
+    edit.replace(uri, siteRange(target), newName);
   }
   return edit;
 }

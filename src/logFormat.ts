@@ -20,7 +20,7 @@ export interface LogFormatItemSpan {
   end: number;
   kind: LogFormatItemKind;
   alias?: string;
-  flags?: string[];
+  flags: string[];
   named?: string;
 }
 
@@ -65,7 +65,6 @@ function regionFromTokens(
   startIndex: number,
   schema: HaproxySchema,
 ): LogFormatRegion | null {
-  /* v8 ignore next -- malformed slot metadata may point past the available token list */
   if (startIndex >= tokens.length) {
     return null;
   }
@@ -74,7 +73,6 @@ function regionFromTokens(
   while (endIndex < tokens.length && !isStopToken(tokens[endIndex].text, schema)) {
     endIndex += 1;
   }
-  /* v8 ignore next -- empty regions are preserved as a single-token fallback for partial edits */
   if (endIndex === startIndex) {
     const token = tokens[startIndex];
     return { text: token.text, start: token.start, end: token.end };
@@ -92,7 +90,6 @@ function lineTailRegion(
   skip: number,
   schema: HaproxySchema,
 ): LogFormatRegion | null {
-  /* v8 ignore next -- empty token lists can appear transiently while VS Code reparses a line */
   if (tokens.length === 0) {
     return null;
   }
@@ -202,18 +199,14 @@ function parseFlagBody(body: string, base: number): LogFormatFlagSpan[] {
       j += 1;
     }
     const name = body.slice(nameStart, j).trim();
-    /* v8 ignore start -- empty flag names are ignored while users type partial flag expressions */
     if (name) {
-      /* v8 ignore start -- flag span coordinates are only consumed by hover/highlight helpers */
       spans.push({
         flag: name,
         sign,
         start: base + nameStart,
         end: base + j,
       });
-      /* v8 ignore stop */
     }
-    /* v8 ignore stop */
     i = j;
   }
   return spans;
@@ -375,7 +368,7 @@ export function validateLogFormatItems(
         code: "logformat-unknown-alias",
       });
     }
-    for (const flag of item.flags ?? []) {
+    for (const flag of item.flags) {
       if (!flags.has(flag)) {
         issues.push({
           start: abs(item.start),
@@ -413,13 +406,9 @@ export function logFormatCompletionPrefix(text: string, offset: number): string 
     return active;
   }
 
-  /* v8 ignore start -- malformed named/flag combinations fall back to the trailing alias text */
   const namedClose = tail.indexOf(")");
   const afterNamed = namedClose >= 0 ? tail.slice(namedClose + 1) : tail;
-  const braceIdx = afterNamed.indexOf("{");
-  const aliasTail = braceIdx >= 0 ? afterNamed.slice(afterNamed.indexOf("}") + 1) : afterNamed;
-  /* v8 ignore stop */
-  return aliasTail;
+  return afterNamed;
 }
 
 export function validateLogFormatLine(

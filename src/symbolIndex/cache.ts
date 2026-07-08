@@ -1,8 +1,10 @@
 import * as vscode from "vscode";
 
+import { documentContentFingerprint, documentUriKey } from "../documentUriKey";
 import { getParsedDocumentEntry, ParsedDocumentEntry } from "../parseCache";
 import { isTopLevelSectionHeader } from "../sectionUtils";
 import { HaproxySchema, sectionHeaderSet } from "../schema";
+import { UriLruCache } from "../uriLruCache";
 
 import {
   buildSymbolIndexWithFingerprints,
@@ -20,6 +22,7 @@ interface IndexCacheEntry {
 }
 
 const indexCache = new WeakMap<vscode.TextDocument, IndexCacheEntry>();
+const uriIndexCache = new UriLruCache<IndexCacheEntry>(64);
 
 function dirtyLineCount(entry: ParsedDocumentEntry): number {
   const { reuse, parsed } = entry;
@@ -73,8 +76,19 @@ function canIncrementalPatch(parseEntry: ParsedDocumentEntry): boolean {
   return Boolean(line && !isTopLevelSectionHeader(line));
 }
 
+function storeIndexCache(document: vscode.TextDocument, entry: IndexCacheEntry): void {
+  indexCache.set(document, entry);
+  uriIndexCache.set(documentUriKey(document), documentContentFingerprint(document), entry);
+}
+
 export function getSymbolIndexVersion(document: vscode.TextDocument): number | undefined {
   return indexCache.get(document)?.version;
+}
+
+export function hasUriSymbolIndexCache(document: vscode.TextDocument): boolean {
+  return (
+    uriIndexCache.get(documentUriKey(document), documentContentFingerprint(document)) !== undefined
+  );
 }
 
 export function getSymbolIndex(
@@ -94,8 +108,15 @@ export function getSymbolIndex(
     return hit.index;
   }
 
+  const uriHit = uriIndexCache.get(documentUriKey(document), documentContentFingerprint(document));
+  if (uriHit && !hit) {
+    const restored = { ...uriHit, version: document.version };
+    storeIndexCache(document, restored);
+    return restored.index;
+  }
+
   if (hit && canReuseSymbolIndex(hit, parseEntry, schema)) {
-    indexCache.set(document, {
+    storeIndexCache(document, {
       version: document.version,
       index: hit.index,
       lineFingerprints: hit.lineFingerprints,
@@ -118,7 +139,7 @@ export function getSymbolIndex(
       );
       const nextFingerprints = [...hit.lineFingerprints];
       nextFingerprints[dirtyLineNo] = lineFingerprints[0] ?? "";
-      indexCache.set(document, {
+      storeIndexCache(document, {
         version: document.version,
         index,
         lineFingerprints: nextFingerprints,
@@ -128,10 +149,10 @@ export function getSymbolIndex(
   }
 
   const { index, lineFingerprints } = buildSymbolIndexWithFingerprints(parseEntry.parsed, schema, {
-    computeFingerprints: Boolean(hit),
-    buildSitesByLine: Boolean(hit),
+    computeFingerprints: Boolean(hit || uriHit),
+    buildSitesByLine: Boolean(hit || uriHit),
   });
-  indexCache.set(document, {
+  storeIndexCache(document, {
     version: document.version,
     index,
     lineFingerprints,

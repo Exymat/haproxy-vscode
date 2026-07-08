@@ -6,6 +6,7 @@ import { HaproxyExtensionSettings } from "./settings";
 
 export interface DiagnosticScheduler {
   schedule: (document: vscode.TextDocument) => void;
+  runNow: (document: vscode.TextDocument) => void;
   clearPending: () => void;
   disposeDocument: (document: vscode.TextDocument) => void;
 }
@@ -55,6 +56,15 @@ export function createDiagnosticScheduler(
     );
   };
 
+  const cancelPending = (document: vscode.TextDocument): void => {
+    const key = document.uri.toString();
+    const existing = pendingDiagnostics.get(key);
+    if (existing) {
+      clearTimeout(existing);
+      pendingDiagnostics.delete(key);
+    }
+  };
+
   const schedule = (document: vscode.TextDocument): void => {
     if (document.languageId !== "haproxy") {
       return;
@@ -64,29 +74,33 @@ export function createDiagnosticScheduler(
       diagnostics.delete(document.uri);
       return;
     }
-    const key = document.uri.toString();
-    const existing = pendingDiagnostics.get(key);
-    if (existing) {
-      clearTimeout(existing);
-    }
+    cancelPending(document);
     pendingDiagnostics.set(
-      key,
+      document.uri.toString(),
       setTimeout(() => {
-        pendingDiagnostics.delete(key);
+        pendingDiagnostics.delete(document.uri.toString());
         void runDiagnostics(document);
       }, settings.diagnosticsDebounceMs),
     );
   };
 
-  const disposeDocument = (document: vscode.TextDocument): void => {
-    const key = document.uri.toString();
-    const pending = pendingDiagnostics.get(key);
-    if (pending) {
-      clearTimeout(pending);
-      pendingDiagnostics.delete(key);
+  const runNow = (document: vscode.TextDocument): void => {
+    if (document.languageId !== "haproxy") {
+      return;
     }
+    const settings = getSettings();
+    if (!settings.diagnosticsEnabled) {
+      diagnostics.delete(document.uri);
+      return;
+    }
+    cancelPending(document);
+    void runDiagnostics(document);
+  };
+
+  const disposeDocument = (document: vscode.TextDocument): void => {
+    cancelPending(document);
     diagnostics.delete(document.uri);
   };
 
-  return { schedule, clearPending, disposeDocument };
+  return { schedule, runNow, clearPending, disposeDocument };
 }

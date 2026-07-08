@@ -25,6 +25,19 @@ describe("sectionMode", () => {
     const entry = getParsedDocumentEntry(doc);
     const modes = runtimeModeForLine(entry.parsed, schema);
     expect(modes[2]).toBe("http");
+
+    const named = parseDocument(
+      createDocument(
+        [
+          "defaults tcp-defaults",
+          "    mode tcp",
+          "defaults other",
+          "    mode http",
+          "frontend web from tcp-defaults",
+        ].join("\n"),
+      ),
+    );
+    expect(runtimeModeForLine(named, schema)[4]).toBe("tcp");
   });
 
   it("reuses cached modes when edited lines do not touch mode or sections", () => {

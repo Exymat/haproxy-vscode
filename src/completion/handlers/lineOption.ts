@@ -47,7 +47,6 @@ export function tryLineOptionCompletion(cc: CompletionContext): vscode.Completio
       const value = valuesByName.get(name);
       const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Value);
       item.detail = active.keyword;
-      /* v8 ignore next -- completion docs are intentionally optional for sparse compatibility enum values */
       if (value?.description) {
         item.documentation = markdownDoc(value.description);
       }

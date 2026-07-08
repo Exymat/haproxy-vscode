@@ -155,7 +155,6 @@ export function validateExpressionBody(
     return issues;
   }
 
-  /* v8 ignore next -- schema compatibility can provide fetch names without a fully-populated fetch table entry */
   const fetchSpec = lookupSample(id.name, fetches);
   if (!fetchSpec && !fetchNames.has(id.name.toLowerCase())) {
     if (id.name.startsWith("wurfl-")) {
@@ -187,7 +186,6 @@ export function validateExpressionBody(
   }
   pos = parsedFetch.end;
 
-  /* v8 ignore next -- compatibility fetch specs may omit out_type and fall back to "any" */
   let sampleType = spec.out_type || "any";
   let lastConv = "";
 
@@ -235,7 +233,6 @@ export function validateExpressionBody(
     }
 
     const cspec = convSpec ?? { name: convId.name, args: [], in_type: "any", out_type: "any" };
-    /* v8 ignore next -- compatibility converter specs may omit in_type and fall back to "any" */
     const inType = cspec.in_type || "any";
     if (!canCast(sampleType, inType, schema)) {
       issues.push(

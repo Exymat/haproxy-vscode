@@ -1,6 +1,11 @@
 import * as vscode from "vscode";
 
 import { prepareRename, provideRenameEdits } from "../../src/rename";
+import {
+  clearWorkspaceSymbolIndex,
+  scheduleWorkspaceSymbolIndexRebuild,
+} from "../../src/symbolIndex";
+import { mockTextDocuments, setMockWorkspaceFile } from "../__mocks__/vscode";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 
@@ -14,7 +19,8 @@ function editRanges(
   edit: vscode.WorkspaceEdit,
 ): Array<{ line: number; start: number; end: number; text: string }> {
   return (
-    (edit as unknown as { edits: Array<{ range: vscode.Range; newText: string }> }).edits ?? []
+    (edit as unknown as { edits: Array<{ uri?: unknown; range: vscode.Range; newText: string }> })
+      .edits ?? []
   )
     .map(({ range, newText }) => ({
       line: range.start.line,
@@ -23,6 +29,17 @@ function editRanges(
       text: newText,
     }))
     .sort((a, b) => a.line - b.line || a.start - b.start);
+}
+
+function editUris(edit: vscode.WorkspaceEdit): string[] {
+  return [
+    ...new Set(
+      (
+        (edit as unknown as { edits: Array<{ uri?: { fsPath?: string; toString: () => string } }> })
+          .edits ?? []
+      ).map((entry) => entry.uri?.fsPath ?? String(entry.uri)),
+    ),
+  ].sort();
 }
 
 describe("rename provider", () => {
@@ -122,5 +139,81 @@ describe("rename provider", () => {
     expect(prepareRename(doc, pos(1, 0), schema, 4000)).toBeNull();
     expect(provideRenameEdits(doc, pos(1, 0), "api_v2", schema, 4000)).toBeNull();
     expect(prepareRename(doc, pos(1, "    use_backend ".length), schema, 1)).toBeNull();
+  });
+
+  it("renames backend definitions and references across workspace files", async () => {
+    vi.useFakeTimers();
+    clearWorkspaceSymbolIndex();
+    setMockWorkspaceFile("file:///backends/api.cfg", "backend api\n    server s1 127.0.0.1:80");
+    setMockWorkspaceFile("file:///frontends/web.cfg", "frontend web\n    use_backend api");
+    const frontend = createDocument(
+      "frontend web\n    use_backend api",
+      "file:///frontends/web.cfg",
+    );
+    mockTextDocuments.push(frontend as never);
+
+    scheduleWorkspaceSymbolIndexRebuild(
+      schema,
+      {
+        enabled: true,
+        include: ["**/*.cfg"],
+        exclude: [],
+        maxFiles: 1000,
+        maxTotalLines: 100000,
+        debounceMs: 100,
+      },
+      4000,
+    );
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    const edit = provideRenameEdits(
+      frontend,
+      pos(1, "    use_backend ".length),
+      "api_v2",
+      schema,
+      4000,
+    );
+    expect(editRanges(edit as vscode.WorkspaceEdit)).toHaveLength(2);
+    expect(editUris(edit as vscode.WorkspaceEdit)).toEqual([
+      "file:///backends/api.cfg",
+      "file:///frontends/web.cfg",
+    ]);
+    clearWorkspaceSymbolIndex();
+    vi.useRealTimers();
+  });
+
+  it("rejects workspace-wide duplicate names during cross-file rename", async () => {
+    vi.useFakeTimers();
+    clearWorkspaceSymbolIndex();
+    setMockWorkspaceFile("file:///backends/api.cfg", "backend api");
+    setMockWorkspaceFile("file:///backends/other.cfg", "backend other");
+    setMockWorkspaceFile("file:///frontends/web.cfg", "frontend web\n    use_backend api");
+    const frontend = createDocument(
+      "frontend web\n    use_backend api",
+      "file:///frontends/web.cfg",
+    );
+    mockTextDocuments.push(frontend as never);
+
+    scheduleWorkspaceSymbolIndexRebuild(
+      schema,
+      {
+        enabled: true,
+        include: ["**/*.cfg"],
+        exclude: [],
+        maxFiles: 1000,
+        maxTotalLines: 100000,
+        debounceMs: 100,
+      },
+      4000,
+    );
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    expect(() =>
+      provideRenameEdits(frontend, pos(1, "    use_backend ".length), "other", schema, 4000),
+    ).toThrow("already exists");
+    clearWorkspaceSymbolIndex();
+    vi.useRealTimers();
   });
 });

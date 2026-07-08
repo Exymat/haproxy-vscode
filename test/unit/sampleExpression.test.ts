@@ -3,6 +3,7 @@ import {
   validateExpressionBody,
   validateSampleExpressions,
 } from "../../src/sampleExpression";
+import { findClosingBrace, findExprEnd, parseArgList } from "../../src/expressionParsing";
 import { readGoldenFixture } from "../helpers/fixtures";
 import { loadSchema } from "../helpers/schema";
 
@@ -258,6 +259,18 @@ describe("validateSampleExpressions inline", () => {
         schema32,
       )[0]?.code,
     ).toBe("sample-fetch-args");
+    expect(parseArgList("required_fetch", "required_fetch".length, 0, [], 1).error?.message).toBe(
+      "expected type 'argument' at position 1, but got nothing",
+    );
+  });
+
+  it("covers direct expression and brace scan helpers", () => {
+    expect(findExprEnd("outer(inner()) tail", 5)).toBe("outer(inner())".length);
+    expect(findExprEnd('outer(")")', 5)).toBe('outer(")")'.length);
+    expect(findClosingBrace("if { hdr(host) -m str example } tail", 3)).toBe(
+      "if { hdr(host) -m str example }".length - 1,
+    );
+    expect(findClosingBrace("if { str('}') }", 3)).toBe("if { str('}') }".length - 1);
   });
 
   it("accepts valid IPv6 mask converter args and rejects zero-arg converters with args", () => {
@@ -297,6 +310,28 @@ describe("validateSampleExpressions inline", () => {
         {},
         new Set(Object.keys(schema32.sample_fetches ?? {})),
         new Set(["fallbackconv"]),
+        schema32,
+      ),
+    ).toEqual([]);
+    expect(
+      validateExpressionBody(
+        "compat_fetch,lower",
+        0,
+        { compat_fetch: { name: "compat_fetch", args: [] } as never },
+        schema32.sample_converters ?? {},
+        new Set(["compat_fetch"]),
+        new Set(Object.keys(schema32.sample_converters ?? {})),
+        schema32,
+      ),
+    ).toEqual([]);
+    expect(
+      validateExpressionBody(
+        "src,compat_conv",
+        0,
+        schema32.sample_fetches ?? {},
+        { compat_conv: { name: "compat_conv", args: [], out_type: "str" } },
+        new Set(Object.keys(schema32.sample_fetches ?? {})),
+        new Set(["compat_conv"]),
         schema32,
       ),
     ).toEqual([]);

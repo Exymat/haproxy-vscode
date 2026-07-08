@@ -258,7 +258,7 @@ describe("workspace symbol index build", () => {
     await vi.runAllTimersAsync();
 
     expect(getWorkspaceSymbolIndex()).toBeNull();
-    expect(listener).toHaveBeenCalled();
+    expect(listener).toHaveBeenCalledWith(expect.objectContaining({ scope: "full" }));
   });
 
   it("caps workspace indexing when total lines are exceeded", async () => {

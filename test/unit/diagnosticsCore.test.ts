@@ -1,5 +1,5 @@
 import { computeDiagnostics } from "../../src/diagnostics";
-import { createDocument } from "../helpers/document";
+import { createDocument, updateDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 
 describe("diagnostics core branches", () => {
@@ -166,5 +166,39 @@ describe("diagnostics core branches", () => {
     }).find((d) => d.code === "wrong-section");
     expect(wrong?.message).toContain("not supported in section");
     expect(wrong?.message).not.toContain("allowed in:");
+  });
+
+  it("reuses diagnostics across URI and line-cache paths", () => {
+    const content = ["defaults", "    mode http", "    timeout client 50s"].join("\n");
+    const first = createDocument(content, "file:///diagnostics-cache.cfg");
+    const firstDiagnostics = computeDiagnostics(first, bundle34.schema, {
+      languageData: bundle34.languageData,
+      missingReferences: false,
+    });
+    const reopened = createDocument(content, "file:///diagnostics-cache.cfg");
+    expect(
+      computeDiagnostics(reopened, bundle34.schema, {
+        languageData: bundle34.languageData,
+        missingReferences: false,
+      }),
+    ).toBe(firstDiagnostics);
+
+    updateDocument(first, ["defaults", "    mode tcp", "    timeout client 50s"].join("\n"));
+    expect(
+      computeDiagnostics(first, bundle34.schema, {
+        languageData: bundle34.languageData,
+        missingReferences: false,
+      }),
+    ).toEqual([]);
+
+    const oversized = createDocument("frontend web\n    use_backend missing");
+    expect(
+      computeDiagnostics(oversized, bundle34.schema, {
+        languageData: bundle34.languageData,
+        maxLines: 1,
+        unusedSymbols: true,
+        missingReferences: true,
+      }).some((diagnostic) => diagnostic.code === "no-bind-entry-point"),
+    ).toBe(true);
   });
 });

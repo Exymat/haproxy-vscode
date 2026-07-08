@@ -18,6 +18,14 @@ const DUPLICATE_SECTION_KINDS = new Set<SymbolKind>([
   "peers",
 ]);
 
+const DUPLICATE_SECTION_LABELS: Partial<Record<SymbolKind, string>> = {
+  "defaults-profile": "defaults profile",
+  cache: "cache section",
+  userlist: "userlist section",
+  resolvers: "resolvers section",
+  peers: "peers section",
+};
+
 function siteRange(site: WorkspaceSymbolSite): vscode.Range {
   return new vscode.Range(site.line, site.start, site.line, site.end);
 }
@@ -32,20 +40,8 @@ function sectionLabel(parsed: ParsedLine[], site: WorkspaceSymbolSite): string {
   switch (site.kind) {
     case "proxy-section":
       return keyword ? `${keyword} section` : "proxy section";
-    case "defaults-profile":
-      return "defaults profile";
-    case "cache":
-      return "cache section";
-    case "userlist":
-      return "userlist section";
-    case "resolvers":
-      return "resolvers section";
-    case "peers":
-      return "peers section";
-    /* v8 ignore next -- duplicate section diagnostics are filtered to known section kinds. */
-    default:
-      return "section";
   }
+  return DUPLICATE_SECTION_LABELS[site.kind]!;
 }
 
 function definitionLocationSummary(definitions: WorkspaceSymbolSite[], currentKey: string): string {

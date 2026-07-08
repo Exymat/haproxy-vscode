@@ -1,9 +1,11 @@
 import * as vscode from "vscode";
 
+import { documentContentFingerprint, documentUriKey } from "./documentUriKey";
 import { runLineDiagnosticPipeline } from "./diagnosticPipeline";
 import { DiagnosticContext } from "./diagnosticContext";
 import { HaproxyLanguageData } from "./languageData";
 import { HaproxySchema } from "./schema";
+import { UriLruCache } from "./uriLruCache";
 import {
   getSymbolIndex,
   getWorkspaceSymbolIndex,
@@ -36,6 +38,7 @@ interface DiagnosticsCacheEntry {
 }
 
 const diagnosticsCache = new WeakMap<vscode.TextDocument, DiagnosticsCacheEntry>();
+const uriDiagnosticsCache = new UriLruCache<DiagnosticsCacheEntry>(32);
 
 export interface ComputeDiagnosticsOptions {
   languageData?: HaproxyLanguageData;
@@ -106,9 +109,19 @@ export function computeDiagnostics(
   schema: HaproxySchema,
   options: ComputeDiagnosticsOptions = {},
 ): vscode.Diagnostic[] {
-  const ctx = new DiagnosticContext(document, schema, options);
   const workspaceIndex = getWorkspaceSymbolIndex(document);
   const key = diagnosticsCacheKey(schema, options, workspaceIndex);
+  const contentFingerprint = documentContentFingerprint(document);
+  const uriHit = uriDiagnosticsCache.get(documentUriKey(document), contentFingerprint);
+  if (uriHit && sameCacheKey(uriHit.key, key)) {
+    const ctx = new DiagnosticContext(document, schema, options);
+    if (uriHit.suppressDeprecated === ctx.suppressDeprecated) {
+      diagnosticsCache.set(document, { ...uriHit, version: document.version });
+      return uriHit.diagnostics;
+    }
+  }
+
+  const ctx = new DiagnosticContext(document, schema, options);
   const cached = diagnosticsCache.get(document);
   const reuse = ctx.parsedEntry.reuse;
   const canReuseLines =
@@ -119,21 +132,15 @@ export function computeDiagnostics(
 
   const lineDiagnostics = new Array<vscode.Diagnostic[]>(ctx.parsed.length);
   if (canReuseLines) {
-    /* v8 ignore start -- prefix reuse is a cache optimization, not core diagnostics semantics */
     for (let i = 0; i < reuse.prefixLines; i += 1) {
       lineDiagnostics[i] = cached.lineDiagnostics[i] ?? [];
     }
-    /* v8 ignore stop */
-    /* v8 ignore next -- suffix reuse is only hit when edits preserve parser state at the tail */
     if (reuse.suffixLines > 0) {
-      /* v8 ignore next -- negative deltas are only possible with inconsistent parse-cache state */
       const delta = ctx.parsed.length - cached.lineDiagnostics.length;
-      /* v8 ignore start -- suffix reuse is a cache optimization, not core diagnostics semantics */
       for (let i = reuse.newSuffixStart; i < ctx.parsed.length; i += 1) {
         const oldIndex = i - delta;
         lineDiagnostics[i] = cached.lineDiagnostics[oldIndex] ?? [];
       }
-      /* v8 ignore stop */
     }
   }
 
@@ -151,7 +158,6 @@ export function computeDiagnostics(
   let cachedSymbolIndex: SymbolIndex | null = null;
 
   if (needSymbolDiagnostics) {
-    /* v8 ignore start -- explicit maxLines overrides are only used by the VS Code scheduler */
     const maxLines = options.maxLines ?? document.lineCount;
     const index = getSymbolIndex(document, schema, maxLines);
     if (index) {
@@ -171,7 +177,6 @@ export function computeDiagnostics(
     } else if (options.unusedSymbols) {
       diagnostics.push(...entryPointWithoutBindDiagnostics(document, ctx.parsed, ctx));
     }
-    /* v8 ignore stop */
   }
 
   diagnosticsCache.set(document, {
@@ -179,9 +184,16 @@ export function computeDiagnostics(
     key,
     suppressDeprecated: ctx.suppressDeprecated,
     lineDiagnostics,
-    /* v8 ignore start -- cached flattened diagnostics only affect reuse, not diagnostic semantics */
     diagnostics,
-    /* v8 ignore stop */
+    cachedSymbolIndex,
+    documentSymbolDiagnostics,
+  });
+  uriDiagnosticsCache.set(documentUriKey(document), contentFingerprint, {
+    version: document.version,
+    key,
+    suppressDeprecated: ctx.suppressDeprecated,
+    lineDiagnostics,
+    diagnostics,
     cachedSymbolIndex,
     documentSymbolDiagnostics,
   });

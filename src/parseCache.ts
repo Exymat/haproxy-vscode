@@ -1,5 +1,8 @@
 import * as vscode from "vscode";
 
+import { documentContentFingerprint, documentUriKey } from "./documentUriKey";
+import { UriLruCache } from "./uriLruCache";
+
 import {
   initialParseState,
   ParseOptions,
@@ -24,6 +27,7 @@ export interface ParsedDocumentEntry {
 }
 
 const cache = new WeakMap<vscode.TextDocument, Map<string, ParsedDocumentEntry>>();
+const uriCache = new UriLruCache<ParsedDocumentEntry>(64);
 
 function lineTextsForDocument(document: vscode.TextDocument): string[] {
   return Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
@@ -111,7 +115,6 @@ function parseDocumentIncremental(
   const newSuffixStart = lineTexts.length - suffixLines;
 
   for (let lineNo = prefixLines; lineNo < newSuffixStart; lineNo += 1) {
-    /* v8 ignore next -- reparsing changed middle lines is a cache optimization detail */
     const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state, options);
     parsed[lineNo] = next.parsed;
     state = next.nextState;
@@ -120,7 +123,6 @@ function parseDocumentIncremental(
   if (suffixLines > 0) {
     const expectedState = stateAfterLine(previous.parsed[oldSuffixStart - 1]);
     if (sameState(state, expectedState)) {
-      /* v8 ignore start -- suffix reuse is a cache optimization for unchanged parser state */
       const delta = lineTexts.length - prevLineTexts.length;
       for (let lineNo = newSuffixStart; lineNo < lineTexts.length; lineNo += 1) {
         const oldLineNo = lineNo - delta;
@@ -138,12 +140,10 @@ function parseDocumentIncremental(
           newSuffixStart,
         },
       };
-      /* v8 ignore stop */
     }
   }
 
   for (let lineNo = newSuffixStart; lineNo < lineTexts.length; lineNo += 1) {
-    /* v8 ignore next -- reparsing the invalidated suffix is a cache optimization detail */
     const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state, options);
     parsed[lineNo] = next.parsed;
     state = next.nextState;
@@ -177,6 +177,28 @@ export function getParsedDocumentEntry(
   if (hit && hit.version === document.version) {
     return hit;
   }
+
+  const contentFingerprint = documentContentFingerprint(document);
+  const uriKey = documentUriKey(document);
+  if (!hit) {
+    const uriHit = uriCache.get(uriKey, contentFingerprint);
+    if (uriHit) {
+      const restored: ParsedDocumentEntry = {
+        ...uriHit,
+        version: document.version,
+        reuse: {
+          previousVersion: uriHit.version,
+          prefixLines: uriHit.parsed.length,
+          suffixLines: 0,
+          oldSuffixStart: uriHit.parsed.length,
+          newSuffixStart: uriHit.parsed.length,
+        },
+      };
+      entries.set(optionsKey, restored);
+      return restored;
+    }
+  }
+
   const lineTexts = lineTextsForDocument(document);
   const next = hit
     ? parseDocumentIncremental(hit, document, options)
@@ -193,6 +215,7 @@ export function getParsedDocumentEntry(
         },
       };
   entries.set(optionsKey, next);
+  uriCache.set(documentUriKey(document), documentContentFingerprint(document), next);
   return next;
 }
 
@@ -201,4 +224,8 @@ export function getParsedDocument(
   options?: ParseOptions,
 ): ParsedLine[] {
   return getParsedDocumentEntry(document, options).parsed;
+}
+
+export function hasUriParseCache(document: vscode.TextDocument): boolean {
+  return uriCache.get(documentUriKey(document), documentContentFingerprint(document)) !== undefined;
 }

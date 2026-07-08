@@ -123,7 +123,6 @@ export class DiagnosticContext {
 
   getLogFormatMemo(line: ParsedLine): LogFormatLineMemo {
     let memo = this.logFormatMemo.get(line.line);
-    /* v8 ignore start -- log-format memoization only affects reuse, not diagnostic semantics */
     if (!memo) {
       const lineText = this.lineText(line);
       memo = {
@@ -131,7 +130,6 @@ export class DiagnosticContext {
       };
       this.logFormatMemo.set(line.line, memo);
     }
-    /* v8 ignore stop */
     return memo;
   }
 }

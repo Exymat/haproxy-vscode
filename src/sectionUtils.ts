@@ -16,7 +16,6 @@ export function isSectionHeaderCompletionContext(
   if (line.tokens.length > 0) {
     return line.tokens[0].start === 0;
   }
-  /* v8 ignore next -- blank-line completion uses a whitespace-only fallback before the first token exists */
-  const leadingWs = lineText.match(/^\s*/)?.[0].length ?? 0;
+  const leadingWs = lineText.length - lineText.trimStart().length;
   return leadingWs === 0 && character <= leadingWs;
 }

@@ -28,7 +28,6 @@ export function tryOptionHover(hc: HoverContext): vscode.Hover | null {
     getKeywordFromSchema(schema, optKeyword?.name ?? `option ${tokenLower}`, ctx.line.section)
       ?.contexts ?? schema.keyword_group_contexts?.options?.[tokenLower],
   );
-  /* v8 ignore start -- option hover rendering is exercised through provideHover integration */
   return new vscode.Hover(
     hoverMarkdown(
       `option ${name}`,
@@ -40,5 +39,4 @@ export function tryOptionHover(hc: HoverContext): vscode.Hover | null {
     ),
     range,
   );
-  /* v8 ignore stop */
 }

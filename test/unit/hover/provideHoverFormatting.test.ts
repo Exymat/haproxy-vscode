@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { formatHoverText } from "../../../src/hover";
-import { exampleBlock, formatParameterExtra } from "../../../src/hover/markdown";
+import {
+  exampleBlock,
+  formatParameterExtra,
+  matchingArgumentValueNames,
+} from "../../../src/hover/markdown";
 import { hoverMarkdown } from "./helpers";
 
 describe("provideHover formatting", () => {
@@ -106,10 +110,33 @@ describe("provideHover formatting", () => {
     expect(formatHoverText("plain text\nstill plain")).toBe("plain text\nstill plain");
     expect(formatHoverText("A | B\nx | y")).toContain("```text");
     expect(formatHoverText("------\n| node |\n------")).toContain("```text");
+    expect(formatHoverText(">>>>>>>>\n------+------\nx | y")).toContain("```text");
+    expect(formatHoverText("--------\n--------")).toContain("```text");
+    expect(formatHoverText("A | B\n------+------\nx | y\n------+------\nz | w")).toContain(
+      "| z | w |",
+    );
+    expect(formatHoverText("A | B\n------+------\nx |\n------+------\ny | z")).toContain(
+      "| x |  |",
+    );
   });
 
   it("formats parameter labels with trimming and backtick escaping", () => {
     expect(formatParameterExtra("  user`name  ")).toBe("**Parameter:** `user\\`name`");
     expect(formatParameterExtra("   ")).toBe("**Parameter:** `argument`");
+    expect(
+      matchingArgumentValueNames(
+        [
+          {
+            parameter: "mode",
+            values: [
+              { name: "http", description: "HTTP" },
+              { name: "http", description: "Duplicate HTTP" },
+              { name: "http(legacy)", description: "Legacy HTTP" },
+            ],
+          },
+        ],
+        "http",
+      ),
+    ).toEqual(["http", "http(legacy)"]);
   });
 });

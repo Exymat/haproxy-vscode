@@ -48,4 +48,39 @@ describe("document symbols", () => {
       { name: "frontend web", startLine: 0, endLine: 1 },
     ]);
   });
+
+  it("uses zero width for sparse parsed section tails", () => {
+    const parsed: Parameters<typeof buildSectionSymbols>[0] = [
+      {
+        line: 0,
+        section: "frontend",
+        tokens: [
+          { text: "frontend", start: 0, end: 8 },
+          { text: "web", start: 9, end: 12 },
+        ],
+        isSectionHeader: true,
+        anonymousDefaults: false,
+      },
+      {
+        line: 1,
+        section: "frontend",
+        tokens: [],
+        isSectionHeader: false,
+        anonymousDefaults: false,
+      },
+      {
+        line: 2,
+        section: "backend",
+        tokens: [
+          { text: "backend", start: 0, end: 7 },
+          { text: "api", start: 8, end: 11 },
+        ],
+        isSectionHeader: true,
+        anonymousDefaults: false,
+      },
+    ];
+    const [frontend] = buildSectionSymbols(parsed, 3);
+    expect(frontend.endLine).toBe(1);
+    expect(frontend.endColumn).toBe(0);
+  });
 });

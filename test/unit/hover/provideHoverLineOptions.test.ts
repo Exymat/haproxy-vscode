@@ -259,6 +259,117 @@ describe("provideHover nested line options", () => {
     ).toBeNull();
   });
 
+  it("handles schema-driven nonstandard line-option groups", () => {
+    const schema = structuredClone(bundles["3.4"].schema);
+    const data = structuredClone(bundles["3.4"].languageData);
+    schema.semantic_groups = {
+      ...schema.semantic_groups,
+      line_option_group_for_kind: {
+        ...(schema.semantic_groups.line_option_group_for_kind as Record<string, string>),
+        custom: "custom_options",
+      },
+    };
+    schema.keyword_groups.custom_options = ["barelineopt", "childbare"];
+    schema.keywords.barelineopt = {
+      name: "barelineopt",
+      sections: ["backend"],
+      signatures: [],
+      sources: [],
+      contexts: ["http"],
+      arguments: [],
+    };
+    schema.keywords.childbare = {
+      name: "childbare",
+      sections: ["backend"],
+      signatures: [],
+      sources: [],
+      contexts: ["tcp"],
+      arguments: [],
+    };
+    data.groups.custom_options = [
+      {
+        name: "barelineopt",
+        description: "Bare line-option docs.",
+        docsUrl: undefined,
+        rulesets: [],
+        signature: undefined as never,
+      },
+      {
+        name: "childbare",
+        description: "Child line-option docs.",
+        docsUrl: undefined,
+        rulesets: [],
+        signature: undefined as never,
+      },
+    ];
+
+    const lineText = "    custom barelineopt childbare";
+    const doc = createDocument(`backend api\n${lineText}`);
+    const position = { line: 1, character: lineText.indexOf("barelineopt") + 1 } as never;
+    const semantic = getLineSemanticContext(doc, position, schema, data);
+    if (!semantic?.ctx.token) {
+      throw new Error("expected synthetic line-option token");
+    }
+
+    const topHover = tryLineOptionHover({
+      document: doc,
+      position,
+      data,
+      schema,
+      semantic,
+      ctx: {
+        ...semantic.ctx,
+        kind: "custom",
+        tokenIndex: 1,
+        token: semantic.ctx.line.tokens[1],
+      } as never,
+      range: new Range(
+        1,
+        semantic.ctx.line.tokens[1].start,
+        1,
+        semantic.ctx.line.tokens[1].end,
+      ) as never,
+      cursorOffset: 0,
+      tokenLower: "barelineopt",
+      analyzed: {
+        ...semantic.analyzed,
+        statement: { rule: { keyword: "custom", kind: "custom", nested_start_index: 1 } },
+      } as never,
+    });
+    expect(topHover).not.toBeNull();
+    if (!topHover) {
+      throw new Error("expected top-level line-option hover");
+    }
+    expect(hoverText(topHover)).toContain("Bare line-option docs.");
+
+    const childToken = semantic.ctx.line.tokens[2];
+    const childHover = tryLineOptionHover({
+      document: doc,
+      position: { line: 1, character: childToken.start + 1 } as never,
+      data,
+      schema,
+      semantic,
+      ctx: {
+        ...semantic.ctx,
+        kind: "custom",
+        tokenIndex: 2,
+        token: childToken,
+      } as never,
+      range: new Range(1, childToken.start, 1, childToken.end) as never,
+      cursorOffset: 0,
+      tokenLower: "childbare",
+      analyzed: {
+        ...semantic.analyzed,
+        statement: { rule: { keyword: "custom", kind: "custom", nested_start_index: 1 } },
+      } as never,
+    });
+    expect(childHover).not.toBeNull();
+    if (!childHover) {
+      throw new Error("expected child line-option hover");
+    }
+    expect(hoverText(childHover)).toContain("Child line-option docs.");
+  });
+
   it("covers simple markdown helpers around line-option hovers", () => {
     const extras: string[] = [];
     addSectionExtra(extras, undefined);

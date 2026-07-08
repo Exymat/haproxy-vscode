@@ -218,6 +218,51 @@ describe("completion and hover", () => {
     expect(labels).not.toContain("balance");
   });
 
+  it("omits documentation for sparse line-option enum values", () => {
+    const content = "backend api\n    server s1 127.0.0.1:80 testcomp ";
+    const doc = createDocument(content);
+    const bundle = bundles["3.4"];
+    const schema = structuredClone(bundle.schema);
+    const data = structuredClone(bundle.languageData);
+    schema.keywords.testcomp = {
+      name: "testcomp",
+      sections: ["backend"],
+      signatures: ["testcomp <mode>"],
+      sources: [],
+      contexts: [],
+      argument_model: {
+        min_args: 1,
+        max_args: 1,
+        slots: [{ enum: ["noval"], optional: false, value_kind: "enum", variadic: false }],
+      },
+      arguments: [],
+    };
+    schema.keyword_groups.server_options = [
+      ...(schema.keyword_groups.server_options ?? []),
+      "testcomp",
+    ];
+    data.groups.server_options = [
+      ...(data.groups.server_options ?? []),
+      {
+        name: "testcomp",
+        description: "Test completion option.",
+        docsUrl: undefined,
+        rulesets: [],
+        signature: "testcomp <mode>",
+      },
+    ];
+
+    const items = provideCompletionItems(
+      doc,
+      { line: 1, character: content.split("\n")[1].length } as never,
+      data,
+      schema,
+    );
+    const value = items.find((item) => item.label === "noval");
+    expect(value).toBeDefined();
+    expect(value?.documentation).toBeUndefined();
+  });
+
   it("returns empty when no completion handler matches", () => {
     const content = "frontend web\n    bind :80 extra";
     const doc = createDocument(content);

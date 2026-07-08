@@ -145,10 +145,6 @@ function resolveEnvironmentVariableSymbol(
   positionCharacter: number,
 ): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
   const token = line.tokens[tokenIndex];
-  if (!token) {
-    /* v8 ignore next -- tokenIndexAtPosition only returns indexes for existing tokens. */
-    return null;
-  }
 
   const keyword = line.tokens[0]?.text.toLowerCase();
   if (

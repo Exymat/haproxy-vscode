@@ -271,6 +271,39 @@ describe("expectedReferenceTesting helpers", () => {
         schema,
       ),
     ).toBe(false);
+
+    const mismatchSchema = structuredClone(schema);
+    mismatchSchema.statement_rules = [
+      {
+        keyword: "synthetic",
+        kind: "directive",
+        match_tokens: ["synthetic", "definition"],
+        definition_kind: "cache",
+        fixed_slots: [{ role: "name" }],
+      },
+      {
+        keyword: "synthetic",
+        kind: "directive",
+        match_tokens: ["synthetic", "reference"],
+        reference_kind: "cache",
+        fixed_slots: [{ role: "name" }],
+      },
+    ] as never;
+    const mismatchLine = parseDocument(
+      createDocument("frontend web\n    synthetic other target"),
+    )[1];
+    expect(
+      expectedReferenceTesting.isDefinitionSymbolPosition(mismatchLine, 2, mismatchSchema),
+    ).toBe(false);
+    expect(
+      expectedReferenceTesting.expectedReferenceAtTokenIndex(
+        mismatchLine,
+        2,
+        mismatchLine.tokens[2].start,
+        mismatchSchema,
+        "frontend:web",
+      ),
+    ).toBeNull();
   });
 
   it("covers direct token-index and sample-fetch resolution paths", () => {
@@ -331,6 +364,24 @@ describe("expectedReferenceTesting helpers", () => {
         sectionLine,
         sectionLine.tokens.findIndex((token) => token.text === "profile"),
         sectionLine.tokens.findIndex((token) => token.text === "profile"),
+        schema,
+        null,
+      ),
+    ).toBeNull();
+
+    const nestedSectionLine = {
+      ...parseDocument(createDocument("frontend web from base"))[0],
+      tokens: parseDocument(createDocument("frontend web from base"))[0].tokens.map((token) => ({
+        ...token,
+        start: token.start + 4,
+        end: token.end + 4,
+      })),
+    };
+    expect(
+      expectedReferenceTesting.expectedReferenceAtTokenIndex(
+        nestedSectionLine,
+        3,
+        nestedSectionLine.tokens[3].start,
         schema,
         null,
       ),

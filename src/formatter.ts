@@ -86,7 +86,6 @@ function lastNonEmptyLine(lines: string[]): string | undefined {
       return lines[i];
     }
   }
-  /* v8 ignore next -- defensive fallback for an all-empty buffer */
   return undefined;
 }
 
@@ -119,8 +118,7 @@ export function formatConfig(
     const { code, commentSuffix } = splitLineAtComment(rawLine);
 
     if (code.length === 0) {
-      /* v8 ignore next -- comment-only formatting only reaches an empty fallback with synthetic split results */
-      outputLines.push(commentSuffix ?? "");
+      outputLines.push(commentSuffix as string);
       continue;
     }
 

@@ -94,7 +94,6 @@ function isDefinitionSymbolPosition(
 
   for (const rule of candidateRules(schema, line)) {
     if (!ruleMatchesLine(rule, line.tokens)) {
-      /* v8 ignore next -- candidate rules are filtered before definition checks */
       continue;
     }
     if (!rule.definition_kind) {
@@ -114,7 +113,6 @@ function expectedSectionHeaderReference(
   tokenIndex: number,
 ): ExpectedSymbolReference | null {
   if (!isTopLevelSectionHeader(line)) {
-    /* v8 ignore next -- section-header references are only resolved on top-level headers */
     return null;
   }
   for (let i = 2; i < line.tokens.length; i += 1) {
@@ -142,7 +140,6 @@ function expectedStatementRuleReference(
 ): ExpectedSymbolReference | null {
   for (const rule of candidateRules(schema, line)) {
     if (!ruleMatchesLine(rule, line.tokens)) {
-      /* v8 ignore next -- candidate rules are filtered before reference checks */
       continue;
     }
     if (!rule.reference_kind) {
@@ -184,10 +181,6 @@ function splitSegmentAtOffset(
       cursor += split.length;
     }
   }
-  /* v8 ignore next 3 -- offset at text.length is always handled in the loop above */
-  if (offset === text.length && parts.length > 0) {
-    return { inSegment: false, afterDelimiter: true };
-  }
   return { inSegment: false, afterDelimiter: false };
 }
 
@@ -222,12 +215,6 @@ function expectedReferencePatternAt(
       continue;
     }
 
-    const offset = character - targetToken.start;
-    const placement = splitSegmentAtOffset(targetToken.text, pattern.split, offset);
-    /* v8 ignore next -- comma-split filter lists always place the cursor on a segment or delimiter */
-    if (!placement.inSegment && !placement.afterDelimiter) {
-      continue;
-    }
     return { kind, scopeKey: refScopeKey };
   }
 

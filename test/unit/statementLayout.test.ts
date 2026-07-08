@@ -1,4 +1,5 @@
 import {
+  candidateRules,
   findStatementRule,
   resolveActionTokenIndex,
   resolvePhaseTokenIndex,
@@ -60,6 +61,8 @@ describe("statementLayout", () => {
   });
 
   it("handles multi-word rule prefixes", () => {
+    expect(candidateRules(bundle.schema, [])).toEqual([]);
+    expect(ruleMatchesLine({ keyword: "option" } as never, [])).toBe(false);
     expect(
       ruleMatchesLine(
         { keyword: "option", prefix: "no option" } as never,

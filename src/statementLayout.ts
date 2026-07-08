@@ -15,20 +15,16 @@ function ruleIndexKey(rule: StatementRule): string {
 
 function statementRulesByFirstToken(schema: HaproxySchema): Map<string, StatementRule[]> {
   let index = statementRuleIndexCache.get(schema);
-  /* v8 ignore start -- rule-index caching is a lookup optimization, not matching semantics */
   if (index) {
     return index;
   }
-  /* v8 ignore stop */
   index = new Map();
-  /* v8 ignore start -- statement-rule indexing is a cacheable lookup optimization */
   for (const rule of schema.statement_rules ?? []) {
     const key = ruleIndexKey(rule);
     const list = index.get(key) ?? [];
     list.push(rule);
     index.set(key, list);
   }
-  /* v8 ignore stop */
   statementRuleIndexCache.set(schema, index);
   return index;
 }
@@ -37,17 +33,13 @@ export function candidateRules(
   schema: HaproxySchema,
   line: ParsedLine | ParsedToken[],
 ): StatementRule[] {
-  /* v8 ignore start -- callers normally pass parsed lines; token-array fallback exists for shared helpers/tests */
   const tokens = Array.isArray(line) ? line : line.tokens;
   const t0 = tokens[0]?.text.toLowerCase();
-  /* v8 ignore start -- empty-token candidate lookup only occurs for partial parse states */
   if (!t0) {
     return [];
   }
-  /* v8 ignore stop */
   const index = statementRulesByFirstToken(schema);
   return index.get(t0) ?? [];
-  /* v8 ignore stop */
 }
 
 export function ruleMatchesLine(rule: StatementRule, line: ParsedLine | ParsedToken[]): boolean {

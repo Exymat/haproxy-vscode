@@ -38,12 +38,10 @@ export function getLineSemanticContext(
   }
 
   const allowed = sectionKeywordSet(schema, ctx.line.section);
-  /* v8 ignore start -- language-data filtering only narrows directive matching when section-aware docs are loaded */
   const directiveAllowed =
     data && ctx.line.section
       ? new Set(indexedKeywordNameSetForSection(data, ctx.line.section))
       : allowed;
-  /* v8 ignore stop */
   const analyzed = analyzeLine(ctx.line, {
     schema,
     allowed,

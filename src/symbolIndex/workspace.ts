@@ -1,55 +1,50 @@
 import * as vscode from "vscode";
 
-import { getParsedDocument } from "../parseCache";
-import { parseDocumentLines, ParsedLine } from "../parser";
-import { HaproxySchema, sectionHeaderSet } from "../schema";
+import { documentContentFingerprint } from "../documentUriKey";
+import { HaproxySchema } from "../schema";
 
-import { buildSymbolIndex } from "./build";
-import { getSymbolIndex } from "./cache";
-import { buildReferencesByKey } from "./utils";
-import { SymbolIndex, SymbolKind, symbolKeyForScopedKinds, SymbolSite } from "./types";
+import {
+  aggregateDocuments,
+  createDiskEntry,
+  createOpenDocumentEntry,
+  totalDocumentLines,
+} from "./workspaceDocuments";
+import {
+  getDiscoveredUris,
+  invalidateDiscoveryCache,
+  targetFolderRefs,
+  workspaceFolderForUri,
+  workspaceFolderKey,
+} from "./workspaceDiscovery";
+import {
+  WorkspaceDocumentSymbols,
+  WorkspaceIndexChangeEvent,
+  WorkspaceRebuildOptions,
+  WorkspaceRebuildScope,
+  WorkspaceSymbolIndex,
+  WorkspaceSymbolSettings,
+} from "./workspaceTypes";
+import { workspaceUriKey } from "./workspaceUri";
 
-export interface WorkspaceSymbolSettings {
-  enabled: boolean;
-  include: string[];
-  exclude: string[];
-  maxFiles: number;
-  maxTotalLines: number;
-  debounceMs: number;
-}
-
-export interface WorkspaceSymbolSite extends SymbolSite {
-  uri: vscode.Uri;
-  uriKey: string;
-}
-
-interface SectionRange {
-  endLine: number;
-  endColumn: number;
-}
-
-interface WorkspaceDocumentSymbols {
-  uri: vscode.Uri;
-  uriKey: string;
-  version: number | null;
-  fingerprint: string;
-  parsed: ParsedLine[];
-  lineTexts: string[];
-  index: SymbolIndex;
-  sectionRangesByStartLine: Map<number, SectionRange>;
-}
-
-export interface WorkspaceSymbolIndex {
-  generation: number;
-  capped: boolean;
-  documents: Map<string, WorkspaceDocumentSymbols>;
-  definitions: Map<string, WorkspaceSymbolSite[]>;
-  references: WorkspaceSymbolSite[];
-  referencesByKey: Map<string, WorkspaceSymbolSite[]>;
-  scopedSymbolKinds: Set<SymbolKind>;
-}
-
-const GLOBAL_WORKSPACE_FOLDER_KEY = "<global>";
+export { buildWorkspaceSymbolIndexFromOpenDocuments } from "./workspaceDocuments";
+export { isUriExcludedFromWorkspaceSymbols } from "./workspaceDiscovery";
+export {
+  findAllWorkspaceSites,
+  findWorkspaceDefinitions,
+  findWorkspaceReferences,
+  symbolIndexForWorkspaceDiagnostics,
+  workspaceSiteRange,
+  workspaceSiteText,
+} from "./workspaceQueries";
+export type {
+  WorkspaceIndexChangeEvent,
+  WorkspaceRebuildOptions,
+  WorkspaceRebuildScope,
+  WorkspaceSymbolIndex,
+  WorkspaceSymbolSettings,
+  WorkspaceSymbolSite,
+} from "./workspaceTypes";
+export { workspaceUriKey } from "./workspaceUri";
 
 let activeWorkspaceIndexes = new Map<string, WorkspaceSymbolIndex>();
 let activeGeneration = 0;
@@ -57,223 +52,145 @@ let rebuildTimer: NodeJS.Timeout | undefined;
 let activeSettings: WorkspaceSymbolSettings | null = null;
 let activeSchema: HaproxySchema | null = null;
 let activeMaxLines = 0;
-let onDidChangeWorkspaceIndex: (() => void) | undefined;
+let onDidChangeWorkspaceIndex: ((event: WorkspaceIndexChangeEvent) => void) | undefined;
 
-export function workspaceUriKey(uri: vscode.Uri): string {
-  const value = uri.toString();
-  const isFileUri = uri.scheme === "file" || value.toLowerCase().startsWith("file:");
-  if (!isFileUri) {
-    return value;
+type ActiveWorkspaceRebuildScope = Exclude<WorkspaceRebuildScope, "none">;
+type ActiveWorkspaceRebuildOptions = Omit<WorkspaceRebuildOptions, "scope"> & {
+  scope?: ActiveWorkspaceRebuildScope;
+};
+
+let pendingRebuildOptions: ActiveWorkspaceRebuildOptions = { scope: "full" };
+
+export function workspaceEntryForDocument(
+  document: vscode.TextDocument,
+): WorkspaceDocumentSymbols | undefined {
+  const folderKey = workspaceFolderKey(workspaceFolderForUri(document.uri));
+  return activeWorkspaceIndexes.get(folderKey)?.documents.get(workspaceUriKey(document.uri));
+}
+
+export function resolveWorkspaceRebuildScopeOnOpen(
+  document: vscode.TextDocument,
+): WorkspaceRebuildScope {
+  if (document.languageId !== "haproxy") {
+    return "none";
   }
-  const fsPath = uri.fsPath ?? "";
-  const isWindowsFileUri =
-    process.platform === "win32" ||
-    /^[a-z]:[\\/]/i.test(fsPath) ||
-    /^file:\/\/\/[a-z]%3a/i.test(value);
-  return isWindowsFileUri ? value.toLowerCase() : value;
-}
 
-function textDocumentContent(document: vscode.TextDocument): { text: string; lines: string[] } {
-  const text = document.getText();
-  return { text, lines: text.split(/\r?\n/) };
-}
-
-function fingerprintText(text: string): string {
-  return `${text.length}:${text.slice(0, 64)}:${text.slice(-64)}`;
-}
-
-function sectionRanges(parsed: ParsedLine[], lineTexts: string[]): Map<number, SectionRange> {
-  const starts = parsed.filter((line) => line.isSectionHeader).map((line) => line.line);
-  const ranges = new Map<number, SectionRange>();
-  for (let i = 0; i < starts.length; i += 1) {
-    const start = starts[i];
-    const nextStart = starts[i + 1];
-    const endLine = nextStart === undefined ? parsed.length - 1 : nextStart - 1;
-    ranges.set(start, {
-      endLine,
-      endColumn: lineTexts[endLine]?.length ?? 0,
-    });
+  const folderKey = workspaceFolderKey(workspaceFolderForUri(document.uri));
+  const folderIndex = activeWorkspaceIndexes.get(folderKey);
+  if (!folderIndex || folderIndex.capped) {
+    return "full";
   }
-  return ranges;
+
+  const uriKey = workspaceUriKey(document.uri);
+  const entry = folderIndex.documents.get(uriKey);
+  if (!entry) {
+    return "full";
+  }
+
+  if (entry.fingerprint === documentContentFingerprint(document)) {
+    return "none";
+  }
+
+  return "incremental";
 }
 
-function siteWithUri(site: SymbolSite, uri: vscode.Uri): WorkspaceSymbolSite {
-  return { ...site, uri, uriKey: workspaceUriKey(uri) };
+export function isWorkspaceRebuildPending(): boolean {
+  return rebuildTimer !== undefined;
 }
 
-function aggregateDocuments(
+function notifyWorkspaceIndexChanged(event: WorkspaceIndexChangeEvent): void {
+  onDidChangeWorkspaceIndex?.(event);
+}
+
+async function buildFolderWorkspaceIndex(
+  folder: vscode.WorkspaceFolder | undefined,
+  folderKey: string,
+  schema: HaproxySchema,
+  settings: WorkspaceSymbolSettings,
+  maxLines: number,
   generation: number,
-  capped: boolean,
-  documents: Map<string, WorkspaceDocumentSymbols>,
-): WorkspaceSymbolIndex {
-  const definitions = new Map<string, WorkspaceSymbolSite[]>();
-  const references: WorkspaceSymbolSite[] = [];
-  let scopedSymbolKinds: Set<SymbolKind> | undefined;
-
-  for (const entry of documents.values()) {
-    scopedSymbolKinds = entry.index.scopedSymbolKinds;
-    for (const [key, defs] of entry.index.definitions) {
-      const list = definitions.get(key) ?? [];
-      for (const site of defs) {
-        list.push(siteWithUri(site, entry.uri));
-      }
-      definitions.set(key, list);
-    }
-    for (const site of entry.index.references) {
-      references.push(siteWithUri(site, entry.uri));
-    }
+  forceRediscover: boolean,
+  previousDocuments: Map<string, WorkspaceDocumentSymbols>,
+): Promise<WorkspaceSymbolIndex | null> {
+  const uris = await getDiscoveredUris(settings, folder, folderKey, forceRediscover);
+  /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
+  if (generation !== activeGeneration) {
+    return null;
+  }
+  /* v8 ignore stop */
+  if (!uris) {
+    return aggregateDocuments(generation, true, new Map());
   }
 
-  const scoped = scopedSymbolKinds ?? new Set<SymbolKind>();
-  return {
-    generation,
-    capped,
-    documents,
-    definitions,
-    references,
-    referencesByKey: buildReferencesByKey(scoped, references),
-    scopedSymbolKinds: scoped,
-  };
-}
-
-function openDocumentForUri(uri: vscode.Uri): vscode.TextDocument | undefined {
-  const key = workspaceUriKey(uri);
-  return vscode.workspace.textDocuments.find((document) => workspaceUriKey(document.uri) === key);
-}
-
-function workspaceFolderKey(folder: vscode.WorkspaceFolder | undefined): string {
-  return folder ? workspaceUriKey(folder.uri) : GLOBAL_WORKSPACE_FOLDER_KEY;
-}
-
-function workspaceFolderForUri(uri: vscode.Uri): vscode.WorkspaceFolder | undefined {
-  return vscode.workspace.getWorkspaceFolder?.(uri);
-}
-
-function activeWorkspaceFolders(): Array<vscode.WorkspaceFolder | undefined> {
-  const folders = vscode.workspace.workspaceFolders;
-  if (!folders || folders.length === 0) {
-    return [undefined];
-  }
-
-  const active = new Map<string, vscode.WorkspaceFolder>();
-  for (const document of vscode.workspace.textDocuments) {
-    if (document.languageId !== "haproxy") {
+  const documents = new Map<string, WorkspaceDocumentSymbols>();
+  let totalLines = 0;
+  for (const uri of uris) {
+    const uriKey = workspaceUriKey(uri);
+    const entry = await createDiskEntry(uri, schema, maxLines, previousDocuments.get(uriKey));
+    /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
+    if (generation !== activeGeneration) {
+      return null;
+    }
+    /* v8 ignore stop */
+    if (!entry) {
       continue;
     }
-    const folder = workspaceFolderForUri(document.uri);
-    if (folder) {
-      active.set(workspaceFolderKey(folder), folder);
+    totalLines += entry.parsed.length;
+    if (totalLines > settings.maxTotalLines) {
+      return aggregateDocuments(generation, true, new Map());
     }
+    documents.set(entry.uriKey, entry);
   }
-  return [...active.values()];
+  return aggregateDocuments(generation, false, documents);
 }
 
-function createOpenDocumentEntry(
+async function updateSingleDocumentInWorkspaceIndex(
   document: vscode.TextDocument,
   schema: HaproxySchema,
-  maxLines: number,
-): WorkspaceDocumentSymbols | null {
-  if (document.languageId !== "haproxy" || document.lineCount > maxLines) {
-    return null;
-  }
-  const index = getSymbolIndex(document, schema, maxLines);
-  if (!index) {
-    /* v8 ignore next -- line-count caps are checked before calling getSymbolIndex here. */
-    return null;
-  }
-  const parsed = getParsedDocument(document, { sectionHeaders: sectionHeaderSet(schema) });
-  const { text, lines } = textDocumentContent(document);
-  return {
-    uri: document.uri,
-    uriKey: workspaceUriKey(document.uri),
-    version: document.version,
-    fingerprint: fingerprintText(text),
-    parsed,
-    lineTexts: lines,
-    index,
-    sectionRangesByStartLine: sectionRanges(parsed, lines),
-  };
-}
-
-export function buildWorkspaceSymbolIndexFromOpenDocuments(
-  documents: readonly vscode.TextDocument[],
-  schema: HaproxySchema,
-  maxLines: number,
-): WorkspaceSymbolIndex {
-  const entries = new Map<string, WorkspaceDocumentSymbols>();
-  for (const document of documents) {
-    const entry = createOpenDocumentEntry(document, schema, maxLines);
-    if (entry) {
-      entries.set(entry.uriKey, entry);
-    }
-  }
-  return aggregateDocuments(0, false, entries);
-}
-
-async function createDiskEntry(
-  uri: vscode.Uri,
-  schema: HaproxySchema,
-  maxLines: number,
-): Promise<WorkspaceDocumentSymbols | null> {
-  const open = openDocumentForUri(uri);
-  if (open) {
-    return createOpenDocumentEntry(open, schema, maxLines);
-  }
-
-  const bytes = await vscode.workspace.fs.readFile(uri);
-  const text = new TextDecoder("utf-8").decode(bytes);
-  const lines = text.split(/\r?\n/);
-  if (lines.length > maxLines) {
-    return null;
-  }
-  const parsed = parseDocumentLines(lines, { sectionHeaders: sectionHeaderSet(schema) });
-  const index = buildSymbolIndex(parsed, schema);
-  return {
-    uri,
-    uriKey: workspaceUriKey(uri),
-    version: null,
-    fingerprint: fingerprintText(text),
-    parsed,
-    lineTexts: lines,
-    index,
-    sectionRangesByStartLine: sectionRanges(parsed, lines),
-  };
-}
-
-function excludePattern(settings: WorkspaceSymbolSettings): string | undefined {
-  if (settings.exclude.length === 0) {
-    return undefined;
-  }
-  return `{${settings.exclude.join(",")}}`;
-}
-
-function relativePattern(
-  folder: vscode.WorkspaceFolder | undefined,
-  pattern: string,
-): vscode.GlobPattern {
-  return folder ? new vscode.RelativePattern(folder, pattern) : pattern;
-}
-
-async function discoverUris(
   settings: WorkspaceSymbolSettings,
-  folder: vscode.WorkspaceFolder | undefined,
-): Promise<vscode.Uri[] | null> {
-  const discovered = new Map<string, vscode.Uri>();
-  const exclude = excludePattern(settings);
-  for (const include of settings.include) {
-    const uris = await vscode.workspace.findFiles(
-      relativePattern(folder, include),
-      exclude ? relativePattern(folder, exclude) : undefined,
-      settings.maxFiles + 1,
-    );
-    for (const uri of uris) {
-      discovered.set(workspaceUriKey(uri), uri);
-      if (discovered.size > settings.maxFiles) {
-        return null;
-      }
-    }
+  maxLines: number,
+  generation: number,
+): Promise<void> {
+  const folder = workspaceFolderForUri(document.uri);
+  const folderKey = workspaceFolderKey(folder);
+  const existing = activeWorkspaceIndexes.get(folderKey);
+  if (!existing || existing.capped) {
+    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, {
+      scope: "content",
+    });
+    return;
   }
-  return [...discovered.values()];
+
+  const uriKey = workspaceUriKey(document.uri);
+  if (!existing.documents.has(uriKey)) {
+    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, {
+      scope: "full",
+    });
+    return;
+  }
+
+  const entry = createOpenDocumentEntry(document, schema, maxLines, existing.documents.get(uriKey));
+  /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
+  if (generation !== activeGeneration) {
+    return;
+  }
+  /* v8 ignore stop */
+  if (!entry) {
+    const documents = new Map(existing.documents);
+    documents.delete(uriKey);
+    activeWorkspaceIndexes.set(folderKey, aggregateDocuments(generation, false, documents));
+    notifyWorkspaceIndexChanged({ scope: "incremental", document });
+    return;
+  }
+
+  const documents = new Map(existing.documents);
+  documents.set(entry.uriKey, entry);
+  if (totalDocumentLines(documents) > settings.maxTotalLines) {
+    activeWorkspaceIndexes.set(folderKey, aggregateDocuments(generation, true, new Map()));
+  } else {
+    activeWorkspaceIndexes.set(folderKey, aggregateDocuments(generation, false, documents));
+  }
+  notifyWorkspaceIndexChanged({ scope: "incremental", document });
 }
 
 async function rebuildWorkspaceIndexes(
@@ -281,51 +198,64 @@ async function rebuildWorkspaceIndexes(
   settings: WorkspaceSymbolSettings,
   maxLines: number,
   generation: number,
+  options: ActiveWorkspaceRebuildOptions = { scope: "full" },
 ): Promise<void> {
   if (!settings.enabled) {
     if (generation === activeGeneration) {
       activeWorkspaceIndexes = new Map();
-      onDidChangeWorkspaceIndex?.();
+      invalidateDiscoveryCache();
+      notifyWorkspaceIndexChanged({ scope: options.scope ?? "full", document: options.document });
     }
     return;
   }
 
+  const scope = options.scope ?? "full";
+  if (scope === "incremental" && options.document) {
+    await updateSingleDocumentInWorkspaceIndex(
+      options.document,
+      schema,
+      settings,
+      maxLines,
+      generation,
+    );
+    return;
+  }
+
+  const forceRediscover = scope === "full";
+  if (forceRediscover) {
+    invalidateDiscoveryCache();
+  }
+
+  const folderRefs = targetFolderRefs(options, activeWorkspaceIndexes.keys());
+  const foldersToRebuild = new Set(folderRefs.map((ref) => ref.folderKey));
   const nextIndexes = new Map<string, WorkspaceSymbolIndex>();
-  for (const folder of activeWorkspaceFolders()) {
-    const folderKey = workspaceFolderKey(folder);
-    const uris = await discoverUris(settings, folder);
+
+  for (const [folderKey, index] of activeWorkspaceIndexes) {
+    if (!foldersToRebuild.has(folderKey)) {
+      nextIndexes.set(folderKey, { ...index, generation });
+    }
+  }
+
+  for (const { folder, folderKey } of folderRefs) {
+    const previousDocuments =
+      activeWorkspaceIndexes.get(folderKey)?.documents ??
+      new Map<string, WorkspaceDocumentSymbols>();
+    const index = await buildFolderWorkspaceIndex(
+      folder,
+      folderKey,
+      schema,
+      settings,
+      maxLines,
+      generation,
+      forceRediscover,
+      previousDocuments,
+    );
     /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-    if (generation !== activeGeneration) {
+    if (generation !== activeGeneration || index === null) {
       return;
     }
     /* v8 ignore stop */
-    if (!uris) {
-      nextIndexes.set(folderKey, aggregateDocuments(generation, true, new Map()));
-      continue;
-    }
-
-    const documents = new Map<string, WorkspaceDocumentSymbols>();
-    let totalLines = 0;
-    for (const uri of uris) {
-      const entry = await createDiskEntry(uri, schema, maxLines);
-      /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-      if (generation !== activeGeneration) {
-        return;
-      }
-      /* v8 ignore stop */
-      if (!entry) {
-        continue;
-      }
-      totalLines += entry.parsed.length;
-      if (totalLines > settings.maxTotalLines) {
-        nextIndexes.set(folderKey, aggregateDocuments(generation, true, new Map()));
-        break;
-      }
-      documents.set(entry.uriKey, entry);
-    }
-    if (!nextIndexes.has(folderKey)) {
-      nextIndexes.set(folderKey, aggregateDocuments(generation, false, documents));
-    }
+    nextIndexes.set(folderKey, index);
   }
 
   /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
@@ -334,7 +264,7 @@ async function rebuildWorkspaceIndexes(
   }
   /* v8 ignore stop */
   activeWorkspaceIndexes = nextIndexes;
-  onDidChangeWorkspaceIndex?.();
+  notifyWorkspaceIndexChanged({ scope, document: options.document });
 }
 
 export function getWorkspaceSymbolIndex(
@@ -358,10 +288,21 @@ export function scheduleWorkspaceSymbolIndexRebuild(
   schema: HaproxySchema,
   settings: WorkspaceSymbolSettings,
   maxLines: number,
+  options: WorkspaceRebuildOptions = { scope: "full" },
 ): void {
+  const scope = options.scope ?? "full";
+  if (scope === "none") {
+    return;
+  }
+
   activeSchema = schema;
   activeSettings = settings;
   activeMaxLines = maxLines;
+  pendingRebuildOptions = {
+    scope,
+    document: options.document,
+    uri: options.uri,
+  };
   activeGeneration += 1;
   const generation = activeGeneration;
   if (rebuildTimer) {
@@ -369,7 +310,9 @@ export function scheduleWorkspaceSymbolIndexRebuild(
   }
   rebuildTimer = setTimeout(() => {
     rebuildTimer = undefined;
-    void rebuildWorkspaceIndexes(schema, settings, maxLines, generation);
+    const rebuildOptions = pendingRebuildOptions;
+    pendingRebuildOptions = { scope: "full" };
+    void rebuildWorkspaceIndexes(schema, settings, maxLines, generation, rebuildOptions);
   }, settings.debounceMs);
 }
 
@@ -377,7 +320,9 @@ export function refreshWorkspaceSymbolIndexNow(): void {
   if (!activeSchema || !activeSettings) {
     return;
   }
-  scheduleWorkspaceSymbolIndexRebuild(activeSchema, activeSettings, activeMaxLines);
+  scheduleWorkspaceSymbolIndexRebuild(activeSchema, activeSettings, activeMaxLines, {
+    scope: "full",
+  });
 }
 
 export function clearWorkspaceSymbolIndex(): void {
@@ -390,95 +335,12 @@ export function clearWorkspaceSymbolIndex(): void {
   activeSettings = null;
   activeSchema = null;
   activeMaxLines = 0;
+  pendingRebuildOptions = { scope: "full" };
+  invalidateDiscoveryCache();
 }
 
-export function setWorkspaceSymbolIndexChangeListener(listener: (() => void) | undefined): void {
+export function setWorkspaceSymbolIndexChangeListener(
+  listener: ((event: WorkspaceIndexChangeEvent) => void) | undefined,
+): void {
   onDidChangeWorkspaceIndex = listener;
-}
-
-export function findWorkspaceDefinitions(
-  workspaceIndex: WorkspaceSymbolIndex,
-  kind: SymbolKind,
-  name: string,
-  scopeKey: string | null,
-): WorkspaceSymbolSite[] {
-  const key = symbolKeyForScopedKinds(workspaceIndex.scopedSymbolKinds, kind, name, scopeKey);
-  return workspaceIndex.definitions.get(key) ?? [];
-}
-
-export function findWorkspaceReferences(
-  workspaceIndex: WorkspaceSymbolIndex,
-  kind: SymbolKind,
-  name: string,
-  scopeKey: string | null,
-): WorkspaceSymbolSite[] {
-  const key = symbolKeyForScopedKinds(workspaceIndex.scopedSymbolKinds, kind, name, scopeKey);
-  return workspaceIndex.referencesByKey.get(key) ?? [];
-}
-
-export function workspaceSiteRange(
-  workspaceIndex: WorkspaceSymbolIndex,
-  site: WorkspaceSymbolSite,
-): SectionRange | undefined {
-  return workspaceIndex.documents.get(site.uriKey)?.sectionRangesByStartLine.get(site.line);
-}
-
-export function workspaceSiteText(
-  workspaceIndex: WorkspaceSymbolIndex,
-  site: WorkspaceSymbolSite,
-): string | undefined {
-  const document = workspaceIndex.documents.get(site.uriKey);
-  if (!document) {
-    return undefined;
-  }
-
-  if (site.role !== "definition") {
-    return document.lineTexts[site.line];
-  }
-
-  const range = workspaceSiteRange(workspaceIndex, site);
-  if (!range) {
-    return document.lineTexts[site.line];
-  }
-
-  return document.lineTexts.slice(site.line, range.endLine + 1).join("\n");
-}
-
-function localReferencesMissingInWorkspace(
-  localIndex: SymbolIndex,
-  workspaceIndex: WorkspaceSymbolIndex,
-): SymbolSite[] {
-  const unresolved: SymbolSite[] = [];
-  for (const reference of localIndex.references) {
-    const key = symbolKeyForScopedKinds(
-      localIndex.scopedSymbolKinds,
-      reference.kind,
-      reference.name,
-      reference.scopeKey,
-    );
-    if (!workspaceIndex.definitions.has(key)) {
-      unresolved.push(reference);
-    }
-  }
-  return unresolved;
-}
-
-export function symbolIndexForWorkspaceDiagnostics(
-  document: vscode.TextDocument,
-  localIndex: SymbolIndex,
-  workspaceIndex: WorkspaceSymbolIndex | null,
-): SymbolIndex {
-  if (!workspaceIndex || !workspaceIndex.documents.has(workspaceUriKey(document.uri))) {
-    return localIndex;
-  }
-
-  return {
-    definitions: localIndex.definitions,
-    references: localIndex.references,
-    referencesByKey: workspaceIndex.referencesByKey,
-    scopeKeyByLine: localIndex.scopeKeyByLine,
-    scopedSymbolKinds: localIndex.scopedSymbolKinds,
-    sitesByLine: localIndex.sitesByLine,
-    unresolvedReferences: localReferencesMissingInWorkspace(localIndex, workspaceIndex),
-  };
 }

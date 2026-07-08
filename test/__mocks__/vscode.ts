@@ -177,6 +177,8 @@ const configListeners: Array<
 > = [];
 const activeEditorListeners: Array<() => void> = [];
 const mockWorkspaceFiles = new Map<string, string>();
+const mockWorkspaceFileStats = new Map<string, { mtime: number; size: number }>();
+const mockWorkspaceReadFailures = new Set<string>();
 
 export let mockTextDocuments: Array<{
   uri: { toString: () => string };
@@ -195,6 +197,8 @@ export let mockWorkspaceFolders:
 export function resetVscodeMock(): void {
   configValues.clear();
   mockWorkspaceFiles.clear();
+  mockWorkspaceFileStats.clear();
+  mockWorkspaceReadFailures.clear();
   configListeners.length = 0;
   activeEditorListeners.length = 0;
   mockTextDocuments = [];
@@ -231,6 +235,19 @@ export function setMockConfig(section: string, key: string, value: unknown): voi
 
 export function setMockWorkspaceFile(path: string, content: string): void {
   mockWorkspaceFiles.set(path, content);
+  mockWorkspaceFileStats.set(path, { mtime: Date.now(), size: content.length });
+}
+
+export function setMockWorkspaceFileStat(path: string, mtime: number, size: number): void {
+  mockWorkspaceFileStats.set(path, { mtime, size });
+}
+
+export function setMockWorkspaceReadFailure(path: string, failing: boolean): void {
+  if (failing) {
+    mockWorkspaceReadFailures.add(path);
+  } else {
+    mockWorkspaceReadFailures.delete(path);
+  }
 }
 
 function escapeRegExp(value: string): string {
@@ -394,8 +411,19 @@ export const workspace = {
     });
   },
   fs: {
+    stat(uri: { fsPath?: string; toString: () => string }) {
+      const key = uri.fsPath ?? uri.toString();
+      const stat = mockWorkspaceFileStats.get(key);
+      if (!stat) {
+        return Promise.reject(new Error(`ENOENT: no such file ${key}`));
+      }
+      return Promise.resolve({ mtime: stat.mtime, size: stat.size });
+    },
     readFile(uri: { fsPath?: string; toString: () => string }) {
       const key = uri.fsPath ?? uri.toString();
+      if (mockWorkspaceReadFailures.has(key)) {
+        return Promise.reject(new Error(`EACCES: permission denied ${key}`));
+      }
       const content = mockWorkspaceFiles.get(key) ?? "";
       return Promise.resolve(new TextEncoder().encode(content));
     },
@@ -405,37 +433,43 @@ export const workspace = {
   },
   createFileSystemWatcher(_globPattern: unknown) {
     const listeners = {
-      create: [] as Array<() => void>,
-      change: [] as Array<() => void>,
-      delete: [] as Array<() => void>,
+      create: [] as Array<(uri: { fsPath?: string; toString: () => string }) => void>,
+      change: [] as Array<(uri: { fsPath?: string; toString: () => string }) => void>,
+      delete: [] as Array<(uri: { fsPath?: string; toString: () => string }) => void>,
     };
     return {
-      onDidCreate(listener: () => void) {
+      onDidCreate(listener: (uri: { fsPath?: string; toString: () => string }) => void) {
         listeners.create.push(listener);
         return { dispose: () => {} };
       },
-      onDidChange(listener: () => void) {
+      onDidChange(listener: (uri: { fsPath?: string; toString: () => string }) => void) {
         listeners.change.push(listener);
         return { dispose: () => {} };
       },
-      onDidDelete(listener: () => void) {
+      onDidDelete(listener: (uri: { fsPath?: string; toString: () => string }) => void) {
         listeners.delete.push(listener);
         return { dispose: () => {} };
       },
       dispose: vi.fn(),
-      triggerCreate() {
+      triggerCreate(
+        uri: { fsPath?: string; toString: () => string } = Uri.file("file:///test.cfg"),
+      ) {
         for (const listener of listeners.create) {
-          listener();
+          listener(uri);
         }
       },
-      triggerChange() {
+      triggerChange(
+        uri: { fsPath?: string; toString: () => string } = Uri.file("file:///test.cfg"),
+      ) {
         for (const listener of listeners.change) {
-          listener();
+          listener(uri);
         }
       },
-      triggerDelete() {
+      triggerDelete(
+        uri: { fsPath?: string; toString: () => string } = Uri.file("file:///test.cfg"),
+      ) {
         for (const listener of listeners.delete) {
-          listener();
+          listener(uri);
         }
       },
     };

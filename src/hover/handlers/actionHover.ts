@@ -8,8 +8,7 @@ import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
 
 function actionNameCandidates(hc: HoverContext): string[] {
-  /* v8 ignore next -- hover synthesis may run before a concrete token is available under the cursor */
-  const token = hc.ctx.token?.text ?? hc.tokenLower;
+  const token = hc.ctx.token.text;
   const seen = new Set<string>();
   const out: string[] = [];
   const push = (value: string): void => {

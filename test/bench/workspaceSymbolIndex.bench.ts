@@ -1,6 +1,6 @@
 import { bench, describe } from "vitest";
 
-import { buildWorkspaceSymbolIndexFromOpenDocuments } from "../../src/symbolIndex";
+import { buildWorkspaceSymbolIndexFromOpenDocuments, fingerprintText } from "../../src/symbolIndex";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 
@@ -18,5 +18,11 @@ const splitDocs = Array.from({ length: 200 }, (_, i) => {
 describe("workspaceSymbolIndex", () => {
   bench("build workspace graph: 200 split cfg files", () => {
     buildWorkspaceSymbolIndexFromOpenDocuments(splitDocs, bundle.schema, 4000);
+  });
+
+  bench("fingerprint 200 workspace documents", () => {
+    for (const doc of splitDocs) {
+      fingerprintText(doc.getText());
+    }
   });
 });

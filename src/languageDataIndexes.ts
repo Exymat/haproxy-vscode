@@ -50,12 +50,10 @@ function buildLanguageDataIndexes(data: HaproxyLanguageData): LanguageDataIndexe
   for (const [section, keywords] of keywordsBySection) {
     const resolved: ResolvedLanguageKeyword[] = [];
     for (const kw of keywords) {
-      /* v8 ignore start -- section-specific keyword resolution may discard generic entries with no active variant */
       const hit = resolveLanguageKeyword(kw, section);
       if (hit) {
         resolved.push(hit);
       }
-      /* v8 ignore stop */
     }
     resolvedKeywordsBySection.set(section, resolved);
   }

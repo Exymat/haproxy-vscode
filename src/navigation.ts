@@ -189,10 +189,6 @@ export function provideReferences(
         symbol.name,
         symbol.scopeKey,
       );
-      if (definitions.length === 0 && references.length === 0) {
-        /* v8 ignore next -- workspace graphs contain the defining site for locally resolved symbols. */
-        return [];
-      }
       return [...definitions, ...references].map((site) => siteToLocation(site.uri, site));
     }
     return references.map((site) => siteToLocation(site.uri, site));

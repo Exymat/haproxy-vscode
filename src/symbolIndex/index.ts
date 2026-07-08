@@ -1,3 +1,4 @@
+export { fingerprintText } from "../contentFingerprint";
 export {
   buildScopeKeyByLine,
   buildSymbolIndex,
@@ -22,19 +23,27 @@ export type { ExpectedSymbolReference } from "./expectedReference";
 export {
   clearWorkspaceSymbolIndex,
   buildWorkspaceSymbolIndexFromOpenDocuments,
+  findAllWorkspaceSites,
   findWorkspaceDefinitions,
   findWorkspaceReferences,
   getWorkspaceSymbolIndex,
+  isUriExcludedFromWorkspaceSymbols,
+  isWorkspaceRebuildPending,
   refreshWorkspaceSymbolIndexNow,
+  resolveWorkspaceRebuildScopeOnOpen,
   scheduleWorkspaceSymbolIndexRebuild,
   setWorkspaceSymbolIndexChangeListener,
   symbolIndexForWorkspaceDiagnostics,
+  workspaceEntryForDocument,
   workspaceUriKey,
   workspaceSiteRange,
   workspaceSiteText,
 } from "./workspace";
 export type { SymbolIndex, SymbolKind, SymbolSite } from "./types";
 export type {
+  WorkspaceIndexChangeEvent,
+  WorkspaceRebuildOptions,
+  WorkspaceRebuildScope,
   WorkspaceSymbolIndex,
   WorkspaceSymbolSettings,
   WorkspaceSymbolSite,

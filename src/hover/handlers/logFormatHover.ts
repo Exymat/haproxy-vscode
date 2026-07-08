@@ -46,7 +46,6 @@ export function tryLogFormatHover(hc: HoverContext): vscode.Hover | null {
       return null;
     }
 
-    /* v8 ignore next -- alias hovers fall back to schema field names when curated docs are missing */
     const description = aliasDoc?.description ?? schemaAlias?.field_name ?? "";
     const range = new vscode.Range(
       position.line,
