@@ -26,6 +26,7 @@ export {
   symbolIndexForWorkspaceDiagnostics,
   workspaceUriKey,
   workspaceSiteRange,
+  workspaceSiteText,
 } from "./workspace";
 export type { SymbolIndex, SymbolKind, SymbolSite } from "./types";
 export type {

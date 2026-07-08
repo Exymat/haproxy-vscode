@@ -8,5 +8,17 @@
   "haproxy.format.indent": "spaces-4",
   "haproxy.format.insertBlankLineBetweenSections": true,
   "haproxy.diagnostics.unusedSymbols": true,
-  "haproxy.diagnostics.missingReferences": true
+  "haproxy.diagnostics.missingReferences": true,
+  "haproxy.workspaceSymbols.enabled": true,
+  "haproxy.workspaceSymbols.include": ["**/*.cfg"],
+  "haproxy.workspaceSymbols.exclude": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/out/**",
+    "**/vendor/**"
+  ],
+  "haproxy.workspaceSymbols.maxFiles": 1000,
+  "haproxy.workspaceSymbols.maxTotalLines": 100000,
+  "haproxy.workspaceSymbols.debounceMs": 750
 }

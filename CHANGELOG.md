@@ -23,7 +23,7 @@ All notable user-facing changes to **HAProxy Language Support**.
   - `haproxy.workspaceSymbols.maxFiles` (default `300`)
   - `haproxy.workspaceSymbols.maxTotalLines` (default `100000`)
   - `haproxy.workspaceSymbols.debounceMs` (default `750`)
-  The graph rebuilds after workspace file changes (debounced) and falls back to single-file behavior when disabled or when file/line limits are exceeded.
+    The graph rebuilds after workspace file changes (debounced) and falls back to single-file behavior when disabled or when file/line limits are exceeded.
 - **Cross-file Go to Definition and Find References** — when the workspace graph is active, jump from a reference in one file to section definitions in another (backend, cache, resolvers, defaults profile, etc.); Find References lists declaration and usages across indexed files.
 - **Cross-file missing-reference and unused-section diagnostics** — a backend referenced only from another file no longer gets `missing-reference` or `unused-section` warnings; unresolved references are checked against workspace definitions, not just the current file.
 - **Duplicate section warnings** — warns when the same named section is defined in more than one indexed file (`duplicate-section`): proxy sections (frontend/backend/listen), named defaults profiles, cache, userlist, resolvers, and peers.

@@ -423,6 +423,27 @@ export function workspaceSiteRange(
   return workspaceIndex.documents.get(site.uriKey)?.sectionRangesByStartLine.get(site.line);
 }
 
+export function workspaceSiteText(
+  workspaceIndex: WorkspaceSymbolIndex,
+  site: WorkspaceSymbolSite,
+): string | undefined {
+  const document = workspaceIndex.documents.get(site.uriKey);
+  if (!document) {
+    return undefined;
+  }
+
+  if (site.role !== "definition") {
+    return document.lineTexts[site.line];
+  }
+
+  const range = workspaceSiteRange(workspaceIndex, site);
+  if (!range) {
+    return document.lineTexts[site.line];
+  }
+
+  return document.lineTexts.slice(site.line, range.endLine + 1).join("\n");
+}
+
 function localReferencesMissingInWorkspace(
   localIndex: SymbolIndex,
   workspaceIndex: WorkspaceSymbolIndex,

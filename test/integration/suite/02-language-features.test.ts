@@ -76,6 +76,23 @@ async function waitForReferenceUris(
   return locations;
 }
 
+async function waitForHoverTextContaining(
+  uri: vscode.Uri,
+  position: vscode.Position,
+  expectedText: string,
+): Promise<string> {
+  const deadline = Date.now() + 10000;
+  let text = "";
+  while (Date.now() < deadline) {
+    text = await hoverTextAt(uri, position);
+    if (text.includes(expectedText)) {
+      return text;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  return text;
+}
+
 function pathSuffix(uri: vscode.Uri): string {
   const path = uri.path.replace(/\\/g, "/");
   const marker = "/workspace-symbols/";
@@ -260,6 +277,24 @@ suite("Language feature integration", () => {
         assert.deepStrictEqual(
           references.map((location) => pathSuffix(location.uri)).sort(),
           ["/workspace-symbols/backends/api.cfg", "/workspace-symbols/frontends/web.cfg"].sort(),
+        );
+      });
+
+      test("hover shows cross-file symbol definition previews", async () => {
+        const frontend = await openFixture("workspace-symbols/frontends/web.cfg");
+        const text = await waitForHoverTextContaining(
+          frontend.uri,
+          positionOf(frontend, "api"),
+          "backend api\n    server s1 127.0.0.1:80 resolvers dns-main",
+        );
+
+        assert.ok(
+          text.includes("```haproxy"),
+          `Expected HAProxy code preview in hover, got ${text}`,
+        );
+        assert.ok(
+          !text.toLowerCase().includes("use_backend"),
+          `Expected symbol preview instead of use_backend docs, got ${text}`,
         );
       });
 

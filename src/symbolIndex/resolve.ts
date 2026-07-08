@@ -19,7 +19,8 @@ import {
 import { ruleMatchesLine } from "../statementLayout";
 import { tokenIndexAtPosition } from "../tokenUtils";
 
-import { aclReferenceAt, buildScopeKeyByLine } from "./build";
+import { aclReferenceAt } from "./aclReferences";
+import { buildScopeKeyByLine } from "./scope";
 import { symbolNameTokenIndex, ensureSitesByLine } from "./utils";
 import {
   effectiveScopeKeyForSchema,

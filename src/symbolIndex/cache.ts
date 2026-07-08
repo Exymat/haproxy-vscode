@@ -7,10 +7,10 @@ import { HaproxySchema, sectionHeaderSet } from "../schema";
 import {
   buildSymbolIndexWithFingerprints,
   collectLineSymbolSites,
-  createSymbolBuildContext,
   patchSymbolIndexLine,
   symbolSiteFingerprint,
 } from "./build";
+import { createSymbolBuildContext } from "./context";
 import { SymbolIndex } from "./types";
 
 interface IndexCacheEntry {
