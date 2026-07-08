@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.15.4
+
+- **Symbol reference completion** — suggests defined symbol names when typing at reference positions: backends (`use_backend`, `default_backend`), defaults profiles (`from`), scoped ACLs and predefined ACLs in `if`/`unless` conditions, servers, filters (including comma-separated filter-sequence references), cache, resolvers, peers, and userlists (`cache-use`, `resolvers`, `http_auth(…)`, etc.). Each item shows its symbol kind in the detail field (e.g. `backend`, `ACL`).
+- **Cross-file symbol completion** — when the workspace symbol graph is active, completion includes definitions from other indexed files in the same workspace folder, with scoped symbols limited to the current section.
+- **Defaults profile on section headers** — completion works on the profile name in `frontend … from profile` and `listen … from profile` section headers.
+
 ## 0.15.3
 
 - **Cross-file symbol hover** — when the workspace symbol graph is active, hovering a reference whose definition lives in another indexed file shows that definition in a `haproxy` code block (full section body for section definitions, e.g. the whole `backend api` block from `backends/api.cfg` when hovering `use_backend api` in a frontend file), with a **Peek Definition** link.
