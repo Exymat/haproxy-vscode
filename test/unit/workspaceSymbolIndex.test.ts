@@ -76,6 +76,15 @@ describe("workspace symbol index", () => {
     expect(workspaceUriKey(uri as never)).toBe("untitled:HAProxy.cfg");
   });
 
+  it("normalizes Windows file URI keys case-insensitively", () => {
+    const uri = {
+      scheme: "file",
+      fsPath: "C:\\Repo\\haproxy.d\\frontends\\FE_WWW.cfg",
+      toString: () => "file:///C%3A/Repo/haproxy.d/frontends/FE_WWW.cfg",
+    };
+    expect(workspaceUriKey(uri as never)).toBe("file:///c%3a/repo/haproxy.d/frontends/fe_www.cfg");
+  });
+
   it("aggregates backend definitions and references across files", async () => {
     setMockWorkspaceFile("file:///frontends/web.cfg", "frontend web\n    use_backend api");
     setMockWorkspaceFile("file:///backends/api.cfg", "backend api\n    server s1 127.0.0.1:80");
@@ -103,7 +112,7 @@ describe("workspace symbol index", () => {
     setMockWorkspaceFile("file:///repo/haproxy.d/frontends/FE_WWW.cfg", frontendContent);
     setMockWorkspaceFile("file:///repo/haproxy.d/backends/BE_WWW.cfg", backendContent);
 
-    const frontend = createDocument(frontendContent, "file:///repo/haproxy.d/frontends/fe_www.cfg");
+    const frontend = createDocument(frontendContent, "file:///repo/haproxy.d/frontends/FE_WWW.cfg");
     mockTextDocuments.push(frontend as never);
 
     const workspaceIndex = expectWorkspaceIndex(
