@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.15.1
+
+- **Windows workspace symbol graph** — file URI keys are normalized case-insensitively on Windows so the workspace graph reliably matches open editors to indexed files. Fixes cross-file Go to Definition, Find References, missing-reference/unused-section diagnostics, and duplicate-section warnings when `findFiles` and the active editor use different URI casing for the same path.
+
 ## 0.15.0
 
 - **Workspace symbol graph** (enabled by default) — indexes matching workspace `.cfg` files into a shared symbol graph for split HAProxy layouts. New settings:
