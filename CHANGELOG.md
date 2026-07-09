@@ -2,6 +2,13 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.17.2
+
+- **Per-workspace-folder HAProxy version for language services** — completion, diagnostics, hover, formatting, and the workspace symbol graph now use each file’s workspace-folder `haproxy.version` setting, not just syntax highlighting. Multi-root workspaces can use different HAProxy releases in different folders (e.g. `2.6` in one repo and `3.4` in another) without cross-folder interference.
+- **`haproxy.version` resource scope** — the version setting can be configured per VS Code workspace folder (status bar quick-pick still updates the active file’s folder).
+- **Per-version schema bundle cache** — schema and language data are loaded and cached per HAProxy version; changing a folder’s version reloads only the affected bundle and refreshes open documents in that folder.
+- **HAProxy output channel** — logs extension activation, configured version per folder, schema bundle load results, workspace index rebuild stats (indexed/skipped files, cap reasons), and a support snapshot for troubleshooting (View → Output → **HAProxy**).
+
 ## 0.17.1
 
 - **Opt-in workspace size limits** — `haproxy.workspaceSymbols.maxFiles`, `haproxy.workspaceSymbols.maxTotalLines`, `haproxy.workspaceSymbols.maxFileBytes`, `haproxy.workspaceSymbols.maxTotalBytes`, and `haproxy.workspaceSymbols.maxLineBytes` now default to `0` (unlimited). Set a positive value to cap indexing; when a configured folder-wide cap is exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior.
