@@ -1,7 +1,9 @@
 const { defineConfig } = require("@vscode/test-cli");
 
 const FIXTURES_ENV = "HAPROXY_INTEGRATION_FIXTURES_DIR";
+const WORKSPACE_ENV = "HAPROXY_INTEGRATION_WORKSPACE";
 const FOLDER_SCOPED_WORKSPACE_ENV = "HAPROXY_INTEGRATION_FOLDER_SCOPED_WORKSPACE";
+const USER_DATA_DIR_ENV = "HAPROXY_INTEGRATION_USER_DATA_DIR";
 
 const mochaBase = {
   timeout: 30000,
@@ -9,29 +11,27 @@ const mochaBase = {
 };
 
 const folderScopedWorkspace = process.env[FOLDER_SCOPED_WORKSPACE_ENV];
-
-/** @type {import('@vscode/test-cli').TestConfiguration[]} */
-const configs = [
-  {
-    label: "integration",
-    files: "out/test/integration/**/*.test.js",
-    workspaceFolder: process.env[FIXTURES_ENV] || "./test/integration/fixtures",
-    launchArgs: ["--disable-extensions"],
-    mocha: {
-      ...mochaBase,
-      ...(folderScopedWorkspace ? { grep: "Folder-scoped HAProxy version", invert: true } : {}),
-    },
-  },
+const integrationWorkspace =
+  process.env[WORKSPACE_ENV] || folderScopedWorkspace || process.env[FIXTURES_ENV];
+const launchArgs = [
+  "--disable-extensions",
+  ...(process.env[USER_DATA_DIR_ENV] ? [`--user-data-dir=${process.env[USER_DATA_DIR_ENV]}`] : []),
 ];
 
-if (folderScopedWorkspace) {
-  configs.push({
-    label: "folder-scoped",
-    files: "out/test/integration/suite/08-folder-scoped-version.test.js",
-    workspaceFolder: folderScopedWorkspace,
-    launchArgs: ["--disable-extensions"],
-    mocha: mochaBase,
-  });
-}
+/** @type {import('@vscode/test-cli').TestConfiguration} */
+const config = {
+  label: "integration",
+  files: "out/test/integration/**/*.test.js",
+  workspaceFolder: integrationWorkspace || "./test/integration/fixtures",
+  launchArgs,
+  mocha: {
+    ...mochaBase,
+    ...(integrationWorkspace ? {} : { grep: "Folder-scoped HAProxy version", invert: true }),
+  },
+};
 
-module.exports = defineConfig(configs);
+module.exports = defineConfig([
+  {
+    ...config,
+  },
+]);

@@ -76,6 +76,7 @@
       "properties": {
         "haproxy.version": {
           "type": "string",
+          "scope": "resource",
           "enum": [
             "2.6",
             "2.8",

@@ -204,7 +204,9 @@ describe("extensionBundle", () => {
     vi.spyOn(languageData, "loadLanguageDataAsync").mockResolvedValue(fixture.languageData);
     const { ensureBundle, invalidate } = createBundleLoader(mockExtensionContext() as never);
 
+    await flushImmediate();
     await expect(ensureBundle("3.2")).rejects.toThrow("schema load failed");
+    await flushImmediate();
     await expect(ensureBundle("3.2")).rejects.toThrow("schema load failed");
     expect(schemaSpy).toHaveBeenCalledTimes(1);
     expect(getLoadedBundle("3.2")).toBeUndefined();
@@ -212,6 +214,7 @@ describe("extensionBundle", () => {
     invalidate("3.2");
     schemaSpy.mockResolvedValue(fixture.schema);
     const loaded = await ensureBundle("3.2");
+    await flushImmediate();
     expect(loaded.version).toBe("3.2");
     expect(schemaSpy).toHaveBeenCalledTimes(2);
   });
@@ -314,6 +317,28 @@ describe("extensionBundle", () => {
     const { ensureBundle } = createBundleLoader(mockExtensionContext() as never);
 
     await expect(ensureBundle("3.2")).rejects.toThrow("post-load failure");
+    await flushImmediate();
+  });
+
+  it("wraps non-Error failures thrown before schema load", async () => {
+    vi.spyOn(outputChannel, "logBundleLoadStarted").mockImplementation(() => {
+      throw new Error("startup string failure");
+    });
+    const { ensureBundle } = createBundleLoader(mockExtensionContext() as never);
+
+    await expect(ensureBundle("3.2")).rejects.toThrow("startup string failure");
+    await flushImmediate();
+  });
+
+  it("wraps non-Error failures cached by the outer load promise catch", async () => {
+    vi.spyOn(schema, "loadSchemaAsync").mockRejectedValue("string schema failure");
+    vi.spyOn(languageData, "loadLanguageDataAsync").mockResolvedValue(fixture.languageData);
+    const { ensureBundle } = createBundleLoader(mockExtensionContext() as never);
+
+    await flushImmediate();
+    await expect(ensureBundle("3.2")).rejects.toThrow("string schema failure");
+    await flushImmediate();
+    await expect(ensureBundle("3.2")).rejects.toThrow("string schema failure");
   });
 
   it("rejects stale loads from the outer async catch", async () => {

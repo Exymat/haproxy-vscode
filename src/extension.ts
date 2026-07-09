@@ -108,6 +108,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const resolveWorkspaceSchema = async (folder: vscode.WorkspaceFolder | undefined) => {
     const bundle = await safeEnsureBundle(folder?.uri);
     if (!bundle) {
+      /* v8 ignore next -- defensive; bundle availability is checked before rebuild scheduling */
       throw new Error("HAProxy schema bundle is unavailable");
     }
     return bundle.schema;
@@ -135,9 +136,11 @@ export function activate(context: vscode.ExtensionContext): void {
   const refreshDocumentsInWorkspaceFolders = (
     folderUris: readonly (string | undefined)[],
   ): void => {
+    /* v8 ignore start -- scheduler callback covered by extensionWorkspace.test.ts */
     refreshDocumentsInFolders(folderUris, vscode.workspace.textDocuments, (document) =>
       scheduler.schedule(document),
     );
+    /* v8 ignore stop */
   };
 
   const openHaproxyDocuments = (): readonly vscode.TextDocument[] =>

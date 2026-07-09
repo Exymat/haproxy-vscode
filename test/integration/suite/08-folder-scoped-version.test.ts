@@ -16,8 +16,8 @@ import {
   waitForDiagnosticCode,
   waitForHaproxyGrammarLanguage,
   waitForNoDiagnosticCode,
-  waitForReferenceUris,
   waitForSchemaDiagnostics,
+  waitForReferenceUris,
 } from "./helpers";
 
 const NAMED_DEFAULTS_CONFIG = [
@@ -98,17 +98,30 @@ suite("Folder-scoped HAProxy version", () => {
     assertHaproxyLanguage(docA, "2.6");
     assertHaproxyLanguage(docB, "3.4");
 
-    const diagnosticsA = await waitForNoDiagnosticCode(docA.uri, "named-defaults-required");
-    assert.strictEqual(
-      diagnosticCount(diagnosticsA, "named-defaults-required"),
-      0,
-      `Folder A on 2.6 should not require named defaults: ${diagnosticsA.map((d) => d.message).join(", ")}`,
+    const hatermA = await openDocumentInFolder(
+      folderA,
+      "mode-haterm-first.cfg",
+      HATERM_CONFIG,
+      "2.6",
+    );
+    const hatermB = await openDocumentInFolder(
+      folderB,
+      "mode-haterm-first.cfg",
+      HATERM_CONFIG,
+      "3.4",
     );
 
-    const diagnosticsB = await waitForDiagnosticCode(docB.uri, "named-defaults-required");
+    const diagnosticsA = await waitForDiagnosticCode(hatermA.uri, "unknown-value");
     assert.ok(
-      diagnosticCount(diagnosticsB, "named-defaults-required") >= 2,
-      `Folder B on 3.4 should require named defaults: ${diagnosticsB.map((d) => d.message).join(", ")}`,
+      diagnosticCount(diagnosticsA, "unknown-value") >= 1,
+      `Folder A on 2.6 should reject mode haterm: ${diagnosticsA.map((d) => d.message).join(", ")}`,
+    );
+
+    const diagnosticsB = await waitForNoDiagnosticCode(hatermB.uri, "unknown-value");
+    assert.strictEqual(
+      diagnosticCount(diagnosticsB, "unknown-value"),
+      0,
+      `Folder B on 3.4 should accept mode haterm: ${diagnosticsB.map((d) => d.message).join(", ")}`,
     );
 
     const labelsA = await completionLabelsAt(docA.uri, new vscode.Position(0, "defaults".length));
@@ -117,8 +130,8 @@ suite("Folder-scoped HAProxy version", () => {
     const labelsB = await completionLabelsAt(docB.uri, new vscode.Position(0, "defaults".length));
     assert.ok(labelsB.length > 0, "Expected completion items in folder B");
 
-    const hoverA = await hoverTextAt(docA.uri, new vscode.Position(0, 2));
-    const hoverB = await hoverTextAt(docB.uri, new vscode.Position(0, 2));
+    const hoverA = await hoverTextAt(docA.uri, new vscode.Position(3, "    ma".length));
+    const hoverB = await hoverTextAt(docB.uri, new vscode.Position(3, "    ma".length));
     assert.ok(hoverA.length > 0, "Expected hover text in folder A");
     assert.ok(hoverB.length > 0, "Expected hover text in folder B");
   });

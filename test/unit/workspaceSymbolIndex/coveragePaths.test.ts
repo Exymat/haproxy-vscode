@@ -121,6 +121,38 @@ describe("workspace symbol coverage paths", () => {
     );
   });
 
+  it("skips folders when schema resolution fails during rebuild", async () => {
+    setMockWorkspaceFolders([
+      workspaceFolder("file:///folder-a"),
+      workspaceFolder("file:///folder-b"),
+    ]);
+    setMockWorkspaceFile("file:///folder-a/a.cfg", "backend a");
+    setMockWorkspaceFile("file:///folder-b/b.cfg", "backend b");
+    mockTextDocuments.push(
+      createDocument("backend a", "file:///folder-a/a.cfg") as never,
+      createDocument("backend b", "file:///folder-b/b.cfg") as never,
+    );
+
+    const resolveSchema = vi.fn((folder?: { uri: { toString: () => string } }) => {
+      if (folder?.uri.toString() === "file:///folder-b") {
+        return Promise.reject(new Error("schema unavailable"));
+      }
+      return Promise.resolve(schema);
+    });
+
+    scheduleWorkspaceSymbolIndexRebuild(resolveSchema, workspaceSettings, 4000, { scope: "full" });
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    expect(resolveSchema).toHaveBeenCalledTimes(2);
+    expect(
+      workspaceEntryForDocument(createDocument("backend a", "file:///folder-a/a.cfg")),
+    ).toBeDefined();
+    expect(
+      workspaceEntryForDocument(createDocument("backend b", "file:///folder-b/b.cfg")),
+    ).toBeUndefined();
+  });
+
   it("matches exclude globs with question marks, brace expansion, and loose ** patterns", () => {
     const folder = {
       uri: Uri.file("file:///repo"),

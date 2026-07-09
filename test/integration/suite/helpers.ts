@@ -330,6 +330,12 @@ export async function updateHaproxySetting(
   const config = vscode.workspace.getConfiguration("haproxy");
   await config.update(key, value, vscode.ConfigurationTarget.Global);
   await config.update(key, value, vscode.ConfigurationTarget.Workspace);
+  if (key === "version") {
+    for (const folder of vscode.workspace.workspaceFolders ?? []) {
+      const folderConfig = vscode.workspace.getConfiguration("haproxy", folder.uri);
+      await folderConfig.update(key, value, vscode.ConfigurationTarget.WorkspaceFolder);
+    }
+  }
   const debounceMs = config.get<number>("diagnostics.debounceMs", 500);
   await new Promise((resolve) => setTimeout(resolve, waitMs ?? debounceMs + 400));
 }
