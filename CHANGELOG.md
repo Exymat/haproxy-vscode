@@ -2,6 +2,15 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.17.0
+
+- **Diagnostic suppression** — suppress a specific same-line diagnostic with `# haproxy: ignore=<code>` (comma-separated for multiple codes, e.g. `# haproxy: ignore=unknown-action,unknown-keyword`). Useful for runtime module keywords such as `module-load` / `module-path` that are not in the bundled schema. A Quick Fix adds or extends the ignore comment on the line.
+- **Workspace byte limits** — new settings `haproxy.workspaceSymbols.maxFileBytes` (default `1000000`), `haproxy.workspaceSymbols.maxTotalBytes` (default `20000000`), and `haproxy.workspaceSymbols.maxLineBytes` (default `8192`). Files or lines over these limits are skipped during indexing; when a folder’s total indexed bytes exceed `maxTotalBytes`, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior.
+- **Workspace index capped indicator** — when workspace symbol limits are exceeded for the active file’s folder, a status bar warning appears with a command to open workspace symbol settings; a one-time notification is shown when a folder first becomes capped.
+- **Per-workspace-folder syntax highlighting** — each open HAProxy document uses the TextMate grammar for its workspace folder’s `haproxy.version` setting (version-specific language IDs such as `haproxy-2.6` and `haproxy-3.2`). The version status bar and quick-pick reflect the active file’s folder.
+- **HAProxy config detection for workspace indexing** — only `.cfg` files whose first non-comment line is a known section header are indexed, so unrelated `.cfg` files matched by include globs are skipped.
+- **Cross-file rename guard** — Rename Symbol is rejected when multiple definitions of the same name exist in the same scope across indexed files, with guidance to narrow `haproxy.workspaceSymbols.include` or disable workspace symbols.
+
 ## 0.16.0
 
 - **Cross-file Rename Symbol** — when the workspace symbol graph is active, Rename Symbol updates all matching definitions and references across indexed files in the same workspace folder (e.g. renaming `api` updates both `backend api` in `backends/api.cfg` and `use_backend api` in `frontends/web.cfg`). Duplicate names in the same scope are rejected workspace-wide.
