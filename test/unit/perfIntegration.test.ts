@@ -14,10 +14,12 @@ describe("benchFixturePath", () => {
 });
 
 describe("check-perf-integration-thresholds.mjs", () => {
+  const sampleReport = join(__dirname, "../bench/fixtures/perf-integration-report.sample.json");
+
   it("passes for a report within configured limits", () => {
     const result = spawnSync(
       "node",
-      ["scripts/check-perf-integration-thresholds.mjs", "scripts/reports/perf-integration.json"],
+      ["scripts/check-perf-integration-thresholds.mjs", sampleReport],
       { cwd: join(__dirname, "../.."), encoding: "utf-8" },
     );
     expect(result.status).toBe(0);

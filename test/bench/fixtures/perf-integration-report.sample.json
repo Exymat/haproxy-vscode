@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-01-01T00:00:00.000Z",
+  "platform": "linux",
+  "nodeVersion": "v24.0.0",
+  "benchmarks": [
+    {
+      "name": "activation_to_first_completion",
+      "unit": "ms",
+      "stats": {
+        "count": 1,
+        "mean": 994,
+        "median": 994,
+        "p95": 994,
+        "min": 994,
+        "max": 994
+      }
+    },
+    {
+      "name": "hover_e2e_balance",
+      "unit": "ms",
+      "stats": {
+        "count": 10,
+        "mean": 4.3,
+        "median": 2.2,
+        "p95": 17.7,
+        "min": 1.6,
+        "max": 17.7
+      }
+    },
+    {
+      "name": "open_large_cfg_diagnostics",
+      "unit": "ms",
+      "stats": {
+        "count": 2,
+        "mean": 1199,
+        "median": 1163,
+        "p95": 1234,
+        "min": 1163,
+        "max": 1234
+      }
+    }
+  ]
+}
