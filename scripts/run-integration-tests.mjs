@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 
 import {
   FIXTURES_ENV,
+  FOLDER_SCOPED_WORKSPACE_ENV,
   cleanupStagedFixtures,
   stageIntegrationFixtures,
 } from "./lib/integration-fixtures.mjs";
@@ -40,7 +41,7 @@ function assertNoNewChanges(before, after) {
 }
 
 const statusBefore = gitPorcelain();
-const { tempDir, fixturesDir } = stageIntegrationFixtures();
+const { tempDir, fixturesDir, folderScopedWorkspace } = stageIntegrationFixtures();
 
 try {
   const tests = spawnSync("npx", ["vscode-test", ...process.argv.slice(2)], {
@@ -49,6 +50,7 @@ try {
     env: {
       ...process.env,
       [FIXTURES_ENV]: fixturesDir,
+      [FOLDER_SCOPED_WORKSPACE_ENV]: folderScopedWorkspace,
     },
   });
   if (tests.status !== 0) {

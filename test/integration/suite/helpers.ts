@@ -346,29 +346,6 @@ export async function updateHaproxySettingForFolder(
   await new Promise((resolve) => setTimeout(resolve, waitMs ?? debounceMs + 400));
 }
 
-export async function addWorkspaceFolder(
-  folderPath: string,
-  name?: string,
-): Promise<vscode.WorkspaceFolder> {
-  const uri = vscode.Uri.file(folderPath);
-  const index = vscode.workspace.workspaceFolders?.length ?? 0;
-  const added = vscode.workspace.updateWorkspaceFolders(index, null, {
-    uri,
-    name: name ?? path.basename(folderPath),
-  });
-  assert.ok(added, `Failed to add workspace folder ${folderPath}`);
-  const deadline = Date.now() + 5000;
-  while (Date.now() < deadline) {
-    const folder = vscode.workspace.getWorkspaceFolder(uri);
-    if (folder) {
-      await new Promise((resolve) => setTimeout(resolve, 200));
-      return folder;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 50));
-  }
-  throw new Error(`Workspace folder not registered: ${folderPath}`);
-}
-
 export async function openDocumentInFolder(
   folderPath: string,
   relativePath: string,

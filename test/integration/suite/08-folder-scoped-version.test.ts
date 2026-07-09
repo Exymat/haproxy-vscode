@@ -1,11 +1,8 @@
 import * as assert from "node:assert";
-import * as os from "node:os";
-import * as path from "node:path";
 import * as vscode from "vscode";
 
 import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 import {
-  addWorkspaceFolder,
   assertHaproxyLanguage,
   completionLabelsAt,
   diagnosticCount,
@@ -50,6 +47,12 @@ const WORKSPACE_REF_CONFIG_B = [
   "    server app1 127.0.0.1:9090 check",
 ].join("\n");
 
+function workspaceFolderByName(name: string): vscode.WorkspaceFolder {
+  const folder = vscode.workspace.workspaceFolders?.find((entry) => entry.name === name);
+  assert.ok(folder, `Expected workspace folder ${name}`);
+  return folder;
+}
+
 suite("Folder-scoped HAProxy version", () => {
   let folderA = "";
   let folderB = "";
@@ -63,14 +66,10 @@ suite("Folder-scoped HAProxy version", () => {
     await updateHaproxySetting("workspaceSymbols.enabled", true);
     await updateHaproxySetting("workspaceSymbols.debounceMs", 300);
 
-    const root = path.join(os.tmpdir(), "haproxy-vscode-multiroot", String(Date.now()));
-    folderA = path.join(root, "folder-a");
-    folderB = path.join(root, "folder-b");
-    await vscode.workspace.fs.createDirectory(vscode.Uri.file(folderA));
-    await vscode.workspace.fs.createDirectory(vscode.Uri.file(folderB));
-
-    folderARef = await addWorkspaceFolder(folderA, "folder-a");
-    folderBRef = await addWorkspaceFolder(folderB, "folder-b");
+    folderARef = workspaceFolderByName("folder-a");
+    folderBRef = workspaceFolderByName("folder-b");
+    folderA = folderARef.uri.fsPath;
+    folderB = folderBRef.uri.fsPath;
 
     await updateHaproxySettingForFolder(folderARef.uri, "version", "2.6", 1500);
     await updateHaproxySettingForFolder(folderBRef.uri, "version", "3.4", 1500);
