@@ -98,9 +98,11 @@ jobs:
               - 'syntaxes/**'
               - 'schemas/**'
               - 'test/bench/**'
+              - 'test/integration/suite/99-perf.test.ts'
               - 'vitest.bench.config.ts'
               - 'scripts/generate-bench-fixture.mjs'
               - 'scripts/check-bench-thresholds.mjs'
+              - 'scripts/check-perf-integration-thresholds.mjs'
               - 'scripts/update-bench-thresholds.mjs'
               - 'scripts/bench-tags.mjs'
               - 'scripts/run-tag-bench-suite.mjs'
@@ -360,6 +362,39 @@ jobs:
       - name: Integration tests
         if: runner.os != 'Linux'
         run: npm run test:integration
+
+  integration-perf:
+    name: Integration perf tests
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.extension == 'true' ||
+      needs.changes.outputs.bench == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Integration perf benchmarks
+        env:
+          HAPROXY_PERF_BENCH: "1"
+        run: xvfb-run -a npm run bench:integration
+
+      - name: Upload integration perf report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: perf-integration-report
+          path: scripts/reports/perf-integration.json
+          if-no-files-found: ignore
 
   bench:
     name: Performance benchmarks

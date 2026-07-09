@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 
+import { isHaproxyLanguageId } from "./grammar";
 import {
-  getConfiguredVersion,
+  getConfiguredVersionForUri,
   onVersionConfigurationChanged,
   setConfiguredVersion,
   SUPPORTED_HAPROXY_VERSIONS,
@@ -10,7 +11,7 @@ import {
 const SELECT_VERSION_COMMAND = "haproxy.selectVersion";
 
 function isHaproxyEditor(editor: vscode.TextEditor | undefined): boolean {
-  return editor?.document.languageId === "haproxy";
+  return editor !== undefined && isHaproxyLanguageId(editor.document.languageId);
 }
 
 export function registerVersionStatusBar(context: vscode.ExtensionContext): void {
@@ -19,7 +20,8 @@ export function registerVersionStatusBar(context: vscode.ExtensionContext): void
   context.subscriptions.push(item);
 
   const refresh = (): void => {
-    const version = getConfiguredVersion();
+    const editor = vscode.window.activeTextEditor;
+    const version = getConfiguredVersionForUri(editor?.document.uri);
     item.text = `$(versions) HAProxy ${version}`;
     item.tooltip =
       "Click to change HAProxy version used for completion, diagnostics, and highlighting";
@@ -37,7 +39,8 @@ export function registerVersionStatusBar(context: vscode.ExtensionContext): void
 
   context.subscriptions.push(
     vscode.commands.registerCommand(SELECT_VERSION_COMMAND, async () => {
-      const current = getConfiguredVersion();
+      const editor = vscode.window.activeTextEditor;
+      const current = getConfiguredVersionForUri(editor?.document.uri);
       const picked = await vscode.window.showQuickPick(
         [...SUPPORTED_HAPROXY_VERSIONS].map((version) => ({
           label: version,
@@ -49,7 +52,7 @@ export function registerVersionStatusBar(context: vscode.ExtensionContext): void
         },
       );
       if (picked && picked.label !== current) {
-        await setConfiguredVersion(picked.label);
+        await setConfiguredVersion(picked.label, editor?.document.uri);
       }
     }),
   );

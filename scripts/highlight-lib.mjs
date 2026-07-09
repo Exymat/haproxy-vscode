@@ -68,15 +68,15 @@ function ruleMatchesScopes(ruleScope, scopes) {
   return true;
 }
 
-export function loadGrammarObject() {
-  const grammarPath = join(extensionRoot, "syntaxes", "haproxy-active.tmLanguage.json");
+export function loadGrammarObject(version = "3.2") {
+  const grammarPath = join(extensionRoot, "syntaxes", `haproxy-${version}.tmLanguage.json`);
   const raw = readFileSync(grammarPath, "utf-8").replace(/^\uFEFF/, "");
   const grammar = JSON.parse(raw);
   delete grammar.$schema;
   return grammar;
 }
 
-export async function createHaproxyGrammar() {
+export async function createHaproxyGrammar(version = "3.2") {
   await initTextMate();
   const registry = new Registry({
     theme: {
@@ -88,7 +88,7 @@ export async function createHaproxyGrammar() {
       createOnigString,
     }),
   });
-  return registry.addGrammar(loadGrammarObject());
+  return registry.addGrammar(loadGrammarObject(version));
 }
 
 function scopeSpecificity(scope) {

@@ -179,7 +179,7 @@ describe("workspace symbol coverage paths", () => {
     ).toBe(false);
   });
 
-  it("returns cached disk entries when reads fail after stat changes", async () => {
+  it("evicts disk entries when reads fail after stat changes", async () => {
     setMockWorkspaceFile("file:///a.cfg", "backend a");
     await buildWorkspace();
     setMockWorkspaceFileStat("file:///a.cfg", Date.now() + 5000, 999);
@@ -187,7 +187,7 @@ describe("workspace symbol coverage paths", () => {
 
     await buildWorkspace();
     expect(expectWorkspaceIndex(getWorkspaceSymbolIndex())?.documents.has("file:///a.cfg")).toBe(
-      true,
+      false,
     );
   });
 

@@ -127,6 +127,52 @@ describe("missingReferenceDiagnostics", () => {
     expect(missingRefs(content, false)).toHaveLength(0);
   });
 
+  it("uses file-scoped message by default", () => {
+    const ref = {
+      kind: "proxy-section" as const,
+      name: "missing",
+      line: 0,
+      start: 12,
+      end: 19,
+      scopeKey: null,
+      role: "reference" as const,
+    };
+    const index: SymbolIndex = {
+      definitions: new Map(),
+      references: [ref],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [null],
+      scopedSymbolKinds: new Set(["acl", "server", "filter"]),
+      sitesByLine: buildSitesByLine(1, new Map(), [ref]),
+      unresolvedReferences: [ref],
+    };
+    expect(missingReferenceDiagnostics(index)[0]?.message).toContain("not defined in this file");
+  });
+
+  it("uses workspace-scoped message when scope is workspace", () => {
+    const ref = {
+      kind: "proxy-section" as const,
+      name: "missing",
+      line: 0,
+      start: 12,
+      end: 19,
+      scopeKey: null,
+      role: "reference" as const,
+    };
+    const index: SymbolIndex = {
+      definitions: new Map(),
+      references: [ref],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [null],
+      scopedSymbolKinds: new Set(["acl", "server", "filter"]),
+      sitesByLine: buildSitesByLine(1, new Map(), [ref]),
+      unresolvedReferences: [ref],
+    };
+    expect(missingReferenceDiagnostics(index, { scope: "workspace" })[0]?.message).toContain(
+      "not defined in this workspace",
+    );
+  });
+
   it("deduplicates identical reference sites defensively", () => {
     const ref = {
       kind: "proxy-section",

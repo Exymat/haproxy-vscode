@@ -151,7 +151,37 @@ export class StatusBarItem {
   dispose = vi.fn();
 }
 
-export const ConfigurationTarget = { Global: 1, Workspace: 2 };
+export const ConfigurationTarget = { Global: 1, Workspace: 2, WorkspaceFolder: 3 };
+
+export class FileSystemError extends Error {
+  readonly code: string;
+
+  constructor(message: string, code: string) {
+    super(message);
+    this.name = code;
+    this.code = code;
+  }
+
+  static FileNotFound(
+    messageOrUri: string | { fsPath?: string; toString: () => string },
+  ): FileSystemError {
+    const message =
+      typeof messageOrUri === "string"
+        ? messageOrUri
+        : `EntryNotFound (FileSystemError): ${messageOrUri.fsPath ?? messageOrUri.toString()}`;
+    return new FileSystemError(message, "FileNotFound");
+  }
+
+  static FilePermissionDenied(
+    messageOrUri: string | { fsPath?: string; toString: () => string },
+  ): FileSystemError {
+    const message =
+      typeof messageOrUri === "string"
+        ? messageOrUri
+        : `NoPermissions (FileSystemError): ${messageOrUri.fsPath ?? messageOrUri.toString()}`;
+    return new FileSystemError(message, "FilePermissionDenied");
+  }
+}
 
 export class RelativePattern {
   baseUri: { fsPath?: string; toString: () => string };
@@ -174,6 +204,12 @@ export class RelativePattern {
 const configValues = new Map<string, unknown>();
 const configListeners: Array<
   (event: { affectsConfiguration: (section: string) => boolean }) => void
+> = [];
+const workspaceFolderChangeListeners: Array<
+  (event: {
+    added: NonNullable<typeof mockWorkspaceFolders>;
+    removed: NonNullable<typeof mockWorkspaceFolders>;
+  }) => void
 > = [];
 const activeEditorListeners: Array<() => void> = [];
 const mockWorkspaceFiles = new Map<string, string>();
@@ -200,6 +236,7 @@ export function resetVscodeMock(): void {
   mockWorkspaceFileStats.clear();
   mockWorkspaceReadFailures.clear();
   configListeners.length = 0;
+  workspaceFolderChangeListeners.length = 0;
   activeEditorListeners.length = 0;
   mockTextDocuments = [];
   mockActiveTextEditor = undefined;
@@ -211,6 +248,7 @@ export function resetVscodeMock(): void {
   lastQuickPickResult = undefined;
   lastInfoMessageResult = undefined;
   window.showErrorMessage.mockClear();
+  window.showWarningMessage.mockClear();
 }
 
 export function setMockActiveTextEditor(editor: typeof mockActiveTextEditor): void {
@@ -233,9 +271,40 @@ export function setMockConfig(section: string, key: string, value: unknown): voi
   configValues.set(`${section}.${key}`, value);
 }
 
+export function setMockConfigForUri(
+  resource: { toString: () => string },
+  section: string,
+  key: string,
+  value: unknown,
+): void {
+  configValues.set(`${uriKey(resource)}::${section}.${key}`, value);
+}
+
+function readMockConfig<T>(
+  section: string,
+  key: string,
+  resource: { toString: () => string } | undefined,
+  defaultValue?: T,
+): T {
+  if (resource) {
+    const scoped = configValues.get(`${uriKey(resource)}::${section}.${key}`);
+    if (scoped !== undefined) {
+      return scoped as T;
+    }
+  }
+  const value = configValues.get(`${section}.${key}`);
+  return (value !== undefined ? value : defaultValue) as T;
+}
+
 export function setMockWorkspaceFile(path: string, content: string): void {
   mockWorkspaceFiles.set(path, content);
   mockWorkspaceFileStats.set(path, { mtime: Date.now(), size: content.length });
+}
+
+export function removeMockWorkspaceFile(path: string): void {
+  mockWorkspaceFiles.delete(path);
+  mockWorkspaceFileStats.delete(path);
+  mockWorkspaceReadFailures.delete(path);
 }
 
 export function setMockWorkspaceFileStat(path: string, mtime: number, size: number): void {
@@ -336,6 +405,15 @@ export function triggerMockConfigurationChange(section = "haproxy"): void {
   }
 }
 
+export function triggerMockWorkspaceFoldersChange(
+  added: NonNullable<typeof mockWorkspaceFolders> = [],
+  removed: NonNullable<typeof mockWorkspaceFolders> = [],
+): void {
+  for (const listener of workspaceFolderChangeListeners) {
+    listener({ added, removed });
+  }
+}
+
 export function triggerMockActiveEditorChange(): void {
   for (const listener of activeEditorListeners) {
     listener();
@@ -362,13 +440,16 @@ export function getLastDiagnosticCollection() {
 }
 
 export const workspace = {
-  getConfiguration(section: string) {
+  getConfiguration(section: string, resource?: { toString: () => string }) {
     return {
       get<T>(key: string, defaultValue?: T): T {
-        const value = configValues.get(`${section}.${key}`);
-        return (value !== undefined ? value : defaultValue) as T;
+        return readMockConfig(section, key, resource, defaultValue);
       },
       update(key: string, value: unknown, _target?: number) {
+        if (resource) {
+          configValues.set(`${uriKey(resource)}::${section}.${key}`, value);
+          return;
+        }
         configValues.set(`${section}.${key}`, value);
       },
     };
@@ -415,14 +496,14 @@ export const workspace = {
       const key = uri.fsPath ?? uri.toString();
       const stat = mockWorkspaceFileStats.get(key);
       if (!stat) {
-        return Promise.reject(new Error(`ENOENT: no such file ${key}`));
+        return Promise.reject(FileSystemError.FileNotFound(uri));
       }
       return Promise.resolve({ mtime: stat.mtime, size: stat.size });
     },
     readFile(uri: { fsPath?: string; toString: () => string }) {
       const key = uri.fsPath ?? uri.toString();
       if (mockWorkspaceReadFailures.has(key)) {
-        return Promise.reject(new Error(`EACCES: permission denied ${key}`));
+        return Promise.reject(FileSystemError.FilePermissionDenied(uri));
       }
       const content = mockWorkspaceFiles.get(key) ?? "";
       return Promise.resolve(new TextEncoder().encode(content));
@@ -480,6 +561,15 @@ export const workspace = {
     configListeners.push(listener);
     return { dispose: () => {} };
   },
+  onDidChangeWorkspaceFolders(
+    listener: (event: {
+      added: NonNullable<typeof mockWorkspaceFolders>;
+      removed: NonNullable<typeof mockWorkspaceFolders>;
+    }) => void,
+  ) {
+    workspaceFolderChangeListeners.push(listener);
+    return { dispose: () => {} };
+  },
   onDidOpenTextDocument(listener: (doc: (typeof mockTextDocuments)[0]) => void) {
     const disposable = {
       dispose: () => {},
@@ -522,6 +612,7 @@ export const window = {
   showInformationMessage(_message: string, ...actions: string[]) {
     return Promise.resolve(lastInfoMessageResult ?? actions[0]);
   },
+  showWarningMessage: vi.fn().mockResolvedValue(undefined),
   showErrorMessage: vi.fn().mockResolvedValue(undefined),
   showQuickPick(items: Array<{ label: string; picked?: boolean }>, _options?: unknown) {
     lastQuickPickItems = items;
@@ -530,6 +621,16 @@ export const window = {
 };
 
 export const languages = {
+  setTextDocumentLanguage: vi.fn(
+    (document: { languageId: string }, languageId: string): Promise<void> => {
+      Object.defineProperty(document, "languageId", {
+        value: languageId,
+        writable: true,
+        configurable: true,
+      });
+      return Promise.resolve();
+    },
+  ),
   createDiagnosticCollection(_name: string) {
     const collection = {
       set: vi.fn(),

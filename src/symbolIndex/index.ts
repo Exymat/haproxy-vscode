@@ -27,6 +27,7 @@ export {
   findWorkspaceDefinitions,
   findWorkspaceReferences,
   getWorkspaceSymbolIndex,
+  hasCappedWorkspaceFolders,
   isUriExcludedFromWorkspaceSymbols,
   isWorkspaceRebuildPending,
   refreshWorkspaceSymbolIndexNow,
@@ -48,3 +49,4 @@ export type {
   WorkspaceSymbolSettings,
   WorkspaceSymbolSite,
 } from "./workspace";
+export { invalidateDiscoveryCache } from "./workspaceDiscovery";

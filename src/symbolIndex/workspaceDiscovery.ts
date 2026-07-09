@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 
+import { isHaproxyLanguageId } from "../grammar";
+
 import { FolderRef, WorkspaceRebuildOptions, WorkspaceSymbolSettings } from "./workspaceTypes";
 import { workspaceUriKey } from "./workspaceUri";
 
@@ -7,7 +9,7 @@ export const GLOBAL_WORKSPACE_FOLDER_KEY = "<global>";
 
 interface DiscoveryCacheEntry {
   settingsKey: string;
-  uris: vscode.Uri[] | null;
+  uris: vscode.Uri[];
 }
 
 const discoveryCache = new Map<string, DiscoveryCacheEntry>();
@@ -28,7 +30,7 @@ function activeWorkspaceFolders(): Array<vscode.WorkspaceFolder | undefined> {
 
   const active = new Map<string, vscode.WorkspaceFolder>();
   for (const document of vscode.workspace.textDocuments) {
-    if (document.languageId !== "haproxy") {
+    if (!isHaproxyLanguageId(document.languageId)) {
       continue;
     }
     const folder = workspaceFolderForUri(document.uri);
@@ -212,20 +214,16 @@ export function isUriExcludedFromWorkspaceSymbols(
 async function discoverUris(
   settings: WorkspaceSymbolSettings,
   folder: vscode.WorkspaceFolder | undefined,
-): Promise<vscode.Uri[] | null> {
+): Promise<vscode.Uri[]> {
   const discovered = new Map<string, vscode.Uri>();
   const exclude = excludePattern(settings);
   for (const include of settings.include) {
     const uris = await vscode.workspace.findFiles(
       relativePattern(folder, include),
       exclude ? relativePattern(folder, exclude) : undefined,
-      settings.maxFiles + 1,
     );
     for (const uri of uris) {
       discovered.set(workspaceUriKey(uri), uri);
-      if (discovered.size > settings.maxFiles) {
-        return null;
-      }
     }
   }
   return [...discovered.values()];
@@ -236,7 +234,7 @@ export async function getDiscoveredUris(
   folder: vscode.WorkspaceFolder | undefined,
   folderKey: string,
   forceRediscover: boolean,
-): Promise<vscode.Uri[] | null> {
+): Promise<vscode.Uri[]> {
   const settingsKey = discoverySettingsKey(settings, folderKey);
   const cached = discoveryCache.get(folderKey);
   if (!forceRediscover && cached && cached.settingsKey === settingsKey) {

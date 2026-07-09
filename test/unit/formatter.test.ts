@@ -6,6 +6,8 @@ import {
   DEFAULT_FORMAT_OPTIONS,
   type FormatOptions,
 } from "../../src/formatter";
+import { sectionHeaderSet } from "../../src/schema";
+import { loadSchema } from "../helpers/schema";
 
 describe("formatter", () => {
   const cases: Array<{
@@ -157,5 +159,18 @@ describe("formatter", () => {
 
   it("handles an empty file", () => {
     expect(formatConfig("")).toBe("");
+  });
+
+  it("treats fcgi-app as a section header when schema headers are provided", () => {
+    const schema = loadSchema("3.4");
+    const input = "    fcgi-app myapp\n        mode http";
+    const withSchema = formatConfig(input, {
+      ...DEFAULT_FORMAT_OPTIONS,
+      sectionHeaders: sectionHeaderSet(schema),
+    });
+    const withDefaults = formatConfig(input, DEFAULT_FORMAT_OPTIONS);
+    expect(withSchema).toBe("fcgi-app myapp\n    mode http");
+    expect(withDefaults).toBe("    fcgi-app myapp\n    mode http");
+    expect(withSchema).not.toBe(withDefaults);
   });
 });

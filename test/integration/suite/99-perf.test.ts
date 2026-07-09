@@ -8,7 +8,12 @@ import {
   type PerfReportEntry,
   writePerfReport,
 } from "../../bench/helpers";
-import { fixturePath, waitForSchemaDiagnostics } from "./helpers";
+import {
+  assertHaproxyLanguage,
+  fixturePath,
+  waitForHaproxyGrammarLanguage,
+  waitForSchemaDiagnostics,
+} from "./helpers";
 
 const runPerf = process.env.HAPROXY_PERF_BENCH === "1";
 const EXTENSION_ID = "Exymat.haproxy-config";
@@ -110,9 +115,10 @@ suite("Perf", function () {
     const stats = await measureAsync(
       async () => {
         await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-        const doc = await vscode.workspace.openTextDocument(uri);
+        let doc = await vscode.workspace.openTextDocument(uri);
         await vscode.window.showTextDocument(doc);
-        assert.strictEqual(doc.languageId, "haproxy");
+        doc = await waitForHaproxyGrammarLanguage(doc);
+        assertHaproxyLanguage(doc);
         await waitForSchemaDiagnostics(uri, 0, 20000);
       },
       { warmup: 0, iterations: 2 },

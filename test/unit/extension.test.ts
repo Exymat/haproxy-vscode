@@ -111,7 +111,11 @@ describe("extension", () => {
 
   it("formats document when format is enabled", async () => {
     let formatProvider:
-      | { provideDocumentFormattingEdits: (doc: (typeof mockTextDocuments)[0]) => unknown[] }
+      | {
+          provideDocumentFormattingEdits: (
+            doc: (typeof mockTextDocuments)[0],
+          ) => Promise<unknown[]>;
+        }
       | undefined;
     vi.spyOn(languages, "registerDocumentFormattingEditProvider").mockImplementation(
       (_selector, provider) => {
@@ -128,14 +132,18 @@ describe("extension", () => {
     if (formatProvider === undefined) {
       throw new Error("format provider not registered");
     }
-    const edits = formatProvider.provideDocumentFormattingEdits(doc);
+    const edits = await formatProvider.provideDocumentFormattingEdits(doc);
     expect(edits.length).toBe(1);
     expect((edits[0] as { newText: string }).newText).toContain("bind :443");
   });
 
-  it("formats document before the async schema bundle is loaded", () => {
+  it("awaits schema bundle before formatting section headers", async () => {
     let formatProvider:
-      | { provideDocumentFormattingEdits: (doc: (typeof mockTextDocuments)[0]) => unknown[] }
+      | {
+          provideDocumentFormattingEdits: (
+            doc: (typeof mockTextDocuments)[0],
+          ) => Promise<unknown[]>;
+        }
       | undefined;
     vi.spyOn(languages, "registerDocumentFormattingEditProvider").mockImplementation(
       (_selector, provider) => {
@@ -144,16 +152,18 @@ describe("extension", () => {
       },
     );
 
-    const doc = haproxyDocument("frontend web\n      bind :443");
+    const doc = haproxyDocument("    fcgi-app myapp\n        mode http");
     activate(mockExtensionContext() as never);
 
     expect(formatProvider).toBeDefined();
     if (formatProvider === undefined) {
       throw new Error("format provider not registered");
     }
-    const edits = formatProvider.provideDocumentFormattingEdits(doc);
+    const editsPromise = formatProvider.provideDocumentFormattingEdits(doc);
+    await vi.runAllTimersAsync();
+    const edits = await editsPromise;
     expect(edits.length).toBe(1);
-    expect((edits[0] as { newText: string }).newText).toContain("bind :443");
+    expect((edits[0] as { newText: string }).newText).toBe("fcgi-app myapp\n    mode http");
   });
 
   it("reloads bundle on version configuration change", async () => {
@@ -168,45 +178,48 @@ describe("extension", () => {
     expect(getRegisteredCommand("haproxy.selectVersion")).toBeDefined();
   });
 
-  it("runs grammar sync and reload prompt on version change", async () => {
-    const syncSpy = vi.spyOn(grammar, "syncActiveGrammarAsync").mockResolvedValue(true);
-    const promptSpy = vi.spyOn(grammar, "promptReloadIfGrammarChanged").mockResolvedValue();
+  it("syncs per-document grammar language on open and version change", async () => {
+    const syncSpy = vi.spyOn(grammar, "syncDocumentGrammarLanguage").mockResolvedValue(true);
+    const syncAllSpy = vi.spyOn(grammar, "syncAllOpenDocumentGrammarLanguages").mockResolvedValue();
+    const doc = haproxyDocument("global");
+    mockTextDocuments.push(doc);
     setMockConfig("haproxy", "version", "3.2");
     activate(mockExtensionContext() as never);
     await vi.runAllTimersAsync();
 
+    expect(syncSpy).toHaveBeenCalledWith(doc);
+
     syncSpy.mockClear();
-    promptSpy.mockClear();
+    syncAllSpy.mockClear();
 
     setMockConfig("haproxy", "version", "3.4");
     triggerMockConfigurationChange("haproxy.version");
     await vi.runAllTimersAsync();
 
     await vi.waitFor(() => {
-      expect(syncSpy).toHaveBeenCalled();
-      expect(promptSpy).toHaveBeenCalledWith(true);
+      expect(syncAllSpy).toHaveBeenCalled();
     });
 
     syncSpy.mockRestore();
-    promptSpy.mockRestore();
+    syncAllSpy.mockRestore();
   });
 
   it("skips runDiagnostics for non-haproxy language after scheduling", async () => {
+    vi.spyOn(grammar, "syncDocumentGrammarLanguage").mockResolvedValue(false);
     const doc = haproxyDocument("defaults\n    mode http");
-    let languageId = "haproxy";
-    Object.defineProperty(doc, "languageId", { get: () => languageId });
     mockTextDocuments.push(doc);
     setMockConfig("haproxy", "diagnostics.debounceMs", 100);
 
     activate(mockExtensionContext() as never);
-    languageId = "plaintext";
+    await vi.advanceTimersByTimeAsync(0);
+    (doc as { languageId: string }).languageId = "plaintext";
     await vi.advanceTimersByTimeAsync(100);
 
     const collection = getLastDiagnosticCollection();
     expect(collection?.set).not.toHaveBeenCalled();
   });
 
-  it("clears pending diagnostics timer on document close", () => {
+  it("clears pending diagnostics timer on document close", async () => {
     const doc = haproxyDocument("defaults\n    mode http");
     mockTextDocuments.push(doc);
     setMockConfig("haproxy", "diagnostics.debounceMs", 500);
@@ -219,6 +232,7 @@ describe("extension", () => {
     });
 
     activate(mockExtensionContext() as never);
+    await vi.advanceTimersByTimeAsync(0);
     closeListeners[0](doc);
 
     const collection = getLastDiagnosticCollection();

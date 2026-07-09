@@ -41,7 +41,12 @@
     "url": "https://github.com/Exymat"
   },
   "activationEvents": [
-    "onLanguage:haproxy"
+    "onLanguage:haproxy",
+    "onLanguage:haproxy-2.6",
+    "onLanguage:haproxy-2.8",
+    "onLanguage:haproxy-3.0",
+    "onLanguage:haproxy-3.2",
+    "onLanguage:haproxy-3.4"
   ],
   "engines": {
     "node": ">=24",
@@ -120,7 +125,7 @@
           "default": [
             "**/*.cfg"
           ],
-          "description": "Glob patterns for HAProxy files that belong to the workspace symbol graph."
+          "description": "Glob patterns for HAProxy files that belong to the workspace symbol graph. Non-HAProxy `.cfg` files matched by the glob are skipped automatically; for monorepos, prefer a narrower pattern such as `**/haproxy/**/*.cfg`."
         },
         "haproxy.workspaceSymbols.exclude": {
           "type": "array",
@@ -140,13 +145,13 @@
           "type": "number",
           "default": 1000,
           "minimum": 1,
-          "description": "Maximum number of HAProxy files to index per VS Code workspace folder before that folder falls back to single-file behavior."
+          "description": "Maximum number of HAProxy files to index per VS Code workspace folder. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
         },
         "haproxy.workspaceSymbols.maxTotalLines": {
           "type": "number",
           "default": 100000,
           "minimum": 100,
-          "description": "Maximum total HAProxy lines to index per VS Code workspace folder before that folder falls back to single-file behavior."
+          "description": "Maximum total HAProxy lines to index per VS Code workspace folder. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
         },
         "haproxy.workspaceSymbols.debounceMs": {
           "type": "number",
@@ -193,13 +198,73 @@
           ".cfg"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "haproxy-2.6",
+        "aliases": [
+          "HAProxy 2.6"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "haproxy-2.8",
+        "aliases": [
+          "HAProxy 2.8"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "haproxy-3.0",
+        "aliases": [
+          "HAProxy 3.0"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "haproxy-3.2",
+        "aliases": [
+          "HAProxy 3.2"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "haproxy-3.4",
+        "aliases": [
+          "HAProxy 3.4"
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
       {
         "language": "haproxy",
         "scopeName": "source.haproxy",
-        "path": "./syntaxes/haproxy-active.tmLanguage.json"
+        "path": "./syntaxes/haproxy-3.2.tmLanguage.json"
+      },
+      {
+        "language": "haproxy-2.6",
+        "scopeName": "source.haproxy",
+        "path": "./syntaxes/haproxy-2.6.tmLanguage.json"
+      },
+      {
+        "language": "haproxy-2.8",
+        "scopeName": "source.haproxy",
+        "path": "./syntaxes/haproxy-2.8.tmLanguage.json"
+      },
+      {
+        "language": "haproxy-3.0",
+        "scopeName": "source.haproxy",
+        "path": "./syntaxes/haproxy-3.0.tmLanguage.json"
+      },
+      {
+        "language": "haproxy-3.2",
+        "scopeName": "source.haproxy",
+        "path": "./syntaxes/haproxy-3.2.tmLanguage.json"
+      },
+      {
+        "language": "haproxy-3.4",
+        "scopeName": "source.haproxy",
+        "path": "./syntaxes/haproxy-3.4.tmLanguage.json"
       }
     ],
     "commands": [
@@ -207,11 +272,31 @@
         "command": "haproxy.selectVersion",
         "title": "Select HAProxy Version",
         "category": "HAProxy"
+      },
+      {
+        "command": "haproxy.openWorkspaceSymbolSettings",
+        "title": "Open Workspace Symbol Settings",
+        "category": "HAProxy"
       }
     ]
   },
   "configurationDefaults": {
     "[haproxy]": {
+      "editor.maxTokenizationLineLength": 20000
+    },
+    "[haproxy-2.6]": {
+      "editor.maxTokenizationLineLength": 20000
+    },
+    "[haproxy-2.8]": {
+      "editor.maxTokenizationLineLength": 20000
+    },
+    "[haproxy-3.0]": {
+      "editor.maxTokenizationLineLength": 20000
+    },
+    "[haproxy-3.2]": {
+      "editor.maxTokenizationLineLength": 20000
+    },
+    "[haproxy-3.4]": {
       "editor.maxTokenizationLineLength": 20000
     }
   },
@@ -248,6 +333,7 @@
     "bench:update-thresholds": "node scripts/update-bench-thresholds.mjs scripts/reports/bench-latest.json",
     "bench:ci": "npm run bench:fixture:check && npm run bench:report && npm run bench:check",
     "bench:integration": "node scripts/run-perf-integration.mjs",
+    "bench:integration:check": "node scripts/check-perf-integration-thresholds.mjs scripts/reports/perf-integration.json",
     "bench:tags": "node scripts/bench-tags.mjs",
     "test:grammar-coverage": "node scripts/test-grammar-coverage.mjs",
     "test:upstream": "node scripts/test-diagnostics-upstream.mjs && node scripts/test-highlight-upstream.mjs",
@@ -273,7 +359,6 @@
     "generate:schema:3.4": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-3.4/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-3.4.txt --out ./schemas/haproxy-3.4.schema.json --language-data-out ./schemas/haproxy-3.4.language.json --grammar-out ./syntaxes/haproxy-3.4.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-3.4.json --metadata-provenance-out ../haproxy-schema/haproxy_schema/schema-metadata-provenance-3.4.json --version 3.4",
     "generate:schema:3.0": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-3.0/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-3.0.txt --out ./schemas/haproxy-3.0.schema.json --language-data-out ./schemas/haproxy-3.0.language.json --grammar-out ./syntaxes/haproxy-3.0.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-3.0.json --metadata-provenance-out ../haproxy-schema/haproxy_schema/schema-metadata-provenance-3.0.json --version 3.0",
     "generate:grammar:3.0": "python -m haproxy_schema emit-grammar --schema ./schemas/haproxy-3.0.schema.json --out ./syntaxes/haproxy-3.0.tmLanguage.json",
-    "sync:active-grammar": "node scripts/sync-active-grammar.mjs",
     "generate:language-data": "npm run generate:schema"
   },
   "devDependencies": {

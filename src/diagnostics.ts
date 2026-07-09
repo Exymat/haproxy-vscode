@@ -10,6 +10,7 @@ import {
   getSymbolIndex,
   getWorkspaceSymbolIndex,
   symbolIndexForWorkspaceDiagnostics,
+  workspaceUriKey,
 } from "./symbolIndex";
 import { entryPointWithoutBindDiagnostics } from "./entryPointDiagnostics";
 import { missingReferenceDiagnostics } from "./missingReferenceDiagnostics";
@@ -97,7 +98,13 @@ function computeDocumentSymbolDiagnostics(
     diagnostics.push(...entryPointWithoutBindDiagnostics(document, ctx.parsed, ctx));
   }
   if (options.missingReferences !== false) {
-    diagnostics.push(...missingReferenceDiagnostics(effectiveIndex));
+    const missingReferenceScope =
+      workspaceIndex && workspaceIndex.documents.has(workspaceUriKey(document.uri))
+        ? "workspace"
+        : "file";
+    diagnostics.push(
+      ...missingReferenceDiagnostics(effectiveIndex, { scope: missingReferenceScope }),
+    );
   }
   diagnostics.push(...duplicateSectionDiagnostics(document, ctx.parsed, workspaceIndex));
 

@@ -642,7 +642,10 @@ export function sectionHeaderSet(schema: HaproxySchema): Set<string> {
     return cached;
   }
   const fromLayout = schema.line_layout?.section_headers;
-  const headers = fromLayout && fromLayout.length > 0 ? fromLayout : sectionNames(schema);
+  const headers =
+    fromLayout && fromLayout.length > 0
+      ? [...new Set([...fromLayout, ...sectionNames(schema)])]
+      : sectionNames(schema);
   const set = new Set(headers.map((header) => header.toLowerCase()));
   sectionHeaderSetCache.set(schema, set);
   return set;

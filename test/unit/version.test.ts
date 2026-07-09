@@ -1,6 +1,7 @@
 import {
   DEFAULT_HAPROXY_VERSION,
   getConfiguredVersion,
+  getConfiguredVersionForUri,
   onVersionConfigurationChanged,
   setConfiguredVersion,
   SUPPORTED_HAPROXY_VERSIONS,
@@ -9,6 +10,7 @@ import {
   ConfigurationTarget,
   resetVscodeMock,
   setMockConfig,
+  setMockConfigForUri,
   setMockWorkspaceFolders,
   triggerMockConfigurationChange,
   workspace,
@@ -35,7 +37,33 @@ describe("version", () => {
     expect(getConfiguredVersion()).toBe(DEFAULT_HAPROXY_VERSION);
   });
 
-  it("updates version at workspace target when folders exist", async () => {
+  it("reads version scoped to a workspace resource", () => {
+    const uri = { toString: () => "file:///workspace-a/app.cfg" };
+    setMockConfig("haproxy", "version", "3.2");
+    setMockConfigForUri(uri, "haproxy", "version", "2.6");
+    expect(getConfiguredVersionForUri(uri as never)).toBe("2.6");
+    expect(getConfiguredVersion()).toBe("3.2");
+  });
+
+  it("updates version at workspace-folder target when resource is in a folder", async () => {
+    const uri = { toString: () => "file:///workspace/app.cfg" };
+    setMockWorkspaceFolders([{ uri: { toString: () => "file:///workspace" } }]);
+    const baseConfig = workspace.getConfiguration("haproxy", uri);
+    let capturedTarget: number | undefined;
+    vi.spyOn(workspace, "getConfiguration").mockReturnValue({
+      get: baseConfig.get.bind(baseConfig),
+      update: (key: string, value: unknown, target?: number) => {
+        capturedTarget = target;
+        baseConfig.update(key, value, target);
+      },
+    });
+
+    await setConfiguredVersion("3.4", uri as never);
+    expect(capturedTarget).toBe(ConfigurationTarget.WorkspaceFolder);
+    expect(getConfiguredVersionForUri(uri as never)).toBe("3.4");
+  });
+
+  it("updates version at workspace target when folders exist but no resource is given", async () => {
     setMockWorkspaceFolders([{ uri: { fsPath: "/workspace" } }]);
     const baseConfig = workspace.getConfiguration("haproxy");
     let capturedTarget: number | undefined;

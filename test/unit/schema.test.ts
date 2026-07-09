@@ -147,12 +147,13 @@ describe("loadSchema", () => {
     }
   });
 
-  it("sectionHeaderSet uses schema line_layout headers when provided", () => {
+  it("sectionHeaderSet unions line_layout headers with schema sections", () => {
     const schema = loadFixtureSchema("3.4");
+    expect(sectionHeaderSet(schema).has("fcgi-app")).toBe(true);
     const custom = structuredClone(schema);
     custom.line_layout = { section_headers: ["custom-proxy"] };
     expect(sectionHeaderSet(custom).has("custom-proxy")).toBe(true);
-    expect(sectionHeaderSet(custom).has("global")).toBe(false);
+    expect(sectionHeaderSet(custom).has("global")).toBe(true);
   });
 });
 

@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 import { fingerprintText } from "../contentFingerprint";
+import { isHaproxyLanguageId } from "../grammar";
 import { getParsedDocument } from "../parseCache";
 import { parseDocumentLines, ParsedLine } from "../parser";
 import { HaproxySchema, sectionHeaderSet } from "../schema";
@@ -17,6 +18,13 @@ import {
 } from "./workspaceTypes";
 import { workspaceUriKey } from "./workspaceUri";
 
+/** Upper bound on encoded bytes per line when estimating max file size from line count. */
+export const WORKSPACE_INDEX_MAX_LINE_BYTES = 8192;
+
+export function maxWorkspaceIndexFileBytes(maxLines: number): number {
+  return maxLines * WORKSPACE_INDEX_MAX_LINE_BYTES;
+}
+
 function textDocumentContent(document: vscode.TextDocument): { text: string; lines: string[] } {
   const text = document.getText();
   return { text, lines: text.split(/\r?\n/) };
@@ -24,6 +32,12 @@ function textDocumentContent(document: vscode.TextDocument): { text: string; lin
 
 function diskStatKey(stat: vscode.FileStat): string {
   return `${stat.mtime}:${stat.size}`;
+}
+
+function logDiskReadFailure(uri: vscode.Uri, error: unknown): void {
+  if (error instanceof vscode.FileSystemError) {
+    console.debug(`createDiskEntry disk read failed (${error.code}): ${workspaceUriKey(uri)}`);
+  }
 }
 
 function sectionRanges(parsed: ParsedLine[], lineTexts: string[]): Map<number, SectionRange> {
@@ -85,16 +99,35 @@ function openDocumentForUri(uri: vscode.Uri): vscode.TextDocument | undefined {
   return vscode.workspace.textDocuments.find((document) => workspaceUriKey(document.uri) === key);
 }
 
+export function looksLikeHaproxyConfig(
+  lines: string[],
+  sectionHeaders: ReadonlySet<string>,
+): boolean {
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+    const first = trimmed.split(/\s+/)[0]?.toLowerCase();
+    return first !== undefined && sectionHeaders.has(first);
+  }
+  return false;
+}
+
 export function createOpenDocumentEntry(
   document: vscode.TextDocument,
   schema: HaproxySchema,
   maxLines: number,
   cached?: WorkspaceDocumentSymbols,
 ): WorkspaceDocumentSymbols | null {
-  if (document.languageId !== "haproxy" || document.lineCount > maxLines) {
+  if (!isHaproxyLanguageId(document.languageId) || document.lineCount > maxLines) {
     return null;
   }
   const { text, lines } = textDocumentContent(document);
+  const headers = sectionHeaderSet(schema);
+  if (!looksLikeHaproxyConfig(lines, headers)) {
+    return null;
+  }
   const fingerprint = fingerprintText(text);
   if (cached && cached.fingerprint === fingerprint) {
     return {
@@ -154,13 +187,21 @@ export async function createDiskEntry(
       return cached;
     }
 
+    if (stat.size > maxWorkspaceIndexFileBytes(maxLines)) {
+      return null;
+    }
+
     const bytes = await vscode.workspace.fs.readFile(uri);
     const text = new TextDecoder("utf-8").decode(bytes);
     const lines = text.split(/\r?\n/);
     if (lines.length > maxLines) {
       return null;
     }
-    const parsed = parseDocumentLines(lines, { sectionHeaders: sectionHeaderSet(schema) });
+    const headers = sectionHeaderSet(schema);
+    if (!looksLikeHaproxyConfig(lines, headers)) {
+      return null;
+    }
+    const parsed = parseDocumentLines(lines, { sectionHeaders: headers });
     const index = buildSymbolIndex(parsed, schema);
     return {
       uri,
@@ -173,8 +214,9 @@ export async function createDiskEntry(
       index,
       sectionRangesByStartLine: sectionRanges(parsed, lines),
     };
-  } catch {
-    return cached ?? null;
+  } catch (error) {
+    logDiskReadFailure(uri, error);
+    return null;
   }
 }
 

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createOnigScanner, createOnigString, loadWASM } from "vscode-oniguruma";
 import {
@@ -91,17 +91,15 @@ function ruleMatchesScopes(ruleScope: string, scopes: string[]): boolean {
   return true;
 }
 
-export function loadGrammarObject(): IRawGrammar {
-  const activePath = join(extensionRoot, "syntaxes", "haproxy-active.tmLanguage.json");
-  const fallbackPath = join(extensionRoot, "syntaxes", "haproxy-3.2.tmLanguage.json");
-  const grammarPath = existsSync(activePath) ? activePath : fallbackPath;
+export function loadGrammarObject(version = "3.2"): IRawGrammar {
+  const grammarPath = join(extensionRoot, "syntaxes", `haproxy-${version}.tmLanguage.json`);
   const raw = readFileSync(grammarPath, "utf-8").replace(/^\uFEFF/, "");
   const grammar = JSON.parse(raw) as IRawGrammar & { $schema?: string };
   delete grammar.$schema;
   return grammar;
 }
 
-export async function createHaproxyGrammar(): Promise<IGrammar> {
+export async function createHaproxyGrammar(version = "3.2"): Promise<IGrammar> {
   await initTextMate();
   const registry = new Registry({
     theme: {
@@ -114,7 +112,7 @@ export async function createHaproxyGrammar(): Promise<IGrammar> {
     }),
     loadGrammar: () => Promise.resolve(null),
   });
-  return registry.addGrammar(loadGrammarObject());
+  return registry.addGrammar(loadGrammarObject(version));
 }
 
 function scopeSpecificity(scope: string): number {

@@ -1,77 +1,56 @@
-import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 
-import { HaproxyVersion } from "./version";
+import { getConfiguredVersionForUri, HaproxyVersion, SUPPORTED_HAPROXY_VERSIONS } from "./version";
 
-const ACTIVE_GRAMMAR = "haproxy-active.tmLanguage.json";
+export const HAPROXY_LANGUAGE_BASE = "haproxy";
 
 export function grammarPathForVersion(extensionPath: string, version: HaproxyVersion): string {
   return path.join(extensionPath, "syntaxes", `haproxy-${version}.tmLanguage.json`);
 }
 
-export function activeGrammarPath(extensionPath: string): string {
-  return path.join(extensionPath, "syntaxes", ACTIVE_GRAMMAR);
+export function languageIdForVersion(version: HaproxyVersion): string {
+  return `haproxy-${version}`;
 }
 
-/** Copy version-specific grammar to the path referenced by package.json. Returns true if the file changed. */
-export function syncActiveGrammar(
-  context: vscode.ExtensionContext,
-  version: HaproxyVersion,
-): boolean {
-  const src = grammarPathForVersion(context.extensionPath, version);
-  const dst = activeGrammarPath(context.extensionPath);
-  if (!fs.existsSync(src)) {
+export function versionForLanguageId(languageId: string): HaproxyVersion | undefined {
+  const match = /^haproxy-(\d+\.\d+)$/.exec(languageId);
+  if (!match) {
+    return undefined;
+  }
+  return (SUPPORTED_HAPROXY_VERSIONS as readonly string[]).includes(match[1])
+    ? (match[1] as HaproxyVersion)
+    : undefined;
+}
+
+export function isHaproxyLanguageId(languageId: string): boolean {
+  return languageId === HAPROXY_LANGUAGE_BASE || versionForLanguageId(languageId) !== undefined;
+}
+
+export function haproxyDocumentSelector(): vscode.DocumentSelector {
+  return [
+    { language: HAPROXY_LANGUAGE_BASE },
+    ...SUPPORTED_HAPROXY_VERSIONS.map((version) => ({
+      language: languageIdForVersion(version),
+    })),
+  ];
+}
+
+/** Assign the TextMate grammar language for a document from its workspace folder version. */
+export async function syncDocumentGrammarLanguage(document: vscode.TextDocument): Promise<boolean> {
+  if (!isHaproxyLanguageId(document.languageId)) {
     return false;
   }
-  const next = fs.readFileSync(src);
-  if (fs.existsSync(dst)) {
-    const current = fs.readFileSync(dst);
-    if (current.equals(next)) {
-      return false;
-    }
+  const targetLanguageId = languageIdForVersion(getConfiguredVersionForUri(document.uri));
+  if (document.languageId === targetLanguageId) {
+    return false;
   }
-  fs.mkdirSync(path.dirname(dst), { recursive: true });
-  fs.writeFileSync(dst, next);
+  await vscode.languages.setTextDocumentLanguage(document, targetLanguageId);
   return true;
 }
 
-/** Async variant of syncActiveGrammar to avoid blocking the extension host during activation. */
-export async function syncActiveGrammarAsync(
-  context: vscode.ExtensionContext,
-  version: HaproxyVersion,
-): Promise<boolean> {
-  const src = grammarPathForVersion(context.extensionPath, version);
-  const dst = activeGrammarPath(context.extensionPath);
-  try {
-    await fs.promises.access(src, fs.constants.F_OK);
-  } catch {
-    return false;
-  }
-  const next = await fs.promises.readFile(src);
-  let current: Buffer | undefined;
-  try {
-    current = await fs.promises.readFile(dst);
-  } catch {
-    // Destination file might not exist yet.
-  }
-  if (current?.equals(next)) {
-    return false;
-  }
-  await fs.promises.mkdir(path.dirname(dst), { recursive: true });
-  await fs.promises.writeFile(dst, next);
-  return true;
-}
-
-export async function promptReloadIfGrammarChanged(changed: boolean): Promise<void> {
-  if (!changed) {
-    return;
-  }
-  const choice = await vscode.window.showInformationMessage(
-    "HAProxy version changed; reload the window to refresh syntax highlighting.",
-    "Reload Window",
+export async function syncAllOpenDocumentGrammarLanguages(): Promise<void> {
+  await Promise.all(
+    vscode.workspace.textDocuments.map((document) => syncDocumentGrammarLanguage(document)),
   );
-  if (choice === "Reload Window") {
-    await vscode.commands.executeCommand("workbench.action.reloadWindow");
-  }
 }

@@ -10,6 +10,18 @@ import {
 
 const SECTION = "haproxy";
 
+/** Mirrors `package.json` `haproxy.diagnostics.debounceMs` minimum/maximum. */
+const DIAGNOSTICS_DEBOUNCE_MS_MIN = 100;
+const DIAGNOSTICS_DEBOUNCE_MS_MAX = 5000;
+
+/** Mirrors `package.json` `haproxy.workspaceSymbols.debounceMs` minimum/maximum. */
+const WORKSPACE_SYMBOLS_DEBOUNCE_MS_MIN = 100;
+const WORKSPACE_SYMBOLS_DEBOUNCE_MS_MAX = 10000;
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
 export interface HaproxyExtensionSettings {
   diagnosticsEnabled: boolean;
   diagnosticsDebounceMs: number;
@@ -43,7 +55,11 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
   const config = vscode.workspace.getConfiguration(SECTION);
   return {
     diagnosticsEnabled: config.get<boolean>("diagnostics.enabled", true),
-    diagnosticsDebounceMs: Math.max(100, config.get<number>("diagnostics.debounceMs", 500)),
+    diagnosticsDebounceMs: clamp(
+      config.get<number>("diagnostics.debounceMs", 500),
+      DIAGNOSTICS_DEBOUNCE_MS_MIN,
+      DIAGNOSTICS_DEBOUNCE_MS_MAX,
+    ),
     maxDiagnosticsLines: Math.max(100, config.get<number>("diagnostics.maxLines", 4000)),
     formatEnabled: config.get<boolean>("format.enabled", true),
     formatIndent: readFormatIndent(config),
@@ -68,9 +84,10 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
       100,
       config.get<number>("workspaceSymbols.maxTotalLines", 100000),
     ),
-    workspaceSymbolsDebounceMs: Math.max(
-      100,
+    workspaceSymbolsDebounceMs: clamp(
       config.get<number>("workspaceSymbols.debounceMs", 750),
+      WORKSPACE_SYMBOLS_DEBOUNCE_MS_MIN,
+      WORKSPACE_SYMBOLS_DEBOUNCE_MS_MAX,
     ),
   };
 }

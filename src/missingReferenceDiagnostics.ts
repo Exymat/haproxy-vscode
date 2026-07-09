@@ -31,9 +31,17 @@ function siteKey(site: SymbolSite): string {
   ].join("\0");
 }
 
-export function missingReferenceDiagnostics(index: SymbolIndex): vscode.Diagnostic[] {
+export interface MissingReferenceDiagnosticsOptions {
+  scope?: "file" | "workspace";
+}
+
+export function missingReferenceDiagnostics(
+  index: SymbolIndex,
+  options?: MissingReferenceDiagnosticsOptions,
+): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
   const reported = new Set<string>();
+  const scopeLabel = options?.scope === "workspace" ? "in this workspace" : "in this file";
 
   for (const reference of index.unresolvedReferences) {
     if (reference.kind === "environment-variable") {
@@ -47,7 +55,7 @@ export function missingReferenceDiagnostics(index: SymbolIndex): vscode.Diagnost
     diagnostics.push(
       makeDiagnostic(
         siteRange(reference),
-        `${symbolLabel(reference.kind)} '${reference.name}' is referenced but not defined in this file`,
+        `${symbolLabel(reference.kind)} '${reference.name}' is referenced but not defined ${scopeLabel}`,
         vscode.DiagnosticSeverity.Warning,
         "missing-reference",
       ),

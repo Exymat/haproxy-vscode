@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 import { documentContentFingerprint } from "../documentUriKey";
+import { isHaproxyLanguageId } from "../grammar";
 import { HaproxySchema } from "../schema";
 
 import {
@@ -53,6 +54,67 @@ let activeSettings: WorkspaceSymbolSettings | null = null;
 let activeSchema: HaproxySchema | null = null;
 let activeMaxLines = 0;
 let onDidChangeWorkspaceIndex: ((event: WorkspaceIndexChangeEvent) => void) | undefined;
+const notifiedCappedFolders = new Set<string>();
+const cappedFolderKeys = new Set<string>();
+
+export function isDocumentWorkspaceIndexCapped(document: vscode.TextDocument): boolean {
+  return cappedFolderKeys.has(workspaceFolderKey(workspaceFolderForUri(document.uri)));
+}
+
+export function hasCappedWorkspaceFolders(): boolean {
+  return cappedFolderKeys.size > 0;
+}
+
+function notifyWorkspaceIndexCapped(): void {
+  void vscode.window
+    .showWarningMessage(
+      "HAProxy workspace symbol index exceeded limits; cross-file navigation, rename, and missing-reference checks are disabled for this folder. Increase haproxy.workspaceSymbols.maxFiles or haproxy.workspaceSymbols.maxTotalLines.",
+      "Open Settings",
+    )
+    .then((choice) => {
+      if (choice === "Open Settings") {
+        void vscode.commands.executeCommand(
+          "workbench.action.openSettings",
+          "@id:haproxy.workspaceSymbols.maxFiles",
+        );
+      }
+    });
+}
+
+function updateCappedFolderTracking(
+  folderKey: string,
+  previousIndex: WorkspaceSymbolIndex | undefined,
+  newIndex: WorkspaceSymbolIndex,
+): void {
+  if (newIndex.capped) {
+    cappedFolderKeys.add(folderKey);
+    if (!previousIndex?.capped && !notifiedCappedFolders.has(folderKey)) {
+      notifiedCappedFolders.add(folderKey);
+      notifyWorkspaceIndexCapped();
+    }
+    return;
+  }
+  cappedFolderKeys.delete(folderKey);
+}
+
+function setFolderWorkspaceIndex(
+  folderKey: string,
+  newIndex: WorkspaceSymbolIndex,
+  indexes: Map<string, WorkspaceSymbolIndex> = activeWorkspaceIndexes,
+): void {
+  const previousIndex = indexes.get(folderKey);
+  updateCappedFolderTracking(folderKey, previousIndex, newIndex);
+  indexes.set(folderKey, newIndex);
+}
+
+function rebuildCappedFolderKeys(indexes: Map<string, WorkspaceSymbolIndex>): void {
+  cappedFolderKeys.clear();
+  for (const [folderKey, index] of indexes) {
+    if (index.capped) {
+      cappedFolderKeys.add(folderKey);
+    }
+  }
+}
 
 type ActiveWorkspaceRebuildScope = Exclude<WorkspaceRebuildScope, "none">;
 type ActiveWorkspaceRebuildOptions = Omit<WorkspaceRebuildOptions, "scope"> & {
@@ -71,7 +133,7 @@ export function workspaceEntryForDocument(
 export function resolveWorkspaceRebuildScopeOnOpen(
   document: vscode.TextDocument,
 ): WorkspaceRebuildScope {
-  if (document.languageId !== "haproxy") {
+  if (!isHaproxyLanguageId(document.languageId)) {
     return "none";
   }
 
@@ -118,9 +180,6 @@ async function buildFolderWorkspaceIndex(
     return null;
   }
   /* v8 ignore stop */
-  if (!uris) {
-    return aggregateDocuments(generation, true, new Map());
-  }
 
   const documents = new Map<string, WorkspaceDocumentSymbols>();
   let totalLines = 0;
@@ -134,6 +193,9 @@ async function buildFolderWorkspaceIndex(
     /* v8 ignore stop */
     if (!entry) {
       continue;
+    }
+    if (documents.size >= settings.maxFiles) {
+      return aggregateDocuments(generation, true, new Map());
     }
     totalLines += entry.parsed.length;
     if (totalLines > settings.maxTotalLines) {
@@ -178,7 +240,7 @@ async function updateSingleDocumentInWorkspaceIndex(
   if (!entry) {
     const documents = new Map(existing.documents);
     documents.delete(uriKey);
-    activeWorkspaceIndexes.set(folderKey, aggregateDocuments(generation, false, documents));
+    setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, false, documents));
     notifyWorkspaceIndexChanged({ scope: "incremental", document });
     return;
   }
@@ -186,9 +248,9 @@ async function updateSingleDocumentInWorkspaceIndex(
   const documents = new Map(existing.documents);
   documents.set(entry.uriKey, entry);
   if (totalDocumentLines(documents) > settings.maxTotalLines) {
-    activeWorkspaceIndexes.set(folderKey, aggregateDocuments(generation, true, new Map()));
+    setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, true, new Map()));
   } else {
-    activeWorkspaceIndexes.set(folderKey, aggregateDocuments(generation, false, documents));
+    setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, false, documents));
   }
   notifyWorkspaceIndexChanged({ scope: "incremental", document });
 }
@@ -203,6 +265,7 @@ async function rebuildWorkspaceIndexes(
   if (!settings.enabled) {
     if (generation === activeGeneration) {
       activeWorkspaceIndexes = new Map();
+      cappedFolderKeys.clear();
       invalidateDiscoveryCache();
       notifyWorkspaceIndexChanged({ scope: options.scope ?? "full", document: options.document });
     }
@@ -255,6 +318,8 @@ async function rebuildWorkspaceIndexes(
       return;
     }
     /* v8 ignore stop */
+    const previousIndex = activeWorkspaceIndexes.get(folderKey);
+    updateCappedFolderTracking(folderKey, previousIndex, index);
     nextIndexes.set(folderKey, index);
   }
 
@@ -264,6 +329,7 @@ async function rebuildWorkspaceIndexes(
   }
   /* v8 ignore stop */
   activeWorkspaceIndexes = nextIndexes;
+  rebuildCappedFolderKeys(activeWorkspaceIndexes);
   notifyWorkspaceIndexChanged({ scope, document: options.document });
 }
 
@@ -332,6 +398,8 @@ export function clearWorkspaceSymbolIndex(): void {
     rebuildTimer = undefined;
   }
   activeWorkspaceIndexes = new Map();
+  cappedFolderKeys.clear();
+  notifiedCappedFolders.clear();
   activeSettings = null;
   activeSchema = null;
   activeMaxLines = 0;

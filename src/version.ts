@@ -12,19 +12,33 @@ function isHaproxyVersion(raw: string | undefined): raw is HaproxyVersion {
   return (SUPPORTED_HAPROXY_VERSIONS as readonly string[]).includes(raw ?? "");
 }
 
-export function getConfiguredVersion(): HaproxyVersion {
-  const raw = vscode.workspace.getConfiguration(CONFIG_SECTION).get<string>(CONFIG_VERSION);
+function readConfiguredVersion(config: vscode.WorkspaceConfiguration): HaproxyVersion {
+  const raw = config.get<string>(CONFIG_VERSION);
   if (isHaproxyVersion(raw)) {
     return raw;
   }
   return DEFAULT_HAPROXY_VERSION;
 }
 
-export async function setConfiguredVersion(version: HaproxyVersion): Promise<void> {
-  const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
-  const target = vscode.workspace.workspaceFolders?.length
-    ? vscode.ConfigurationTarget.Workspace
-    : vscode.ConfigurationTarget.Global;
+export function getConfiguredVersion(): HaproxyVersion {
+  return readConfiguredVersion(vscode.workspace.getConfiguration(CONFIG_SECTION));
+}
+
+export function getConfiguredVersionForUri(resource?: vscode.Uri): HaproxyVersion {
+  return readConfiguredVersion(vscode.workspace.getConfiguration(CONFIG_SECTION, resource));
+}
+
+export async function setConfiguredVersion(
+  version: HaproxyVersion,
+  resource?: vscode.Uri,
+): Promise<void> {
+  const config = vscode.workspace.getConfiguration(CONFIG_SECTION, resource);
+  const folder = resource ? vscode.workspace.getWorkspaceFolder(resource) : undefined;
+  const target = folder
+    ? vscode.ConfigurationTarget.WorkspaceFolder
+    : vscode.workspace.workspaceFolders?.length
+      ? vscode.ConfigurationTarget.Workspace
+      : vscode.ConfigurationTarget.Global;
   await config.update(CONFIG_VERSION, version, target);
 }
 

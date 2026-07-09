@@ -44,6 +44,14 @@ describe("settings", () => {
     expect(settings.maxDiagnosticsLines).toBe(100);
   });
 
+  it("clamps debounce settings to maximums", () => {
+    setMockConfig("haproxy", "diagnostics.debounceMs", 999999);
+    setMockConfig("haproxy", "workspaceSymbols.debounceMs", 600000);
+    const settings = getExtensionSettings();
+    expect(settings.diagnosticsDebounceMs).toBe(5000);
+    expect(settings.workspaceSymbolsDebounceMs).toBe(10000);
+  });
+
   it("clamps workspace symbol limits to minimums", () => {
     setMockConfig("haproxy", "workspaceSymbols.maxFiles", 0);
     setMockConfig("haproxy", "workspaceSymbols.maxTotalLines", 10);

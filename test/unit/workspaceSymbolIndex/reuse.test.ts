@@ -151,17 +151,19 @@ describe("workspace symbol index reuse and resilience", () => {
     expect(findFilesSpy).not.toHaveBeenCalled();
   });
 
-  it("skips unreadable disk files while keeping cached entries", async () => {
+  it("evicts unreadable disk files instead of keeping cached entries", async () => {
     setMockWorkspaceFile("file:///a.cfg", "backend a");
     setMockWorkspaceFile("file:///b.cfg", "backend b");
     await buildWorkspace();
 
+    setMockWorkspaceFileStat("file:///b.cfg", Date.now() + 1000, 999);
     setMockWorkspaceReadFailure("file:///b.cfg", true);
     await buildWorkspace();
 
     const workspaceIndex = expectWorkspaceIndex(getWorkspaceSymbolIndex());
     expect(findWorkspaceDefinitions(workspaceIndex, "proxy-section", "a", null)).toHaveLength(1);
-    expect(findWorkspaceDefinitions(workspaceIndex, "proxy-section", "b", null)).toHaveLength(1);
+    expect(findWorkspaceDefinitions(workspaceIndex, "proxy-section", "b", null)).toHaveLength(0);
+    expect(workspaceIndex.documents.has("file:///b.cfg")).toBe(false);
   });
 
   it("uses a stable sha256 content fingerprint", () => {

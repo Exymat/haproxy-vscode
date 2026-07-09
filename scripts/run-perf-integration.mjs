@@ -16,8 +16,17 @@ if (compileIntegration.status !== 0) {
   process.exit(compileIntegration.status ?? 1);
 }
 
-const tests = spawnSync("npx", ["vscode-test", "--", "--grep", "Perf"], {
+const tests = spawnSync("npx", ["vscode-test", "-g", "Perf"], {
   stdio: "inherit",
   shell: true,
 });
-process.exit(tests.status ?? 1);
+if (tests.status !== 0) {
+  process.exit(tests.status ?? 1);
+}
+
+const check = spawnSync(
+  "node",
+  ["scripts/check-perf-integration-thresholds.mjs", "scripts/reports/perf-integration.json"],
+  { stdio: "inherit", shell: true },
+);
+process.exit(check.status ?? 1);

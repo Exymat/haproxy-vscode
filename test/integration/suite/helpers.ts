@@ -12,6 +12,66 @@ import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 
 const EXTENSION_ID = "Exymat.haproxy-config";
 const FIXTURES_DIR = path.resolve(__dirname, "../../../../test/integration/fixtures");
+const DEFAULT_HAPROXY_VERSION = "3.2";
+
+function languageIdForVersion(version: string): string {
+  return `haproxy-${version}`;
+}
+
+function isHaproxyLanguageId(languageId: string): boolean {
+  return languageId === "haproxy" || /^haproxy-\d+\.\d+$/.test(languageId);
+}
+
+function getConfiguredHaproxyVersion(): string {
+  const raw = vscode.workspace.getConfiguration("haproxy").get<string>("version");
+  if (raw && /^(\d+\.\d+)$/.test(raw)) {
+    return raw;
+  }
+  return DEFAULT_HAPROXY_VERSION;
+}
+
+export async function waitForHaproxyGrammarLanguage(
+  document: vscode.TextDocument,
+  version = getConfiguredHaproxyVersion(),
+): Promise<vscode.TextDocument> {
+  const expectedLanguageId = languageIdForVersion(version);
+  const deadline = Date.now() + 5000;
+  while (Date.now() < deadline) {
+    const current =
+      vscode.workspace.textDocuments.find(
+        (openDoc) => openDoc.uri.toString() === document.uri.toString(),
+      ) ?? document;
+    if (current.languageId === expectedLanguageId) {
+      return current;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  const current =
+    vscode.workspace.textDocuments.find(
+      (openDoc) => openDoc.uri.toString() === document.uri.toString(),
+    ) ?? document;
+  assert.strictEqual(
+    current.languageId,
+    expectedLanguageId,
+    `Expected grammar language ${expectedLanguageId}`,
+  );
+  return current;
+}
+
+export function assertHaproxyLanguage(
+  document: vscode.TextDocument,
+  version = getConfiguredHaproxyVersion(),
+): void {
+  assert.ok(
+    isHaproxyLanguageId(document.languageId),
+    `Document must use a HAProxy language id, got ${document.languageId}`,
+  );
+  assert.strictEqual(
+    document.languageId,
+    languageIdForVersion(version),
+    `Document must use grammar language for HAProxy ${version}`,
+  );
+}
 
 let extensionReady: Promise<void> | undefined;
 
@@ -27,9 +87,10 @@ export async function ensureExtensionReady(): Promise<void> {
       await ext.activate();
 
       const uri = vscode.Uri.file(fixturePath("sample.cfg"));
-      const doc = await vscode.workspace.openTextDocument(uri);
+      let doc = await vscode.workspace.openTextDocument(uri);
       await vscode.window.showTextDocument(doc);
-      assert.strictEqual(doc.languageId, "haproxy", "Fixture file must use the haproxy language");
+      doc = await waitForHaproxyGrammarLanguage(doc);
+      assertHaproxyLanguage(doc);
 
       const deadline = Date.now() + 10000;
       while (Date.now() < deadline) {
@@ -74,7 +135,8 @@ export async function openFixture(relativePath: string): Promise<vscode.TextDocu
     `${relativePath}: expected at least ${linesOnDisk} lines, got ${doc.lineCount}`,
   );
   await vscode.window.showTextDocument(doc);
-  assert.strictEqual(doc.languageId, "haproxy", `${relativePath} must use the haproxy language`);
+  doc = await waitForHaproxyGrammarLanguage(doc);
+  assertHaproxyLanguage(doc);
   await waitForDiagnosticsReady();
   return doc;
 }
@@ -82,9 +144,10 @@ export async function openFixture(relativePath: string): Promise<vscode.TextDocu
 export async function openHaproxyDocument(content: string): Promise<vscode.TextDocument> {
   await ensureExtensionReady();
   await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-  const doc = await vscode.workspace.openTextDocument({ language: "haproxy", content });
+  let doc = await vscode.workspace.openTextDocument({ language: "haproxy", content });
   await vscode.window.showTextDocument(doc);
-  assert.strictEqual(doc.languageId, "haproxy", "Document must use the haproxy language");
+  doc = await waitForHaproxyGrammarLanguage(doc);
+  assertHaproxyLanguage(doc);
   await waitForDiagnosticsReady();
   return doc;
 }
@@ -99,9 +162,10 @@ export async function openTempFixtureDocument(
   await vscode.workspace.fs.createDirectory(vscode.Uri.file(dir));
   const uri = vscode.Uri.file(path.join(dir, name));
   await vscode.workspace.fs.writeFile(uri, Buffer.from(content, "utf8"));
-  const doc = await vscode.workspace.openTextDocument(uri);
+  let doc = await vscode.workspace.openTextDocument(uri);
   await vscode.window.showTextDocument(doc);
-  assert.strictEqual(doc.languageId, "haproxy", "Temp document must use the haproxy language");
+  doc = await waitForHaproxyGrammarLanguage(doc);
+  assertHaproxyLanguage(doc);
   await waitForDiagnosticsReady();
   return doc;
 }

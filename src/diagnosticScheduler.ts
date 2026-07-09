@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 import { computeDiagnostics } from "./diagnostics";
+import { isHaproxyLanguageId } from "./grammar";
 import { ExtensionBundle } from "./extensionBundle";
 import { HaproxyExtensionSettings } from "./settings";
 
@@ -27,8 +28,9 @@ export function createDiagnosticScheduler(
   };
 
   const runDiagnostics = async (document: vscode.TextDocument): Promise<void> => {
+    const versionAtStart = document.version;
     const settings = getSettings();
-    if (!settings.diagnosticsEnabled || document.languageId !== "haproxy") {
+    if (!settings.diagnosticsEnabled || !isHaproxyLanguageId(document.languageId)) {
       return;
     }
     if (document.lineCount > settings.maxDiagnosticsLines) {
@@ -39,9 +41,15 @@ export function createDiagnosticScheduler(
     try {
       b = await ensureBundle();
     } catch (error) {
+      if (document.version !== versionAtStart) {
+        return;
+      }
       const message = error instanceof Error ? error.message : String(error);
       onBundleError(message);
       diagnostics.set(document.uri, []);
+      return;
+    }
+    if (document.version !== versionAtStart) {
       return;
     }
     diagnostics.set(
@@ -66,7 +74,7 @@ export function createDiagnosticScheduler(
   };
 
   const schedule = (document: vscode.TextDocument): void => {
-    if (document.languageId !== "haproxy") {
+    if (!isHaproxyLanguageId(document.languageId)) {
       return;
     }
     const settings = getSettings();
@@ -85,7 +93,7 @@ export function createDiagnosticScheduler(
   };
 
   const runNow = (document: vscode.TextDocument): void => {
-    if (document.languageId !== "haproxy") {
+    if (!isHaproxyLanguageId(document.languageId)) {
       return;
     }
     const settings = getSettings();

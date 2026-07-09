@@ -1,0 +1,20 @@
+{
+  "metric": "p95",
+  "thresholds": [
+    {
+      "name": "activation_to_first_completion",
+      "maxMs": 30000,
+      "baselineMs": 994
+    },
+    {
+      "name": "hover_e2e_balance",
+      "maxMs": 100,
+      "baselineMs": 17.7
+    },
+    {
+      "name": "open_large_cfg_diagnostics",
+      "maxMs": 90000,
+      "baselineMs": 1234
+    }
+  ]
+}

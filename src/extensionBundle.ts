@@ -11,16 +11,41 @@ export interface ExtensionBundle {
   languageData: HaproxyLanguageData;
 }
 
+export class BundleLoadStaleError extends Error {
+  constructor() {
+    super("Bundle load superseded");
+    this.name = "BundleLoadStaleError";
+  }
+}
+
+export function isBundleLoadStaleError(error: unknown): error is BundleLoadStaleError {
+  return error instanceof BundleLoadStaleError;
+}
+
 let bundle: ExtensionBundle | undefined;
 let bundleLoadPromise: Promise<ExtensionBundle> | undefined;
 let bundleLoadError: Error | undefined;
 let bundleGeneration = 0;
+let pendingLoadReject: ((error: BundleLoadStaleError) => void) | undefined;
+
+function clearPendingLoadReject(): void {
+  pendingLoadReject = undefined;
+}
+
+function rejectPendingLoad(): void {
+  if (pendingLoadReject) {
+    const reject = pendingLoadReject;
+    clearPendingLoadReject();
+    reject(new BundleLoadStaleError());
+  }
+}
 
 export function invalidateBundleLoad(): void {
   bundleGeneration += 1;
   bundle = undefined;
   bundleLoadPromise = undefined;
   bundleLoadError = undefined;
+  rejectPendingLoad();
 }
 
 export function getLoadedBundle(): ExtensionBundle | undefined {
@@ -45,6 +70,15 @@ export function createBundleLoader(
       const generation = bundleGeneration;
       const isStale = (): boolean => generation !== bundleGeneration;
       bundleLoadPromise = new Promise((resolve, reject) => {
+        pendingLoadReject = reject;
+        const rejectLoad = (error: Error): void => {
+          clearPendingLoadReject();
+          reject(error);
+        };
+        const resolveLoad = (value: ExtensionBundle): void => {
+          clearPendingLoadReject();
+          resolve(value);
+        };
         setImmediate(() => {
           void (async () => {
             const version = getVersion();
@@ -54,23 +88,23 @@ export function createBundleLoader(
               languageData: await loadLanguageDataAsync(context, version),
             };
             if (isStale()) {
+              rejectLoad(new BundleLoadStaleError());
               return;
             }
             bundle = loaded;
             applyLoadedSchema(loaded.schema);
-            resolve(loaded);
+            resolveLoad(loaded);
           })().catch((error) => {
-            /* v8 ignore next 3 -- stale load discarded after deactivate/reload */
             if (isStale()) {
+              rejectLoad(new BundleLoadStaleError());
               return;
             }
-            reject(error instanceof Error ? error : new Error(String(error)));
+            rejectLoad(error instanceof Error ? error : new Error(String(error)));
           });
         });
       });
-      /* v8 ignore next 4 -- defensive recovery path for transient async load failures */
       bundleLoadPromise = bundleLoadPromise.catch((error) => {
-        if (isStale()) {
+        if (isStale() || isBundleLoadStaleError(error)) {
           throw error;
         }
         bundleLoadPromise = undefined;

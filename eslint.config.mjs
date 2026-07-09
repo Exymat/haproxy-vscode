@@ -80,6 +80,7 @@ export default defineConfig(
             "assert",
             "assertDiagnosticCounts",
             "assertDiagnosticMinimumCounts",
+            "assertHaproxyLanguage",
           ],
           additionalTestBlockFunctions: ["test"],
         },

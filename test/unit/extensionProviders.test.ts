@@ -241,9 +241,24 @@ describe("extension providers", () => {
     await vi.runAllTimersAsync();
 
     const format = capturedProviders.format as {
-      provideDocumentFormattingEdits: (doc: unknown) => unknown[];
+      provideDocumentFormattingEdits: (doc: unknown) => Promise<unknown[]>;
     };
-    expect(format.provideDocumentFormattingEdits(haproxyDocument("global"))).toEqual([]);
+    expect(await format.provideDocumentFormattingEdits(haproxyDocument("global"))).toEqual([]);
+  });
+
+  it("returns no format edits when bundle load fails", async () => {
+    vi.spyOn(schema, "loadSchemaAsync").mockRejectedValue(new Error("missing schema"));
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    const format = capturedProviders.format as {
+      provideDocumentFormattingEdits: (doc: unknown) => Promise<unknown[]>;
+    };
+    expect(
+      await format.provideDocumentFormattingEdits(
+        haproxyDocument("    fcgi-app myapp\n        mode http"),
+      ),
+    ).toEqual([]);
   });
 
   it("cleans up on document close", async () => {

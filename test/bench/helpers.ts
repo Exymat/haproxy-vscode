@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import { createDocument, type MockTextDocument } from "../helpers/document";
@@ -87,8 +87,20 @@ export function writePerfReport(reportPath: string, benchmarks: PerfReportEntry[
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
 }
 
+function resolveBenchFixturesDir(): string {
+  const adjacent = join(__dirname, "fixtures");
+  if (existsSync(join(adjacent, "manifest.json"))) {
+    return adjacent;
+  }
+  const fromCompiledIntegration = join(__dirname, "..", "..", "..", "test", "bench", "fixtures");
+  if (existsSync(join(fromCompiledIntegration, "manifest.json"))) {
+    return fromCompiledIntegration;
+  }
+  throw new Error(`Bench fixtures not found (searched ${adjacent} and ${fromCompiledIntegration})`);
+}
+
 export function benchFixturePath(relativePath: string): string {
-  return join(__dirname, "fixtures", relativePath);
+  return join(resolveBenchFixturesDir(), relativePath);
 }
 
 export function integrationFixturePath(relativePath: string): string {

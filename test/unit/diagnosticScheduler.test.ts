@@ -103,6 +103,136 @@ describe("diagnosticScheduler", () => {
     expect(deleteDiagnostics).not.toHaveBeenCalled();
   });
 
+  it("skips publishing diagnostics when document version changes during bundle load", async () => {
+    const setDiagnostics = vi.fn();
+    const diagnostics = {
+      set: setDiagnostics,
+      delete: vi.fn(),
+    } as unknown as vscode.DiagnosticCollection;
+    let resolveBundle = (_value: unknown): void => {
+      throw new Error("bundle load not started");
+    };
+    const ensureBundle = vi.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveBundle = resolve;
+        }),
+    );
+    const scheduler = createDiagnosticScheduler(
+      diagnostics,
+      getExtensionSettings,
+      ensureBundle,
+      vi.fn(),
+    );
+
+    let version = 1;
+    const document = {
+      uri: { toString: () => "file:///test.cfg" },
+      languageId: "haproxy",
+      lineCount: 1,
+      lineAt: () => ({ text: "global" }),
+      getText: () => "global",
+      get version() {
+        return version;
+      },
+    } as unknown as vscode.TextDocument;
+
+    scheduler.runNow(document);
+    await Promise.resolve();
+
+    version = 2;
+    resolveBundle({ ...bundle, version: "3.4" });
+    await Promise.resolve();
+
+    expect(setDiagnostics).not.toHaveBeenCalled();
+  });
+
+  it("skips bundle error handling when document version changes during failed bundle load", async () => {
+    const setDiagnostics = vi.fn();
+    const diagnostics = {
+      set: setDiagnostics,
+      delete: vi.fn(),
+    } as unknown as vscode.DiagnosticCollection;
+    const onBundleError = vi.fn();
+    let rejectBundle = (_error: unknown): void => {
+      throw new Error("bundle load not started");
+    };
+    const ensureBundle = vi.fn().mockImplementation(
+      () =>
+        new Promise((_resolve, reject) => {
+          rejectBundle = reject;
+        }),
+    );
+    const scheduler = createDiagnosticScheduler(
+      diagnostics,
+      getExtensionSettings,
+      ensureBundle,
+      onBundleError,
+    );
+
+    let version = 1;
+    const document = {
+      uri: { toString: () => "file:///test.cfg" },
+      languageId: "haproxy",
+      lineCount: 1,
+      lineAt: () => ({ text: "global" }),
+      getText: () => "global",
+      get version() {
+        return version;
+      },
+    } as unknown as vscode.TextDocument;
+
+    scheduler.runNow(document);
+    await Promise.resolve();
+
+    version = 2;
+    rejectBundle(new Error("scheduler load failed"));
+    await Promise.resolve();
+
+    expect(onBundleError).not.toHaveBeenCalled();
+    expect(setDiagnostics).not.toHaveBeenCalled();
+  });
+
+  it("publishes diagnostics when document version is unchanged after bundle load", async () => {
+    const setDiagnostics = vi.fn();
+    const diagnostics = {
+      set: setDiagnostics,
+      delete: vi.fn(),
+    } as unknown as vscode.DiagnosticCollection;
+    let resolveBundle = (_value: unknown): void => {
+      throw new Error("bundle load not started");
+    };
+    const ensureBundle = vi.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveBundle = resolve;
+        }),
+    );
+    const scheduler = createDiagnosticScheduler(
+      diagnostics,
+      getExtensionSettings,
+      ensureBundle,
+      vi.fn(),
+    );
+
+    const document = {
+      uri: { toString: () => "file:///test.cfg" },
+      languageId: "haproxy",
+      lineCount: 1,
+      lineAt: () => ({ text: "global" }),
+      getText: () => "global",
+      version: 1,
+    } as unknown as vscode.TextDocument;
+
+    scheduler.runNow(document);
+    await Promise.resolve();
+
+    resolveBundle({ ...bundle, version: "3.4" });
+    await Promise.resolve();
+
+    expect(setDiagnostics).toHaveBeenCalledWith(document.uri, expect.any(Array));
+  });
+
   it("skips runNow when diagnostics are disabled", () => {
     const setDiagnostics = vi.fn();
     const deleteDiagnostics = vi.fn();

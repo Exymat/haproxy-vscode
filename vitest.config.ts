@@ -14,6 +14,7 @@ export default defineConfig({
         "src/symbolIndex/index.ts",
         "src/hover/index.ts",
         "src/hover/types.ts",
+        "src/symbolIndex/workspaceTypes.ts",
         "src/hover/handlers/optionHover.ts",
         "src/completion/types.ts",
         "**/optionHover.ts",

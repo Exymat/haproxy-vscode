@@ -26,6 +26,9 @@ describe("workspace symbol index diagnostics", () => {
     expect(
       diagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "missing-reference"),
     ).toHaveLength(1);
+    expect(
+      diagnostics.find((diag) => formatDiagnosticCode(diag.code) === "missing-reference")?.message,
+    ).toContain("not defined in this workspace");
   });
 
   it("suppresses missing and unused diagnostics using workspace references", async () => {

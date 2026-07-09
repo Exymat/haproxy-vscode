@@ -1,7 +1,7 @@
 import * as assert from "node:assert";
 import * as vscode from "vscode";
 
-import { haproxyDiagnostics, openFixture } from "./helpers";
+import { assertHaproxyLanguage, haproxyDiagnostics, openFixture } from "./helpers";
 
 const EXTENSION_ID = "Exymat.haproxy-config";
 
@@ -26,8 +26,8 @@ suite("Language features on sample.cfg", () => {
     doc = await openFixture("sample.cfg");
   });
 
-  test("document language is haproxy", () => {
-    assert.strictEqual(doc.languageId, "haproxy");
+  test("document uses version-specific grammar language", () => {
+    assertHaproxyLanguage(doc);
   });
 
   test("no diagnostics on valid sample config", () => {

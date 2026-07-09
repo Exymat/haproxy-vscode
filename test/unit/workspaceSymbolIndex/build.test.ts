@@ -213,19 +213,34 @@ describe("workspace symbol index build", () => {
     expect(await buildWorkspace(1)).toBeNull();
   });
 
+  it("does not cap the workspace graph because of foreign .cfg files", async () => {
+    setMockWorkspaceFile("file:///nginx-a.cfg", "server { listen 80; }");
+    setMockWorkspaceFile("file:///nginx-b.cfg", "upstream app { server 127.0.0.1; }");
+    setMockWorkspaceFile("file:///consul.cfg", 'services { name = "api" }');
+    setMockWorkspaceFile("file:///api.cfg", "backend api");
+
+    const workspaceIndex = expectWorkspaceIndex(await buildWorkspace(1));
+
+    expect(workspaceIndex.capped).toBe(false);
+    expect(workspaceIndex.documents.size).toBe(1);
+    expect(workspaceIndex.documents.has("file:///api.cfg")).toBe(true);
+    expect(findWorkspaceDefinitions(workspaceIndex, "proxy-section", "api", null)).toHaveLength(1);
+  });
+
   it("builds a workspace graph from open documents and skips non-HAProxy or oversized documents", () => {
     const haproxy = createDocument("backend api", "file:///api.cfg");
     const plain = {
       ...createDocument("backend ignored", "file:///ignored.cfg"),
       languageId: "text",
     };
+    const foreignCfg = createDocument("server { listen 80; }", "file:///nginx.cfg");
     const oversized = createDocument(
       "backend too_big\n    server s1 127.0.0.1:80",
       "file:///big.cfg",
     );
 
     const workspaceIndex = buildWorkspaceSymbolIndexFromOpenDocuments(
-      [haproxy, plain, oversized],
+      [haproxy, plain, foreignCfg, oversized],
       schema,
       1,
     );
@@ -237,6 +252,7 @@ describe("workspace symbol index build", () => {
     expect(findWorkspaceDefinitions(workspaceIndex, "proxy-section", "too_big", null)).toHaveLength(
       0,
     );
+    expect(workspaceIndex.documents.has("file:///nginx.cfg")).toBe(false);
   });
 
   it("disables workspace indexing when configured off", async () => {
