@@ -235,7 +235,9 @@ export class RelativePattern {
 
 const configValues = new Map<string, unknown>();
 const configListeners: Array<
-  (event: { affectsConfiguration: (section: string) => boolean }) => void
+  (event: {
+    affectsConfiguration: (section: string, resource?: { toString: () => string }) => boolean;
+  }) => void
 > = [];
 const workspaceFolderChangeListeners: Array<
   (event: {
@@ -260,7 +262,7 @@ export let mockTextDocuments: Array<{
 
 export let mockActiveTextEditor: { document: (typeof mockTextDocuments)[0] } | undefined;
 export let mockWorkspaceFolders:
-  Array<{ uri: { fsPath?: string; toString: () => string } }> | undefined;
+  Array<{ uri: { fsPath?: string; toString: () => string }; name?: string }> | undefined;
 
 export function resetVscodeMock(): void {
   configValues.clear();
@@ -279,6 +281,7 @@ export function resetVscodeMock(): void {
   lastQuickPickItems = undefined;
   lastQuickPickResult = undefined;
   lastInfoMessageResult = undefined;
+  lastOutputChannel = undefined;
   window.showErrorMessage.mockClear();
   window.showWarningMessage.mockClear();
 }
@@ -437,6 +440,25 @@ export function triggerMockConfigurationChange(section = "haproxy"): void {
   }
 }
 
+export function triggerMockFolderConfigurationChange(
+  section: string,
+  options: { global?: boolean; folderUris?: string[] } = {},
+): void {
+  for (const listener of configListeners) {
+    listener({
+      affectsConfiguration: (s: string, resource?: { toString: () => string }) => {
+        if (s !== section && !section.startsWith(s)) {
+          return false;
+        }
+        if (!resource) {
+          return options.global ?? Boolean(options.folderUris?.length);
+        }
+        return options.folderUris?.includes(resource.toString()) ?? false;
+      },
+    });
+  }
+}
+
 export function triggerMockWorkspaceFoldersChange(
   added: NonNullable<typeof mockWorkspaceFolders> = [],
   removed: NonNullable<typeof mockWorkspaceFolders> = [],
@@ -452,6 +474,21 @@ export function triggerMockActiveEditorChange(): void {
   }
 }
 
+export class OutputChannel {
+  lines: string[] = [];
+  appendLine = vi.fn((value: string) => {
+    this.lines.push(value);
+  });
+  append = vi.fn((value: string) => {
+    this.lines.push(value);
+  });
+  clear = vi.fn();
+  show = vi.fn();
+  hide = vi.fn();
+  dispose = vi.fn();
+}
+
+export let lastOutputChannel: OutputChannel | undefined;
 export let lastQuickPickItems: unknown;
 export let lastQuickPickResult: { label: string } | undefined;
 export let lastInfoMessageResult: string | undefined;
@@ -634,6 +671,12 @@ export const window = {
   createStatusBarItem(_alignment?: number, _priority?: number) {
     return new StatusBarItem();
   },
+  createOutputChannel(name: string) {
+    const channel = new OutputChannel();
+    channel.appendLine(`[channel:${name}]`);
+    lastOutputChannel = channel;
+    return channel;
+  },
   showTextDocument(document: (typeof mockTextDocuments)[0], _options?: unknown) {
     return Promise.resolve({ document, selection: undefined });
   },
@@ -739,6 +782,11 @@ export const Uri = {
 export function createMockExtensionContext(extensionPath: string) {
   return {
     extensionPath,
+    extension: {
+      packageJSON: {
+        version: "0.17.1",
+      },
+    },
     subscriptions: registeredDisposables,
   };
 }

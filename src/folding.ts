@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
 
-import { getLoadedBundle } from "./extensionBundle";
+import { getLoadedBundleForUri } from "./extensionBundle";
 import { getParsedDocument } from "./parseCache";
 import { sectionHeaderSet } from "./schema";
 import { buildSectionFoldRanges, getSectionOutline } from "./sectionOutline";
 
 export function provideFoldingRanges(document: vscode.TextDocument): vscode.FoldingRange[] {
-  const bundle = getLoadedBundle();
+  const bundle = getLoadedBundleForUri(document.uri);
   const parsed = getParsedDocument(document, {
     sectionHeaders: bundle ? sectionHeaderSet(bundle.schema) : undefined,
   });

@@ -1,4 +1,5 @@
 import { computeDiagnostics } from "../../../src/diagnostics";
+import * as workspaceDocuments from "../../../src/symbolIndex/workspaceDocuments";
 import {
   buildWorkspaceSymbolIndexFromOpenDocuments,
   findWorkspaceDefinitions,
@@ -310,5 +311,23 @@ describe("workspace symbol index build", () => {
 
     const workspaceIndex = expectWorkspaceIndex(getWorkspaceSymbolIndex());
     expect(findWorkspaceDefinitions(workspaceIndex, "proxy-section", "b", null)).toHaveLength(1);
+  });
+
+  it("continues indexing when a disk entry is missing without a skip reason", async () => {
+    setMockWorkspaceFile("file:///a.cfg", "backend a");
+    setMockWorkspaceFile("file:///b.cfg", "backend b");
+    const originalLoad = workspaceDocuments.loadDiskEntry;
+    vi.spyOn(workspaceDocuments, "loadDiskEntry").mockImplementation((uri, ...args) => {
+      if (uri.toString() === "file:///b.cfg") {
+        return Promise.resolve({ entry: null });
+      }
+      return originalLoad(uri, ...args);
+    });
+
+    await buildWorkspace();
+
+    const workspaceIndex = expectWorkspaceIndex(getWorkspaceSymbolIndex());
+    expect(workspaceIndex.documents.has("file:///a.cfg")).toBe(true);
+    expect(workspaceIndex.documents.has("file:///b.cfg")).toBe(false);
   });
 });

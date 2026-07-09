@@ -12,6 +12,7 @@ import {
   syncAllOpenDocumentGrammarLanguages,
   syncDocumentGrammarLanguage,
 } from "./grammar";
+import { refreshDocumentsInFolders } from "./extensionRefresh";
 import { provideHover } from "./hover";
 import { provideDefinition, provideReferences } from "./navigation";
 import { prepareRename, provideRenameEdits } from "./rename";
@@ -22,6 +23,12 @@ import {
 } from "./extensionBundle";
 import { getExtensionSettings, getFormatOptions, onSettingsChanged } from "./settings";
 import { sectionHeaderSet } from "./schema";
+import {
+  logConfiguredVersion,
+  logExtensionActivated,
+  logSupportSnapshot,
+  registerHaproxyOutputChannel,
+} from "./outputChannel";
 import { hasWarmUriDocumentCache } from "./documentCache";
 import {
   clearWorkspaceSymbolIndex,
@@ -38,7 +45,12 @@ import {
 } from "./symbolIndex";
 import { registerVersionStatusBar } from "./statusBar";
 import { registerWorkspaceIndexStatusBar } from "./workspaceIndexStatusBar";
-import { getConfiguredVersion, onVersionConfigurationChanged } from "./version";
+import {
+  getConfiguredVersionForUri,
+  HaproxyVersion,
+  onVersionConfigurationChanged,
+  VersionConfigurationChange,
+} from "./version";
 
 let activeScheduler: DiagnosticScheduler | undefined;
 let workspaceWatchers: vscode.Disposable[] = [];
@@ -51,6 +63,10 @@ function disposeWorkspaceWatchers(): void {
 }
 
 export function activate(context: vscode.ExtensionContext): void {
+  const extensionVersion = (context.extension.packageJSON as { version: string }).version;
+  registerHaproxyOutputChannel(context);
+  logExtensionActivated(extensionVersion);
+
   let cachedSettings = getExtensionSettings();
   const refreshWorkspaceIndexStatusBar = registerWorkspaceIndexStatusBar(context);
   registerVersionStatusBar(context);
@@ -58,10 +74,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const diagnostics = vscode.languages.createDiagnosticCollection("haproxy");
   context.subscriptions.push(diagnostics);
 
-  const { ensureBundle, invalidate: invalidateBundle } = createBundleLoader(
-    context,
-    getConfiguredVersion,
-  );
+  const { ensureBundleForUri, invalidate: invalidateBundle } = createBundleLoader(context);
 
   let bundleErrorShown = false;
   const reportBundleError = (message: string): void => {
@@ -71,20 +84,20 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   };
 
-  const ensureBundleResilient = async () => {
+  const ensureBundleResilient = async (uri?: vscode.Uri) => {
     try {
-      return await ensureBundle();
+      return await ensureBundleForUri(uri);
     } catch (error) {
       if (isBundleLoadStaleError(error)) {
-        return await ensureBundle();
+        return await ensureBundleForUri(uri);
       }
       throw error;
     }
   };
 
-  const safeEnsureBundle = async () => {
+  const safeEnsureBundle = async (uri?: vscode.Uri) => {
     try {
-      return await ensureBundleResilient();
+      return await ensureBundleResilient(uri);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       reportBundleError(message);
@@ -92,10 +105,18 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   };
 
+  const resolveWorkspaceSchema = async (folder: vscode.WorkspaceFolder | undefined) => {
+    const bundle = await safeEnsureBundle(folder?.uri);
+    if (!bundle) {
+      throw new Error("HAProxy schema bundle is unavailable");
+    }
+    return bundle.schema;
+  };
+
   const scheduler = createDiagnosticScheduler(
     diagnostics,
     () => cachedSettings,
-    ensureBundleResilient,
+    (document) => ensureBundleResilient(document.uri),
     reportBundleError,
   );
 
@@ -111,10 +132,12 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   };
 
-  const refreshDocumentsNow = (documents: readonly vscode.TextDocument[]): void => {
-    for (const document of documents) {
-      scheduler.runNow(document);
-    }
+  const refreshDocumentsInWorkspaceFolders = (
+    folderUris: readonly (string | undefined)[],
+  ): void => {
+    refreshDocumentsInFolders(folderUris, vscode.workspace.textDocuments, (document) =>
+      scheduler.schedule(document),
+    );
   };
 
   const openHaproxyDocuments = (): readonly vscode.TextDocument[] =>
@@ -144,17 +167,24 @@ export function activate(context: vscode.ExtensionContext): void {
     debounceMs: cachedSettings.workspaceSymbolsDebounceMs,
   });
 
+  const logSupportSnapshotIfReady = (bundleVersion: HaproxyVersion): void => {
+    logSupportSnapshot({
+      extensionVersion,
+      bundleVersion,
+      workspaceSymbolSettings: workspaceSymbolSettings(),
+    });
+  };
+
   const scheduleWorkspaceSymbols = async (
     scope: WorkspaceRebuildScope = "full",
     document?: vscode.TextDocument,
     uri?: vscode.Uri,
   ): Promise<void> => {
-    const b = await safeEnsureBundle();
-    if (!b) {
+    if (!(await safeEnsureBundle(document?.uri ?? uri))) {
       return;
     }
     scheduleWorkspaceSymbolIndexRebuild(
-      b.schema,
+      resolveWorkspaceSchema,
       workspaceSymbolSettings(),
       cachedSettings.maxDiagnosticsLines,
       { scope, document, uri },
@@ -191,7 +221,9 @@ export function activate(context: vscode.ExtensionContext): void {
     const documents = event.document
       ? openHaproxyDocumentsInFolder(event.document.uri)
       : openHaproxyDocuments();
-    refreshDocumentsNow(documents);
+    for (const document of documents) {
+      scheduler.runNow(document);
+    }
   };
 
   const configureWorkspaceWatchers = (): void => {
@@ -219,26 +251,41 @@ export function activate(context: vscode.ExtensionContext): void {
   setWorkspaceSymbolIndexChangeListener(onWorkspaceIndexChanged);
   configureWorkspaceWatchers();
 
-  const reloadBundle = async (): Promise<void> => {
-    invalidateBundle();
+  const reloadBundleForChange = async (change: VersionConfigurationChange): Promise<void> => {
+    for (const version of change.versions) {
+      invalidateBundle(version);
+    }
     bundleErrorShown = false;
-    const b = await safeEnsureBundle();
-    if (!b) {
-      return;
+    for (const folderUri of change.affectedFolderUris) {
+      const uri = folderUri ? vscode.Uri.parse(folderUri) : undefined;
+      logConfiguredVersion(getConfiguredVersionForUri(uri), "config-change", uri);
     }
     await syncAllOpenDocumentGrammarLanguages();
-    scheduleWorkspaceSymbolIndexRebuild(
-      b.schema,
-      workspaceSymbolSettings(),
-      cachedSettings.maxDiagnosticsLines,
-      { scope: "full" },
-    );
-    refreshAllDocuments();
+    for (const folderUri of change.affectedFolderUris) {
+      const bundle = folderUri
+        ? await safeEnsureBundle(vscode.Uri.parse(folderUri))
+        : await safeEnsureBundle();
+      if (bundle) {
+        logSupportSnapshotIfReady(bundle.version);
+      }
+      if (folderUri) {
+        /* v8 ignore next -- covered by integration suite 08-folder-scoped-version */
+        await scheduleWorkspaceSymbolsForUri(vscode.Uri.parse(folderUri), "full");
+      } else {
+        await scheduleWorkspaceSymbols("full");
+      }
+    }
+    refreshDocumentsInWorkspaceFolders(change.affectedFolderUris);
   };
 
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((document) => {
       if (isHaproxyLanguageId(document.languageId)) {
+        logConfiguredVersion(
+          getConfiguredVersionForUri(document.uri),
+          "document-open",
+          document.uri,
+        );
         void syncDocumentGrammarLanguage(document);
         const scope = resolveWorkspaceRebuildScopeOnOpen(document);
         if (scope !== "none") {
@@ -266,8 +313,8 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     }),
     vscode.workspace.onDidCloseTextDocument(scheduler.disposeDocument),
-    onVersionConfigurationChanged(() => {
-      void reloadBundle();
+    onVersionConfigurationChanged((change) => {
+      void reloadBundleForChange(change);
     }),
     onSettingsChanged(() => {
       refreshCachedSettings();
@@ -283,21 +330,27 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   setImmediate(() => {
-    void safeEnsureBundle().then(async (b) => {
-      if (!b) {
+    void (async () => {
+      const openHaproxyDocs = vscode.workspace.textDocuments.filter((document) =>
+        isHaproxyLanguageId(document.languageId),
+      );
+      if (openHaproxyDocs.length === 0) {
         return;
       }
-      await syncAllOpenDocumentGrammarLanguages();
-      if (
-        vscode.workspace.textDocuments.some((document) => isHaproxyLanguageId(document.languageId))
-      ) {
-        scheduleWorkspaceSymbolIndexRebuild(
-          b.schema,
-          workspaceSymbolSettings(),
-          cachedSettings.maxDiagnosticsLines,
-        );
+      for (const document of openHaproxyDocs) {
+        const bundle = await safeEnsureBundle(document.uri);
+        if (!bundle) {
+          return;
+        }
+        logSupportSnapshotIfReady(bundle.version);
       }
-    });
+      await syncAllOpenDocumentGrammarLanguages();
+      scheduleWorkspaceSymbolIndexRebuild(
+        resolveWorkspaceSchema,
+        workspaceSymbolSettings(),
+        cachedSettings.maxDiagnosticsLines,
+      );
+    })();
     refreshAllDocuments();
   });
 
@@ -329,7 +382,7 @@ export function activate(context: vscode.ExtensionContext): void {
       selector,
       {
         async provideCompletionItems(document, position) {
-          const b = await safeEnsureBundle();
+          const b = await safeEnsureBundle(document.uri);
           if (!b) {
             return [];
           }
@@ -356,7 +409,7 @@ export function activate(context: vscode.ExtensionContext): void {
     ),
     vscode.languages.registerHoverProvider(selector, {
       async provideHover(document, position) {
-        const b = await safeEnsureBundle();
+        const b = await safeEnsureBundle(document.uri);
         if (!b) {
           return null;
         }
@@ -375,7 +428,7 @@ export function activate(context: vscode.ExtensionContext): void {
         if (!settings.formatEnabled) {
           return [];
         }
-        const b = await safeEnsureBundle();
+        const b = await safeEnsureBundle(document.uri);
         if (!b) {
           return [];
         }
@@ -403,7 +456,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.languages.registerDefinitionProvider(selector, {
       async provideDefinition(document, position) {
-        const b = await safeEnsureBundle();
+        const b = await safeEnsureBundle(document.uri);
         if (!b) {
           return null;
         }
@@ -413,7 +466,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.languages.registerReferenceProvider(selector, {
       async provideReferences(document, position, refContext) {
-        const b = await safeEnsureBundle();
+        const b = await safeEnsureBundle(document.uri);
         if (!b) {
           return [];
         }
@@ -429,7 +482,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.languages.registerRenameProvider(selector, {
       async prepareRename(document, position) {
-        const b = await safeEnsureBundle();
+        const b = await safeEnsureBundle(document.uri);
         if (!b) {
           return null;
         }
@@ -437,7 +490,7 @@ export function activate(context: vscode.ExtensionContext): void {
         return prepareRename(document, position, b.schema, settings.maxDiagnosticsLines);
       },
       async provideRenameEdits(document, position, newName) {
-        const b = await safeEnsureBundle();
+        const b = await safeEnsureBundle(document.uri);
         if (!b) {
           return null;
         }

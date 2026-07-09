@@ -13,6 +13,7 @@ import {
   setMockConfigForUri,
   setMockWorkspaceFolders,
   triggerMockConfigurationChange,
+  triggerMockFolderConfigurationChange,
   workspace,
 } from "../__mocks__/vscode";
 
@@ -96,12 +97,15 @@ describe("version", () => {
     expect(capturedTarget).toBe(ConfigurationTarget.Global);
   });
 
-  it("notifies onVersionConfigurationChanged with new version", () => {
+  it("notifies onVersionConfigurationChanged with affected versions and folders", () => {
     const listener = vi.fn();
     onVersionConfigurationChanged(listener);
     setMockConfig("haproxy", "version", "3.0");
     triggerMockConfigurationChange("haproxy.version");
-    expect(listener).toHaveBeenCalledWith("3.0");
+    expect(listener).toHaveBeenCalledWith({
+      versions: ["3.0"],
+      affectedFolderUris: [undefined],
+    });
   });
 
   it("ignores unrelated configuration changes", () => {
@@ -109,5 +113,44 @@ describe("version", () => {
     onVersionConfigurationChanged(listener);
     triggerMockConfigurationChange("editor.tabSize");
     expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("collects affected workspace folders for folder-scoped version changes", () => {
+    setMockWorkspaceFolders([
+      { uri: { toString: () => "file:///folder-a", fsPath: "/folder-a" }, name: "a" },
+      { uri: { toString: () => "file:///folder-b", fsPath: "/folder-b" }, name: "b" },
+    ]);
+    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "2.6");
+    setMockConfigForUri({ toString: () => "file:///folder-b" }, "haproxy", "version", "3.4");
+
+    const listener = vi.fn();
+    onVersionConfigurationChanged(listener);
+    triggerMockFolderConfigurationChange("haproxy.version", {
+      folderUris: ["file:///folder-a"],
+    });
+
+    expect(listener).toHaveBeenCalledWith({
+      versions: ["2.6"],
+      affectedFolderUris: ["file:///folder-a"],
+    });
+  });
+
+  it("deduplicates repeated workspace folders in version change events", () => {
+    setMockWorkspaceFolders([
+      { uri: { toString: () => "file:///folder-a", fsPath: "/folder-a" }, name: "a" },
+      { uri: { toString: () => "file:///folder-a", fsPath: "/folder-a" }, name: "a-copy" },
+    ]);
+    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "2.6");
+
+    const listener = vi.fn();
+    onVersionConfigurationChanged(listener);
+    triggerMockFolderConfigurationChange("haproxy.version", {
+      folderUris: ["file:///folder-a"],
+    });
+
+    expect(listener).toHaveBeenCalledWith({
+      versions: ["2.6"],
+      affectedFolderUris: ["file:///folder-a"],
+    });
   });
 });

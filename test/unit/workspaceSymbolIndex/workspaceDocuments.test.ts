@@ -72,7 +72,7 @@ describe("createOpenDocumentEntry", () => {
     const oversized = "backend api " + "x".repeat(2_000_000);
     const doc = createDocument(oversized, "file:///huge.cfg");
 
-    const entry = createOpenDocumentEntry(doc, schema, 4000, undefined, {
+    const { entry } = createOpenDocumentEntry(doc, schema, 4000, undefined, {
       maxFileBytes: 1000,
       maxLineBytes: 8192,
     });
@@ -84,7 +84,7 @@ describe("createOpenDocumentEntry", () => {
     const longLine = "backend api " + "x".repeat(10_000);
     const doc = createDocument(longLine, "file:///long-line.cfg");
 
-    const entry = createOpenDocumentEntry(doc, schema, 4000, undefined, {
+    const { entry } = createOpenDocumentEntry(doc, schema, 4000, undefined, {
       maxFileBytes: 2_000_000,
       maxLineBytes: 8192,
     });

@@ -1,6 +1,6 @@
 import { clearLanguageDataCache } from "./languageData";
 import { clearLanguageDataIndexCache } from "./languageDataIndexes";
-import { clearSchemaCache, HaproxySchema } from "./schema";
+import { clearSchemaCache } from "./schema";
 
 /** Clear all versioned and per-document caches after a bundle reload. */
 export function invalidateAllExtensionCaches(): void {
@@ -8,5 +8,3 @@ export function invalidateAllExtensionCaches(): void {
   clearLanguageDataCache();
   clearLanguageDataIndexCache();
 }
-
-export function applyLoadedSchema(_schema: HaproxySchema): void {}

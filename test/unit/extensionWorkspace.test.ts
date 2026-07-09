@@ -1,13 +1,16 @@
 import * as symbolIndex from "../../src/symbolIndex";
 import { activate, deactivate } from "../../src/extension";
+import * as grammar from "../../src/grammar";
 import {
   getLastDiagnosticCollection,
   mockTextDocuments,
   resetVscodeMock,
   setMockConfig,
+  setMockConfigForUri,
   setMockWorkspaceFile,
   setMockWorkspaceFolders,
   triggerMockConfigurationChange,
+  triggerMockFolderConfigurationChange,
   triggerMockWorkspaceFoldersChange,
   workspace,
   Uri,
@@ -575,6 +578,39 @@ describe("extension workspace symbol integration", () => {
     }
     await vi.waitFor(() => {
       expect(symbolIndex.isWorkspaceRebuildPending()).toBe(true);
+    });
+  });
+
+  it("refreshes diagnostics for the affected workspace folder after a folder-scoped version change", async () => {
+    setMockWorkspaceFolders([
+      workspaceFolder("file:///folder-a"),
+      workspaceFolder("file:///folder-b"),
+    ]);
+    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "2.6");
+    setMockConfigForUri({ toString: () => "file:///folder-b" }, "haproxy", "version", "3.4");
+    setMockConfig("haproxy", "diagnostics.debounceMs", 50);
+    setMockConfig("haproxy", "workspaceSymbols.enabled", false);
+
+    const docA = createDocument("global", "file:///folder-a/app.cfg") as MockDoc;
+    mockTextDocuments.push(docA);
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+    await vi.advanceTimersByTimeAsync(100);
+
+    const collection = getLastDiagnosticCollection();
+    collection?.set.mockClear();
+
+    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "3.0");
+    vi.spyOn(grammar, "syncAllOpenDocumentGrammarLanguages").mockResolvedValue();
+    triggerMockFolderConfigurationChange("haproxy.version", {
+      folderUris: ["file:///folder-a"],
+    });
+    await vi.runAllTimersAsync();
+    await vi.advanceTimersByTimeAsync(50);
+
+    await vi.waitFor(() => {
+      expect(diagnosticSetUris(collection)).toContain("file:///folder-a/app.cfg");
     });
   });
 });

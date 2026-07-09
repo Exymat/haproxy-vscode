@@ -2,17 +2,24 @@ import * as vscode from "vscode";
 
 import { documentContentFingerprint } from "../documentUriKey";
 import { isHaproxyLanguageId } from "../grammar";
+import {
+  logWorkspaceIndexCompleted,
+  logWorkspaceIndexDisabled,
+  logWorkspaceIndexStarted,
+  WorkspaceEntrySkipReason,
+} from "../outputChannel";
 import { HaproxySchema } from "../schema";
 
 import {
   aggregateDocuments,
-  createDiskEntry,
   createOpenDocumentEntry,
+  loadDiskEntry,
   totalDocumentBytes,
   totalDocumentLines,
 } from "./workspaceDocuments";
 import {
   getDiscoveredUris,
+  GLOBAL_WORKSPACE_FOLDER_KEY,
   invalidateDiscoveryCache,
   targetFolderRefs,
   workspaceFolderForUri,
@@ -48,11 +55,23 @@ export type {
 } from "./workspaceTypes";
 export { workspaceUriKey } from "./workspaceUri";
 
+export type WorkspaceSchemaSource =
+  HaproxySchema | ((folder: vscode.WorkspaceFolder | undefined) => Promise<HaproxySchema>);
+
+function normalizeSchemaSource(
+  source: WorkspaceSchemaSource,
+): (folder: vscode.WorkspaceFolder | undefined) => Promise<HaproxySchema> {
+  if (typeof source === "function") {
+    return source;
+  }
+  return () => Promise.resolve(source);
+}
+
 let activeWorkspaceIndexes = new Map<string, WorkspaceSymbolIndex>();
 let activeGeneration = 0;
 let rebuildTimer: NodeJS.Timeout | undefined;
 let activeSettings: WorkspaceSymbolSettings | null = null;
-let activeSchema: HaproxySchema | null = null;
+let activeSchemaSource: WorkspaceSchemaSource | null = null;
 let activeMaxLines = 0;
 let onDidChangeWorkspaceIndex: ((event: WorkspaceIndexChangeEvent) => void) | undefined;
 const notifiedCappedFolders = new Set<string>();
@@ -216,14 +235,14 @@ function mergePendingRebuild(
 }
 
 async function flushPendingRebuild(
-  schema: HaproxySchema,
+  resolveSchema: (folder: vscode.WorkspaceFolder | undefined) => Promise<HaproxySchema>,
   settings: WorkspaceSymbolSettings,
   maxLines: number,
   generation: number,
   pending: PendingRebuild,
 ): Promise<void> {
   if (pending.workspaceFull) {
-    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, { scope: "full" });
+    await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, { scope: "full" });
     return;
   }
 
@@ -233,7 +252,7 @@ async function flushPendingRebuild(
       return;
     }
     /* v8 ignore stop */
-    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, {
+    await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
       scope: "incremental",
       document,
     });
@@ -245,7 +264,9 @@ async function flushPendingRebuild(
       return;
     }
     /* v8 ignore stop */
-    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, { scope: "content" });
+    await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
+      scope: "content",
+    });
     return;
   }
 
@@ -255,7 +276,7 @@ async function flushPendingRebuild(
       return;
     }
     /* v8 ignore stop */
-    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, {
+    await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
       scope: target.forceRediscover ? "full" : "content",
       uri: target.uri,
     });
@@ -305,6 +326,24 @@ function notifyWorkspaceIndexChanged(event: WorkspaceIndexChangeEvent): void {
   onDidChangeWorkspaceIndex?.(event);
 }
 
+function folderLabel(folder: vscode.WorkspaceFolder | undefined, folderKey: string): string {
+  return (
+    folder?.name ??
+    folder?.uri.fsPath ??
+    (folderKey === GLOBAL_WORKSPACE_FOLDER_KEY ? "global" : folderKey)
+  );
+}
+
+function recordSkipReason(
+  skipReasons: Partial<Record<WorkspaceEntrySkipReason, number>>,
+  reason?: WorkspaceEntrySkipReason,
+): void {
+  if (!reason) {
+    return;
+  }
+  skipReasons[reason] = (skipReasons[reason] ?? 0) + 1;
+}
+
 async function buildFolderWorkspaceIndex(
   folder: vscode.WorkspaceFolder | undefined,
   folderKey: string,
@@ -314,7 +353,13 @@ async function buildFolderWorkspaceIndex(
   generation: number,
   forceRediscover: boolean,
   previousDocuments: Map<string, WorkspaceDocumentSymbols>,
+  scope: WorkspaceRebuildScope,
 ): Promise<WorkspaceSymbolIndex | null> {
+  const label = folderLabel(folder, folderKey);
+  logWorkspaceIndexStarted(folderKey, label, scope, settings);
+  const startedAt = Date.now();
+  const skipReasons: Partial<Record<WorkspaceEntrySkipReason, number>> = {};
+
   const uris = await getDiscoveredUris(settings, folder, folderKey, forceRediscover);
   /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
   if (generation !== activeGeneration) {
@@ -329,9 +374,10 @@ async function buildFolderWorkspaceIndex(
   };
   let totalLines = 0;
   let totalBytes = 0;
+  let capReason: string | undefined;
   for (const uri of uris) {
     const uriKey = workspaceUriKey(uri);
-    const entry = await createDiskEntry(
+    const { entry, skipReason } = await loadDiskEntry(
       uri,
       schema,
       maxLines,
@@ -344,27 +390,90 @@ async function buildFolderWorkspaceIndex(
     }
     /* v8 ignore stop */
     if (!entry) {
+      recordSkipReason(skipReasons, skipReason);
       continue;
     }
     if (fileLimitReached(documents.size, settings.maxFiles)) {
-      return aggregateDocuments(generation, true, new Map());
+      capReason = "maxFiles";
+      const capped = aggregateDocuments(generation, true, new Map());
+      logWorkspaceIndexCompleted({
+        folderKey,
+        folderLabel: label,
+        scope,
+        discoveredFiles: uris.length,
+        indexedFiles: documents.size,
+        skippedFiles: uris.length - documents.size,
+        skipReasons,
+        capped: true,
+        capReason,
+        totalLines,
+        totalBytes,
+        durationMs: Date.now() - startedAt,
+      });
+      return capped;
     }
     totalLines += entry.parsed.length;
     if (limitExceeded(totalLines, settings.maxTotalLines)) {
-      return aggregateDocuments(generation, true, new Map());
+      capReason = "maxTotalLines";
+      const capped = aggregateDocuments(generation, true, new Map());
+      logWorkspaceIndexCompleted({
+        folderKey,
+        folderLabel: label,
+        scope,
+        discoveredFiles: uris.length,
+        indexedFiles: documents.size,
+        skippedFiles: uris.length - documents.size,
+        skipReasons,
+        capped: true,
+        capReason,
+        totalLines,
+        totalBytes,
+        durationMs: Date.now() - startedAt,
+      });
+      return capped;
     }
     totalBytes += entry.byteLength;
     if (limitExceeded(totalBytes, settings.maxTotalBytes)) {
-      return aggregateDocuments(generation, true, new Map());
+      capReason = "maxTotalBytes";
+      const capped = aggregateDocuments(generation, true, new Map());
+      logWorkspaceIndexCompleted({
+        folderKey,
+        folderLabel: label,
+        scope,
+        discoveredFiles: uris.length,
+        indexedFiles: documents.size,
+        skippedFiles: uris.length - documents.size,
+        skipReasons,
+        capped: true,
+        capReason,
+        totalLines,
+        totalBytes,
+        durationMs: Date.now() - startedAt,
+      });
+      return capped;
     }
     documents.set(entry.uriKey, entry);
   }
-  return aggregateDocuments(generation, false, documents);
+  const index = aggregateDocuments(generation, false, documents);
+  logWorkspaceIndexCompleted({
+    folderKey,
+    folderLabel: label,
+    scope,
+    discoveredFiles: uris.length,
+    indexedFiles: documents.size,
+    skippedFiles: uris.length - documents.size,
+    skipReasons,
+    capped: false,
+    totalLines,
+    totalBytes,
+    durationMs: Date.now() - startedAt,
+  });
+  return index;
 }
 
 async function updateSingleDocumentInWorkspaceIndex(
   document: vscode.TextDocument,
-  schema: HaproxySchema,
+  resolveSchema: (folder: vscode.WorkspaceFolder | undefined) => Promise<HaproxySchema>,
   settings: WorkspaceSymbolSettings,
   maxLines: number,
   generation: number,
@@ -373,7 +482,7 @@ async function updateSingleDocumentInWorkspaceIndex(
   const folderKey = workspaceFolderKey(folder);
   const existing = activeWorkspaceIndexes.get(folderKey);
   if (!existing || existing.capped) {
-    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, {
+    await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
       scope: "content",
     });
     return;
@@ -381,17 +490,24 @@ async function updateSingleDocumentInWorkspaceIndex(
 
   const uriKey = workspaceUriKey(document.uri);
   if (!existing.documents.has(uriKey)) {
-    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, {
+    await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
       scope: "full",
     });
     return;
   }
 
+  const schema = await resolveSchema(folder);
+  /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
+  if (generation !== activeGeneration) {
+    return;
+  }
+  /* v8 ignore stop */
+
   const byteLimits = {
     maxFileBytes: settings.maxFileBytes,
     maxLineBytes: settings.maxLineBytes,
   };
-  const entry = createOpenDocumentEntry(
+  const { entry } = createOpenDocumentEntry(
     document,
     schema,
     maxLines,
@@ -425,7 +541,7 @@ async function updateSingleDocumentInWorkspaceIndex(
 }
 
 async function rebuildWorkspaceIndexes(
-  schema: HaproxySchema,
+  resolveSchema: (folder: vscode.WorkspaceFolder | undefined) => Promise<HaproxySchema>,
   settings: WorkspaceSymbolSettings,
   maxLines: number,
   generation: number,
@@ -436,6 +552,7 @@ async function rebuildWorkspaceIndexes(
       activeWorkspaceIndexes = new Map();
       cappedFolderKeys.clear();
       invalidateDiscoveryCache();
+      logWorkspaceIndexDisabled();
       notifyWorkspaceIndexChanged({ scope: options.scope ?? "full", document: options.document });
     }
     return;
@@ -445,7 +562,7 @@ async function rebuildWorkspaceIndexes(
   if (scope === "incremental" && options.document) {
     await updateSingleDocumentInWorkspaceIndex(
       options.document,
-      schema,
+      resolveSchema,
       settings,
       maxLines,
       generation,
@@ -469,6 +586,17 @@ async function rebuildWorkspaceIndexes(
   }
 
   for (const { folder, folderKey } of folderRefs) {
+    let schema: HaproxySchema;
+    try {
+      schema = await resolveSchema(folder);
+    } catch {
+      continue;
+    }
+    /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
+    if (generation !== activeGeneration) {
+      return;
+    }
+    /* v8 ignore stop */
     const previousDocuments =
       activeWorkspaceIndexes.get(folderKey)?.documents ??
       new Map<string, WorkspaceDocumentSymbols>();
@@ -481,6 +609,7 @@ async function rebuildWorkspaceIndexes(
       generation,
       forceRediscover,
       previousDocuments,
+      scope,
     );
     /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
     if (generation !== activeGeneration || index === null) {
@@ -520,7 +649,7 @@ export function getWorkspaceSymbolIndex(
 }
 
 export function scheduleWorkspaceSymbolIndexRebuild(
-  schema: HaproxySchema,
+  schemaSource: WorkspaceSchemaSource,
   settings: WorkspaceSymbolSettings,
   maxLines: number,
   options: WorkspaceRebuildOptions = { scope: "full" },
@@ -530,9 +659,10 @@ export function scheduleWorkspaceSymbolIndexRebuild(
     return;
   }
 
-  activeSchema = schema;
+  activeSchemaSource = schemaSource;
   activeSettings = settings;
   activeMaxLines = maxLines;
+  const resolveSchema = normalizeSchemaSource(schemaSource);
   pendingRebuild = mergePendingRebuild(pendingRebuild, {
     scope,
     document: options.document,
@@ -547,15 +677,15 @@ export function scheduleWorkspaceSymbolIndexRebuild(
     rebuildTimer = undefined;
     const rebuildWork = pendingRebuild;
     pendingRebuild = createEmptyPendingRebuild();
-    void flushPendingRebuild(schema, settings, maxLines, generation, rebuildWork);
+    void flushPendingRebuild(resolveSchema, settings, maxLines, generation, rebuildWork);
   }, settings.debounceMs);
 }
 
 export function refreshWorkspaceSymbolIndexNow(): void {
-  if (!activeSchema || !activeSettings) {
+  if (!activeSchemaSource || !activeSettings) {
     return;
   }
-  scheduleWorkspaceSymbolIndexRebuild(activeSchema, activeSettings, activeMaxLines, {
+  scheduleWorkspaceSymbolIndexRebuild(activeSchemaSource, activeSettings, activeMaxLines, {
     scope: "full",
   });
 }
@@ -570,7 +700,7 @@ export function clearWorkspaceSymbolIndex(): void {
   cappedFolderKeys.clear();
   notifiedCappedFolders.clear();
   activeSettings = null;
-  activeSchema = null;
+  activeSchemaSource = null;
   activeMaxLines = 0;
   pendingRebuild = createEmptyPendingRebuild();
   invalidateDiscoveryCache();

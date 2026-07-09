@@ -46,6 +46,7 @@ export type {
   WorkspaceIndexChangeEvent,
   WorkspaceRebuildOptions,
   WorkspaceRebuildScope,
+  WorkspaceSchemaSource,
   WorkspaceSymbolIndex,
   WorkspaceSymbolSettings,
   WorkspaceSymbolSite,

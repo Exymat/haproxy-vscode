@@ -11,7 +11,10 @@ import {
 import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 
 const EXTENSION_ID = "Exymat.haproxy-config";
-const FIXTURES_DIR = path.resolve(__dirname, "../../../../test/integration/fixtures");
+const DEFAULT_FIXTURES_DIR = path.resolve(__dirname, "../../../../test/integration/fixtures");
+const FIXTURES_DIR = process.env.HAPROXY_INTEGRATION_FIXTURES_DIR
+  ? path.resolve(process.env.HAPROXY_INTEGRATION_FIXTURES_DIR)
+  : DEFAULT_FIXTURES_DIR;
 const DEFAULT_HAPROXY_VERSION = "3.2";
 
 function languageIdForVersion(version: string): string {
@@ -329,6 +332,60 @@ export async function updateHaproxySetting(
   await config.update(key, value, vscode.ConfigurationTarget.Workspace);
   const debounceMs = config.get<number>("diagnostics.debounceMs", 500);
   await new Promise((resolve) => setTimeout(resolve, waitMs ?? debounceMs + 400));
+}
+
+export async function updateHaproxySettingForFolder(
+  folderUri: vscode.Uri,
+  key: string,
+  value: unknown,
+  waitMs?: number,
+): Promise<void> {
+  const config = vscode.workspace.getConfiguration("haproxy", folderUri);
+  await config.update(key, value, vscode.ConfigurationTarget.WorkspaceFolder);
+  const debounceMs = config.get<number>("diagnostics.debounceMs", 500);
+  await new Promise((resolve) => setTimeout(resolve, waitMs ?? debounceMs + 400));
+}
+
+export async function addWorkspaceFolder(
+  folderPath: string,
+  name?: string,
+): Promise<vscode.WorkspaceFolder> {
+  const uri = vscode.Uri.file(folderPath);
+  const index = vscode.workspace.workspaceFolders?.length ?? 0;
+  const added = vscode.workspace.updateWorkspaceFolders(index, null, {
+    uri,
+    name: name ?? path.basename(folderPath),
+  });
+  assert.ok(added, `Failed to add workspace folder ${folderPath}`);
+  const deadline = Date.now() + 5000;
+  while (Date.now() < deadline) {
+    const folder = vscode.workspace.getWorkspaceFolder(uri);
+    if (folder) {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      return folder;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  throw new Error(`Workspace folder not registered: ${folderPath}`);
+}
+
+export async function openDocumentInFolder(
+  folderPath: string,
+  relativePath: string,
+  content: string,
+  version: string,
+): Promise<vscode.TextDocument> {
+  await ensureExtensionReady();
+  const filePath = path.join(folderPath, relativePath);
+  await vscode.workspace.fs.createDirectory(vscode.Uri.file(path.dirname(filePath)));
+  const uri = vscode.Uri.file(filePath);
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(content, "utf8"));
+  let doc = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(doc, { preview: false });
+  doc = await waitForHaproxyGrammarLanguage(doc, version);
+  assertHaproxyLanguage(doc, version);
+  await waitForDiagnosticsReady();
+  return doc;
 }
 
 export async function clearHaproxySetting(key: string, waitMs?: number): Promise<void> {

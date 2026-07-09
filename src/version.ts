@@ -42,12 +42,49 @@ export async function setConfiguredVersion(
   await config.update(CONFIG_VERSION, version, target);
 }
 
+export interface VersionConfigurationChange {
+  versions: HaproxyVersion[];
+  affectedFolderUris: (string | undefined)[];
+}
+
+function collectVersionConfigurationChange(
+  event: vscode.ConfigurationChangeEvent,
+): VersionConfigurationChange | undefined {
+  const section = `${CONFIG_SECTION}.${CONFIG_VERSION}`;
+  if (!event.affectsConfiguration(section)) {
+    return undefined;
+  }
+
+  const versions = new Set<HaproxyVersion>();
+  const affectedFolderUris: (string | undefined)[] = [];
+  const seenFolderUris = new Set<string | undefined>();
+
+  for (const folder of vscode.workspace.workspaceFolders ?? []) {
+    if (event.affectsConfiguration(section, folder.uri)) {
+      const folderUri = folder.uri.toString();
+      if (!seenFolderUris.has(folderUri)) {
+        seenFolderUris.add(folderUri);
+        affectedFolderUris.push(folderUri);
+      }
+      versions.add(getConfiguredVersionForUri(folder.uri));
+    }
+  }
+
+  if (affectedFolderUris.length === 0) {
+    affectedFolderUris.push(undefined);
+    versions.add(getConfiguredVersion());
+  }
+
+  return { versions: [...versions], affectedFolderUris };
+}
+
 export function onVersionConfigurationChanged(
-  listener: (version: HaproxyVersion) => void,
+  listener: (change: VersionConfigurationChange) => void,
 ): vscode.Disposable {
   return vscode.workspace.onDidChangeConfiguration((event) => {
-    if (event.affectsConfiguration(`${CONFIG_SECTION}.${CONFIG_VERSION}`)) {
-      listener(getConfiguredVersion());
+    const change = collectVersionConfigurationChange(event);
+    if (change) {
+      listener(change);
     }
   });
 }

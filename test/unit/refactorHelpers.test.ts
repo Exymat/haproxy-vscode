@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { applyLoadedSchema, invalidateAllExtensionCaches } from "../../src/cacheInvalidation";
+import { invalidateAllExtensionCaches } from "../../src/cacheInvalidation";
 import { isOptionLine, optionNameTokenIndex } from "../../src/optionLine";
 import { parseDocument } from "../../src/parser";
 import {
@@ -78,7 +78,6 @@ describe("refactor helpers", () => {
     const schema = loadFixtureSchema("3.4");
     const headers = sectionHeaderSet(schema);
     expect(headers.has("frontend")).toBe(true);
-    applyLoadedSchema(schema);
     const parsed = parseDocument(createDocument("frontend web\n    mode http"), {
       sectionHeaders: headers,
     });

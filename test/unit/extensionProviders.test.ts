@@ -314,18 +314,24 @@ describe("extension providers", () => {
       ) => Promise<unknown>;
     };
 
-    expect(await completion.provideCompletionItems(doc, { line: 1, character: 4 })).toEqual([]);
-    expect(await hover.provideHover(doc, { line: 1, character: 4 })).toBeNull();
-    expect(await definition.provideDefinition(doc, { line: 1, character: 4 })).toBeNull();
-    expect(
-      await references.provideReferences(
-        doc,
-        { line: 1, character: 4 },
-        { includeDeclaration: true },
-      ),
-    ).toEqual([]);
-    expect(await rename.prepareRename(doc, { line: 1, character: 4 })).toBeNull();
-    expect(await rename.provideRenameEdits(doc, { line: 1, character: 4 }, "renamed")).toBeNull();
+    const completionPromise = completion.provideCompletionItems(doc, { line: 1, character: 4 });
+    const hoverPromise = hover.provideHover(doc, { line: 1, character: 4 });
+    const definitionPromise = definition.provideDefinition(doc, { line: 1, character: 4 });
+    const referencesPromise = references.provideReferences(
+      doc,
+      { line: 1, character: 4 },
+      { includeDeclaration: true },
+    );
+    const prepareRenamePromise = rename.prepareRename(doc, { line: 1, character: 4 });
+    const renameEditsPromise = rename.provideRenameEdits(doc, { line: 1, character: 4 }, "renamed");
+    await vi.runAllTimersAsync();
+
+    expect(await completionPromise).toEqual([]);
+    expect(await hoverPromise).toBeNull();
+    expect(await definitionPromise).toBeNull();
+    expect(await referencesPromise).toEqual([]);
+    expect(await prepareRenamePromise).toBeNull();
+    expect(await renameEditsPromise).toBeNull();
   });
 
   it("returns no format edits when formatting disabled", async () => {
@@ -347,11 +353,11 @@ describe("extension providers", () => {
     const format = capturedProviders.format as {
       provideDocumentFormattingEdits: (doc: unknown) => Promise<unknown[]>;
     };
-    expect(
-      await format.provideDocumentFormattingEdits(
-        haproxyDocument("    fcgi-app myapp\n        mode http"),
-      ),
-    ).toEqual([]);
+    const editsPromise = format.provideDocumentFormattingEdits(
+      haproxyDocument("    fcgi-app myapp\n        mode http"),
+    );
+    await vi.runAllTimersAsync();
+    expect(await editsPromise).toEqual([]);
   });
 
   it("cleans up on document close", async () => {

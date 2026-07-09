@@ -24,4 +24,5 @@ node_modules/**
 *.vsix
 dkall.output
 syntaxes/haproxy.tmLanguage.json
+syntaxes/haproxy-active.tmLanguage.json
 syntaxes/tmlanguage.schema.json

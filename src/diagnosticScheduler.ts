@@ -15,7 +15,7 @@ export interface DiagnosticScheduler {
 export function createDiagnosticScheduler(
   diagnostics: vscode.DiagnosticCollection,
   getSettings: () => HaproxyExtensionSettings,
-  ensureBundle: () => Promise<ExtensionBundle>,
+  ensureBundle: (document: vscode.TextDocument) => Promise<ExtensionBundle>,
   onBundleError: (message: string) => void,
 ): DiagnosticScheduler {
   const pendingDiagnostics = new Map<string, NodeJS.Timeout>();
@@ -39,7 +39,7 @@ export function createDiagnosticScheduler(
     }
     let b: ExtensionBundle;
     try {
-      b = await ensureBundle();
+      b = await ensureBundle(document);
     } catch (error) {
       if (document.version !== versionAtStart) {
         return;

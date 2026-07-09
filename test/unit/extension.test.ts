@@ -1,6 +1,7 @@
 import { activate, deactivate } from "../../src/extension";
 import { getLoadedBundle, invalidateBundleLoad } from "../../src/extensionBundle";
 import * as grammar from "../../src/grammar";
+import * as languageData from "../../src/languageData";
 import * as schema from "../../src/schema";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -10,11 +11,17 @@ import {
   mockTextDocuments,
   resetVscodeMock,
   setMockConfig,
+  setMockConfigForUri,
+  setMockWorkspaceFolders,
   triggerMockConfigurationChange,
+  triggerMockFolderConfigurationChange,
   window,
   workspace,
 } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
+import { loadSchemaBundle } from "../helpers/schema";
+
+const fixture = loadSchemaBundle("3.2");
 
 function haproxyDocument(content: string, lineCount?: number) {
   const lines = content.split(/\r?\n/);
@@ -132,7 +139,9 @@ describe("extension", () => {
     if (formatProvider === undefined) {
       throw new Error("format provider not registered");
     }
-    const edits = await formatProvider.provideDocumentFormattingEdits(doc);
+    const editsPromise = formatProvider.provideDocumentFormattingEdits(doc);
+    await vi.runAllTimersAsync();
+    const edits = await editsPromise;
     expect(edits.length).toBe(1);
     expect((edits[0] as { newText: string }).newText).toContain("bind :443");
   });
@@ -167,7 +176,10 @@ describe("extension", () => {
   });
 
   it("reloads bundle on version configuration change", async () => {
+    setMockWorkspaceFolders(undefined);
     setMockConfig("haproxy", "version", "3.2");
+    setMockConfig("haproxy", "workspaceSymbols.enabled", false);
+    vi.spyOn(grammar, "syncAllOpenDocumentGrammarLanguages").mockResolvedValue();
     activate(mockExtensionContext() as never);
     await vi.runAllTimersAsync();
 
@@ -274,6 +286,7 @@ describe("extension", () => {
     const doc = haproxyDocument("frontend web\n    bind :80");
     mockTextDocuments.push(doc);
     setMockConfig("haproxy", "diagnostics.debounceMs", 100);
+    setMockConfig("haproxy", "workspaceSymbols.enabled", false);
 
     activate(mockExtensionContext() as never);
     await vi.runAllTimersAsync();
@@ -357,6 +370,7 @@ describe("extension", () => {
 
   it("wraps non-Error bundle load failures on activation", async () => {
     vi.spyOn(schema, "loadSchemaAsync").mockRejectedValue("string-load-failure");
+    mockTextDocuments.push(haproxyDocument("global"));
     activate(mockExtensionContext() as never);
     await vi.runAllTimersAsync();
     expect(window.showErrorMessage).toHaveBeenCalledWith(
@@ -423,5 +437,57 @@ describe("extension", () => {
     expect(window.showErrorMessage).toHaveBeenCalledWith(
       expect.stringContaining("HAProxy extension failed to load schema"),
     );
+  });
+
+  it("retries bundle load after a stale invalidation", async () => {
+    let resolveSchema!: (value: schema.HaproxySchema) => void;
+    let schemaLoads = 0;
+    vi.spyOn(schema, "loadSchemaAsync").mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          schemaLoads += 1;
+          resolveSchema = resolve;
+        }),
+    );
+    vi.spyOn(languageData, "loadLanguageDataAsync").mockResolvedValue(fixture.languageData);
+
+    mockTextDocuments.push(haproxyDocument("global"));
+    activate(mockExtensionContext() as never);
+    await vi.advanceTimersByTimeAsync(0);
+
+    invalidateBundleLoad("3.2");
+    resolveSchema(fixture.schema);
+    await vi.runAllTimersAsync();
+
+    expect(schemaLoads).toBeGreaterThanOrEqual(2);
+  });
+
+  it("reloads bundle for a folder-scoped version change", async () => {
+    setMockWorkspaceFolders([
+      { uri: { toString: () => "file:///folder-a", fsPath: "/folder-a" } },
+      { uri: { toString: () => "file:///folder-b", fsPath: "/folder-b" } },
+    ]);
+    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "2.6");
+    setMockConfigForUri({ toString: () => "file:///folder-b" }, "haproxy", "version", "3.4");
+    setMockConfig("haproxy", "workspaceSymbols.enabled", true);
+    setMockConfig("haproxy", "workspaceSymbols.debounceMs", 10);
+
+    const doc = {
+      ...haproxyDocument("global"),
+      uri: { toString: () => "file:///folder-a/app.cfg", fsPath: "/folder-a/app.cfg" },
+    };
+    mockTextDocuments.push(doc);
+
+    vi.spyOn(grammar, "syncAllOpenDocumentGrammarLanguages").mockResolvedValue();
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "3.0");
+    triggerMockFolderConfigurationChange("haproxy.version", {
+      folderUris: ["file:///folder-a"],
+    });
+    await vi.runAllTimersAsync();
+
+    expect(getRegisteredCommand("haproxy.selectVersion")).toBeDefined();
   });
 });
