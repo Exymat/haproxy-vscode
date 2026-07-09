@@ -19177,36 +19177,6 @@
         }
       ]
     },
-    "module-load": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [],
-      "name": "module-load",
-      "sections": [
-        "global"
-      ],
-      "signatures": [],
-      "sources": [
-        "hapee"
-      ],
-      "variants": []
-    },
-    "module-path": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [],
-      "name": "module-path",
-      "sections": [
-        "global"
-      ],
-      "signatures": [],
-      "sources": [
-        "hapee"
-      ],
-      "variants": []
-    },
     "monitor fail": {
       "argument_model": {
         "max_args": 2,
@@ -29793,21 +29763,6 @@
           ]
         }
       ]
-    },
-    "saml-sso-load": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [],
-      "name": "saml-sso-load",
-      "sections": [
-        "global"
-      ],
-      "signatures": [],
-      "sources": [
-        "hapee"
-      ],
-      "variants": []
     },
     "send-proxy": {
       "argument_model": {
@@ -61955,10 +61910,7 @@
         "unix-bind",
         "unsetenv",
         "user",
-        "zero-warning",
-        "module-path",
-        "module-load",
-        "saml-sso-load"
+        "zero-warning"
       ],
       "name": "global"
     },

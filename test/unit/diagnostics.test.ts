@@ -20,6 +20,7 @@ const fixturesDir = join(__dirname, "..", "fixtures");
 const validSnippet = readFileSync(join(fixturesDir, "basic-check-snippet.cfg"), "utf-8");
 const hapeeAclSnippet = readFileSync(join(fixturesDir, "hapee-acl-snippet.cfg"), "utf-8");
 const invalidFixture = readFileSync(join(fixturesDir, "diagnostics-invalid.cfg"), "utf-8");
+const globalModulesFixture = readFileSync(join(fixturesDir, "global-modules.cfg"), "utf-8");
 
 const cases: Array<{
   name: string;
@@ -85,6 +86,11 @@ const cases: Array<{
     name: "unknown http-request action",
     content: "frontend x\n\tbind :80\n\thttp-request notreal if { always_true }\n",
     expectations: { total: 1, counts: { "unknown-action": 1 } },
+  },
+  {
+    name: "hapee module keywords are unknown",
+    content: globalModulesFixture,
+    expectations: { total: 2, counts: { "unknown-keyword": 2 } },
   },
   {
     name: "no log on invertible keyword",
@@ -221,6 +227,41 @@ const cases: Array<{
 describe("diagnostics", () => {
   it.each(cases)("$name", ({ name, content, expectations, schema, version }) => {
     runDiagnosticCase(name, content, expectations, schema, version ?? DEFAULT_VERSION);
+  });
+
+  it("suppresses unknown actions with inline ignore comments", () => {
+    const doc = createDocument(
+      "frontend web\n    bind :80\n    http-request module-action if TRUE # haproxy: ignore=unknown-action",
+    );
+    const diagnostics = computeDiagnostics(doc, defaultSchema, diagnosticOptions(DEFAULT_VERSION));
+    expect(diagnostics.filter((diag) => diag.code === "unknown-action")).toHaveLength(0);
+  });
+
+  it("suppresses unknown keywords with inline ignore comments", () => {
+    const doc = createDocument(
+      "frontend web\n    bind :80\n    module-keyword # haproxy: ignore=unknown-keyword",
+    );
+    const diagnostics = computeDiagnostics(doc, defaultSchema, diagnosticOptions(DEFAULT_VERSION));
+    expect(diagnostics.filter((diag) => diag.code === "unknown-keyword")).toHaveLength(0);
+  });
+
+  it("keeps unrelated diagnostics on lines with inline ignore comments", () => {
+    const doc = createDocument("defaults\n    mode ftp extra # haproxy: ignore=unknown-value");
+    const diagnostics = computeDiagnostics(doc, defaultSchema, diagnosticOptions(DEFAULT_VERSION));
+    expect(diagnostics.filter((diag) => diag.code === "unknown-value")).toHaveLength(0);
+    expect(diagnostics.filter((diag) => diag.code === "extra-argument")).toHaveLength(1);
+  });
+
+  it("updates suppressed diagnostics when inline ignore comments change", () => {
+    const doc = createDocument(
+      "frontend web\n    bind :80\n    http-request module-action if TRUE # haproxy: ignore=unknown-action",
+    );
+    const suppressed = computeDiagnostics(doc, defaultSchema, diagnosticOptions(DEFAULT_VERSION));
+    expect(suppressed.filter((diag) => diag.code === "unknown-action")).toHaveLength(0);
+
+    updateDocument(doc, "frontend web\n    bind :80\n    http-request module-action if TRUE");
+    const unsuppressed = computeDiagnostics(doc, defaultSchema, diagnosticOptions(DEFAULT_VERSION));
+    expect(unsuppressed.filter((diag) => diag.code === "unknown-action")).toHaveLength(1);
   });
 
   it("preserves diagnostics results across incremental edits", () => {

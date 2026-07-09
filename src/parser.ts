@@ -60,6 +60,8 @@ function isAsciiWhitespace(ch: string): boolean {
 
 export function tokenizeLine(line: string): ParsedToken[] {
   const tokens: ParsedToken[] = [];
+  const commentStart = commentStartIndex(line);
+  const limit = commentStart >= 0 ? commentStart : line.length;
   let i = 0;
   let tokenStart = -1;
   let quote: '"' | "'" | null = null;
@@ -76,7 +78,7 @@ export function tokenizeLine(line: string): ParsedToken[] {
     }
   };
 
-  while (i < line.length) {
+  while (i < limit) {
     const ch = line[i];
 
     if (quote) {
@@ -89,10 +91,6 @@ export function tokenizeLine(line: string): ParsedToken[] {
       }
       i += 1;
       continue;
-    }
-
-    if (ch === "#" && tokenStart < 0) {
-      break;
     }
 
     if (ch === "'" || ch === '"') {
@@ -116,8 +114,57 @@ export function tokenizeLine(line: string): ParsedToken[] {
     i += 1;
   }
 
-  flush(i);
+  flush(limit);
   return tokens;
+}
+
+export function commentStartIndex(line: string): number {
+  let i = 0;
+  let tokenStart = -1;
+  let quote: '"' | "'" | null = null;
+  let escaped = false;
+
+  while (i < line.length) {
+    const ch = line[i];
+
+    if (quote) {
+      if (escaped) {
+        escaped = false;
+      } else if (ch === "\\") {
+        escaped = true;
+      } else if (ch === quote) {
+        quote = null;
+      }
+      i += 1;
+      continue;
+    }
+
+    if (ch === "#" && tokenStart < 0) {
+      return i;
+    }
+
+    if (ch === "'" || ch === '"') {
+      if (tokenStart < 0) {
+        tokenStart = i;
+      }
+      quote = ch;
+      i += 1;
+      continue;
+    }
+
+    if (isAsciiWhitespace(ch)) {
+      tokenStart = -1;
+      i += 1;
+      continue;
+    }
+
+    if (tokenStart < 0) {
+      tokenStart = i;
+    }
+    i += 1;
+  }
+
+  return -1;
 }
 
 function isCommentLine(text: string): boolean {

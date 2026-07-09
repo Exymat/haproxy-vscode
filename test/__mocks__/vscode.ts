@@ -47,6 +47,21 @@ export const DiagnosticTag = {
   Deprecated: 2,
 };
 
+export class CodeAction {
+  diagnostics?: Diagnostic[];
+  edit?: WorkspaceEdit;
+  isPreferred?: boolean;
+
+  constructor(
+    public title: string,
+    public kind?: string,
+  ) {}
+}
+
+export const CodeActionKind = {
+  QuickFix: "quickfix",
+};
+
 export class CompletionItem {
   detail?: string;
   documentation?: MarkdownString;
@@ -657,6 +672,10 @@ export const languages = {
     return collection;
   },
   registerCompletionItemProvider(_selector: unknown, provider: unknown, ..._triggers: string[]) {
+    registeredDisposables.push({ dispose: () => {} });
+    return { provider, dispose: () => {} };
+  },
+  registerCodeActionsProvider(_selector: unknown, provider: unknown, _metadata?: unknown) {
     registeredDisposables.push({ dispose: () => {} });
     return { provider, dispose: () => {} };
   },

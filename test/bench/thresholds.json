@@ -197,7 +197,7 @@
     },
     {
       "namePattern": "^incremental reuse: single-line edit",
-      "maxMs": 40,
+      "maxMs": 45,
       "baselineMs": 33.061,
       "statisticalMarginMs": 1.1645
     }

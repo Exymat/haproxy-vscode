@@ -17,6 +17,7 @@ import { missingReferenceDiagnostics } from "./missingReferenceDiagnostics";
 import { unusedSymbolDiagnostics } from "./unusedSymbolDiagnostics";
 import { duplicateSectionDiagnostics } from "./duplicateSymbolDiagnostics";
 import type { SymbolIndex, WorkspaceSymbolIndex } from "./symbolIndex";
+import { applyDiagnosticSuppressions } from "./diagnosticSuppressions";
 
 interface DiagnosticsCacheKey {
   schema: HaproxySchema;
@@ -186,12 +187,14 @@ export function computeDiagnostics(
     }
   }
 
+  const finalDiagnostics = applyDiagnosticSuppressions(ctx.lineTexts, diagnostics);
+
   diagnosticsCache.set(document, {
     version: document.version,
     key,
     suppressDeprecated: ctx.suppressDeprecated,
     lineDiagnostics,
-    diagnostics,
+    diagnostics: finalDiagnostics,
     cachedSymbolIndex,
     documentSymbolDiagnostics,
   });
@@ -200,10 +203,10 @@ export function computeDiagnostics(
     key,
     suppressDeprecated: ctx.suppressDeprecated,
     lineDiagnostics,
-    diagnostics,
+    diagnostics: finalDiagnostics,
     cachedSymbolIndex,
     documentSymbolDiagnostics,
   });
 
-  return diagnostics;
+  return finalDiagnostics;
 }

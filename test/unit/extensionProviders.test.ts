@@ -2,10 +2,13 @@ import { activate, deactivate } from "../../src/extension";
 import * as schema from "../../src/schema";
 import {
   commands,
+  Diagnostic,
+  DiagnosticSeverity,
   getRegisteredCommand,
   getLastDiagnosticCollection,
   languages,
   mockTextDocuments,
+  Range,
   resetVscodeMock,
   setMockConfig,
   setMockWorkspaceFile,
@@ -72,6 +75,10 @@ describe("extension providers", () => {
 
     vi.spyOn(languages, "registerCompletionItemProvider").mockImplementation((_s, provider) => {
       capturedProviders.completion = provider;
+      return { provider, dispose: () => {} };
+    });
+    vi.spyOn(languages, "registerCodeActionsProvider").mockImplementation((_s, provider) => {
+      capturedProviders.codeActions = provider;
       return { provider, dispose: () => {} };
     });
     vi.spyOn(languages, "registerHoverProvider").mockImplementation((_s, provider) => {
@@ -184,6 +191,32 @@ describe("extension providers", () => {
     expect(command).toBeDefined();
     await command?.("file:///test.cfg", 2, "    use_backend ".length);
     expect(commands.executeCommand).toHaveBeenCalledWith("editor.action.peekDefinition");
+  });
+
+  it("registers a quick fix for inline diagnostic suppression", async () => {
+    const doc = haproxyDocument("frontend web\n    http-request module-action if TRUE");
+    mockTextDocuments.push(doc);
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    const codeActions = capturedProviders.codeActions as {
+      provideCodeActions: (
+        doc: unknown,
+        range: unknown,
+        context: { diagnostics: Diagnostic[] },
+      ) => unknown[];
+    };
+    const diagnostic = new Diagnostic(
+      new Range(1, 4, 1, 16),
+      "Unknown http-request action 'module-action'",
+      DiagnosticSeverity.Warning,
+    );
+    diagnostic.source = "haproxy";
+    diagnostic.code = "unknown-action";
+
+    const actions = codeActions.provideCodeActions(doc, undefined, { diagnostics: [diagnostic] });
+    expect(actions).toHaveLength(1);
   });
 
   it("rejects malformed peek definition positions", async () => {

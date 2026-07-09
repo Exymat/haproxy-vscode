@@ -7,6 +7,7 @@ import { analyzeDocument, findTokenOnLine, tokenizeDocument } from "../helpers/h
 const fixturesDir = join(__dirname, "..", "fixtures");
 
 const SCOPES = {
+  directive: "keyword.other.directive.haproxy",
   label: "entity.name.type.class.proxy.haproxy",
   acl: "entity.other.attribute-name.acl.haproxy",
   reference: "entity.name.type.proxy.haproxy",
@@ -99,6 +100,20 @@ describe("highlight", () => {
     );
     expect(findTokenOnLine(lineTokens, 3, "cache-store").displayScope).toBe(
       "keyword.other.directive.haproxy",
+    );
+  });
+
+  it("tokenizes global h1 directives with hyphenated prefix siblings", async () => {
+    const lineTokens = await tokenizeDocument(
+      [
+        "global",
+        "    h1-case-adjust host Host",
+        "    h1-case-adjust-file /etc/haproxy/h1-headers.map",
+      ].join("\n"),
+    );
+    expect(findTokenOnLine(lineTokens, 2, "h1-case-adjust").displayScope).toBe(SCOPES.directive);
+    expect(findTokenOnLine(lineTokens, 3, "h1-case-adjust-file").displayScope).toBe(
+      SCOPES.directive,
     );
   });
 

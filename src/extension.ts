@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 import { provideCompletionItems } from "./completion";
+import { provideDiagnosticSuppressionCodeActions } from "./diagnosticCodeActions";
 import { provideDocumentSymbols } from "./documentSymbols";
 import { createDiagnosticScheduler, DiagnosticScheduler } from "./diagnosticScheduler";
 import { provideFoldingRanges } from "./folding";
@@ -343,6 +344,15 @@ export function activate(context: vscode.ExtensionContext): void {
       },
       " ",
       "\t",
+    ),
+    vscode.languages.registerCodeActionsProvider(
+      selector,
+      {
+        provideCodeActions(document, _range, context) {
+          return provideDiagnosticSuppressionCodeActions(document, context);
+        },
+      },
+      { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] },
     ),
     vscode.languages.registerHoverProvider(selector, {
       async provideHover(document, position) {
