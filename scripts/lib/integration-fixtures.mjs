@@ -10,18 +10,22 @@ export const WORKSPACE_ENV = "HAPROXY_INTEGRATION_WORKSPACE";
 export const FOLDER_SCOPED_WORKSPACE_ENV = "HAPROXY_INTEGRATION_FOLDER_SCOPED_WORKSPACE";
 export const USER_DATA_DIR_ENV = "HAPROXY_INTEGRATION_USER_DATA_DIR";
 
+function integrationTempRoot() {
+  return process.platform === "darwin" && existsSync("/tmp") ? "/tmp" : tmpdir();
+}
+
 export function stageIntegrationFixtures() {
-  const tempDir = mkdtempSync(join(tmpdir(), "haproxy-vscode-integration-"));
-  const fixturesDir = join(tempDir, "fixtures");
-  const folderA = join(tempDir, "folder-a");
-  const folderB = join(tempDir, "folder-b");
-  const userDataDir = join(tempDir, "user-data");
+  const tempDir = mkdtempSync(join(integrationTempRoot(), "hv-"));
+  const fixturesDir = join(tempDir, "f");
+  const folderA = join(tempDir, "a");
+  const folderB = join(tempDir, "b");
+  const userDataDir = join(tempDir, "u");
   cpSync(SOURCE_FIXTURES_DIR, fixturesDir, { recursive: true });
   mkdirSync(folderA, { recursive: true });
   mkdirSync(folderB, { recursive: true });
   mkdirSync(userDataDir, { recursive: true });
 
-  const workspace = join(tempDir, "integration.code-workspace");
+  const workspace = join(tempDir, "w.code-workspace");
   writeFileSync(
     workspace,
     `${JSON.stringify(
