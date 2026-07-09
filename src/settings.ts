@@ -37,6 +37,9 @@ export interface HaproxyExtensionSettings {
   workspaceSymbolsExclude: string[];
   workspaceSymbolsMaxFiles: number;
   workspaceSymbolsMaxTotalLines: number;
+  workspaceSymbolsMaxFileBytes: number;
+  workspaceSymbolsMaxTotalBytes: number;
+  workspaceSymbolsMaxLineBytes: number;
   workspaceSymbolsDebounceMs: number;
 }
 
@@ -83,6 +86,18 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
     workspaceSymbolsMaxTotalLines: Math.max(
       100,
       config.get<number>("workspaceSymbols.maxTotalLines", 100000),
+    ),
+    workspaceSymbolsMaxFileBytes: Math.max(
+      10240,
+      config.get<number>("workspaceSymbols.maxFileBytes", 1_000_000),
+    ),
+    workspaceSymbolsMaxTotalBytes: Math.max(
+      102400,
+      config.get<number>("workspaceSymbols.maxTotalBytes", 20_000_000),
+    ),
+    workspaceSymbolsMaxLineBytes: Math.max(
+      256,
+      config.get<number>("workspaceSymbols.maxLineBytes", 8192),
     ),
     workspaceSymbolsDebounceMs: clamp(
       config.get<number>("workspaceSymbols.debounceMs", 750),

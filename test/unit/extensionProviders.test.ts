@@ -8,6 +8,7 @@ import {
   mockTextDocuments,
   resetVscodeMock,
   setMockConfig,
+  setMockWorkspaceFile,
   workspace,
 } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
@@ -65,6 +66,7 @@ describe("extension providers", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     resetVscodeMock();
+    commands.executeCommand.mockClear();
     deactivate();
     capturedProviders = {};
 
@@ -173,6 +175,64 @@ describe("extension providers", () => {
   it("runs the internal peek definition command", async () => {
     const doc = haproxyDocument("backend api\nfrontend web\n    use_backend api");
     mockTextDocuments.push(doc);
+    setMockConfig("haproxy", "workspaceSymbols.enabled", false);
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    const command = getRegisteredCommand("haproxy.peekDefinitionAtPosition");
+    expect(command).toBeDefined();
+    await command?.("file:///test.cfg", 2, "    use_backend ".length);
+    expect(commands.executeCommand).toHaveBeenCalledWith("editor.action.peekDefinition");
+  });
+
+  it("rejects malformed peek definition positions", async () => {
+    const doc = haproxyDocument("backend api\nfrontend web\n    use_backend api");
+    mockTextDocuments.push(doc);
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    const command = getRegisteredCommand("haproxy.peekDefinitionAtPosition");
+    expect(command).toBeDefined();
+    await command?.("file:///test.cfg", -1, 0);
+    await command?.("file:///test.cfg", 0, -1);
+    await command?.("file:///test.cfg", 1.5, 0);
+    await command?.("file:///test.cfg", 0, Number.NaN);
+    expect(commands.executeCommand).not.toHaveBeenCalled();
+  });
+
+  it("rejects non-file peek definition URIs", async () => {
+    const doc = haproxyDocument("backend api\nfrontend web\n    use_backend api");
+    mockTextDocuments.push(doc);
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    const command = getRegisteredCommand("haproxy.peekDefinitionAtPosition");
+    expect(command).toBeDefined();
+    await command?.("https://example.com/test.cfg", 0, 0);
+    expect(commands.executeCommand).not.toHaveBeenCalled();
+  });
+
+  it("rejects peek definition URIs outside the workspace index", async () => {
+    const doc = haproxyDocument("backend api\nfrontend web\n    use_backend api");
+    mockTextDocuments.push(doc);
+    setMockWorkspaceFile("file:///indexed.cfg", "backend indexed");
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    const command = getRegisteredCommand("haproxy.peekDefinitionAtPosition");
+    expect(command).toBeDefined();
+    await command?.("file:///test.cfg", 2, "    use_backend ".length);
+    expect(commands.executeCommand).not.toHaveBeenCalled();
+  });
+
+  it("runs peek definition for URIs indexed in the workspace graph", async () => {
+    const doc = haproxyDocument("backend api\nfrontend web\n    use_backend api");
+    mockTextDocuments.push(doc);
+    setMockWorkspaceFile("file:///test.cfg", doc.getText());
 
     activate(mockExtensionContext() as never);
     await vi.runAllTimersAsync();

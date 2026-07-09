@@ -1,5 +1,6 @@
 import {
   createDiskEntry,
+  createOpenDocumentEntry,
   looksLikeHaproxyConfig,
 } from "../../../src/symbolIndex/workspaceDocuments";
 import { sectionHeaderSet } from "../../../src/schema";
@@ -56,6 +57,37 @@ describe("createDiskEntry", () => {
     mockTextDocuments.push(doc as never);
 
     const entry = await createDiskEntry(Uri.file("file:///nginx.cfg") as never, schema, 4000);
+
+    expect(entry).toBeNull();
+  });
+});
+
+describe("createOpenDocumentEntry", () => {
+  beforeEach(() => {
+    resetVscodeMock();
+    mockTextDocuments.length = 0;
+  });
+
+  it("returns null when open document text exceeds maxFileBytes", () => {
+    const oversized = "backend api " + "x".repeat(2_000_000);
+    const doc = createDocument(oversized, "file:///huge.cfg");
+
+    const entry = createOpenDocumentEntry(doc, schema, 4000, undefined, {
+      maxFileBytes: 1000,
+      maxLineBytes: 8192,
+    });
+
+    expect(entry).toBeNull();
+  });
+
+  it("returns null when an open document line exceeds maxLineBytes", () => {
+    const longLine = "backend api " + "x".repeat(10_000);
+    const doc = createDocument(longLine, "file:///long-line.cfg");
+
+    const entry = createOpenDocumentEntry(doc, schema, 4000, undefined, {
+      maxFileBytes: 2_000_000,
+      maxLineBytes: 8192,
+    });
 
     expect(entry).toBeNull();
   });

@@ -15,6 +15,7 @@ import { createDocument } from "../../helpers/document";
 
 import {
   buildWorkspace,
+  defaultWorkspaceSymbolSettings,
   expectWorkspaceDocumentSymbols,
   expectWorkspaceIndex,
   schema,
@@ -64,19 +65,10 @@ describe("workspace symbol index reuse and resilience", () => {
     const first = expectWorkspaceDocumentSymbols(workspaceIndex, "file:///api.cfg");
 
     Object.defineProperty(doc, "version", { value: doc.version + 1 });
-    scheduleWorkspaceSymbolIndexRebuild(
-      schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
-      4000,
-      { scope: "incremental", document: doc },
-    );
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000, {
+      scope: "incremental",
+      document: doc,
+    });
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
@@ -103,19 +95,10 @@ describe("workspace symbol index reuse and resilience", () => {
     doc.getText = () => "frontend web\n    use_backend renamed";
     Object.defineProperty(doc, "version", { value: doc.version + 1 });
 
-    scheduleWorkspaceSymbolIndexRebuild(
-      schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
-      4000,
-      { scope: "incremental", document: doc },
-    );
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000, {
+      scope: "incremental",
+      document: doc,
+    });
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
@@ -132,19 +115,9 @@ describe("workspace symbol index reuse and resilience", () => {
     const findFilesSpy = vi.spyOn(workspace, "findFiles");
     findFilesSpy.mockClear();
 
-    scheduleWorkspaceSymbolIndexRebuild(
-      schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
-      4000,
-      { scope: "content" },
-    );
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000, {
+      scope: "content",
+    });
     await vi.runAllTimersAsync();
     await Promise.resolve();
 

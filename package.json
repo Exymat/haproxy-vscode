@@ -153,6 +153,24 @@
           "minimum": 100,
           "description": "Maximum total HAProxy lines to index per VS Code workspace folder. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
         },
+        "haproxy.workspaceSymbols.maxFileBytes": {
+          "type": "number",
+          "default": 1000000,
+          "minimum": 10240,
+          "description": "Maximum bytes per HAProxy file to index. Files larger than this are skipped before being read into memory."
+        },
+        "haproxy.workspaceSymbols.maxTotalBytes": {
+          "type": "number",
+          "default": 20000000,
+          "minimum": 102400,
+          "description": "Maximum total indexed bytes per VS Code workspace folder. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
+        },
+        "haproxy.workspaceSymbols.maxLineBytes": {
+          "type": "number",
+          "default": 8192,
+          "minimum": 256,
+          "description": "Maximum encoded bytes per line in an indexed HAProxy file. Files containing longer lines are skipped."
+        },
         "haproxy.workspaceSymbols.debounceMs": {
           "type": "number",
           "default": 750,

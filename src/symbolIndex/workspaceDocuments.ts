@@ -21,8 +21,41 @@ import { workspaceUriKey } from "./workspaceUri";
 /** Upper bound on encoded bytes per line when estimating max file size from line count. */
 export const WORKSPACE_INDEX_MAX_LINE_BYTES = 8192;
 
+/** Default per-file byte cap for workspace symbol indexing. */
+export const DEFAULT_WORKSPACE_INDEX_MAX_FILE_BYTES = 1_000_000;
+
+/** Default total byte cap per workspace folder for workspace symbol indexing. */
+export const DEFAULT_WORKSPACE_INDEX_MAX_TOTAL_BYTES = 20_000_000;
+
 export function maxWorkspaceIndexFileBytes(maxLines: number): number {
   return maxLines * WORKSPACE_INDEX_MAX_LINE_BYTES;
+}
+
+export interface WorkspaceIndexByteLimits {
+  maxFileBytes: number;
+  maxLineBytes: number;
+}
+
+export function defaultWorkspaceIndexByteLimits(): WorkspaceIndexByteLimits {
+  return {
+    maxFileBytes: DEFAULT_WORKSPACE_INDEX_MAX_FILE_BYTES,
+    maxLineBytes: WORKSPACE_INDEX_MAX_LINE_BYTES,
+  };
+}
+
+const textEncoder = new TextEncoder();
+
+export function encodedTextByteLength(text: string): number {
+  return textEncoder.encode(text).length;
+}
+
+function lineExceedsMaxBytes(lines: string[], maxLineBytes: number): boolean {
+  for (const line of lines) {
+    if (encodedTextByteLength(line) > maxLineBytes) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function textDocumentContent(document: vscode.TextDocument): { text: string; lines: string[] } {
@@ -119,16 +152,24 @@ export function createOpenDocumentEntry(
   schema: HaproxySchema,
   maxLines: number,
   cached?: WorkspaceDocumentSymbols,
+  limits: WorkspaceIndexByteLimits = defaultWorkspaceIndexByteLimits(),
 ): WorkspaceDocumentSymbols | null {
   if (!isHaproxyLanguageId(document.languageId) || document.lineCount > maxLines) {
     return null;
   }
   const { text, lines } = textDocumentContent(document);
+  if (encodedTextByteLength(text) > limits.maxFileBytes) {
+    return null;
+  }
+  if (lineExceedsMaxBytes(lines, limits.maxLineBytes)) {
+    return null;
+  }
   const headers = sectionHeaderSet(schema);
   if (!looksLikeHaproxyConfig(lines, headers)) {
     return null;
   }
   const fingerprint = fingerprintText(text);
+  const byteLength = encodedTextByteLength(text);
   if (cached && cached.fingerprint === fingerprint) {
     return {
       ...cached,
@@ -137,6 +178,7 @@ export function createOpenDocumentEntry(
       version: document.version,
       fingerprint,
       diskStatKey: null,
+      byteLength,
     };
   }
   const index = getSymbolIndex(document, schema, maxLines)!;
@@ -147,6 +189,7 @@ export function createOpenDocumentEntry(
     version: document.version,
     fingerprint,
     diskStatKey: null,
+    byteLength,
     parsed,
     lineTexts: lines,
     index,
@@ -158,10 +201,11 @@ export function buildWorkspaceSymbolIndexFromOpenDocuments(
   documents: readonly vscode.TextDocument[],
   schema: HaproxySchema,
   maxLines: number,
+  limits: WorkspaceIndexByteLimits = defaultWorkspaceIndexByteLimits(),
 ): WorkspaceSymbolIndex {
   const entries = new Map<string, WorkspaceDocumentSymbols>();
   for (const document of documents) {
-    const entry = createOpenDocumentEntry(document, schema, maxLines);
+    const entry = createOpenDocumentEntry(document, schema, maxLines, undefined, limits);
     if (entry) {
       entries.set(entry.uriKey, entry);
     }
@@ -174,10 +218,11 @@ export async function createDiskEntry(
   schema: HaproxySchema,
   maxLines: number,
   cached?: WorkspaceDocumentSymbols,
+  limits: WorkspaceIndexByteLimits = defaultWorkspaceIndexByteLimits(),
 ): Promise<WorkspaceDocumentSymbols | null> {
   const open = openDocumentForUri(uri);
   if (open) {
-    return createOpenDocumentEntry(open, schema, maxLines, cached);
+    return createOpenDocumentEntry(open, schema, maxLines, cached, limits);
   }
 
   try {
@@ -187,14 +232,18 @@ export async function createDiskEntry(
       return cached;
     }
 
-    if (stat.size > maxWorkspaceIndexFileBytes(maxLines)) {
+    if (stat.size > limits.maxFileBytes) {
       return null;
     }
 
     const bytes = await vscode.workspace.fs.readFile(uri);
     const text = new TextDecoder("utf-8").decode(bytes);
+    const byteLength = bytes.byteLength;
     const lines = text.split(/\r?\n/);
     if (lines.length > maxLines) {
+      return null;
+    }
+    if (lineExceedsMaxBytes(lines, limits.maxLineBytes)) {
       return null;
     }
     const headers = sectionHeaderSet(schema);
@@ -209,6 +258,7 @@ export async function createDiskEntry(
       version: null,
       fingerprint: fingerprintText(text),
       diskStatKey: statKey,
+      byteLength,
       parsed,
       lineTexts: lines,
       index,
@@ -226,4 +276,12 @@ export function totalDocumentLines(documents: Map<string, WorkspaceDocumentSymbo
     totalLines += entry.parsed.length;
   }
   return totalLines;
+}
+
+export function totalDocumentBytes(documents: Map<string, WorkspaceDocumentSymbols>): number {
+  let totalBytes = 0;
+  for (const entry of documents.values()) {
+    totalBytes += entry.byteLength;
+  }
+  return totalBytes;
 }

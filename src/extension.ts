@@ -24,6 +24,7 @@ import { sectionHeaderSet } from "./schema";
 import { hasWarmUriDocumentCache } from "./documentCache";
 import {
   clearWorkspaceSymbolIndex,
+  getWorkspaceSymbolIndex,
   invalidateDiscoveryCache,
   isUriExcludedFromWorkspaceSymbols,
   resolveWorkspaceRebuildScopeOnOpen,
@@ -32,6 +33,7 @@ import {
   WorkspaceIndexChangeEvent,
   WorkspaceRebuildScope,
   WorkspaceSymbolSettings,
+  workspaceUriKey,
 } from "./symbolIndex";
 import { registerVersionStatusBar } from "./statusBar";
 import { registerWorkspaceIndexStatusBar } from "./workspaceIndexStatusBar";
@@ -135,6 +137,9 @@ export function activate(context: vscode.ExtensionContext): void {
     exclude: cachedSettings.workspaceSymbolsExclude,
     maxFiles: cachedSettings.workspaceSymbolsMaxFiles,
     maxTotalLines: cachedSettings.workspaceSymbolsMaxTotalLines,
+    maxFileBytes: cachedSettings.workspaceSymbolsMaxFileBytes,
+    maxTotalBytes: cachedSettings.workspaceSymbolsMaxTotalBytes,
+    maxLineBytes: cachedSettings.workspaceSymbolsMaxLineBytes,
     debounceMs: cachedSettings.workspaceSymbolsDebounceMs,
   });
 
@@ -301,8 +306,18 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand(
       "haproxy.peekDefinitionAtPosition",
       async (uriString: string, line: number, character: number) => {
+        if (!Number.isInteger(line) || line < 0 || !Number.isInteger(character) || character < 0) {
+          return;
+        }
         const uri = vscode.Uri.parse(uriString);
+        if (uri.scheme !== "file") {
+          return;
+        }
         const document = await vscode.workspace.openTextDocument(uri);
+        const workspaceIndex = getWorkspaceSymbolIndex(document);
+        if (workspaceIndex && !workspaceIndex.documents.has(workspaceUriKey(uri))) {
+          return;
+        }
         const editor = await vscode.window.showTextDocument(document, { preview: false });
         const position = new vscode.Position(line, character);
         editor.selection = new vscode.Selection(position, position);

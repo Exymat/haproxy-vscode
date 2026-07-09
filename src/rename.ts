@@ -117,12 +117,31 @@ export function provideRenameEdits(
     }
   }
 
+  const useWorkspaceRename = workspaceIndex !== null && site.kind !== "environment-variable";
+  let targets: Array<SymbolSite | WorkspaceSymbolSite>;
+
+  if (useWorkspaceRename) {
+    const oldDefinitions = findWorkspaceDefinitions(
+      workspaceIndex,
+      site.kind,
+      oldName,
+      site.scopeKey,
+    );
+    if (oldDefinitions.length > 1) {
+      throw new Error(
+        `Cannot rename ${site.kind} '${oldName}' across workspace because ${oldDefinitions.length} definitions exist in this scope. Narrow haproxy.workspaceSymbols.include or disable workspace symbols.`,
+      );
+    }
+    targets =
+      oldDefinitions.length === 1
+        ? findAllWorkspaceSites(workspaceIndex, site.kind, oldName, site.scopeKey)
+        : findAllSites(index, site.kind, oldName, site.scopeKey);
+  } else {
+    targets = findAllSites(index, site.kind, oldName, site.scopeKey);
+  }
+
   const edit = new vscode.WorkspaceEdit();
   const edited = new Set<string>();
-  const targets =
-    workspaceIndex && site.kind !== "environment-variable"
-      ? findAllWorkspaceSites(workspaceIndex, site.kind, oldName, site.scopeKey)
-      : findAllSites(index, site.kind, oldName, site.scopeKey);
 
   for (const target of targets) {
     const key = siteEditKey(target);
@@ -130,7 +149,7 @@ export function provideRenameEdits(
       continue;
     }
     edited.add(key);
-    const uri = "uri" in target ? (target as WorkspaceSymbolSite).uri : document.uri;
+    const uri = "uri" in target ? target.uri : document.uri;
     edit.replace(uri, siteRange(target), newName);
   }
   return edit;

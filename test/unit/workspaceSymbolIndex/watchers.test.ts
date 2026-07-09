@@ -1,16 +1,13 @@
 import { isUriExcludedFromWorkspaceSymbols } from "../../../src/symbolIndex";
 import { Uri } from "../../__mocks__/vscode";
+import { defaultWorkspaceSymbolSettings } from "./helpers";
 
 describe("workspace symbol watcher helpers", () => {
   it("honors exclude globs relative to a workspace folder", () => {
-    const settings = {
-      enabled: true,
-      include: ["**/*.cfg"],
+    const settings = defaultWorkspaceSymbolSettings({
       exclude: ["**/node_modules/**", "**/vendor/**"],
-      maxFiles: 1000,
-      maxTotalLines: 100000,
       debounceMs: 750,
-    };
+    });
     const folder = {
       uri: Uri.file("file:///repo"),
       name: "repo",
@@ -37,14 +34,7 @@ describe("workspace symbol watcher helpers", () => {
     expect(
       isUriExcludedFromWorkspaceSymbols(
         Uri.file("file:///repo/vendor/x.cfg") as never,
-        {
-          enabled: true,
-          include: ["**/*.cfg"],
-          exclude: [],
-          maxFiles: 1000,
-          maxTotalLines: 100000,
-          debounceMs: 750,
-        },
+        defaultWorkspaceSymbolSettings({ debounceMs: 750 }),
         { uri: Uri.file("file:///repo"), name: "repo", index: 0 } as never,
       ),
     ).toBe(false);

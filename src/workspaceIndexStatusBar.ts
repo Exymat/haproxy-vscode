@@ -1,11 +1,12 @@
 import * as vscode from "vscode";
 
+import { isHaproxyLanguageId } from "./grammar";
 import { isDocumentWorkspaceIndexCapped } from "./symbolIndex/workspace";
 
 export const OPEN_WORKSPACE_SYMBOL_SETTINGS_COMMAND = "haproxy.openWorkspaceSymbolSettings";
 
 function isHaproxyEditor(editor: vscode.TextEditor | undefined): boolean {
-  return editor?.document.languageId === "haproxy";
+  return editor !== undefined && isHaproxyLanguageId(editor.document.languageId);
 }
 
 export function registerWorkspaceIndexStatusBar(context: vscode.ExtensionContext): () => void {

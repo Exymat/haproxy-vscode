@@ -8,6 +8,7 @@ import {
   aggregateDocuments,
   createDiskEntry,
   createOpenDocumentEntry,
+  totalDocumentBytes,
   totalDocumentLines,
 } from "./workspaceDocuments";
 import {
@@ -68,7 +69,7 @@ export function hasCappedWorkspaceFolders(): boolean {
 function notifyWorkspaceIndexCapped(): void {
   void vscode.window
     .showWarningMessage(
-      "HAProxy workspace symbol index exceeded limits; cross-file navigation, rename, and missing-reference checks are disabled for this folder. Increase haproxy.workspaceSymbols.maxFiles or haproxy.workspaceSymbols.maxTotalLines.",
+      "HAProxy workspace symbol index exceeded limits; cross-file navigation, rename, and missing-reference checks are disabled for this folder. Increase haproxy.workspaceSymbols.maxFiles, haproxy.workspaceSymbols.maxTotalLines, haproxy.workspaceSymbols.maxFileBytes, or haproxy.workspaceSymbols.maxTotalBytes.",
       "Open Settings",
     )
     .then((choice) => {
@@ -121,7 +122,139 @@ type ActiveWorkspaceRebuildOptions = Omit<WorkspaceRebuildOptions, "scope"> & {
   scope?: ActiveWorkspaceRebuildScope;
 };
 
-let pendingRebuildOptions: ActiveWorkspaceRebuildOptions = { scope: "full" };
+interface PendingFolderTarget {
+  forceRediscover: boolean;
+  uri: vscode.Uri;
+}
+
+interface PendingRebuild {
+  workspaceFull: boolean;
+  workspaceContent: boolean;
+  folderTargets: Map<string, PendingFolderTarget>;
+  incrementalDocuments: Map<string, vscode.TextDocument>;
+}
+
+function createEmptyPendingRebuild(): PendingRebuild {
+  return {
+    workspaceFull: false,
+    workspaceContent: false,
+    folderTargets: new Map(),
+    incrementalDocuments: new Map(),
+  };
+}
+
+function removeIncrementalDocumentsInFolder(
+  incrementalDocuments: Map<string, vscode.TextDocument>,
+  folderKey: string,
+): void {
+  for (const [uriKey, document] of incrementalDocuments) {
+    if (workspaceFolderKey(workspaceFolderForUri(document.uri)) === folderKey) {
+      incrementalDocuments.delete(uriKey);
+    }
+  }
+}
+
+function mergePendingRebuild(
+  current: PendingRebuild,
+  options: ActiveWorkspaceRebuildOptions,
+): PendingRebuild {
+  const scope = options.scope ?? "full";
+
+  if (scope === "full" && !options.document && !options.uri) {
+    return { ...createEmptyPendingRebuild(), workspaceFull: true };
+  }
+
+  if (current.workspaceFull) {
+    return current;
+  }
+
+  const next: PendingRebuild = {
+    workspaceFull: false,
+    workspaceContent: current.workspaceContent,
+    folderTargets: new Map(current.folderTargets),
+    incrementalDocuments: new Map(current.incrementalDocuments),
+  };
+
+  if (scope === "content" && !options.document && !options.uri) {
+    return { ...createEmptyPendingRebuild(), workspaceContent: true };
+  }
+
+  if (scope === "incremental" && options.document) {
+    const folderKey = workspaceFolderKey(workspaceFolderForUri(options.document.uri));
+    const folderTarget = next.folderTargets.get(folderKey);
+    if (folderTarget?.forceRediscover) {
+      return next;
+    }
+    next.incrementalDocuments.set(workspaceUriKey(options.document.uri), options.document);
+    return next;
+  }
+
+  const uri = options.uri ?? options.document?.uri;
+  if (!uri) {
+    return next;
+  }
+
+  const folderKey = workspaceFolderKey(workspaceFolderForUri(uri));
+  const forceRediscover = scope === "full";
+  if (forceRediscover) {
+    removeIncrementalDocumentsInFolder(next.incrementalDocuments, folderKey);
+  }
+  const existing = next.folderTargets.get(folderKey);
+  next.folderTargets.set(folderKey, {
+    forceRediscover: forceRediscover || (existing?.forceRediscover ?? false),
+    uri,
+  });
+  return next;
+}
+
+async function flushPendingRebuild(
+  schema: HaproxySchema,
+  settings: WorkspaceSymbolSettings,
+  maxLines: number,
+  generation: number,
+  pending: PendingRebuild,
+): Promise<void> {
+  if (pending.workspaceFull) {
+    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, { scope: "full" });
+    return;
+  }
+
+  for (const document of pending.incrementalDocuments.values()) {
+    /* v8 ignore start -- stale async generations are race guards for debounced flush work. */
+    if (generation !== activeGeneration) {
+      return;
+    }
+    /* v8 ignore stop */
+    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, {
+      scope: "incremental",
+      document,
+    });
+  }
+
+  if (pending.workspaceContent) {
+    /* v8 ignore start -- stale async generations are race guards for debounced flush work. */
+    if (generation !== activeGeneration) {
+      return;
+    }
+    /* v8 ignore stop */
+    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, { scope: "content" });
+    return;
+  }
+
+  for (const target of pending.folderTargets.values()) {
+    /* v8 ignore start -- stale async generations are race guards for debounced flush work. */
+    if (generation !== activeGeneration) {
+      return;
+    }
+    /* v8 ignore stop */
+    await rebuildWorkspaceIndexes(schema, settings, maxLines, generation, {
+      scope: target.forceRediscover ? "full" : "content",
+      uri: target.uri,
+    });
+  }
+}
+
+let pendingRebuild = createEmptyPendingRebuild();
 
 export function workspaceEntryForDocument(
   document: vscode.TextDocument,
@@ -182,10 +315,21 @@ async function buildFolderWorkspaceIndex(
   /* v8 ignore stop */
 
   const documents = new Map<string, WorkspaceDocumentSymbols>();
+  const byteLimits = {
+    maxFileBytes: settings.maxFileBytes,
+    maxLineBytes: settings.maxLineBytes,
+  };
   let totalLines = 0;
+  let totalBytes = 0;
   for (const uri of uris) {
     const uriKey = workspaceUriKey(uri);
-    const entry = await createDiskEntry(uri, schema, maxLines, previousDocuments.get(uriKey));
+    const entry = await createDiskEntry(
+      uri,
+      schema,
+      maxLines,
+      previousDocuments.get(uriKey),
+      byteLimits,
+    );
     /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
     if (generation !== activeGeneration) {
       return null;
@@ -199,6 +343,10 @@ async function buildFolderWorkspaceIndex(
     }
     totalLines += entry.parsed.length;
     if (totalLines > settings.maxTotalLines) {
+      return aggregateDocuments(generation, true, new Map());
+    }
+    totalBytes += entry.byteLength;
+    if (totalBytes > settings.maxTotalBytes) {
       return aggregateDocuments(generation, true, new Map());
     }
     documents.set(entry.uriKey, entry);
@@ -231,7 +379,17 @@ async function updateSingleDocumentInWorkspaceIndex(
     return;
   }
 
-  const entry = createOpenDocumentEntry(document, schema, maxLines, existing.documents.get(uriKey));
+  const byteLimits = {
+    maxFileBytes: settings.maxFileBytes,
+    maxLineBytes: settings.maxLineBytes,
+  };
+  const entry = createOpenDocumentEntry(
+    document,
+    schema,
+    maxLines,
+    existing.documents.get(uriKey),
+    byteLimits,
+  );
   /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
   if (generation !== activeGeneration) {
     return;
@@ -247,7 +405,10 @@ async function updateSingleDocumentInWorkspaceIndex(
 
   const documents = new Map(existing.documents);
   documents.set(entry.uriKey, entry);
-  if (totalDocumentLines(documents) > settings.maxTotalLines) {
+  if (
+    totalDocumentLines(documents) > settings.maxTotalLines ||
+    totalDocumentBytes(documents) > settings.maxTotalBytes
+  ) {
     setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, true, new Map()));
   } else {
     setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, false, documents));
@@ -364,11 +525,11 @@ export function scheduleWorkspaceSymbolIndexRebuild(
   activeSchema = schema;
   activeSettings = settings;
   activeMaxLines = maxLines;
-  pendingRebuildOptions = {
+  pendingRebuild = mergePendingRebuild(pendingRebuild, {
     scope,
     document: options.document,
     uri: options.uri,
-  };
+  });
   activeGeneration += 1;
   const generation = activeGeneration;
   if (rebuildTimer) {
@@ -376,9 +537,9 @@ export function scheduleWorkspaceSymbolIndexRebuild(
   }
   rebuildTimer = setTimeout(() => {
     rebuildTimer = undefined;
-    const rebuildOptions = pendingRebuildOptions;
-    pendingRebuildOptions = { scope: "full" };
-    void rebuildWorkspaceIndexes(schema, settings, maxLines, generation, rebuildOptions);
+    const rebuildWork = pendingRebuild;
+    pendingRebuild = createEmptyPendingRebuild();
+    void flushPendingRebuild(schema, settings, maxLines, generation, rebuildWork);
   }, settings.debounceMs);
 }
 
@@ -403,7 +564,7 @@ export function clearWorkspaceSymbolIndex(): void {
   activeSettings = null;
   activeSchema = null;
   activeMaxLines = 0;
-  pendingRebuildOptions = { scope: "full" };
+  pendingRebuild = createEmptyPendingRebuild();
   invalidateDiscoveryCache();
 }
 

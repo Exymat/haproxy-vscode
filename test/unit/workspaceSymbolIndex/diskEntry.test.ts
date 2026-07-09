@@ -1,7 +1,7 @@
 import * as buildModule from "../../../src/symbolIndex/build";
 import {
   createDiskEntry,
-  maxWorkspaceIndexFileBytes,
+  DEFAULT_WORKSPACE_INDEX_MAX_FILE_BYTES,
 } from "../../../src/symbolIndex/workspaceDocuments";
 import {
   setMockWorkspaceFile,
@@ -19,7 +19,7 @@ describe("createDiskEntry size guards", () => {
     const maxLines = 100;
     const path = "file:///huge.cfg";
     setMockWorkspaceFile(path, "backend tiny");
-    setMockWorkspaceFileStat(path, Date.now(), maxWorkspaceIndexFileBytes(maxLines) + 1);
+    setMockWorkspaceFileStat(path, Date.now(), DEFAULT_WORKSPACE_INDEX_MAX_FILE_BYTES + 1);
 
     const readFileSpy = vi.spyOn(workspace.fs, "readFile");
     const result = await createDiskEntry(Uri.file(path) as never, schema, maxLines);

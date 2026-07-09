@@ -10,6 +10,9 @@ export interface WorkspaceSymbolSettings {
   exclude: string[];
   maxFiles: number;
   maxTotalLines: number;
+  maxFileBytes: number;
+  maxTotalBytes: number;
+  maxLineBytes: number;
   debounceMs: number;
 }
 
@@ -37,6 +40,7 @@ export interface WorkspaceDocumentSymbols {
   version: number | null;
   fingerprint: string;
   diskStatKey: string | null;
+  byteLength: number;
   parsed: ParsedLine[];
   lineTexts: string[];
   index: SymbolIndex;

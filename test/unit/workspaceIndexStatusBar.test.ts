@@ -50,6 +50,29 @@ describe("workspaceIndexStatusBar", () => {
     expect(getRegisteredCommand(OPEN_WORKSPACE_SYMBOL_SETTINGS_COMMAND)).toBeDefined();
   });
 
+  it("shows status bar for capped versioned haproxy editors", async () => {
+    const items: StatusBarItem[] = [];
+    vi.spyOn(window, "createStatusBarItem").mockImplementation(() => {
+      const item = new StatusBarItem();
+      items.push(item);
+      return item;
+    });
+
+    const refresh = registerWorkspaceIndexStatusBar(mockExtensionContext() as never);
+    const item = items[0];
+
+    setMockWorkspaceFile("file:///a.cfg", "backend a\n    server s1 127.0.0.1:80");
+    setMockWorkspaceFile("file:///b.cfg", "backend b\n    server s1 127.0.0.1:80");
+    await buildWorkspace(1000, 2);
+    expect(hasCappedWorkspaceFolders()).toBe(true);
+
+    setMockActiveTextEditor({
+      document: { ...haproxyDocument("backend a"), languageId: "haproxy-3.2" } as never,
+    });
+    refresh();
+    expect(item.show).toHaveBeenCalled();
+  });
+
   it("shows status bar for capped haproxy editors and hides otherwise", async () => {
     const items: StatusBarItem[] = [];
     vi.spyOn(window, "createStatusBarItem").mockImplementation(() => {

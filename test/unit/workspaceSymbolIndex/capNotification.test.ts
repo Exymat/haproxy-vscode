@@ -6,7 +6,12 @@ import {
 } from "../../../src/symbolIndex";
 import { commands, setMockWorkspaceFile, window } from "../../__mocks__/vscode";
 
-import { buildWorkspace, schema, setupWorkspaceSymbolIndexTests } from "./helpers";
+import {
+  buildWorkspace,
+  defaultWorkspaceSymbolSettings,
+  schema,
+  setupWorkspaceSymbolIndexTests,
+} from "./helpers";
 
 describe("workspace symbol cap notification", () => {
   setupWorkspaceSymbolIndexTests();
@@ -28,14 +33,9 @@ describe("workspace symbol cap notification", () => {
     setMockWorkspaceFile("file:///c.cfg", "backend c");
     scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
+      defaultWorkspaceSymbolSettings({
         maxTotalLines: 2,
-        debounceMs: 100,
-      },
+      }),
       4000,
       { scope: "full" },
     );

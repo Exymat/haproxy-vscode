@@ -15,6 +15,7 @@ import {
 } from "../__mocks__/vscode";
 import { createDocument } from "../helpers/document";
 import { bundle, completionLabels } from "./completion/helpers";
+import { defaultWorkspaceSymbolSettings } from "./workspaceSymbolIndex/helpers";
 
 function pos(line: number, character: number) {
   return { line, character } as never;
@@ -250,18 +251,7 @@ describe("symbol reference completion", () => {
     const frontend = createDocument(frontendContent, "file:///repo/frontends/web.cfg");
     mockTextDocuments.push(frontend as never);
 
-    scheduleWorkspaceSymbolIndexRebuild(
-      bundle.schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
-      4000,
-    );
+    scheduleWorkspaceSymbolIndexRebuild(bundle.schema, defaultWorkspaceSymbolSettings(), 4000);
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
@@ -323,18 +313,7 @@ describe("symbol reference completion", () => {
     const doc = createDocument(frontendA, "file:///repo/frontends/a.cfg");
     mockTextDocuments.push(doc as never);
 
-    scheduleWorkspaceSymbolIndexRebuild(
-      bundle.schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
-      4000,
-    );
+    scheduleWorkspaceSymbolIndexRebuild(bundle.schema, defaultWorkspaceSymbolSettings(), 4000);
     await vi.runAllTimersAsync();
     await Promise.resolve();
 

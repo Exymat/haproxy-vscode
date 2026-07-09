@@ -19,6 +19,7 @@ import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 
 import {
   buildWorkspace,
+  defaultWorkspaceSymbolSettings,
   expectWorkspaceIndex,
   schema,
   setupWorkspaceSymbolIndexTests,
@@ -260,14 +261,10 @@ describe("workspace symbol index build", () => {
     setWorkspaceSymbolIndexChangeListener(listener);
     scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
+      defaultWorkspaceSymbolSettings({
         enabled: false,
-        include: ["**/*.cfg"],
-        exclude: [],
         maxFiles: 300,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
+      }),
       4000,
     );
 
@@ -288,14 +285,9 @@ describe("workspace symbol index build", () => {
     setMockWorkspaceFile("file:///big.cfg", "backend big\n    server s1 127.0.0.1:80");
     scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
+      defaultWorkspaceSymbolSettings({
         maxFiles: 300,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
+      }),
       1,
     );
 

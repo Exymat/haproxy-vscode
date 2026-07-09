@@ -15,7 +15,7 @@ import {
 import { mockExtensionContext } from "../helpers/extensionContext";
 import { createDocument, updateDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
-import { workspaceFolder } from "./workspaceSymbolIndex/helpers";
+import { workspaceFolder, defaultWorkspaceSymbolSettings } from "./workspaceSymbolIndex/helpers";
 
 const schema = loadSchema("3.4");
 type MockDoc = (typeof mockTextDocuments)[number];
@@ -354,14 +354,7 @@ describe("extension workspace symbol integration", () => {
 
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
+      defaultWorkspaceSymbolSettings(),
       4000,
       { scope: "full" },
     );
@@ -374,14 +367,7 @@ describe("extension workspace symbol integration", () => {
     updateDocument(docA, "backend renamed");
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
+      defaultWorkspaceSymbolSettings(),
       4000,
       { scope: "incremental", document: docA },
     );
@@ -410,14 +396,7 @@ describe("extension workspace symbol integration", () => {
 
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
+      defaultWorkspaceSymbolSettings(),
       4000,
       { scope: "full" },
     );
@@ -430,14 +409,7 @@ describe("extension workspace symbol integration", () => {
     updateDocument(docA, "backend renamed");
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
+      defaultWorkspaceSymbolSettings(),
       4000,
       { scope: "incremental", document: docA },
     );
@@ -471,14 +443,7 @@ describe("extension workspace symbol integration", () => {
 
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
+      defaultWorkspaceSymbolSettings(),
       4000,
       { scope: "full" },
     );
@@ -500,14 +465,7 @@ describe("extension workspace symbol integration", () => {
 
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
+      defaultWorkspaceSymbolSettings(),
       4000,
       { scope: "full" },
     );
@@ -520,14 +478,7 @@ describe("extension workspace symbol integration", () => {
     updateDocument(doc, "backend renamed");
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
+      defaultWorkspaceSymbolSettings(),
       4000,
       { scope: "incremental", document: doc },
     );
@@ -551,14 +502,7 @@ describe("extension workspace symbol integration", () => {
     setMockWorkspaceFile("file:///other.cfg", "backend other");
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
+      defaultWorkspaceSymbolSettings(),
       4000,
       { scope: "full" },
     );

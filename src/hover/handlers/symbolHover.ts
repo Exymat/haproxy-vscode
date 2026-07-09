@@ -85,7 +85,7 @@ function workspaceSymbolHover(
   }
 
   const md = new vscode.MarkdownString();
-  md.appendMarkdown(["```haproxy", definitionText, "```"].join("\n"));
+  md.appendCodeblock(definitionText, "haproxy");
   md.appendMarkdown(`\n\n[Peek Definition](${commandUri(hc.document, site)})`);
   md.isTrusted = { enabledCommands: ["haproxy.peekDefinitionAtPosition"] };
 
@@ -120,7 +120,7 @@ export function trySymbolHover(hc: HoverContext): vscode.Hover | null {
 
   const definitionText = definitionPreviewText(hc, definition);
   const md = new vscode.MarkdownString();
-  md.appendMarkdown(["```haproxy", definitionText, "```"].join("\n"));
+  md.appendCodeblock(definitionText, "haproxy");
   md.appendMarkdown(`\n\n[Peek Definition](${commandUri(hc.document, site)})`);
   md.isTrusted = { enabledCommands: ["haproxy.peekDefinitionAtPosition"] };
 

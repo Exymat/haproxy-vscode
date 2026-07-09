@@ -71,12 +71,29 @@ export class Hover {
   ) {}
 }
 
+function appendEscapedMarkdownCodeBlockFence(code: string, langId: string): string {
+  const longestFenceLength =
+    code.match(/^`+/gm)?.reduce((a, b) => (a.length > b.length ? a : b), "").length ?? 0;
+  const desiredFenceLength = longestFenceLength >= 3 ? longestFenceLength + 1 : 3;
+  return [
+    `${"`".repeat(desiredFenceLength)}${langId}`,
+    code,
+    `${"`".repeat(desiredFenceLength)}`,
+  ].join("\n");
+}
+
 export class MarkdownString {
   value = "";
   isTrusted?: boolean | { enabledCommands: string[] };
 
-  appendMarkdown(text: string): void {
+  appendMarkdown(text: string): MarkdownString {
     this.value += text;
+    return this;
+  }
+
+  appendCodeblock(value: string, language = ""): MarkdownString {
+    this.value += `\n${appendEscapedMarkdownCodeBlockFence(value, language)}\n`;
+    return this;
   }
 }
 
@@ -683,10 +700,20 @@ export const commands = {
 
 export const Uri = {
   parse(value: string) {
-    return { toString: () => value, fsPath: value };
+    const match = /^([^:]+):/.exec(value);
+    return {
+      toString: () => value,
+      fsPath: value.replace(/^file:\/\//, ""),
+      scheme: match?.[1] ?? "file",
+    };
   },
   file(value: string) {
-    return { toString: () => value, fsPath: value };
+    const normalized = value.startsWith("file://") ? value : `file://${value}`;
+    return {
+      toString: () => normalized,
+      fsPath: value,
+      scheme: "file",
+    };
   },
 };
 

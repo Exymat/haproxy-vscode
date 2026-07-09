@@ -32,6 +32,9 @@ describe("settings", () => {
       ],
       workspaceSymbolsMaxFiles: 1000,
       workspaceSymbolsMaxTotalLines: 100000,
+      workspaceSymbolsMaxFileBytes: 1_000_000,
+      workspaceSymbolsMaxTotalBytes: 20_000_000,
+      workspaceSymbolsMaxLineBytes: 8192,
       workspaceSymbolsDebounceMs: 750,
     });
   });
@@ -55,10 +58,16 @@ describe("settings", () => {
   it("clamps workspace symbol limits to minimums", () => {
     setMockConfig("haproxy", "workspaceSymbols.maxFiles", 0);
     setMockConfig("haproxy", "workspaceSymbols.maxTotalLines", 10);
+    setMockConfig("haproxy", "workspaceSymbols.maxFileBytes", 100);
+    setMockConfig("haproxy", "workspaceSymbols.maxTotalBytes", 1000);
+    setMockConfig("haproxy", "workspaceSymbols.maxLineBytes", 10);
     setMockConfig("haproxy", "workspaceSymbols.debounceMs", 50);
     const settings = getExtensionSettings();
     expect(settings.workspaceSymbolsMaxFiles).toBe(1);
     expect(settings.workspaceSymbolsMaxTotalLines).toBe(100);
+    expect(settings.workspaceSymbolsMaxFileBytes).toBe(10240);
+    expect(settings.workspaceSymbolsMaxTotalBytes).toBe(102400);
+    expect(settings.workspaceSymbolsMaxLineBytes).toBe(256);
     expect(settings.workspaceSymbolsDebounceMs).toBe(100);
   });
 

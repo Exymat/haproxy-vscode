@@ -5,11 +5,18 @@ import {
   clearWorkspaceSymbolIndex,
   scheduleWorkspaceSymbolIndexRebuild,
 } from "../../src/symbolIndex";
-import { mockTextDocuments, setMockWorkspaceFile } from "../__mocks__/vscode";
+import { mockTextDocuments, resetVscodeMock, setMockWorkspaceFile } from "../__mocks__/vscode";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
+import { defaultWorkspaceSymbolSettings } from "./workspaceSymbolIndex/helpers";
 
 const schema = loadSchema("3.4");
+
+function resetRenameTestState(): void {
+  resetVscodeMock();
+  mockTextDocuments.length = 0;
+  clearWorkspaceSymbolIndex();
+}
 
 function pos(line: number, character: number): vscode.Position {
   return { line, character } as vscode.Position;
@@ -143,7 +150,7 @@ describe("rename provider", () => {
 
   it("renames backend definitions and references across workspace files", async () => {
     vi.useFakeTimers();
-    clearWorkspaceSymbolIndex();
+    resetRenameTestState();
     setMockWorkspaceFile("file:///backends/api.cfg", "backend api\n    server s1 127.0.0.1:80");
     setMockWorkspaceFile("file:///frontends/web.cfg", "frontend web\n    use_backend api");
     const frontend = createDocument(
@@ -152,18 +159,7 @@ describe("rename provider", () => {
     );
     mockTextDocuments.push(frontend as never);
 
-    scheduleWorkspaceSymbolIndexRebuild(
-      schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
-      4000,
-    );
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000);
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
@@ -185,7 +181,7 @@ describe("rename provider", () => {
 
   it("rejects workspace-wide duplicate names during cross-file rename", async () => {
     vi.useFakeTimers();
-    clearWorkspaceSymbolIndex();
+    resetRenameTestState();
     setMockWorkspaceFile("file:///backends/api.cfg", "backend api");
     setMockWorkspaceFile("file:///backends/other.cfg", "backend other");
     setMockWorkspaceFile("file:///frontends/web.cfg", "frontend web\n    use_backend api");
@@ -195,24 +191,90 @@ describe("rename provider", () => {
     );
     mockTextDocuments.push(frontend as never);
 
-    scheduleWorkspaceSymbolIndexRebuild(
-      schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
-      4000,
-    );
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000);
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
     expect(() =>
       provideRenameEdits(frontend, pos(1, "    use_backend ".length), "other", schema, 4000),
     ).toThrow("already exists");
+    clearWorkspaceSymbolIndex();
+    vi.useRealTimers();
+  });
+
+  it("rejects workspace-wide rename when multiple definitions share the old name", async () => {
+    vi.useFakeTimers();
+    resetRenameTestState();
+    setMockWorkspaceFile("file:///prod/backend.cfg", "backend api");
+    setMockWorkspaceFile("file:///staging/backend.cfg", "backend api");
+    setMockWorkspaceFile("file:///prod/frontend.cfg", "frontend web\n    use_backend api");
+    const frontend = createDocument(
+      "frontend web\n    use_backend api",
+      "file:///prod/frontend.cfg",
+    );
+    mockTextDocuments.push(frontend as never);
+
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000);
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    expect(() =>
+      provideRenameEdits(frontend, pos(1, "    use_backend ".length), "prod_api", schema, 4000),
+    ).toThrow(/definitions exist/);
+    clearWorkspaceSymbolIndex();
+    vi.useRealTimers();
+  });
+
+  it("allows workspace-wide ACL rename when duplicate names are in different scopes", async () => {
+    vi.useFakeTimers();
+    resetRenameTestState();
+    setMockWorkspaceFile(
+      "file:///frontends/web.cfg",
+      "frontend web\n    acl is_api path_beg /api\n    http-request deny if !is_api",
+    );
+    setMockWorkspaceFile(
+      "file:///frontends/admin.cfg",
+      "frontend admin\n    acl is_api path_beg /admin",
+    );
+    const web = createDocument(
+      "frontend web\n    acl is_api path_beg /api\n    http-request deny if !is_api",
+      "file:///frontends/web.cfg",
+    );
+    mockTextDocuments.push(web as never);
+
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000);
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    const col = "    http-request deny if !is_api".indexOf("is_api");
+    const edit = provideRenameEdits(web, pos(2, col), "is_public", schema, 4000);
+    expect(edit).not.toBeNull();
+    expect(editUris(edit as vscode.WorkspaceEdit)).toEqual(["file:///frontends/web.cfg"]);
+    expect(editRanges(edit as vscode.WorkspaceEdit)).toHaveLength(2);
+    clearWorkspaceSymbolIndex();
+    vi.useRealTimers();
+  });
+
+  it("does not rename prod and staging backends that share the same name", async () => {
+    vi.useFakeTimers();
+    resetRenameTestState();
+    setMockWorkspaceFile("file:///prod/frontend.cfg", "frontend web\n    use_backend api");
+    setMockWorkspaceFile("file:///prod/backend.cfg", "backend api");
+    setMockWorkspaceFile("file:///staging/frontend.cfg", "frontend web\n    use_backend api");
+    setMockWorkspaceFile("file:///staging/backend.cfg", "backend api");
+    const prodFrontend = createDocument(
+      "frontend web\n    use_backend api",
+      "file:///prod/frontend.cfg",
+    );
+    mockTextDocuments.push(prodFrontend as never);
+
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000);
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    expect(() =>
+      provideRenameEdits(prodFrontend, pos(1, "    use_backend ".length), "prod_api", schema, 4000),
+    ).toThrow(/definitions exist/);
     clearWorkspaceSymbolIndex();
     vi.useRealTimers();
   });

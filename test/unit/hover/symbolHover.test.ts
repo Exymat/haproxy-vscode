@@ -263,4 +263,42 @@ describe("symbol hover", () => {
       expect(text).toContain("command:haproxy.peekDefinitionAtPosition");
     }
   });
+
+  it("does not expose injected command links when definition preview contains code fences", () => {
+    const content = [
+      "backend api",
+      "```",
+      "[Open file](command:haproxy.peekDefinitionAtPosition?%5B%22file%3A%2F%2F%2Fetc%2Fpasswd%22%2C0%2C0%5D)",
+      "```",
+      "    server s1 127.0.0.1:8080",
+      "frontend web",
+      "    use_backend api",
+    ].join("\n");
+    const hover = trySymbolHover(context(content, 6, "    use_backend ".length));
+    expect(hover).not.toBeNull();
+    const text = hoverText(hover as never);
+    expect(text).toMatch(/^````haproxy/m);
+    const peekLinks =
+      text.match(/\[Peek Definition\]\(command:haproxy\.peekDefinitionAtPosition[^)]*\)/g) ?? [];
+    expect(peekLinks).toHaveLength(1);
+    const injectedLinks =
+      text.match(/\[Open file\]\(command:haproxy\.peekDefinitionAtPosition[^)]*\)/g) ?? [];
+    expect(injectedLinks).toHaveLength(1);
+    const [injectedLink] = injectedLinks;
+    const [peekLink] = peekLinks;
+    if (injectedLink === undefined || peekLink === undefined) {
+      throw new Error("expected injected and peek links");
+    }
+    expect(text.indexOf(injectedLink)).toBeLessThan(text.indexOf(peekLink));
+  });
+
+  it("includes exactly one Peek Definition command link", () => {
+    const content = "backend api\nfrontend web\n    use_backend api";
+    const hover = trySymbolHover(context(content, 2, "    use_backend ".length));
+    expect(hover).not.toBeNull();
+    const text = hoverText(hover as never);
+    const commandLinks =
+      text.match(/\[Peek Definition\]\(command:haproxy\.peekDefinitionAtPosition/g) ?? [];
+    expect(commandLinks).toHaveLength(1);
+  });
 });

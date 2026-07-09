@@ -13,6 +13,7 @@ import { createDocument } from "../../helpers/document";
 
 import {
   buildWorkspace,
+  defaultWorkspaceSymbolSettings,
   expectWorkspaceIndex,
   schema,
   setupWorkspaceSymbolIndexTests,
@@ -53,14 +54,9 @@ describe("workspace sticky folder indexing", () => {
     mockTextDocuments.push(repo2Frontend as never);
     scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      {
-        enabled: true,
+      defaultWorkspaceSymbolSettings({
         include: ["**/haproxy.d/**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
+      }),
       4000,
       { scope: "full", document: repo2Frontend },
     );
@@ -89,19 +85,10 @@ describe("workspace sticky folder indexing", () => {
     const { setWorkspaceSymbolIndexChangeListener } = await import("../../../src/symbolIndex");
     setWorkspaceSymbolIndexChangeListener(listener);
 
-    scheduleWorkspaceSymbolIndexRebuild(
-      schema,
-      {
-        enabled: true,
-        include: ["**/*.cfg"],
-        exclude: [],
-        maxFiles: 1000,
-        maxTotalLines: 100000,
-        debounceMs: 100,
-      },
-      4000,
-      { scope: "none", document: frontend },
-    );
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000, {
+      scope: "none",
+      document: frontend,
+    });
     await vi.runAllTimersAsync();
     expect(listener).not.toHaveBeenCalled();
     setWorkspaceSymbolIndexChangeListener(undefined);

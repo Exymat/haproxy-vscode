@@ -5,6 +5,7 @@ import {
   scheduleWorkspaceSymbolIndexRebuild,
   workspaceEntryForDocument,
 } from "../../../src/symbolIndex";
+import { targetFolderRefs } from "../../../src/symbolIndex/workspaceDiscovery";
 import {
   mockTextDocuments,
   setMockWorkspaceFile,
@@ -18,23 +19,40 @@ import { createDocument, updateDocument } from "../../helpers/document";
 
 import {
   buildWorkspace,
+  defaultWorkspaceSymbolSettings,
   expectWorkspaceIndex,
   schema,
   setupWorkspaceSymbolIndexTests,
   workspaceFolder,
 } from "./helpers";
 
-const workspaceSettings = {
-  enabled: true,
-  include: ["**/*.cfg"],
-  exclude: [] as string[],
-  maxFiles: 1000,
-  maxTotalLines: 100000,
-  debounceMs: 100,
-};
+const workspaceSettings = defaultWorkspaceSymbolSettings();
 
 describe("workspace symbol coverage paths", () => {
   setupWorkspaceSymbolIndexTests();
+
+  it("targets rebuild folders from document-scoped options", () => {
+    const doc = createDocument("backend a", "file:///repo/a.cfg");
+    const refs = targetFolderRefs({ scope: "full", document: doc }, []);
+    expect(refs).toHaveLength(1);
+    expect(refs[0]).toBeDefined();
+    expect(typeof refs[0]?.folderKey).toBe("string");
+  });
+
+  it("ignores open haproxy documents that are outside workspace folders", async () => {
+    setMockWorkspaceFolders([workspaceFolder("file:///repo")]);
+    setMockWorkspaceFile("file:///repo/a.cfg", "backend a");
+    const outside = createDocument("backend solo", "file:///solo.cfg");
+    mockTextDocuments.push(outside as never);
+
+    scheduleWorkspaceSymbolIndexRebuild(schema, workspaceSettings, 4000, { scope: "content" });
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    expect(
+      expectWorkspaceIndex(getWorkspaceSymbolIndex())?.documents.has("file:///repo/a.cfg"),
+    ).toBe(true);
+  });
 
   it("resolves open scope for non-haproxy and missing entries", () => {
     expect(
@@ -172,6 +190,17 @@ describe("workspace symbol coverage paths", () => {
     ).toBe(true);
     expect(
       isUriExcludedFromWorkspaceSymbols(
+        Uri.file("file:///repo/app/haproxy.conf") as never,
+        { ...settings, exclude: ["**/vendor/**"] },
+        {
+          uri: { fsPath: undefined, toString: () => "file:///repo" },
+          name: "repo",
+          index: 0,
+        } as never,
+      ),
+    ).toBe(false);
+    expect(
+      isUriExcludedFromWorkspaceSymbols(
         Uri.file("file:///repo") as never,
         settings,
         folder as never,
@@ -184,6 +213,18 @@ describe("workspace symbol coverage paths", () => {
     await buildWorkspace();
     setMockWorkspaceFileStat("file:///a.cfg", Date.now() + 5000, 999);
     setMockWorkspaceReadFailure("file:///a.cfg", true);
+
+    await buildWorkspace();
+    expect(expectWorkspaceIndex(getWorkspaceSymbolIndex())?.documents.has("file:///a.cfg")).toBe(
+      false,
+    );
+  });
+
+  it("evicts disk entries when reads fail with a non-filesystem error", async () => {
+    setMockWorkspaceFile("file:///a.cfg", "backend a");
+    await buildWorkspace();
+    setMockWorkspaceFileStat("file:///a.cfg", Date.now() + 5000, 999);
+    vi.spyOn(workspace.fs, "readFile").mockRejectedValueOnce(new Error("network failure"));
 
     await buildWorkspace();
     expect(expectWorkspaceIndex(getWorkspaceSymbolIndex())?.documents.has("file:///a.cfg")).toBe(

@@ -8,7 +8,7 @@
 
 **Schema-driven language support for HAProxy configuration files** in Visual Studio Code and compatible editors.
 
-Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, log-format intelligence, schema-based diagnostics, **rename symbol**, **symbol hover on references**, **go to definition** and **find all references** (including cross-file when the workspace graph is active), document formatting, and section outline — all tuned to the HAProxy release you run in production (**2.6**, **2.8**, **3.0**, **3.2**, or **3.4**).
+Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, log-format intelligence, schema-based diagnostics, **rename symbol**, **symbol hover on references**, **go to definition** and **find all references** (including cross-file navigation and rename when the workspace graph is active), document formatting, and section outline — all tuned to the HAProxy release you run in production (**2.6**, **2.8**, **3.0**, **3.2**, or **3.4**).
 
 ---
 
@@ -127,7 +127,7 @@ Split HAProxy layouts — separate files for frontends, backends, ACLs, or share
 - **Cross-file Go to Definition and Find References** — jump from `use_backend api` in one file to `backend api` in another; reference lists include usages across indexed files
 - **Cross-file symbol diagnostics** — missing-reference and unused-section checks consult workspace definitions, so a backend used only from another file is not flagged
 - **Duplicate section warnings** — warns when the same named frontend, backend, listen, defaults profile, cache, userlist, resolvers, or peers block is defined in more than one indexed file
-- **Limits and fallback** — when disabled or when `maxFiles` / `maxTotalLines` are exceeded for a VS Code workspace folder, navigation and symbol diagnostics in that folder fall back to single-file behavior
+- **Limits and fallback** — when disabled or when `maxFiles` / `maxTotalLines` are exceeded for a VS Code workspace folder, navigation, rename, and symbol diagnostics in that folder fall back to single-file behavior
 
 The graph rebuilds after workspace file changes (debounced via `haproxy.workspaceSymbols.debounceMs`). It indexes files on disk in the workspace — not HAProxy `include` paths.
 
@@ -141,9 +141,9 @@ Jump across related config with standard editor navigation (**Go to Definition**
 - **Defaults profiles** — `defaults … from <profile>` links to the named profile
 - **Filters, cache, userlist, resolvers, peers** — section and statement definitions indexed from the schema
 - **Environment variables** — `setenv` / `presetenv` definitions and references from `unsetenv` / `resetenv`, double-quoted `$VAR` / `${VAR}` / `${VAR-default}` / `${VAR-sub}`, and `env(VAR)` sample fetches (single-file navigation and rename; not part of the workspace graph)
-- **Rename Symbol** (F2) — rename a backend, ACL, defaults profile, server, filter, or environment variable; all in-scope references in the **current file** are updated, with validation for invalid or duplicate names
+- **Rename Symbol** (F2) — with the workspace graph active, rename updates matching definitions and references across indexed `.cfg` files for backends, ACLs, defaults profiles, servers, filters, and related named sections. Environment variable rename remains single-file. Invalid names and same-scope collisions (including an existing name in another indexed file) are rejected
 
-Reference resolution is **schema-driven** via reference patterns in the bundled language data, not hardcoded heuristics. With the workspace graph active, definitions and references can span multiple `.cfg` files; rename remains single-file.
+Reference resolution is **schema-driven** via reference patterns in the bundled language data, not hardcoded heuristics. With the workspace graph active, definitions, references, and rename for non-environment symbols can span multiple `.cfg` files. Narrow scope with `haproxy.workspaceSymbols.include` or disable workspace symbols when independent configs share names — duplicate section names across unrelated files can make cross-file rename affect more than you intend. When the graph is disabled or over its limits, rename falls back to the current file
 
 ![Find references for a backend used from a frontend](docs/images/febe-findreferences.png)
 
