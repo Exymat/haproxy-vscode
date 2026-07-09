@@ -5,11 +5,6 @@ import {
   type WorkspaceSymbolIndex,
   type WorkspaceSymbolSettings,
 } from "../../../src/symbolIndex";
-import {
-  DEFAULT_WORKSPACE_INDEX_MAX_FILE_BYTES,
-  DEFAULT_WORKSPACE_INDEX_MAX_TOTAL_BYTES,
-  WORKSPACE_INDEX_MAX_LINE_BYTES,
-} from "../../../src/symbolIndex/workspaceDocuments";
 import { resetVscodeMock } from "../../__mocks__/vscode";
 import { loadSchema } from "../../helpers/schema";
 
@@ -21,11 +16,11 @@ export const defaultWorkspaceSymbolSettings = (
   enabled: true,
   include: ["**/*.cfg"],
   exclude: [],
-  maxFiles: 1000,
-  maxTotalLines: 100000,
-  maxFileBytes: DEFAULT_WORKSPACE_INDEX_MAX_FILE_BYTES,
-  maxTotalBytes: DEFAULT_WORKSPACE_INDEX_MAX_TOTAL_BYTES,
-  maxLineBytes: WORKSPACE_INDEX_MAX_LINE_BYTES,
+  maxFiles: Number.POSITIVE_INFINITY,
+  maxTotalLines: Number.POSITIVE_INFINITY,
+  maxFileBytes: Number.POSITIVE_INFINITY,
+  maxTotalBytes: Number.POSITIVE_INFINITY,
+  maxLineBytes: Number.POSITIVE_INFINITY,
   debounceMs: 100,
   ...overrides,
 });
@@ -39,8 +34,8 @@ export function workspaceFolder(uri: string) {
 }
 
 export async function buildWorkspace(
-  maxFiles = 1000,
-  maxTotalLines = 100000,
+  maxFiles = Number.POSITIVE_INFINITY,
+  maxTotalLines = Number.POSITIVE_INFINITY,
   include = ["**/*.cfg"],
   overrides: Partial<WorkspaceSymbolSettings> = {},
 ) {

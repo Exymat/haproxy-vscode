@@ -1,7 +1,4 @@
-import {
-  createDiskEntry,
-  maxWorkspaceIndexFileBytes,
-} from "../../../src/symbolIndex/workspaceDocuments";
+import { createDiskEntry } from "../../../src/symbolIndex/workspaceDocuments";
 import {
   findWorkspaceDefinitions,
   getWorkspaceSymbolIndex,
@@ -27,19 +24,18 @@ import {
 describe("workspace symbol byte limits", () => {
   setupWorkspaceSymbolIndexTests();
 
-  it("skips a one-line file under the legacy byte ceiling when it exceeds maxFileBytes", async () => {
+  it("indexes a one-line file that exceeds the old default byte ceiling", async () => {
     const maxLines = 4000;
     const path = "file:///huge-one-line.cfg";
-    const legacyCeiling = maxWorkspaceIndexFileBytes(maxLines);
     const oversizedLine = "backend api " + "x".repeat(1_500_000);
     setMockWorkspaceFile(path, oversizedLine);
-    setMockWorkspaceFileStat(path, Date.now(), legacyCeiling - 1);
+    setMockWorkspaceFileStat(path, Date.now(), oversizedLine.length);
 
     const readFileSpy = vi.spyOn(workspace.fs, "readFile");
     const result = await createDiskEntry(Uri.file(path) as never, schema, maxLines);
 
-    expect(result).toBeNull();
-    expect(readFileSpy).not.toHaveBeenCalled();
+    expect(result).not.toBeNull();
+    expect(readFileSpy).toHaveBeenCalled();
   });
 
   it("caps the workspace by total bytes when many one-line files stay under maxTotalLines", async () => {

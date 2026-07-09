@@ -117,6 +117,14 @@ function rebuildCappedFolderKeys(indexes: Map<string, WorkspaceSymbolIndex>): vo
   }
 }
 
+function limitExceeded(value: number, limit: number): boolean {
+  return limit > 0 && value > limit;
+}
+
+function fileLimitReached(count: number, limit: number): boolean {
+  return limit > 0 && count >= limit;
+}
+
 type ActiveWorkspaceRebuildScope = Exclude<WorkspaceRebuildScope, "none">;
 type ActiveWorkspaceRebuildOptions = Omit<WorkspaceRebuildOptions, "scope"> & {
   scope?: ActiveWorkspaceRebuildScope;
@@ -338,15 +346,15 @@ async function buildFolderWorkspaceIndex(
     if (!entry) {
       continue;
     }
-    if (documents.size >= settings.maxFiles) {
+    if (fileLimitReached(documents.size, settings.maxFiles)) {
       return aggregateDocuments(generation, true, new Map());
     }
     totalLines += entry.parsed.length;
-    if (totalLines > settings.maxTotalLines) {
+    if (limitExceeded(totalLines, settings.maxTotalLines)) {
       return aggregateDocuments(generation, true, new Map());
     }
     totalBytes += entry.byteLength;
-    if (totalBytes > settings.maxTotalBytes) {
+    if (limitExceeded(totalBytes, settings.maxTotalBytes)) {
       return aggregateDocuments(generation, true, new Map());
     }
     documents.set(entry.uriKey, entry);
@@ -406,8 +414,8 @@ async function updateSingleDocumentInWorkspaceIndex(
   const documents = new Map(existing.documents);
   documents.set(entry.uriKey, entry);
   if (
-    totalDocumentLines(documents) > settings.maxTotalLines ||
-    totalDocumentBytes(documents) > settings.maxTotalBytes
+    limitExceeded(totalDocumentLines(documents), settings.maxTotalLines) ||
+    limitExceeded(totalDocumentBytes(documents), settings.maxTotalBytes)
   ) {
     setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, true, new Map()));
   } else {

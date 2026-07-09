@@ -22,6 +22,18 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
+function workspaceSymbolLimit(
+  config: vscode.WorkspaceConfiguration,
+  key: string,
+  minimum: number,
+): number {
+  const value = config.get<number>(key, 0);
+  if (!Number.isFinite(value) || value <= 0) {
+    return Number.POSITIVE_INFINITY;
+  }
+  return Math.max(minimum, value);
+}
+
 export interface HaproxyExtensionSettings {
   diagnosticsEnabled: boolean;
   diagnosticsDebounceMs: number;
@@ -82,22 +94,26 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
       "**/out/**",
       "**/vendor/**",
     ]),
-    workspaceSymbolsMaxFiles: Math.max(1, config.get<number>("workspaceSymbols.maxFiles", 1000)),
-    workspaceSymbolsMaxTotalLines: Math.max(
+    workspaceSymbolsMaxFiles: workspaceSymbolLimit(config, "workspaceSymbols.maxFiles", 1),
+    workspaceSymbolsMaxTotalLines: workspaceSymbolLimit(
+      config,
+      "workspaceSymbols.maxTotalLines",
       100,
-      config.get<number>("workspaceSymbols.maxTotalLines", 100000),
     ),
-    workspaceSymbolsMaxFileBytes: Math.max(
+    workspaceSymbolsMaxFileBytes: workspaceSymbolLimit(
+      config,
+      "workspaceSymbols.maxFileBytes",
       10240,
-      config.get<number>("workspaceSymbols.maxFileBytes", 1_000_000),
     ),
-    workspaceSymbolsMaxTotalBytes: Math.max(
+    workspaceSymbolsMaxTotalBytes: workspaceSymbolLimit(
+      config,
+      "workspaceSymbols.maxTotalBytes",
       102400,
-      config.get<number>("workspaceSymbols.maxTotalBytes", 20_000_000),
     ),
-    workspaceSymbolsMaxLineBytes: Math.max(
+    workspaceSymbolsMaxLineBytes: workspaceSymbolLimit(
+      config,
+      "workspaceSymbols.maxLineBytes",
       256,
-      config.get<number>("workspaceSymbols.maxLineBytes", 8192),
     ),
     workspaceSymbolsDebounceMs: clamp(
       config.get<number>("workspaceSymbols.debounceMs", 750),

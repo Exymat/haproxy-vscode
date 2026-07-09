@@ -104,7 +104,7 @@ function discoverySettingsKey(settings: WorkspaceSymbolSettings, folderKey: stri
     folderKey,
     include: settings.include,
     exclude: settings.exclude,
-    maxFiles: settings.maxFiles,
+    maxFiles: Number.isFinite(settings.maxFiles) ? settings.maxFiles : 0,
   });
 }
 

@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, and go-to-definition — LTS versions (2.6 - 3.4) supported.",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
@@ -115,7 +115,7 @@
         "haproxy.workspaceSymbols.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Build a bounded workspace-level symbol graph for split HAProxy configurations."
+          "description": "Build a workspace-level symbol graph for split HAProxy configurations."
         },
         "haproxy.workspaceSymbols.include": {
           "type": "array",
@@ -143,33 +143,33 @@
         },
         "haproxy.workspaceSymbols.maxFiles": {
           "type": "number",
-          "default": 1000,
-          "minimum": 1,
-          "description": "Maximum number of HAProxy files to index per VS Code workspace folder. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
+          "default": 0,
+          "minimum": 0,
+          "description": "Optional maximum number of HAProxy files to index per VS Code workspace folder. Set to 0 for no file-count limit. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
         },
         "haproxy.workspaceSymbols.maxTotalLines": {
           "type": "number",
-          "default": 100000,
-          "minimum": 100,
-          "description": "Maximum total HAProxy lines to index per VS Code workspace folder. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
+          "default": 0,
+          "minimum": 0,
+          "description": "Optional maximum total HAProxy lines to index per VS Code workspace folder. Set to 0 for no line limit. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
         },
         "haproxy.workspaceSymbols.maxFileBytes": {
           "type": "number",
-          "default": 1000000,
-          "minimum": 10240,
-          "description": "Maximum bytes per HAProxy file to index. Files larger than this are skipped before being read into memory."
+          "default": 0,
+          "minimum": 0,
+          "description": "Optional maximum bytes per HAProxy file to index. Set to 0 for no per-file byte limit. Files larger than this are skipped before being read into memory."
         },
         "haproxy.workspaceSymbols.maxTotalBytes": {
           "type": "number",
-          "default": 20000000,
-          "minimum": 102400,
-          "description": "Maximum total indexed bytes per VS Code workspace folder. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
+          "default": 0,
+          "minimum": 0,
+          "description": "Optional maximum total indexed bytes per VS Code workspace folder. Set to 0 for no total byte limit. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
         },
         "haproxy.workspaceSymbols.maxLineBytes": {
           "type": "number",
-          "default": 8192,
-          "minimum": 256,
-          "description": "Maximum encoded bytes per line in an indexed HAProxy file. Files containing longer lines are skipped."
+          "default": 0,
+          "minimum": 0,
+          "description": "Optional maximum encoded bytes per line in an indexed HAProxy file. Set to 0 for no per-line byte limit. Files containing longer lines are skipped."
         },
         "haproxy.workspaceSymbols.debounceMs": {
           "type": "number",

@@ -30,11 +30,11 @@ describe("settings", () => {
         "**/out/**",
         "**/vendor/**",
       ],
-      workspaceSymbolsMaxFiles: 1000,
-      workspaceSymbolsMaxTotalLines: 100000,
-      workspaceSymbolsMaxFileBytes: 1_000_000,
-      workspaceSymbolsMaxTotalBytes: 20_000_000,
-      workspaceSymbolsMaxLineBytes: 8192,
+      workspaceSymbolsMaxFiles: Number.POSITIVE_INFINITY,
+      workspaceSymbolsMaxTotalLines: Number.POSITIVE_INFINITY,
+      workspaceSymbolsMaxFileBytes: Number.POSITIVE_INFINITY,
+      workspaceSymbolsMaxTotalBytes: Number.POSITIVE_INFINITY,
+      workspaceSymbolsMaxLineBytes: Number.POSITIVE_INFINITY,
       workspaceSymbolsDebounceMs: 750,
     });
   });
@@ -56,7 +56,7 @@ describe("settings", () => {
   });
 
   it("clamps workspace symbol limits to minimums", () => {
-    setMockConfig("haproxy", "workspaceSymbols.maxFiles", 0);
+    setMockConfig("haproxy", "workspaceSymbols.maxFiles", 0.5);
     setMockConfig("haproxy", "workspaceSymbols.maxTotalLines", 10);
     setMockConfig("haproxy", "workspaceSymbols.maxFileBytes", 100);
     setMockConfig("haproxy", "workspaceSymbols.maxTotalBytes", 1000);
@@ -69,6 +69,20 @@ describe("settings", () => {
     expect(settings.workspaceSymbolsMaxTotalBytes).toBe(102400);
     expect(settings.workspaceSymbolsMaxLineBytes).toBe(256);
     expect(settings.workspaceSymbolsDebounceMs).toBe(100);
+  });
+
+  it("treats zero workspace symbol size limits as unlimited", () => {
+    setMockConfig("haproxy", "workspaceSymbols.maxFiles", 0);
+    setMockConfig("haproxy", "workspaceSymbols.maxTotalLines", 0);
+    setMockConfig("haproxy", "workspaceSymbols.maxFileBytes", 0);
+    setMockConfig("haproxy", "workspaceSymbols.maxTotalBytes", 0);
+    setMockConfig("haproxy", "workspaceSymbols.maxLineBytes", 0);
+    const settings = getExtensionSettings();
+    expect(settings.workspaceSymbolsMaxFiles).toBe(Number.POSITIVE_INFINITY);
+    expect(settings.workspaceSymbolsMaxTotalLines).toBe(Number.POSITIVE_INFINITY);
+    expect(settings.workspaceSymbolsMaxFileBytes).toBe(Number.POSITIVE_INFINITY);
+    expect(settings.workspaceSymbolsMaxTotalBytes).toBe(Number.POSITIVE_INFINITY);
+    expect(settings.workspaceSymbolsMaxLineBytes).toBe(Number.POSITIVE_INFINITY);
   });
 
   it("uses format.indent when valid", () => {

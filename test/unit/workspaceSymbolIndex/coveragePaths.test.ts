@@ -233,11 +233,13 @@ describe("workspace symbol coverage paths", () => {
   });
 
   it("falls back to content rebuild when incremental update hits a capped index", async () => {
-    setMockWorkspaceFile("file:///api.cfg", "backend api");
-    const doc = createDocument("backend api", "file:///api.cfg");
+    const content = "backend api";
+    setMockWorkspaceFile("file:///api.cfg", content);
+    setMockWorkspaceFile("file:///other.cfg", "backend other");
+    const doc = createDocument(content, "file:///api.cfg");
     mockTextDocuments.push(doc as never);
 
-    scheduleWorkspaceSymbolIndexRebuild(schema, { ...workspaceSettings, maxFiles: 0 }, 4000, {
+    scheduleWorkspaceSymbolIndexRebuild(schema, { ...workspaceSettings, maxFiles: 1 }, 4000, {
       scope: "full",
       document: doc,
     });
@@ -271,6 +273,24 @@ describe("workspace symbol coverage paths", () => {
     await Promise.resolve();
 
     expect(workspaceEntryForDocument(doc)).toBeUndefined();
+  });
+
+  it("falls back to full rebuild when incremental update targets an unindexed document", async () => {
+    setMockWorkspaceFile("file:///api.cfg", "backend api");
+    await buildWorkspace();
+
+    const doc = createDocument("backend new", "file:///new.cfg");
+    mockTextDocuments.push(doc as never);
+    setMockWorkspaceFile("file:///new.cfg", "backend new");
+
+    scheduleWorkspaceSymbolIndexRebuild(schema, workspaceSettings, 4000, {
+      scope: "incremental",
+      document: doc,
+    });
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    expect(workspaceEntryForDocument(doc)).toBeDefined();
   });
 
   it("caps the workspace graph when incremental updates exceed total line limits", async () => {

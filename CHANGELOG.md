@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.17.1
+
+- **Opt-in workspace size limits** — `haproxy.workspaceSymbols.maxFiles`, `haproxy.workspaceSymbols.maxTotalLines`, `haproxy.workspaceSymbols.maxFileBytes`, `haproxy.workspaceSymbols.maxTotalBytes`, and `haproxy.workspaceSymbols.maxLineBytes` now default to `0` (unlimited). Set a positive value to cap indexing; when a configured folder-wide cap is exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior.
+
 ## 0.17.0
 
 - **Diagnostic suppression** — suppress a specific same-line diagnostic with `# haproxy: ignore=<code>` (comma-separated for multiple codes, e.g. `# haproxy: ignore=unknown-action,unknown-keyword`). Useful for runtime module keywords such as `module-load` / `module-path` that are not in the bundled schema. A Quick Fix adds or extends the ignore comment on the line.

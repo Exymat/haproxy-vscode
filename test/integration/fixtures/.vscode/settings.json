@@ -18,7 +18,10 @@
     "**/out/**",
     "**/vendor/**"
   ],
-  "haproxy.workspaceSymbols.maxFiles": 1000,
-  "haproxy.workspaceSymbols.maxTotalLines": 100000,
+  "haproxy.workspaceSymbols.maxFiles": 0,
+  "haproxy.workspaceSymbols.maxTotalLines": 0,
+  "haproxy.workspaceSymbols.maxFileBytes": 0,
+  "haproxy.workspaceSymbols.maxTotalBytes": 0,
+  "haproxy.workspaceSymbols.maxLineBytes": 0,
   "haproxy.workspaceSymbols.debounceMs": 750
 }

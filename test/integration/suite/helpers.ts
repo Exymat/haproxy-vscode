@@ -456,8 +456,11 @@ export async function resetHaproxySettings(): Promise<void> {
       "workspaceSymbols.exclude",
       ["**/.git/**", "**/node_modules/**", "**/dist/**", "**/out/**", "**/vendor/**"],
     ],
-    ["workspaceSymbols.maxFiles", 1000],
-    ["workspaceSymbols.maxTotalLines", 100000],
+    ["workspaceSymbols.maxFiles", 0],
+    ["workspaceSymbols.maxTotalLines", 0],
+    ["workspaceSymbols.maxFileBytes", 0],
+    ["workspaceSymbols.maxTotalBytes", 0],
+    ["workspaceSymbols.maxLineBytes", 0],
     ["workspaceSymbols.debounceMs", 750],
   ];
   for (const [key, value] of defaults) {

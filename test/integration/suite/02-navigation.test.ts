@@ -230,8 +230,8 @@ suite("Navigation providers", () => {
     });
 
     test("diagnostics resolve split haproxy.d layouts with configured globs", async () => {
-      await updateHaproxySetting("workspaceSymbols.maxFiles", 1000);
-      await updateHaproxySetting("workspaceSymbols.maxTotalLines", 100000);
+      await updateHaproxySetting("workspaceSymbols.maxFiles", 0);
+      await updateHaproxySetting("workspaceSymbols.maxTotalLines", 0);
       await updateHaproxySetting("workspaceSymbols.include", [
         "**/haproxy-tests/haproxy.d/**/*.cfg",
         "**/haproxy-tests/haproxy.d/*.cfg",

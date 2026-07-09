@@ -72,11 +72,14 @@ describe("workspace open scope and uri targeting", () => {
   });
 
   it("falls back to content rebuild when incremental update hits a capped index", async () => {
-    const doc = createDocument("backend api", "file:///api.cfg");
+    const content = "backend api";
+    setMockWorkspaceFile("file:///api.cfg", content);
+    setMockWorkspaceFile("file:///other.cfg", "backend other");
+    const doc = createDocument(content, "file:///api.cfg");
     mockTextDocuments.push(doc as never);
     scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      defaultWorkspaceSymbolSettings({ maxFiles: 0 }),
+      defaultWorkspaceSymbolSettings({ maxFiles: 1 }),
       4000,
       { scope: "full", document: doc },
     );
@@ -86,7 +89,7 @@ describe("workspace open scope and uri targeting", () => {
     updateDocument(doc, "backend renamed");
     scheduleWorkspaceSymbolIndexRebuild(
       schema,
-      defaultWorkspaceSymbolSettings({ maxFiles: 0 }),
+      defaultWorkspaceSymbolSettings({ maxFiles: 1 }),
       4000,
       { scope: "incremental", document: doc },
     );

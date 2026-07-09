@@ -18,19 +18,6 @@ import {
 } from "./workspaceTypes";
 import { workspaceUriKey } from "./workspaceUri";
 
-/** Upper bound on encoded bytes per line when estimating max file size from line count. */
-export const WORKSPACE_INDEX_MAX_LINE_BYTES = 8192;
-
-/** Default per-file byte cap for workspace symbol indexing. */
-export const DEFAULT_WORKSPACE_INDEX_MAX_FILE_BYTES = 1_000_000;
-
-/** Default total byte cap per workspace folder for workspace symbol indexing. */
-export const DEFAULT_WORKSPACE_INDEX_MAX_TOTAL_BYTES = 20_000_000;
-
-export function maxWorkspaceIndexFileBytes(maxLines: number): number {
-  return maxLines * WORKSPACE_INDEX_MAX_LINE_BYTES;
-}
-
 export interface WorkspaceIndexByteLimits {
   maxFileBytes: number;
   maxLineBytes: number;
@@ -38,8 +25,8 @@ export interface WorkspaceIndexByteLimits {
 
 export function defaultWorkspaceIndexByteLimits(): WorkspaceIndexByteLimits {
   return {
-    maxFileBytes: DEFAULT_WORKSPACE_INDEX_MAX_FILE_BYTES,
-    maxLineBytes: WORKSPACE_INDEX_MAX_LINE_BYTES,
+    maxFileBytes: Number.POSITIVE_INFINITY,
+    maxLineBytes: Number.POSITIVE_INFINITY,
   };
 }
 
@@ -49,9 +36,13 @@ export function encodedTextByteLength(text: string): number {
   return textEncoder.encode(text).length;
 }
 
+function exceedsLimit(value: number, limit: number): boolean {
+  return limit > 0 && value > limit;
+}
+
 function lineExceedsMaxBytes(lines: string[], maxLineBytes: number): boolean {
   for (const line of lines) {
-    if (encodedTextByteLength(line) > maxLineBytes) {
+    if (exceedsLimit(encodedTextByteLength(line), maxLineBytes)) {
       return true;
     }
   }
@@ -158,7 +149,7 @@ export function createOpenDocumentEntry(
     return null;
   }
   const { text, lines } = textDocumentContent(document);
-  if (encodedTextByteLength(text) > limits.maxFileBytes) {
+  if (exceedsLimit(encodedTextByteLength(text), limits.maxFileBytes)) {
     return null;
   }
   if (lineExceedsMaxBytes(lines, limits.maxLineBytes)) {
@@ -232,7 +223,7 @@ export async function createDiskEntry(
       return cached;
     }
 
-    if (stat.size > limits.maxFileBytes) {
+    if (exceedsLimit(stat.size, limits.maxFileBytes)) {
       return null;
     }
 
