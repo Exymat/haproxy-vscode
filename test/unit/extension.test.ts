@@ -373,9 +373,11 @@ describe("extension", () => {
     mockTextDocuments.push(haproxyDocument("global"));
     activate(mockExtensionContext() as never);
     await vi.runAllTimersAsync();
-    expect(window.showErrorMessage).toHaveBeenCalledWith(
-      expect.stringContaining("string-load-failure"),
-    );
+    await vi.waitFor(() => {
+      expect(window.showErrorMessage).toHaveBeenCalledWith(
+        expect.stringContaining("string-load-failure"),
+      );
+    });
   });
 
   it("shows scheduler bundle error when load fails after initial success", async () => {
@@ -434,9 +436,11 @@ describe("extension", () => {
     triggerMockConfigurationChange("haproxy.version");
     await vi.runAllTimersAsync();
 
-    expect(window.showErrorMessage).toHaveBeenCalledWith(
-      expect.stringContaining("HAProxy extension failed to load schema"),
-    );
+    await vi.waitFor(() => {
+      expect(window.showErrorMessage).toHaveBeenCalledWith(
+        expect.stringContaining("HAProxy extension failed to load schema"),
+      );
+    });
   });
 
   it("retries bundle load after a stale invalidation", async () => {

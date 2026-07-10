@@ -44,6 +44,113 @@ describe("loadSchema", () => {
     clearSchemaCache();
   });
 
+  function validGeneratedSchemaFixture(): Record<string, unknown> {
+    return {
+      version: "3.4",
+      sections: {},
+      keywords: {},
+      statement_rules: [
+        {
+          keyword: "bind",
+          kind: "bind",
+          group: "bind_options",
+          match_tokens: ["bind"],
+          minimum_token_index: 1,
+          nested_start_index: 1,
+          sections: [],
+          fixed_slots: [{ role: "address", port: null, address_policy: "bind" }],
+        },
+      ],
+      address_policies: {
+        bind: { portOk: true, portMandatory: true, portRange: true, portOffset: false },
+      },
+      sample_types: ["any", "str"],
+      sample_casts: [
+        [true, true],
+        [true, true],
+      ],
+      symbols: {},
+      semantic_groups: {},
+      validation_rules: {},
+      keyword_groups: {
+        bind_options: ["ssl"],
+        sample_fetches: ["hdr"],
+        sample_converters: ["lower"],
+      },
+      keyword_group_contexts: {
+        bind_options: {
+          ssl: ["bind"],
+        },
+      },
+      tokens: {
+        conditionals: ["if"],
+        modifiers: ["!"],
+      },
+      reference_patterns: [
+        {
+          match_tokens: ["use_backend"],
+          reference_kind: "backend",
+          target_token_index: 1,
+          scope: "section",
+          split: null,
+        },
+      ],
+      sample_fetches: {
+        hdr: {
+          name: "hdr",
+          args: ["string"],
+          out_type: "str",
+          in_type: "",
+          contexts: [true],
+          min_args: null,
+          max_args: 1,
+          signature: "hdr(<name>)",
+          deprecated: false,
+        },
+      },
+      sample_converters: {
+        lower: {
+          name: "lower",
+          args: [],
+          out_type: "str",
+          in_type: "str",
+          contexts: [true],
+          min_args: 0,
+          max_args: 0,
+          signature: "lower",
+          deprecated: false,
+        },
+      },
+      line_layout: {
+        prefix_families: ["stats"],
+        prefix_subcommands: { stats: ["socket"] },
+        tcp_request_phases: ["content"],
+        tcp_response_phases: ["content"],
+        stats_socket_levels: ["admin"],
+        section_headers: ["global"],
+      },
+    };
+  }
+
+  function expectMalformedGeneratedMetadata(
+    expectedPath: string,
+    mutate: (data: Record<string, unknown>) => void,
+  ): void {
+    const data = structuredClone(validGeneratedSchemaFixture());
+    mutate(data);
+    const fixture = createTempSchemaFixture(`haproxy-malformed-${expectedPath}-`, {
+      "haproxy-3.4.schema.json": JSON.stringify(data),
+    });
+    try {
+      clearSchemaCache();
+      expect(() => loadSchema({ extensionPath: fixture.extensionPath } as never, "3.4")).toThrow(
+        new RegExp(expectedPath.replaceAll(".", "\\.")),
+      );
+    } finally {
+      fixture.cleanup();
+    }
+  }
+
   it("loads and caches schema by version", () => {
     const context = mockExtensionContext();
     const first = loadSchema(context as never, "3.2");
@@ -89,6 +196,7 @@ describe("loadSchema", () => {
       symbols: {},
       semantic_groups: {},
       validation_rules: {},
+      keyword_groups: {},
       tokens: {},
     };
     const cases = [
@@ -97,6 +205,7 @@ describe("loadSchema", () => {
       "symbols",
       "semantic_groups",
       "validation_rules",
+      "keyword_groups",
       "tokens",
     ] as const;
 
@@ -115,6 +224,206 @@ describe("loadSchema", () => {
       } finally {
         fixture.cleanup();
       }
+    }
+  });
+
+  it("rejects malformed generated nested metadata", () => {
+    const cases: Array<{
+      expectedPath: string;
+      mutate: (data: Record<string, unknown>) => void;
+    }> = [
+      {
+        expectedPath: "statement_rules.0.match_tokens",
+        mutate: (data) => {
+          (data.statement_rules as Array<Record<string, unknown>>)[0].match_tokens = ["bind", 1];
+        },
+      },
+      {
+        expectedPath: "keyword_groups.bind_options",
+        mutate: (data) => {
+          (data.keyword_groups as Record<string, unknown>).bind_options = "ssl";
+        },
+      },
+      {
+        expectedPath: "tokens.modifiers",
+        mutate: (data) => {
+          (data.tokens as Record<string, unknown>).modifiers = ["!", false];
+        },
+      },
+      {
+        expectedPath: "line_layout.prefix_subcommands.stats",
+        mutate: (data) => {
+          (
+            (data.line_layout as Record<string, unknown>).prefix_subcommands as Record<
+              string,
+              unknown
+            >
+          ).stats = ["socket", 1];
+        },
+      },
+      {
+        expectedPath: "reference_patterns.0.target_token_index",
+        mutate: (data) => {
+          (data.reference_patterns as Array<Record<string, unknown>>)[0].target_token_index = "1";
+        },
+      },
+      {
+        expectedPath: "reference_patterns",
+        mutate: (data) => {
+          data.reference_patterns = {};
+        },
+      },
+      {
+        expectedPath: "reference_patterns.0.scope",
+        mutate: (data) => {
+          (data.reference_patterns as Array<Record<string, unknown>>)[0].scope = "proxy";
+        },
+      },
+      {
+        expectedPath: "sample_fetches.hdr.args",
+        mutate: (data) => {
+          (data.sample_fetches as Record<string, Record<string, unknown>>).hdr.args = "string";
+        },
+      },
+      {
+        expectedPath: "sample_converters.lower.contexts",
+        mutate: (data) => {
+          (data.sample_converters as Record<string, Record<string, unknown>>).lower.contexts = [
+            true,
+            "yes",
+          ];
+        },
+      },
+      {
+        expectedPath: "sample_fetches.hdr.name",
+        mutate: (data) => {
+          (data.sample_fetches as Record<string, Record<string, unknown>>).hdr.name = 1;
+        },
+      },
+      {
+        expectedPath: "sample_fetches.hdr.in_type",
+        mutate: (data) => {
+          (data.sample_fetches as Record<string, Record<string, unknown>>).hdr.in_type = 1;
+        },
+      },
+      {
+        expectedPath: "sample_fetches.hdr.min_args",
+        mutate: (data) => {
+          (data.sample_fetches as Record<string, Record<string, unknown>>).hdr.min_args = "0";
+        },
+      },
+      {
+        expectedPath: "sample_fetches.hdr.deprecated",
+        mutate: (data) => {
+          (data.sample_fetches as Record<string, Record<string, unknown>>).hdr.deprecated = "no";
+        },
+      },
+      {
+        expectedPath: "statement_rules.0.fixed_slots",
+        mutate: (data) => {
+          (data.statement_rules as Array<Record<string, unknown>>)[0].fixed_slots = "address";
+        },
+      },
+    ];
+
+    for (const { expectedPath, mutate } of cases) {
+      expectMalformedGeneratedMetadata(expectedPath, mutate);
+    }
+  });
+
+  it("rejects malformed sample_casts metadata", () => {
+    const cases: Array<{
+      expectedPath: string;
+      mutate: (data: Record<string, unknown>) => void;
+    }> = [
+      {
+        expectedPath: "sample_casts",
+        mutate: (data) => {
+          data.sample_casts = {};
+        },
+      },
+      {
+        expectedPath: "sample_casts.0",
+        mutate: (data) => {
+          data.sample_casts = ["yes"];
+        },
+      },
+      {
+        expectedPath: "sample_casts.1",
+        mutate: (data) => {
+          (data.sample_casts as unknown[][])[1] = [true, "yes"];
+        },
+      },
+    ];
+
+    for (const { expectedPath, mutate } of cases) {
+      expectMalformedGeneratedMetadata(expectedPath, mutate);
+    }
+  });
+
+  it("rejects malformed address_policies entries", () => {
+    const cases: Array<{
+      expectedPath: string;
+      mutate: (data: Record<string, unknown>) => void;
+    }> = [
+      {
+        expectedPath: "address_policies.bind.portMandatory",
+        mutate: (data) => {
+          (data.address_policies as Record<string, Record<string, unknown>>).bind.portMandatory =
+            null;
+        },
+      },
+      {
+        expectedPath: "address_policies.bind.portOffset",
+        mutate: (data) => {
+          delete (data.address_policies as Record<string, Record<string, unknown>>).bind.portOffset;
+        },
+      },
+    ];
+
+    for (const { expectedPath, mutate } of cases) {
+      expectMalformedGeneratedMetadata(expectedPath, mutate);
+    }
+  });
+
+  it("rejects malformed keyword_group_contexts metadata", () => {
+    const cases: Array<{
+      expectedPath: string;
+      mutate: (data: Record<string, unknown>) => void;
+    }> = [
+      {
+        expectedPath: "keyword_group_contexts",
+        mutate: (data) => {
+          data.keyword_group_contexts = null;
+        },
+      },
+      {
+        expectedPath: "keyword_group_contexts.bind_options.ssl",
+        mutate: (data) => {
+          (
+            data.keyword_group_contexts as Record<string, Record<string, unknown>>
+          ).bind_options.ssl = ["bind", 1];
+        },
+      },
+    ];
+
+    for (const { expectedPath, mutate } of cases) {
+      expectMalformedGeneratedMetadata(expectedPath, mutate);
+    }
+  });
+
+  it("keeps absent keyword_group_contexts default behavior", () => {
+    const data = structuredClone(validGeneratedSchemaFixture());
+    delete data.keyword_group_contexts;
+    const fixture = createTempSchemaFixture("haproxy-absent-keyword-group-contexts-", {
+      "haproxy-3.4.schema.json": JSON.stringify(data),
+    });
+    try {
+      clearSchemaCache();
+      const schema = loadSchema({ extensionPath: fixture.extensionPath } as never, "3.4");
+      expect(schema.keyword_group_contexts).toEqual({});
+    } finally {
+      fixture.cleanup();
     }
   });
 

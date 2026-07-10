@@ -55,6 +55,8 @@ function rejectPendingLoad(entry: BundleCacheEntry): void {
 }
 
 export function invalidateBundleLoad(version?: HaproxyVersion): void {
+  invalidateAllExtensionCaches();
+
   if (version) {
     const entry = bundlesByVersion.get(version);
     if (entry) {
@@ -172,12 +174,7 @@ export function createBundleLoader(context: vscode.ExtensionContext): {
     ensureBundle(getConfiguredVersionForUri(uri));
 
   const invalidate = (version?: HaproxyVersion): void => {
-    if (version) {
-      invalidateBundleLoad(version);
-      return;
-    }
-    invalidateAllExtensionCaches();
-    invalidateBundleLoad();
+    invalidateBundleLoad(version);
   };
 
   return { ensureBundle, ensureBundleForUri, invalidate };

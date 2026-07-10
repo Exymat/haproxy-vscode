@@ -5,6 +5,7 @@ import {
   keywordsForSection,
   sectionKeywordNames,
 } from "../../src/documentContext";
+import { getDocumentAnalysis } from "../../src/documentAnalysis";
 import { DiagnosticContext } from "../../src/diagnosticContext";
 import * as parseCache from "../../src/parseCache";
 import { parseDocument } from "../../src/parser";
@@ -25,7 +26,18 @@ describe("documentContext", () => {
 
   it("returns null when parsed line is missing", () => {
     const doc = createDocument("global");
-    vi.spyOn(parseCache, "getParsedDocument").mockReturnValue([]);
+    vi.spyOn(parseCache, "getParsedDocumentEntry").mockReturnValue({
+      version: doc.version,
+      lineTexts: [],
+      parsed: [],
+      reuse: {
+        previousVersion: null,
+        prefixLines: 0,
+        suffixLines: 0,
+        oldSuffixStart: 0,
+        newSuffixStart: 0,
+      },
+    });
     expect(getDocumentContext(doc, { line: 0, character: 0 } as never, schema)).toBeNull();
   });
 
@@ -238,6 +250,22 @@ describe("documentContext", () => {
     const second = ctx.getLogFormatMemo(line);
     expect(second).toBe(first);
     expect(first.regions.length).toBeGreaterThan(0);
+  });
+
+  it("shares parsed entries and line analysis through document analysis", () => {
+    const doc = createDocument("defaults\n    mode http");
+    const analysis = getDocumentAnalysis(doc, schema);
+    const hit = getDocumentContext(
+      doc,
+      { line: 1, character: "    mode http".length } as never,
+      schema,
+      analysis,
+    );
+    expect(hit?.line).toBe(analysis.parsed[1]);
+
+    const ctx = new DiagnosticContext(doc, schema, { languageData }, analysis);
+    expect(ctx.parsedEntry).toBe(analysis.parsedEntry);
+    expect(ctx.getLineMemo(analysis.parsed[1])).toBe(analysis.getLineAnalysis(analysis.parsed[1]));
   });
 
   it("returns directive kind for comment lines", () => {

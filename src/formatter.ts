@@ -1,4 +1,4 @@
-import { DEFAULT_SECTION_HEADERS, tokenizeLine } from "./parser";
+import { commentStartIndex, DEFAULT_SECTION_HEADERS, tokenizeLine } from "./parser";
 
 /**
  * Layout rules follow HAProxy configuration.txt sections 2.1 and 2.2
@@ -25,34 +25,12 @@ export interface SplitLine {
 }
 
 export function splitLineAtComment(line: string): SplitLine {
-  let quote: '"' | "'" | null = null;
-  let escaped = false;
-
-  for (let i = 0; i < line.length; i += 1) {
-    const ch = line[i];
-
-    if (quote) {
-      if (escaped) {
-        escaped = false;
-      } else if (ch === "\\") {
-        escaped = true;
-      } else if (ch === quote) {
-        quote = null;
-      }
-      continue;
-    }
-
-    if (ch === "'" || ch === '"') {
-      quote = ch;
-      continue;
-    }
-
-    if (ch === "#") {
-      return {
-        code: line.slice(0, i).trimEnd(),
-        commentSuffix: line.slice(i).trimStart(),
-      };
-    }
+  const commentStart = commentStartIndex(line);
+  if (commentStart >= 0) {
+    return {
+      code: line.slice(0, commentStart).trimEnd(),
+      commentSuffix: line.slice(commentStart).trimStart(),
+    };
   }
 
   return {

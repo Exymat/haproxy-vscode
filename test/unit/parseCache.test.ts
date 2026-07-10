@@ -56,6 +56,25 @@ describe("getParsedDocument", () => {
     expect(second.reuse.prefixLines).toBe(2);
   });
 
+  it("does not restore a URI parse produced with different section headers", () => {
+    const content = "custom-section alpha\n    mode http";
+    const firstDoc = createDocument(content, "file:///section-header-options.cfg");
+    const customOptions = { sectionHeaders: new Set(["custom-section"]) };
+
+    const first = getParsedDocumentEntry(firstDoc, customOptions);
+    expect(first.parsed[0].isSectionHeader).toBe(true);
+    expect(first.parsed[1].section).toBe("custom-section");
+
+    const reopened = createDocument(content, firstDoc.uri.toString());
+    const second = getParsedDocumentEntry(reopened, { sectionHeaders: new Set(["backend"]) });
+
+    expect(second.parsed).not.toBe(first.parsed);
+    expect(second.parsed[0].isSectionHeader).toBe(false);
+    expect(second.parsed[1].section).toBeNull();
+    expect(firstDoc.version).toBe(1);
+    expect(reopened.version).toBe(1);
+  });
+
   it("reparses from start when the first line changes", () => {
     const doc = createDocument("global\n    daemon");
     getParsedDocumentEntry(doc);

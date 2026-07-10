@@ -6,12 +6,13 @@ import {
   getKeywordFromSchema,
   resolveDirective,
 } from "./directiveUtils";
+import { DocumentAnalysis, getDocumentAnalysis } from "./documentAnalysis";
 import { getDocumentContext } from "./documentContext";
 import { HaproxyLanguageData } from "./languageData";
 import { indexedKeywordNameSetForSection } from "./languageDataIndexes";
-import { analyzeLine, AnalyzedLine } from "./lineAnalysis";
+import { AnalyzedLine } from "./lineAnalysis";
 import { ResolvedLanguageKeyword, ResolvedSchemaKeyword } from "./keywordVariant";
-import { HaproxySchema, modifierPrefixSet, noPrefixKeywordSet, sectionKeywordSet } from "./schema";
+import { HaproxySchema } from "./schema";
 
 export interface LineSemanticContext {
   document: vscode.TextDocument;
@@ -31,26 +32,22 @@ export function getLineSemanticContext(
   position: vscode.Position,
   schema: HaproxySchema,
   data?: HaproxyLanguageData,
+  analysis: DocumentAnalysis = getDocumentAnalysis(document, schema),
 ): LineSemanticContext | null {
-  const ctx = getDocumentContext(document, position, schema);
+  const ctx = getDocumentContext(document, position, schema, analysis);
   if (!ctx) {
     return null;
   }
 
-  const allowed = sectionKeywordSet(schema, ctx.line.section);
+  const lineAnalysis = analysis.getLineAnalysis(ctx.line);
+  const allowed = lineAnalysis.allowed;
   const directiveAllowed =
     data && ctx.line.section
       ? new Set(indexedKeywordNameSetForSection(data, ctx.line.section))
       : allowed;
-  const analyzed = analyzeLine(ctx.line, {
-    schema,
-    allowed,
-    noPrefix: noPrefixKeywordSet(schema),
-    modifierPrefixes: modifierPrefixSet(schema),
-  });
   const directive = resolveDirective(ctx.line, directiveAllowed, {
-    noPrefixKeywords: noPrefixKeywordSet(schema),
-    modifierPrefixes: modifierPrefixSet(schema),
+    noPrefixKeywords: analysis.noPrefix,
+    modifierPrefixes: analysis.modifierPrefixes,
   });
 
   const resolvedLanguageKeyword =
@@ -68,7 +65,7 @@ export function getLineSemanticContext(
     data,
     ctx,
     allowed,
-    analyzed,
+    analyzed: lineAnalysis.analyzed,
     directive,
     resolvedLanguageKeyword,
     resolvedSchemaKeyword,

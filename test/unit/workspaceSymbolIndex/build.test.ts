@@ -30,6 +30,10 @@ import {
 describe("workspace symbol index build", () => {
   setupWorkspaceSymbolIndexTests();
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("preserves non-file URI keys", () => {
     const uri = { scheme: "untitled", toString: () => "untitled:HAProxy.cfg" };
     expect(workspaceUriKey(uri as never)).toBe("untitled:HAProxy.cfg");
@@ -329,5 +333,38 @@ describe("workspace symbol index build", () => {
     const workspaceIndex = expectWorkspaceIndex(getWorkspaceSymbolIndex());
     expect(workspaceIndex.documents.has("file:///a.cfg")).toBe(true);
     expect(workspaceIndex.documents.has("file:///b.cfg")).toBe(false);
+  });
+
+  it("loads disk workspace entries with bounded concurrency in discovery order", async () => {
+    const paths = Array.from(
+      { length: 20 },
+      (_, index) => `file:///entry-${String(index).padStart(2, "0")}.cfg`,
+    );
+    for (const [index, path] of paths.entries()) {
+      setMockWorkspaceFile(path, `backend be_${index}`);
+    }
+
+    const originalLoad = workspaceDocuments.loadDiskEntry;
+    const started: string[] = [];
+    let active = 0;
+    let maxActive = 0;
+    vi.spyOn(workspaceDocuments, "loadDiskEntry").mockImplementation(async (uri, ...args) => {
+      active += 1;
+      maxActive = Math.max(maxActive, active);
+      started.push(uri.toString());
+      await Promise.resolve();
+      try {
+        return await originalLoad(uri, ...args);
+      } finally {
+        active -= 1;
+      }
+    });
+
+    const workspaceIndex = expectWorkspaceIndex(await buildWorkspace());
+
+    expect(maxActive).toBeGreaterThan(1);
+    expect(maxActive).toBeLessThanOrEqual(8);
+    expect(started.slice(0, 8)).toEqual(paths.slice(0, 8));
+    expect([...workspaceIndex.documents.keys()]).toEqual(paths);
   });
 });

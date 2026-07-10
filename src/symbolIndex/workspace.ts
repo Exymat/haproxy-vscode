@@ -3,8 +3,10 @@ import * as vscode from "vscode";
 import { documentContentFingerprint } from "../documentUriKey";
 import { isHaproxyLanguageId } from "../grammar";
 import {
+  logDiskEntryReadFailure,
   logWorkspaceIndexCompleted,
   logWorkspaceIndexDisabled,
+  logWorkspaceIndexSchemaLoadFailed,
   logWorkspaceIndexStarted,
   WorkspaceEntrySkipReason,
 } from "../outputChannel";
@@ -14,11 +16,12 @@ import {
   aggregateDocuments,
   createOpenDocumentEntry,
   loadDiskEntry,
+  WorkspaceEntryLoadResult,
   totalDocumentBytes,
   totalDocumentLines,
 } from "./workspaceDocuments";
 import {
-  getDiscoveredUris,
+  getDiscoveryResult,
   GLOBAL_WORKSPACE_FOLDER_KEY,
   invalidateDiscoveryCache,
   targetFolderRefs,
@@ -76,6 +79,8 @@ let activeMaxLines = 0;
 let onDidChangeWorkspaceIndex: ((event: WorkspaceIndexChangeEvent) => void) | undefined;
 const notifiedCappedFolders = new Set<string>();
 const cappedFolderKeys = new Set<string>();
+const FOREIGN_CFG_DISCOVERY_EXTRA = 100;
+const DISK_ENTRY_LOAD_CONCURRENCY = 8;
 
 export function isDocumentWorkspaceIndexCapped(document: vscode.TextDocument): boolean {
   return cappedFolderKeys.has(workspaceFolderKey(workspaceFolderForUri(document.uri)));
@@ -344,6 +349,106 @@ function recordSkipReason(
   skipReasons[reason] = (skipReasons[reason] ?? 0) + 1;
 }
 
+function hasSkipReasons(skipReasons: Partial<Record<WorkspaceEntrySkipReason, number>>): boolean {
+  return Object.values(skipReasons).some((count) => (count ?? 0) > 0);
+}
+
+function logReadFailureIfPresent(result: WorkspaceEntryLoadResult): void {
+  if (result.readFailure) {
+    logDiskEntryReadFailure(result.readFailure.uri, result.readFailure.code);
+  }
+}
+
+interface LoadedDiskEntry {
+  result: WorkspaceEntryLoadResult;
+}
+
+async function* loadDiskEntriesInDiscoveryOrder(
+  uris: readonly vscode.Uri[],
+  schema: HaproxySchema,
+  maxLines: number,
+  previousDocuments: Map<string, WorkspaceDocumentSymbols>,
+  byteLimits: { maxFileBytes: number; maxLineBytes: number },
+  generation: number,
+): AsyncGenerator<LoadedDiskEntry> {
+  const concurrency = Math.min(DISK_ENTRY_LOAD_CONCURRENCY, uris.length);
+  const results = new Map<number, WorkspaceEntryLoadResult>();
+  const errors = new Map<number, unknown>();
+  let nextToStart = 0;
+  let nextToYield = 0;
+  let activeLoads = 0;
+  let stopped = false;
+  let wake: (() => void) | undefined;
+
+  const notify = () => {
+    const pendingWake = wake;
+    wake = undefined;
+    pendingWake?.();
+  };
+
+  const pump = () => {
+    while (
+      !stopped &&
+      generation === activeGeneration &&
+      activeLoads < concurrency &&
+      nextToStart < uris.length &&
+      nextToStart < nextToYield + concurrency
+    ) {
+      const index = nextToStart;
+      nextToStart += 1;
+      activeLoads += 1;
+      const uri = uris[index];
+      const uriKey = workspaceUriKey(uri);
+      void loadDiskEntry(uri, schema, maxLines, previousDocuments.get(uriKey), byteLimits)
+        .then((result) => {
+          results.set(index, result);
+        })
+        /* v8 ignore start -- loadDiskEntry returns read failures as results; this guards unexpected rejections. */
+        .catch((error: unknown) => {
+          errors.set(index, error);
+        })
+        /* v8 ignore stop */
+        .finally(() => {
+          activeLoads -= 1;
+          pump();
+          notify();
+        });
+    }
+  };
+
+  try {
+    pump();
+    while (nextToYield < uris.length) {
+      while (!results.has(nextToYield) && !errors.has(nextToYield)) {
+        /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
+        if (generation !== activeGeneration) {
+          return;
+        }
+        /* v8 ignore stop */
+        await new Promise<void>((resolve) => {
+          wake = resolve;
+        });
+      }
+      /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
+      if (generation !== activeGeneration) {
+        return;
+      }
+      /* v8 ignore stop */
+      if (errors.has(nextToYield)) {
+        /* v8 ignore next -- loadDiskEntry returns read failures as results; this guards unexpected rejections. */
+        throw errors.get(nextToYield);
+      }
+      const result = results.get(nextToYield)!;
+      results.delete(nextToYield);
+      yield { result };
+      nextToYield += 1;
+      pump();
+    }
+  } finally {
+    stopped = true;
+  }
+}
+
 async function buildFolderWorkspaceIndex(
   folder: vscode.WorkspaceFolder | undefined,
   folderKey: string,
@@ -358,42 +463,120 @@ async function buildFolderWorkspaceIndex(
   const label = folderLabel(folder, folderKey);
   logWorkspaceIndexStarted(folderKey, label, scope, settings);
   const startedAt = Date.now();
-  const skipReasons: Partial<Record<WorkspaceEntrySkipReason, number>> = {};
-
-  const uris = await getDiscoveredUris(settings, folder, folderKey, forceRediscover);
-  /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-  if (generation !== activeGeneration) {
-    return null;
-  }
-  /* v8 ignore stop */
-
-  const documents = new Map<string, WorkspaceDocumentSymbols>();
   const byteLimits = {
     maxFileBytes: settings.maxFileBytes,
     maxLineBytes: settings.maxLineBytes,
   };
-  let totalLines = 0;
-  let totalBytes = 0;
-  let capReason: string | undefined;
-  for (const uri of uris) {
-    const uriKey = workspaceUriKey(uri);
-    const { entry, skipReason } = await loadDiskEntry(
-      uri,
-      schema,
-      maxLines,
-      previousDocuments.get(uriKey),
-      byteLimits,
-    );
+  let discoverySettings = settings;
+  let discovery = await getDiscoveryResult(discoverySettings, folder, folderKey, forceRediscover);
+  let expandedDiscovery = false;
+
+  for (;;) {
+    const uris = discovery.uris;
     /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
     if (generation !== activeGeneration) {
       return null;
     }
     /* v8 ignore stop */
-    if (!entry) {
-      recordSkipReason(skipReasons, skipReason);
+
+    const documents = new Map<string, WorkspaceDocumentSymbols>();
+    const skipReasons: Partial<Record<WorkspaceEntrySkipReason, number>> = {};
+    let totalLines = 0;
+    let totalBytes = 0;
+    let capReason: string | undefined;
+
+    for await (const { result } of loadDiskEntriesInDiscoveryOrder(
+      uris,
+      schema,
+      maxLines,
+      previousDocuments,
+      byteLimits,
+      generation,
+    )) {
+      const { entry, skipReason } = result;
+      /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
+      if (generation !== activeGeneration) {
+        return null;
+      }
+      /* v8 ignore stop */
+      if (!entry) {
+        logReadFailureIfPresent(result);
+        recordSkipReason(skipReasons, skipReason);
+        continue;
+      }
+      if (fileLimitReached(documents.size, settings.maxFiles)) {
+        capReason = "maxFiles";
+        const capped = aggregateDocuments(generation, true, new Map());
+        logWorkspaceIndexCompleted({
+          folderKey,
+          folderLabel: label,
+          scope,
+          discoveredFiles: uris.length,
+          indexedFiles: documents.size,
+          skippedFiles: uris.length - documents.size,
+          skipReasons,
+          capped: true,
+          capReason,
+          totalLines,
+          totalBytes,
+          durationMs: Date.now() - startedAt,
+        });
+        return capped;
+      }
+      totalLines += entry.parsed.length;
+      if (limitExceeded(totalLines, settings.maxTotalLines)) {
+        capReason = "maxTotalLines";
+        const capped = aggregateDocuments(generation, true, new Map());
+        logWorkspaceIndexCompleted({
+          folderKey,
+          folderLabel: label,
+          scope,
+          discoveredFiles: uris.length,
+          indexedFiles: documents.size,
+          skippedFiles: uris.length - documents.size,
+          skipReasons,
+          capped: true,
+          capReason,
+          totalLines,
+          totalBytes,
+          durationMs: Date.now() - startedAt,
+        });
+        return capped;
+      }
+      totalBytes += entry.byteLength;
+      if (limitExceeded(totalBytes, settings.maxTotalBytes)) {
+        capReason = "maxTotalBytes";
+        const capped = aggregateDocuments(generation, true, new Map());
+        logWorkspaceIndexCompleted({
+          folderKey,
+          folderLabel: label,
+          scope,
+          discoveredFiles: uris.length,
+          indexedFiles: documents.size,
+          skippedFiles: uris.length - documents.size,
+          skipReasons,
+          capped: true,
+          capReason,
+          totalLines,
+          totalBytes,
+          durationMs: Date.now() - startedAt,
+        });
+        return capped;
+      }
+      documents.set(entry.uriKey, entry);
+    }
+
+    if (discovery.capped && hasSkipReasons(skipReasons) && !expandedDiscovery) {
+      expandedDiscovery = true;
+      discoverySettings = {
+        ...settings,
+        maxFiles: settings.maxFiles + FOREIGN_CFG_DISCOVERY_EXTRA,
+      };
+      discovery = await getDiscoveryResult(discoverySettings, folder, folderKey, true);
       continue;
     }
-    if (fileLimitReached(documents.size, settings.maxFiles)) {
+
+    if (discovery.capped) {
       capReason = "maxFiles";
       const capped = aggregateDocuments(generation, true, new Map());
       logWorkspaceIndexCompleted({
@@ -412,63 +595,23 @@ async function buildFolderWorkspaceIndex(
       });
       return capped;
     }
-    totalLines += entry.parsed.length;
-    if (limitExceeded(totalLines, settings.maxTotalLines)) {
-      capReason = "maxTotalLines";
-      const capped = aggregateDocuments(generation, true, new Map());
-      logWorkspaceIndexCompleted({
-        folderKey,
-        folderLabel: label,
-        scope,
-        discoveredFiles: uris.length,
-        indexedFiles: documents.size,
-        skippedFiles: uris.length - documents.size,
-        skipReasons,
-        capped: true,
-        capReason,
-        totalLines,
-        totalBytes,
-        durationMs: Date.now() - startedAt,
-      });
-      return capped;
-    }
-    totalBytes += entry.byteLength;
-    if (limitExceeded(totalBytes, settings.maxTotalBytes)) {
-      capReason = "maxTotalBytes";
-      const capped = aggregateDocuments(generation, true, new Map());
-      logWorkspaceIndexCompleted({
-        folderKey,
-        folderLabel: label,
-        scope,
-        discoveredFiles: uris.length,
-        indexedFiles: documents.size,
-        skippedFiles: uris.length - documents.size,
-        skipReasons,
-        capped: true,
-        capReason,
-        totalLines,
-        totalBytes,
-        durationMs: Date.now() - startedAt,
-      });
-      return capped;
-    }
-    documents.set(entry.uriKey, entry);
+
+    const index = aggregateDocuments(generation, false, documents);
+    logWorkspaceIndexCompleted({
+      folderKey,
+      folderLabel: label,
+      scope,
+      discoveredFiles: uris.length,
+      indexedFiles: documents.size,
+      skippedFiles: uris.length - documents.size,
+      skipReasons,
+      capped: false,
+      totalLines,
+      totalBytes,
+      durationMs: Date.now() - startedAt,
+    });
+    return index;
   }
-  const index = aggregateDocuments(generation, false, documents);
-  logWorkspaceIndexCompleted({
-    folderKey,
-    folderLabel: label,
-    scope,
-    discoveredFiles: uris.length,
-    indexedFiles: documents.size,
-    skippedFiles: uris.length - documents.size,
-    skipReasons,
-    capped: false,
-    totalLines,
-    totalBytes,
-    durationMs: Date.now() - startedAt,
-  });
-  return index;
 }
 
 async function updateSingleDocumentInWorkspaceIndex(
@@ -589,7 +732,8 @@ async function rebuildWorkspaceIndexes(
     let schema: HaproxySchema;
     try {
       schema = await resolveSchema(folder);
-    } catch {
+    } catch (error) {
+      logWorkspaceIndexSchemaLoadFailed(folderLabel(folder, folderKey), scope, error);
       continue;
     }
     /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */

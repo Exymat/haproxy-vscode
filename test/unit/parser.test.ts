@@ -1,6 +1,18 @@
-import { parseDocument, tokenizeLine, DEFAULT_SECTION_HEADERS } from "../../src/parser";
+import {
+  commentStartIndex,
+  parseDocument,
+  tokenizeLine,
+  DEFAULT_SECTION_HEADERS,
+} from "../../src/parser";
 import { isInsideQuotedString } from "../../src/expressionParsing";
 import { createDocument } from "../helpers/document";
+
+interface CommentBoundaryCase {
+  name: string;
+  line: string;
+  tokens: ReturnType<typeof tokenizeLine>;
+  commentStart: number;
+}
 
 describe("isInsideQuotedString", () => {
   it("detects positions inside double- and single-quoted spans", () => {
@@ -25,6 +37,55 @@ describe("tokenizeLine", () => {
       { text: "http", start: 5, end: 9 },
     ]);
   });
+
+  const commentBoundaryCases: CommentBoundaryCase[] = [
+    {
+      name: "keeps unquoted hash inside token",
+      line: "set-var(txn.x) a#b",
+      tokens: [
+        { text: "set-var(txn.x)", start: 0, end: 14 },
+        { text: "a#b", start: 15, end: 18 },
+      ],
+      commentStart: -1,
+    },
+    {
+      name: "keeps hash joined to section-like token",
+      line: "global#comment",
+      tokens: [{ text: "global#comment", start: 0, end: 14 }],
+      commentStart: -1,
+    },
+    {
+      name: "keeps quoted hash inside token and finds trailing comment",
+      line: 'set-var(txn.x) "a#b" # trailing',
+      tokens: [
+        { text: "set-var(txn.x)", start: 0, end: 14 },
+        { text: '"a#b"', start: 15, end: 20 },
+      ],
+      commentStart: 21,
+    },
+    {
+      name: "finds whitespace-started comment",
+      line: "mode http   # or tcp",
+      tokens: [
+        { text: "mode", start: 0, end: 4 },
+        { text: "http", start: 5, end: 9 },
+      ],
+      commentStart: 12,
+    },
+    {
+      name: "finds leading-whitespace comment-only line",
+      line: "    # comment only",
+      tokens: [],
+      commentStart: 4,
+    },
+  ];
+
+  for (const testCase of commentBoundaryCases) {
+    it(`matches comment boundary semantics: ${testCase.name}`, () => {
+      expect(commentStartIndex(testCase.line)).toBe(testCase.commentStart);
+      expect(tokenizeLine(testCase.line)).toEqual(testCase.tokens);
+    });
+  }
 
   it("parses anonymous defaults section header", () => {
     const doc = createDocument("defaults\n    maxconn 100");

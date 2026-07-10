@@ -8,6 +8,7 @@ import {
   logSupportSnapshot,
   logWorkspaceIndexCompleted,
   logWorkspaceIndexDisabled,
+  logWorkspaceIndexSchemaLoadFailed,
   logWorkspaceIndexStarted,
   registerHaproxyOutputChannel,
   resetHaproxyOutputChannelState,
@@ -154,6 +155,37 @@ describe("outputChannel", () => {
     expect(lines.some((line) => line.includes("; CAPPED"))).toBe(true);
   });
 
+  it("ignores undefined skip reason counts in workspace rebuild summaries", () => {
+    logWorkspaceIndexCompleted({
+      folderKey: "folder",
+      folderLabel: "workspace",
+      scope: "full",
+      discoveredFiles: 2,
+      indexedFiles: 1,
+      skippedFiles: 1,
+      skipReasons: { "read-failed": undefined },
+      capped: false,
+      totalLines: 10,
+      totalBytes: 100,
+      durationMs: 5,
+    });
+
+    expect(lines.some((line) => line.includes("skip reasons: none"))).toBe(true);
+  });
+
+  it("does not log schema load failures for incremental rebuild scopes", () => {
+    logWorkspaceIndexSchemaLoadFailed("workspace", "incremental", new Error("schema unavailable"));
+    logWorkspaceIndexSchemaLoadFailed("workspace", "none", new Error("schema unavailable"));
+
+    expect(lines).toHaveLength(0);
+  });
+
+  it("logs non-Error schema load failures for full rebuild scopes", () => {
+    logWorkspaceIndexSchemaLoadFailed("workspace", "full", "schema unavailable");
+
+    expect(lines.some((line) => line.includes("schema unavailable"))).toBe(true);
+  });
+
   it("uses folder path labels when workspace folder names are missing", () => {
     setMockWorkspaceFolders([
       { uri: { fsPath: "/workspace", toString: () => "file:///workspace" } },
@@ -166,6 +198,19 @@ describe("outputChannel", () => {
     logConfiguredVersion("3.2", "document-open", uri);
 
     expect(lines.some((line) => line.includes("HAProxy version 3.2 for /workspace"))).toBe(true);
+  });
+
+  it("uses folder keys when workspace folder names and filesystem paths are missing", () => {
+    setMockWorkspaceFolders([{ uri: { toString: () => "file:///workspace" } }]);
+    const uri = {
+      toString: () => "file:///workspace/app.cfg",
+    } as never;
+
+    logConfiguredVersion("3.2", "document-open", uri);
+
+    expect(lines.some((line) => line.includes("HAProxy version 3.2 for file:///workspace"))).toBe(
+      true,
+    );
   });
 
   it("logs support snapshot for global configuration without workspace folders", () => {

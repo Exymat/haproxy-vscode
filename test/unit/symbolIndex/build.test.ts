@@ -1,7 +1,9 @@
 import { parseDocument } from "../../../src/parser";
 import * as parseCache from "../../../src/parseCache";
 import { getParsedDocument, getParsedDocumentEntry } from "../../../src/parseCache";
+import type { HaproxySchema, StatementRule } from "../../../src/schema";
 import { buildScopeKeyByLine, collectLineSymbolSites } from "../../../src/symbolIndex/build";
+import { clearSymbolIndexCaches, hasUriSymbolIndexCache } from "../../../src/symbolIndex/cache";
 import {
   buildSymbolIndex,
   findDefinitions,
@@ -10,10 +12,28 @@ import {
   getSymbolIndex,
   resolveSymbolAtPosition,
 } from "../../../src/symbolIndex";
-import { updateDocument } from "../../helpers/document";
+import { createDocument, updateDocument } from "../../helpers/document";
 import { vi } from "vitest";
 
 import { doc, pos, schema } from "./helpers";
+
+function schemaWithCustomRule(
+  version: string,
+  definitionKind: StatementRule["definition_kind"],
+): HaproxySchema {
+  const customSchema = structuredClone(schema);
+  customSchema.version = version;
+  customSchema.statement_rules = [
+    ...(customSchema.statement_rules ?? []),
+    {
+      keyword: "custom-symbol",
+      kind: "directive",
+      definition_kind: definitionKind,
+      symbol_name_token_index: 1,
+    },
+  ];
+  return customSchema;
+}
 
 describe("symbolIndex build", () => {
   it("buildSymbolIndex tracks global sections without proxy scope", () => {
@@ -36,6 +56,64 @@ describe("symbolIndex build", () => {
     const second = getSymbolIndex(document, schema, 4000);
     expect(first).toBe(second);
     expect(first?.definitions.get("proxy-section:api")?.length).toBe(1);
+  });
+
+  it("clearSymbolIndexCaches clears document and URI symbol indexes", () => {
+    const document = createDocument(
+      "backend api\n    server s1 127.0.0.1:80",
+      "file:///symbol-index-clear.cfg",
+    );
+    const first = getSymbolIndex(document, schema, 4000);
+    expect(first).not.toBeNull();
+    expect(hasUriSymbolIndexCache(document)).toBe(true);
+
+    clearSymbolIndexCaches();
+
+    expect(hasUriSymbolIndexCache(document)).toBe(false);
+    const second = getSymbolIndex(document, schema, 4000);
+    expect(second).not.toBe(first);
+    expect(second?.definitions.get("proxy-section:api")?.length).toBe(1);
+    clearSymbolIndexCaches();
+  });
+
+  it("getSymbolIndex keeps same-version schema object identities separate", () => {
+    clearSymbolIndexCaches();
+    const document = createDocument(
+      "frontend web\n    custom-symbol target",
+      "file:///schema-identity.cfg",
+    );
+    const aclSchema = schemaWithCustomRule("identity-test", "acl");
+    const filterSchema = schemaWithCustomRule("identity-test", "filter");
+
+    const first = getSymbolIndex(document, aclSchema, 4000);
+    const second = getSymbolIndex(document, filterSchema, 4000);
+
+    expect(second).not.toBe(first);
+    expect(first?.definitions.get("acl:frontend:web:target")).toHaveLength(1);
+    expect(second?.definitions.get("acl:frontend:web:target")).toBeUndefined();
+    expect(second?.definitions.get("filter:frontend:web:target")).toHaveLength(1);
+    expect(document.version).toBe(1);
+    clearSymbolIndexCaches();
+  });
+
+  it("getSymbolIndex keeps URI cache entries separate by schema identity", () => {
+    clearSymbolIndexCaches();
+    const content = "frontend web\n    custom-symbol target";
+    const firstDocument = createDocument(content, "file:///schema-uri-identity.cfg");
+    const oldSchema = structuredClone(schema);
+    oldSchema.version = "identity-old";
+    const newSchema = schemaWithCustomRule("identity-new", "acl");
+
+    const first = getSymbolIndex(firstDocument, oldSchema, 4000);
+    const reopened = createDocument(content, firstDocument.uri.toString());
+    const second = getSymbolIndex(reopened, newSchema, 4000);
+
+    expect(second).not.toBe(first);
+    expect(first?.definitions.get("acl:frontend:web:target")).toBeUndefined();
+    expect(second?.definitions.get("acl:frontend:web:target")).toHaveLength(1);
+    expect(firstDocument.version).toBe(1);
+    expect(reopened.version).toBe(1);
+    clearSymbolIndexCaches();
   });
 
   it("lazy-builds sitesByLine on first findSiteAtPosition after cold index", () => {
@@ -174,6 +252,44 @@ describe("symbolIndex build", () => {
       return;
     }
     expect(findReferences(second, "proxy-section", "other", null)).toHaveLength(1);
+  });
+
+  it("getSymbolIndex updates reference ranges when whitespace changes without renaming", () => {
+    const document = doc("backend api\nfrontend web\n    default_backend api");
+    getParsedDocument(document);
+    getSymbolIndex(document, schema, 4000);
+
+    updateDocument(document, "backend api\nfrontend web\n        default_backend api");
+    getParsedDocument(document);
+    const shiftedRight = getSymbolIndex(document, schema, 4000);
+    expect(shiftedRight).not.toBeNull();
+    if (!shiftedRight) {
+      return;
+    }
+    expect(
+      findSiteAtPosition(shiftedRight, pos(2, "        default_backend ".length)),
+    ).toMatchObject({
+      kind: "proxy-section",
+      role: "reference",
+      name: "api",
+      start: "        default_backend ".length,
+      end: "        default_backend api".length,
+    });
+
+    updateDocument(document, "backend api\nfrontend web\n  default_backend api");
+    getParsedDocument(document);
+    const shiftedLeft = getSymbolIndex(document, schema, 4000);
+    expect(shiftedLeft).not.toBeNull();
+    if (!shiftedLeft) {
+      return;
+    }
+    expect(findSiteAtPosition(shiftedLeft, pos(2, "  default_backend ".length))).toMatchObject({
+      kind: "proxy-section",
+      role: "reference",
+      name: "api",
+      start: "  default_backend ".length,
+      end: "  default_backend api".length,
+    });
   });
 
   it("getSymbolIndex rebuilds when a section header line is edited", () => {

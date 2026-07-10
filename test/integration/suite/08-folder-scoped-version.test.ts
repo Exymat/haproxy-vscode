@@ -53,6 +53,12 @@ function workspaceFolderByName(name: string): vscode.WorkspaceFolder {
   return folder;
 }
 
+function uriIsInWorkspaceFolder(uri: vscode.Uri, folder: vscode.WorkspaceFolder): boolean {
+  const folderUri = folder.uri.toString().replace(/\/+$/, "").toLowerCase();
+  const value = uri.toString().toLowerCase();
+  return value === folderUri || value.startsWith(`${folderUri}/`);
+}
+
 suite("Folder-scoped HAProxy version", () => {
   let folderA = "";
   let folderB = "";
@@ -207,8 +213,10 @@ suite("Folder-scoped HAProxy version", () => {
     const useBackendPos = new vscode.Position(1, "    use_backend ".length + 1);
     const refsA = await waitForReferenceUris(frontendA.uri, useBackendPos, ["refs/backend.cfg"]);
     assert.ok(
-      refsA.every((location) => location.uri.toString().includes("folder-a")),
-      "Folder A references should stay inside folder A",
+      refsA.every((location) => uriIsInWorkspaceFolder(location.uri, folderARef)),
+      `Folder A references should stay inside folder A: ${refsA
+        .map((location) => location.uri.toString())
+        .join(", ")}`,
     );
     assert.ok(
       refsA.some((location) => location.uri.toString().endsWith("refs/backend.cfg")),
@@ -217,8 +225,10 @@ suite("Folder-scoped HAProxy version", () => {
 
     const refsB = await waitForReferenceUris(frontendB.uri, useBackendPos, ["refs/backend.cfg"]);
     assert.ok(
-      refsB.every((location) => location.uri.toString().includes("folder-b")),
-      "Folder B references should stay inside folder B",
+      refsB.every((location) => uriIsInWorkspaceFolder(location.uri, folderBRef)),
+      `Folder B references should stay inside folder B: ${refsB
+        .map((location) => location.uri.toString())
+        .join(", ")}`,
     );
     assert.ok(
       refsB.some((location) => location.uri.toString().endsWith("refs/backend.cfg")),
@@ -237,8 +247,10 @@ suite("Folder-scoped HAProxy version", () => {
       true,
     );
     assert.ok(
-      staleBRefs.every((location) => location.uri.toString().includes("folder-b")),
-      "Folder B backend references should not point into folder A",
+      staleBRefs.every((location) => uriIsInWorkspaceFolder(location.uri, folderBRef)),
+      `Folder B backend references should not point into folder A: ${staleBRefs
+        .map((location) => location.uri.toString())
+        .join(", ")}`,
     );
   });
 });

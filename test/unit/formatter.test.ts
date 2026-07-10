@@ -30,8 +30,8 @@ describe("formatter", () => {
         "     mode             http   # or tcp",
       ].join("\n"),
       expected: [
-        "global #this is the global section",
-        "    daemon #daemonize",
+        "    global#this is the global section",
+        "    daemon#daemonize",
         "",
         "frontend foo",
         "    mode http # or tcp",
@@ -89,6 +89,16 @@ describe("formatter", () => {
       expected: '    http-request set-header X "#not-a-comment"',
     },
     {
+      name: "unquoted hash inside token is not a comment",
+      input: "    set-var(txn.slug) a#b",
+      expected: "    set-var(txn.slug) a#b",
+    },
+    {
+      name: "hash joined to section name is not a comment",
+      input: "     global#comment\n     daemon",
+      expected: "    global#comment\n    daemon",
+    },
+    {
       name: "2-space indent",
       input: "frontend web\n      bind :443",
       options: {
@@ -133,8 +143,32 @@ describe("formatter", () => {
       comment: "# trailing",
     },
     {
+      name: "unquoted hash inside token stays in code",
+      line: "set-var(txn.x) a#b",
+      code: "set-var(txn.x) a#b",
+      comment: null,
+    },
+    {
+      name: "section-like token with hash stays in code",
+      line: "global#comment",
+      code: "global#comment",
+      comment: null,
+    },
+    {
+      name: "whitespace-started hash starts comment",
+      line: "mode http   # or tcp",
+      code: "mode http",
+      comment: "# or tcp",
+    },
+    {
       name: "comment-only line",
       line: "# comment only",
+      code: "",
+      comment: "# comment only",
+    },
+    {
+      name: "leading-whitespace comment-only line",
+      line: "    # comment only",
       code: "",
       comment: "# comment only",
     },
@@ -142,7 +176,7 @@ describe("formatter", () => {
     name: string;
     line: string;
     code: string;
-    comment: string;
+    comment: string | null;
   }>)("splitLineAtComment: $name", ({ line, code, comment }) => {
     const split = splitLineAtComment(line);
     expect(split.code).toBe(code);

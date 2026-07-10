@@ -10,7 +10,10 @@ import {
 import * as languageData from "../../src/languageData";
 import * as outputChannel from "../../src/outputChannel";
 import * as schema from "../../src/schema";
+import { getSymbolIndex } from "../../src/symbolIndex";
+import { hasUriSymbolIndexCache } from "../../src/symbolIndex/cache";
 import { resetVscodeMock, setMockConfigForUri } from "../__mocks__/vscode";
+import { createDocument } from "../helpers/document";
 import { mockExtensionContext } from "../helpers/extensionContext";
 import { loadSchemaBundle } from "../helpers/schema";
 
@@ -292,6 +295,38 @@ describe("extensionBundle", () => {
     expect(getLoadedBundle("3.2")).toBeUndefined();
     expect(getLoadedBundle("3.4")).toBeUndefined();
     expect(getLoadedBundle()).toBeUndefined();
+  });
+
+  it("clears symbol index caches when invalidate is called without a version", () => {
+    const { invalidate } = createBundleLoader(mockExtensionContext() as never);
+    const document = createDocument(
+      "backend api\n    server s1 127.0.0.1:80",
+      "file:///bundle-symbol-cache.cfg",
+    );
+    const first = getSymbolIndex(document, fixture.schema, 4000);
+    expect(first).not.toBeNull();
+    expect(hasUriSymbolIndexCache(document)).toBe(true);
+
+    invalidate();
+
+    expect(hasUriSymbolIndexCache(document)).toBe(false);
+    expect(getSymbolIndex(document, fixture.schema, 4000)).not.toBe(first);
+  });
+
+  it("clears symbol index caches when a version is invalidated", () => {
+    const { invalidate } = createBundleLoader(mockExtensionContext() as never);
+    const document = createDocument(
+      "backend api\n    server s1 127.0.0.1:80",
+      "file:///bundle-version-symbol-cache.cfg",
+    );
+    const first = getSymbolIndex(document, fixture.schema, 4000);
+    expect(first).not.toBeNull();
+    expect(hasUriSymbolIndexCache(document)).toBe(true);
+
+    invalidate("3.2");
+
+    expect(hasUriSymbolIndexCache(document)).toBe(false);
+    expect(getSymbolIndex(document, fixture.schema, 4000)).not.toBe(first);
   });
 
   it("returns undefined from getLoadedBundle when multiple versions are cached", async () => {

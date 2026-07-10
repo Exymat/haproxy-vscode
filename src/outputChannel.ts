@@ -168,6 +168,21 @@ export function logWorkspaceIndexCompleted(stats: WorkspaceIndexBuildStats): voi
   }
 }
 
+export function logWorkspaceIndexSchemaLoadFailed(
+  folderLabel: string,
+  scope: WorkspaceRebuildScope,
+  error: unknown,
+): void {
+  if (scope === "incremental" || scope === "none") {
+    return;
+  }
+  const message = error instanceof Error ? error.message : String(error);
+  writeln(
+    `Workspace index schema resolution failed (${scope}) for ${folderLabel}; ` +
+      `skipping folder: ${message}`,
+  );
+}
+
 export function logWorkspaceIndexDisabled(): void {
   writeln("Workspace symbol index disabled");
 }

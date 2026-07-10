@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 import { documentContentFingerprint, documentUriKey } from "./documentUriKey";
+import { getDocumentAnalysis } from "./documentAnalysis";
 import { runLineDiagnosticPipeline } from "./diagnosticPipeline";
 import { DiagnosticContext } from "./diagnosticContext";
 import { HaproxyLanguageData } from "./languageData";
@@ -121,15 +122,16 @@ export function computeDiagnostics(
   const key = diagnosticsCacheKey(schema, options, workspaceIndex);
   const contentFingerprint = documentContentFingerprint(document);
   const uriHit = uriDiagnosticsCache.get(documentUriKey(document), contentFingerprint);
+  const analysis = getDocumentAnalysis(document, schema);
   if (uriHit && sameCacheKey(uriHit.key, key)) {
-    const ctx = new DiagnosticContext(document, schema, options);
+    const ctx = new DiagnosticContext(document, schema, options, analysis);
     if (uriHit.suppressDeprecated === ctx.suppressDeprecated) {
       diagnosticsCache.set(document, { ...uriHit, version: document.version });
       return uriHit.diagnostics;
     }
   }
 
-  const ctx = new DiagnosticContext(document, schema, options);
+  const ctx = new DiagnosticContext(document, schema, options, analysis);
   const cached = diagnosticsCache.get(document);
   const reuse = ctx.parsedEntry.reuse;
   const canReuseLines =

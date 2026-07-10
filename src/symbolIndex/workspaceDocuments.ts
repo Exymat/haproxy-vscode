@@ -10,7 +10,7 @@ import { buildSymbolIndex } from "./build";
 import { getSymbolIndex } from "./cache";
 import { buildReferencesByKey } from "./utils";
 import { SymbolKind, SymbolSite } from "./types";
-import { logDiskEntryReadFailure, WorkspaceEntrySkipReason } from "../outputChannel";
+import { WorkspaceEntrySkipReason } from "../outputChannel";
 import {
   SectionRange,
   WorkspaceDocumentSymbols,
@@ -22,6 +22,10 @@ import { workspaceUriKey } from "./workspaceUri";
 export interface WorkspaceEntryLoadResult {
   entry: WorkspaceDocumentSymbols | null;
   skipReason?: WorkspaceEntrySkipReason;
+  readFailure?: {
+    uri: vscode.Uri;
+    code: string;
+  };
 }
 
 export interface WorkspaceIndexByteLimits {
@@ -37,6 +41,7 @@ export function defaultWorkspaceIndexByteLimits(): WorkspaceIndexByteLimits {
 }
 
 const textEncoder = new TextEncoder();
+const workspaceEntrySchema = new WeakMap<WorkspaceDocumentSymbols, HaproxySchema>();
 
 export function encodedTextByteLength(text: string): number {
   return textEncoder.encode(text).length;
@@ -62,12 +67,6 @@ function textDocumentContent(document: vscode.TextDocument): { text: string; lin
 
 function diskStatKey(stat: vscode.FileStat): string {
   return `${stat.mtime}:${stat.size}`;
-}
-
-function logDiskReadFailure(uri: vscode.Uri, error: unknown): void {
-  if (error instanceof vscode.FileSystemError) {
-    logDiskEntryReadFailure(uri, error.code);
-  }
 }
 
 function sectionRanges(parsed: ParsedLine[], lineTexts: string[]): Map<number, SectionRange> {
@@ -148,6 +147,21 @@ function skipEntry(reason: WorkspaceEntrySkipReason): WorkspaceEntryLoadResult {
   return { entry: null, skipReason: reason };
 }
 
+function entryHasSchemaIdentity(
+  cached: WorkspaceDocumentSymbols | undefined,
+  schema: HaproxySchema,
+): cached is WorkspaceDocumentSymbols {
+  return cached !== undefined && workspaceEntrySchema.get(cached) === schema;
+}
+
+function entryForSchema(
+  entry: WorkspaceDocumentSymbols,
+  schema: HaproxySchema,
+): WorkspaceDocumentSymbols {
+  workspaceEntrySchema.set(entry, schema);
+  return entry;
+}
+
 export function createOpenDocumentEntry(
   document: vscode.TextDocument,
   schema: HaproxySchema,
@@ -174,34 +188,40 @@ export function createOpenDocumentEntry(
   }
   const fingerprint = fingerprintText(text);
   const byteLength = encodedTextByteLength(text);
-  if (cached && cached.fingerprint === fingerprint) {
+  if (entryHasSchemaIdentity(cached, schema) && cached.fingerprint === fingerprint) {
     return {
-      entry: {
-        ...cached,
+      entry: entryForSchema(
+        {
+          ...cached,
+          uri: document.uri,
+          uriKey: workspaceUriKey(document.uri),
+          version: document.version,
+          fingerprint,
+          diskStatKey: null,
+          byteLength,
+        },
+        schema,
+      ),
+    };
+  }
+  const index = getSymbolIndex(document, schema, maxLines)!;
+  const parsed = getParsedDocument(document, { sectionHeaders: sectionHeaderSet(schema) });
+  return {
+    entry: entryForSchema(
+      {
         uri: document.uri,
         uriKey: workspaceUriKey(document.uri),
         version: document.version,
         fingerprint,
         diskStatKey: null,
         byteLength,
+        parsed,
+        lineTexts: lines,
+        index,
+        sectionRangesByStartLine: sectionRanges(parsed, lines),
       },
-    };
-  }
-  const index = getSymbolIndex(document, schema, maxLines)!;
-  const parsed = getParsedDocument(document, { sectionHeaders: sectionHeaderSet(schema) });
-  return {
-    entry: {
-      uri: document.uri,
-      uriKey: workspaceUriKey(document.uri),
-      version: document.version,
-      fingerprint,
-      diskStatKey: null,
-      byteLength,
-      parsed,
-      lineTexts: lines,
-      index,
-      sectionRangesByStartLine: sectionRanges(parsed, lines),
-    },
+      schema,
+    ),
   };
 }
 
@@ -236,12 +256,16 @@ export async function loadDiskEntry(
   try {
     const stat = await vscode.workspace.fs.stat(uri);
     const statKey = diskStatKey(stat);
-    if (cached && cached.diskStatKey === statKey && cached.version === null) {
-      return { entry: cached };
-    }
-
     if (exceedsLimit(stat.size, limits.maxFileBytes)) {
       return skipEntry("file-too-large");
+    }
+
+    if (
+      entryHasSchemaIdentity(cached, schema) &&
+      cached.diskStatKey === statKey &&
+      cached.version === null
+    ) {
+      return { entry: cached };
     }
 
     const bytes = await vscode.workspace.fs.readFile(uri);
@@ -261,21 +285,33 @@ export async function loadDiskEntry(
     const parsed = parseDocumentLines(lines, { sectionHeaders: headers });
     const index = buildSymbolIndex(parsed, schema);
     return {
-      entry: {
-        uri,
-        uriKey: workspaceUriKey(uri),
-        version: null,
-        fingerprint: fingerprintText(text),
-        diskStatKey: statKey,
-        byteLength,
-        parsed,
-        lineTexts: lines,
-        index,
-        sectionRangesByStartLine: sectionRanges(parsed, lines),
-      },
+      entry: entryForSchema(
+        {
+          uri,
+          uriKey: workspaceUriKey(uri),
+          version: null,
+          fingerprint: fingerprintText(text),
+          diskStatKey: statKey,
+          byteLength,
+          parsed,
+          lineTexts: lines,
+          index,
+          sectionRangesByStartLine: sectionRanges(parsed, lines),
+        },
+        schema,
+      ),
     };
   } catch (error) {
-    logDiskReadFailure(uri, error);
+    if (error instanceof vscode.FileSystemError) {
+      return {
+        entry: null,
+        skipReason: "read-failed",
+        readFailure: {
+          uri,
+          code: error.code,
+        },
+      };
+    }
     return skipEntry("read-failed");
   }
 }

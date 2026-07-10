@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 
-import { getParsedDocument } from "./parseCache";
-import { HaproxySchema, sectionHeaderSet } from "./schema";
-import { sectionOutlineByStartLine, SectionSymbolInfo } from "./sectionOutline";
+import { getDocumentAnalysis } from "./documentAnalysis";
+import { HaproxySchema } from "./schema";
+import { SectionSymbolInfo } from "./sectionOutline";
 import {
   findDefinitions,
   findReferences,
@@ -48,10 +48,7 @@ function sectionOutlineForDocument(
   document: vscode.TextDocument,
   schema: HaproxySchema,
 ): Map<number, SectionSymbolInfo> {
-  const parsed = getParsedDocument(document, {
-    sectionHeaders: sectionHeaderSet(schema),
-  });
-  return sectionOutlineByStartLine(document, parsed);
+  return getDocumentAnalysis(document, schema).sectionOutlineByStartLine();
 }
 
 function siteToLocation(uri: vscode.Uri, site: SymbolSite): vscode.Location {

@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 
+import { DocumentAnalysis, getDocumentAnalysis } from "./documentAnalysis";
 import { HaproxyLanguageData } from "./languageData";
 import { isConditionalOrStatusDirective } from "./conditionalDirectives";
-import { getParsedDocument } from "./parseCache";
 import { ParsedLine, ParsedToken } from "./parser";
-import { HaproxySchema, sectionHeaderSet, sortedSectionHeaders } from "./schema";
+import { HaproxySchema, sortedSectionHeaders } from "./schema";
 import { candidateRules, ruleMatchesLine } from "./statementLayout";
 import { keywordsForSection } from "./languageDataIndexes";
 import { isSectionHeaderCompletionContext } from "./sectionUtils";
@@ -83,9 +83,9 @@ export function getDocumentContext(
   document: vscode.TextDocument,
   position: vscode.Position,
   schema: HaproxySchema,
+  analysis: DocumentAnalysis = getDocumentAnalysis(document, schema),
 ): DocumentContext | null {
-  const parsed = getParsedDocument(document, { sectionHeaders: sectionHeaderSet(schema) });
-  const line = parsed[position.line];
+  const line = analysis.parsed[position.line];
   if (!line) {
     return null;
   }

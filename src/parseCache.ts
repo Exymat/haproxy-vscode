@@ -26,8 +26,13 @@ export interface ParsedDocumentEntry {
   reuse: ParsedDocumentReuse;
 }
 
+interface UriParsedDocumentEntry {
+  optionsKey: string;
+  entry: ParsedDocumentEntry;
+}
+
 const cache = new WeakMap<vscode.TextDocument, Map<string, ParsedDocumentEntry>>();
-const uriCache = new UriLruCache<ParsedDocumentEntry>(64);
+const uriCache = new UriLruCache<UriParsedDocumentEntry>(64);
 
 function lineTextsForDocument(document: vscode.TextDocument): string[] {
   return Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
@@ -64,7 +69,7 @@ function parseOptionsKey(options?: ParseOptions): string {
   if (!options?.sectionHeaders) {
     return "";
   }
-  return [...options.sectionHeaders].join("\0");
+  return [...options.sectionHeaders].sort().join("\0");
 }
 
 function parseDocumentIncremental(
@@ -182,16 +187,16 @@ export function getParsedDocumentEntry(
   const uriKey = documentUriKey(document);
   if (!hit) {
     const uriHit = uriCache.get(uriKey, contentFingerprint);
-    if (uriHit) {
+    if (uriHit && uriHit.optionsKey === optionsKey) {
       const restored: ParsedDocumentEntry = {
-        ...uriHit,
+        ...uriHit.entry,
         version: document.version,
         reuse: {
-          previousVersion: uriHit.version,
-          prefixLines: uriHit.parsed.length,
+          previousVersion: uriHit.entry.version,
+          prefixLines: uriHit.entry.parsed.length,
           suffixLines: 0,
-          oldSuffixStart: uriHit.parsed.length,
-          newSuffixStart: uriHit.parsed.length,
+          oldSuffixStart: uriHit.entry.parsed.length,
+          newSuffixStart: uriHit.entry.parsed.length,
         },
       };
       entries.set(optionsKey, restored);
@@ -215,7 +220,10 @@ export function getParsedDocumentEntry(
         },
       };
   entries.set(optionsKey, next);
-  uriCache.set(documentUriKey(document), documentContentFingerprint(document), next);
+  uriCache.set(documentUriKey(document), documentContentFingerprint(document), {
+    optionsKey,
+    entry: next,
+  });
   return next;
 }
 

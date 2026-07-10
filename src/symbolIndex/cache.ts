@@ -17,11 +17,12 @@ import { SymbolIndex } from "./types";
 
 interface IndexCacheEntry {
   version: number;
+  schema: HaproxySchema;
   index: SymbolIndex;
   lineFingerprints: string[];
 }
 
-const indexCache = new WeakMap<vscode.TextDocument, IndexCacheEntry>();
+let indexCache = new WeakMap<vscode.TextDocument, IndexCacheEntry>();
 const uriIndexCache = new UriLruCache<IndexCacheEntry>(64);
 
 function dirtyLineCount(entry: ParsedDocumentEntry): number {
@@ -81,6 +82,10 @@ function storeIndexCache(document: vscode.TextDocument, entry: IndexCacheEntry):
   uriIndexCache.set(documentUriKey(document), documentContentFingerprint(document), entry);
 }
 
+function hasSchemaIdentity(entry: IndexCacheEntry | undefined, schema: HaproxySchema): boolean {
+  return entry?.schema === schema;
+}
+
 export function getSymbolIndexVersion(document: vscode.TextDocument): number | undefined {
   return indexCache.get(document)?.version;
 }
@@ -89,6 +94,11 @@ export function hasUriSymbolIndexCache(document: vscode.TextDocument): boolean {
   return (
     uriIndexCache.get(documentUriKey(document), documentContentFingerprint(document)) !== undefined
   );
+}
+
+export function clearSymbolIndexCaches(): void {
+  indexCache = new WeakMap<vscode.TextDocument, IndexCacheEntry>();
+  uriIndexCache.clear();
 }
 
 export function getSymbolIndex(
@@ -104,43 +114,47 @@ export function getSymbolIndex(
     sectionHeaders: sectionHeaderSet(schema),
   });
   const hit = indexCache.get(document);
-  if (hit && hit.version === document.version) {
-    return hit.index;
+  const matchingHit = hasSchemaIdentity(hit, schema) ? hit : undefined;
+  if (matchingHit && matchingHit.version === document.version) {
+    return matchingHit.index;
   }
 
   const uriHit = uriIndexCache.get(documentUriKey(document), documentContentFingerprint(document));
-  if (uriHit && !hit) {
-    const restored = { ...uriHit, version: document.version };
+  const matchingUriHit = hasSchemaIdentity(uriHit, schema) ? uriHit : undefined;
+  if (matchingUriHit && !matchingHit) {
+    const restored = { ...matchingUriHit, version: document.version };
     storeIndexCache(document, restored);
     return restored.index;
   }
 
-  if (hit && canReuseSymbolIndex(hit, parseEntry, schema)) {
+  if (matchingHit && canReuseSymbolIndex(matchingHit, parseEntry, schema)) {
     storeIndexCache(document, {
       version: document.version,
-      index: hit.index,
-      lineFingerprints: hit.lineFingerprints,
+      schema,
+      index: matchingHit.index,
+      lineFingerprints: matchingHit.lineFingerprints,
     });
-    return hit.index;
+    return matchingHit.index;
   }
 
-  if (hit && canIncrementalPatch(parseEntry)) {
+  if (matchingHit && canIncrementalPatch(parseEntry)) {
     const dirtyLineNo = parseEntry.reuse.prefixLines;
     const line = parseEntry.parsed[dirtyLineNo];
     if (line) {
-      const scopeKey = hit.index.scopeKeyByLine[dirtyLineNo] ?? null;
+      const scopeKey = matchingHit.index.scopeKeyByLine[dirtyLineNo] ?? null;
       const buildContext = createSymbolBuildContext(schema);
       const sites = collectLineSymbolSites(line, schema, scopeKey, buildContext);
       const { index, lineFingerprints } = patchSymbolIndexLine(
-        hit.index,
+        matchingHit.index,
         line,
         sites,
         buildContext,
       );
-      const nextFingerprints = [...hit.lineFingerprints];
+      const nextFingerprints = [...matchingHit.lineFingerprints];
       nextFingerprints[dirtyLineNo] = lineFingerprints[0] ?? "";
       storeIndexCache(document, {
         version: document.version,
+        schema,
         index,
         lineFingerprints: nextFingerprints,
       });
@@ -149,11 +163,12 @@ export function getSymbolIndex(
   }
 
   const { index, lineFingerprints } = buildSymbolIndexWithFingerprints(parseEntry.parsed, schema, {
-    computeFingerprints: Boolean(hit || uriHit),
-    buildSitesByLine: Boolean(hit || uriHit),
+    computeFingerprints: Boolean(matchingHit || matchingUriHit),
+    buildSitesByLine: Boolean(matchingHit || matchingUriHit),
   });
   storeIndexCache(document, {
     version: document.version,
+    schema,
     index,
     lineFingerprints,
   });

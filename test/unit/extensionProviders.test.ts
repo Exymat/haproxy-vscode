@@ -1,5 +1,6 @@
 import { activate, deactivate } from "../../src/extension";
 import * as schema from "../../src/schema";
+import * as symbolIndex from "../../src/symbolIndex";
 import {
   commands,
   Diagnostic,
@@ -15,6 +16,10 @@ import {
   workspace,
 } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
+import { loadSchema } from "../helpers/schema";
+import { defaultWorkspaceSymbolSettings } from "./workspaceSymbolIndex/helpers";
+
+const schemaFixture = loadSchema("3.4");
 
 function haproxyDocument(content: string) {
   const lines = content.split(/\r?\n/);
@@ -255,6 +260,19 @@ describe("extension providers", () => {
 
     activate(mockExtensionContext() as never);
     await vi.runAllTimersAsync();
+    symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
+      schemaFixture,
+      defaultWorkspaceSymbolSettings(),
+      4000,
+      { scope: "full" },
+    );
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+    await vi.waitFor(() => {
+      expect(symbolIndex.getWorkspaceSymbolIndex()?.documents.has("file:///indexed.cfg")).toBe(
+        true,
+      );
+    });
 
     const command = getRegisteredCommand("haproxy.peekDefinitionAtPosition");
     expect(command).toBeDefined();

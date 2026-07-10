@@ -1,5 +1,6 @@
 import * as symbolIndex from "../../src/symbolIndex";
 import { activate, deactivate } from "../../src/extension";
+import { getLoadedBundle } from "../../src/extensionBundle";
 import * as grammar from "../../src/grammar";
 import {
   getLastDiagnosticCollection,
@@ -220,13 +221,29 @@ describe("extension workspace symbol integration", () => {
     mockTextDocuments.push(doc);
 
     activate(mockExtensionContext() as never);
-    openListeners.at(-1)?.(doc);
-    await vi.runAllTimersAsync();
+    symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
+      schema,
+      defaultWorkspaceSymbolSettings({ debounceMs: 100 }),
+      4000,
+      { scope: "full", document: doc as never },
+    );
+    await vi.advanceTimersByTimeAsync(100);
+    await Promise.resolve();
+    const indexed = symbolIndex.getWorkspaceSymbolIndex();
+    expect(indexed?.documents.has("file:///test.cfg")).toBe(true);
 
+    const rebuildSpy = vi.spyOn(symbolIndex, "scheduleWorkspaceSymbolIndexRebuild");
     openListeners.at(-1)?.(createDocument("backend api", "file:///test.cfg") as MockDoc);
-    await vi.runAllTimersAsync();
+    await Promise.resolve();
 
     expect(symbolIndex.resolveWorkspaceRebuildScopeOnOpen(doc as never)).toBe("none");
+    expect(
+      rebuildSpy.mock.calls.some((call) => {
+        const options = call[3] as
+          { scope?: string; document?: { uri: { toString: () => string } } } | undefined;
+        return options?.document?.uri.toString() === "file:///test.cfg";
+      }),
+    ).toBe(false);
     expect(symbolIndex.isWorkspaceRebuildPending()).toBe(false);
   });
 
@@ -354,6 +371,9 @@ describe("extension workspace symbol integration", () => {
 
     activate(mockExtensionContext() as never);
     await vi.runAllTimersAsync();
+    await vi.waitFor(() => {
+      expect(getLoadedBundle()).toBeDefined();
+    });
 
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schema,
@@ -396,6 +416,9 @@ describe("extension workspace symbol integration", () => {
 
     activate(mockExtensionContext() as never);
     await vi.runAllTimersAsync();
+    await vi.waitFor(() => {
+      expect(getLoadedBundle()).toBeDefined();
+    });
 
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schema,
@@ -453,9 +476,11 @@ describe("extension workspace symbol integration", () => {
     await vi.advanceTimersByTimeAsync(100);
     await Promise.resolve();
 
-    const setUris = diagnosticSetUris(collection);
-    expect(setUris).toContain("file:///repo/api.cfg");
-    expect(setUris).not.toContain("file:///repo/readme.txt");
+    await vi.waitFor(() => {
+      const setUris = diagnosticSetUris(collection);
+      expect(setUris).toContain("file:///repo/api.cfg");
+      expect(setUris).not.toContain("file:///repo/readme.txt");
+    });
   });
 
   it("runs diagnostics immediately after incremental workspace index updates", async () => {
@@ -465,6 +490,9 @@ describe("extension workspace symbol integration", () => {
 
     activate(mockExtensionContext() as never);
     await vi.runAllTimersAsync();
+    await vi.waitFor(() => {
+      expect(getLoadedBundle()).toBeDefined();
+    });
 
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schema,
@@ -488,7 +516,9 @@ describe("extension workspace symbol integration", () => {
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
-    expect(collection?.set).toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(collection?.set).toHaveBeenCalled();
+    });
   });
 
   it("refreshes all documents after full workspace rebuilds", async () => {
@@ -512,7 +542,9 @@ describe("extension workspace symbol integration", () => {
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
-    expect(collection?.set).toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(collection?.set).toHaveBeenCalled();
+    });
   });
 
   it("reconfigures watchers and schedules full rebuild when workspace folders change", async () => {

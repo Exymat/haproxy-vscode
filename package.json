@@ -416,5 +416,8 @@
     "diff": "^8.0.3",
     "glob": "^13.0.6",
     "serialize-javascript": "^7.0.7"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
   }
 }

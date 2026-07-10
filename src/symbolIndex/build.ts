@@ -35,18 +35,17 @@ export function collectLineSymbolSites(
   return sites;
 }
 
-/** Stable fingerprint of symbol names/roles on a line (ignores positions). */
+/** Stable fingerprint of symbol names/roles/ranges on a line. */
 export function symbolSiteFingerprint(sites: SymbolSite[]): string {
   if (sites.length === 0) {
     return "";
   }
+  const fingerprintPart = (site: SymbolSite) =>
+    `${site.role}:${site.kind}:${site.scopeKey ?? ""}:${site.name.toLowerCase()}:${site.start}:${site.end}`;
   if (sites.length === 1) {
-    const site = sites[0];
-    return `${site.role}:${site.kind}:${site.scopeKey ?? ""}:${site.name.toLowerCase()}`;
+    return fingerprintPart(sites[0]);
   }
-  const parts = sites.map(
-    (site) => `${site.role}:${site.kind}:${site.scopeKey ?? ""}:${site.name.toLowerCase()}`,
-  );
+  const parts = sites.map((site) => fingerprintPart(site));
   parts.sort();
   return parts.join("\0");
 }

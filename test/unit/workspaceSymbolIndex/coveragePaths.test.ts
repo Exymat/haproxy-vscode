@@ -5,6 +5,7 @@ import {
   scheduleWorkspaceSymbolIndexRebuild,
   workspaceEntryForDocument,
 } from "../../../src/symbolIndex";
+import * as workspaceDocuments from "../../../src/symbolIndex/workspaceDocuments";
 import { targetFolderRefs } from "../../../src/symbolIndex/workspaceDiscovery";
 import {
   mockTextDocuments,
@@ -78,6 +79,26 @@ describe("workspace symbol coverage paths", () => {
     expect(expectWorkspaceIndex(getWorkspaceSymbolIndex())?.documents.has("file:///solo.cfg")).toBe(
       true,
     );
+  });
+
+  it("uses full rebuild defaults when rebuild options omit a scope", async () => {
+    setMockWorkspaceFile("file:///default-scope.cfg", "backend default_scope");
+
+    scheduleWorkspaceSymbolIndexRebuild(schema, workspaceSettings, 4000, {});
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    expect(
+      expectWorkspaceIndex(getWorkspaceSymbolIndex())?.documents.has("file:///default-scope.cfg"),
+    ).toBe(true);
+  });
+
+  it("uses full notification defaults when disabled rebuild options omit a scope", async () => {
+    scheduleWorkspaceSymbolIndexRebuild(schema, { ...workspaceSettings, enabled: false }, 4000, {});
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    expect(getWorkspaceSymbolIndex()).toBeNull();
   });
 
   it("ignores sticky folder keys that no longer exist in the workspace", async () => {
@@ -205,7 +226,7 @@ describe("workspace symbol coverage paths", () => {
         { ...settings, exclude: ["{tmp,cache}/**"] },
         folder as never,
       ),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       isUriExcludedFromWorkspaceSymbols(
         Uri.file("file:///repo/haproxy.cfg") as never,
@@ -238,6 +259,23 @@ describe("workspace symbol coverage paths", () => {
         folder as never,
       ),
     ).toBe(false);
+  });
+
+  it("applies expanded brace excludes during workspace discovery", async () => {
+    setMockWorkspaceFolders([workspaceFolder("file:///repo")]);
+    setMockWorkspaceFile("file:///repo/haproxy.cfg", "backend app");
+    setMockWorkspaceFile("file:///repo/tmp/skipped.cfg", "backend tmp");
+    setMockWorkspaceFile("file:///repo/cache/skipped.cfg", "backend cache");
+    mockTextDocuments.push(createDocument("backend app", "file:///repo/haproxy.cfg") as never);
+
+    await buildWorkspace(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, ["**/*.cfg"], {
+      exclude: ["{tmp,cache}/**"],
+    });
+
+    const index = expectWorkspaceIndex(getWorkspaceSymbolIndex());
+    expect(index.documents.has("file:///repo/haproxy.cfg")).toBe(true);
+    expect(index.documents.has("file:///repo/tmp/skipped.cfg")).toBe(false);
+    expect(index.documents.has("file:///repo/cache/skipped.cfg")).toBe(false);
   });
 
   it("evicts disk entries when reads fail after stat changes", async () => {
@@ -341,5 +379,47 @@ describe("workspace symbol coverage paths", () => {
     await Promise.resolve();
 
     expect(getWorkspaceSymbolIndex(doc)).toBeNull();
+  });
+
+  it("caps when bounded discovery had an extra HAProxy candidate after skipped null entries", async () => {
+    setMockWorkspaceFile("file:///a.cfg", "backend a");
+    setMockWorkspaceFile("file:///b.cfg", "backend b");
+    setMockWorkspaceFile("file:///c.cfg", "backend c");
+    const originalLoad = workspaceDocuments.loadDiskEntry;
+    vi.spyOn(workspaceDocuments, "loadDiskEntry").mockImplementation((uri, ...args) => {
+      if (uri.toString() === "file:///b.cfg") {
+        return Promise.resolve({ entry: null });
+      }
+      return originalLoad(uri, ...args);
+    });
+
+    await buildWorkspace(2);
+
+    expect(getWorkspaceSymbolIndex()).toBeNull();
+  });
+
+  it("keeps incremental work for other folders when a full folder target is merged", async () => {
+    setMockWorkspaceFolders([workspaceFolder("file:///repo"), workspaceFolder("file:///other")]);
+    setMockWorkspaceFile("file:///repo/a.cfg", "backend a");
+    setMockWorkspaceFile("file:///other/b.cfg", "backend b");
+    const docA = createDocument("backend a", "file:///repo/a.cfg");
+    const docB = createDocument("backend b", "file:///other/b.cfg");
+    mockTextDocuments.push(docA as never, docB as never);
+    await buildWorkspace();
+
+    updateDocument(docA, "backend a_v2");
+    scheduleWorkspaceSymbolIndexRebuild(schema, workspaceSettings, 4000, {
+      scope: "incremental",
+      document: docA,
+    });
+    scheduleWorkspaceSymbolIndexRebuild(schema, workspaceSettings, 4000, {
+      scope: "full",
+      uri: Uri.file("file:///other/b.cfg") as never,
+    });
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    expect(workspaceEntryForDocument(docA)?.index.definitions.has("proxy-section:a_v2")).toBe(true);
+    expect(workspaceEntryForDocument(docB)).toBeDefined();
   });
 });
