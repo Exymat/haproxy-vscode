@@ -6,7 +6,7 @@ import {
 } from "../../../src/outputChannel";
 import { scheduleWorkspaceSymbolIndexRebuild } from "../../../src/symbolIndex";
 import * as workspaceDocuments from "../../../src/symbolIndex/workspaceDocuments";
-import { setMockWorkspaceFile, setMockWorkspaceReadFailure } from "../../__mocks__/vscode";
+import { setMockWorkspaceFile, setMockWorkspaceReadFailure } from "../../helpers/vscode";
 import {
   buildWorkspace,
   defaultWorkspaceSymbolSettings,

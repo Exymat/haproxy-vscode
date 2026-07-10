@@ -17,7 +17,7 @@ import {
   optionHoverContext,
 } from "./helpers";
 import { createDocument } from "../../helpers/document";
-import { Range } from "../../__mocks__/vscode";
+import { Range } from "../../helpers/vscode";
 
 function ruleActionHoverContext(lineText: string, character: number): HoverContext {
   const doc = createDocument(`frontend web\n${lineText}`);

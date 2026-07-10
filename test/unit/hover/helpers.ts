@@ -13,7 +13,7 @@ import { HaproxyLanguageData } from "../../../src/languageData";
 import { HaproxySchema } from "../../../src/schema/types";
 import { sectionKeywordSet } from "../../../src/schema/keywords";
 import { modifierPrefixSet, noPrefixKeywordSet } from "../../../src/schema/tokens";
-import { MarkdownString, Range } from "../../__mocks__/vscode";
+import { MarkdownString, Range } from "../../helpers/vscode";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";
 

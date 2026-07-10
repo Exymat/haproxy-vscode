@@ -128,11 +128,8 @@ export function computeDiagnostics(
   const uriHit = uriDiagnosticsCache.get(documentUriKey(document), contentFingerprint);
   const analysis = getDocumentAnalysis(document, schema);
   if (uriHit && sameCacheKey(uriHit.key, key)) {
-    const ctx = new DiagnosticContext(document, schema, options, analysis);
-    if (uriHit.suppressDeprecated === ctx.suppressDeprecated) {
-      diagnosticsCache.set(document, { ...uriHit, version: document.version });
-      return uriHit.diagnostics;
-    }
+    diagnosticsCache.set(document, { ...uriHit, version: document.version });
+    return uriHit.diagnostics;
   }
 
   const ctx = new DiagnosticContext(document, schema, options, analysis);
@@ -147,13 +144,13 @@ export function computeDiagnostics(
   const lineDiagnostics = new Array<vscode.Diagnostic[]>(ctx.parsed.length);
   if (canReuseLines) {
     for (let i = 0; i < reuse.prefixLines; i += 1) {
-      lineDiagnostics[i] = cached.lineDiagnostics[i] ?? [];
+      lineDiagnostics[i] = cached.lineDiagnostics[i]!;
     }
     if (reuse.suffixLines > 0) {
       const delta = ctx.parsed.length - cached.lineDiagnostics.length;
       for (let i = reuse.newSuffixStart; i < ctx.parsed.length; i += 1) {
         const oldIndex = i - delta;
-        lineDiagnostics[i] = cached.lineDiagnostics[oldIndex] ?? [];
+        lineDiagnostics[i] = cached.lineDiagnostics[oldIndex]!;
       }
     }
   }

@@ -5,7 +5,7 @@ import {
   setMockWorkspaceFileStat,
   Uri,
   workspace,
-} from "../../__mocks__/vscode";
+} from "../../helpers/vscode";
 
 import { schema, setupWorkspaceSymbolIndexTests } from "./helpers";
 

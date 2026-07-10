@@ -12,8 +12,26 @@ const testFiles = ["test/**/*.ts", "vitest.config.ts"];
 /** @type {import("eslint").Linter.RulesRecord} */
 const testRuleOverrides = {
   "vitest/no-mocks-import": "off",
-  // Helpers such as runCase and runDiagnosticCase wrap assertions in nested callbacks.
-  "vitest/expect-expect": "off",
+  "vitest/expect-expect": [
+    "error",
+    {
+      assertFunctionNames: [
+        "expect",
+        "assert",
+        "assertDiagnosticCounts",
+        "assertDiagnosticMinimumCounts",
+        "expectNoDiagnosticCode",
+        "assertDef",
+        "runDiagnosticCase",
+        "assertGrammarLineIsolated",
+        "assertRefCount",
+        "assertResolve",
+        "expectMalformedGeneratedMetadata",
+        "runCase",
+      ],
+      additionalTestBlockFunctions: ["it", "test"],
+    },
+  ],
 };
 
 export default defineConfig(

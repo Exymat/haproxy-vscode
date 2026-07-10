@@ -35,7 +35,11 @@ function tokensMatchPatternAt(
   matchTokens: string[],
 ): boolean {
   for (let i = 0; i < matchTokens.length; i += 1) {
-    if (tokens[start + i]?.text.toLowerCase() !== matchTokens[i]?.toLowerCase()) {
+    const expected = matchTokens[i]?.toLowerCase();
+    if (expected === "*") {
+      continue;
+    }
+    if (tokens[start + i]?.text.toLowerCase() !== expected) {
       return false;
     }
   }

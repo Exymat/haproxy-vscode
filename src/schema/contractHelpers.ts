@@ -74,7 +74,6 @@ export function assertNestedStringArrayRecord(value: unknown, path: string): voi
 }
 
 export function assertBooleanMatrixValue(value: unknown, path: string): void {
-  /* v8 ignore next -- validateSchemaContract checks this before calling the matrix validator. */
   if (!Array.isArray(value)) {
     throw metadataContractError(path);
   }

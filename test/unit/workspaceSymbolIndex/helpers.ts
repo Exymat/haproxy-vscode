@@ -5,7 +5,7 @@ import {
   type WorkspaceSymbolIndex,
   type WorkspaceSymbolSettings,
 } from "../../../src/symbolIndex";
-import { resetVscodeMock } from "../../__mocks__/vscode";
+import { resetMockVscode } from "../../helpers/vscode";
 import { loadSchema } from "../../helpers/schema";
 
 export const schema = loadSchema("3.4");
@@ -72,7 +72,7 @@ export function expectWorkspaceDocumentSymbols(
 export function setupWorkspaceSymbolIndexTests(): void {
   beforeEach(() => {
     vi.useFakeTimers();
-    resetVscodeMock();
+    resetMockVscode();
     clearWorkspaceSymbolIndex();
   });
 

@@ -228,6 +228,9 @@ describe("symbol hover", () => {
     expect(
       symbolIndex.workspaceSiteText(workspaceIndex, { ...aclDefinition, uriKey: "missing" }),
     ).toBeUndefined();
+    expect(
+      symbolIndex.findWorkspaceReferences(workspaceIndex, "acl", "not_defined", "frontend:web"),
+    ).toEqual([]);
   });
 
   it("shows the definition line for default_backend references", () => {

@@ -4,7 +4,7 @@ import {
   buildWorkspaceSymbolIndexFromOpenDocuments,
   findWorkspaceDefinitions,
 } from "../../../src/symbolIndex";
-import { mockTextDocuments, setMockWorkspaceFile } from "../../__mocks__/vscode";
+import { mockTextDocuments, setMockWorkspaceFile } from "../../helpers/vscode";
 import { createDocument } from "../../helpers/document";
 import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 

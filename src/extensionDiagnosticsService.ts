@@ -40,11 +40,9 @@ export function createExtensionDiagnosticsService(
   const refreshDocumentsInWorkspaceFolders = (
     folderUris: readonly (string | undefined)[],
   ): void => {
-    /* v8 ignore start -- scheduler callback covered by extensionWorkspace.test.ts */
     refreshDocumentsInFolders(folderUris, vscode.workspace.textDocuments, (document) =>
       scheduler.schedule(document),
     );
-    /* v8 ignore stop */
   };
 
   return {

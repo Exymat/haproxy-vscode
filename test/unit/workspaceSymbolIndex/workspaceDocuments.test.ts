@@ -6,10 +6,10 @@ import {
 import { sectionHeaderSet } from "../../../src/schema/layout";
 import {
   mockTextDocuments,
-  resetVscodeMock,
+  resetMockVscode,
   setMockWorkspaceFile,
   Uri,
-} from "../../__mocks__/vscode";
+} from "../../helpers/vscode";
 import { createDocument } from "../../helpers/document";
 import { loadSchema } from "../../helpers/schema";
 
@@ -31,7 +31,7 @@ describe("looksLikeHaproxyConfig", () => {
 
 describe("createDiskEntry", () => {
   beforeEach(() => {
-    resetVscodeMock();
+    resetMockVscode();
     mockTextDocuments.length = 0;
   });
 
@@ -64,7 +64,7 @@ describe("createDiskEntry", () => {
 
 describe("createOpenDocumentEntry", () => {
   beforeEach(() => {
-    resetVscodeMock();
+    resetMockVscode();
     mockTextDocuments.length = 0;
   });
 

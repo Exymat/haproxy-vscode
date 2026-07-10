@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { computeLineOptionArgumentEnd } from "../../../src/lineOptionSpan";
+import {
+  buildLineOptionAllowedSet,
+  computeLineOptionArgumentEnd,
+} from "../../../src/lineOptionSpan";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { bundles } from "./helpers";
@@ -35,6 +38,8 @@ describe("line option slot walker", () => {
       "tailonly",
       "breakopt",
       "pairskip",
+      "openended",
+      "baseenum",
     ];
     schema.keyword_groups.server_options_with_value = [
       ...(schema.keyword_groups.server_options_with_value ?? []),
@@ -55,6 +60,7 @@ describe("line option slot walker", () => {
         "backend",
       ),
     ).toBe(5);
+    expect(buildLineOptionAllowedSet(schema, "missing_options").allowed.size).toBe(0);
 
     schema.keywords.pairopt = {
       name: "pairopt",
@@ -250,6 +256,94 @@ describe("line option slot walker", () => {
         "backend",
       ),
     ).toBe(6);
+    const tailOnlyOptionLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 tailonly on nextopt"),
+    )[1];
+    expect(
+      computeLineOptionArgumentEnd(
+        schema,
+        tailOnlyOptionLine,
+        3,
+        tailOnlyOptionLine.tokens.length,
+        "server_options",
+        "server",
+        "backend",
+      ),
+    ).toBe(5);
+
+    schema.keywords.openended = {
+      name: "openended",
+      sections: ["backend"],
+      signatures: ["openended <value>..."],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["openended <value>..."],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 0,
+            max_args: null,
+            slots: [{ enum: [], optional: false, value_kind: "generic", variadic: true }],
+          },
+        },
+      ],
+    };
+    const openEndedLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 openended one two"),
+    )[1];
+    expect(
+      computeLineOptionArgumentEnd(
+        schema,
+        openEndedLine,
+        3,
+        openEndedLine.tokens.length,
+        "server_options",
+        "server",
+        "backend",
+      ),
+    ).toBe(5);
+
+    schema.keywords.baseenum = {
+      name: "baseenum",
+      sections: ["backend"],
+      signatures: ["baseenum on"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["backend"],
+          signatures: ["baseenum on"],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 1,
+            slots: [{ enum: ["on"], optional: false, value_kind: "enum", variadic: false }],
+          },
+        },
+      ],
+    };
+    const baseEnumLine = parseDocument(
+      createDocument("backend api\n    server s1 127.0.0.1:80 baseenum on(foo)"),
+    )[1];
+    expect(
+      computeLineOptionArgumentEnd(
+        schema,
+        baseEnumLine,
+        3,
+        baseEnumLine.tokens.length,
+        "server_options",
+        "server",
+        "backend",
+      ),
+    ).toBe(5);
 
     schema.keywords.breakopt = {
       name: "breakopt",

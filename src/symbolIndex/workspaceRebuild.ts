@@ -60,8 +60,8 @@ let activeSchemaSource: WorkspaceSchemaSource | null = null;
 let activeMaxLines = 0;
 
 type ActiveWorkspaceRebuildScope = Exclude<WorkspaceRebuildScope, "none">;
-type ActiveWorkspaceRebuildOptions = Omit<WorkspaceRebuildOptions, "scope"> & {
-  scope?: ActiveWorkspaceRebuildScope;
+type ResolvedWorkspaceRebuildOptions = Omit<WorkspaceRebuildOptions, "scope"> & {
+  scope: ActiveWorkspaceRebuildScope;
 };
 
 interface PendingFolderTarget {
@@ -100,9 +100,9 @@ function removeIncrementalDocumentsInFolder(
 
 function mergePendingRebuild(
   current: PendingRebuild,
-  options: ActiveWorkspaceRebuildOptions,
+  options: ResolvedWorkspaceRebuildOptions,
 ): PendingRebuild {
-  const scope = options.scope ?? "full";
+  const { scope } = options;
 
   if (scope === "full" && !options.document && !options.uri) {
     return { ...createEmptyPendingRebuild(), workspaceFull: true };
@@ -305,19 +305,19 @@ async function rebuildWorkspaceIndexes(
   settings: WorkspaceSymbolSettings,
   maxLines: number,
   generation: number,
-  options: ActiveWorkspaceRebuildOptions = { scope: "full" },
+  options: ResolvedWorkspaceRebuildOptions,
 ): Promise<void> {
   if (!settings.enabled) {
     if (generation === getActiveGeneration()) {
       resetWorkspaceIndexState();
       invalidateDiscoveryCache();
       logWorkspaceIndexDisabled();
-      notifyWorkspaceIndexChanged({ scope: options.scope ?? "full", document: options.document });
+      notifyWorkspaceIndexChanged({ scope: options.scope, document: options.document });
     }
     return;
   }
 
-  const scope = options.scope ?? "full";
+  const { scope } = options;
   if (scope === "incremental" && options.document) {
     await updateSingleDocumentInWorkspaceIndex(
       options.document,

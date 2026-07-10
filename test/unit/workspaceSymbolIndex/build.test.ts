@@ -1,5 +1,7 @@
 import { computeDiagnostics } from "../../../src/diagnostics";
 import * as workspaceDocuments from "../../../src/symbolIndex/workspaceDocuments";
+import { buildFolderWorkspaceIndex } from "../../../src/symbolIndex/workspaceFolderBuild";
+import { getActiveGeneration } from "../../../src/symbolIndex/workspaceState";
 import {
   buildWorkspaceSymbolIndexFromOpenDocuments,
   findWorkspaceDefinitions,
@@ -14,7 +16,7 @@ import {
   mockTextDocuments,
   setMockWorkspaceFile,
   setMockWorkspaceFolders,
-} from "../../__mocks__/vscode";
+} from "../../helpers/vscode";
 import { createDocument } from "../../helpers/document";
 import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 
@@ -366,5 +368,31 @@ describe("workspace symbol index build", () => {
     expect(maxActive).toBeLessThanOrEqual(8);
     expect(started.slice(0, 8)).toEqual(paths.slice(0, 8));
     expect([...workspaceIndex.documents.keys()]).toEqual(paths);
+  });
+
+  it("propagates unexpected disk entry loader rejections", async () => {
+    setMockWorkspaceFile("file:///a.cfg", "backend a");
+    setMockWorkspaceFile("file:///b.cfg", "backend b");
+    const originalLoad = workspaceDocuments.loadDiskEntry;
+    vi.spyOn(workspaceDocuments, "loadDiskEntry").mockImplementation((uri, ...args) => {
+      if (uri.toString() === "file:///b.cfg") {
+        return Promise.reject(new Error("unexpected disk loader failure"));
+      }
+      return originalLoad(uri, ...args);
+    });
+
+    await expect(
+      buildFolderWorkspaceIndex(
+        undefined,
+        "<global>",
+        schema,
+        defaultWorkspaceSymbolSettings(),
+        4000,
+        getActiveGeneration(),
+        true,
+        new Map(),
+        "full",
+      ),
+    ).rejects.toThrow("unexpected disk loader failure");
   });
 });

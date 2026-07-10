@@ -10,17 +10,3 @@ export function findInvalidNameChar(name: string): string | null {
   }
   return null;
 }
-
-export function looksLikeListenAddress(token: string): boolean {
-  const t = token.trim();
-  if (!t) {
-    return false;
-  }
-  if (t.startsWith(":") || t.startsWith("*:") || t.startsWith("::")) {
-    return true;
-  }
-  if (t.includes(":") && /^\d/.test(t) === false && !t.startsWith("/")) {
-    return true;
-  }
-  return /^[\d.]+:\d/.test(t) || /^[\da-fA-F:]+:\d/.test(t);
-}

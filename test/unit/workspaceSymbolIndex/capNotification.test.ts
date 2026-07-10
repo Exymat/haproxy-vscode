@@ -4,7 +4,7 @@ import {
   hasCappedWorkspaceFolders,
   scheduleWorkspaceSymbolIndexRebuild,
 } from "../../../src/symbolIndex";
-import { commands, setMockWorkspaceFile, window } from "../../__mocks__/vscode";
+import { commands, setMockWorkspaceFile, window } from "../../helpers/vscode";
 
 import {
   buildWorkspace,

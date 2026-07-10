@@ -9,7 +9,7 @@ import {
   setMockWorkspaceFolders,
   Uri,
   workspace,
-} from "../../__mocks__/vscode";
+} from "../../helpers/vscode";
 
 import {
   buildWorkspace,

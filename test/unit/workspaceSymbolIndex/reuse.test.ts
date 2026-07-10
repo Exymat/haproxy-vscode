@@ -10,7 +10,7 @@ import {
   setMockWorkspaceFileStat,
   setMockWorkspaceReadFailure,
   workspace,
-} from "../../__mocks__/vscode";
+} from "../../helpers/vscode";
 import { createDocument } from "../../helpers/document";
 
 import {

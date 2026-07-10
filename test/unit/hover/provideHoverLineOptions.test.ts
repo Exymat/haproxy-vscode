@@ -4,7 +4,7 @@ import { addSectionExtra } from "../../../src/hover/markdown";
 import { getLineSemanticContext } from "../../../src/lineSemanticContext";
 import { tryLineOptionHover } from "../../../src/hover/handlers/lineOptionHover";
 import { createDocument } from "../../helpers/document";
-import { Range } from "../../__mocks__/vscode";
+import { Range } from "../../helpers/vscode";
 import { bundles, hoverMarkdown, hoverText } from "./helpers";
 import { provideHover } from "../../../src/hover";
 

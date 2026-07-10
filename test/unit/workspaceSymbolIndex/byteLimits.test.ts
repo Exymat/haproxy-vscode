@@ -11,7 +11,7 @@ import {
   setMockWorkspaceFileStat,
   Uri,
   workspace,
-} from "../../__mocks__/vscode";
+} from "../../helpers/vscode";
 import { createDocument } from "../../helpers/document";
 
 import {

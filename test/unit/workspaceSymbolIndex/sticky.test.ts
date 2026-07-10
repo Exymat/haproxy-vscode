@@ -8,7 +8,7 @@ import {
   mockTextDocuments,
   setMockWorkspaceFile,
   setMockWorkspaceFolders,
-} from "../../__mocks__/vscode";
+} from "../../helpers/vscode";
 import { createDocument } from "../../helpers/document";
 
 import {

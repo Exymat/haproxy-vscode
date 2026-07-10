@@ -352,12 +352,12 @@ for (const version of VERSIONS) {
     expectErrorLines(
       confDir,
       "test-address-syntax.cfg",
-      ["legacy-bind-syntax"],
+      ["extra-argument"],
       [12, 14, 18, 20, 22, 42, 50, 57, 64, 71, 78],
       schemas[version],
       version,
     );
-    console.log("ok (11 legacy-bind lines)");
+    console.log("ok (11 extra-argument lines)");
   } catch (error) {
     console.log("FAIL");
     console.error(String(error.message ?? error));

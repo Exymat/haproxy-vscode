@@ -8,7 +8,7 @@ import type { HaproxyLanguageData, LanguageKeyword } from "../../../src/language
 import { parseDocument } from "../../helpers/parse";
 import { sectionKeywordSet } from "../../../src/schema/keywords";
 import { noPrefixKeywordSet, modifierPrefixSet } from "../../../src/schema/tokens";
-import { Range } from "../../__mocks__/vscode";
+import { Range } from "../../helpers/vscode";
 import { createDocument } from "../../helpers/document";
 import { bundles, hoverText } from "./helpers";
 

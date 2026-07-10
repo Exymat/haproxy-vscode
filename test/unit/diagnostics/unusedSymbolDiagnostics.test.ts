@@ -1,0 +1,490 @@
+import * as vscode from "vscode";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+
+import { computeDiagnostics } from "../../../src/diagnostics";
+import { parseDocument } from "../../helpers/parse";
+import {
+  buildSymbolIndex,
+  findReferences,
+  scopedSymbolKindSet,
+  symbolKeyForScopedKinds,
+  type SymbolIndex,
+  type SymbolKind,
+  type SymbolSite,
+} from "../../../src/symbolIndex";
+import { buildSitesByLine } from "../../../src/symbolIndex/utils";
+import { entryPointSectionSet } from "../../../src/schema/symbols";
+import { DiagnosticContext } from "../../../src/diagnosticContext";
+import { unusedSymbolDiagnostics } from "../../../src/unusedSymbolDiagnostics";
+import { createDocument } from "../../helpers/document";
+import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
+import { loadSchema } from "../../helpers/schema";
+
+const schema = loadSchema("3.4");
+const scopedSymbolKinds = scopedSymbolKindSet(schema);
+const unusedCtx = { entryPointSections: entryPointSectionSet(schema), schema };
+const fixturesDir = join(__dirname, "..", "..", "fixtures");
+const hapeeAclSnippet = readFileSync(join(fixturesDir, "hapee-acl-snippet.cfg"), "utf-8");
+
+function key(kind: SymbolKind, name: string, scopeKey: string | null): string {
+  return symbolKeyForScopedKinds(scopedSymbolKinds, kind, name, scopeKey);
+}
+
+function unusedDiags(content: string): vscode.Diagnostic[] {
+  const document = createDocument(content);
+  return computeDiagnostics(document, schema, {
+    unusedSymbols: true,
+    maxLines: 4000,
+  }).filter((diag) => formatDiagnosticCode(diag.code).startsWith("unused-"));
+}
+
+function symbolHintDiags(content: string): vscode.Diagnostic[] {
+  const document = createDocument(content);
+  return computeDiagnostics(document, schema, {
+    unusedSymbols: true,
+    maxLines: 4000,
+  });
+}
+
+describe("unusedSymbolDiagnostics", () => {
+  it("reports unused ACL when never referenced", () => {
+    const diags = unusedDiags("frontend web\n    acl blocked path_beg /admin\n    bind :80");
+    expect(diags).toHaveLength(1);
+    expect(diags[0]?.code).toBe("unused-acl");
+    expect(diags[0]?.message).toContain("blocked");
+    expect(diags[0]?.severity).toBe(vscode.DiagnosticSeverity.Information);
+    expect(diags[0]?.tags).toContain(vscode.DiagnosticTag.Unnecessary);
+    expect(diags[0]?.range.start.line).toBe(1);
+    expect(diags[0]?.range.start.character).toBe(0);
+    expect(diags[0]?.range.end.character).toBe("    acl blocked path_beg /admin".length);
+  });
+
+  it("suppresses unused ACL when referenced in if conditions", () => {
+    const diags = unusedDiags(
+      "frontend web\n    acl blocked path_beg /admin\n    http-request deny if blocked",
+    );
+    expect(diags.filter((d) => d.code === "unused-acl")).toHaveLength(0);
+  });
+
+  it("suppresses unused ACL when referenced in inline blocks", () => {
+    const diags = unusedDiags(
+      "frontend web\n    acl blocked path_beg /admin\n    http-request deny if { blocked -m found }",
+    );
+    expect(diags.filter((d) => d.code === "unused-acl")).toHaveLength(0);
+  });
+
+  it("suppresses unused ACL when referenced in chained if conditions", () => {
+    const diags = unusedDiags(
+      "frontend web\n    acl is_static path_beg /static/\n    acl is_image path_beg /images/\n    acl is_video path_beg /videos/\n    http-request set-header X-Is-Static if is_static !is_image !is_video\n    http-request set-header X-Is-Image-Or-Video if is_image is_video || !is_static\n    http-request deny if !is_static !is_image !is_video",
+    );
+    expect(diags.filter((d) => d.code === "unused-acl")).toHaveLength(0);
+  });
+
+  it("reports unused backend spanning the full section block", () => {
+    const diags = unusedDiags(
+      "frontend web\n    bind :80\nbackend old_api\n    server s1 127.0.0.1:80",
+    );
+    const sectionDiag = diags.find((d) => d.code === "unused-section");
+    expect(sectionDiag).toBeDefined();
+    expect(sectionDiag?.severity).toBe(vscode.DiagnosticSeverity.Information);
+    expect(sectionDiag?.tags).toContain(vscode.DiagnosticTag.Unnecessary);
+    expect(sectionDiag?.range.start.line).toBe(2);
+    expect(sectionDiag?.range.end.line).toBe(3);
+    expect(sectionDiag?.range.start.character).toBe(0);
+    expect(sectionDiag?.message).toContain("old_api");
+  });
+
+  it("suppresses unused backend when referenced by use_backend", () => {
+    const diags = unusedDiags(
+      "frontend web\n    bind :80\n    use_backend api\nbackend api\n    server s1 127.0.0.1:80",
+    );
+    expect(diags.filter((d) => d.code === "unused-section")).toHaveLength(0);
+  });
+
+  it("does not report frontend with bind as unused", () => {
+    const diags = unusedDiags("frontend web\n    bind :80");
+    expect(diags.filter((d) => d.code === "unused-section")).toHaveLength(0);
+  });
+
+  it("does not report frontend without bind as unused section", () => {
+    const diags = unusedDiags(hapeeAclSnippet);
+    expect(diags.filter((d) => d.code === "unused-section")).toHaveLength(0);
+  });
+
+  it("warns when frontend has no bind directive in file", () => {
+    const diags = symbolHintDiags(hapeeAclSnippet);
+    const bindDiag = diags.find((d) => d.code === "no-bind-entry-point");
+    expect(bindDiag).toBeDefined();
+    expect(bindDiag?.severity).toBe(vscode.DiagnosticSeverity.Warning);
+    expect(bindDiag?.message).toContain("test_acl");
+    expect(bindDiag?.tags ?? []).not.toContain(vscode.DiagnosticTag.Unnecessary);
+  });
+
+  it("suppresses no-bind warning when bind is inherited from defaults", () => {
+    const diags = symbolHintDiags(
+      "defaults default\n    bind :80\nfrontend test_acl from default\n    mode http\n",
+    );
+    expect(diags.filter((d) => d.code === "no-bind-entry-point")).toHaveLength(0);
+  });
+
+  it("does not report listen section without bind as unused section", () => {
+    const diags = unusedDiags("listen combined\n    mode http");
+    expect(diags.filter((d) => d.code === "unused-section")).toHaveLength(0);
+  });
+
+  it("warns when listen section has no bind directive", () => {
+    const diags = symbolHintDiags("listen combined\n    mode http");
+    const bindDiag = diags.find((d) => d.code === "no-bind-entry-point");
+    expect(bindDiag).toBeDefined();
+    expect(bindDiag?.severity).toBe(vscode.DiagnosticSeverity.Warning);
+    expect(bindDiag?.message).toContain("combined");
+  });
+
+  it("reports unused named defaults profile spanning the full section block", () => {
+    const diags = unusedDiags("defaults profile_a\n    timeout connect 5s");
+    const profileDiag = diags.find((d) => d.code === "unused-defaults-profile");
+    expect(profileDiag).toBeDefined();
+    expect(profileDiag?.severity).toBe(vscode.DiagnosticSeverity.Information);
+    expect(profileDiag?.tags).toContain(vscode.DiagnosticTag.Unnecessary);
+    expect(profileDiag?.range.start.line).toBe(0);
+    expect(profileDiag?.range.end.line).toBe(1);
+  });
+
+  it("does not report the conventional default defaults profile as unused", () => {
+    const diags = unusedDiags("defaults default\n    timeout connect 5s");
+    expect(diags.filter((d) => d.code === "unused-defaults-profile")).toHaveLength(0);
+  });
+
+  it("suppresses unused defaults profile referenced by from", () => {
+    const diags = unusedDiags("defaults profile_a\nfrontend web from profile_a\n    bind :80");
+    expect(diags.filter((d) => d.code === "unused-defaults-profile")).toHaveLength(0);
+  });
+
+  it("reports one diagnostic for duplicate ACL definitions", () => {
+    const diags = unusedDiags(
+      "frontend web\n    acl blocked path_beg /admin\n    acl blocked path_end /admin",
+    );
+    expect(diags.filter((d) => d.code === "unused-acl")).toHaveLength(1);
+  });
+
+  it("does not report backend servers as unused without use-server", () => {
+    const diags = unusedDiags(
+      "backend api\n    http-request set-var(txn.rwtpath) path\n    server HUB_MIDDLE_INTRA_PRD_AUTH_TEC_1 172.29.4.37:10045 check\n    server HUB_MIDDLE_INTRA_PRD_AUTH_TEC_2 172.29.4.49:10045 check",
+    );
+    expect(diags.filter((d) => d.code === "unused-server")).toHaveLength(0);
+  });
+
+  it("returns no unused diagnostics when feature is disabled", () => {
+    const document = createDocument("frontend web\n    acl blocked path_beg /admin\n    bind :80");
+    const diags = computeDiagnostics(document, schema, { unusedSymbols: false });
+    expect(diags.filter((d) => formatDiagnosticCode(d.code).startsWith("unused-"))).toHaveLength(0);
+  });
+
+  it("falls back to default unused-symbol messages when generated messages are absent", () => {
+    const customMessagesSchema = structuredClone(schema);
+    customMessagesSchema.validation_rules = {
+      ...customMessagesSchema.validation_rules,
+      unused_symbol_messages: {},
+    };
+    const document = createDocument("frontend web\n    acl orphan path /x");
+    const parsed = parseDocument(document);
+    const index = buildSymbolIndex(parsed, customMessagesSchema);
+    const ctx = new DiagnosticContext(document, customMessagesSchema, {});
+
+    expect(unusedSymbolDiagnostics(document, parsed, index, ctx, { enabled: true })).not.toEqual(
+      [],
+    );
+  });
+});
+
+describe("symbolIndex reference expansion", () => {
+  it("tracks cache references from cache-use actions", () => {
+    const content =
+      "cache bench_cache\n    total-max-size 4\nfrontend web\n    http-request cache-use bench_cache";
+    const parsed = parseDocument(createDocument(content));
+    const index = buildSymbolIndex(parsed, schema);
+    expect(parsed[3]?.tokens.map((token) => token.text)).toEqual([
+      "http-request",
+      "cache-use",
+      "bench_cache",
+    ]);
+    expect(index.references.filter((ref) => ref.kind === "cache")).toHaveLength(1);
+    expect(findReferences(index, "cache", "bench_cache", null)).toHaveLength(1);
+  });
+
+  it("tracks resolvers references on server lines", () => {
+    const parsed = parseDocument(
+      createDocument(
+        "resolvers mydns\n    nameserver ns1 127.0.0.1:53\nbackend api\n    server s1 host:80 resolvers mydns",
+      ),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+    expect(findReferences(index, "resolvers", "mydns", null)).toHaveLength(1);
+  });
+
+  it("tracks userlist references in http_auth sample fetches", () => {
+    const parsed = parseDocument(
+      createDocument(
+        "userlist stats-auth\n    user admin insecure-password admin\nfrontend web\n    acl AUTH http_auth(stats-auth)",
+      ),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+    expect(findReferences(index, "userlist", "stats-auth", null)).toHaveLength(1);
+  });
+
+  it("tracks peers references in stick-table lines", () => {
+    const parsed = parseDocument(
+      createDocument(
+        "peers mypeers\n    peer p1 127.0.0.1:10000\nfrontend web\n    stick-table type ip size 1 peers mypeers",
+      ),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+    expect(findReferences(index, "peers", "mypeers", null)).toHaveLength(1);
+  });
+
+  it("tracks filter-sequence references", () => {
+    const parsed = parseDocument(
+      createDocument(
+        "frontend web\n    filter comp-req\n    filter comp-res\n    filter-sequence request comp-req,comp-res",
+      ),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+    expect(findReferences(index, "filter", "comp-req", "frontend:web").length).toBeGreaterThan(0);
+    expect(findReferences(index, "filter", "comp-res", "frontend:web").length).toBeGreaterThan(0);
+  });
+
+  it("reports unused cache, userlist, resolvers, and peers sections", () => {
+    expect(
+      unusedDiags("cache bench_cache\n    total-max-size 4\nfrontend web\n    bind :80").some(
+        (d) => d.code === "unused-symbol" && d.message.includes("bench_cache"),
+      ),
+    ).toBe(true);
+    expect(
+      unusedDiags(
+        "userlist stats\n    user u insecure-password p\nfrontend web\n    bind :80",
+      ).some((d) => d.message.includes("stats")),
+    ).toBe(true);
+    expect(
+      unusedDiags(
+        "resolvers mydns\n    nameserver ns 127.0.0.1:53\nfrontend web\n    bind :80",
+      ).some((d) => d.message.includes("mydns")),
+    ).toBe(true);
+    expect(
+      unusedDiags("peers mypeers\n    peer p1 127.0.0.1:10000\nfrontend web\n    bind :80").some(
+        (d) => d.message.includes("mypeers"),
+      ),
+    ).toBe(true);
+  });
+
+  it("fades unused peers section across the full block", () => {
+    const diags = unusedDiags(
+      "peers bench_peers\n    peer node1 127.0.0.1:10000\n    peer node2 127.0.0.1:10001\nfrontend web\n    bind :80",
+    );
+    const peersDiag = diags.find((d) => d.message.includes("bench_peers"));
+    expect(peersDiag).toBeDefined();
+    expect(peersDiag?.tags).toContain(vscode.DiagnosticTag.Unnecessary);
+    expect(peersDiag?.range.start.line).toBe(0);
+    expect(peersDiag?.range.end.line).toBe(2);
+  });
+
+  it("unusedSymbolDiagnostics direct API respects enabled flag", () => {
+    const document = createDocument("backend old_api\n    server s1 127.0.0.1:80");
+    const parsed = parseDocument(document);
+    const index = buildSymbolIndex(parsed, schema);
+    expect(
+      unusedSymbolDiagnostics(document, parsed, index, unusedCtx, {
+        enabled: false,
+      }),
+    ).toHaveLength(0);
+  });
+
+  it("handles crafted index edge cases", () => {
+    const document = createDocument("frontend web\n    bind :80");
+    const parsed = parseDocument(document);
+
+    const filterDefs = new Map<string, SymbolSite[]>([
+      [
+        key("filter", "f1", "frontend:web"),
+        [
+          {
+            kind: "filter",
+            name: "f1",
+            line: 1,
+            start: 4,
+            end: 10,
+            scopeKey: "frontend:web",
+            role: "definition",
+          },
+        ],
+      ],
+    ]);
+    const filterIndex: SymbolIndex = {
+      definitions: filterDefs,
+      references: [],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [],
+      scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(parsed.length, filterDefs, []),
+      unresolvedReferences: [],
+    };
+    expect(
+      unusedSymbolDiagnostics(document, parsed, filterIndex, unusedCtx, {
+        enabled: true,
+      }),
+    ).toHaveLength(0);
+
+    const emptyDefs = new Map<string, SymbolSite[]>([[key("acl", "x", "frontend:web"), []]]);
+    const emptyDefsIndex: SymbolIndex = {
+      definitions: emptyDefs,
+      references: [],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [],
+      scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(parsed.length, emptyDefs, []),
+      unresolvedReferences: [],
+    };
+    expect(
+      unusedSymbolDiagnostics(document, parsed, emptyDefsIndex, unusedCtx, {
+        enabled: true,
+      }),
+    ).toHaveLength(0);
+
+    const unknownDefs = new Map<string, SymbolSite[]>([
+      [
+        "custom:widget",
+        [
+          {
+            kind: "widget",
+            name: "widget",
+            line: 1,
+            start: 4,
+            end: 10,
+            scopeKey: "frontend:web",
+            role: "definition",
+          },
+        ],
+      ],
+    ]);
+    const unknownKindIndex: SymbolIndex = {
+      definitions: unknownDefs,
+      references: [],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [],
+      scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(parsed.length, unknownDefs, []),
+      unresolvedReferences: [],
+    };
+    const unknownDiag = unusedSymbolDiagnostics(document, parsed, unknownKindIndex, unusedCtx, {
+      enabled: true,
+    });
+    expect(unknownDiag).toHaveLength(1);
+    expect(unknownDiag[0]?.message).toContain("appears unused");
+
+    const orphanDefs = new Map<string, SymbolSite[]>([
+      [
+        key("cache", "orphan", null),
+        [
+          {
+            kind: "cache",
+            name: "orphan",
+            line: 99,
+            start: 0,
+            end: 6,
+            scopeKey: null,
+            role: "definition",
+          },
+        ],
+      ],
+    ]);
+    const orphanSectionIndex: SymbolIndex = {
+      definitions: orphanDefs,
+      references: [],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [],
+      scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(parsed.length, orphanDefs, []),
+      unresolvedReferences: [],
+    };
+    const orphanDiag = unusedSymbolDiagnostics(document, parsed, orphanSectionIndex, unusedCtx, {
+      enabled: true,
+    });
+    expect(orphanDiag).toHaveLength(1);
+    expect(orphanDiag[0]?.range.start.line).toBe(99);
+
+    const misfiledBackendDoc = createDocument("backend wide\n    mode http");
+    const misfiledBackendParsed = parseDocument(misfiledBackendDoc);
+    const misfiledDefs = new Map<string, SymbolSite[]>([
+      [
+        key("proxy-section", "wide", null),
+        [
+          {
+            kind: "proxy-section",
+            name: "wide",
+            line: 0,
+            start: 4,
+            end: 8,
+            scopeKey: "backend:wide",
+            role: "definition",
+          },
+        ],
+      ],
+    ]);
+    const misfiledBackendIndex: SymbolIndex = {
+      definitions: misfiledDefs,
+      references: [],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [],
+      scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(misfiledBackendParsed.length, misfiledDefs, []),
+      unresolvedReferences: [],
+    };
+    const misfiledDiag = unusedSymbolDiagnostics(
+      misfiledBackendDoc,
+      misfiledBackendParsed,
+      misfiledBackendIndex,
+      unusedCtx,
+      { enabled: true },
+    );
+    expect(misfiledDiag).toHaveLength(1);
+    expect(misfiledDiag[0]?.message).toContain("Backend 'wide'");
+
+    const inlineFrontendDoc = createDocument("frontend web\n    bind :80");
+    const inlineFrontendParsed = parseDocument(inlineFrontendDoc);
+    const inlineFrontendDefs = new Map<string, SymbolSite[]>([
+      [
+        key("proxy-section", "ghost", "frontend:web"),
+        [
+          {
+            kind: "proxy-section",
+            name: "ghost",
+            line: 1,
+            start: 4,
+            end: 9,
+            scopeKey: "frontend:web",
+            role: "definition",
+          },
+        ],
+      ],
+    ]);
+    const inlineFrontendIndex: SymbolIndex = {
+      definitions: inlineFrontendDefs,
+      references: [],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [],
+      scopedSymbolKinds,
+      sitesByLine: buildSitesByLine(inlineFrontendParsed.length, inlineFrontendDefs, []),
+      unresolvedReferences: [],
+    };
+    const inlineFrontendDiag = unusedSymbolDiagnostics(
+      inlineFrontendDoc,
+      inlineFrontendParsed,
+      inlineFrontendIndex,
+      unusedCtx,
+      { enabled: true },
+    );
+    expect(inlineFrontendDiag).toHaveLength(1);
+    expect(inlineFrontendDiag[0]?.message).toContain("Backend 'ghost'");
+  });
+});

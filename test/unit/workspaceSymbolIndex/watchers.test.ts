@@ -1,5 +1,5 @@
 import { isUriExcludedFromWorkspaceSymbols } from "../../../src/symbolIndex";
-import { Uri } from "../../__mocks__/vscode";
+import { Uri } from "../../helpers/vscode";
 import { defaultWorkspaceSymbolSettings } from "./helpers";
 
 describe("workspace symbol watcher helpers", () => {

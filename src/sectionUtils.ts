@@ -1,4 +1,5 @@
 import { ParsedLine } from "./parser";
+import { symbolStringSet } from "./schema/symbols";
 import { HaproxySchema } from "./schema/types";
 
 export interface ParsedSectionHeader {
@@ -6,6 +7,26 @@ export interface ParsedSectionHeader {
   name: string | null;
   fromIndex: number;
   profileName: string | null;
+}
+
+function defaultsSectionName(schema?: HaproxySchema): string {
+  if (schema && typeof schema.symbols?.defaults_section_name === "string") {
+    return schema.symbols.defaults_section_name.toLowerCase();
+  }
+  return "defaults";
+}
+
+export function sectionHeaderSupportsFromModifier(
+  schema: HaproxySchema | undefined,
+  sectionType: string,
+): boolean {
+  if (!schema) {
+    return ["frontend", "backend", "listen", "defaults"].includes(sectionType);
+  }
+  return (
+    symbolStringSet(schema, "proxy_sections").has(sectionType) ||
+    sectionType === defaultsSectionName(schema)
+  );
 }
 
 export function parseSectionHeader(
@@ -17,20 +38,29 @@ export function parseSectionHeader(
   }
   const sectionType = line.tokens[0].text.toLowerCase();
   const fromModifier = sectionHeaderFromModifier(schema);
+  const defaultsSection = defaultsSectionName(schema);
   let name: string | null = null;
   let fromIndex = -1;
   let profileName: string | null = null;
 
-  if (line.tokens[1] && line.tokens[1].text.toLowerCase() !== fromModifier) {
-    name = line.tokens[1].text;
+  if (line.tokens.length === 1) {
+    return { sectionType, name, fromIndex, profileName };
   }
 
-  for (let i = 1; i < line.tokens.length; i += 1) {
-    if (line.tokens[i].text.toLowerCase() === fromModifier) {
-      fromIndex = i;
-      profileName = line.tokens[i + 1]?.text ?? null;
-      break;
-    }
+  if (sectionType === defaultsSection && line.tokens[1].text.toLowerCase() === fromModifier) {
+    fromIndex = 1;
+    profileName = line.tokens[2]?.text ?? null;
+    return { sectionType, name, fromIndex, profileName };
+  }
+
+  name = line.tokens[1].text;
+
+  if (
+    sectionHeaderSupportsFromModifier(schema, sectionType) &&
+    line.tokens[2]?.text.toLowerCase() === fromModifier
+  ) {
+    fromIndex = 2;
+    profileName = line.tokens[3]?.text ?? null;
   }
 
   return { sectionType, name, fromIndex, profileName };

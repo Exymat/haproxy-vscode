@@ -454,11 +454,11 @@ describe("symbolIndex build", () => {
     expect(buildScopeKeyByLine(parsed, schema)).toEqual(["frontend:web", null, null]);
   });
 
-  it("tracks defaults from references after unrelated section-header tokens", () => {
+  it("does not treat misplaced from clauses as defaults-profile references", () => {
     const parsed = parseDocument(doc("frontend web extra from base"));
     const sites = collectLineSymbolSites(parsed[0], schema, null);
     expect(sites.some((site) => site.kind === "defaults-profile" && site.name === "base")).toBe(
-      true,
+      false,
     );
   });
 });

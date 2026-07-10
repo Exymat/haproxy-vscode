@@ -49,6 +49,22 @@ describe("symbolIndex resolve", () => {
     }
   });
 
+  it("resolves environment variables inside quoted strings", () => {
+    const document = doc('global\n    log "$FOO" local0');
+    const col = '    log "$FOO"'.indexOf("FOO");
+    expect(resolveSymbolAtPosition(document, pos(1, col), schema)).toEqual({
+      kind: "environment-variable",
+      name: "FOO",
+      scopeKey: null,
+    });
+  });
+
+  it("returns null when env() references are malformed inside a token", () => {
+    const document = doc("global\n    http-request deny if { env( ) }");
+    const col = "    http-request deny if { env( ) }".indexOf("env");
+    expect(resolveSymbolAtPosition(document, pos(1, col), schema)).toBeNull();
+  });
+
   it("resolveSymbolAtPosition uses caller-provided scope arrays", () => {
     const document = doc("backend api\n    server s1 127.0.0.1:80");
     const serverCol = "    server s1".indexOf("s1");
@@ -155,6 +171,10 @@ describe("symbolIndex resolve", () => {
     const document = doc("frontend web extra\n    bind :80");
     const col = "frontend web extra".indexOf("extra");
     expect(resolveSymbolAtPosition(document, pos(0, col), schema)).toBeNull();
+
+    const fromDocument = doc("frontend web extra from base\n    bind :80");
+    const baseCol = "frontend web extra from base".indexOf("base");
+    expect(resolveSymbolAtPosition(fromDocument, pos(0, baseCol), schema)).toBeNull();
   });
 
   it("resolves configured reference-pattern symbols at the cursor", () => {

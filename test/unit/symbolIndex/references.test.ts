@@ -1,5 +1,7 @@
 import { parseDocument } from "../../helpers/parse";
+import { parseDocumentLines } from "../../../src/parser";
 import { collectLineSymbolSites } from "../../../src/symbolIndex/build";
+import { collectSampleFetchReferences } from "../../../src/symbolIndex/collectors/sampleFetch";
 import {
   buildSymbolIndex,
   findDefinitions,
@@ -141,5 +143,31 @@ describe("symbolIndex references", () => {
     ]);
 
     expect(collectLineSymbolSites(parsed[3], customSchema, "frontend:web")).toEqual([]);
+  });
+
+  it("collects sample-fetch references from configured argument indexes", () => {
+    const sampleLine = parseDocumentLines(["    set-var txn.x var(other,FOO)"])[0];
+    const sampleRefs: import("../../../src/symbolIndex/types").SymbolSite[] = [];
+    collectSampleFetchReferences(sampleLine, null, sampleRefs, {
+      var: {
+        reference_kind: "environment-variable",
+        argument_index: 1,
+        scope: "global",
+      },
+    });
+    expect(sampleRefs.some((ref) => ref.name === "FOO")).toBe(true);
+  });
+
+  it("skips sample-fetch references when the configured argument is missing", () => {
+    const sparseArgsLine = parseDocumentLines(["    var(a)"])[0];
+    const sparseRefs: import("../../../src/symbolIndex/types").SymbolSite[] = [];
+    collectSampleFetchReferences(sparseArgsLine, null, sparseRefs, {
+      var: {
+        reference_kind: "environment-variable",
+        argument_index: 2,
+        scope: "global",
+      },
+    });
+    expect(sparseRefs).toEqual([]);
   });
 });

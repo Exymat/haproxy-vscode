@@ -18,6 +18,10 @@ export interface ExtensionBundleService extends vscode.Disposable {
   resetErrorReporting: () => void;
 }
 
+export function bundleErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 export function createExtensionBundleService(
   context: vscode.ExtensionContext,
 ): ExtensionBundleService {
@@ -41,8 +45,7 @@ export function createExtensionBundleService(
 
   const safeEnsureBundle = (uri?: vscode.Uri): Promise<ExtensionBundle | undefined> =>
     ensureBundleResilient(uri).catch((error) => {
-      const message = error instanceof Error ? error.message : String(error);
-      reportBundleError(message);
+      reportBundleError(bundleErrorMessage(error));
       return undefined;
     });
 
@@ -51,7 +54,6 @@ export function createExtensionBundleService(
   ): Promise<HaproxySchema> => {
     const bundle = await safeEnsureBundle(folder?.uri);
     if (!bundle) {
-      /* v8 ignore next -- defensive; bundle availability is checked before rebuild scheduling */
       throw new Error("HAProxy schema bundle is unavailable");
     }
     return bundle.schema;

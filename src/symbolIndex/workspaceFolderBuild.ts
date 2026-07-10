@@ -86,11 +86,9 @@ async function* loadDiskEntriesInDiscoveryOrder(
         .then((result) => {
           results.set(index, result);
         })
-        /* v8 ignore start -- loadDiskEntry returns read failures as results; this guards unexpected rejections. */
         .catch((error: unknown) => {
           errors.set(index, error);
         })
-        /* v8 ignore stop */
         .finally(() => {
           activeLoads -= 1;
           pump();
@@ -117,7 +115,6 @@ async function* loadDiskEntriesInDiscoveryOrder(
         return;
       }
       /* v8 ignore stop */
-      /* v8 ignore next 3 -- loadDiskEntry returns read failures as results; this guards unexpected rejections. */
       if (errors.has(nextToYield)) {
         throw errors.get(nextToYield);
       }

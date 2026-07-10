@@ -165,7 +165,7 @@ suite("Integration coverage", () => {
         diagnostics,
         {
           "invalid-name": 2,
-          "legacy-bind-syntax": 2,
+          "extra-argument": 2,
           "invalid-address": 1,
           "missing-port": 1,
           "port-range-not-permitted": 1,

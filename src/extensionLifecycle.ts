@@ -60,7 +60,6 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
         logSupportSnapshotIfReady(loadedBundle.version);
       }
       if (folderUri) {
-        /* v8 ignore next -- covered by integration suite 08-folder-scoped-version */
         await workspaceSymbols.scheduleForUri(vscode.Uri.parse(folderUri), "full");
       } else {
         await workspaceSymbols.schedule("full");

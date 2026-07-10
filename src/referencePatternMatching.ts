@@ -9,7 +9,11 @@ export interface ReferencePatternMatch {
 
 function tokensMatchPattern(tokens: ParsedToken[], start: number, matchTokens: string[]): boolean {
   for (let i = 0; i < matchTokens.length; i += 1) {
-    if (tokens[start + i]?.text.toLowerCase() !== matchTokens[i]?.toLowerCase()) {
+    const expected = matchTokens[i]?.toLowerCase();
+    if (expected === "*") {
+      continue;
+    }
+    if (tokens[start + i]?.text.toLowerCase() !== expected) {
       return false;
     }
   }
@@ -27,7 +31,11 @@ export function findReferencePatternMatches(
   }
 
   const hits: ReferencePatternMatch[] = [];
-  for (let start = 0; start + matchLength <= tokens.length; start += 1) {
+  const startPositions =
+    pattern.scope === "section-header"
+      ? [0]
+      : Array.from({ length: tokens.length - matchLength + 1 }, (_, index) => index);
+  for (const start of startPositions) {
     if (!tokensMatchPattern(tokens, start, pattern.match_tokens)) {
       continue;
     }
