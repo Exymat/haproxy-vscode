@@ -507,7 +507,6 @@ function main() {
   });
   const config = loadJson(thresholdsPath);
   const benchmarkMap = mergeBenchmarkReports(reports);
-  const benchmarks = [...benchmarkMap.values()];
   const formula = { ...DEFAULT_FORMULA, ...(config.formula ?? {}) };
   const derivedDefaults = {
     ...DEFAULT_DERIVED.tokenize,

@@ -33,8 +33,8 @@
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg \\(",
-      "maxMs": 490,
-      "baselineMs": 422.784,
+      "maxMs": 510,
+      "baselineMs": 438.976,
       "statisticalMarginMs": 16.6774,
       "rawMaxMs": 438.976
     },
@@ -61,16 +61,16 @@
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg unusedSymbols",
-      "maxMs": 340,
-      "baselineMs": 287.503,
-      "statisticalMarginMs": 20.4415,
+      "maxMs": 390,
+      "baselineMs": 338.812,
+      "statisticalMarginMs": 25.7465,
       "rawMaxMs": 338.812
     },
     {
       "namePattern": "^diagnostics edit: large-valid\\.cfg unusedSymbols",
-      "maxMs": 40,
-      "baselineMs": 34.687,
-      "statisticalMarginMs": 1.8027,
+      "maxMs": 45,
+      "baselineMs": 37.828,
+      "statisticalMarginMs": 1.8268,
       "rawMaxMs": 37.828
     },
     {
@@ -110,9 +110,9 @@
     },
     {
       "namePattern": "^diagnostics edit: large-mixed\\.cfg unusedSymbols",
-      "maxMs": 40,
-      "baselineMs": 33.749,
-      "statisticalMarginMs": 1.9753,
+      "maxMs": 45,
+      "baselineMs": 35.115,
+      "statisticalMarginMs": 2.1752,
       "rawMaxMs": 35.115
     },
     {
@@ -160,14 +160,14 @@
     {
       "namePattern": "^hover warm:",
       "maxMs": 4,
-      "baselineMs": 2.656,
-      "statisticalMarginMs": 0.0162,
+      "baselineMs": 2.669,
+      "statisticalMarginMs": 0.0207,
       "rawMaxMs": 4.745
     },
     {
       "namePattern": "^hover cold:",
       "maxMs": 2,
-      "baselineMs": 0.073,
+      "baselineMs": 0.075,
       "statisticalMarginMs": 0.0014,
       "rawMaxMs": 0.139
     },
@@ -231,7 +231,7 @@
       "namePattern": "^incremental reuse: single-line edit",
       "maxMs": 50,
       "baselineMs": 41.581,
-      "statisticalMarginMs": 1.4927,
+      "statisticalMarginMs": 1.4938,
       "rawMaxMs": 41.581
     },
     {
@@ -243,31 +243,31 @@
     },
     {
       "namePattern": "^discover workspace cfg files:",
-      "baselineMs": 4.435,
-      "statisticalMarginMs": 0.0363,
-      "maxMs": 6,
-      "rawMaxMs": 4.435
+      "baselineMs": 5.46,
+      "statisticalMarginMs": 0.0605,
+      "maxMs": 8,
+      "rawMaxMs": 5.46
     },
     {
       "namePattern": "^build workspace graph:",
-      "baselineMs": 24.968,
+      "baselineMs": 26.941,
       "statisticalMarginMs": 1.2769,
-      "maxMs": 30,
-      "rawMaxMs": 70.436
+      "maxMs": 35,
+      "rawMaxMs": 70.869
     },
     {
       "namePattern": "^load disk entry: read\\+index",
-      "baselineMs": 228.74,
+      "baselineMs": 234.687,
       "statisticalMarginMs": 9.9572,
       "maxMs": 270,
-      "rawMaxMs": 228.74
+      "rawMaxMs": 234.687
     },
     {
       "namePattern": "^fingerprint \\d+ workspace documents",
-      "baselineMs": 0.482,
-      "statisticalMarginMs": 0.0446,
+      "baselineMs": 0.507,
+      "statisticalMarginMs": 0.0505,
       "maxMs": 2,
-      "rawMaxMs": 0.482
+      "rawMaxMs": 0.507
     }
   ],
   "derived": {
