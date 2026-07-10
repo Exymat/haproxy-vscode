@@ -2,6 +2,13 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.18.2
+
+- **Section header extra-argument diagnostics** — warns on unexpected extra tokens in section headers: spare tokens in proxy section names (e.g. `frontend web extra`), address-like tokens on proxy section headers (e.g. `frontend web :443`, `listen stats *:8888`), tokens after `from profile` (e.g. `defaults from base extra`, `frontend web from base extra`, `frontend web from profile *:443`), and extra arguments on simple named sections (e.g. `peers p1 extra`).
+- **Removed `legacy-bind-syntax` diagnostic** — section-header address tokens are reported as `extra-argument` instead of a separate legacy-bind code.
+- **Fixed `defaults from profile` section headers** — `defaults from profile` is parsed as inheriting a named defaults profile; `from` is no longer treated as the section name for invalid-name checks.
+- **Stricter defaults-profile references on section headers** — schema wildcard reference patterns match only when `from` immediately follows the section name, so `frontend web extra from base` no longer indexes `base` as a defaults-profile reference.
+
 ## 0.18.1
 
 - **Fixed false `extra-argument` diagnostics on variadic slots** — argument validation now uses the variadic tail slot when placing tokens beyond the fixed slot list, so directives such as `stick-table … store gpc0,http_req_rate(10s)` no longer report spurious extra-argument warnings.
