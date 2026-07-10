@@ -246,25 +246,25 @@ The extension is built for interactive editing. The table below shows **median**
 
 | Operation                                                     | Small config (~18 lines) | Medium config (~100 lines) | Stress config (24,000 lines) |
 | ------------------------------------------------------------- | ------------------------ | -------------------------- | ---------------------------- |
-| **Startup** - load schema + language data (first `.cfg` open) | -                        | -                          | ~13 ms                       |
-| **Syntax highlighting** - full grammar tokenize[^1]           | ~6 ms                    | ~8 ms                      | ~1.7 s                       |
-| **Diagnostics** - one full pass[^2]                           | ~0.1-0.3 ms              | ~0.9-1.0 ms                | ~180-250 ms                  |
-| **Diagnostics** - incremental edit revalidation[^2]           | ~0.02 ms                 | ~0.08 ms                   | ~11-13 ms                    |
-| **Diagnostics + unused-symbol hints**                         | -                        | -                          | ~200-280 ms                  |
-| **Diagnostics + unused-symbol hints** - incremental edit[^2]  | -                        | -                          | ~48-55 ms                    |
-| **Format document**                                           | <0.01 ms                 | ~0.06 ms                   | ~19-21 ms                    |
-| **Completion** at cursor                                      | <0.01 ms                 | -                          | ~14 ms                       |
+| **Startup** - load schema + language data (first `.cfg` open) | -                        | -                          | ~19 ms                       |
+| **Syntax highlighting** - full grammar tokenize[^1]           | ~7 ms                    | ~11 ms                     | ~1.8-2.2 s                   |
+| **Diagnostics** - one full pass[^2]                           | ~0.1 ms                  | ~0.8 ms                    | ~210-360 ms                  |
+| **Diagnostics** - incremental edit revalidation[^2]           | ~0.02 ms                 | ~0.08 ms                   | ~20 ms                       |
+| **Diagnostics + unused-symbol hints**                         | -                        | -                          | ~210-360 ms                  |
+| **Diagnostics + unused-symbol hints** - incremental edit[^2]  | -                        | -                          | ~25 ms                       |
+| **Format document**                                           | <0.01 ms                 | ~0.08 ms                   | ~30 ms                       |
+| **Completion** at cursor                                      | <0.01 ms                 | -                          | ~19 ms                       |
 | **Hover**                                                     | <0.1 ms                  | -                          | <0.1 ms                      |
-| **Go to definition / references**                             | <0.01 ms                 | -                          | ~0.7 ms                      |
+| **Go to definition / references**                             | <0.01 ms                 | -                          | ~1 ms                        |
 
 **What this means in practice**
 
 - **Everyday configs** (hundreds to a few thousand lines) stay responsive: diagnostics, completion, and hover are sub-millisecond to low tens of milliseconds per operation.
-- **Incremental diagnostics are now the fast path during editing.** On the 24k-line stress fixtures, a single-line edit revalidates in about **11-13 ms** without unused-symbol hints and **48-55 ms** with them enabled. The same edits take about **193-249 ms** and **235-248 ms** respectively when forced through a full recompute baseline.
-- **Diagnostics still dominate** full-pass cost on very large files - the main reason `haproxy.diagnostics.maxLines` defaults to **4000** and very large files skip validation unless you raise that limit. CI now guards the incremental stress-edit path at p99.5 under **35-40 ms** without unused-symbol hints and **90 ms** with them, while the full-pass stress benchmarks remain guarded separately.
+- **Incremental diagnostics are now the fast path during editing.** On the 24k-line stress fixtures, a single-line edit revalidates in about **20 ms** without unused-symbol hints and **25 ms** with them enabled. The same edits take about **236 ms** and **361 ms** respectively when forced through a full recompute baseline.
+- **Diagnostics still dominate** full-pass cost on very large files - the main reason `haproxy.diagnostics.maxLines` defaults to **4000** and very large files skip validation unless you raise that limit. CI guards the incremental stress-edit path at p99.5 under **45 ms** without unused-symbol hints and **40 ms** with them (robust thresholds from 21 CI runs), while full-pass stress benchmarks remain guarded separately.
 - **Highlighting** scales with file size; the editor tokenizes incrementally, so the stress numbers above are a full-file worst case, not what you pay on every keystroke. Grammars are **line-isolated** (no `begin`/`end` region may carry state past end-of-line), so tokenization cost reflects correct per-line highlighting even when earlier lines contain deliberate syntax errors.
-- **Stress fixtures:** `large-valid.cfg` (mostly valid) tokenizes at ~**1.73 s** median; `large-mixed.cfg` (valid baseline plus injected invalid lines every ~5 blocks) at ~**1.68 s** median. The p99.5 tokenization threshold is **2.6 s** for both fixtures.
-- **Startup** pays a one-time ~13 ms JSON parse when the extension first loads language data for your selected HAProxy version; the p99.5 threshold is **500 ms**.
+- **Stress fixtures:** `large-valid.cfg` (mostly valid) tokenizes at ~**2.2 s** median; `large-mixed.cfg` (valid baseline plus injected invalid lines every ~5 blocks) at ~**1.8 s** median. The p99.5 tokenization thresholds are **2.7 s** and **2.2 s** respectively.
+- **Startup** pays a one-time ~19 ms JSON parse when the extension first loads language data for your selected HAProxy version; the p99.5 threshold is **30 ms**.
 
 CI runs these benchmarks on every push (`npm run bench:ci`) and tracks regressions against [`test/bench/thresholds.json`](test/bench/thresholds.json). To reproduce locally:
 

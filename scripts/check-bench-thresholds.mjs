@@ -5,8 +5,8 @@
  *
  * Thresholds are derived from baselines via:
  *   threshold = baseline + max(absoluteFloorMs, relativeMargin × baseline, statisticalMarginMs)
- * Regenerate with: npm run bench:update-thresholds [report.json ...]
- * Multiple reports are merged conservatively (max p995 / max moe per benchmark).
+ * Regenerate with: npm run bench:update-thresholds [--conservative]
+ * Default aggregation dismisses IQR outliers then uses max of retained; --conservative keeps global max.
  */
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
