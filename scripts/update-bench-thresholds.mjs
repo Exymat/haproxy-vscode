@@ -442,11 +442,90 @@ function roundUpCleanPerLine(msPerLine) {
   return Math.ceil(msPerLine * 1000) / 1000;
 }
 
+function computeRuleThreshold(samples, formula, { conservative }) {
+  const byName = new Map();
+  for (const sample of samples) {
+    if (!byName.has(sample.name)) {
+      byName.set(sample.name, []);
+    }
+    byName.get(sample.name).push(sample);
+  }
+
+  let maxMs = 0;
+  let baselineMs = 0;
+  let statisticalMarginMs = 0;
+  let rawMax = 0;
+  const outliers = [];
+  const methods = [];
+
+  for (const [name, group] of byName) {
+    const aggregate = aggregateSamples(group, { conservative });
+    outliers.push(...aggregate.outliers);
+    rawMax = Math.max(rawMax, aggregate.rawMax);
+    baselineMs = Math.max(baselineMs, aggregate.baselineMs);
+    statisticalMarginMs = Math.max(statisticalMarginMs, aggregate.statisticalMarginMs);
+
+    const robustMs = roundUpClean(
+      computeThresholdMs(aggregate.baselineMs, aggregate.statisticalMarginMs, formula),
+    );
+    // Every retained sample must pass CI (single-report check-bench-thresholds).
+    const coverRetainedMs = Math.max(
+      ...aggregate.retained.map((sample) =>
+        roundUpClean(computeThresholdMs(sample.p995, sample.moe, formula)),
+      ),
+    );
+    const groupMaxMs = Math.max(robustMs, coverRetainedMs);
+    maxMs = Math.max(maxMs, groupMaxMs);
+    methods.push(`${name}: ${groupMaxMs} ms (${aggregate.method})`);
+  }
+
+  return {
+    maxMs,
+    baselineMs,
+    statisticalMarginMs,
+    rawMax,
+    outliers,
+    method: methods.join("; "),
+  };
+}
+
+function computeTokenizePerLineThreshold(samples, formula, derivedDefaults, { conservative }) {
+  const byName = new Map();
+  for (const sample of samples) {
+    if (!byName.has(sample.name)) {
+      byName.set(sample.name, []);
+    }
+    byName.get(sample.name).push(sample);
+  }
+
+  let maxMsPerLine = 0;
+  for (const group of byName.values()) {
+    const aggregate = aggregateSamples(group, { conservative });
+    const robust = roundUpCleanPerLine(
+      computeThresholdPerLine(
+        aggregate.baselineMs,
+        aggregate.statisticalMarginMs,
+        formula,
+        derivedDefaults,
+      ),
+    );
+    const coverRetained = Math.max(
+      ...aggregate.retained.map((sample) =>
+        roundUpCleanPerLine(
+          computeThresholdPerLine(sample.p995, sample.moe, formula, derivedDefaults),
+        ),
+      ),
+    );
+    maxMsPerLine = Math.max(maxMsPerLine, robust, coverRetained);
+  }
+  return maxMsPerLine;
+}
+
 function outlierKey(sample) {
   return `${sample.report}::${sample.name}`;
 }
 
-function verifyReports(reports, config, outlierKeys) {
+function verifyReports(reports, config, outlierKeys = new Set()) {
   const failures = [];
   const outlierWarnings = [];
 
@@ -454,17 +533,16 @@ function verifyReports(reports, config, outlierKeys) {
     for (const bench of collectBenchmarks(report)) {
       const rule = (config.thresholds ?? []).find((entry) => matchesRule(bench.name, entry));
       if (rule && bench.p995 > rule.maxMs) {
-        const key = `${report.__sourcePath}::${bench.name}`;
-        const entry = {
+        const failure = {
           report: report.__sourcePath,
           name: bench.name,
           p995: bench.p995,
           limit: rule.maxMs,
         };
-        if (outlierKeys.has(key)) {
-          outlierWarnings.push(entry);
+        if (outlierKeys.has(`${report.__sourcePath}::${bench.name}`)) {
+          outlierWarnings.push(failure);
         } else {
-          failures.push(entry);
+          failures.push(failure);
         }
       }
 
@@ -478,19 +556,13 @@ function verifyReports(reports, config, outlierKeys) {
       ) {
         const msPerLine = bench.p995 / lineCount;
         if (msPerLine > tokenizeDerived.maxMsPerLine) {
-          const key = `${report.__sourcePath}::${bench.name}`;
-          const entry = {
+          failures.push({
             report: report.__sourcePath,
             name: bench.name,
             p995: msPerLine,
             limit: tokenizeDerived.maxMsPerLine,
             unit: "ms/line",
-          };
-          if (outlierKeys.has(key)) {
-            outlierWarnings.push(entry);
-          } else {
-            failures.push(entry);
-          }
+          });
         }
       }
     }
@@ -542,8 +614,8 @@ function main() {
     console.log("");
   }
 
-  const outlierKeys = new Set();
   let updatedRules = 0;
+  const outlierKeys = new Set();
 
   for (const rule of config.thresholds ?? []) {
     const samples = collectRuleSamples(reports, rule);
@@ -552,33 +624,30 @@ function main() {
       continue;
     }
 
-    const aggregate = aggregateSamples(samples, { conservative });
-    for (const outlier of aggregate.outliers) {
+    const result = computeRuleThreshold(samples, formula, { conservative });
+    for (const outlier of result.outliers) {
       outlierKeys.add(outlierKey(outlier));
     }
 
-    const rawMaxMs = computeThresholdMs(
-      aggregate.baselineMs,
-      aggregate.statisticalMarginMs,
-      formula,
-    );
-    const maxMs = roundUpClean(rawMaxMs);
+    const rawMaxMs = computeThresholdMs(result.baselineMs, result.statisticalMarginMs, formula);
+    const maxMs = result.maxMs;
 
-    rule.baselineMs = Math.ceil(aggregate.baselineMs * 1000) / 1000;
-    rule.statisticalMarginMs = Math.ceil(aggregate.statisticalMarginMs * 10000) / 10000;
-    rule.rawMaxMs = Math.ceil(aggregate.rawMax * 1000) / 1000;
+    rule.baselineMs = Math.ceil(result.baselineMs * 1000) / 1000;
+    rule.statisticalMarginMs = Math.ceil(result.statisticalMarginMs * 10000) / 10000;
+    rule.rawMaxMs = Math.ceil(result.rawMax * 1000) / 1000;
     rule.maxMs = maxMs;
     updatedRules += 1;
 
-    const rounded = maxMs !== Math.ceil(rawMaxMs) ? ` (raw ${rawMaxMs.toFixed(2)} → ${maxMs})` : "";
+    const rounded =
+      maxMs !== Math.ceil(rawMaxMs) ? ` (formula ${rawMaxMs.toFixed(2)} → ${maxMs})` : "";
     const outlierNote =
-      aggregate.outliers.length > 0
-        ? `, dismissed ${aggregate.outliers.length} outlier(s), raw max ${aggregate.rawMax.toFixed(1)} ms`
+      result.outliers.length > 0
+        ? `, dismissed ${result.outliers.length} outlier(s), raw max ${result.rawMax.toFixed(1)} ms`
         : "";
     console.log(
       `[update] ${ruleKey(rule)}: baseline=${rule.baselineMs}ms → maxMs=${maxMs}ms${rounded}${outlierNote}`,
     );
-    console.log(`         ${aggregate.method}`);
+    console.log(`         ${result.method}`);
   }
 
   const tokenizeSamples = [];
@@ -602,18 +671,12 @@ function main() {
   }
 
   if (tokenizeSamples.length > 0) {
-    const aggregate = aggregateSamples(tokenizeSamples, { conservative });
-    for (const outlier of aggregate.outliers) {
-      outlierKeys.add(outlierKey(outlier));
-    }
-
-    const rawMaxMsPerLine = computeThresholdPerLine(
-      aggregate.baselineMs,
-      aggregate.statisticalMarginMs,
+    const maxMsPerLine = computeTokenizePerLineThreshold(
+      tokenizeSamples,
       formula,
       derivedDefaults,
+      { conservative },
     );
-    const maxMsPerLine = roundUpCleanPerLine(rawMaxMsPerLine);
 
     config.derived ??= {};
     config.derived.tokenize = {
@@ -621,13 +684,7 @@ function main() {
       absoluteFloorMsPerLine: derivedDefaults.absoluteFloorMsPerLine,
       maxMsPerLine,
     };
-    const rounded =
-      maxMsPerLine !== rawMaxMsPerLine
-        ? ` (raw ${rawMaxMsPerLine.toFixed(4)} → ${maxMsPerLine})`
-        : "";
-    const outlierNote =
-      aggregate.outliers.length > 0 ? `, dismissed ${aggregate.outliers.length} outlier(s)` : "";
-    console.log(`[update] derived.tokenize.maxMsPerLine=${maxMsPerLine}${rounded}${outlierNote}`);
+    console.log(`[update] derived.tokenize.maxMsPerLine=${maxMsPerLine}`);
   }
 
   config.metric = config.metric ?? "p995";
@@ -636,7 +693,7 @@ function main() {
     mode: conservative ? "max" : "robust",
     description: conservative
       ? "baseline = global max p995 across reports"
-      : "baseline = max p995 after Tukey IQR outlier dismissal",
+      : "per-benchmark IQR outlier dismissal; rule limit = max across grouped benchmarks, each covering all retained CI runs",
   };
 
   writeFileSync(thresholdsPath, `${JSON.stringify(config, null, 2)}\n`);

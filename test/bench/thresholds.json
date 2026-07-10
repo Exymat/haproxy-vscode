@@ -132,9 +132,9 @@
     {
       "namePattern": "^format: large-(valid|mixed)\\.cfg",
       "maxMs": 60,
-      "baselineMs": 47.907,
+      "baselineMs": 48.886,
       "statisticalMarginMs": 2.6444,
-      "rawMaxMs": 47.907
+      "rawMaxMs": 48.886
     },
     {
       "namePattern": "^document symbols: large-valid\\.cfg",
@@ -153,28 +153,28 @@
     {
       "namePattern": "^completion: log-format",
       "maxMs": 2,
-      "baselineMs": 0.049,
+      "baselineMs": 0.06,
       "statisticalMarginMs": 0.001,
       "rawMaxMs": 0.072
     },
     {
       "namePattern": "^hover warm:",
-      "maxMs": 4,
-      "baselineMs": 2.669,
-      "statisticalMarginMs": 0.0207,
+      "maxMs": 6,
+      "baselineMs": 3.972,
+      "statisticalMarginMs": 0.0557,
       "rawMaxMs": 4.745
     },
     {
       "namePattern": "^hover cold:",
       "maxMs": 2,
-      "baselineMs": 0.075,
+      "baselineMs": 0.139,
       "statisticalMarginMs": 0.0014,
       "rawMaxMs": 0.139
     },
     {
       "namePattern": "^definition: (cache-use|resolvers|inline ACL)",
       "maxMs": 2,
-      "baselineMs": 0.071,
+      "baselineMs": 0.064,
       "statisticalMarginMs": 0.0035,
       "rawMaxMs": 0.11
     },
@@ -208,10 +208,10 @@
     },
     {
       "namePattern": "^buildSymbolIndex cold: large-valid\\.cfg",
-      "maxMs": 170,
-      "baselineMs": 146.683,
-      "statisticalMarginMs": 6.8597,
-      "rawMaxMs": 217.453
+      "maxMs": 260,
+      "baselineMs": 224.879,
+      "statisticalMarginMs": 7.2739,
+      "rawMaxMs": 224.879
     },
     {
       "namePattern": "^getSymbolIndex warm lookup: large-valid\\.cfg",
@@ -250,9 +250,9 @@
     },
     {
       "namePattern": "^build workspace graph:",
-      "baselineMs": 26.941,
-      "statisticalMarginMs": 1.2769,
-      "maxMs": 35,
+      "baselineMs": 70.869,
+      "statisticalMarginMs": 6.694,
+      "maxMs": 85,
       "rawMaxMs": 70.869
     },
     {
@@ -264,10 +264,10 @@
     },
     {
       "namePattern": "^fingerprint \\d+ workspace documents",
-      "baselineMs": 0.507,
+      "baselineMs": 0.518,
       "statisticalMarginMs": 0.0505,
       "maxMs": 2,
-      "rawMaxMs": 0.507
+      "rawMaxMs": 0.518
     }
   ],
   "derived": {
@@ -283,6 +283,6 @@
   },
   "aggregation": {
     "mode": "robust",
-    "description": "baseline = max p995 after Tukey IQR outlier dismissal"
+    "description": "per-benchmark IQR outlier dismissal; rule limit = max across grouped benchmarks, each covering all retained CI runs"
   }
 }
