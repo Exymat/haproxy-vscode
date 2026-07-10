@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.18.1
+
+- **Fixed false `extra-argument` diagnostics on variadic slots** — argument validation now uses the variadic tail slot when placing tokens beyond the fixed slot list, so directives such as `stick-table … store gpc0,http_req_rate(10s)` no longer report spurious extra-argument warnings.
+
 ## 0.18.0
 
 - **Refreshed bundled schemas (2.6–3.4)** — regenerated schema and language data with updated reference patterns, statement rules, and conditional-directive metadata. Adds `fcgi-app` as a recognized section type and explicit rules for `option` lines and environment-variable directives (`setenv`, `presetenv`, `unsetenv`, `resetenv`).
