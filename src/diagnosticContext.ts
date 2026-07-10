@@ -6,7 +6,7 @@ import { documentUsesExposeDeprecatedDirectives } from "./deprecatedUtils";
 import { HaproxyLanguageData } from "./languageData";
 import { ParsedDocumentEntry } from "./parseCache";
 import { ParsedLine } from "./parser";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
 import { LogFormatLineMemo, extractLogFormatRegions } from "./logFormat";
 import { runtimeModeForDocument, RuntimeMode, RuntimeModeCacheEntry } from "./sectionMode";
 

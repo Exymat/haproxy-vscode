@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { ParsedLine } from "./parser";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
 import {
   DelimiterDiagnostic,
   filterExpressionIssuesAgainstDelimiters,

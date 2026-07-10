@@ -4,7 +4,7 @@ import {
   LanguageKeyword,
   LanguageKeywordVariant,
 } from "./languageData";
-import { SchemaKeyword, SchemaKeywordVariant } from "./schema";
+import { SchemaKeyword, SchemaKeywordVariant } from "./schema/types";
 
 const languageResolutionCache = new WeakMap<
   LanguageKeyword,

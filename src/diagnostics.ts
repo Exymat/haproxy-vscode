@@ -5,7 +5,7 @@ import { getDocumentAnalysis } from "./documentAnalysis";
 import { runLineDiagnosticPipeline } from "./diagnosticPipeline";
 import { DiagnosticContext } from "./diagnosticContext";
 import { HaproxyLanguageData } from "./languageData";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
 import { UriLruCache } from "./uriLruCache";
 import {
   getSymbolIndex,
@@ -105,10 +105,14 @@ function computeDocumentSymbolDiagnostics(
         ? "workspace"
         : "file";
     diagnostics.push(
-      ...missingReferenceDiagnostics(effectiveIndex, { scope: missingReferenceScope }),
+      ...missingReferenceDiagnostics(effectiveIndex, ctx.schema, {
+        scope: missingReferenceScope,
+      }),
     );
   }
-  diagnostics.push(...duplicateSectionDiagnostics(document, ctx.parsed, workspaceIndex));
+  diagnostics.push(
+    ...duplicateSectionDiagnostics(document, ctx.parsed, workspaceIndex, ctx.schema),
+  );
 
   return diagnostics;
 }

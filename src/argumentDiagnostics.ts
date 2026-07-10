@@ -13,7 +13,9 @@ import { LineDiagnosticMemo } from "./diagnosticContext";
 import { makeLineDiagnostic } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
 import { resolveSchemaKeyword } from "./keywordVariant";
-import { conditionalTokenSet, HaproxySchema, prefixFamilySet } from "./schema";
+import { HaproxySchema } from "./schema/types";
+import { prefixFamilySet } from "./schema/layout";
+import { conditionalTokenSet } from "./schema/tokens";
 import { isLikelyValue } from "./tokenUtils";
 
 import { argumentModelSkipKeywordSet } from "./diagnosticKeywordSets";

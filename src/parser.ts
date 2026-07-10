@@ -1,28 +1,5 @@
 import * as vscode from "vscode";
 
-export const DEFAULT_SECTION_HEADERS = new Set([
-  "global",
-  "defaults",
-  "frontend",
-  "backend",
-  "listen",
-  "peers",
-  "userlist",
-  "resolvers",
-  "mailers",
-  "program",
-  "healthcheck",
-  "http-errors",
-  "ring",
-  "cache",
-  "crt-list",
-  "crt-store",
-  "traces",
-  "acme",
-  "log-forward",
-  "log-profile",
-]);
-
 export interface ParseOptions {
   sectionHeaders?: ReadonlySet<string>;
 }
@@ -50,7 +27,7 @@ export interface ParseState {
 }
 
 function resolvedSectionHeaders(options?: ParseOptions): ReadonlySet<string> {
-  return options?.sectionHeaders ?? DEFAULT_SECTION_HEADERS;
+  return options?.sectionHeaders ?? new Set();
 }
 
 function isAsciiWhitespace(ch: string): boolean {

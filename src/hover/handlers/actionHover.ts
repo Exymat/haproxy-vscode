@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { findIndexedGroupItem } from "../../languageDataIndexes";
-import { actionGroupForCompletionKind, actionGroupNames } from "../../schema";
+import { actionGroupForCompletionKind, actionGroupNames } from "../../schema/semantic";
 import { normalizeActionName } from "../../tokenUtils";
 import { sampleTokenCandidates } from "../helpers";
 import { hoverMarkdown } from "../markdown";

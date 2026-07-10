@@ -1,4 +1,4 @@
-import { parseDocument } from "../../../src/parser";
+import { parseDocument } from "../../helpers/parse";
 import {
   buildSymbolIndex,
   findAllSites,

@@ -1,6 +1,6 @@
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import { aclNameDiagnostics, sectionHeaderDiagnostics } from "../../src/sectionDiagnostics";
-import { entryPointSectionSet, namedSectionSet } from "../../src/schema";
+import { entryPointSectionSet, namedSectionSet } from "../../src/schema/symbols";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 

@@ -12,7 +12,7 @@ import {
   validateLogFormatLine,
 } from "../../src/logFormat";
 import { tokenizeLine } from "../../src/parser";
-import type { HaproxySchema } from "../../src/schema";
+import type { HaproxySchema } from "../../src/schema/types";
 import { loadSchema } from "../helpers/schema";
 
 const schemaStub: HaproxySchema = {

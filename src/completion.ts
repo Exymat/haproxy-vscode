@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { getDocumentContext } from "./documentContext";
 import { HaproxyLanguageData } from "./languageData";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
 import { runCompletionHandlers } from "./completion/registry";
 import { CompletionContext } from "./completion/types";
 

@@ -1,5 +1,5 @@
 import * as parseCache from "../../src/parseCache";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import {
   buildSymbolIndex,
   listDefinitionNames,
@@ -8,7 +8,7 @@ import {
 import { expectedReferenceTesting } from "../../src/symbolIndex/expectedReference";
 import { buildScopeKeyByLine } from "../../src/symbolIndex/scope";
 import { fetchReferenceRules } from "../../src/symbolIndex/context";
-import { HaproxySchema, ReferencePattern } from "../../src/schema";
+import { HaproxySchema, ReferencePattern } from "../../src/schema/types";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 

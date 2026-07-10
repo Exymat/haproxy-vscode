@@ -13,7 +13,7 @@ import {
   resolveSchemaKeyword,
 } from "./keywordVariant";
 import { ParsedLine } from "./parser";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
 import { isAddressOrPathToken, resolveLongestDirectiveMatch } from "./tokenUtils";
 
 export interface ResolvedDirective {

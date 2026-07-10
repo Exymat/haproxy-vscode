@@ -1,5 +1,5 @@
 import { provideHover } from "../../../src/hover";
-import { parseDocument } from "../../../src/parser";
+import { parseDocument } from "../../helpers/parse";
 import type { DocumentContextWithToken, HoverContext } from "../../../src/hover/types";
 import {
   getKeywordFromLanguage,
@@ -10,12 +10,9 @@ import { analyzeLine } from "../../../src/lineAnalysis";
 import { indexedKeywordNameSetForSection } from "../../../src/languageDataIndexes";
 import { getLineSemanticContext, LineSemanticContext } from "../../../src/lineSemanticContext";
 import { HaproxyLanguageData } from "../../../src/languageData";
-import {
-  HaproxySchema,
-  modifierPrefixSet,
-  noPrefixKeywordSet,
-  sectionKeywordSet,
-} from "../../../src/schema";
+import { HaproxySchema } from "../../../src/schema/types";
+import { sectionKeywordSet } from "../../../src/schema/keywords";
+import { modifierPrefixSet, noPrefixKeywordSet } from "../../../src/schema/tokens";
 import { MarkdownString, Range } from "../../__mocks__/vscode";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";

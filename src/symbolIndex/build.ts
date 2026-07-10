@@ -1,5 +1,5 @@
 import { ParsedLine } from "../parser";
-import { HaproxySchema } from "../schema";
+import { HaproxySchema } from "../schema/types";
 
 import { aclReferenceAt } from "./aclReferences";
 import { createSymbolBuildContext, SymbolBuildContext } from "./context";

@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { indexedGroupItems, indexedGroupItemsByName } from "../../languageDataIndexes";
-import { actionGroupForCompletionKind } from "../../schema";
+import { actionGroupForCompletionKind } from "../../schema/semantic";
 import { CompletionContext } from "../types";
 import { filterByPrefix, markdownDoc } from "../helpers";
 

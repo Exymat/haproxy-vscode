@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { groupItems } from "../../documentContext";
-import { semanticRecord, semanticStringMap } from "../../schema";
+import { semanticRecord, semanticStringMap } from "../../schema/semantic";
 import { CompletionContext } from "../types";
 import { filterByPrefix } from "../helpers";
 

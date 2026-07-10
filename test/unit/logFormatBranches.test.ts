@@ -11,8 +11,9 @@ import {
   validateLogFormatLine,
 } from "../../src/logFormat";
 import { logFormatDiagnostics } from "../../src/logFormatDiagnostics";
-import { parseDocument, tokenizeLine } from "../../src/parser";
-import type { HaproxySchema } from "../../src/schema";
+import { tokenizeLine } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
+import type { HaproxySchema } from "../../src/schema/types";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 

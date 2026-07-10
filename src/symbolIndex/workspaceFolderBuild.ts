@@ -6,7 +6,7 @@ import {
   logWorkspaceIndexStarted,
   WorkspaceEntrySkipReason,
 } from "../outputChannel";
-import { HaproxySchema } from "../schema";
+import { HaproxySchema } from "../schema/types";
 
 import { aggregateDocuments, loadDiskEntry, WorkspaceEntryLoadResult } from "./workspaceDocuments";
 import { getDiscoveryResult } from "./workspaceDiscovery";

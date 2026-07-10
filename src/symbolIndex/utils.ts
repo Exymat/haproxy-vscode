@@ -1,4 +1,4 @@
-import { StatementRule } from "../schema";
+import { StatementRule } from "../schema/types";
 
 import { SymbolIndex, SymbolKind, symbolKeyForScopedKinds, SymbolSite } from "./types";
 
@@ -14,6 +14,18 @@ export function symbolNameTokenIndex(rule: StatementRule): number | null {
     return rule.fixed_slots!.indexOf(nameSlot) + 1;
   }
   return null;
+}
+
+export function symbolNameTokenIndices(rule: StatementRule, tokenCount: number): number[] {
+  if (typeof rule.symbol_name_token_from_index === "number") {
+    const indices: number[] = [];
+    for (let i = rule.symbol_name_token_from_index; i < tokenCount; i += 1) {
+      indices.push(i);
+    }
+    return indices;
+  }
+  const idx = symbolNameTokenIndex(rule);
+  return idx === null ? [] : [idx];
 }
 
 export function addSite(

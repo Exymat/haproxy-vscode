@@ -2,7 +2,8 @@ import { activate, deactivate } from "../../src/extension";
 import { getLoadedBundle, invalidateBundleLoad } from "../../src/extensionBundle";
 import * as grammar from "../../src/grammar";
 import * as languageData from "../../src/languageData";
-import * as schema from "../../src/schema";
+import * as schema from "../../src/schema/load";
+import type { HaproxySchema } from "../../src/schema/types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getLastDiagnosticCollection,
@@ -444,7 +445,7 @@ describe("extension", () => {
   });
 
   it("retries bundle load after a stale invalidation", async () => {
-    let resolveSchema!: (value: schema.HaproxySchema) => void;
+    let resolveSchema!: (value: HaproxySchema) => void;
     let schemaLoads = 0;
     vi.spyOn(schema, "loadSchemaAsync").mockImplementation(
       () =>

@@ -2,7 +2,8 @@ import * as vscode from "vscode";
 
 import { makeLineDiagnostic } from "../diagnosticUtils";
 import { ParsedLine } from "../parser";
-import { HaproxySchema, validationRecord } from "../schema";
+import { HaproxySchema } from "../schema/types";
+import { validationRecord } from "../schema/validation";
 import { isLikelyValue } from "../tokenUtils";
 
 export function cookieArgumentDiagnostics(

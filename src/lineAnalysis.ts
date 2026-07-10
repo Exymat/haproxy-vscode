@@ -1,7 +1,7 @@
 import { conditionalStartIndex } from "./directiveUtils";
 import { resolveLineOptionStartIndex } from "./lineOptionSpan";
 import { ParsedLine } from "./parser";
-import { HaproxySchema, StatementRule } from "./schema";
+import { HaproxySchema, StatementRule } from "./schema/types";
 import {
   findStatementRule,
   resolveActionTokenIndex,

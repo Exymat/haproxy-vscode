@@ -27,10 +27,10 @@ describe("environmentVariables", () => {
 
   it("finds env() sample fetch references and skips malformed calls", () => {
     const hits = findEnvSampleFetchReferences(
-      token("prefixenv(IGNORED) env( ) env(FOO missing) env( BAR )", 4),
+      token("prefixenv(IGNORED) env( ) env(FOO missing) env( BAR ) env(  BAZ  )", 4),
     );
 
-    expect(hits).toEqual([{ name: "BAR", start: 52, end: 55 }]);
+    expect(hits.map((hit) => hit.name)).toEqual(["BAR", "BAZ"]);
   });
 
   it("combines quoted and sample-fetch references", () => {

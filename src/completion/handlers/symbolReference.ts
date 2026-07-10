@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { filterByPrefix } from "../helpers";
-import { HaproxySchema } from "../../schema";
+import { HaproxySchema } from "../../schema/types";
 import {
   getSymbolIndex,
   getWorkspaceSymbolIndex,

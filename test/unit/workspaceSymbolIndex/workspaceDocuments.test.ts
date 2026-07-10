@@ -3,7 +3,7 @@ import {
   createOpenDocumentEntry,
   looksLikeHaproxyConfig,
 } from "../../../src/symbolIndex/workspaceDocuments";
-import { sectionHeaderSet } from "../../../src/schema";
+import { sectionHeaderSet } from "../../../src/schema/layout";
 import {
   mockTextDocuments,
   resetVscodeMock,

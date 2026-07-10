@@ -1,20 +1,19 @@
-import { formatConfig, splitLineAtComment, DEFAULT_FORMAT_OPTIONS } from "../../src/formatter";
+import { formatConfig, splitLineAtComment } from "../../src/formatter";
+import { formatOptionsWithSchema } from "../helpers/formatOptions";
+
+const formatOptions = formatOptionsWithSchema("3.2");
 
 describe("formatter edge cases", () => {
   it("preserves blank lines", () => {
-    expect(formatConfig("global\n\n    daemon", DEFAULT_FORMAT_OPTIONS)).toBe(
-      "global\n\n    daemon",
-    );
+    expect(formatConfig("global\n\n    daemon", formatOptions)).toBe("global\n\n    daemon");
   });
 
   it("handles comment-only lines", () => {
-    expect(formatConfig("    # note", DEFAULT_FORMAT_OPTIONS)).toBe("# note");
+    expect(formatConfig("    # note", formatOptions)).toBe("# note");
   });
 
   it("handles whitespace-only lines", () => {
-    expect(formatConfig("global\n   \n    daemon", DEFAULT_FORMAT_OPTIONS)).toBe(
-      "global\n\n    daemon",
-    );
+    expect(formatConfig("global\n   \n    daemon", formatOptions)).toBe("global\n\n    daemon");
   });
 
   it("handles escaped quotes in splitLineAtComment", () => {
@@ -24,7 +23,7 @@ describe("formatter edge cases", () => {
   });
 
   it("handles code-only whitespace and comment-only token lines", () => {
-    expect(formatConfig("global\n    \t   # note", DEFAULT_FORMAT_OPTIONS)).toBe("global\n# note");
-    expect(formatConfig("global\n# only", DEFAULT_FORMAT_OPTIONS)).toBe("global\n# only");
+    expect(formatConfig("global\n    \t   # note", formatOptions)).toBe("global\n# note");
+    expect(formatConfig("global\n# only", formatOptions)).toBe("global\n# only");
   });
 });

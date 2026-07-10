@@ -1,7 +1,7 @@
 import { bench, describe } from "vitest";
 
 import { getParsedDocument } from "../../src/parseCache";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import { buildSymbolIndex, findSiteAtPosition, getSymbolIndex } from "../../src/symbolIndex";
 import { loadSchemaBundle } from "../helpers/schema";
 import { createDocument, updateDocument } from "../helpers/document";

@@ -2,7 +2,7 @@ import { ParsedLine } from "../../parser";
 
 import { FetchReferenceRule } from "../context";
 import { pushReferenceRange } from "../referenceHelpers";
-import { SymbolKind, SymbolSite } from "../types";
+import { SymbolSite } from "../types";
 
 const SAMPLE_FETCH_REF = /^([a-z_][\w.-]*)\(([^)]*)\)$/i;
 
@@ -44,7 +44,7 @@ export function collectSampleFetchReferences(
     const start = token.start + openParen + 1 + rawArgStart + trimOffset;
     pushReferenceRange(
       references,
-      rule.reference_kind as SymbolKind,
+      rule.reference_kind,
       arg,
       line,
       start,

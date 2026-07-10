@@ -1,12 +1,13 @@
 import * as vscode from "vscode";
 
 import { groupItems } from "../../documentContext";
-import { semanticStringList } from "../../schema";
+import { semanticStringList, statementRuleGroupForKind } from "../../schema/semantic";
 import { CompletionContext } from "../types";
 import { filterByPrefix } from "../helpers";
 
 export function tryAclCriterionCompletion(cc: CompletionContext): vscode.CompletionItem[] | null {
-  if (cc.ctx.kind !== "acl-criterion") {
+  const aclGroup = statementRuleGroupForKind(cc.schema, cc.ctx.kind);
+  if (!aclGroup) {
     return null;
   }
   const groups = semanticStringList(cc.schema, "acl_criterion_groups");

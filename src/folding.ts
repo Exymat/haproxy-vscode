@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { getLoadedBundleForUri } from "./extensionBundle";
 import { getParsedDocument } from "./parseCache";
-import { sectionHeaderSet } from "./schema";
+import { sectionHeaderSet } from "./schema/layout";
 import { buildSectionFoldRanges, getSectionOutline } from "./sectionOutline";
 
 export function provideFoldingRanges(document: vscode.TextDocument): vscode.FoldingRange[] {

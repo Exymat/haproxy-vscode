@@ -2,12 +2,8 @@ import * as vscode from "vscode";
 
 import { diagRangeForTokens, DIAG_SOURCE } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
-import {
-  HaproxySchema,
-  modifierPrefixSet,
-  namedDefaultsKeywordSet,
-  noPrefixKeywordSet,
-} from "./schema";
+import { HaproxySchema } from "./schema/types";
+import { modifierPrefixSet, namedDefaultsKeywordSet, noPrefixKeywordSet } from "./schema/tokens";
 import { resolveLongestDirectiveMatch } from "./tokenUtils";
 
 export function namedDefaultsDiagnostics(

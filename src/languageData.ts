@@ -57,6 +57,14 @@ export interface HaproxyLanguageData {
   docsBaseUrl: string;
   keywords: Record<string, LanguageKeyword>;
   groups: Record<string, LanguageGroupItem[]>;
+  conditionalDirectives?: ConditionalDirectiveInfo[];
+}
+
+export interface ConditionalDirectiveInfo {
+  name: string;
+  signature: string;
+  description: string;
+  docsChapter?: string;
 }
 
 const languageDataCache = new Map<HaproxyVersion, HaproxyLanguageData>();

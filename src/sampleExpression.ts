@@ -1,9 +1,6 @@
-import {
-  HaproxySchema,
-  sampleExpressionNameSets,
-  SampleFunction,
-  validationRecord,
-} from "./schema";
+import { HaproxySchema, SampleFunction } from "./schema/types";
+import { validationRecord } from "./schema/validation";
+import { sampleExpressionNameSets } from "./schema/tokens";
 import { canCast, resolveOutType, SampleDiagnostic, sampleIssue } from "./expressionTypes";
 import {
   parseArgList,

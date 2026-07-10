@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { computeDiagnostics } from "../../src/diagnostics";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import {
   buildSymbolIndex,
   findReferences,
@@ -15,7 +15,7 @@ import {
   type SymbolSite,
 } from "../../src/symbolIndex";
 import { buildSitesByLine } from "../../src/symbolIndex/utils";
-import { entryPointSectionSet } from "../../src/schema";
+import { entryPointSectionSet } from "../../src/schema/symbols";
 import { unusedSymbolDiagnostics } from "../../src/unusedSymbolDiagnostics";
 import { createDocument } from "../helpers/document";
 import { formatDiagnosticCode } from "../helpers/diagnosticFormat";
@@ -23,7 +23,7 @@ import { loadSchema } from "../helpers/schema";
 
 const schema = loadSchema("3.4");
 const scopedSymbolKinds = scopedSymbolKindSet(schema);
-const unusedCtx = { entryPointSections: entryPointSectionSet(schema) };
+const unusedCtx = { entryPointSections: entryPointSectionSet(schema), schema };
 const fixturesDir = join(__dirname, "..", "fixtures");
 const hapeeAclSnippet = readFileSync(join(fixturesDir, "hapee-acl-snippet.cfg"), "utf-8");
 
@@ -339,7 +339,7 @@ describe("symbolIndex reference expansion", () => {
         "custom:widget",
         [
           {
-            kind: "widget" as SymbolKind,
+            kind: "widget",
             name: "widget",
             line: 1,
             start: 4,

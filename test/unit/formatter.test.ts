@@ -6,15 +6,17 @@ import {
   DEFAULT_FORMAT_OPTIONS,
   type FormatOptions,
 } from "../../src/formatter";
-import { sectionHeaderSet } from "../../src/schema";
+import { sectionHeaderSet } from "../../src/schema/layout";
+import { formatOptionsWithSchema } from "../helpers/formatOptions";
 import { loadSchema } from "../helpers/schema";
 
 describe("formatter", () => {
+  const defaultOptions = formatOptionsWithSchema("3.2");
   const cases: Array<{
     name: string;
     input: string;
     expected: string;
-    options?: FormatOptions;
+    options?: Partial<FormatOptions>;
   }> = [
     {
       name: "section headers left-aligned with normalized spacing",
@@ -126,7 +128,9 @@ describe("formatter", () => {
   ];
 
   it.each(cases)("$name", ({ input, expected, options }) => {
-    expect(formatConfig(input, options ?? DEFAULT_FORMAT_OPTIONS)).toBe(expected);
+    expect(formatConfig(input, options ? { ...defaultOptions, ...options } : defaultOptions)).toBe(
+      expected,
+    );
   });
 
   it.each([
@@ -184,15 +188,15 @@ describe("formatter", () => {
   });
 
   it("formats comment-only lines without indentation", () => {
-    expect(formatConfig("# comment only")).toBe("# comment only");
+    expect(formatConfig("# comment only", defaultOptions)).toBe("# comment only");
   });
 
   it("handles inputs with no non-empty lines", () => {
-    expect(formatConfig("\n\n")).toBe("\n\n");
+    expect(formatConfig("\n\n", defaultOptions)).toBe("\n\n");
   });
 
   it("handles an empty file", () => {
-    expect(formatConfig("")).toBe("");
+    expect(formatConfig("", defaultOptions)).toBe("");
   });
 
   it("treats fcgi-app as a section header when schema headers are provided", () => {
@@ -202,9 +206,12 @@ describe("formatter", () => {
       ...DEFAULT_FORMAT_OPTIONS,
       sectionHeaders: sectionHeaderSet(schema),
     });
-    const withDefaults = formatConfig(input, DEFAULT_FORMAT_OPTIONS);
+    const withoutHeaders = formatConfig(input, {
+      ...DEFAULT_FORMAT_OPTIONS,
+      sectionHeaders: new Set(),
+    });
     expect(withSchema).toBe("fcgi-app myapp\n    mode http");
-    expect(withDefaults).toBe("    fcgi-app myapp\n    mode http");
-    expect(withSchema).not.toBe(withDefaults);
+    expect(withoutHeaders).toBe("    fcgi-app myapp\n    mode http");
+    expect(withSchema).not.toBe(withoutHeaders);
   });
 });

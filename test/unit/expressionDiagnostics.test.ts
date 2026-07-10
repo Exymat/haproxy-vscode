@@ -1,5 +1,5 @@
 import { expressionDiagnostics } from "../../src/expressionDiagnostics";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import { formatDiagnosticCode } from "../helpers/diagnosticFormat";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";

@@ -1,7 +1,8 @@
 import { getParsedDocumentEntry, ParsedDocumentReuse } from "../../src/parseCache";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import { runtimeModeForDocument, runtimeModeForLine } from "../../src/sectionMode";
 import { createDocument, updateDocument } from "../helpers/document";
+import { parseOptionsWithSchema } from "../helpers/formatOptions";
 import { loadSchema } from "../helpers/schema";
 
 function craftedReuse(overrides: Partial<ParsedDocumentReuse>): ParsedDocumentReuse {
@@ -16,13 +17,14 @@ function craftedReuse(overrides: Partial<ParsedDocumentReuse>): ParsedDocumentRe
 }
 
 const schema = loadSchema("3.4");
+const parseOptions = parseOptionsWithSchema("3.4");
 
 describe("sectionMode", () => {
   it("resolves inherited runtime mode from defaults", () => {
     const doc = createDocument(
       ["defaults", "    mode http", "frontend web", "    bind :80"].join("\n"),
     );
-    const entry = getParsedDocumentEntry(doc);
+    const entry = getParsedDocumentEntry(doc, parseOptions);
     const modes = runtimeModeForLine(entry.parsed, schema);
     expect(modes[2]).toBe("http");
 
@@ -91,7 +93,7 @@ describe("sectionMode", () => {
 
   it("reuses modes when entire document is unchanged", () => {
     const doc = createDocument(["defaults", "    mode http"].join("\n"));
-    const entry1 = getParsedDocumentEntry(doc);
+    const entry1 = getParsedDocumentEntry(doc, parseOptions);
     const cached = runtimeModeForDocument(
       entry1.parsed,
       doc.version,
@@ -101,14 +103,14 @@ describe("sectionMode", () => {
     );
 
     updateDocument(doc, ["defaults", "    mode http"].join("\n"));
-    const entry2 = getParsedDocumentEntry(doc);
+    const entry2 = getParsedDocumentEntry(doc, parseOptions);
     const result = runtimeModeForDocument(entry2.parsed, doc.version, entry2.reuse, cached, schema);
     expect(result.modes).toBe(cached.modes);
   });
 
   it("recomputes modes when suffix reuse is incomplete", () => {
     const doc = createDocument(["defaults", "    mode http", "    timeout connect 5s"].join("\n"));
-    const entry1 = getParsedDocumentEntry(doc);
+    const entry1 = getParsedDocumentEntry(doc, parseOptions);
     const cached = runtimeModeForDocument(
       entry1.parsed,
       doc.version,
@@ -118,7 +120,7 @@ describe("sectionMode", () => {
     );
 
     updateDocument(doc, ["defaults", "    mode http", "    timeout connect 10s"].join("\n"));
-    const entry2 = getParsedDocumentEntry(doc);
+    const entry2 = getParsedDocumentEntry(doc, parseOptions);
     const result = runtimeModeForDocument(entry2.parsed, doc.version, entry2.reuse, cached, schema);
     expect(result.modes).not.toBe(cached.modes);
     expect(result.modes[1]).toBe("http");

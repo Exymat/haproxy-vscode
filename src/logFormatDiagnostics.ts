@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { LogFormatLineMemo, validateLogFormatLine } from "./logFormat";
 import { ParsedLine } from "./parser";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
 
 export function logFormatDiagnostics(
   line: ParsedLine,

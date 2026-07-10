@@ -15,7 +15,7 @@ import {
 import { aclNameDiagnostics, sectionHeaderDiagnostics } from "./sectionDiagnostics";
 import { statementDiagnostics } from "./statementDiagnostics";
 import { ParsedLine } from "./parser";
-import { macroTokenSet } from "./schema";
+import { macroTokenSet } from "./schema/tokens";
 
 type LineDiagnosticPhase = (
   ctx: DiagnosticContext,

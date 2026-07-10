@@ -1,5 +1,6 @@
 import { HaproxyLanguageData } from "./languageData";
-import { deprecatedActionGroupNames, HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
+import { deprecatedActionGroupNames } from "./schema/semantic";
 
 const DEPRECATED_MARK = /\(deprecated\)/i;
 

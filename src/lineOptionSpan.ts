@@ -9,13 +9,8 @@ import {
 import { addressPolicyForSchema, validateHaproxyAddress } from "./addressFormat";
 import { resolveLineOptionSchemaKeyword } from "./lineOptionKeyword";
 import { ParsedLine } from "./parser";
-import {
-  ArgumentModel,
-  HaproxySchema,
-  LineOptionSemantic,
-  optionsWithValueSet,
-  StatementRule,
-} from "./schema";
+import { ArgumentModel, HaproxySchema, LineOptionSemantic, StatementRule } from "./schema/types";
+import { optionsWithValueSet } from "./schema/keywords";
 
 export interface LineOptionSpanContext {
   kind: string;

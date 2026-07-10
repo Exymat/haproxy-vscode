@@ -2,7 +2,8 @@
  * HAProxy address + port validation aligned with str2sa_range() (tools.c) and PA_O_PORT_* flags.
  */
 
-import { HaproxySchema, schemaAddressPolicies, schemaAddressPolicy } from "./schema";
+import { HaproxySchema } from "./schema/types";
+import { schemaAddressPolicies, schemaAddressPolicy } from "./schema/samples";
 
 export interface PortAddressPolicy {
   portOk: boolean;

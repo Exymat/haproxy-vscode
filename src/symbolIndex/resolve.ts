@@ -7,21 +7,22 @@ import {
 import { getParsedDocument } from "../parseCache";
 import { ParsedLine } from "../parser";
 import { findReferencePatternAtToken } from "../referencePatternMatching";
-import { isTopLevelSectionHeader } from "../sectionUtils";
 import {
-  HaproxySchema,
-  keywordGroupSet,
-  sectionHeaderSet,
-  StatementRule,
-  symbolStringList,
-  sampleExpressionNameSets,
-} from "../schema";
+  isTopLevelSectionHeader,
+  parseSectionHeader,
+  sectionHeaderFromProfileTokenIndex,
+} from "../sectionUtils";
+import { HaproxySchema, StatementRule } from "../schema/types";
+import { symbolStringList } from "../schema/symbols";
+import { keywordGroupSet } from "../schema/keywords";
+import { sectionHeaderSet } from "../schema/layout";
+import { sampleExpressionNameSets } from "../schema/tokens";
 import { ruleMatchesLine } from "../statementLayout";
-import { tokenIndexAtPosition } from "../tokenUtils";
+import { tokenIndexAtPosition, isLikelyValue } from "../tokenUtils";
 
 import { aclReferenceAt } from "./aclReferences";
 import { buildScopeKeyByLine } from "./scope";
-import { symbolNameTokenIndex, ensureSitesByLine } from "./utils";
+import { symbolNameTokenIndices, ensureSitesByLine } from "./utils";
 import {
   effectiveScopeKeyForSchema,
   sectionDefinitionKinds,
@@ -52,8 +53,9 @@ function resolveSectionHeaderSymbol(
     return null;
   }
 
-  const sectionType = line.tokens[0].text.toLowerCase();
-  const defKind = sectionDefinitionKinds(schema)[sectionType];
+  const header = parseSectionHeader(line, schema)!;
+
+  const defKind = sectionDefinitionKinds(schema)[header.sectionType];
   if (!defKind) {
     return null;
   }
@@ -62,10 +64,9 @@ function resolveSectionHeaderSymbol(
     return { kind: defKind, name: line.tokens[1].text, scopeKey: null };
   }
 
-  for (let i = 2; i < line.tokens.length - 1; i += 1) {
-    if (line.tokens[i].text.toLowerCase() === "from" && tokenIndex === i + 1) {
-      return { kind: "defaults-profile", name: line.tokens[i + 1].text, scopeKey: null };
-    }
+  const profileIndex = sectionHeaderFromProfileTokenIndex(line, schema);
+  if (profileIndex >= 0 && tokenIndex === profileIndex) {
+    return { kind: "defaults-profile", name: line.tokens[profileIndex].text, scopeKey: null };
   }
 
   return null;
@@ -90,11 +91,19 @@ function resolveStatementRuleSymbol(
     }
 
     if (rule.definition_kind) {
-      const idx = symbolNameTokenIndex(rule);
-      if (idx === tokenIndex) {
-        const token = line.tokens[tokenIndex];
+      for (const idx of symbolNameTokenIndices(rule, line.tokens.length)) {
+        if (idx !== tokenIndex) {
+          continue;
+        }
+        const token = line.tokens[idx];
+        if (
+          rule.definition_kind === "environment-variable" &&
+          !isEnvironmentVariableName(token.text)
+        ) {
+          continue;
+        }
         return {
-          kind: rule.definition_kind as SymbolKind,
+          kind: rule.definition_kind,
           name: token.text,
           scopeKey,
         };
@@ -102,10 +111,18 @@ function resolveStatementRuleSymbol(
     }
 
     if (rule.reference_kind) {
-      const idx = symbolNameTokenIndex(rule);
-      if (idx === tokenIndex) {
-        const token = line.tokens[tokenIndex];
-        const kind = rule.reference_kind as SymbolKind;
+      for (const idx of symbolNameTokenIndices(rule, line.tokens.length)) {
+        if (idx !== tokenIndex) {
+          continue;
+        }
+        const token = line.tokens[idx];
+        const kind = rule.reference_kind;
+        if (kind === "environment-variable" && !isEnvironmentVariableName(token.text)) {
+          continue;
+        }
+        if (kind !== "environment-variable" && isLikelyValue(token.text)) {
+          continue;
+        }
         return {
           kind,
           name: token.text,
@@ -129,7 +146,7 @@ function resolveStatementRuleSymbol(
     const hit = findReferencePatternAtToken(line.tokens, pattern, tokenIndex);
     if (hit) {
       return {
-        kind: pattern.reference_kind as SymbolKind,
+        kind: pattern.reference_kind,
         name: hit.targetToken.text,
         scopeKey: pattern.scope === "section" ? scopeKey : null,
       };
@@ -145,23 +162,6 @@ function resolveEnvironmentVariableSymbol(
   positionCharacter: number,
 ): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
   const token = line.tokens[tokenIndex];
-
-  const keyword = line.tokens[0]?.text.toLowerCase();
-  if (
-    (keyword === "setenv" || keyword === "presetenv") &&
-    tokenIndex === 1 &&
-    isEnvironmentVariableName(token.text)
-  ) {
-    return { kind: "environment-variable", name: token.text, scopeKey: null };
-  }
-
-  if (
-    (keyword === "unsetenv" || keyword === "resetenv") &&
-    tokenIndex >= 1 &&
-    isEnvironmentVariableName(token.text)
-  ) {
-    return { kind: "environment-variable", name: token.text, scopeKey: null };
-  }
 
   for (const hit of findEnvironmentVariableReferences(token)) {
     if (positionCharacter >= hit.start && positionCharacter <= hit.end) {

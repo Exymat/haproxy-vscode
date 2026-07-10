@@ -1,10 +1,10 @@
 import { ParsedLine } from "../../parser";
 import { findReferencePatternMatches } from "../../referencePatternMatching";
-import { ReferencePattern } from "../../schema";
+import { ReferencePattern } from "../../schema/types";
 
 import { FetchReferenceRule } from "../context";
 import { pushReference } from "../referenceHelpers";
-import { SymbolKind, SymbolSite } from "../types";
+import { SymbolSite } from "../types";
 
 import { collectSampleFetchReferences } from "./sampleFetch";
 
@@ -31,7 +31,7 @@ export function collectFilterSelfReference(
   const refScope = rule.scope === "section" ? scopeKey : null;
   pushReference(
     references,
-    referenceKind as SymbolKind,
+    referenceKind,
     line.tokens[tokenIndex].text,
     line,
     tokenIndex,
@@ -61,7 +61,7 @@ export function collectConfiguredReferences(
           }
           const startCol = token.start + token.text.indexOf(name, offset);
           references.push({
-            kind: pattern.reference_kind as SymbolKind,
+            kind: pattern.reference_kind,
             name,
             line: line.line,
             start: startCol,
@@ -73,7 +73,7 @@ export function collectConfiguredReferences(
         }
       } else {
         references.push({
-          kind: pattern.reference_kind as SymbolKind,
+          kind: pattern.reference_kind,
           name: token.text,
           line: line.line,
           start: token.start,

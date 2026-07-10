@@ -4,6 +4,10 @@ import { DIAG_SOURCE } from "./diagnosticUtils";
 import { DiagnosticContext } from "./diagnosticContext";
 import { ParsedLine } from "./parser";
 import { getSectionOutline } from "./sectionOutline";
+import { HaproxySchema } from "./schema/types";
+import { symbolStringMap } from "./schema/symbols";
+import { validationStringValue } from "./schema/validation";
+import { parseSectionHeader } from "./sectionUtils";
 
 interface SectionBlock {
   kind: string;
@@ -14,39 +18,20 @@ interface SectionBlock {
   endLine: number;
 }
 
-function parseSectionHeader(
-  line: ParsedLine,
-): Omit<SectionBlock, "headerLine" | "startLine" | "endLine"> | null {
-  if (!line.isSectionHeader || line.tokens.length === 0) {
-    return null;
-  }
-  const kind = line.tokens[0].text.toLowerCase();
-  let name: string | null = null;
-  let fromDefaults: string | null = null;
-  if (line.tokens[1] && line.tokens[1].text.toLowerCase() !== "from") {
-    name = line.tokens[1].text;
-  }
-  for (let i = 1; i < line.tokens.length - 1; i += 1) {
-    if (line.tokens[i].text.toLowerCase() === "from") {
-      fromDefaults = line.tokens[i + 1].text;
-      break;
-    }
-  }
-  return { kind, name, fromDefaults };
-}
-
-function buildSectionBlocks(parsed: ParsedLine[]): SectionBlock[] {
+function buildSectionBlocks(parsed: ParsedLine[], schema: HaproxySchema): SectionBlock[] {
   const blocks: SectionBlock[] = [];
   for (const line of parsed) {
     if (!line.isSectionHeader) {
       continue;
     }
-    const header = parseSectionHeader(line);
+    const header = parseSectionHeader(line, schema);
     if (!header) {
       continue;
     }
     blocks.push({
-      ...header,
+      kind: header.sectionType,
+      name: header.name,
+      fromDefaults: header.profileName,
       headerLine: line.line,
       startLine: line.line,
       endLine: line.line,
@@ -87,18 +72,27 @@ function blockBodyHasBind(
   return false;
 }
 
-function findNamedDefaultsBefore(blocks: SectionBlock[], idx: number, name: string): number {
+function findNamedDefaultsBefore(
+  blocks: SectionBlock[],
+  idx: number,
+  name: string,
+  defaultsSection: string,
+): number {
   for (let i = idx - 1; i >= 0; i -= 1) {
-    if (blocks[i].kind === "defaults" && blocks[i].name === name) {
+    if (blocks[i].kind === defaultsSection && blocks[i].name === name) {
       return i;
     }
   }
   return -1;
 }
 
-function findPreviousDefaults(blocks: SectionBlock[], idx: number): number {
+function findPreviousDefaults(
+  blocks: SectionBlock[],
+  idx: number,
+  defaultsSection: string,
+): number {
   for (let i = idx - 1; i >= 0; i -= 1) {
-    if (blocks[i].kind === "defaults") {
+    if (blocks[i].kind === defaultsSection) {
       return i;
     }
   }
@@ -112,6 +106,7 @@ function sectionHasBind(
   memo: Map<number, boolean>,
   resolving: Set<number>,
   bindTokens: Set<string>,
+  defaultsSection: string,
 ): boolean {
   const cached = memo.get(idx);
   if (cached !== undefined) {
@@ -127,12 +122,20 @@ function sectionHasBind(
   if (!hasBind) {
     let parent = -1;
     if (block.fromDefaults) {
-      parent = findNamedDefaultsBefore(blocks, idx, block.fromDefaults);
-    } else if (block.kind !== "defaults") {
-      parent = findPreviousDefaults(blocks, idx);
+      parent = findNamedDefaultsBefore(blocks, idx, block.fromDefaults, defaultsSection);
+    } else if (block.kind !== defaultsSection) {
+      parent = findPreviousDefaults(blocks, idx, defaultsSection);
     }
     if (parent >= 0) {
-      hasBind = sectionHasBind(parsed, blocks, parent, memo, resolving, bindTokens);
+      hasBind = sectionHasBind(
+        parsed,
+        blocks,
+        parent,
+        memo,
+        resolving,
+        bindTokens,
+        defaultsSection,
+      );
     }
   }
 
@@ -141,21 +144,26 @@ function sectionHasBind(
   return hasBind;
 }
 
-function entryPointLabel(kind: string): string {
-  return kind === "listen" ? "Listen" : "Frontend";
+function entryPointLabel(schema: HaproxySchema, kind: string): string {
+  return symbolStringMap(schema, "entry_point_labels")[kind] ?? kind;
 }
 
 function makeNoBindWarning(
   document: vscode.TextDocument,
+  schema: HaproxySchema,
   headerLine: number,
   kind: string,
   name: string | null,
 ): vscode.Diagnostic {
   const sectionName = name ?? kind;
   const lineText = document.lineAt(headerLine).text;
+  const template = validationStringValue(schema, "entry_point_no_bind_message");
+  const message = template
+    .replace("{label}", entryPointLabel(schema, kind))
+    .replace("{name}", sectionName);
   const diagnostic = new vscode.Diagnostic(
     new vscode.Range(headerLine, 0, headerLine, lineText.length),
-    `${entryPointLabel(kind)} '${sectionName}' has no bind directive and cannot accept connections`,
+    message,
     vscode.DiagnosticSeverity.Warning,
   );
   diagnostic.source = DIAG_SOURCE;
@@ -174,14 +182,18 @@ const entryPointDiagCache = new WeakMap<vscode.TextDocument, EntryPointDiagCache
 function computeEntryPointDiagnostics(
   document: vscode.TextDocument,
   parsed: ParsedLine[],
-  ctx: Pick<DiagnosticContext, "entryPointSections" | "bindDetectKeywords">,
+  ctx: Pick<DiagnosticContext, "entryPointSections" | "bindDetectKeywords" | "schema">,
 ): vscode.Diagnostic[] {
   getSectionOutline(document, parsed);
-  const blocks = buildSectionBlocks(parsed);
+  const blocks = buildSectionBlocks(parsed, ctx.schema);
   if (blocks.length === 0) {
     return [];
   }
 
+  const defaultsSection =
+    typeof ctx.schema.symbols?.defaults_section_name === "string"
+      ? ctx.schema.symbols.defaults_section_name
+      : "defaults";
   const memo = new Map<number, boolean>();
   const resolving = new Set<number>();
   const diagnostics: vscode.Diagnostic[] = [];
@@ -191,10 +203,14 @@ function computeEntryPointDiagnostics(
     if (!ctx.entryPointSections.has(block.kind)) {
       continue;
     }
-    if (sectionHasBind(parsed, blocks, i, memo, resolving, ctx.bindDetectKeywords)) {
+    if (
+      sectionHasBind(parsed, blocks, i, memo, resolving, ctx.bindDetectKeywords, defaultsSection)
+    ) {
       continue;
     }
-    diagnostics.push(makeNoBindWarning(document, block.headerLine, block.kind, block.name));
+    diagnostics.push(
+      makeNoBindWarning(document, ctx.schema, block.headerLine, block.kind, block.name),
+    );
   }
 
   return diagnostics;
@@ -203,7 +219,7 @@ function computeEntryPointDiagnostics(
 export function entryPointWithoutBindDiagnostics(
   document: vscode.TextDocument,
   parsed: ParsedLine[],
-  ctx: Pick<DiagnosticContext, "entryPointSections" | "bindDetectKeywords">,
+  ctx: Pick<DiagnosticContext, "entryPointSections" | "bindDetectKeywords" | "schema">,
 ): vscode.Diagnostic[] {
   const hit = entryPointDiagCache.get(document);
   if (hit && hit.version === document.version) {

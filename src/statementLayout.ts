@@ -1,5 +1,5 @@
 import { ParsedLine, ParsedToken } from "./parser";
-import { HaproxySchema, StatementRule } from "./schema";
+import { HaproxySchema, StatementRule } from "./schema/types";
 
 const statementRuleIndexCache = new WeakMap<HaproxySchema, Map<string, StatementRule[]>>();
 

@@ -7,18 +7,18 @@ import { nestedDiagnosticKeywordSet, statementRuleKeywordSet } from "./diagnosti
 import { resolveLineOptionStartIndex } from "./lineOptionSpan";
 import { isOptionLine, optionNameTokenIndex } from "./optionLine";
 import { ParsedLine } from "./parser";
+import { HaproxySchema } from "./schema/types";
+import { symbolStringList } from "./schema/symbols";
+import { semanticRecord, dynamicActionPrefixes } from "./schema/semantic";
+import { validationObjectArray } from "./schema/validation";
+import { keywordGroupSet, prefixSubcommandSet } from "./schema/keywords";
 import {
-  conditionalTokenSet,
-  HaproxySchema,
-  keywordGroupSet,
   prefixFamilySet,
-  prefixSubcommandSet,
-  semanticRecord,
   statsSocketLevelSet,
-  dynamicActionPrefixes,
   tcpRequestPhaseSet,
   tcpResponsePhaseSet,
-} from "./schema";
+} from "./schema/layout";
+import { conditionalTokenSet } from "./schema/tokens";
 import { RuntimeMode } from "./sectionMode";
 import {
   resolveActionTokenIndex,
@@ -52,18 +52,28 @@ function wrongContextMessage(keyword: string, mode: RuntimeMode, contexts: strin
   return `'${keyword}' is not supported in mode '${mode}' (allowed in: ${contexts.join(", ")})`;
 }
 
+function runtimeModeContextValues(schema: HaproxySchema): Set<string> {
+  const contextValues = symbolStringList(schema, "runtime_mode_context_values");
+  if (contextValues.length > 0) {
+    return new Set(contextValues);
+  }
+  return new Set(symbolStringList(schema, "runtime_modes"));
+}
+
 function modeContextDiagnostic(
   line: ParsedLine,
   tokenIndex: number,
   keyword: string,
   contexts: string[],
   mode: RuntimeMode,
+  schema: HaproxySchema,
 ): vscode.Diagnostic | null {
+  const runtimeModes = runtimeModeContextValues(schema);
   let hasModeContext = false;
   let modeSupported = false;
   for (const context of contexts) {
     const normalized = lowerToken(context);
-    if (normalized === "tcp" || normalized === "http" || normalized === "log") {
+    if (runtimeModes.has(normalized)) {
       hasModeContext = true;
       if (normalized === mode) {
         modeSupported = true;
@@ -88,7 +98,7 @@ export function topLevelDiagnostics(ctx: DiagnosticContext, line: ParsedLine): v
     return [];
   }
 
-  if (isOptionLine(line) && optionAllowedInSection({ hasOptionKeywords })) {
+  if (isOptionLine(line, ctx.schema) && optionAllowedInSection({ hasOptionKeywords })) {
     return [];
   }
 
@@ -161,20 +171,27 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
   if (top.matched) {
     const kw = ctx.schema.keywords[lowerToken(top.keyword)];
     if (kw?.contexts?.length) {
-      const diag = modeContextDiagnostic(line, top.start, kw.name, kw.contexts, mode);
+      const diag = modeContextDiagnostic(line, top.start, kw.name, kw.contexts, mode, ctx.schema);
       if (diag) {
         diagnostics.push(diag);
       }
     }
   }
 
-  if (isOptionLine(line)) {
-    const idx = optionNameTokenIndex(line);
+  if (isOptionLine(line, ctx.schema)) {
+    const idx = optionNameTokenIndex(line, ctx.schema);
     const option = lowerToken(line.tokens[idx]?.text ?? "");
     if (option) {
       const contexts = ctx.schema.keyword_group_contexts?.options?.[option];
       if (contexts?.length) {
-        const diag = modeContextDiagnostic(line, idx, `option ${option}`, contexts, mode);
+        const diag = modeContextDiagnostic(
+          line,
+          idx,
+          `option ${option}`,
+          contexts,
+          mode,
+          ctx.schema,
+        );
         if (diag) {
           diagnostics.push(diag);
         }
@@ -201,7 +218,7 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
         if (!contexts?.length) {
           continue;
         }
-        const diag = modeContextDiagnostic(line, i, option, contexts, mode);
+        const diag = modeContextDiagnostic(line, i, option, contexts, mode, ctx.schema);
         if (diag) {
           diagnostics.push(diag);
         }
@@ -218,10 +235,10 @@ type NestedKeywordHandler = (
 ) => vscode.Diagnostic[] | null;
 
 function handleOptionLine(ctx: DiagnosticContext, line: ParsedLine): vscode.Diagnostic[] | null {
-  if (!isOptionLine(line)) {
+  if (!isOptionLine(line, ctx.schema)) {
     return null;
   }
-  const idx = optionNameTokenIndex(line);
+  const idx = optionNameTokenIndex(line, ctx.schema);
   const value = lowerToken(line.tokens[idx]?.text ?? "");
   if (value && !keywordGroupSet(ctx.schema, "options").has(value)) {
     return [
@@ -306,13 +323,31 @@ function handleStatsSocketLine(
   return diagnostics;
 }
 
+function matchesNestedKeywordSkipPattern(
+  schema: HaproxySchema,
+  tokens: ParsedLine["tokens"],
+): boolean {
+  const patterns = validationObjectArray<{ match_tokens?: string[] }>(
+    schema,
+    "nested_keyword_skip_patterns",
+  );
+  for (const pattern of patterns) {
+    const matchTokens = pattern.match_tokens ?? [];
+    if (
+      matchTokens.length > 0 &&
+      matchTokens.every((token, index) => tokens[index]?.text.toLowerCase() === token)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function handleTcpInspectDelayLine(
-  _ctx: DiagnosticContext,
+  ctx: DiagnosticContext,
   line: ParsedLine,
 ): vscode.Diagnostic[] | null {
-  const t0 = lowerToken(line.tokens[0]?.text ?? "");
-  const t1 = lowerToken(line.tokens[1]?.text ?? "");
-  if ((t0 === "tcp-request" || t0 === "tcp-response") && t1 === "inspect-delay") {
+  if (matchesNestedKeywordSkipPattern(ctx.schema, line.tokens)) {
     return [];
   }
   return null;

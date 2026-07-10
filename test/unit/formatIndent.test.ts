@@ -1,5 +1,6 @@
 import { formatIndentToOptions, isFormatIndent, legacyFormatIndent } from "../../src/formatIndent";
 import { formatConfig } from "../../src/formatter";
+import { formatOptionsWithSchema } from "../helpers/formatOptions";
 
 describe("formatIndentToOptions", () => {
   it("maps indent settings", () => {
@@ -34,8 +35,8 @@ describe("legacyFormatIndent", () => {
 describe("formatConfig with spaces-2", () => {
   it("normalizes two-space indent", () => {
     const result = formatConfig("frontend web\n      bind :443", {
+      ...formatOptionsWithSchema("3.2"),
       ...formatIndentToOptions("spaces-2"),
-      insertBlankLineBetweenSections: true,
     });
     expect(result).toBe("frontend web\n  bind :443");
   });

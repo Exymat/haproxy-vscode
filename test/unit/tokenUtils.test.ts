@@ -11,8 +11,8 @@ import {
   resolveLongestDirectiveMatch,
   resolveSubcommandSpan,
 } from "../../src/tokenUtils";
-import { prefixFamilies } from "../../src/schema";
-import { parseDocument } from "../../src/parser";
+import { prefixFamilies } from "../../src/schema/layout";
+import { parseDocument } from "../helpers/parse";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";
 

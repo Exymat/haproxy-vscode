@@ -1,23 +1,20 @@
 import * as vscode from "vscode";
 
 import { makeDiagnostic } from "./diagnosticUtils";
+import { HaproxySchema } from "./schema/types";
+import { symbolStringMap } from "./schema/symbols";
 import { SymbolIndex, SymbolKind, SymbolSite } from "./symbolIndex";
 
 function siteRange(site: SymbolSite): vscode.Range {
   return new vscode.Range(site.line, site.start, site.line, site.end);
 }
 
-function symbolLabel(kind: SymbolKind): string {
-  switch (kind) {
-    case "proxy-section":
-      return "Proxy section";
-    case "defaults-profile":
-      return "Defaults profile";
-    case "userlist":
-      return "Userlist";
-    default:
-      return kind.slice(0, 1).toUpperCase() + kind.slice(1);
+function symbolLabel(schema: HaproxySchema, kind: SymbolKind): string {
+  const labels = symbolStringMap(schema, "symbol_kind_labels");
+  if (labels[kind]) {
+    return labels[kind];
   }
+  return kind.slice(0, 1).toUpperCase() + kind.slice(1);
 }
 
 function siteKey(site: SymbolSite): string {
@@ -37,6 +34,7 @@ export interface MissingReferenceDiagnosticsOptions {
 
 export function missingReferenceDiagnostics(
   index: SymbolIndex,
+  schema: HaproxySchema,
   options?: MissingReferenceDiagnosticsOptions,
 ): vscode.Diagnostic[] {
   const diagnostics: vscode.Diagnostic[] = [];
@@ -55,7 +53,7 @@ export function missingReferenceDiagnostics(
     diagnostics.push(
       makeDiagnostic(
         siteRange(reference),
-        `${symbolLabel(reference.kind)} '${reference.name}' is referenced but not defined ${scopeLabel}`,
+        `${symbolLabel(schema, reference.kind)} '${reference.name}' is referenced but not defined ${scopeLabel}`,
         vscode.DiagnosticSeverity.Warning,
         "missing-reference",
       ),

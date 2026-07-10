@@ -1,5 +1,5 @@
 import { LanguageArgumentParam, LanguageKeyword } from "./languageData";
-import { ArgumentSlot, SchemaArgumentParam, SchemaKeyword } from "./schema";
+import { ArgumentSlot, SchemaArgumentParam, SchemaKeyword } from "./schema/types";
 
 const enumSlotCache = new WeakMap<SchemaKeyword, Map<string, string[]>>();
 const enumSlotLowerCache = new WeakMap<SchemaKeyword, Map<string, string[]>>();

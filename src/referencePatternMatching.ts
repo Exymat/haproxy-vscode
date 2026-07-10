@@ -1,5 +1,5 @@
 import { ParsedToken } from "./parser";
-import { ReferencePattern } from "./schema";
+import { ReferencePattern } from "./schema/types";
 
 export interface ReferencePatternMatch {
   start: number;

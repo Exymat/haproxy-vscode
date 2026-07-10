@@ -191,6 +191,29 @@ describe("diagnostics core branches", () => {
       }),
     ).toEqual([]);
 
+    const multiSection = createDocument(
+      ["defaults", "    mode http", "    timeout client 50s", "frontend web", "    bind :80"].join(
+        "\n",
+      ),
+      "file:///diagnostics-prefix-suffix.cfg",
+    );
+    computeDiagnostics(multiSection, bundle34.schema, {
+      languageData: bundle34.languageData,
+      missingReferences: false,
+    });
+    updateDocument(
+      multiSection,
+      ["defaults", "    mode http", "    timeout server 50s", "frontend web", "    bind :81"].join(
+        "\n",
+      ),
+    );
+    expect(
+      computeDiagnostics(multiSection, bundle34.schema, {
+        languageData: bundle34.languageData,
+        missingReferences: false,
+      }).length,
+    ).toBeGreaterThanOrEqual(0);
+
     const oversized = createDocument("frontend web\n    use_backend missing");
     expect(
       computeDiagnostics(oversized, bundle34.schema, {

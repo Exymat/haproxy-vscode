@@ -7,7 +7,7 @@ import {
   lineTextWithIgnoredDiagnosticCode,
 } from "../../src/diagnosticSuppressions";
 import { makeDiagnostic } from "../../src/diagnosticUtils";
-import { parseDocumentLines } from "../../src/parser";
+import { parseDocumentLines } from "../helpers/parse";
 import * as vscode from "vscode";
 
 function diagnostic(lineNo: number, code: string): vscode.Diagnostic {
@@ -72,6 +72,20 @@ describe("diagnostic suppressions", () => {
         diagnostics,
       ).map((diag) => diag.code),
     ).toEqual(["named-defaults-required", "unknown-action"]);
+  });
+
+  it("reuses parsed ignore-code sets for multiple diagnostics on one line", () => {
+    const diagnostics = [
+      diagnostic(0, "unknown-action"),
+      diagnostic(0, "unknown-keyword"),
+      diagnostic(0, "named-defaults-required"),
+    ];
+    expect(
+      applyDiagnosticSuppressions(
+        ["http-request foo # haproxy: ignore=unknown-action,unknown-keyword"],
+        diagnostics,
+      ).map((diag) => diag.code),
+    ).toEqual(["named-defaults-required"]);
   });
 
   it("returns the original diagnostics array when no suppressions match", () => {

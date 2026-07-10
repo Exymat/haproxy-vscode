@@ -1,16 +1,8 @@
-import { HaproxySchema, symbolStringList, symbolStringMap } from "../schema";
+import { HaproxySchema } from "../schema/types";
+import { symbolStringList, symbolStringMap } from "../schema/symbols";
+import { SymbolKind } from "../editorKinds";
 
-export type SymbolKind =
-  | "proxy-section"
-  | "defaults-profile"
-  | "server"
-  | "acl"
-  | "filter"
-  | "cache"
-  | "userlist"
-  | "resolvers"
-  | "peers"
-  | "environment-variable";
+export type { SymbolKind } from "../editorKinds";
 
 export interface SymbolSite {
   kind: SymbolKind;
@@ -50,7 +42,7 @@ export function proxySectionSet(schema: HaproxySchema): Set<string> {
 export function sectionDefinitionKinds(schema: HaproxySchema): Record<string, SymbolKind> {
   let cached = sectionDefinitionKindsCache.get(schema);
   if (!cached) {
-    cached = symbolStringMap(schema, "section_definition_kinds") as Record<string, SymbolKind>;
+    cached = symbolStringMap(schema, "section_definition_kinds");
     sectionDefinitionKindsCache.set(schema, cached);
   }
   return cached;
@@ -59,7 +51,7 @@ export function sectionDefinitionKinds(schema: HaproxySchema): Record<string, Sy
 export function scopedSymbolKindSet(schema: HaproxySchema): Set<SymbolKind> {
   let cached = scopedSymbolKindCache.get(schema);
   if (!cached) {
-    cached = new Set(symbolStringList(schema, "scoped_symbol_kinds") as SymbolKind[]);
+    cached = new Set(symbolStringList(schema, "scoped_symbol_kinds"));
     scopedSymbolKindCache.set(schema, cached);
   }
   return cached;

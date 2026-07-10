@@ -6,7 +6,7 @@ import {
   SampleDiagnostic,
   sampleIssue,
 } from "./expressionTypes";
-import { SampleFunction } from "./schema";
+import { SampleFunction } from "./schema/types";
 
 const ID_RE = /[a-zA-Z0-9_.-]/;
 

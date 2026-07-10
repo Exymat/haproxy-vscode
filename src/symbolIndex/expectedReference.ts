@@ -3,16 +3,14 @@ import * as vscode from "vscode";
 import { getParsedDocument } from "../parseCache";
 import { ParsedLine } from "../parser";
 import { findReferencePatternMatches } from "../referencePatternMatching";
-import { ReferencePattern } from "../schema";
+import { ReferencePattern } from "../schema/types";
 import { ParsedToken } from "../parser";
-import { isTopLevelSectionHeader } from "../sectionUtils";
-import {
-  HaproxySchema,
-  keywordGroupSet,
-  sectionHeaderSet,
-  symbolStringList,
-  sampleExpressionNameSets,
-} from "../schema";
+import { isTopLevelSectionHeader, parseSectionHeader } from "../sectionUtils";
+import { HaproxySchema } from "../schema/types";
+import { symbolStringList } from "../schema/symbols";
+import { keywordGroupSet } from "../schema/keywords";
+import { sectionHeaderSet } from "../schema/layout";
+import { sampleExpressionNameSets } from "../schema/tokens";
 import { candidateRules, ruleMatchesLine } from "../statementLayout";
 import { isLikelyValue, resolveTokenIndex } from "../tokenUtils";
 
@@ -111,25 +109,27 @@ function isDefinitionSymbolPosition(
 function expectedSectionHeaderReference(
   line: ParsedLine,
   tokenIndex: number,
+  character: number,
+  schema: HaproxySchema,
 ): ExpectedSymbolReference | null {
   if (!isTopLevelSectionHeader(line)) {
     return null;
   }
-  for (let i = 2; i < line.tokens.length; i += 1) {
-    if (line.tokens[i].text.toLowerCase() !== "from") {
-      continue;
-    }
-    const profileIndex = i + 1;
-    if (tokenIndex !== profileIndex) {
-      continue;
-    }
-    const token = line.tokens[profileIndex];
-    if (token && isLikelyValue(token.text)) {
-      return null;
-    }
-    return { kind: "defaults-profile", scopeKey: null };
+  const header = parseSectionHeader(line, schema);
+  if (!header || header.fromIndex < 0) {
+    return null;
   }
-  return null;
+  const profileIndex = header.fromIndex + 1;
+  const fromToken = line.tokens[header.fromIndex];
+  const afterFrom = fromToken !== undefined && character > fromToken.end;
+  if (tokenIndex < profileIndex && !afterFrom) {
+    return null;
+  }
+  const token = line.tokens[tokenIndex];
+  if (token && isLikelyValue(token.text)) {
+    return null;
+  }
+  return { kind: "defaults-profile", scopeKey: null };
 }
 
 function expectedStatementRuleReference(
@@ -153,7 +153,7 @@ function expectedStatementRuleReference(
     if (token && isLikelyValue(token.text)) {
       return null;
     }
-    const kind = rule.reference_kind as SymbolKind;
+    const kind = rule.reference_kind;
     return { kind, scopeKey: effectiveScopeKeyForSchema(schema, kind, scopeKey) };
   }
   return null;
@@ -192,7 +192,7 @@ function expectedReferencePatternAt(
   scopeKey: string | null,
 ): ExpectedSymbolReference | null {
   const refScopeKey = pattern.scope === "section" ? scopeKey : null;
-  const kind = pattern.reference_kind as SymbolKind;
+  const kind = pattern.reference_kind;
 
   if (!line.tokens[tokenIndex] && referencePatternPrefixMatches(line.tokens, pattern, tokenIndex)) {
     return { kind, scopeKey: refScopeKey };
@@ -261,7 +261,7 @@ function expectedSampleFetchReferenceAt(
     }
 
     const refScope = rule.scope === "section" ? scopeKey : null;
-    return { kind: rule.reference_kind as SymbolKind, scopeKey: refScope };
+    return { kind: rule.reference_kind, scopeKey: refScope };
   }
 
   return null;
@@ -275,7 +275,7 @@ function expectedReferenceAtTokenIndex(
   scopeKey: string | null,
 ): ExpectedSymbolReference | null {
   if (line.isSectionHeader) {
-    return expectedSectionHeaderReference(line, tokenIndex);
+    return expectedSectionHeaderReference(line, tokenIndex, character, schema);
   }
 
   const statementRef = expectedStatementRuleReference(line, tokenIndex, schema, scopeKey);

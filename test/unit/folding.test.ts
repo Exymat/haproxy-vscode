@@ -1,4 +1,4 @@
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import { buildSectionFoldRanges, buildSectionSymbols } from "../../src/sectionOutline";
 import { createDocument } from "../helpers/document";
 

@@ -318,6 +318,18 @@ describe("diagnostics", () => {
     expect(second.some((diag) => diag.code === "missing-reference")).toBe(true);
   });
 
+  it("reuses uri-level diagnostics cache for unchanged documents", () => {
+    const doc = createDocument("defaults\n    mode http");
+    const options = {
+      ...diagnosticOptions(DEFAULT_VERSION),
+      unusedSymbols: false,
+      missingReferences: false,
+    };
+    const first = computeDiagnostics(doc, defaultSchema, options);
+    const second = computeDiagnostics(doc, defaultSchema, options);
+    expect(second).toBe(first);
+  });
+
   it("recomputes document-level symbol diagnostics when options change", () => {
     const doc = createDocument(
       "frontend web\n    bind :80\n    acl blocked path_beg /admin\nbackend old_api\n    server s1 127.0.0.1:80\n",

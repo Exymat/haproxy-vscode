@@ -1,12 +1,13 @@
 import { ParsedLine } from "../../parser";
-import { HaproxySchema } from "../../schema";
+import { isEnvironmentVariableName } from "../../environmentVariables";
+import { HaproxySchema } from "../../schema/types";
 import { ruleMatchesLine, candidateRules } from "../../statementLayout";
 import { isLikelyValue } from "../../tokenUtils";
 
 import { collectAclReferences } from "../aclReferences";
 import { SymbolBuildContext } from "../context";
 import { effectiveScopeKey, SymbolKind, SymbolSite } from "../types";
-import { addSite, symbolNameTokenIndex } from "../utils";
+import { addSite, symbolNameTokenIndices } from "../utils";
 
 import { collectConfiguredReferences, collectFilterSelfReference } from "./configuredRefs";
 import { collectEnvironmentVariableSites } from "./environmentVars";
@@ -31,6 +32,13 @@ function siteFromToken(
   };
 }
 
+function isValidSymbolNameToken(kind: SymbolKind, tokenText: string): boolean {
+  if (kind === "environment-variable") {
+    return isEnvironmentVariableName(tokenText);
+  }
+  return !isLikelyValue(tokenText);
+}
+
 export function collectStatementRuleSites(
   line: ParsedLine,
   schema: HaproxySchema,
@@ -49,33 +57,33 @@ export function collectStatementRuleSites(
     }
 
     if (rule.definition_kind) {
-      const idx = symbolNameTokenIndex(rule);
-      if (idx !== null) {
+      for (const idx of symbolNameTokenIndices(rule, line.tokens.length)) {
         const token = line.tokens[idx];
-        if (token) {
-          const kind = rule.definition_kind as SymbolKind;
-          const site = siteFromToken(kind, token.text, line, idx, scopeKey, "definition");
-          addSite(context.scopedSymbolKinds, definitions, references, site);
+        if (!token || !isValidSymbolNameToken(rule.definition_kind, token.text)) {
+          continue;
         }
+        const kind = rule.definition_kind;
+        const site = siteFromToken(kind, token.text, line, idx, scopeKey, "definition");
+        addSite(context.scopedSymbolKinds, definitions, references, site);
       }
     }
 
     if (rule.reference_kind) {
-      const idx = symbolNameTokenIndex(rule);
-      if (idx !== null) {
+      for (const idx of symbolNameTokenIndices(rule, line.tokens.length)) {
         const token = line.tokens[idx];
-        if (token && !isLikelyValue(token.text)) {
-          const kind = rule.reference_kind as SymbolKind;
-          const site = siteFromToken(
-            kind,
-            token.text,
-            line,
-            idx,
-            effectiveScopeKey(context.scopedSymbolKinds, kind, scopeKey),
-            "reference",
-          );
-          addSite(context.scopedSymbolKinds, definitions, references, site);
+        if (!token || !isValidSymbolNameToken(rule.reference_kind, token.text)) {
+          continue;
         }
+        const kind = rule.reference_kind;
+        const site = siteFromToken(
+          kind,
+          token.text,
+          line,
+          idx,
+          effectiveScopeKey(context.scopedSymbolKinds, kind, scopeKey),
+          "reference",
+        );
+        addSite(context.scopedSymbolKinds, definitions, references, site);
       }
     }
   }
@@ -97,5 +105,5 @@ export function collectStatementRuleSites(
     schema.reference_patterns ?? [],
     context.fetchRules,
   );
-  collectEnvironmentVariableSites(line, definitions, references, context.scopedSymbolKinds);
+  collectEnvironmentVariableSites(line, references);
 }

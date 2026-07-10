@@ -179,7 +179,7 @@ describe("navigation", () => {
   bench("missing references warm: large-valid.cfg", () => {
     const index = getSymbolIndex(largeDoc, bundle.schema, BENCH_LARGE_MAX_LINES);
     if (index) {
-      missingReferenceDiagnostics(index);
+      missingReferenceDiagnostics(index, bundle.schema);
     }
   });
 

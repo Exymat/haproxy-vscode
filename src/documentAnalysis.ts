@@ -3,18 +3,11 @@ import * as vscode from "vscode";
 import { AnalyzedLine, analyzeLine } from "./lineAnalysis";
 import { getParsedDocumentEntry, ParsedDocumentEntry } from "./parseCache";
 import { ParsedLine } from "./parser";
-import {
-  bindDetectKeywordSet,
-  entryPointSectionSet,
-  HaproxySchema,
-  modifierPrefixSet,
-  namedSectionSet,
-  noPrefixKeywordSet,
-  sectionHasOptionKeywords,
-  sectionHeaderSet,
-  sectionKeywordSet,
-  StatementRule,
-} from "./schema";
+import { HaproxySchema, StatementRule } from "./schema/types";
+import { bindDetectKeywordSet, entryPointSectionSet, namedSectionSet } from "./schema/symbols";
+import { sectionHasOptionKeywords, sectionKeywordSet } from "./schema/keywords";
+import { sectionHeaderSet } from "./schema/layout";
+import { modifierPrefixSet, noPrefixKeywordSet } from "./schema/tokens";
 import { sectionOutlineByStartLine, SectionSymbolInfo } from "./sectionOutline";
 import { DirectiveMatch } from "./tokenUtils";
 

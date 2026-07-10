@@ -1,11 +1,7 @@
-import {
-  commentStartIndex,
-  parseDocument,
-  tokenizeLine,
-  DEFAULT_SECTION_HEADERS,
-} from "../../src/parser";
+import { commentStartIndex, parseDocument, tokenizeLine } from "../../src/parser";
 import { isInsideQuotedString } from "../../src/expressionParsing";
 import { createDocument } from "../helpers/document";
+import { parseOptionsWithSchema } from "../helpers/formatOptions";
 
 interface CommentBoundaryCase {
   name: string;
@@ -89,14 +85,14 @@ describe("tokenizeLine", () => {
 
   it("parses anonymous defaults section header", () => {
     const doc = createDocument("defaults\n    maxconn 100");
-    const parsed = parseDocument(doc);
+    const parsed = parseDocument(doc, parseOptionsWithSchema("3.2"));
     expect(parsed[0].anonymousDefaults).toBe(true);
     expect(parsed[1].anonymousDefaults).toBe(true);
   });
 
   it("parses named defaults without anonymous flag", () => {
     const doc = createDocument("defaults my-profile\n    maxconn 100");
-    const parsed = parseDocument(doc);
+    const parsed = parseDocument(doc, parseOptionsWithSchema("3.2"));
     expect(parsed[0].anonymousDefaults).toBe(false);
   });
 
@@ -109,7 +105,7 @@ describe("tokenizeLine", () => {
 
   it("uses default section headers when options are omitted", () => {
     const doc = createDocument("frontend web\n    mode http");
-    const parsed = parseDocument(doc, { sectionHeaders: DEFAULT_SECTION_HEADERS });
+    const parsed = parseDocument(doc, parseOptionsWithSchema("3.2"));
     expect(parsed[0].isSectionHeader).toBe(true);
   });
 

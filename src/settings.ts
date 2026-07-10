@@ -125,7 +125,7 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
 
 export function getFormatOptions(
   settings: HaproxyExtensionSettings = getExtensionSettings(),
-): FormatOptions {
+): Omit<FormatOptions, "sectionHeaders"> {
   return {
     ...formatIndentToOptions(settings.formatIndent),
     insertBlankLineBetweenSections: settings.formatInsertBlankLineBetweenSections,

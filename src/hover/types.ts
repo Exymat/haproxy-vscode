@@ -4,7 +4,7 @@ import { getDocumentContext } from "../documentContext";
 import { AnalyzedLine } from "../lineAnalysis";
 import { LineSemanticContext } from "../lineSemanticContext";
 import { HaproxyLanguageData } from "../languageData";
-import { HaproxySchema } from "../schema";
+import { HaproxySchema } from "../schema/types";
 
 type BaseDocumentContext = NonNullable<ReturnType<typeof getDocumentContext>>;
 export type DocumentContextWithToken = BaseDocumentContext & {

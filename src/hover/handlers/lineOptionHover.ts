@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { findArgumentValue, getKeywordFromSchema } from "../../directiveUtils";
 import { findIndexedGroupItem } from "../../languageDataIndexes";
-import { lineOptionGroupForKind } from "../../schema";
+import { lineOptionGroupForKind } from "../../schema/semantic";
 import { findStatementRule } from "../../statementLayout";
 import { findGroupItem } from "../helpers";
 import { lineOptionChapter } from "../../lineOptionKeyword";
@@ -26,7 +26,7 @@ export function tryLineOptionHover(hc: HoverContext): vscode.Hover | null {
   const effectiveKeyword = active?.keyword ?? tokenLower;
   const group = findIndexedGroupItem(data, lineOptionGroup, effectiveKeyword);
 
-  const chapter = ctx.kind === "bind" || ctx.kind === "server" ? lineOptionChapter(ctx.kind) : "";
+  const chapter = lineOptionChapter(schema, ctx.kind) ?? "";
   const schemaOption = schema.keywords[effectiveKeyword];
   const schemaVariant = chapter
     ? schemaOption?.variants?.find((variant) => variant.chapter === chapter)

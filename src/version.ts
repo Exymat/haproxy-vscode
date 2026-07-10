@@ -1,15 +1,50 @@
+import * as fs from "fs";
+import * as path from "path";
+
 import * as vscode from "vscode";
 
-export const SUPPORTED_HAPROXY_VERSIONS = ["2.6", "2.8", "3.0", "3.2", "3.4"] as const;
-export type HaproxyVersion = (typeof SUPPORTED_HAPROXY_VERSIONS)[number];
-
-export const DEFAULT_HAPROXY_VERSION: HaproxyVersion = "3.2";
+export type HaproxyVersion = string;
 
 const CONFIG_SECTION = "haproxy";
 const CONFIG_VERSION = "version";
 
+function compareVersions(a: string, b: string): number {
+  const [aMajor, aMinor = "0"] = a.split(".");
+  const [bMajor, bMinor = "0"] = b.split(".");
+  const majorDiff = Number(aMajor) - Number(bMajor);
+  if (majorDiff !== 0) {
+    return majorDiff;
+  }
+  return Number(aMinor) - Number(bMinor);
+}
+
+function discoverSupportedVersions(): readonly HaproxyVersion[] {
+  const schemasDir = path.join(__dirname, "..", "schemas");
+  try {
+    const versions = fs
+      .readdirSync(schemasDir)
+      .map((name) => /^haproxy-(\d+\.\d+)\.schema\.json$/.exec(name))
+      .filter((match): match is RegExpExecArray => match !== null)
+      .map((match) => match[1])
+      .sort(compareVersions);
+    if (versions.length > 0) {
+      return versions;
+    }
+  } catch {
+    // Fall back when schemas are unavailable (e.g. isolated unit tests).
+  }
+  return ["2.6", "2.8", "3.0", "3.2", "3.4"];
+}
+
+export const SUPPORTED_HAPROXY_VERSIONS = discoverSupportedVersions();
+
+export const DEFAULT_HAPROXY_VERSION: HaproxyVersion =
+  (SUPPORTED_HAPROXY_VERSIONS.includes("3.2")
+    ? "3.2"
+    : SUPPORTED_HAPROXY_VERSIONS[SUPPORTED_HAPROXY_VERSIONS.length - 1]) ?? "3.2";
+
 function isHaproxyVersion(raw: string | undefined): raw is HaproxyVersion {
-  return (SUPPORTED_HAPROXY_VERSIONS as readonly string[]).includes(raw ?? "");
+  return SUPPORTED_HAPROXY_VERSIONS.includes(raw ?? "");
 }
 
 function readConfiguredVersion(config: vscode.WorkspaceConfiguration): HaproxyVersion {

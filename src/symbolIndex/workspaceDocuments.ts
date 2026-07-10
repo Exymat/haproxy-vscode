@@ -4,7 +4,8 @@ import { fingerprintText } from "../contentFingerprint";
 import { isHaproxyLanguageId } from "../grammar";
 import { getParsedDocument } from "../parseCache";
 import { parseDocumentLines, ParsedLine } from "../parser";
-import { HaproxySchema, sectionHeaderSet } from "../schema";
+import { HaproxySchema } from "../schema/types";
+import { sectionHeaderSet } from "../schema/layout";
 
 import { buildSymbolIndex } from "./build";
 import { getSymbolIndex } from "./cache";

@@ -8,7 +8,7 @@ import {
   resolveNestedLineOptionSpan,
 } from "../../../src/lineOptionSpan";
 import { getDocumentContext } from "../../../src/documentContext";
-import { parseDocument } from "../../../src/parser";
+import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { bundles } from "./helpers";
 
@@ -65,6 +65,13 @@ describe("line option span helpers", () => {
         bindRule,
       ),
     ).toBe(bindRule?.nested_start_index);
+    expect(
+      resolveLineOptionStartIndex(
+        schema,
+        parseDocument(createDocument("frontend web\n    bind :80 :443 ssl"))[1],
+        bindRule,
+      ),
+    ).toBeGreaterThan(1);
   });
 
   it("covers direct line-option argument span fallbacks", () => {

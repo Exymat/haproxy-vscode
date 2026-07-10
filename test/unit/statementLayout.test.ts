@@ -6,7 +6,7 @@ import {
   ruleActionGroup,
   ruleMatchesLine,
 } from "../../src/statementLayout";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 

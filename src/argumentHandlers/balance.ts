@@ -4,7 +4,7 @@ import { slotForPosition as argumentSlotForPosition } from "../argumentSlotValid
 import { enumNamesForSlotLower } from "../argumentEnumUtils";
 import { makeLineDiagnostic } from "../diagnosticUtils";
 import { ResolvedSchemaKeyword } from "../keywordVariant";
-import { ArgumentModel, HaproxySchema } from "../schema";
+import { ArgumentModel, HaproxySchema } from "../schema/types";
 import { ParsedLine } from "../parser";
 import { isLikelyValue } from "../tokenUtils";
 

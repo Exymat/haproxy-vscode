@@ -44987,7 +44987,8 @@
       "traces",
       "acme",
       "log-forward",
-      "log-profile"
+      "log-profile",
+      "fcgi-app"
     ],
     "stats_socket_levels": [
       "admin",
@@ -45091,6 +45092,17 @@
     }
   ],
   "reference_patterns": [
+    {
+      "match_tokens": [
+        "*",
+        "*",
+        "from"
+      ],
+      "reference_kind": "defaults-profile",
+      "scope": "section-header",
+      "split": null,
+      "target_token_index": 3
+    },
     {
       "match_tokens": [
         "resolvers"
@@ -62264,6 +62276,7 @@
       "acl_criteria",
       "sample_fetches"
     ],
+    "acl_ref_groups": [],
     "action_groups": [
       "http_after_response_actions",
       "http_request_actions",
@@ -62328,6 +62341,26 @@
       "keyword": "option",
       "kind": "option",
       "match_tokens": [
+        "option"
+      ],
+      "minimum_token_index": 1,
+      "nested_start_index": null,
+      "phase_token_index": null,
+      "prefix": null,
+      "reference_kind": null,
+      "sections": [],
+      "symbol_name_token_from_index": null,
+      "symbol_name_token_index": null,
+      "value_token_index": 1
+    },
+    {
+      "action_token_index": null,
+      "definition_kind": null,
+      "fixed_slots": [],
+      "group": "options",
+      "keyword": "option",
+      "kind": "option",
+      "match_tokens": [
         "no",
         "option"
       ],
@@ -62337,6 +62370,7 @@
       "prefix": "no",
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": 2
     },
@@ -62362,6 +62396,7 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": null
     },
@@ -62381,6 +62416,7 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": null
     },
@@ -62411,6 +62447,7 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": 1,
       "value_token_index": null
     },
@@ -62430,6 +62467,7 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": null
     },
@@ -62449,6 +62487,7 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": null
     },
@@ -62468,6 +62507,7 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": null
     },
@@ -62487,6 +62527,7 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": null
     },
@@ -62506,6 +62547,7 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": null
     },
@@ -62525,6 +62567,7 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": 1,
       "value_token_index": 2
     },
@@ -62544,6 +62587,7 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": 1,
       "value_token_index": 1
     },
@@ -62563,6 +62607,7 @@
       "prefix": null,
       "reference_kind": "proxy-section",
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": 1
     },
@@ -62582,6 +62627,7 @@
       "prefix": null,
       "reference_kind": "server",
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": 1
     },
@@ -62601,6 +62647,7 @@
       "prefix": null,
       "reference_kind": "proxy-section",
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": 1
     },
@@ -62620,6 +62667,7 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": 1
     },
@@ -62639,8 +62687,89 @@
       "prefix": null,
       "reference_kind": null,
       "sections": [],
+      "symbol_name_token_from_index": null,
       "symbol_name_token_index": null,
       "value_token_index": 1
+    },
+    {
+      "action_token_index": null,
+      "definition_kind": "environment-variable",
+      "fixed_slots": [],
+      "group": null,
+      "keyword": "setenv",
+      "kind": "directive",
+      "match_tokens": [
+        "setenv"
+      ],
+      "minimum_token_index": 1,
+      "nested_start_index": null,
+      "phase_token_index": null,
+      "prefix": null,
+      "reference_kind": null,
+      "sections": [],
+      "symbol_name_token_from_index": null,
+      "symbol_name_token_index": 1,
+      "value_token_index": null
+    },
+    {
+      "action_token_index": null,
+      "definition_kind": "environment-variable",
+      "fixed_slots": [],
+      "group": null,
+      "keyword": "presetenv",
+      "kind": "directive",
+      "match_tokens": [
+        "presetenv"
+      ],
+      "minimum_token_index": 1,
+      "nested_start_index": null,
+      "phase_token_index": null,
+      "prefix": null,
+      "reference_kind": null,
+      "sections": [],
+      "symbol_name_token_from_index": null,
+      "symbol_name_token_index": 1,
+      "value_token_index": null
+    },
+    {
+      "action_token_index": null,
+      "definition_kind": null,
+      "fixed_slots": [],
+      "group": null,
+      "keyword": "unsetenv",
+      "kind": "directive",
+      "match_tokens": [
+        "unsetenv"
+      ],
+      "minimum_token_index": 1,
+      "nested_start_index": null,
+      "phase_token_index": null,
+      "prefix": null,
+      "reference_kind": "environment-variable",
+      "sections": [],
+      "symbol_name_token_from_index": 1,
+      "symbol_name_token_index": null,
+      "value_token_index": null
+    },
+    {
+      "action_token_index": null,
+      "definition_kind": null,
+      "fixed_slots": [],
+      "group": null,
+      "keyword": "resetenv",
+      "kind": "directive",
+      "match_tokens": [
+        "resetenv"
+      ],
+      "minimum_token_index": 1,
+      "nested_start_index": null,
+      "phase_token_index": null,
+      "prefix": null,
+      "reference_kind": "environment-variable",
+      "sections": [],
+      "symbol_name_token_from_index": 1,
+      "symbol_name_token_index": null,
+      "value_token_index": null
     }
   ],
   "symbols": {
@@ -62652,6 +62781,22 @@
       "bind",
       "bind-process"
     ],
+    "conventional_defaults_profile_names": [
+      "default"
+    ],
+    "defaults_section_name": "defaults",
+    "duplicate_section_kinds": [
+      "proxy-section",
+      "defaults-profile",
+      "cache",
+      "userlist",
+      "resolvers",
+      "peers"
+    ],
+    "entry_point_labels": {
+      "frontend": "Frontend",
+      "listen": "Listen"
+    },
     "entry_point_sections": [
       "frontend",
       "listen"
@@ -62668,6 +62813,10 @@
       "frontend",
       "backend",
       "listen"
+    ],
+    "runtime_mode_context_values": [
+      "http",
+      "tcp"
     ],
     "runtime_modes": [
       "http",
@@ -62687,6 +62836,7 @@
     },
     "scoped_symbol_kinds": [
       "acl",
+      "environment-variable",
       "filter",
       "server"
     ],
@@ -62706,7 +62856,27 @@
         "scope": "section",
         "token_index": 1
       }
-    }
+    },
+    "symbol_kind_labels": {
+      "cache": "cache section",
+      "defaults-profile": "Defaults profile",
+      "peers": "peers section",
+      "proxy-section": "Proxy section",
+      "resolvers": "resolvers section",
+      "userlist": "Userlist"
+    },
+    "unused_symbol_section_block_kinds": [
+      "proxy-section",
+      "defaults-profile",
+      "cache",
+      "userlist",
+      "resolvers",
+      "peers"
+    ],
+    "unused_symbol_skipped_kinds": [
+      "filter",
+      "server"
+    ]
   },
   "tokens": {
     "acl_flags": [
@@ -62847,6 +63017,12 @@
     ]
   },
   "validation_rules": {
+    "address_directives": {
+      "http-check": "tcpCheckAddr",
+      "log": "log",
+      "source": "source",
+      "tcp-check": "tcpCheckAddr"
+    },
     "argument_model_skip_keywords": [
       "acl",
       "bind",
@@ -62893,6 +63069,7 @@
       "map_sub_int": 1,
       "map_sub_ip": 1
     },
+    "entry_point_no_bind_message": "{label} '{name}' has no bind directive and cannot accept connections",
     "fetch_min_args": {
       "payload_lv": 2,
       "req.payload_lv": 2,
@@ -62955,6 +63132,20 @@
       "tcp-request",
       "tcp-response"
     ],
+    "nested_keyword_skip_patterns": [
+      {
+        "match_tokens": [
+          "tcp-request",
+          "inspect-delay"
+        ]
+      },
+      {
+        "match_tokens": [
+          "tcp-response",
+          "inspect-delay"
+        ]
+      }
+    ],
     "server_address_option_policies": {
       "socks4": "serverSocks4",
       "source": "serverSource",
@@ -63004,7 +63195,23 @@
       "bind",
       "mode",
       "server"
-    ]
+    ],
+    "unused_symbol_codes": {
+      "acl": "unused-acl",
+      "default": "unused-symbol",
+      "defaults-profile": "unused-defaults-profile",
+      "proxy-section": "unused-section"
+    },
+    "unused_symbol_messages": {
+      "acl": "ACL '{name}' is defined but never referenced in this section",
+      "cache": "Cache '{name}' is never referenced",
+      "default": "'{name}' appears unused",
+      "defaults-profile": "Defaults profile '{name}' is never referenced by 'from'",
+      "peers": "Peers section '{name}' is never referenced",
+      "proxy-section": "Backend '{name}' is never referenced by use_backend or default_backend",
+      "resolvers": "Resolvers '{name}' is never referenced",
+      "userlist": "Userlist '{name}' is never referenced"
+    }
   },
   "version": "2.8"
 }

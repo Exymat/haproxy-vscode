@@ -6,7 +6,7 @@ import {
   scheduleWorkspaceSymbolIndexRebuild,
 } from "../../src/symbolIndex";
 import { buildSymbolIndex } from "../../src/symbolIndex/build";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import {
   mockTextDocuments,
   resetVscodeMock,

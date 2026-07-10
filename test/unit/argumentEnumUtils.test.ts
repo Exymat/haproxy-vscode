@@ -9,7 +9,7 @@ import {
   normalizeEnumDisplayName,
 } from "../../src/argumentEnumUtils";
 import type { LanguageKeyword } from "../../src/languageData";
-import type { ArgumentSlot, SchemaKeyword } from "../../src/schema";
+import type { ArgumentSlot, SchemaKeyword } from "../../src/schema/types";
 import { loadSchema } from "../helpers/schema";
 
 const schema = loadSchema("3.4");

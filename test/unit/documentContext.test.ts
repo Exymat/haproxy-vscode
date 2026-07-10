@@ -8,7 +8,7 @@ import {
 import { getDocumentAnalysis } from "../../src/documentAnalysis";
 import { DiagnosticContext } from "../../src/diagnosticContext";
 import * as parseCache from "../../src/parseCache";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 
@@ -51,6 +51,12 @@ describe("documentContext", () => {
   it("allows completion on inherited defaults profile references", () => {
     const hit = ctx("defaults base\nfrontend web from ", 1, "frontend web from ".length);
     expect(hit?.kind).toBe("directive-argument");
+  });
+
+  it("returns null for section-header tokens before the profile reference", () => {
+    const content = "frontend web from base";
+    const webCol = content.indexOf("web") + 1;
+    expect(ctx(content, 0, webCol)).toBeNull();
   });
 
   it("classifies top-level empty lines as section completion", () => {
@@ -266,6 +272,15 @@ describe("documentContext", () => {
     const ctx = new DiagnosticContext(doc, schema, { languageData }, analysis);
     expect(ctx.parsedEntry).toBe(analysis.parsedEntry);
     expect(ctx.getLineMemo(analysis.parsed[1])).toBe(analysis.getLineAnalysis(analysis.parsed[1]));
+  });
+
+  it("caches section outline lookups on document analysis", () => {
+    const doc = createDocument("global\n    daemon\ndefaults\n    mode http");
+    const analysis = getDocumentAnalysis(doc, schema);
+    const first = analysis.sectionOutlineByStartLine();
+    const second = analysis.sectionOutlineByStartLine();
+    expect(second).toBe(first);
+    expect(first.size).toBeGreaterThan(0);
   });
 
   it("returns directive kind for comment lines", () => {

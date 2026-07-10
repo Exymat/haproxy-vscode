@@ -1,4 +1,4 @@
-import { parseDocument } from "../../../src/parser";
+import { parseDocument } from "../../helpers/parse";
 import { aclReferenceExpectedAt } from "../../../src/symbolIndex/aclReferences";
 import { aclReferenceAt, collectLineSymbolSites } from "../../../src/symbolIndex/build";
 import {
@@ -7,7 +7,8 @@ import {
   findSiteAtPosition,
   resolveSymbolAtPosition,
 } from "../../../src/symbolIndex";
-import { keywordGroupSet, sampleExpressionNameSets } from "../../../src/schema";
+import { keywordGroupSet } from "../../../src/schema/keywords";
+import { sampleExpressionNameSets } from "../../../src/schema/tokens";
 
 import { doc, pos, schema } from "./helpers";
 

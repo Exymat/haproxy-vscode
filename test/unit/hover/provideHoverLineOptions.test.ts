@@ -322,7 +322,7 @@ describe("provideHover nested line options", () => {
         kind: "custom",
         tokenIndex: 1,
         token: semantic.ctx.line.tokens[1],
-      } as never,
+      },
       range: new Range(
         1,
         semantic.ctx.line.tokens[1].start,
@@ -354,7 +354,7 @@ describe("provideHover nested line options", () => {
         kind: "custom",
         tokenIndex: 2,
         token: childToken,
-      } as never,
+      },
       range: new Range(1, childToken.start, 1, childToken.end) as never,
       cursorOffset: 0,
       tokenLower: "childbare",

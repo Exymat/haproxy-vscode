@@ -6,7 +6,7 @@ import {
   validateLineDelimiters,
 } from "../../src/delimiterDiagnostics";
 import { sampleIssue } from "../../src/expressionTypes";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import { createDocument } from "../helpers/document";
 import { defaultSchema, runDiagnostics } from "../helpers/diagnostics";
 
@@ -208,6 +208,18 @@ describe("filterExpressionIssuesAgainstDelimiters", () => {
     const filtered = filterExpressionIssuesAgainstDelimiters(
       expressionIssues,
       validateLineDelimiters('    http-request set-header x "open'),
+    );
+    expect(filtered).toEqual([expressionIssues[1]]);
+  });
+
+  it("drops duplicate single-quote errors when delimiter diagnostics already report them", () => {
+    const expressionIssues = [
+      sampleIssue(5, 10, "unclosed quote in argument", "sample-syntax"),
+      sampleIssue(0, 3, "unknown fetch method 'bad'", "sample-unknown-fetch"),
+    ];
+    const filtered = filterExpressionIssuesAgainstDelimiters(
+      expressionIssues,
+      validateLineDelimiters("    http-request set-header x 'open"),
     );
     expect(filtered).toEqual([expressionIssues[1]]);
   });

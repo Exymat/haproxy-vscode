@@ -1,6 +1,6 @@
 import { isAclOnlyCriterion } from "../aclCondition";
 import { ParsedLine } from "../parser";
-import { HaproxySchema } from "../schema";
+import { HaproxySchema } from "../schema/types";
 
 import { SymbolSite } from "./types";
 

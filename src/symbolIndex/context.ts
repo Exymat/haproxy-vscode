@@ -1,10 +1,7 @@
-import {
-  HaproxySchema,
-  keywordGroupSet,
-  sampleExpressionNameSets,
-  symbolRecord,
-  symbolStringList,
-} from "../schema";
+import { HaproxySchema } from "../schema/types";
+import { symbolRecord, symbolStringList } from "../schema/symbols";
+import { keywordGroupSet } from "../schema/keywords";
+import { sampleExpressionNameSets } from "../schema/tokens";
 
 import { scopedSymbolKindSet, SymbolKind } from "./types";
 

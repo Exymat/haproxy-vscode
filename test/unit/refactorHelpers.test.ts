@@ -4,13 +4,15 @@ import { join } from "node:path";
 
 import { invalidateAllExtensionCaches } from "../../src/cacheInvalidation";
 import { isOptionLine, optionNameTokenIndex } from "../../src/optionLine";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import {
   findReferencePatternAtToken,
   findReferencePatternMatches,
 } from "../../src/referencePatternMatching";
 import { loadLanguageData, clearLanguageDataCache } from "../../src/languageData";
-import { clearSchemaCache, loadSchema, ReferencePattern, sectionHeaderSet } from "../../src/schema";
+import { ReferencePattern } from "../../src/schema/types";
+import { clearSchemaCache, loadSchema } from "../../src/schema/load";
+import { sectionHeaderSet } from "../../src/schema/layout";
 import { createDocument } from "../helpers/document";
 import { loadSchema as loadFixtureSchema } from "../helpers/schema";
 
@@ -78,9 +80,7 @@ describe("refactor helpers", () => {
     const schema = loadFixtureSchema("3.4");
     const headers = sectionHeaderSet(schema);
     expect(headers.has("frontend")).toBe(true);
-    const parsed = parseDocument(createDocument("frontend web\n    mode http"), {
-      sectionHeaders: headers,
-    });
+    const parsed = parseDocument(createDocument("frontend web\n    mode http"), "3.4");
     expect(parsed[0].isSectionHeader).toBe(true);
   });
 

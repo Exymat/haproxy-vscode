@@ -10,7 +10,8 @@ import {
 import { createExtensionBundleService } from "../../src/extensionBundleService";
 import * as languageData from "../../src/languageData";
 import * as outputChannel from "../../src/outputChannel";
-import * as schema from "../../src/schema";
+import * as schema from "../../src/schema/load";
+import type { HaproxySchema } from "../../src/schema/types";
 import { getSymbolIndex } from "../../src/symbolIndex";
 import { hasUriSymbolIndexCache } from "../../src/symbolIndex/cache";
 import { resetVscodeMock, setMockConfigForUri, window } from "../__mocks__/vscode";
@@ -79,7 +80,7 @@ describe("extensionBundle", () => {
   });
 
   it("shares one in-flight promise across concurrent ensureBundle calls", async () => {
-    let resolveSchema!: (value: schema.HaproxySchema) => void;
+    let resolveSchema!: (value: HaproxySchema) => void;
     const schemaSpy = vi.spyOn(schema, "loadSchemaAsync").mockImplementation(
       () =>
         new Promise((resolve) => {
@@ -102,7 +103,7 @@ describe("extensionBundle", () => {
   });
 
   it("rejects an in-flight load immediately when invalidated", async () => {
-    let resolveSchema!: (value: schema.HaproxySchema) => void;
+    let resolveSchema!: (value: HaproxySchema) => void;
     vi.spyOn(schema, "loadSchemaAsync").mockImplementation(
       () =>
         new Promise((resolve) => {
@@ -146,7 +147,7 @@ describe("extensionBundle", () => {
   });
 
   it("rejects an in-flight load when invalidated after schema resolves", async () => {
-    let resolveSchema!: (value: schema.HaproxySchema) => void;
+    let resolveSchema!: (value: HaproxySchema) => void;
     vi.spyOn(schema, "loadSchemaAsync").mockImplementation(
       () =>
         new Promise((resolve) => {
@@ -176,7 +177,7 @@ describe("extensionBundle", () => {
   });
 
   it("allows a fresh load after stale invalidation", async () => {
-    let resolveSchema!: (value: schema.HaproxySchema) => void;
+    let resolveSchema!: (value: HaproxySchema) => void;
     const schemaSpy = vi.spyOn(schema, "loadSchemaAsync").mockImplementation(
       () =>
         new Promise((resolve) => {
@@ -353,6 +354,19 @@ describe("extensionBundle", () => {
     const { ensureBundle } = createBundleLoader(mockExtensionContext() as never);
 
     await expect(ensureBundle("3.2")).rejects.toThrow("post-load failure");
+    await flushImmediate();
+  });
+
+  it("wraps string post-load failures during bundle load", async () => {
+    vi.spyOn(schema, "loadSchemaAsync").mockResolvedValue(fixture.schema);
+    vi.spyOn(languageData, "loadLanguageDataAsync").mockResolvedValue(fixture.languageData);
+    vi.spyOn(outputChannel, "logBundleLoadSucceeded").mockImplementation(() => {
+      // eslint-disable-next-line @typescript-eslint/only-throw-error -- exercises non-Error sync failure path
+      throw "string post-load failure";
+    });
+    const { ensureBundle } = createBundleLoader(mockExtensionContext() as never);
+
+    await expect(ensureBundle("3.2")).rejects.toThrow("string post-load failure");
     await flushImmediate();
   });
 

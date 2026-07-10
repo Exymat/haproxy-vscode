@@ -1,5 +1,5 @@
 import * as addressFormat from "../../../src/addressFormat";
-import { parseDocument } from "../../../src/parser";
+import { parseDocument } from "../../helpers/parse";
 import { statementDiagnostics } from "../../../src/statementDiagnostics";
 import { createDocument } from "../../helpers/document";
 

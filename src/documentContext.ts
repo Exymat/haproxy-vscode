@@ -1,31 +1,22 @@
 import * as vscode from "vscode";
 
 import { DocumentAnalysis, getDocumentAnalysis } from "./documentAnalysis";
+import { CompletionKind, EDITOR_KINDS } from "./editorKinds";
 import { HaproxyLanguageData } from "./languageData";
 import { isConditionalOrStatusDirective } from "./conditionalDirectives";
 import { ParsedLine, ParsedToken } from "./parser";
-import { HaproxySchema, sortedSectionHeaders } from "./schema";
+import { HaproxySchema } from "./schema/types";
+import { sortedSectionHeaders } from "./schema/layout";
 import { candidateRules, ruleMatchesLine } from "./statementLayout";
 import { keywordsForSection } from "./languageDataIndexes";
-import { isSectionHeaderCompletionContext } from "./sectionUtils";
+import {
+  isSectionHeaderCompletionContext,
+  sectionHeaderFromProfileTokenIndex,
+} from "./sectionUtils";
 import { resolveTokenIndex } from "./tokenUtils";
 
-export type CompletionKind =
-  | "section"
-  | "directive"
-  | "directive-argument"
-  | "option"
-  | "bind"
-  | "server"
-  | "http-request"
-  | "http-response"
-  | "http-after-response"
-  | "tcp-request"
-  | "tcp-response"
-  | "acl-criterion"
-  | "filter"
-  | "expression-fetch"
-  | "expression-converter";
+export type { CompletionKind } from "./editorKinds";
+export { EDITOR_KINDS } from "./editorKinds";
 
 export interface DocumentContext {
   line: ParsedLine;
@@ -58,9 +49,9 @@ function classifyByRules(
       1;
     if (tokenIndex >= minIdx) {
       if (rule.kind === "directive" && rule.value_token_index !== undefined) {
-        return "directive-argument";
+        return EDITOR_KINDS.directiveArgument;
       }
-      return rule.kind as CompletionKind;
+      return rule.kind;
     }
   }
   return null;
@@ -74,9 +65,9 @@ function expressionKindAt(lineText: string, character: number): CompletionKind |
   }
   const inner = before.slice(exprStart);
   if (inner.includes(":") && !inner.endsWith(":")) {
-    return "expression-converter";
+    return EDITOR_KINDS.expressionConverter;
   }
-  return "expression-fetch";
+  return EDITOR_KINDS.expressionFetch;
 }
 
 export function getDocumentContext(
@@ -97,17 +88,24 @@ export function getDocumentContext(
   const prefix = linePrefixBeforeCursor(lineText, position.character);
 
   if (line.isSectionHeader && tokenIndex > 0) {
-    const fromIndex = line.tokens.findIndex(
-      (tok, index) => index >= 2 && tok.text.toLowerCase() === "from",
-    );
-    if (fromIndex < 0 || tokenIndex < fromIndex + 1) {
+    const profileIndex = sectionHeaderFromProfileTokenIndex(line, schema);
+    const fromToken = profileIndex > 0 ? line.tokens[profileIndex - 1] : undefined;
+    const afterFrom = fromToken !== undefined && position.character > fromToken.end;
+    if (profileIndex < 0 || (tokenIndex < profileIndex && !afterFrom)) {
       return null;
     }
-    return { line, lineText, tokenIndex, token, kind: "directive-argument", prefix };
+    return {
+      line,
+      lineText,
+      tokenIndex,
+      token,
+      kind: EDITOR_KINDS.directiveArgument,
+      prefix,
+    };
   }
 
   const firstToken = line.tokens[0]?.text;
-  if (isConditionalOrStatusDirective(firstToken)) {
+  if (isConditionalOrStatusDirective(schema, firstToken)) {
     return null;
   }
 
@@ -117,7 +115,7 @@ export function getDocumentContext(
   }
 
   if (isSectionHeaderCompletionContext(line, tokenIndex, lineText, position.character)) {
-    return { line, lineText, tokenIndex, token, kind: "section", prefix };
+    return { line, lineText, tokenIndex, token, kind: EDITOR_KINDS.section, prefix };
   }
 
   const fromRules = classifyByRules(schema, line, tokenIndex);
@@ -126,10 +124,10 @@ export function getDocumentContext(
   }
 
   if (tokenIndex > 0) {
-    return { line, lineText, tokenIndex, token, kind: "directive-argument", prefix };
+    return { line, lineText, tokenIndex, token, kind: EDITOR_KINDS.directiveArgument, prefix };
   }
 
-  return { line, lineText, tokenIndex, token, kind: "directive", prefix };
+  return { line, lineText, tokenIndex, token, kind: EDITOR_KINDS.directive, prefix };
 }
 
 export { groupItems, keywordsForSection } from "./languageDataIndexes";

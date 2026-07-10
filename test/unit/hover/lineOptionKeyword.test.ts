@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  LINE_OPTION_CHAPTER_BIND,
-  LINE_OPTION_CHAPTER_SERVER,
   lineOptionChapter,
   resolveLineOptionSchemaKeyword,
   resolveNestedOptionKeyword,
@@ -68,14 +66,14 @@ describe("line option keyword helpers", () => {
     };
     const resolved = resolveLineOptionSchemaKeyword(schema, "novariant", "bind", null);
     expect(resolved?.name).toBe("novariant");
-    expect(resolved?.chapter).not.toBe(LINE_OPTION_CHAPTER_BIND);
+    expect(resolved?.chapter).not.toBe(lineOptionChapter(schema, "bind"));
   });
 
   it("covers line-option keyword fallback branches and chapter selection", () => {
-    expect(lineOptionChapter("bind")).toBe(LINE_OPTION_CHAPTER_BIND);
-    expect(lineOptionChapter("server")).toBe(LINE_OPTION_CHAPTER_SERVER);
-
     const schema = structuredClone(bundles["3.4"].schema);
+    expect(lineOptionChapter(bundles["3.4"].schema, "bind")).toBe("5.1");
+    expect(lineOptionChapter(bundles["3.4"].schema, "server")).toBe("5.2");
+
     schema.keywords.testtoplevel = {
       name: "testtoplevel",
       sections: ["backend"],
@@ -166,5 +164,46 @@ describe("line option keyword helpers", () => {
     );
 
     expect(resolveLineOptionSchemaKeyword(schema, "missing", "server", "backend")).toBeUndefined();
+
+    schema.keywords.emptysigs = {
+      name: "emptysigs",
+      sections: ["backend"],
+      signatures: ["emptysigs <base>"],
+      sources: [],
+      contexts: [],
+      arguments: [],
+      argument_model: {
+        min_args: 2,
+        max_args: 2,
+        slots: [
+          { enum: [], optional: false, value_kind: "name", variadic: false },
+          { enum: [], optional: false, value_kind: "name", variadic: false },
+        ],
+      },
+      variants: [
+        {
+          chapter: "5.2",
+          sections: ["frontend"],
+          signatures: [],
+          contexts: [],
+          arguments: [],
+          argument_model: {
+            min_args: 1,
+            max_args: 1,
+            slots: [{ enum: [], optional: false, value_kind: "name", variadic: false }],
+          },
+        },
+      ],
+      line_option_semantics: [
+        {
+          parent_kind: "server",
+          option_group: "server_options",
+          chapter: "5.2",
+        },
+      ],
+    };
+    expect(
+      resolveLineOptionSchemaKeyword(schema, "emptysigs", "server", "backend")?.signatures,
+    ).toEqual(["emptysigs <base>"]);
   });
 });

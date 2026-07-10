@@ -18,9 +18,7 @@ export function versionForLanguageId(languageId: string): HaproxyVersion | undef
   if (!match) {
     return undefined;
   }
-  return (SUPPORTED_HAPROXY_VERSIONS as readonly string[]).includes(match[1])
-    ? (match[1] as HaproxyVersion)
-    : undefined;
+  return SUPPORTED_HAPROXY_VERSIONS.includes(match[1]) ? match[1] : undefined;
 }
 
 export function isHaproxyLanguageId(languageId: string): boolean {

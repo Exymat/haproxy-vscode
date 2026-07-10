@@ -2,7 +2,7 @@ import {
   actionGroupForCompletionKind,
   lineOptionGroupForKind,
   sampleExpressionGroupForKind,
-} from "../../src/schema";
+} from "../../src/schema/semantic";
 import {
   clearLanguageDataIndexCache,
   findIndexedGroupItem,

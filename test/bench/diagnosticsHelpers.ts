@@ -1,7 +1,7 @@
 import { computeDiagnostics } from "../../src/diagnostics";
 import type { HaproxyLanguageData } from "../../src/languageData";
 import { getParsedDocument } from "../../src/parseCache";
-import type { HaproxySchema } from "../../src/schema";
+import type { HaproxySchema } from "../../src/schema/types";
 import { createDocument, type MockTextDocument, updateDocument } from "../helpers/document";
 
 import { createEditedDocument } from "./helpers";

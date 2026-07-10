@@ -5,7 +5,8 @@ import { HaproxyLanguageData, LanguageExample } from "../languageData";
 import { findIndexedGroupItem } from "../languageDataIndexes";
 import { languageDocMarkdown } from "../hover/markdown";
 import { logFormatCompletionPrefix } from "../logFormat";
-import { HaproxySchema, semanticStringMap } from "../schema";
+import { HaproxySchema } from "../schema/types";
+import { semanticStringMap } from "../schema/semantic";
 
 export function markdownDoc(
   description: string,

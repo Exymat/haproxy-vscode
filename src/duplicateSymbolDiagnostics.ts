@@ -2,6 +2,8 @@ import * as vscode from "vscode";
 
 import { makeDiagnostic } from "./diagnosticUtils";
 import { ParsedLine } from "./parser";
+import { HaproxySchema } from "./schema/types";
+import { symbolStringList, symbolStringMap } from "./schema/symbols";
 import type { SymbolKind } from "./symbolIndex/types";
 import {
   workspaceUriKey,
@@ -9,22 +11,13 @@ import {
   type WorkspaceSymbolSite,
 } from "./symbolIndex/workspace";
 
-const DUPLICATE_SECTION_KINDS = new Set<SymbolKind>([
-  "proxy-section",
-  "defaults-profile",
-  "cache",
-  "userlist",
-  "resolvers",
-  "peers",
-]);
+function duplicateSectionKinds(schema: HaproxySchema): Set<SymbolKind> {
+  return new Set(symbolStringList(schema, "duplicate_section_kinds"));
+}
 
-const DUPLICATE_SECTION_LABELS: Partial<Record<SymbolKind, string>> = {
-  "defaults-profile": "defaults profile",
-  cache: "cache section",
-  userlist: "userlist section",
-  resolvers: "resolvers section",
-  peers: "peers section",
-};
+function duplicateSectionLabels(schema: HaproxySchema): Record<string, string> {
+  return symbolStringMap(schema, "symbol_kind_labels");
+}
 
 function siteRange(site: WorkspaceSymbolSite): vscode.Range {
   return new vscode.Range(site.line, site.start, site.line, site.end);
@@ -34,14 +27,17 @@ function currentUriKey(document: vscode.TextDocument): string {
   return workspaceUriKey(document.uri);
 }
 
-function sectionLabel(parsed: ParsedLine[], site: WorkspaceSymbolSite): string {
+function sectionLabel(
+  schema: HaproxySchema,
+  parsed: ParsedLine[],
+  site: WorkspaceSymbolSite,
+): string {
   const header = parsed[site.line];
   const keyword = header?.tokens[0]?.text.toLowerCase();
-  switch (site.kind) {
-    case "proxy-section":
-      return keyword ? `${keyword} section` : "proxy section";
+  if (site.kind === "proxy-section") {
+    return keyword ? `${keyword} section` : "proxy section";
   }
-  return DUPLICATE_SECTION_LABELS[site.kind]!;
+  return duplicateSectionLabels(schema)[site.kind] ?? site.kind;
 }
 
 function definitionLocationSummary(definitions: WorkspaceSymbolSite[], currentKey: string): string {
@@ -62,17 +58,19 @@ export function duplicateSectionDiagnostics(
   document: vscode.TextDocument,
   parsed: ParsedLine[],
   workspaceIndex: WorkspaceSymbolIndex | null,
+  schema: HaproxySchema,
 ): vscode.Diagnostic[] {
   const documentKey = currentUriKey(document);
   if (!workspaceIndex || !workspaceIndex.documents.has(documentKey)) {
     return [];
   }
 
+  const duplicateKinds = duplicateSectionKinds(schema);
   const diagnostics: vscode.Diagnostic[] = [];
   const reported = new Set<string>();
 
   for (const definitions of workspaceIndex.definitions.values()) {
-    if (definitions.length < 2 || !DUPLICATE_SECTION_KINDS.has(definitions[0].kind)) {
+    if (definitions.length < 2 || !duplicateKinds.has(definitions[0].kind)) {
       continue;
     }
 
@@ -84,7 +82,7 @@ export function duplicateSectionDiagnostics(
       }
       reported.add(key);
 
-      const label = sectionLabel(parsed, site);
+      const label = sectionLabel(schema, parsed, site);
       const locationSummary = definitionLocationSummary(definitions, documentKey);
       diagnostics.push(
         makeDiagnostic(

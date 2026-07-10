@@ -1,4 +1,4 @@
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import { namedDefaultsDiagnostics } from "../../src/namedDefaultsDiagnostics";
 import { createDocument } from "../helpers/document";
 import { loadSchema } from "../helpers/schema";

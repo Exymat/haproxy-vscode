@@ -1,9 +1,6 @@
 import { getKeywordFromSchema } from "./directiveUtils";
-import { ArgumentModel, HaproxySchema, LineOptionSemantic } from "./schema";
+import { ArgumentModel, HaproxySchema, LineOptionSemantic } from "./schema/types";
 import { ResolvedSchemaKeyword } from "./keywordVariant";
-
-export const LINE_OPTION_CHAPTER_BIND = "5.1";
-export const LINE_OPTION_CHAPTER_SERVER = "5.2";
 
 function lineOptionSemanticForKind(
   schema: HaproxySchema,
@@ -16,8 +13,14 @@ function lineOptionSemanticForKind(
   return schema.keywords[option]?.line_option_semantics?.find((item) => item.parent_kind === kind);
 }
 
-export function lineOptionChapter(kind: "bind" | "server"): string {
-  return kind === "bind" ? LINE_OPTION_CHAPTER_BIND : LINE_OPTION_CHAPTER_SERVER;
+export function lineOptionChapter(schema: HaproxySchema, kind: string): string | undefined {
+  for (const keyword of Object.values(schema.keywords)) {
+    const semantic = keyword.line_option_semantics?.find((item) => item.parent_kind === kind);
+    if (semantic?.chapter) {
+      return semantic.chapter;
+    }
+  }
+  return undefined;
 }
 
 function argumentModelSlotCount(model: ArgumentModel): number {

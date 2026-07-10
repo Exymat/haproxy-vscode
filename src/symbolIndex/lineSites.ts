@@ -1,6 +1,6 @@
 import { ParsedLine } from "../parser";
 import { isTopLevelSectionHeader } from "../sectionUtils";
-import { HaproxySchema } from "../schema";
+import { HaproxySchema } from "../schema/types";
 
 import { collectSectionHeaderSites } from "./collectors/sectionHeaders";
 import { collectStatementRuleSites } from "./collectors/statementRules";

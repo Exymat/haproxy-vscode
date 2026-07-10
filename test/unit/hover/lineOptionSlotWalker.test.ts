@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { computeLineOptionArgumentEnd } from "../../../src/lineOptionSpan";
-import { parseDocument } from "../../../src/parser";
+import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { bundles } from "./helpers";
 

@@ -4,7 +4,7 @@ import { DiagnosticContext, LineDiagnosticMemo } from "./diagnosticContext";
 import { diagRange, diagRangeForMatch, diagRangeForTokens } from "./diagnosticUtils";
 import { DeprecatedIndex } from "./deprecatedIndex";
 import { ParsedLine } from "./parser";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
 import { resolveActionTokenIndex } from "./statementLayout";
 import { normalizeActionName } from "./tokenUtils";
 

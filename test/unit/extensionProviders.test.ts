@@ -1,5 +1,5 @@
 import { activate, deactivate } from "../../src/extension";
-import * as schema from "../../src/schema";
+import * as schema from "../../src/schema/load";
 import * as symbolIndex from "../../src/symbolIndex";
 import {
   commands,

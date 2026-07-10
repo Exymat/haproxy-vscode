@@ -6,7 +6,7 @@ import {
   topLevelDiagnostics,
   unknownNestedDiagnostics,
 } from "../../src/nestedKeywordDiagnostics";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import { createDocument } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
 
@@ -154,6 +154,22 @@ describe("contextDiagnostics", () => {
 
   it("reports wrong-context for options in incompatible modes", () => {
     const { ctx, line } = lineAt("defaults\n    mode tcp\n    option httplog", 2);
+    expect(
+      contextDiagnostics(ctx, line).some(
+        (d) => d.code === "wrong-context" && d.message.includes("option httplog"),
+      ),
+    ).toBe(true);
+  });
+
+  it("falls back to runtime_modes when runtime_mode_context_values is empty", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.symbols = {
+      ...schema.symbols,
+      runtime_mode_context_values: [],
+    };
+    const doc = createDocument("defaults\n    mode tcp\n    option httplog");
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[2];
     expect(
       contextDiagnostics(ctx, line).some(
         (d) => d.code === "wrong-context" && d.message.includes("option httplog"),

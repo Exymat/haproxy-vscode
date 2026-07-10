@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { getLoadedBundleForUri } from "./extensionBundle";
 import { getParsedDocument } from "./parseCache";
-import { sectionHeaderSet } from "./schema";
+import { sectionHeaderSet } from "./schema/layout";
 import { getSectionOutline } from "./sectionOutline";
 
 export function provideDocumentSymbols(document: vscode.TextDocument): vscode.DocumentSymbol[] {

@@ -13,7 +13,7 @@ vi.mock("node:fs", async (importOriginal) => {
 });
 
 import { clearLanguageDataCache, loadLanguageData } from "../../src/languageData";
-import { clearSchemaCache, loadSchema } from "../../src/schema";
+import { clearSchemaCache, loadSchema } from "../../src/schema/load";
 import { createTempSchemaFixture } from "../helpers/tempSchema";
 
 describe("sync load non-Error failures", () => {

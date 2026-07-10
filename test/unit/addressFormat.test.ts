@@ -191,6 +191,8 @@ describe("looksLikeAddressToken", () => {
     expect(looksLikeAddressToken("[::1]:8080")).toBe(true);
     expect(looksLikeAddressToken("bad!host:80")).toBe(true);
     expect(looksLikeAddressToken("bad!host:+80")).toBe(true);
+    expect(looksLikeAddressToken("[unclosed:8080")).toBe(true);
+    expect(looksLikeAddressToken("!!!:8080")).toBe(true);
   });
 });
 

@@ -1,4 +1,4 @@
-import { commentStartIndex, DEFAULT_SECTION_HEADERS, tokenizeLine } from "./parser";
+import { commentStartIndex, tokenizeLine } from "./parser";
 
 /**
  * Layout rules follow HAProxy configuration.txt sections 2.1 and 2.2
@@ -10,10 +10,10 @@ export interface FormatOptions {
   /** Doc recommends 2-4 spaces when not using tabs. */
   indentSize: number;
   insertBlankLineBetweenSections: boolean;
-  sectionHeaders?: ReadonlySet<string>;
+  sectionHeaders: ReadonlySet<string>;
 }
 
-export const DEFAULT_FORMAT_OPTIONS: FormatOptions = {
+export const DEFAULT_FORMAT_OPTIONS: Omit<FormatOptions, "sectionHeaders"> = {
   indentStyle: "spaces",
   indentSize: 4,
   insertBlankLineBetweenSections: true,
@@ -73,11 +73,8 @@ function stripTrailingBlankLines(lines: string[]): void {
   }
 }
 
-export function formatConfig(
-  text: string,
-  options: FormatOptions = DEFAULT_FORMAT_OPTIONS,
-): string {
-  const sectionHeaders = options.sectionHeaders ?? DEFAULT_SECTION_HEADERS;
+export function formatConfig(text: string, options: FormatOptions): string {
+  const sectionHeaders = options.sectionHeaders;
   const lineEnding = detectLineEnding(text);
   const hasTrailingNewline = text.endsWith("\n") || text.endsWith("\r\n");
   const indent = indentPrefix(options);

@@ -1,5 +1,5 @@
 import { computeDiagnostics } from "../../src/diagnostics";
-import type { HaproxySchema } from "../../src/schema";
+import type { HaproxySchema } from "../../src/schema/types";
 import { countDiagnosticsByCode, formatDiagnostics } from "./diagnosticCounts";
 import { createDocument, type MockTextDocument } from "./document";
 import { loadAllLanguageData, loadAllSchemas, type SupportedVersion } from "./schema";

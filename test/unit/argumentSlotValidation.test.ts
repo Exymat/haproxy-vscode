@@ -6,7 +6,7 @@ import {
   skipOptionalSlotGroup,
   slotForPosition,
 } from "../../src/argumentSlotValidation";
-import { ArgumentModel } from "../../src/schema";
+import { ArgumentModel } from "../../src/schema/types";
 
 describe("argumentSlotValidation", () => {
   it("detects optional enum keyword followed by optional generic value slot", () => {

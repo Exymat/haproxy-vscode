@@ -1,10 +1,30 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { provideDocumentSymbols } from "../../src/documentSymbols";
+import { createBundleLoader, invalidateBundleLoad } from "../../src/extensionBundle";
 import { provideFoldingRanges } from "../../src/folding";
 import { provideDefinition, provideReferences } from "../../src/navigation";
+import * as languageData from "../../src/languageData";
+import * as schemaModule from "../../src/schema/load";
 import { createDocument } from "../helpers/document";
-import { loadSchema } from "../helpers/schema";
+import { mockExtensionContext } from "../helpers/extensionContext";
+import { loadSchema, loadSchemaBundle } from "../helpers/schema";
 
 const schema = loadSchema("3.2");
+const bundle = loadSchemaBundle("3.2");
+
+beforeEach(async () => {
+  invalidateBundleLoad();
+  vi.spyOn(schemaModule, "loadSchemaAsync").mockResolvedValue(bundle.schema);
+  vi.spyOn(languageData, "loadLanguageDataAsync").mockResolvedValue(bundle.languageData);
+  const { ensureBundle } = createBundleLoader(mockExtensionContext() as never);
+  await ensureBundle("3.2");
+});
+
+afterEach(() => {
+  invalidateBundleLoad();
+  vi.restoreAllMocks();
+});
 
 function pos(line: number, character: number) {
   return { line, character } as never;

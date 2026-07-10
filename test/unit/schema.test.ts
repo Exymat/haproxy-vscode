@@ -1,38 +1,47 @@
 import * as fs from "node:fs";
 
+import { clearSchemaCache, loadSchema, loadSchemaAsync } from "../../src/schema/load";
+import { symbolStringMap, symbolStringList } from "../../src/schema/symbols";
 import {
-  buildPrefixSubcommands,
-  clearSchemaCache,
-  conditionalTokenSet,
-  loadSchema,
-  loadSchemaAsync,
-  modifierPrefixSet,
-  namedDefaultsKeywordSet,
-  noPrefixKeywordSet,
-  keywordGroupSet,
-  optionsWithValueSet,
-  prefixFamilies,
-  prefixFamilySet,
-  prefixSubcommandSet,
+  hasStatementRuleKind,
   actionGroupForCompletionKind,
+  statementRuleGroupForKind,
+  statementRuleKinds,
+  semanticStringMap,
+  semanticStringList,
+} from "../../src/schema/semantic";
+import { validationStringMap, validationStringList } from "../../src/schema/validation";
+import {
   schemaAddressPolicies,
-  sampleExpressionNameSets,
   schemaAddressPolicy,
   schemaSampleCasts,
   schemaSampleTypes,
+} from "../../src/schema/samples";
+import {
+  buildPrefixSubcommands,
+  keywordGroupSet,
+  optionsWithValueSet,
+  prefixSubcommandSet,
   sectionKeywordSet,
+  sectionHasOptionKeywords,
+} from "../../src/schema/keywords";
+import {
+  logFormatDirectiveKeywordSet,
+  prefixFamilies,
+  prefixFamilySet,
   sectionHeaderSet,
   sectionNames,
-  semanticStringMap,
-  semanticStringList,
   statsSocketLevelSet,
-  symbolStringMap,
-  symbolStringList,
   tcpRequestPhaseSet,
   tcpResponsePhaseSet,
-  validationStringMap,
-  validationStringList,
-} from "../../src/schema";
+} from "../../src/schema/layout";
+import {
+  conditionalTokenSet,
+  modifierPrefixSet,
+  namedDefaultsKeywordSet,
+  noPrefixKeywordSet,
+  sampleExpressionNameSets,
+} from "../../src/schema/tokens";
 import { resetVscodeMock } from "../__mocks__/vscode";
 import { mockExtensionContext } from "../helpers/extensionContext";
 import { loadSchema as loadFixtureSchema } from "../helpers/schema";
@@ -427,6 +436,21 @@ describe("loadSchema", () => {
     }
   });
 
+  it("accepts line_layout with only required optional fields", () => {
+    const data = structuredClone(validGeneratedSchemaFixture());
+    data.line_layout = { prefix_families: ["stats"] };
+    const fixture = createTempSchemaFixture("haproxy-minimal-line-layout-", {
+      "haproxy-3.4.schema.json": JSON.stringify(data),
+    });
+    try {
+      clearSchemaCache();
+      const loaded = loadSchema({ extensionPath: fixture.extensionPath } as never, "3.4");
+      expect(loaded.line_layout?.prefix_families).toEqual(["stats"]);
+    } finally {
+      fixture.cleanup();
+    }
+  });
+
   it("throws when async schema load fails", async () => {
     await expect(
       loadSchemaAsync({ extensionPath: "/nonexistent" } as never, "3.4"),
@@ -634,6 +658,50 @@ describe("schema helpers", () => {
   it("combines layout tcp phases via phase set helpers", () => {
     expect(tcpRequestPhaseSet(schema).has("content")).toBe(true);
     expect(tcpResponsePhaseSet(schema).has("content")).toBe(true);
+  });
+
+  it("covers statement rule and section option keyword branches", () => {
+    const bare = {
+      ...structuredClone(schema),
+      statement_rules: undefined,
+    } as unknown as typeof schema;
+    expect(hasStatementRuleKind(bare, "directive")).toBe(false);
+    expect(statementRuleKinds(bare)).toEqual(new Set());
+    expect(statementRuleGroupForKind(bare, "bind")).toBeNull();
+
+    const withUngroupedRule = structuredClone(schema);
+    withUngroupedRule.statement_rules = [
+      ...(withUngroupedRule.statement_rules ?? []),
+      {
+        kind: "__test_kind__",
+        keyword: "__test_kind__",
+        match_tokens: ["__test_kind__"],
+        sections: [],
+      },
+    ];
+    expect(statementRuleGroupForKind(withUngroupedRule, "__test_kind__")).toBeNull();
+
+    const invalidOption = structuredClone(schema);
+    invalidOption.sections = {
+      ...invalidOption.sections,
+      probe: { name: "probe", keywords: ["option not-in-options-group"] },
+    };
+    expect(sectionHasOptionKeywords(invalidOption, "probe")).toBe(false);
+
+    const invalidNoOption = structuredClone(schema);
+    invalidNoOption.sections = {
+      ...invalidNoOption.sections,
+      probe2: { name: "probe2", keywords: ["no option not-in-options-group"] },
+    };
+    expect(sectionHasOptionKeywords(invalidNoOption, "probe2")).toBe(false);
+
+    const logFormatBare = structuredClone(schema);
+    logFormatBare.logformat_slots = [{}, { directive: "host" }] as never;
+    expect(logFormatDirectiveKeywordSet(logFormatBare).has("host")).toBe(true);
+
+    const noLogFormatSlots = structuredClone(schema);
+    noLogFormatSlots.logformat_slots = undefined;
+    expect(logFormatDirectiveKeywordSet(noLogFormatSlots).size).toBe(0);
   });
 
   it("falls back for missing token arrays and missing sections", () => {

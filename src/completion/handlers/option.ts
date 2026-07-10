@@ -1,16 +1,17 @@
 import * as vscode from "vscode";
 
 import { indexedGroupItems, indexedGroupItemsByName } from "../../languageDataIndexes";
-import { semanticStringMap } from "../../schema";
+import { semanticStringMap, statementRuleGroupForKind } from "../../schema/semantic";
 import { resolveLanguageKeyword } from "../../keywordVariant";
 import { CompletionContext } from "../types";
 import { filterByPrefix, markdownDoc } from "../helpers";
 
 export function tryOptionCompletion(cc: CompletionContext): vscode.CompletionItem[] | null {
-  if (cc.ctx.kind !== "option") {
+  const optionGroup = statementRuleGroupForKind(cc.schema, cc.ctx.kind);
+  const groups = semanticStringMap(cc.schema, "common_language_groups");
+  if (!optionGroup || optionGroup !== groups.options) {
     return null;
   }
-  const groups = semanticStringMap(cc.schema, "common_language_groups");
   const optionsByName = indexedGroupItemsByName(cc.data, groups.options);
   const options = indexedGroupItems(cc.data, groups.options).map((g) => g.name);
   return filterByPrefix(options, cc.partial).map((name) => {

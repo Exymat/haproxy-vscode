@@ -1,5 +1,5 @@
 import { enumNamesForSlotLower } from "./argumentEnumUtils";
-import { ArgumentModel, ArgumentSlot } from "./schema";
+import { ArgumentModel, ArgumentSlot } from "./schema/types";
 import { ResolvedSchemaKeyword } from "./keywordVariant";
 
 export function remainingRequiredSlots(

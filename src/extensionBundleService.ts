@@ -6,7 +6,7 @@ import {
   invalidateBundleLoad,
   isBundleLoadStaleError,
 } from "./extensionBundle";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
 import { HaproxyVersion } from "./version";
 
 export interface ExtensionBundleService extends vscode.Disposable {

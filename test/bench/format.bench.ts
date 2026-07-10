@@ -1,7 +1,10 @@
 import { bench, describe } from "vitest";
 
-import { DEFAULT_FORMAT_OPTIONS, formatConfig } from "../../src/formatter";
+import { formatConfig } from "../../src/formatter";
+import { formatOptionsWithSchema } from "../helpers/formatOptions";
 import { fixtureLineCount, fixturesForScenario, readFixture } from "./helpers";
+
+const formatOptions = formatOptionsWithSchema("3.2");
 
 describe("format", () => {
   for (const fixture of fixturesForScenario("format")) {
@@ -9,7 +12,7 @@ describe("format", () => {
     const lineCount = fixtureLineCount(fixture);
 
     bench(`format: ${fixture.name} (${lineCount} lines)`, () => {
-      formatConfig(content, DEFAULT_FORMAT_OPTIONS);
+      formatConfig(content, formatOptions);
     });
   }
 
@@ -17,6 +20,6 @@ describe("format", () => {
   const messyLines = messyContent.split(/\r?\n/).length;
 
   bench(`format: messy-format.cfg (${messyLines} lines)`, () => {
-    formatConfig(messyContent, DEFAULT_FORMAT_OPTIONS);
+    formatConfig(messyContent, formatOptions);
   });
 });

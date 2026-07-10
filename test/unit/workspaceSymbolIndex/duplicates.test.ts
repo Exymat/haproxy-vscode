@@ -66,17 +66,54 @@ describe("workspace symbol index duplicates", () => {
       document,
       expectWorkspaceDocumentSymbols(workspaceIndex, document.uri.toString()).parsed,
       workspaceIndex,
+      schema,
     );
 
     expect(diagnostics.map((diag) => diag.message)).toEqual(
       expect.arrayContaining([
-        "Duplicate defaults profile 'base' is also defined in this file",
+        "Duplicate Defaults profile 'base' is also defined in this file",
         "Duplicate cache section 'shared' is also defined in this file",
-        "Duplicate userlist section 'auth' is also defined in this file",
+        "Duplicate Userlist 'auth' is also defined in this file",
         "Duplicate resolvers section 'dns' is also defined in this file",
         "Duplicate peers section 'cluster' is also defined in this file",
       ]),
     );
+  });
+
+  it("uses proxy-section fallback labels for malformed duplicate headers", () => {
+    const first = createDocument("backend api", "file:///a.cfg");
+    const second = createDocument("backend api", "file:///b.cfg");
+    const workspaceIndex = buildWorkspaceSymbolIndexFromOpenDocuments(
+      [first, second],
+      schema,
+      4000,
+    );
+    const parsed = structuredClone(
+      expectWorkspaceDocumentSymbols(workspaceIndex, first.uri.toString()).parsed,
+    );
+    parsed[0] = { ...parsed[0], tokens: [] };
+    const diagnostics = duplicateSectionDiagnostics(first, parsed, workspaceIndex, schema);
+    expect(diagnostics[0]?.message).toContain("Duplicate proxy section 'api'");
+  });
+
+  it("falls back to raw symbol kind ids when labels are missing", () => {
+    const customSchema = structuredClone(schema);
+    const labels = {
+      ...(customSchema.symbols.symbol_kind_labels as Record<string, string>),
+    };
+    delete labels.cache;
+    customSchema.symbols = { ...customSchema.symbols, symbol_kind_labels: labels };
+    const document = createDocument("cache shared\ncache shared", "file:///cache-fallback.cfg");
+    const workspaceIndex = buildWorkspaceSymbolIndexFromOpenDocuments(
+      [document],
+      customSchema,
+      4000,
+    );
+    const parsed = structuredClone(
+      expectWorkspaceDocumentSymbols(workspaceIndex, document.uri.toString()).parsed,
+    );
+    const diagnostics = duplicateSectionDiagnostics(document, parsed, workspaceIndex, customSchema);
+    expect(diagnostics[0]?.message).toContain("Duplicate cache 'shared'");
   });
 
   it("summarizes duplicate sections across multiple other files", () => {
@@ -93,6 +130,7 @@ describe("workspace symbol index duplicates", () => {
       first,
       expectWorkspaceDocumentSymbols(workspaceIndex, first.uri.toString()).parsed,
       workspaceIndex,
+      schema,
     );
 
     expect(diagnostics[0]?.message).toBe(
@@ -110,6 +148,7 @@ describe("workspace symbol index duplicates", () => {
       document,
       expectWorkspaceDocumentSymbols(workspaceIndex, document.uri.toString()).parsed,
       workspaceIndex,
+      schema,
     );
 
     expect(diagnostics).toHaveLength(1);

@@ -1,13 +1,14 @@
 import { argumentModelDiagnostics } from "../../src/argumentDiagnostics";
 import { argumentTokenIndices } from "../../src/directiveUtils";
+import { mysqlCheckOptionDiagnostics } from "../../src/argumentHandlers/specialKeywords";
 import {
   allowsMissingArgs,
   balanceArgumentDiagnostics,
   formatEnumHint,
 } from "../../src/argumentHandlers/balance";
 import { computeDiagnostics } from "../../src/diagnostics";
-import { parseDocument } from "../../src/parser";
-import { sectionKeywordSet } from "../../src/schema";
+import { parseDocument } from "../helpers/parse";
+import { sectionKeywordSet } from "../../src/schema/keywords";
 import { createDocument } from "../helpers/document";
 import { buildLineDiagnosticMemo } from "../helpers/lineMemo";
 import { loadSchemaBundle } from "../helpers/schema";
@@ -304,18 +305,6 @@ describe("argumentDiagnostics", () => {
     expect(() =>
       argDiagsForBundle("backend b\n    cookie SRV insert bogus", 1, customSchema),
     ).toThrow(/special_argument_rules/);
-
-    const missingRuleSchema = structuredClone(bundle.schema);
-    missingRuleSchema.validation_rules = {
-      ...missingRuleSchema.validation_rules,
-      special_argument_rules: {},
-    };
-    expect(() =>
-      argDiagsForBundle("defaults\n    option mysql-check bogus", 1, missingRuleSchema),
-    ).toThrow(/special_argument_rules/);
-    expect(() =>
-      argDiagsForBundle("backend b\n    cookie SRV insert bogus", 1, missingRuleSchema),
-    ).toThrow(/special_argument_rules/);
   });
 
   it("accepts host for http-send-name-header on pre-3.4 schemas", () => {
@@ -521,5 +510,20 @@ describe("argumentDiagnostics", () => {
           d.message.includes("'extra'"),
       ),
     ).toBe(true);
+  });
+
+  it("throws when special argument metadata is malformed", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.validation_rules = {
+      ...schema.validation_rules,
+      special_argument_rules: {
+        "option mysql-check": "not-an-object",
+      },
+    };
+    const doc = createDocument("defaults\n    option mysql-check");
+    const line = parseDocument(doc)[1];
+    expect(() => mysqlCheckOptionDiagnostics(line, { end: 4 }, [1], new Set(), schema)).toThrow(
+      /special_argument_rules\.option mysql-check/,
+    );
   });
 });

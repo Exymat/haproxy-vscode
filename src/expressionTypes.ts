@@ -1,5 +1,6 @@
 import { DIAG_SOURCE } from "./diagnosticUtils";
-import { HaproxySchema, schemaSampleCasts, schemaSampleTypes } from "./schema";
+import { HaproxySchema } from "./schema/types";
+import { schemaSampleCasts, schemaSampleTypes } from "./schema/samples";
 
 export type SampleDiagCode =
   | "sample-missing-fetch"

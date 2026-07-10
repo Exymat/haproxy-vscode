@@ -1,5 +1,6 @@
 import { ParsedLine } from "../../parser";
-import { HaproxySchema } from "../../schema";
+import { HaproxySchema } from "../../schema/types";
+import { parseSectionHeader } from "../../sectionUtils";
 
 import { sectionDefinitionKinds, SymbolKind, SymbolSite } from "../types";
 import { addSite } from "../utils";
@@ -11,9 +12,13 @@ export function collectSectionHeaderSites(
   references: SymbolSite[],
   scopedSymbolKinds: Set<SymbolKind>,
 ): void {
-  const sectionType = line.tokens[0].text.toLowerCase();
-  const defKind = sectionDefinitionKinds(schema)[sectionType];
-  if (!defKind || line.tokens.length < 2) {
+  const header = parseSectionHeader(line, schema);
+  if (!header || line.tokens.length < 2) {
+    return;
+  }
+
+  const defKind = sectionDefinitionKinds(schema)[header.sectionType];
+  if (!defKind) {
     return;
   }
 
@@ -29,11 +34,8 @@ export function collectSectionHeaderSites(
   };
   addSite(scopedSymbolKinds, definitions, references, defSite);
 
-  for (let i = 2; i < line.tokens.length - 1; i += 1) {
-    if (line.tokens[i].text.toLowerCase() !== "from") {
-      continue;
-    }
-    const refToken = line.tokens[i + 1];
+  if (header.fromIndex >= 0 && header.profileName) {
+    const refToken = line.tokens[header.fromIndex + 1];
     addSite(scopedSymbolKinds, definitions, references, {
       kind: "defaults-profile",
       name: refToken.text,

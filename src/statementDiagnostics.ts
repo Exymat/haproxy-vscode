@@ -20,16 +20,13 @@ import { conditionalStartIndex } from "./directiveUtils";
 import { makeLineDiagnostic } from "./diagnosticUtils";
 import { resolveLineOptionStartIndex } from "./lineOptionSpan";
 import { ParsedLine } from "./parser";
+import { FixedSlotSpec, HaproxySchema, StatementRule } from "./schema/types";
 import {
-  FixedSlotSpec,
-  HaproxySchema,
-  keywordGroupSet,
-  lineOptionSet,
-  optionsWithValueSet,
-  StatementRule,
   validationStringList,
   validationStringMap,
-} from "./schema";
+  addressDirectivePolicyKey,
+} from "./schema/validation";
+import { keywordGroupSet, lineOptionSet, optionsWithValueSet } from "./schema/keywords";
 import { findStatementRule } from "./statementLayout";
 import { lowerToken, normalizedOptionToken } from "./tokenUtils";
 
@@ -462,15 +459,17 @@ export function statementDiagnostics(
   rule: StatementRule | undefined = findStatementRule(schema, line),
 ): vscode.Diagnostic[] {
   const t0 = lowerToken(line.tokens[0]?.text ?? "");
-
-  if (t0 === "log") {
-    return logLineDiagnostics(line, schema);
-  }
-  if (t0 === "source") {
-    return sourceLineDiagnostics(line, schema);
-  }
-  if (t0 === "tcp-check" || t0 === "http-check") {
-    return tcpCheckLineDiagnostics(line, schema);
+  const policyKey = addressDirectivePolicyKey(schema, t0);
+  if (policyKey) {
+    if (t0 === "log") {
+      return logLineDiagnostics(line, schema);
+    }
+    if (t0 === "source") {
+      return sourceLineDiagnostics(line, schema);
+    }
+    if (t0 === "tcp-check" || t0 === "http-check") {
+      return tcpCheckLineDiagnostics(line, schema);
+    }
   }
 
   if (!rule) {

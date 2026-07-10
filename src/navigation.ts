@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { getDocumentAnalysis } from "./documentAnalysis";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
 import { SectionSymbolInfo } from "./sectionOutline";
 import {
   findDefinitions,

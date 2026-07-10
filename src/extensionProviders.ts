@@ -10,7 +10,7 @@ import { provideHover } from "./hover";
 import { provideDefinition, provideReferences } from "./navigation";
 import { prepareRename, provideRenameEdits } from "./rename";
 import { getFormatOptions, HaproxyExtensionSettings } from "./settings";
-import { sectionHeaderSet } from "./schema";
+import { sectionHeaderSet } from "./schema/layout";
 import { getWorkspaceSymbolIndex, workspaceUriKey } from "./symbolIndex";
 import { provideFoldingRanges } from "./folding";
 

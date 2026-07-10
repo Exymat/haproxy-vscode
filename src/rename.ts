@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import { isEnvironmentVariableName } from "./environmentVariables";
 import { findInvalidNameChar } from "./nameValidation";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
 import {
   findAllSites,
   findAllWorkspaceSites,

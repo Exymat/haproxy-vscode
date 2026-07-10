@@ -1,4 +1,4 @@
-import { parseDocument } from "../../../src/parser";
+import { parseDocument } from "../../helpers/parse";
 import { statementDiagnostics } from "../../../src/statementDiagnostics";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";

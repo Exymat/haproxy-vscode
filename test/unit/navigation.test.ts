@@ -1,5 +1,5 @@
 import { provideDefinition, provideReferences } from "../../src/navigation";
-import { parseDocument } from "../../src/parser";
+import { parseDocument } from "../helpers/parse";
 import * as symbolIndex from "../../src/symbolIndex";
 import {
   buildSymbolIndex,

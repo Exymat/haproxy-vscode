@@ -271,6 +271,15 @@ describe("validateSampleExpressions inline", () => {
       "if { hdr(host) -m str example }".length - 1,
     );
     expect(findClosingBrace("if { str('}') }", 3)).toBe("if { str('}') }".length - 1);
+    expect(findClosingBrace("if { outer { inner } } tail", 3)).toBe(
+      "if { outer { inner } }".length - 1,
+    );
+    expect(parseArgList("fetch()", "fetch".length, 0, ["string"], 1).error?.message).toContain(
+      "expected type 'string'",
+    );
+    expect(
+      parseArgList("fetch(1)", "fetch".length, 0, ["integer", "integer"], 2).error?.message,
+    ).toContain("missing arguments");
   });
 
   it("accepts valid IPv6 mask converter args and rejects zero-arg converters with args", () => {

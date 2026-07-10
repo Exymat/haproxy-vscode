@@ -5,21 +5,29 @@ import { DiagnosticContext } from "./diagnosticContext";
 import { ParsedLine } from "./parser";
 import { getSectionOutline, SectionSymbolInfo } from "./sectionOutline";
 import { hasReferences, SymbolIndex, SymbolKind, SymbolSite } from "./symbolIndex";
+import { HaproxySchema } from "./schema/types";
+import { symbolStringList } from "./schema/symbols";
+import { validationStringMap } from "./schema/validation";
 
 export interface UnusedSymbolOptions {
   enabled: boolean;
 }
 
-const SECTION_BLOCK_KINDS = new Set<SymbolKind>([
-  "proxy-section",
-  "defaults-profile",
-  "cache",
-  "userlist",
-  "resolvers",
-  "peers",
-]);
+function unusedSymbolSectionBlockKinds(schema: HaproxySchema): Set<SymbolKind> {
+  return new Set(symbolStringList(schema, "unused_symbol_section_block_kinds"));
+}
 
-const SKIPPED_UNUSED_KINDS = new Set<SymbolKind>(["filter", "server"]);
+function skippedUnusedSymbolKinds(schema: HaproxySchema): Set<SymbolKind> {
+  return new Set(symbolStringList(schema, "unused_symbol_skipped_kinds"));
+}
+
+function conventionalDefaultsProfileNames(schema: HaproxySchema): Set<string> {
+  return new Set(
+    symbolStringList(schema, "conventional_defaults_profile_names").map((name) =>
+      name.toLowerCase(),
+    ),
+  );
+}
 
 function sectionOutlineByStartLine(
   document: vscode.TextDocument,
@@ -73,42 +81,21 @@ function isEntryPointProxySection(
   return sectionType !== null && entryPointSections.has(sectionType);
 }
 
-function isConventionalDefaultProfile(site: SymbolSite): boolean {
-  return site.kind === "defaults-profile" && site.name.toLowerCase() === "default";
+function isConventionalDefaultProfile(schema: HaproxySchema, site: SymbolSite): boolean {
+  return (
+    site.kind === "defaults-profile" &&
+    conventionalDefaultsProfileNames(schema).has(site.name.toLowerCase())
+  );
 }
 
-function unusedMessage(kind: SymbolKind, name: string): string {
-  switch (kind) {
-    case "acl":
-      return `ACL '${name}' is defined but never referenced in this section`;
-    case "proxy-section":
-      return `Backend '${name}' is never referenced by use_backend or default_backend`;
-    case "defaults-profile":
-      return `Defaults profile '${name}' is never referenced by 'from'`;
-    case "cache":
-      return `Cache '${name}' is never referenced`;
-    case "userlist":
-      return `Userlist '${name}' is never referenced`;
-    case "resolvers":
-      return `Resolvers '${name}' is never referenced`;
-    case "peers":
-      return `Peers section '${name}' is never referenced`;
-    default:
-      return `'${name}' appears unused`;
-  }
+function unusedMessage(schema: HaproxySchema, kind: SymbolKind, name: string): string {
+  const messages = validationStringMap(schema, "unused_symbol_messages");
+  const template = messages[kind] ?? messages.default ?? "'{name}' appears unused";
+  return template.replaceAll("{name}", name);
 }
 
-function unusedCode(kind: SymbolKind): string {
-  switch (kind) {
-    case "acl":
-      return "unused-acl";
-    case "proxy-section":
-      return "unused-section";
-    case "defaults-profile":
-      return "unused-defaults-profile";
-    default:
-      return "unused-symbol";
-  }
+function unusedCode(schema: HaproxySchema, kind: SymbolKind): string {
+  return validationStringMap(schema, "unused_symbol_codes")[kind] ?? "unused-symbol";
 }
 
 /** Information severity: full-line squiggle on unused ACL and similar symbols. */
@@ -128,13 +115,15 @@ export function unusedSymbolDiagnostics(
   document: vscode.TextDocument,
   parsed: ParsedLine[],
   index: SymbolIndex,
-  ctx: Pick<DiagnosticContext, "entryPointSections">,
+  ctx: Pick<DiagnosticContext, "entryPointSections" | "schema">,
   options: UnusedSymbolOptions,
 ): vscode.Diagnostic[] {
   if (!options.enabled) {
     return [];
   }
 
+  const sectionBlockKinds = unusedSymbolSectionBlockKinds(ctx.schema);
+  const skippedKinds = skippedUnusedSymbolKinds(ctx.schema);
   const diagnostics: vscode.Diagnostic[] = [];
   const reported = new Set<string>();
   const outlineByStartLine = sectionOutlineByStartLine(document, parsed);
@@ -148,7 +137,7 @@ export function unusedSymbolDiagnostics(
     const site = defs[0];
     const { kind } = site;
 
-    if (SKIPPED_UNUSED_KINDS.has(kind)) {
+    if (skippedKinds.has(kind)) {
       continue;
     }
 
@@ -159,7 +148,7 @@ export function unusedSymbolDiagnostics(
       continue;
     }
 
-    if (isConventionalDefaultProfile(site)) {
+    if (isConventionalDefaultProfile(ctx.schema, site)) {
       continue;
     }
 
@@ -168,10 +157,10 @@ export function unusedSymbolDiagnostics(
     }
 
     const outline = outlineByStartLine.get(site.line);
-    const message = unusedMessage(kind, site.name);
-    const code = unusedCode(kind);
+    const message = unusedMessage(ctx.schema, kind, site.name);
+    const code = unusedCode(ctx.schema, kind);
 
-    if (SECTION_BLOCK_KINDS.has(kind)) {
+    if (sectionBlockKinds.has(kind)) {
       diagnostics.push(
         makeUnusedLineDiagnostic(sectionBlockRange(outline, site, kind, document), message, code),
       );

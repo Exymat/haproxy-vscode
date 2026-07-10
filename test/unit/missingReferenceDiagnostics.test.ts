@@ -68,10 +68,10 @@ describe("missingReferenceDiagnostics", () => {
       expect.arrayContaining([
         expect.stringContaining("Defaults profile 'base'"),
         expect.stringContaining("Server 's1'"),
-        expect.stringContaining("Cache 'missing_cache'"),
+        expect.stringContaining("cache section 'missing_cache'"),
         expect.stringContaining("Userlist 'stats-auth'"),
-        expect.stringContaining("Resolvers 'dns-main'"),
-        expect.stringContaining("Peers 'cluster'"),
+        expect.stringContaining("resolvers section 'dns-main'"),
+        expect.stringContaining("peers section 'cluster'"),
         expect.stringContaining("Filter 'comp-req'"),
         expect.stringContaining("Filter 'comp-res'"),
       ]),
@@ -146,7 +146,9 @@ describe("missingReferenceDiagnostics", () => {
       sitesByLine: buildSitesByLine(1, new Map(), [ref]),
       unresolvedReferences: [ref],
     };
-    expect(missingReferenceDiagnostics(index)[0]?.message).toContain("not defined in this file");
+    expect(missingReferenceDiagnostics(index, schema)[0]?.message).toContain(
+      "not defined in this file",
+    );
   });
 
   it("uses workspace-scoped message when scope is workspace", () => {
@@ -168,9 +170,9 @@ describe("missingReferenceDiagnostics", () => {
       sitesByLine: buildSitesByLine(1, new Map(), [ref]),
       unresolvedReferences: [ref],
     };
-    expect(missingReferenceDiagnostics(index, { scope: "workspace" })[0]?.message).toContain(
-      "not defined in this workspace",
-    );
+    expect(
+      missingReferenceDiagnostics(index, schema, { scope: "workspace" })[0]?.message,
+    ).toContain("not defined in this workspace");
   });
 
   it("deduplicates identical reference sites defensively", () => {
@@ -192,7 +194,7 @@ describe("missingReferenceDiagnostics", () => {
       sitesByLine: buildSitesByLine(1, new Map(), [ref, ref]),
       unresolvedReferences: [ref],
     };
-    expect(missingReferenceDiagnostics(index)).toHaveLength(1);
+    expect(missingReferenceDiagnostics(index, schema)).toHaveLength(1);
   });
 
   it("skips unresolved environment variable references defensively", () => {
@@ -214,6 +216,6 @@ describe("missingReferenceDiagnostics", () => {
       sitesByLine: buildSitesByLine(1, new Map(), [ref]),
       unresolvedReferences: [ref],
     };
-    expect(missingReferenceDiagnostics(index)).toEqual([]);
+    expect(missingReferenceDiagnostics(index, schema)).toEqual([]);
   });
 });

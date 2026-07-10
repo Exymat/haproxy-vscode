@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { getParsedDocument } from "../../parseCache";
-import { sectionHeaderSet } from "../../schema";
+import { sectionHeaderSet } from "../../schema/layout";
 import { sectionOutlineByStartLine, sectionText } from "../../sectionOutline";
 import {
   findDefinitions,

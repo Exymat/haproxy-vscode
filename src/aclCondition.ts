@@ -1,4 +1,6 @@
-import { HaproxySchema, keywordGroupSet, sampleExpressionNameSets } from "./schema";
+import { HaproxySchema } from "./schema/types";
+import { keywordGroupSet } from "./schema/keywords";
+import { sampleExpressionNameSets } from "./schema/tokens";
 import {
   findClosingBrace,
   findExprEnd,

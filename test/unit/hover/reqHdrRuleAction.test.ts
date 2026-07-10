@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { getDocumentContext } from "../../../src/documentContext";
 import { provideHover } from "../../../src/hover";
-import { parseDocument } from "../../../src/parser";
+import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";
 import { hoverText } from "./helpers";

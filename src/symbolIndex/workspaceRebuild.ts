@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { documentContentFingerprint } from "../documentUriKey";
 import { isHaproxyLanguageId } from "../grammar";
 import { logWorkspaceIndexDisabled, logWorkspaceIndexSchemaLoadFailed } from "../outputChannel";
-import { HaproxySchema } from "../schema";
+import { HaproxySchema } from "../schema/types";
 
 import { buildFolderWorkspaceIndex } from "./workspaceFolderBuild";
 import {

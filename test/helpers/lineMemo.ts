@@ -1,13 +1,9 @@
 import { LineDiagnosticMemo } from "../../src/diagnosticContext";
 import { analyzeLine } from "../../src/lineAnalysis";
 import { ParsedLine } from "../../src/parser";
-import {
-  HaproxySchema,
-  modifierPrefixSet,
-  noPrefixKeywordSet,
-  sectionHasOptionKeywords,
-  sectionKeywordSet,
-} from "../../src/schema";
+import { HaproxySchema } from "../../src/schema/types";
+import { sectionHasOptionKeywords, sectionKeywordSet } from "../../src/schema/keywords";
+import { modifierPrefixSet, noPrefixKeywordSet } from "../../src/schema/tokens";
 
 export function buildLineDiagnosticMemo(
   line: ParsedLine,

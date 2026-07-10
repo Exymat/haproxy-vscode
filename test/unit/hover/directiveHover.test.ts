@@ -5,8 +5,9 @@ import type { DocumentContextWithToken, HoverContext } from "../../../src/hover/
 import { resolveLanguageKeyword } from "../../../src/keywordVariant";
 import { analyzeLine } from "../../../src/lineAnalysis";
 import type { HaproxyLanguageData, LanguageKeyword } from "../../../src/languageData";
-import { parseDocument } from "../../../src/parser";
-import { noPrefixKeywordSet, modifierPrefixSet, sectionKeywordSet } from "../../../src/schema";
+import { parseDocument } from "../../helpers/parse";
+import { sectionKeywordSet } from "../../../src/schema/keywords";
+import { noPrefixKeywordSet, modifierPrefixSet } from "../../../src/schema/tokens";
 import { Range } from "../../__mocks__/vscode";
 import { createDocument } from "../../helpers/document";
 import { bundles, hoverText } from "./helpers";

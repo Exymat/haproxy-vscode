@@ -186,4 +186,44 @@ describe("symbolIndex resolve", () => {
       scopeKey: "backend:api",
     });
   });
+
+  it("skips invalid environment-variable definition and reference names", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = [
+      {
+        keyword: "setenv",
+        kind: "directive",
+        definition_kind: "environment-variable",
+        symbol_name_token_from_index: 1,
+      },
+      {
+        keyword: "unsetenv",
+        kind: "directive",
+        reference_kind: "environment-variable",
+        symbol_name_token_from_index: 1,
+      },
+    ];
+    const definitionDoc = doc("global\n    setenv 1BAD value");
+    const definitionCol = "    setenv 1BAD".indexOf("1BAD");
+    expect(resolveSymbolAtPosition(definitionDoc, pos(1, definitionCol), customSchema)).toBeNull();
+
+    const referenceDoc = doc("global\n    unsetenv 1BAD");
+    const referenceCol = "    unsetenv 1BAD".indexOf("1BAD");
+    expect(resolveSymbolAtPosition(referenceDoc, pos(1, referenceCol), customSchema)).toBeNull();
+  });
+
+  it("ignores statement-rule token indices beyond the parsed line", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.statement_rules = [
+      {
+        keyword: "server",
+        kind: "directive",
+        definition_kind: "server",
+        symbol_name_token_from_index: 99,
+      },
+    ];
+    const document = doc("backend api\n    server s1 127.0.0.1:80");
+    const serverCol = "    server s1".indexOf("s1");
+    expect(resolveSymbolAtPosition(document, pos(1, serverCol), customSchema)).toBeNull();
+  });
 });

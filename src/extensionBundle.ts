@@ -3,7 +3,8 @@ import * as vscode from "vscode";
 import { invalidateAllExtensionCaches } from "./cacheInvalidation";
 import { HaproxyLanguageData, loadLanguageDataAsync } from "./languageData";
 import { logBundleLoadFailed, logBundleLoadStarted, logBundleLoadSucceeded } from "./outputChannel";
-import { HaproxySchema, loadSchemaAsync } from "./schema";
+import { HaproxySchema } from "./schema/types";
+import { loadSchemaAsync } from "./schema/load";
 import { getConfiguredVersionForUri, HaproxyVersion } from "./version";
 
 export interface ExtensionBundle {

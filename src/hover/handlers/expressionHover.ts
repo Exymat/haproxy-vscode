@@ -1,21 +1,17 @@
 import * as vscode from "vscode";
 
-import { CompletionKind } from "../../documentContext";
-import { findIndexedGroupItem } from "../../languageDataIndexes";
 import { LanguageGroupItem } from "../../languageData";
-import { actionGroupForCompletionKind, actionGroupNames } from "../../schema";
+import { findIndexedGroupItem } from "../../languageDataIndexes";
+import {
+  actionGroupForCompletionKind,
+  actionGroupNames,
+  actionCompletionKindSet,
+  sampleExpressionGroupForKind,
+} from "../../schema/semantic";
 import { normalizeActionName } from "../../tokenUtils";
 import { findGroupItem, sampleTokenCandidates } from "../helpers";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
-
-const RULE_KINDS = new Set<CompletionKind>([
-  "http-request",
-  "http-response",
-  "http-after-response",
-  "tcp-request",
-  "tcp-response",
-]);
 
 function isInExpressionGroups(data: HoverContext["data"], candidate: string): boolean {
   for (const groupName of ["sample_fetches", "sample_converters", "acl_criteria"]) {
@@ -26,7 +22,7 @@ function isInExpressionGroups(data: HoverContext["data"], candidate: string): bo
   return false;
 }
 
-function isActionToken(hc: HoverContext, candidate: string, kind: CompletionKind): boolean {
+function isActionToken(hc: HoverContext, candidate: string, kind: string): boolean {
   const actionName = normalizeActionName(candidate);
   const actionGroups = actionGroupNames(hc.schema);
   const preferred = actionGroupForCompletionKind(hc.schema, kind);
@@ -103,16 +99,16 @@ export function tryExpressionHover(hc: HoverContext): vscode.Hover | null {
     return sampleGroupHover(hc, ["sample_fetches", "acl_criteria"]);
   }
 
-  if (ctx.kind === "expression-fetch") {
+  if (sampleExpressionGroupForKind(hc.schema, ctx.kind) === "sample_fetches") {
     return sampleGroupHover(hc, ["sample_fetches"]);
   }
 
-  if (ctx.kind === "expression-converter") {
+  if (sampleExpressionGroupForKind(hc.schema, ctx.kind) === "sample_converters") {
     return sampleGroupHover(hc, ["sample_converters"]);
   }
 
   const isSampleFetchArgument = resolvesAsSampleFetch(hc);
-  if (RULE_KINDS.has(ctx.kind)) {
+  if (actionCompletionKindSet(hc.schema).has(ctx.kind)) {
     const minIndex = isSampleFetchArgument ? 1 : 2;
     if (ctx.tokenIndex >= minIndex) {
       return sampleGroupHover(hc, ["sample_fetches", "sample_converters", "acl_criteria"]);

@@ -7,7 +7,7 @@ import {
   resolveSchemaKeyword,
   schemaVariantForSection,
 } from "../../src/keywordVariant";
-import { SchemaKeyword } from "../../src/schema";
+import { SchemaKeyword } from "../../src/schema/types";
 
 describe("resolveLanguageKeyword", () => {
   const bind: LanguageKeyword = {

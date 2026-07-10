@@ -12,7 +12,7 @@ import { HaproxyLanguageData } from "./languageData";
 import { indexedKeywordNameSetForSection } from "./languageDataIndexes";
 import { AnalyzedLine } from "./lineAnalysis";
 import { ResolvedLanguageKeyword, ResolvedSchemaKeyword } from "./keywordVariant";
-import { HaproxySchema } from "./schema";
+import { HaproxySchema } from "./schema/types";
 
 export interface LineSemanticContext {
   document: vscode.TextDocument;

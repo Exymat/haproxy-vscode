@@ -66,7 +66,7 @@ function assertItems(
 describe("tryOptionCompletion", () => {
   it("returns null for non-option contexts", () => {
     const cc = optionCompletionContext("bareopt", () => {});
-    cc.ctx = { ...cc.ctx, kind: "directive" } as never;
+    cc.ctx = { ...cc.ctx, kind: "directive" };
     expect(tryOptionCompletion(cc)).toBeNull();
   });
 

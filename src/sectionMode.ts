@@ -1,8 +1,10 @@
 import { ParsedLine } from "./parser";
 import { ParsedDocumentReuse } from "./parseCache";
-import { HaproxySchema, symbolStringList } from "./schema";
+import { HaproxySchema } from "./schema/types";
+import { symbolStringList } from "./schema/symbols";
+import { parseSectionHeader } from "./sectionUtils";
 
-export type RuntimeMode = "tcp" | "http" | "log" | "spop" | "haterm";
+export type RuntimeMode = string;
 
 export interface RuntimeModeCacheEntry {
   version: number;
@@ -16,23 +18,17 @@ interface SectionBlock {
   explicitMode: RuntimeMode | null;
 }
 
-function parseSectionHeader(line: ParsedLine): SectionBlock | null {
-  if (!line.isSectionHeader || line.tokens.length === 0) {
+function sectionBlockFromLine(line: ParsedLine, schema: HaproxySchema): SectionBlock | null {
+  const header = parseSectionHeader(line, schema);
+  if (!header) {
     return null;
   }
-  const kind = line.tokens[0].text.toLowerCase();
-  let name: string | null = null;
-  let fromDefaults: string | null = null;
-  if (line.tokens[1] && line.tokens[1].text.toLowerCase() !== "from") {
-    name = line.tokens[1].text;
-  }
-  for (let i = 1; i < line.tokens.length - 1; i += 1) {
-    if (line.tokens[i].text.toLowerCase() === "from") {
-      fromDefaults = line.tokens[i + 1].text;
-      break;
-    }
-  }
-  return { kind, name, fromDefaults, explicitMode: null };
+  return {
+    kind: header.sectionType,
+    name: header.name,
+    fromDefaults: header.profileName,
+    explicitMode: null,
+  };
 }
 
 const runtimeModeSetCache = new WeakMap<HaproxySchema, Set<string>>();
@@ -60,7 +56,7 @@ export function runtimeModeForLine(
   let currentBlock = -1;
   for (const line of parsed) {
     if (line.isSectionHeader) {
-      const block = parseSectionHeader(line);
+      const block = sectionBlockFromLine(line, schema);
       if (block) {
         blocks.push(block);
         currentBlock = blocks.length - 1;
@@ -75,10 +71,14 @@ export function runtimeModeForLine(
   }
 
   const memo = new Map<number, RuntimeMode | null>();
+  const defaultsSection =
+    typeof schema.symbols?.defaults_section_name === "string"
+      ? schema.symbols.defaults_section_name
+      : "defaults";
   const findNamedDefaultsBefore = (idx: number, name: string): number =>
     (() => {
       for (let i = idx - 1; i >= 0; i -= 1) {
-        if (blocks[i].kind === "defaults" && blocks[i].name === name) {
+        if (blocks[i].kind === defaultsSection && blocks[i].name === name) {
           return i;
         }
       }
@@ -87,7 +87,7 @@ export function runtimeModeForLine(
   const findPreviousDefaults = (idx: number): number =>
     (() => {
       for (let i = idx - 1; i >= 0; i -= 1) {
-        if (blocks[i].kind === "defaults") {
+        if (blocks[i].kind === defaultsSection) {
           return i;
         }
       }
@@ -105,7 +105,7 @@ export function runtimeModeForLine(
       let parent = -1;
       if (block.fromDefaults) {
         parent = findNamedDefaultsBefore(idx, block.fromDefaults);
-      } else if (block.kind !== "defaults") {
+      } else if (block.kind !== defaultsSection) {
         parent = findPreviousDefaults(idx);
       }
       if (parent >= 0) {

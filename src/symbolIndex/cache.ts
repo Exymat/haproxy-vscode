@@ -3,7 +3,8 @@ import * as vscode from "vscode";
 import { documentContentFingerprint, documentUriKey } from "../documentUriKey";
 import { getParsedDocumentEntry, ParsedDocumentEntry } from "../parseCache";
 import { isTopLevelSectionHeader } from "../sectionUtils";
-import { HaproxySchema, sectionHeaderSet } from "../schema";
+import { HaproxySchema } from "../schema/types";
+import { sectionHeaderSet } from "../schema/layout";
 import { UriLruCache } from "../uriLruCache";
 
 import {

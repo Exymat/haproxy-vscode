@@ -1,4 +1,5 @@
-import { HaproxySchema, validationStringList } from "./schema";
+import { HaproxySchema } from "./schema/types";
+import { validationStringList } from "./schema/validation";
 
 const argumentModelSkipCache = new WeakMap<HaproxySchema, Set<string>>();
 const nestedDiagnosticCache = new WeakMap<HaproxySchema, Set<string>>();

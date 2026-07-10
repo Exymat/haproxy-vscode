@@ -1,7 +1,7 @@
-import { parseDocument } from "../../../src/parser";
+import { parseDocument } from "../../helpers/parse";
 import * as parseCache from "../../../src/parseCache";
 import { getParsedDocument, getParsedDocumentEntry } from "../../../src/parseCache";
-import type { HaproxySchema, StatementRule } from "../../../src/schema";
+import type { HaproxySchema, StatementRule } from "../../../src/schema/types";
 import { buildScopeKeyByLine, collectLineSymbolSites } from "../../../src/symbolIndex/build";
 import { clearSymbolIndexCaches, hasUriSymbolIndexCache } from "../../../src/symbolIndex/cache";
 import {
@@ -13,9 +13,12 @@ import {
   resolveSymbolAtPosition,
 } from "../../../src/symbolIndex";
 import { createDocument, updateDocument } from "../../helpers/document";
+import { parseOptionsWithSchema } from "../../helpers/formatOptions";
 import { vi } from "vitest";
 
 import { doc, pos, schema } from "./helpers";
+
+const parseOptions = parseOptionsWithSchema("3.4");
 
 function schemaWithCustomRule(
   version: string,
@@ -219,20 +222,20 @@ describe("symbolIndex build", () => {
 
   it("getSymbolIndex reuses index when a single-line edit does not change symbols", () => {
     const document = doc("global\n    maxconn 4096\nbackend api\n    server s1 127.0.0.1:80");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const first = getSymbolIndex(document, schema, 4000);
     updateDocument(document, "global\n    maxconn 8192\nbackend api\n    server s1 127.0.0.1:80");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const second = getSymbolIndex(document, schema, 4000);
     expect(second).toBe(first);
   });
 
   it("getSymbolIndex rebuilds when a single-line edit changes a symbol definition", () => {
     const document = doc("backend api\n    server s1 127.0.0.1:80");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const first = getSymbolIndex(document, schema, 4000);
     updateDocument(document, "backend api\n    server s2 127.0.0.1:80");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const second = getSymbolIndex(document, schema, 4000);
     expect(second).not.toBe(first);
     expect(second?.definitions.get("server:backend:api:s2")).toHaveLength(1);
@@ -241,10 +244,10 @@ describe("symbolIndex build", () => {
 
   it("getSymbolIndex rebuilds when a single-line edit changes a symbol reference", () => {
     const document = doc("backend api\nfrontend web\n    default_backend api");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const first = getSymbolIndex(document, schema, 4000);
     updateDocument(document, "backend api\nfrontend web\n    default_backend other");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const second = getSymbolIndex(document, schema, 4000);
     expect(second).not.toBe(first);
     expect(second).not.toBeNull();
@@ -256,11 +259,11 @@ describe("symbolIndex build", () => {
 
   it("getSymbolIndex updates reference ranges when whitespace changes without renaming", () => {
     const document = doc("backend api\nfrontend web\n    default_backend api");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     getSymbolIndex(document, schema, 4000);
 
     updateDocument(document, "backend api\nfrontend web\n        default_backend api");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const shiftedRight = getSymbolIndex(document, schema, 4000);
     expect(shiftedRight).not.toBeNull();
     if (!shiftedRight) {
@@ -277,7 +280,7 @@ describe("symbolIndex build", () => {
     });
 
     updateDocument(document, "backend api\nfrontend web\n  default_backend api");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const shiftedLeft = getSymbolIndex(document, schema, 4000);
     expect(shiftedLeft).not.toBeNull();
     if (!shiftedLeft) {
@@ -294,10 +297,10 @@ describe("symbolIndex build", () => {
 
   it("getSymbolIndex rebuilds when a section header line is edited", () => {
     const document = doc("backend api\n    server s1 127.0.0.1:80");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const first = getSymbolIndex(document, schema, 4000);
     updateDocument(document, "backend renamed\n    server s1 127.0.0.1:80");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const second = getSymbolIndex(document, schema, 4000);
     expect(second).not.toBe(first);
     expect(second?.definitions.get("proxy-section:renamed")).toHaveLength(1);
@@ -305,20 +308,20 @@ describe("symbolIndex build", () => {
 
   it("getSymbolIndex rebuilds when line count changes", () => {
     const document = doc("global\n    maxconn 4096");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const first = getSymbolIndex(document, schema, 4000);
     updateDocument(document, "global\n    maxconn 4096\n    daemon");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const second = getSymbolIndex(document, schema, 4000);
     expect(second).not.toBe(first);
   });
 
   it("getSymbolIndex rebuilds when parse reuse has no previous version", () => {
     const document = doc("global\n    maxconn 4096");
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const first = getSymbolIndex(document, schema, 4000);
     updateDocument(document, "global\n    maxconn 8192");
-    const realEntry = getParsedDocumentEntry(document);
+    const realEntry = getParsedDocumentEntry(document, parseOptions);
     vi.spyOn(parseCache, "getParsedDocumentEntry").mockReturnValueOnce({
       ...realEntry,
       reuse: { ...realEntry.reuse, previousVersion: null },
@@ -332,13 +335,13 @@ describe("symbolIndex build", () => {
     const document = doc(
       ["defaults", "    mode http", "    # comment", "    timeout client 50s"].join("\n"),
     );
-    getParsedDocument(document);
+    getParsedDocument(document, parseOptions);
     const first = getSymbolIndex(document, schema, 4000);
     updateDocument(
       document,
       ["defaults", "    mode http", "frontend web", "    timeout client 50s"].join("\n"),
     );
-    const entry = getParsedDocumentEntry(document);
+    const entry = getParsedDocumentEntry(document, parseOptions);
     expect(entry.reuse.suffixLines).toBe(0);
     expect(entry.parsed.length - entry.reuse.prefixLines - entry.reuse.suffixLines).toBeGreaterThan(
       1,

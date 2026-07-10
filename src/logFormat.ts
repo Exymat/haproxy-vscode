@@ -1,5 +1,6 @@
 import { ParsedToken } from "./parser";
-import { HaproxySchema, logformatStopTokenSet, LogformatAlias, LogformatSlot } from "./schema";
+import { HaproxySchema, LogformatAlias, LogformatSlot } from "./schema/types";
+import { logformatStopTokenSet } from "./schema/validation";
 
 export type { LogformatAlias, LogformatSlot };
 

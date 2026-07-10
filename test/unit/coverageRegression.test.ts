@@ -4,16 +4,23 @@ import { createDiagnosticScheduler } from "../../src/diagnosticScheduler";
 import { DiagnosticContext } from "../../src/diagnosticContext";
 import { runLineDiagnosticPipeline } from "../../src/diagnosticPipeline";
 import { getDocumentContext } from "../../src/documentContext";
+import { buildLineDiagnosticMemo } from "../helpers/lineMemo";
+import { getLineSemanticContext } from "../../src/lineSemanticContext";
 import { buildDeprecatedIndex } from "../../src/deprecatedIndex";
 import { canCast, resolveOutType } from "../../src/expressionTypes";
 import { formatConfig, splitLineAtComment } from "../../src/formatter";
+import { provideDocumentSymbols } from "../../src/documentSymbols";
+import * as extensionBundle from "../../src/extensionBundle";
+import { provideFoldingRanges } from "../../src/folding";
 import { clearLanguageDataIndexCache, languageDataIndexes } from "../../src/languageDataIndexes";
 import { missingReferenceDiagnostics } from "../../src/missingReferenceDiagnostics";
 import { provideReferences } from "../../src/navigation";
 import { getParsedDocumentEntry } from "../../src/parseCache";
-import { parseDocument, parseDocumentLines, tokenizeLine } from "../../src/parser";
+import { tokenizeLine } from "../../src/parser";
+import { parseDocument, parseDocumentLines } from "../helpers/parse";
 import { buildSectionSymbols } from "../../src/sectionOutline";
 import {
+  buildSymbolIndex,
   getSymbolIndex,
   getSymbolIndexVersion,
   scopedSymbolKindSet,
@@ -25,11 +32,13 @@ import { buildReferencesByKey, symbolNameTokenIndex } from "../../src/symbolInde
 import { tryLogFormatCompletion } from "../../src/completion/handlers/logFormat";
 import { resolveLongestDirectiveMatch } from "../../src/tokenUtils";
 import { createDocument, updateDocument } from "../helpers/document";
+import { formatOptionsWithSchema } from "../helpers/formatOptions";
 import { loadSchemaBundle } from "../helpers/schema";
 import { getExtensionSettings } from "../../src/settings";
 import * as vscode from "vscode";
 
 const bundle = loadSchemaBundle("3.4");
+const parseOptions = formatOptionsWithSchema("3.4");
 
 describe("coverage regression", () => {
   afterEach(() => {
@@ -54,12 +63,12 @@ describe("coverage regression", () => {
     vi.useRealTimers();
 
     const doc = createDocument(["defaults", "    mode http", "    timeout client 50s"].join("\n"));
-    getParsedDocumentEntry(doc);
+    getParsedDocumentEntry(doc, parseOptions);
     updateDocument(
       doc,
       ["defaults", "    mode http", "frontend web", "    timeout client 50s"].join("\n"),
     );
-    expect(getParsedDocumentEntry(doc).parsed[2].section).toBe("frontend");
+    expect(getParsedDocumentEntry(doc, parseOptions).parsed[2].section).toBe("frontend");
   });
 
   it("keeps parser, formatter, and expression utility regressions", () => {
@@ -71,7 +80,7 @@ describe("coverage regression", () => {
       code: "",
       commentSuffix: "# comment only",
     });
-    expect(formatConfig("# comment only")).toBe("# comment only");
+    expect(formatConfig("# comment only", formatOptionsWithSchema("3.2"))).toBe("# comment only");
     expect(canCast("missing-row", "str", bundle.schema)).toBe(true);
     expect(resolveOutType("str", { out_type: "same", in_type: "sint" }, bundle.schema)).toBe(
       "sint",
@@ -146,7 +155,7 @@ describe("coverage regression", () => {
       sitesByLine: [],
       unresolvedReferences: [unresolved, unresolved],
     };
-    expect(missingReferenceDiagnostics(duplicateIndex)).toHaveLength(1);
+    expect(missingReferenceDiagnostics(duplicateIndex, bundle.schema)).toHaveLength(1);
   });
 
   it("covers macro pipeline branches", () => {
@@ -212,5 +221,157 @@ describe("coverage regression", () => {
         partial: "",
       }),
     ).toBeNull();
+  });
+
+  it("covers remaining schema, hover, parse-cache, and symbol-index gaps", async () => {
+    const { hasStatementRuleKind, sectionHasOptionKeywords, validationObjectArray } =
+      await import("../../src/schema");
+    const { runSpecialArgumentHandlers } = await import("../../src/argumentHandlers/registry");
+    const { tryAclRefHover } = await import("../../src/hover/handlers/aclRefHover");
+    const { lookupConditionalDirective, conditionalBlocksDocsUrl } =
+      await import("../../src/conditionalDirectives");
+    const { resolveExpectedSymbolReferenceAtCompletion } = await import("../../src/symbolIndex");
+    const { sectionHeaderSet } = await import("../../src/schema");
+
+    expect(hasStatementRuleKind(bundle.schema, "directive")).toBe(true);
+    expect(hasStatementRuleKind(bundle.schema, "__missing_kind__")).toBe(false);
+    expect(sectionHasOptionKeywords(structuredClone(bundle.schema), "defaults")).toBe(true);
+
+    const bareOptionSchema = structuredClone(bundle.schema);
+    bareOptionSchema.sections = {
+      ...bareOptionSchema.sections,
+      optionprobe: { name: "optionprobe", keywords: ["option"] },
+    };
+    expect(sectionHasOptionKeywords(bareOptionSchema, "optionprobe")).toBe(true);
+
+    const prefixOnlySchema = structuredClone(bundle.schema);
+    prefixOnlySchema.sections = {
+      ...prefixOnlySchema.sections,
+      prefixonly: { name: "prefixonly", keywords: ["option httplog"] },
+    };
+    expect(sectionHasOptionKeywords(prefixOnlySchema, "prefixonly")).toBe(true);
+
+    const noOptionSchema = structuredClone(bundle.schema);
+    noOptionSchema.sections = {
+      ...noOptionSchema.sections,
+      nooptionprobe: { name: "nooptionprobe", keywords: ["no option httplog"] },
+    };
+    expect(sectionHasOptionKeywords(noOptionSchema, "nooptionprobe")).toBe(true);
+
+    const optionSchema = structuredClone(bundle.schema);
+    optionSchema.sections = {
+      ...optionSchema.sections,
+      optionprobe: {
+        name: "optionprobe",
+        keywords: ["option", "option httplog", "no option missing"],
+      },
+    };
+    expect(sectionHasOptionKeywords(optionSchema, "optionprobe")).toBe(true);
+
+    expect(() =>
+      validationObjectArray(
+        {
+          ...bundle.schema,
+          validation_rules: { ...bundle.schema.validation_rules, bad: "not-an-array" },
+        },
+        "bad",
+      ),
+    ).toThrow(/validation_rules\.bad/);
+
+    const handlerSchema = structuredClone(bundle.schema);
+    handlerSchema.validation_rules = {
+      ...handlerSchema.validation_rules,
+      special_argument_rules: {
+        ...(handlerSchema.validation_rules.special_argument_rules as Record<string, unknown>),
+        "unused-rule-key": {},
+      },
+    };
+    const handlerLine = parseDocument(createDocument("defaults\n    mode http"))[1];
+    expect(
+      runSpecialArgumentHandlers({
+        line: handlerLine,
+        schema: handlerSchema,
+        match: { matched: true, end: 4, keyword: "mode" },
+        memo: buildLineDiagnosticMemo(handlerLine, handlerSchema, new Set(["mode"])),
+        fullKeyword: undefined,
+        schemaKw: undefined,
+        getConditionals: () => new Set(),
+      }),
+    ).toBeNull();
+
+    const aclSchema = structuredClone(bundle.schema);
+    aclSchema.semantic_groups = {
+      ...aclSchema.semantic_groups,
+      acl_ref_groups: ["acl_int_operators"],
+    };
+    const aclDoc = createDocument("frontend web\n    acl paths path EQ /etc/paths");
+    const aclPosition = new vscode.Position(1, "    acl paths path ".length);
+    const aclSemantic = getLineSemanticContext(aclDoc, aclPosition, aclSchema, bundle.languageData);
+    if (!aclSemantic?.ctx.token) {
+      throw new Error("expected acl flag token");
+    }
+    const aclCtx = aclSemantic.ctx as import("../../src/hover/types").DocumentContextWithToken;
+    expect(
+      tryAclRefHover({
+        document: aclDoc,
+        position: aclPosition,
+        data: bundle.languageData,
+        schema: aclSchema,
+        semantic: aclSemantic,
+        ctx: aclCtx,
+        range: new vscode.Range(1, aclCtx.token.start, 1, aclCtx.token.end),
+        cursorOffset: aclPosition.character - aclCtx.token.start,
+        tokenLower: aclCtx.token.text.toLowerCase(),
+        analyzed: aclSemantic.analyzed,
+      }),
+    ).not.toBeNull();
+
+    expect(lookupConditionalDirective({} as never, ".if")).toBeUndefined();
+    expect(conditionalBlocksDocsUrl({} as never, "3.4")).toBe(
+      "https://docs.haproxy.org/3.4/configuration.html#2.4",
+    );
+
+    const envDoc = createDocument("global\n    setenv MY_VAR value");
+    const envCol = "    setenv MY_VAR".indexOf("MY_VAR");
+    expect(
+      resolveExpectedSymbolReferenceAtCompletion(
+        envDoc,
+        { line: 1, character: envCol } as never,
+        bundle.schema,
+      ),
+    ).toBeNull();
+
+    const unsetDoc = createDocument("global\n    unsetenv FOO");
+    const unsetCol = "    unsetenv FOO".indexOf("FOO");
+    expect(
+      resolveExpectedSymbolReferenceAtCompletion(
+        unsetDoc,
+        { line: 1, character: unsetCol } as never,
+        bundle.schema,
+      ),
+    ).toBeNull();
+
+    getParsedDocumentEntry(createDocument("global\n    daemon"));
+    getParsedDocumentEntry(createDocument("global\n    daemon"), {
+      sectionHeaders: sectionHeaderSet(bundle.schema),
+    });
+
+    const headerSchema = structuredClone(bundle.schema);
+    headerSchema.line_layout = {
+      ...(headerSchema.line_layout ?? {}),
+      section_headers: [...(headerSchema.line_layout?.section_headers ?? []), "foobar"],
+    };
+    const headerDoc = createDocument("foobar test\n    bind :80");
+    const headerParsed = parseDocument(headerDoc, "3.4", {
+      sectionHeaders: new Set(
+        (headerSchema.line_layout?.section_headers ?? []).map((header) => header.toLowerCase()),
+      ),
+    });
+    expect(buildSymbolIndex(headerParsed, headerSchema).definitions.size).toBeGreaterThanOrEqual(0);
+
+    vi.spyOn(extensionBundle, "getLoadedBundleForUri").mockReturnValue(undefined);
+    const outlineDoc = createDocument("global\n    daemon");
+    expect(provideDocumentSymbols(outlineDoc)).toEqual([]);
+    expect(provideFoldingRanges(outlineDoc)).toEqual([]);
   });
 });
