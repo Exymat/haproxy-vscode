@@ -259,20 +259,21 @@ describe("extension providers", () => {
     setMockWorkspaceFile("file:///indexed.cfg", "backend indexed");
 
     activate(mockExtensionContext() as never);
-    await vi.runAllTimersAsync();
     symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
       schemaFixture,
-      defaultWorkspaceSymbolSettings(),
+      defaultWorkspaceSymbolSettings({ debounceMs: 0 }),
       4000,
       { scope: "full" },
     );
     await vi.runAllTimersAsync();
-    await Promise.resolve();
-    await vi.waitFor(() => {
-      expect(symbolIndex.getWorkspaceSymbolIndex()?.documents.has("file:///indexed.cfg")).toBe(
-        true,
-      );
-    });
+    await vi.waitFor(
+      () => {
+        expect(symbolIndex.getWorkspaceSymbolIndex()?.documents.has("file:///indexed.cfg")).toBe(
+          true,
+        );
+      },
+      { timeout: 5000 },
+    );
 
     const command = getRegisteredCommand("haproxy.peekDefinitionAtPosition");
     expect(command).toBeDefined();

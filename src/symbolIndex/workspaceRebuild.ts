@@ -377,7 +377,7 @@ async function rebuildWorkspaceIndexes(
       return;
     }
     /* v8 ignore stop */
-    setFolderWorkspaceIndex(folderKey, index, nextIndexes);
+    setFolderWorkspaceIndex(folderKey, index, nextIndexes, activeWorkspaceIndexes);
   }
 
   /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */

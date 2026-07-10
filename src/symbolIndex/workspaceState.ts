@@ -39,11 +39,6 @@ export function setActiveWorkspaceIndexes(indexes: Map<string, WorkspaceSymbolIn
   activeWorkspaceIndexes = indexes;
 }
 
-export function getWorkspaceIndexChangeListener():
-  ((event: WorkspaceIndexChangeEvent) => void) | undefined {
-  return onDidChangeWorkspaceIndex;
-}
-
 export function setWorkspaceIndexChangeListener(
   listener: ((event: WorkspaceIndexChangeEvent) => void) | undefined,
 ): void {
@@ -108,8 +103,9 @@ export function setFolderWorkspaceIndex(
   folderKey: string,
   newIndex: WorkspaceSymbolIndex,
   indexes: Map<string, WorkspaceSymbolIndex> = activeWorkspaceIndexes,
+  previousIndexes?: Map<string, WorkspaceSymbolIndex>,
 ): void {
-  const previousIndex = indexes.get(folderKey);
+  const previousIndex = indexes.get(folderKey) ?? previousIndexes?.get(folderKey);
   updateCappedFolderTracking(folderKey, previousIndex, newIndex);
   indexes.set(folderKey, newIndex);
 }
