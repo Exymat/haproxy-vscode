@@ -5,6 +5,7 @@ import {
   isKeywordValuePair,
   matchesLaterEnumSlotInModel,
   skipOptionalSlotGroup,
+  slotForPosition,
 } from "./argumentSlotValidation";
 import { allowsMissingArgs, enumValuesForSlot, formatEnumHint } from "./argumentHandlers/balance";
 import { runSpecialArgumentHandlers } from "./argumentHandlers/registry";
@@ -109,8 +110,11 @@ export function argumentModelDiagnostics(
     const base = lower.split("(", 1)[0];
     let placed = false;
 
-    while (slotIdx < model.slots.length) {
-      const slot = model.slots[slotIdx];
+    while (true) {
+      const slot = slotForPosition(model, slotIdx);
+      if (!slot) {
+        break;
+      }
       const allowedValues = enumValuesForSlot(slot, schemaKw, slotIdx);
 
       if (allowedValues.length > 0) {

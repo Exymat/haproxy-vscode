@@ -436,6 +436,7 @@ describe("argumentDiagnostics", () => {
       1,
     );
     expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
+    expect(diags.filter((d) => d.code === "extra-argument")).toHaveLength(0);
   });
 
   it("accepts userlist user with insecure-password and groups", () => {
