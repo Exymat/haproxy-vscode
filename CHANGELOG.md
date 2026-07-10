@@ -2,6 +2,16 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.18.0
+
+- **Refreshed bundled schemas (2.6–3.4)** — regenerated schema and language data with updated reference patterns, statement rules, and conditional-directive metadata. Adds `fcgi-app` as a recognized section type and explicit rules for `option` lines and environment-variable directives (`setenv`, `presetenv`, `unsetenv`, `resetenv`).
+- **Schema-driven conditional directives** — `.if`, `.elif`, `.else`, `.endif`, and status directives (`.diag`, `.notice`, `.warning`, `.alert`) are loaded from bundled language data with version-specific documentation links instead of hardcoded descriptions.
+- **Defaults profile on section headers with extra tokens** — symbol indexing, navigation, and completion follow schema reference patterns so a defaults profile after `from` is recognized even when the section header has additional tokens (e.g. `frontend web extra from base`).
+- **Schema-driven section header parsing** — section headers, bind/entry-point diagnostics, and Format Document use the version-specific section header set and `from` modifier from the active schema.
+- **Format Document comment handling** — comment splitting during format matches the parser (a `#` inside a quoted string is no longer treated as starting an inline comment).
+- **Supported HAProxy versions discovered from bundled schemas** — the version quick-pick and status bar enumerate releases from `schemas/haproxy-*.schema.json` at activation (listed in the HAProxy output channel).
+- **Workspace index logging and cap tracking** — schema load failures for a folder are logged to the HAProxy output channel; fixed capped-folder warnings firing incorrectly during multi-folder index rebuilds.
+
 ## 0.17.2
 
 - **Per-workspace-folder HAProxy version for language services** — completion, diagnostics, hover, formatting, and the workspace symbol graph now use each file’s workspace-folder `haproxy.version` setting, not just syntax highlighting. Multi-root workspaces can use different HAProxy releases in different folders (e.g. `2.6` in one repo and `3.4` in another) without cross-folder interference.
