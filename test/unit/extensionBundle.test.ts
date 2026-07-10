@@ -7,12 +7,13 @@ import {
   getLoadedBundleForUri,
   invalidateBundleLoad,
 } from "../../src/extensionBundle";
+import { createExtensionBundleService } from "../../src/extensionBundleService";
 import * as languageData from "../../src/languageData";
 import * as outputChannel from "../../src/outputChannel";
 import * as schema from "../../src/schema";
 import { getSymbolIndex } from "../../src/symbolIndex";
 import { hasUriSymbolIndexCache } from "../../src/symbolIndex/cache";
-import { resetVscodeMock, setMockConfigForUri } from "../__mocks__/vscode";
+import { resetVscodeMock, setMockConfigForUri, window } from "../__mocks__/vscode";
 import { createDocument } from "../helpers/document";
 import { mockExtensionContext } from "../helpers/extensionContext";
 import { loadSchemaBundle } from "../helpers/schema";
@@ -386,5 +387,17 @@ describe("extensionBundle", () => {
     });
 
     await expect(ensureBundle("3.2")).rejects.toBeInstanceOf(BundleLoadStaleError);
+  });
+
+  it("reports non-Error bundle failures from the safe service loader", async () => {
+    vi.spyOn(schema, "loadSchemaAsync").mockRejectedValue("string schema failure");
+    vi.spyOn(languageData, "loadLanguageDataAsync").mockResolvedValue(fixture.languageData);
+    const service = createExtensionBundleService(mockExtensionContext() as never);
+
+    await expect(service.safeEnsureBundle()).resolves.toBeUndefined();
+
+    expect(window.showErrorMessage).toHaveBeenCalledWith(
+      "HAProxy extension failed to load schema: string schema failure",
+    );
   });
 });

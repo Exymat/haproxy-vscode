@@ -28,6 +28,17 @@ describe("workspaceUriKey", () => {
     ).toBe("file:///c:/projects/test.cfg");
   });
 
+  it("preserves non-Windows file URI casing off Windows", () => {
+    vi.stubGlobal("process", { ...process, platform: "linux" });
+    expect(
+      workspaceUriKey({
+        scheme: "file",
+        fsPath: "/Repo/HAProxy.cfg",
+        toString: () => "file:///Repo/HAProxy.cfg",
+      } as never),
+    ).toBe("file:///Repo/HAProxy.cfg");
+  });
+
   it("normalizes encoded Windows file URIs", () => {
     vi.stubGlobal("process", { ...process, platform: "linux" });
     expect(

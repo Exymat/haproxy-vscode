@@ -1,4 +1,5 @@
 import {
+  findWorkspaceReferences,
   getWorkspaceSymbolIndex,
   isUriExcludedFromWorkspaceSymbols,
   resolveWorkspaceRebuildScopeOnOpen,
@@ -99,6 +100,15 @@ describe("workspace symbol coverage paths", () => {
     await Promise.resolve();
 
     expect(getWorkspaceSymbolIndex()).toBeNull();
+  });
+
+  it("returns workspace references from the indexed reference map", async () => {
+    setMockWorkspaceFile("file:///frontend.cfg", "frontend web\n    use_backend api");
+    setMockWorkspaceFile("file:///backend.cfg", "backend api");
+
+    const index = expectWorkspaceIndex(await buildWorkspace());
+
+    expect(findWorkspaceReferences(index, "proxy-section", "api", null)).toHaveLength(1);
   });
 
   it("ignores sticky folder keys that no longer exist in the workspace", async () => {
