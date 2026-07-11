@@ -16,6 +16,8 @@ const FIXTURES_DIR = process.env.HAPROXY_INTEGRATION_FIXTURES_DIR
   ? path.resolve(process.env.HAPROXY_INTEGRATION_FIXTURES_DIR)
   : DEFAULT_FIXTURES_DIR;
 const DEFAULT_HAPROXY_VERSION = "3.2";
+const INTEGRATION_DIAGNOSTICS_DEBOUNCE_MS = 100;
+const INTEGRATION_WORKSPACE_DEBOUNCE_MS = 100;
 
 function languageIdForVersion(version: string): string {
   return `haproxy-${version}`;
@@ -173,11 +175,31 @@ export async function openTempFixtureDocument(
   return doc;
 }
 
-export async function waitForDiagnosticsReady(extraMs = 300): Promise<void> {
+export async function waitForDiagnosticsReady(extraMs = 50): Promise<void> {
   const debounceMs = vscode.workspace
     .getConfiguration("haproxy")
     .get<number>("diagnostics.debounceMs", 500);
   await new Promise((resolve) => setTimeout(resolve, debounceMs + extraMs));
+}
+
+async function waitForDiagnosticsChange(uri: vscode.Uri, timeoutMs: number): Promise<void> {
+  if (timeoutMs <= 0) {
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    const timer = setTimeout(done, timeoutMs);
+    const subscription = vscode.languages.onDidChangeDiagnostics((event) => {
+      if (event.uris.some((changedUri) => changedUri.toString() === uri.toString())) {
+        done();
+      }
+    });
+
+    function done() {
+      clearTimeout(timer);
+      subscription.dispose();
+      resolve();
+    }
+  });
 }
 
 export async function completionLabelsAt(
@@ -308,7 +330,7 @@ export async function waitForSchemaDiagnostics(
     const diagnostics = haproxyDiagnostics(vscode.languages.getDiagnostics(uri));
     if (diagnostics.length === lastCount && diagnostics.length >= minCount) {
       stablePasses += 1;
-      if (stablePasses >= 10) {
+      if (stablePasses >= 2) {
         return diagnostics;
       }
     } else {
@@ -316,7 +338,7 @@ export async function waitForSchemaDiagnostics(
       lastCount = diagnostics.length;
       lastDiagnostics = diagnostics;
     }
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await waitForDiagnosticsChange(uri, Math.min(100, deadline - Date.now()));
   }
 
   return lastDiagnostics;
@@ -337,7 +359,7 @@ export async function updateHaproxySetting(
     }
   }
   const debounceMs = config.get<number>("diagnostics.debounceMs", 500);
-  await new Promise((resolve) => setTimeout(resolve, waitMs ?? debounceMs + 400));
+  await new Promise((resolve) => setTimeout(resolve, waitMs ?? Math.max(150, debounceMs + 50)));
 }
 
 export async function updateHaproxySettingForFolder(
@@ -349,7 +371,7 @@ export async function updateHaproxySettingForFolder(
   const config = vscode.workspace.getConfiguration("haproxy", folderUri);
   await config.update(key, value, vscode.ConfigurationTarget.WorkspaceFolder);
   const debounceMs = config.get<number>("diagnostics.debounceMs", 500);
-  await new Promise((resolve) => setTimeout(resolve, waitMs ?? debounceMs + 400));
+  await new Promise((resolve) => setTimeout(resolve, waitMs ?? Math.max(150, debounceMs + 50)));
 }
 
 export async function openDocumentInFolder(
@@ -376,7 +398,7 @@ export async function clearHaproxySetting(key: string, waitMs?: number): Promise
   await config.update(key, undefined, vscode.ConfigurationTarget.Global);
   await config.update(key, undefined, vscode.ConfigurationTarget.Workspace);
   const debounceMs = config.get<number>("diagnostics.debounceMs", 500);
-  await new Promise((resolve) => setTimeout(resolve, waitMs ?? debounceMs + 400));
+  await new Promise((resolve) => setTimeout(resolve, waitMs ?? Math.max(150, debounceMs + 50)));
 }
 
 export async function ensureHaproxyVersion(version: string): Promise<void> {
@@ -486,6 +508,7 @@ export async function resetHaproxySettings(): Promise<void> {
     ["format.indent", "spaces-4"],
     ["format.insertBlankLineBetweenSections", true],
     ["diagnostics.enabled", true],
+    ["diagnostics.debounceMs", INTEGRATION_DIAGNOSTICS_DEBOUNCE_MS],
     ["diagnostics.deprecatedWarnings", true],
     ["diagnostics.maxLines", 4000],
     ["diagnostics.unusedSymbols", true],
@@ -501,13 +524,13 @@ export async function resetHaproxySettings(): Promise<void> {
     ["workspaceSymbols.maxFileBytes", 0],
     ["workspaceSymbols.maxTotalBytes", 0],
     ["workspaceSymbols.maxLineBytes", 0],
-    ["workspaceSymbols.debounceMs", 750],
+    ["workspaceSymbols.debounceMs", INTEGRATION_WORKSPACE_DEBOUNCE_MS],
   ];
   for (const [key, value] of defaults) {
     await config.update(key, value, vscode.ConfigurationTarget.Global);
     await config.update(key, value, vscode.ConfigurationTarget.Workspace);
   }
-  await waitForDiagnosticsReady(500);
+  await waitForDiagnosticsReady(50);
 }
 
 export const NAVIGATION_CONFIG = [

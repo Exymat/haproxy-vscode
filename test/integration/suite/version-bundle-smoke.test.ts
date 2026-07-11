@@ -11,7 +11,7 @@ import {
   waitForSchemaDiagnostics,
 } from "./helpers";
 
-suite("Supported version bundle smoke tests", () => {
+suite("Version bundle smoke", () => {
   suiteSetup(async function () {
     this.timeout(60000);
     await resetHaproxySettings();

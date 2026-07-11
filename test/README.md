@@ -19,3 +19,11 @@ Avoid catch-all coverage files. If a branch needs a regression test, place it in
 the owning subsystem and name the behavior being protected. Fixture-wide checks
 should be explicit smoke or contract tests, not substitutes for focused unit
 coverage.
+
+The VS Code/Electron integration suite is intentionally small. Keep it for
+extension-host contracts that Vitest cannot prove: activation, contributed
+commands, real document lifecycle, settings propagation, multi-root workspace
+settings, and one or two provider command smoke paths. Provider behavior
+matrices belong in Vitest. Use `npm run test:integration:smoke`,
+`npm run test:integration:workspace`, or `npm run test:integration:settings`
+when iterating on a specific integration shard.

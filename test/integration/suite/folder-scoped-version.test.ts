@@ -70,7 +70,7 @@ suite("Folder-scoped HAProxy version", () => {
     await resetHaproxySettings();
     await updateHaproxySetting("diagnostics.enabled", true);
     await updateHaproxySetting("workspaceSymbols.enabled", true);
-    await updateHaproxySetting("workspaceSymbols.debounceMs", 300);
+    await updateHaproxySetting("workspaceSymbols.debounceMs", 100);
 
     folderARef = workspaceFolderByName("folder-a");
     folderBRef = workspaceFolderByName("folder-b");
