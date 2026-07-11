@@ -354,13 +354,18 @@ Optional upstream-only scripts (require sibling `haproxy_git/`):
 
 ```powershell
 npm run test:upstream
-npm run compare:haproxy
 npm run compare:haproxy:matrix
 npm run compare:haproxy:docker:matrix
 ```
 
 `compare:haproxy:matrix` runs `haproxy -c` parity checks for all supported versions (`2.6`, `2.8`, `3.0`, `3.2`, `3.4`) against matching upstream `tests/conf` directories.
 `compare:haproxy:docker:matrix` uses Docker images `haproxy:<version>-trixie` as ground truth and checks both `tests/conf/*.cfg` and `examples/*.cfg` for each version.
+
+For a single version, call the script directly:
+
+```powershell
+node scripts/compare-haproxy-c.mjs --version 3.2
+```
 
 To run schema pytest plus extension tests from a monorepo layout:
 

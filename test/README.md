@@ -24,6 +24,11 @@ The VS Code/Electron integration suite is intentionally small. Keep it for
 extension-host contracts that Vitest cannot prove: activation, contributed
 commands, real document lifecycle, settings propagation, multi-root workspace
 settings, and one or two provider command smoke paths. Provider behavior
-matrices belong in Vitest. Use `npm run test:integration:smoke`,
-`npm run test:integration:workspace`, or `npm run test:integration:settings`
-when iterating on a specific integration shard.
+matrices belong in Vitest. When iterating on a specific integration shard, pass
+`--shard` to the integration runner:
+
+```bash
+npm run test:integration -- --shard smoke
+npm run test:integration -- --shard workspace
+npm run test:integration -- --shard settings
+```

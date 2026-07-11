@@ -7,10 +7,13 @@ on:
       - main
     paths:
       - "src/**"
-      - "test/**"
+      - "test/**/*.ts"
       - "syntaxes/**"
       - "schemas/**"
-      - "scripts/**"
+      - "scripts/**/*.mjs"
+      - "scripts/**/*.cjs"
+      - "scripts/**/*.d.mts"
+      - "package.json"
       - "package-lock.json"
       - "tsconfig*.json"
       - "eslint.config.mjs"
@@ -24,10 +27,13 @@ on:
       - main
     paths:
       - "src/**"
-      - "test/**"
+      - "test/**/*.ts"
       - "syntaxes/**"
       - "schemas/**"
-      - "scripts/**"
+      - "scripts/**/*.mjs"
+      - "scripts/**/*.cjs"
+      - "scripts/**/*.d.mts"
+      - "package.json"
       - "package-lock.json"
       - "tsconfig*.json"
       - "eslint.config.mjs"

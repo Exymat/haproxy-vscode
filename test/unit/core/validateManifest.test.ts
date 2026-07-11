@@ -36,10 +36,10 @@ describe("findMissingScriptReferences", () => {
     expect(
       findMissingScriptReferences(
         scripts,
-        "package.json scripts.generate:schema:all",
+        "package.json scripts.generate:schema",
         "npm run sync:active-grammar",
       ),
-    ).toEqual(["package.json scripts.generate:schema:all: npm run sync:active-grammar"]);
+    ).toEqual(["package.json scripts.generate:schema: npm run sync:active-grammar"]);
   });
 
   it("returns nothing when all referenced scripts exist", () => {
@@ -57,11 +57,11 @@ describe("collectMissingScriptReferences", () => {
   it("detects missing references in package scripts", () => {
     const scripts = {
       compile: "tsc -p ./",
-      "generate:schema:all": "npm run compile && npm run sync:active-grammar",
+      "generate:schema": "npm run compile && npm run sync:active-grammar",
     };
 
     expect(collectMissingScriptReferences(scripts, { workflowsDir: null })).toContain(
-      "package.json scripts.generate:schema:all: npm run sync:active-grammar",
+      "package.json scripts.generate:schema: npm run sync:active-grammar",
     );
   });
 
@@ -69,7 +69,7 @@ describe("collectMissingScriptReferences", () => {
     const scripts = {
       compile: "tsc -p ./",
       "format:generated": "node scripts/normalize-generated-json.mjs",
-      "generate:schema:all": "npm run compile && npm run format:generated",
+      "generate:schema": "npm run compile && npm run format:generated",
     };
 
     expect(collectMissingScriptReferences(scripts, { workflowsDir: null })).toEqual([]);

@@ -11,6 +11,7 @@ import {
 import { dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { runTests } from "@vscode/test-electron";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..");
@@ -18,7 +19,6 @@ const testRoot = join(repoRoot, "test");
 const fixturesRoot = join(testRoot, "integration", "fixtures");
 const reportsRoot = join(repoRoot, "scripts", "reports", "tag-bench");
 const worktreesRoot = join(repoRoot, ".tmp-tag-bench", "worktrees");
-const runnerScript = join(__dirname, "run-tag-bench-suite.mjs");
 const extensionTestsPath = join(__dirname, "tag-bench", "extension-suite.cjs");
 const workspaceFolder = fixturesRoot;
 const nodeModulesPath = join(repoRoot, "node_modules");
@@ -191,18 +191,40 @@ function readTagCommit(tag) {
   return result.stdout.trim();
 }
 
-function runBenchSuite({ tag, worktreePath, reportPath }) {
-  const env = {
-    HAPROXY_TAG_BENCH_EXTENSION_PATH: worktreePath,
-    HAPROXY_TAG_BENCH_TESTS_PATH: extensionTestsPath,
-    HAPROXY_TAG_BENCH_WORKSPACE: workspaceFolder,
-    HAPROXY_TAG_BENCH_REPORT_PATH: reportPath,
-    HAPROXY_TAG_BENCH_TEST_ROOT: testRoot,
-    HAPROXY_TAG_BENCH_VERSION: "3.2",
-    HAPROXY_TAG_BENCH_TAG: tag,
+async function runBenchSuite({ tag, worktreePath, reportPath }) {
+  const savedEnv = {
+    HAPROXY_TAG_BENCH_EXTENSION_PATH: process.env.HAPROXY_TAG_BENCH_EXTENSION_PATH,
+    HAPROXY_TAG_BENCH_TESTS_PATH: process.env.HAPROXY_TAG_BENCH_TESTS_PATH,
+    HAPROXY_TAG_BENCH_WORKSPACE: process.env.HAPROXY_TAG_BENCH_WORKSPACE,
+    HAPROXY_TAG_BENCH_REPORT_PATH: process.env.HAPROXY_TAG_BENCH_REPORT_PATH,
+    HAPROXY_TAG_BENCH_TEST_ROOT: process.env.HAPROXY_TAG_BENCH_TEST_ROOT,
+    HAPROXY_TAG_BENCH_VERSION: process.env.HAPROXY_TAG_BENCH_VERSION,
+    HAPROXY_TAG_BENCH_TAG: process.env.HAPROXY_TAG_BENCH_TAG,
   };
 
-  run(process.execPath, [runnerScript], { cwd: repoRoot, env });
+  process.env.HAPROXY_TAG_BENCH_EXTENSION_PATH = worktreePath;
+  process.env.HAPROXY_TAG_BENCH_TESTS_PATH = extensionTestsPath;
+  process.env.HAPROXY_TAG_BENCH_WORKSPACE = workspaceFolder;
+  process.env.HAPROXY_TAG_BENCH_REPORT_PATH = reportPath;
+  process.env.HAPROXY_TAG_BENCH_TEST_ROOT = testRoot;
+  process.env.HAPROXY_TAG_BENCH_VERSION = "3.2";
+  process.env.HAPROXY_TAG_BENCH_TAG = tag;
+
+  try {
+    await runTests({
+      extensionDevelopmentPath: worktreePath,
+      extensionTestsPath,
+      launchArgs: [workspaceFolder, "--disable-extensions"],
+    });
+  } finally {
+    for (const [key, value] of Object.entries(savedEnv)) {
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
+  }
 }
 
 function collectScenarios(allRuns) {
@@ -410,7 +432,7 @@ function buildHtmlReport(allRuns) {
 `;
 }
 
-function main() {
+async function main() {
   const options = parseArgs(process.argv.slice(2));
   const tags = (options.tags?.length ? options.tags : listTags()).slice(
     options.limit ? -options.limit : undefined,
@@ -430,7 +452,7 @@ function main() {
 
     try {
       compileWorktree(worktreePath);
-      runBenchSuite({ tag, worktreePath, reportPath });
+      await runBenchSuite({ tag, worktreePath, reportPath });
       const report = JSON.parse(readFileSync(reportPath, "utf-8"));
       allRuns.push({
         tag,
@@ -462,4 +484,7 @@ function main() {
   console.log(`\nWrote reports to ${reportsRoot}`);
 }
 
-main();
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

@@ -9,10 +9,16 @@ on:
       - "package.json"
       - "package-lock.json"
       - "src/**"
-      - "test/**"
+      - "test/**/*.ts"
+      - "test/**/*.cjs"
+      - "test/bench/fixtures/**"
+      - "test/bench/thresholds.json"
+      - "test/bench/perf-integration-thresholds.json"
       - "syntaxes/**"
       - "schemas/**"
-      - "scripts/**"
+      - "scripts/**/*.mjs"
+      - "scripts/**/*.cjs"
+      - "scripts/**/*.d.mts"
       - "tsconfig*.json"
       - "eslint.config.mjs"
       - "vitest*.ts"
@@ -29,10 +35,16 @@ on:
       - "package.json"
       - "package-lock.json"
       - "src/**"
-      - "test/**"
+      - "test/**/*.ts"
+      - "test/**/*.cjs"
+      - "test/bench/fixtures/**"
+      - "test/bench/thresholds.json"
+      - "test/bench/perf-integration-thresholds.json"
       - "syntaxes/**"
       - "schemas/**"
-      - "scripts/**"
+      - "scripts/**/*.mjs"
+      - "scripts/**/*.cjs"
+      - "scripts/**/*.d.mts"
       - "tsconfig*.json"
       - "eslint.config.mjs"
       - "vitest*.ts"
@@ -55,12 +67,19 @@ jobs:
       docs: ${{ steps.filter.outputs.docs }}
       package: ${{ steps.filter.outputs.package }}
       deps: ${{ steps.filter.outputs.deps }}
-      extension: ${{ steps.filter.outputs.extension }}
+      source: ${{ steps.filter.outputs.source }}
+      build_tooling: ${{ steps.filter.outputs.build_tooling }}
+      unit_tests: ${{ steps.filter.outputs.unit_tests }}
+      integration_tests: ${{ steps.filter.outputs.integration_tests }}
       scripts: ${{ steps.filter.outputs.scripts }}
       tooling: ${{ steps.filter.outputs.tooling }}
       packaging: ${{ steps.filter.outputs.packaging }}
       workflows: ${{ steps.filter.outputs.workflows }}
-      bench: ${{ steps.filter.outputs.bench }}
+      bench_code: ${{ steps.filter.outputs.bench_code }}
+      bench_thresholds: ${{ steps.filter.outputs.bench_thresholds }}
+      integration_perf_thresholds: ${{ steps.filter.outputs.integration_perf_thresholds }}
+      threshold_validation: ${{ steps.filter.outputs.threshold_validation }}
+      integration_perf: ${{ steps.filter.outputs.integration_perf }}
     steps:
       - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
@@ -74,40 +93,60 @@ jobs:
               - 'package.json'
             deps:
               - 'package-lock.json'
-            extension:
+            source:
               - 'src/**'
-              - 'test/**'
               - 'syntaxes/**'
               - 'schemas/**'
               - 'language-configuration.json'
+            build_tooling:
+              - 'tsconfig.json'
+            unit_tests:
+              - 'test/unit/**'
+              - 'test/helpers/**'
+              - 'test/__mocks__/**'
+              - 'vitest.config.ts'
+              - 'tsconfig.test.json'
+            integration_tests:
+              - 'test/integration/**'
+              - '.vscode-test.js'
+              - 'tsconfig.integration.json'
             scripts:
               - 'scripts/**'
             tooling:
-              - 'tsconfig*.json'
+              - 'tsconfig.eslint.json'
               - 'eslint.config.mjs'
-              - 'vitest*.ts'
-              - '.vscode-test.js'
               - '.prettierrc'
               - '.prettierignore'
             packaging:
               - '.vscodeignore'
             workflows:
               - '.github/workflows/**'
-            bench:
-              - 'src/**'
-              - 'syntaxes/**'
-              - 'schemas/**'
-              - 'test/bench/**'
-              - 'test/integration/suite/99-perf.test.ts'
+            bench_code:
+              - 'test/bench/**/*.bench.ts'
+              - 'test/bench/**/*.ts'
+              - 'test/bench/fixtures/**'
               - 'vitest.bench.config.ts'
               - 'scripts/generate-bench-fixture.mjs'
               - 'scripts/check-bench-thresholds.mjs'
-              - 'scripts/check-perf-integration-thresholds.mjs'
               - 'scripts/update-bench-thresholds.mjs'
               - 'scripts/bench-tags.mjs'
-              - 'scripts/run-tag-bench-suite.mjs'
-              - 'scripts/run-perf-integration.mjs'
               - 'scripts/tag-bench/**'
+            bench_thresholds:
+              - 'test/bench/thresholds.json'
+            integration_perf_thresholds:
+              - 'test/bench/perf-integration-thresholds.json'
+            threshold_validation:
+              - 'test/bench/thresholds.json'
+              - 'test/bench/perf-integration-thresholds.json'
+              - 'scripts/validate-bench-thresholds.mjs'
+            integration_perf:
+              - 'src/**'
+              - 'syntaxes/**'
+              - 'schemas/**'
+              - 'language-configuration.json'
+              - 'test/integration/suite/perf.test.ts'
+              - 'scripts/run-perf-integration.mjs'
+              - 'scripts/check-perf-integration-thresholds.mjs'
 
   format-docs:
     name: Format docs
@@ -128,7 +167,7 @@ jobs:
         run: npm ci
 
       - name: Check markdown formatting
-        run: npm run format:check:docs
+        run: npx prettier --check "**/*.md"
 
   validate-package:
     name: Validate manifest
@@ -184,7 +223,11 @@ jobs:
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
-      needs.changes.outputs.extension == 'true' ||
+      needs.changes.outputs.source == 'true' ||
+      needs.changes.outputs.build_tooling == 'true' ||
+      needs.changes.outputs.unit_tests == 'true' ||
+      needs.changes.outputs.integration_tests == 'true' ||
+      needs.changes.outputs.bench_code == 'true' ||
       needs.changes.outputs.scripts == 'true' ||
       needs.changes.outputs.tooling == 'true' ||
       needs.changes.outputs.workflows == 'true'
@@ -230,7 +273,11 @@ jobs:
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
-      needs.changes.outputs.extension == 'true' ||
+      needs.changes.outputs.source == 'true' ||
+      needs.changes.outputs.build_tooling == 'true' ||
+      needs.changes.outputs.unit_tests == 'true' ||
+      needs.changes.outputs.integration_tests == 'true' ||
+      needs.changes.outputs.bench_code == 'true' ||
       needs.changes.outputs.scripts == 'true' ||
       needs.changes.outputs.tooling == 'true' ||
       needs.changes.outputs.package == 'true' ||
@@ -255,7 +302,7 @@ jobs:
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
-      needs.changes.outputs.bench == 'true'
+      needs.changes.outputs.bench_code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -271,13 +318,31 @@ jobs:
       - name: Check generated benchmark fixtures
         run: npm run bench:fixture:check
 
+  bench-thresholds:
+    name: Benchmark thresholds
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.threshold_validation == 'true' ||
+      needs.changes.outputs.workflows == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Validate benchmark thresholds
+        run: npm run validate:bench-thresholds
+
   compile:
     name: Compile
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
-      needs.changes.outputs.extension == 'true' ||
-      needs.changes.outputs.tooling == 'true'
+      needs.changes.outputs.source == 'true' ||
+      needs.changes.outputs.build_tooling == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -302,7 +367,9 @@ jobs:
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
-      needs.changes.outputs.extension == 'true'
+      needs.changes.outputs.source == 'true' ||
+      needs.changes.outputs.unit_tests == 'true' ||
+      needs.changes.outputs.build_tooling == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -334,8 +401,9 @@ jobs:
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
-      needs.changes.outputs.extension == 'true' ||
-      needs.changes.outputs.tooling == 'true'
+      needs.changes.outputs.source == 'true' ||
+      needs.changes.outputs.integration_tests == 'true' ||
+      needs.changes.outputs.build_tooling == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -368,8 +436,8 @@ jobs:
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
-      needs.changes.outputs.extension == 'true' ||
-      needs.changes.outputs.bench == 'true'
+      needs.changes.outputs.integration_perf == 'true' ||
+      needs.changes.outputs.integration_perf_thresholds == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -401,7 +469,9 @@ jobs:
     needs: changes
     if: >
       github.event_name == 'workflow_dispatch' ||
-      needs.changes.outputs.bench == 'true'
+      needs.changes.outputs.source == 'true' ||
+      needs.changes.outputs.bench_code == 'true' ||
+      needs.changes.outputs.bench_thresholds == 'true'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:

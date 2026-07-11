@@ -3,13 +3,14 @@
  * Run `haproxy -c` on each .cfg and compare first error line with extension diagnostics.
  * Also flags extension errors on files haproxy accepts, and haproxy errors with no extension match.
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join, resolve, basename, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
 import { parseVersionArgs } from "./lib/cli.mjs";
 import { collectCfgFiles, schemaPath } from "./lib/fs-utils.mjs";
+import { SUPPORTED_VERSIONS } from "./lib/versions.mjs";
 import {
   createDocument,
   extensionRoot,
@@ -18,8 +19,55 @@ import {
 } from "./lib/extension-runtime.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const argv = process.argv.slice(2);
 
-const { version, runtime, positional } = parseVersionArgs(process.argv.slice(2));
+if (argv.includes("--matrix")) {
+  const { runtime } = parseVersionArgs(argv);
+  const targets = [
+    { name: "tests-conf", parts: ["tests", "conf"] },
+    { name: "examples", parts: ["examples"] },
+  ];
+  const confRoot = resolve(
+    process.env.HAPROXY_CONF_ROOT ?? join(extensionRoot, "..", "haproxy_git"),
+  );
+  const reportDir = resolve(process.env.HAPROXY_COMPARE_REPORT_DIR ?? join(__dirname, "reports"));
+  const compareScript = join(__dirname, "compare-haproxy-c.mjs");
+
+  if (!existsSync(reportDir)) {
+    mkdirSync(reportDir, { recursive: true });
+  }
+
+  let failures = 0;
+  for (const version of SUPPORTED_VERSIONS) {
+    for (const target of targets) {
+      const confDir = join(confRoot, `haproxy-${version}`, ...target.parts);
+      const reportPath = join(reportDir, `compare-haproxy-c-${version}-${target.name}.json`);
+      console.log(`\n=== Comparing HAProxy ${version} (${target.name}) ===`);
+      const result = spawnSync(
+        process.execPath,
+        [compareScript, confDir, reportPath, "--version", version, "--runtime", runtime],
+        { stdio: "inherit", env: process.env },
+      );
+      if (result.status !== 0) {
+        failures += 1;
+        if (result.status === 2) {
+          console.error("\nMatrix comparison stopped: HAProxy runtime is unavailable.");
+          process.exit(2);
+        }
+      }
+    }
+  }
+
+  if (failures > 0) {
+    console.error(`\nMatrix comparison failed in ${failures} run(s).`);
+    process.exit(1);
+  }
+
+  console.log(`\nMatrix comparison passed for all versions (runtime=${runtime}).`);
+  process.exit(0);
+}
+
+const { version, runtime, positional } = parseVersionArgs(argv);
 const defaultConfDir = resolve(
   extensionRoot,
   "..",
