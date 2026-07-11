@@ -1,8 +1,11 @@
 import * as vscode from "vscode";
 
-import { documentContentFingerprint } from "../documentUriKey";
-import { isHaproxyLanguageId } from "../grammar";
-import { logWorkspaceIndexDisabled, logWorkspaceIndexSchemaLoadFailed } from "../outputChannel";
+import { documentContentFingerprint } from "../parser/documentUriKey";
+import { isHaproxyLanguageId } from "../extension/grammar";
+import {
+  logWorkspaceIndexDisabled,
+  logWorkspaceIndexSchemaLoadFailed,
+} from "../extension/outputChannel";
 import { HaproxySchema } from "../schema/types";
 
 import { buildFolderWorkspaceIndex } from "./workspaceFolderBuild";

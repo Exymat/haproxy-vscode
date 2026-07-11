@@ -1,4 +1,4 @@
-import { expressionDiagnostics } from "../../../src/expressionDiagnostics";
+import { expressionDiagnostics } from "../../../src/diagnostics/expressionDiagnostics";
 import { parseDocument } from "../../helpers/parse";
 import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 import { createDocument } from "../../helpers/document";

@@ -1,4 +1,4 @@
-import * as parseCache from "../../../src/parseCache";
+import * as parseCache from "../../../src/parser/parseCache";
 import { parseDocument } from "../../helpers/parse";
 import {
   buildSymbolIndex,

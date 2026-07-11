@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { tryOptionCompletion } from "../../../src/completion/handlers/option";
 import { CompletionContext } from "../../../src/completion/types";
-import { HaproxyLanguageData } from "../../../src/languageData";
+import { HaproxyLanguageData } from "../../../src/language/languageData";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";
 

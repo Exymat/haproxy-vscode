@@ -1,6 +1,6 @@
 import { provideCompletionItems } from "../../../src/completion";
-import * as languageDataIndexes from "../../../src/languageDataIndexes";
-import type { LanguageGroupItem } from "../../../src/languageData";
+import * as languageDataIndexes from "../../../src/language/languageDataIndexes";
+import type { LanguageGroupItem } from "../../../src/language/languageData";
 import { createDocument } from "../../helpers/document";
 import { cursorAtLineEnd } from "../../helpers/cursor";
 import { loadSchemaBundle } from "../../helpers/schema";

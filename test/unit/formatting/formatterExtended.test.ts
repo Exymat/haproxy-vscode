@@ -1,4 +1,4 @@
-import { formatConfig, splitLineAtComment } from "../../../src/formatter";
+import { formatConfig, splitLineAtComment } from "../../../src/formatting";
 import { formatOptionsWithSchema } from "../../helpers/formatOptions";
 
 const formatOptions = formatOptionsWithSchema("3.2");

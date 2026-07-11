@@ -5,8 +5,11 @@ import {
   sectionHasOptionKeywords,
   validationObjectArray,
 } from "../../../src/schema";
-import { buildDeprecatedIndex } from "../../../src/deprecatedIndex";
-import { clearLanguageDataIndexCache, languageDataIndexes } from "../../../src/languageDataIndexes";
+import { buildDeprecatedIndex } from "../../../src/language/deprecatedIndex";
+import {
+  clearLanguageDataIndexCache,
+  languageDataIndexes,
+} from "../../../src/language/languageDataIndexes";
 import { loadSchemaBundle } from "../../helpers/schema";
 
 const bundle = loadSchemaBundle("3.4");

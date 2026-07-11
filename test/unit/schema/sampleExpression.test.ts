@@ -2,8 +2,8 @@ import {
   extractExpressionSpans,
   validateExpressionBody,
   validateSampleExpressions,
-} from "../../../src/sampleExpression";
-import { findClosingBrace, findExprEnd, parseArgList } from "../../../src/expressionParsing";
+} from "../../../src/language/sampleExpression";
+import { findClosingBrace, findExprEnd, parseArgList } from "../../../src/parser/expressionParsing";
 import { readGoldenFixture } from "../../helpers/fixtures";
 import { loadSchema } from "../../helpers/schema";
 

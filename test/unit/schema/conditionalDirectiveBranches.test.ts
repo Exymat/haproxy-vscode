@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   conditionalBlocksDocsUrl,
   lookupConditionalDirective,
-} from "../../../src/conditionalDirectives";
+} from "../../../src/diagnostics/conditionalDirectives";
 
 describe("conditional directive metadata branch behavior", () => {
   it("handles missing directive maps", () => {

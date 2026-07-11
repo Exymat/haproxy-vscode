@@ -1,8 +1,8 @@
 import { HaproxySchema } from "../schema/types";
 import { symbolStringList, symbolStringMap } from "../schema/symbols";
-import { SymbolKind } from "../editorKinds";
+import { SymbolKind } from "../core/editorKinds";
 
-export type { SymbolKind } from "../editorKinds";
+export type { SymbolKind } from "../core/editorKinds";
 
 export interface SymbolSite {
   kind: SymbolKind;

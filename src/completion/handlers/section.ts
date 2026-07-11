@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { getSectionKeywords } from "../../documentContext";
+import { getSectionKeywords } from "../../parser/documentContext";
 import { filterByPrefix } from "../helpers";
 import { CompletionContext } from "../types";
 

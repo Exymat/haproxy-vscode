@@ -2,7 +2,7 @@ import {
   conditionalBlocksDocsUrl,
   isConditionalOrStatusDirective,
   lookupConditionalDirective,
-} from "../../../src/conditionalDirectives";
+} from "../../../src/diagnostics/conditionalDirectives";
 import { loadLanguageData, loadSchema } from "../../helpers/schema";
 
 const schema = loadSchema("3.4");

@@ -1,6 +1,6 @@
 import { computeDiagnostics } from "../../../src/diagnostics";
-import { hasWarmUriDocumentCache } from "../../../src/documentCache";
-import { getParsedDocumentEntry, hasUriParseCache } from "../../../src/parseCache";
+import { hasWarmUriDocumentCache } from "../../../src/parser/documentCache";
+import { getParsedDocumentEntry, hasUriParseCache } from "../../../src/parser/parseCache";
 import { getSymbolIndex } from "../../../src/symbolIndex";
 import { hasUriSymbolIndexCache } from "../../../src/symbolIndex/cache";
 import { createDocument } from "../../helpers/document";

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getDocumentContext } from "../../../src/documentContext";
+import { getDocumentContext } from "../../../src/parser/documentContext";
 import { provideHover } from "../../../src/hover";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";

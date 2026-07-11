@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { computeDiagnostics } from "../../../src/diagnostics";
-import { missingReferenceDiagnostics } from "../../../src/missingReferenceDiagnostics";
+import { missingReferenceDiagnostics } from "../../../src/diagnostics/missingReferenceDiagnostics";
 import { SymbolIndex } from "../../../src/symbolIndex";
 import { buildSitesByLine } from "../../../src/symbolIndex/utils";
 import { createDocument } from "../../helpers/document";

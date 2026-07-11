@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
-import { DocumentContext } from "../documentContext";
-import { HaproxyLanguageData } from "../languageData";
+import { DocumentContext } from "../parser/documentContext";
+import { HaproxyLanguageData } from "../language/languageData";
 import { HaproxySchema } from "../schema/types";
 
 export interface CompletionContext {

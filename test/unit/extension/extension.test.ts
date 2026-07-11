@@ -1,7 +1,7 @@
 import { activate, deactivate } from "../../../src/extension";
-import { getLoadedBundle, invalidateBundleLoad } from "../../../src/extensionBundle";
-import * as grammar from "../../../src/grammar";
-import * as languageData from "../../../src/languageData";
+import { getLoadedBundle, invalidateBundleLoad } from "../../../src/extension/extensionBundle";
+import * as grammar from "../../../src/extension/grammar";
+import * as languageData from "../../../src/language/languageData";
 import * as schema from "../../../src/schema/load";
 import type { HaproxySchema } from "../../../src/schema/types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

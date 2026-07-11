@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import type { HaproxyLanguageData } from "../../src/languageData";
+import type { HaproxyLanguageData } from "../../src/language/languageData";
 import type { HaproxySchema } from "../../src/schema/types";
 
 export const SUPPORTED_VERSIONS = ["2.6", "2.8", "3.0", "3.2", "3.4"] as const;

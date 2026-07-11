@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { tryAclRefHover } from "../../../src/hover/handlers/aclRefHover";
 import type { DocumentContextWithToken } from "../../../src/hover/types";
-import { getLineSemanticContext } from "../../../src/lineSemanticContext";
+import { getLineSemanticContext } from "../../../src/parser/lineSemanticContext";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";
 

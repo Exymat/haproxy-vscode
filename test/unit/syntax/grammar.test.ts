@@ -8,8 +8,8 @@ import {
   syncAllOpenDocumentGrammarLanguages,
   syncDocumentGrammarLanguage,
   versionForLanguageId,
-} from "../../../src/grammar";
-import { SUPPORTED_HAPROXY_VERSIONS } from "../../../src/version";
+} from "../../../src/extension/grammar";
+import { SUPPORTED_HAPROXY_VERSIONS } from "../../../src/extension/version";
 import {
   languages,
   mockTextDocuments,

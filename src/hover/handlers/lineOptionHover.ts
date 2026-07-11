@@ -1,12 +1,15 @@
 import * as vscode from "vscode";
 
-import { findArgumentValue, getKeywordFromSchema } from "../../directiveUtils";
-import { findIndexedGroupItem } from "../../languageDataIndexes";
+import { findArgumentValue, getKeywordFromSchema } from "../../language/directiveUtils";
+import { findIndexedGroupItem } from "../../language/languageDataIndexes";
 import { lineOptionGroupForKind } from "../../schema/semantic";
-import { findStatementRule } from "../../statementLayout";
+import { findStatementRule } from "../../formatting/statementLayout";
 import { findGroupItem } from "../helpers";
-import { lineOptionChapter } from "../../lineOptionKeyword";
-import { resolveLineOptionStartIndex, resolveNestedLineOptionSpan } from "../../lineOptionSpan";
+import { lineOptionChapter } from "../../language/lineOptionKeyword";
+import {
+  resolveLineOptionStartIndex,
+  resolveNestedLineOptionSpan,
+} from "../../language/lineOptionSpan";
 import { addContextExtra, escapeMarkdownText, hoverMarkdown, signaturesBlock } from "../markdown";
 import { HoverContext } from "../types";
 

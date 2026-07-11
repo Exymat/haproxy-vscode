@@ -1,6 +1,6 @@
 import { bench, describe } from "vitest";
 
-import { getParsedDocument } from "../../src/parseCache";
+import { getParsedDocument } from "../../src/parser/parseCache";
 import { provideHover } from "../../src/hover";
 import { loadSchemaBundle } from "../helpers/schema";
 import { createDocument } from "../helpers/document";

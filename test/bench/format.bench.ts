@@ -1,6 +1,6 @@
 import { bench, describe } from "vitest";
 
-import { formatConfig } from "../../src/formatter";
+import { formatConfig } from "../../src/formatting";
 import { formatOptionsWithSchema } from "../helpers/formatOptions";
 import { fixtureLineCount, fixturesForScenario, readFixture } from "./helpers";
 

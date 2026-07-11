@@ -7,8 +7,8 @@ import {
   filterDirectiveKeywordParts,
   mergeEnumValues,
   normalizeEnumDisplayName,
-} from "../../../src/argumentEnumUtils";
-import type { LanguageKeyword } from "../../../src/languageData";
+} from "../../../src/diagnostics/argumentEnumUtils";
+import type { LanguageKeyword } from "../../../src/language/languageData";
 import type { ArgumentSlot, SchemaKeyword } from "../../../src/schema/types";
 import { loadSchema } from "../../helpers/schema";
 

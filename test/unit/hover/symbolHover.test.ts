@@ -1,6 +1,6 @@
 import { trySymbolHover } from "../../../src/hover/handlers/symbolHover";
 import { provideHover } from "../../../src/hover";
-import { getLineSemanticContext } from "../../../src/lineSemanticContext";
+import { getLineSemanticContext } from "../../../src/parser/lineSemanticContext";
 import * as symbolIndex from "../../../src/symbolIndex";
 import { createDocument } from "../../helpers/document";
 import { hoverText, bundles } from "./helpers";

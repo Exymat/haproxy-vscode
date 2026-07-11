@@ -1,4 +1,4 @@
-import { getParsedDocument, getParsedDocumentEntry } from "../../../src/parseCache";
+import { getParsedDocument, getParsedDocumentEntry } from "../../../src/parser/parseCache";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument, updateDocument } from "../../helpers/document";
 import { parseOptionsWithSchema } from "../../helpers/formatOptions";

@@ -2,14 +2,14 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { invalidateAllExtensionCaches } from "../../../src/cacheInvalidation";
-import { isOptionLine, optionNameTokenIndex } from "../../../src/optionLine";
+import { invalidateAllExtensionCaches } from "../../../src/extension/cacheInvalidation";
+import { isOptionLine, optionNameTokenIndex } from "../../../src/parser/optionLine";
 import { parseDocument } from "../../helpers/parse";
 import {
   findReferencePatternAtToken,
   findReferencePatternMatches,
-} from "../../../src/referencePatternMatching";
-import { loadLanguageData, clearLanguageDataCache } from "../../../src/languageData";
+} from "../../../src/parser/referencePatternMatching";
+import { loadLanguageData, clearLanguageDataCache } from "../../../src/language/languageData";
 import { ReferencePattern } from "../../../src/schema/types";
 import { clearSchemaCache, loadSchema } from "../../../src/schema/load";
 import { sectionHeaderSet } from "../../../src/schema/layout";

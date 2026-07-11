@@ -2,7 +2,7 @@ import {
   parseSectionHeader,
   sectionHeaderFromModifier,
   sectionHeaderSupportsFromModifier,
-} from "../../../src/sectionUtils";
+} from "../../../src/language/sectionUtils";
 import { loadSchemaBundle } from "../../helpers/schema";
 
 const { schema } = loadSchemaBundle("3.4");

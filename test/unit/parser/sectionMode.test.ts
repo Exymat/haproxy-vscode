@@ -1,6 +1,6 @@
-import { getParsedDocumentEntry, ParsedDocumentReuse } from "../../../src/parseCache";
+import { getParsedDocumentEntry, ParsedDocumentReuse } from "../../../src/parser/parseCache";
 import { parseDocument } from "../../helpers/parse";
-import { runtimeModeForDocument, runtimeModeForLine } from "../../../src/sectionMode";
+import { runtimeModeForDocument, runtimeModeForLine } from "../../../src/parser/sectionMode";
 import { createDocument, updateDocument } from "../../helpers/document";
 import { parseOptionsWithSchema } from "../../helpers/formatOptions";
 import { loadSchema } from "../../helpers/schema";

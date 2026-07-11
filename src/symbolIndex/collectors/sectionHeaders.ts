@@ -1,6 +1,6 @@
 import { ParsedLine } from "../../parser";
 import { HaproxySchema } from "../../schema/types";
-import { parseSectionHeader } from "../../sectionUtils";
+import { parseSectionHeader } from "../../language/sectionUtils";
 
 import { sectionDefinitionKinds, SymbolKind, SymbolSite } from "../types";
 import { addSite } from "../utils";

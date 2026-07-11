@@ -5,10 +5,10 @@ import {
   documentedEnumValueNames,
   findArgumentValue,
   getKeywordFromSchema,
-} from "../../directiveUtils";
-import { findKeywordByPrefix } from "../../languageData";
-import { ResolvedLanguageKeyword, resolveLanguageKeyword } from "../../keywordVariant";
-import { LineSemanticContext } from "../../lineSemanticContext";
+} from "../../language/directiveUtils";
+import { findKeywordByPrefix } from "../../language/languageData";
+import { ResolvedLanguageKeyword, resolveLanguageKeyword } from "../../language/keywordVariant";
+import { LineSemanticContext } from "../../parser/lineSemanticContext";
 import { findGroupItem } from "../helpers";
 import {
   addContextExtra,

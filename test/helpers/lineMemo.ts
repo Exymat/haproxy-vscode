@@ -1,5 +1,5 @@
-import { LineDiagnosticMemo } from "../../src/diagnosticContext";
-import { analyzeLine } from "../../src/lineAnalysis";
+import { LineDiagnosticMemo } from "../../src/diagnostics/diagnosticContext";
+import { analyzeLine } from "../../src/parser/lineAnalysis";
 import { ParsedLine } from "../../src/parser";
 import { HaproxySchema } from "../../src/schema/types";
 import { sectionHasOptionKeywords, sectionKeywordSet } from "../../src/schema/keywords";

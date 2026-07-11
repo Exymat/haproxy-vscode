@@ -1,6 +1,6 @@
 import { computeDiagnostics } from "../../../src/diagnostics";
 import { parseDocument } from "../../helpers/parse";
-import { statementDiagnostics } from "../../../src/statementDiagnostics";
+import { statementDiagnostics } from "../../../src/diagnostics/statementDiagnostics";
 import { createDocument } from "../../helpers/document";
 
 import { lineDiag, bundle } from "./statementHelpers";

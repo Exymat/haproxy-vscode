@@ -12,7 +12,7 @@ describe("version discovery fallback", () => {
         throw new Error("missing schemas");
       },
     }));
-    const version = await import("../../../src/version");
+    const version = await import("../../../src/extension/version");
     expect(version.SUPPORTED_HAPROXY_VERSIONS).toEqual(["2.6", "2.8", "3.0", "3.2", "3.4"]);
   });
 });

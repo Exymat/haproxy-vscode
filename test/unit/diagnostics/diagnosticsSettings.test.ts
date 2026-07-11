@@ -1,4 +1,4 @@
-import { DiagnosticContext } from "../../../src/diagnosticContext";
+import { DiagnosticContext } from "../../../src/diagnostics/diagnosticContext";
 import { computeDiagnostics } from "../../../src/diagnostics";
 import type { ParsedLine } from "../../../src/parser";
 import { createDocument } from "../../helpers/document";

@@ -12,7 +12,7 @@ import { mockExtensionContext } from "../../helpers/extensionContext";
 import {
   OPEN_WORKSPACE_SYMBOL_SETTINGS_COMMAND,
   registerWorkspaceIndexStatusBar,
-} from "../../../src/workspaceIndexStatusBar";
+} from "../../../src/extension/workspaceIndexStatusBar";
 import { buildWorkspace, setupWorkspaceSymbolIndexTests } from "../workspaceSymbolIndex/helpers";
 
 function haproxyDocument(content: string, uri = "file:///a.cfg") {

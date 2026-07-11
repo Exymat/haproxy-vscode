@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatConfig, splitLineAtComment } from "../../../src/formatter";
+import { formatConfig, splitLineAtComment } from "../../../src/formatting";
 import { formatOptionsWithSchema } from "../../helpers/formatOptions";
 
 describe("formatter comment branch behavior", () => {

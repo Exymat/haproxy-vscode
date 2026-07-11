@@ -3,7 +3,7 @@ import {
   isServerMainAddressPlaceholder,
   looksLikeAddressToken,
   validateHaproxyAddress,
-} from "../../../src/addressFormat";
+} from "../../../src/diagnostics/addressFormat";
 import { loadSchema } from "../../helpers/schema";
 
 const schema = loadSchema("3.4");

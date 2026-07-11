@@ -1,8 +1,8 @@
 import { ParsedLine } from "../../parser";
-import { isEnvironmentVariableName } from "../../environmentVariables";
+import { isEnvironmentVariableName } from "../../core/environmentVariables";
 import { HaproxySchema } from "../../schema/types";
-import { ruleMatchesLine, candidateRules } from "../../statementLayout";
-import { isLikelyValue } from "../../tokenUtils";
+import { ruleMatchesLine, candidateRules } from "../../formatting/statementLayout";
+import { isLikelyValue } from "../../parser/tokenUtils";
 
 import { collectAclReferences } from "../aclReferences";
 import { SymbolBuildContext } from "../context";

@@ -1,18 +1,18 @@
 import * as vscode from "vscode";
 
-import { getParsedDocument } from "../parseCache";
+import { getParsedDocument } from "../parser/parseCache";
 import { ParsedLine } from "../parser";
-import { findReferencePatternMatches } from "../referencePatternMatching";
+import { findReferencePatternMatches } from "../parser/referencePatternMatching";
 import { ReferencePattern } from "../schema/types";
 import { ParsedToken } from "../parser";
-import { isTopLevelSectionHeader, parseSectionHeader } from "../sectionUtils";
+import { isTopLevelSectionHeader, parseSectionHeader } from "../language/sectionUtils";
 import { HaproxySchema } from "../schema/types";
 import { symbolStringList } from "../schema/symbols";
 import { keywordGroupSet } from "../schema/keywords";
 import { sectionHeaderSet } from "../schema/layout";
 import { sampleExpressionNameSets } from "../schema/tokens";
-import { candidateRules, ruleMatchesLine } from "../statementLayout";
-import { isLikelyValue, resolveTokenIndex } from "../tokenUtils";
+import { candidateRules, ruleMatchesLine } from "../formatting/statementLayout";
+import { isLikelyValue, resolveTokenIndex } from "../parser/tokenUtils";
 
 import { aclReferenceExpectedAt } from "./aclReferences";
 import { fetchReferenceRules } from "./context";

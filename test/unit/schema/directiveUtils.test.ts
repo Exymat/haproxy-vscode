@@ -11,7 +11,7 @@ import {
   getKeywordFromSchema,
   isEnumPerParameter,
   resolveDirective,
-} from "../../../src/directiveUtils";
+} from "../../../src/language/directiveUtils";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";

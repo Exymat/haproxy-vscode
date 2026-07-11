@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { configurationDocsUrl, docsAnchor } from "../../../src/docsUrl";
+import { configurationDocsUrl, docsAnchor } from "../../../src/language/docsUrl";
 
 describe("docsUrl", () => {
   it("builds chapter-keyword anchors for configuration keywords", () => {

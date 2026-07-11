@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { prepareRename, provideRenameEdits } from "../../../src/rename";
+import { prepareRename, provideRenameEdits } from "../../../src/navigation/rename";
 import {
   clearWorkspaceSymbolIndex,
   scheduleWorkspaceSymbolIndexRebuild,

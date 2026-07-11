@@ -1,7 +1,7 @@
 import * as symbolIndex from "../../../src/symbolIndex";
 import { activate, deactivate } from "../../../src/extension";
-import { getLoadedBundle } from "../../../src/extensionBundle";
-import * as grammar from "../../../src/grammar";
+import { getLoadedBundle } from "../../../src/extension/extensionBundle";
+import * as grammar from "../../../src/extension/grammar";
 import {
   getLastDiagnosticCollection,
   mockTextDocuments,

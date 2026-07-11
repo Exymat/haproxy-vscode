@@ -1,5 +1,5 @@
 import { computeDiagnostics } from "../../../src/diagnostics";
-import { duplicateSectionDiagnostics } from "../../../src/duplicateSymbolDiagnostics";
+import { duplicateSectionDiagnostics } from "../../../src/diagnostics/duplicateSymbolDiagnostics";
 import {
   buildWorkspaceSymbolIndexFromOpenDocuments,
   findWorkspaceDefinitions,

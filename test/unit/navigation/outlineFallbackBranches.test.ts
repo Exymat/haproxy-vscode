@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-import * as extensionBundle from "../../../src/extensionBundle";
-import { provideDocumentSymbols } from "../../../src/documentSymbols";
-import { provideFoldingRanges } from "../../../src/folding";
+import * as extensionBundle from "../../../src/extension/extensionBundle";
+import { provideDocumentSymbols } from "../../../src/navigation/documentSymbols";
+import { provideFoldingRanges } from "../../../src/navigation/folding";
 import { createDocument } from "../../helpers/document";
 
 describe("outline provider fallback branch behavior", () => {

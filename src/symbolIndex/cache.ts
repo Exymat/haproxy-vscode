@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 
-import { documentContentFingerprint, documentUriKey } from "../documentUriKey";
-import { getParsedDocumentEntry, ParsedDocumentEntry } from "../parseCache";
-import { isTopLevelSectionHeader } from "../sectionUtils";
+import { documentContentFingerprint, documentUriKey } from "../parser/documentUriKey";
+import { getParsedDocumentEntry, ParsedDocumentEntry } from "../parser/parseCache";
+import { isTopLevelSectionHeader } from "../language/sectionUtils";
 import { HaproxySchema } from "../schema/types";
 import { sectionHeaderSet } from "../schema/layout";
-import { UriLruCache } from "../uriLruCache";
+import { UriLruCache } from "../core/uriLruCache";
 
 import {
   buildSymbolIndexWithFingerprints,

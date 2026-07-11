@@ -5,7 +5,7 @@ import {
   findKeywordByPrefix,
   loadLanguageData,
   loadLanguageDataAsync,
-} from "../../../src/languageData";
+} from "../../../src/language/languageData";
 import { resetMockVscode } from "../../helpers/vscode";
 import { mockExtensionContext } from "../../helpers/extensionContext";
 import { loadLanguageData as loadFixtureLanguageData } from "../../helpers/schema";

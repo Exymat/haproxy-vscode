@@ -1,5 +1,5 @@
 import { parseDocument } from "../../helpers/parse";
-import { statementDiagnostics } from "../../../src/statementDiagnostics";
+import { statementDiagnostics } from "../../../src/diagnostics/statementDiagnostics";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";
 

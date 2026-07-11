@@ -1,4 +1,4 @@
-import { isAclOnlyCriterion } from "../aclCondition";
+import { isAclOnlyCriterion } from "../diagnostics/aclCondition";
 import { ParsedLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 

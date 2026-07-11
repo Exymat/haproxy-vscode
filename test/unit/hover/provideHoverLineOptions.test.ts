@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { addSectionExtra } from "../../../src/hover/markdown";
-import { getLineSemanticContext } from "../../../src/lineSemanticContext";
+import { getLineSemanticContext } from "../../../src/parser/lineSemanticContext";
 import { tryLineOptionHover } from "../../../src/hover/handlers/lineOptionHover";
 import { createDocument } from "../../helpers/document";
 import { Range } from "../../helpers/vscode";

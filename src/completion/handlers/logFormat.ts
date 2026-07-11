@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { logFormatContextAt } from "../../logFormat";
+import { logFormatContextAt } from "../../language/logFormat";
 import { logFormatDirectiveKeywordSet } from "../../schema/layout";
 import { CompletionContext } from "../types";
 import { logFormatCompletionItems } from "../helpers";

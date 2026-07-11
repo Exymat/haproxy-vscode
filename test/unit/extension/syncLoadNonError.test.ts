@@ -12,7 +12,7 @@ vi.mock("node:fs", async (importOriginal) => {
   };
 });
 
-import { clearLanguageDataCache, loadLanguageData } from "../../../src/languageData";
+import { clearLanguageDataCache, loadLanguageData } from "../../../src/language/languageData";
 import { clearSchemaCache, loadSchema } from "../../../src/schema/load";
 import { createTempSchemaFixture } from "../../helpers/tempSchema";
 

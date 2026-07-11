@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { findReferencePatternMatches } from "../../../src/referencePatternMatching";
+import { findReferencePatternMatches } from "../../../src/parser/referencePatternMatching";
 import { ReferencePattern } from "../../../src/schema/types";
 import { ParsedToken } from "../../../src/parser";
 

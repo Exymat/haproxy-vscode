@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { DiagnosticContext } from "../../../src/diagnosticContext";
+import { DiagnosticContext } from "../../../src/diagnostics/diagnosticContext";
 import {
   contextDiagnostics,
   topLevelDiagnostics,
   unknownNestedDiagnostics,
-} from "../../../src/nestedKeywordDiagnostics";
+} from "../../../src/diagnostics/nestedKeywordDiagnostics";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";

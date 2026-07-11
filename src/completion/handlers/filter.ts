@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { groupItems } from "../../documentContext";
+import { groupItems } from "../../parser/documentContext";
 import { semanticStringMap, statementRuleGroupForKind } from "../../schema/semantic";
 import { CompletionContext } from "../types";
 import { filterByPrefix } from "../helpers";

@@ -1,6 +1,6 @@
-import * as addressFormat from "../../../src/addressFormat";
+import * as addressFormat from "../../../src/diagnostics/addressFormat";
 import { parseDocument } from "../../helpers/parse";
-import { statementDiagnostics } from "../../../src/statementDiagnostics";
+import { statementDiagnostics } from "../../../src/diagnostics/statementDiagnostics";
 import { createDocument } from "../../helpers/document";
 
 import { lineDiag, bundle } from "./statementHelpers";

@@ -1,8 +1,8 @@
 import { provideCompletionItems } from "../../../src/completion";
 import { tryDirectiveArgumentCompletion } from "../../../src/completion/handlers/directiveArgument";
-import * as documentContext from "../../../src/documentContext";
-import * as directiveUtils from "../../../src/directiveUtils";
-import * as lineSemanticContext from "../../../src/lineSemanticContext";
+import * as documentContext from "../../../src/parser/documentContext";
+import * as directiveUtils from "../../../src/language/directiveUtils";
+import * as lineSemanticContext from "../../../src/parser/lineSemanticContext";
 import { createDocument } from "../../helpers/document";
 import { cursorAtLineEnd } from "../../helpers/cursor";
 import { bundle, completionLabels } from "./helpers";

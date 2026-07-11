@@ -13,7 +13,7 @@ import {
   registerHaproxyOutputChannel,
   resetHaproxyOutputChannelState,
   setHaproxyLogSink,
-} from "../../../src/outputChannel";
+} from "../../../src/extension/outputChannel";
 import {
   lastOutputChannel,
   resetMockVscode,

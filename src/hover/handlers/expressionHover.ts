@@ -1,14 +1,14 @@
 import * as vscode from "vscode";
 
-import { LanguageGroupItem } from "../../languageData";
-import { findIndexedGroupItem } from "../../languageDataIndexes";
+import { LanguageGroupItem } from "../../language/languageData";
+import { findIndexedGroupItem } from "../../language/languageDataIndexes";
 import {
   actionGroupForCompletionKind,
   actionGroupNames,
   actionCompletionKindSet,
   sampleExpressionGroupForKind,
 } from "../../schema/semantic";
-import { normalizeActionName } from "../../tokenUtils";
+import { normalizeActionName } from "../../parser/tokenUtils";
 import { findGroupItem, sampleTokenCandidates } from "../helpers";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";

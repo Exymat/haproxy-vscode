@@ -1,4 +1,4 @@
-import { findInvalidNameChar } from "../../../src/nameValidation";
+import { findInvalidNameChar } from "../../../src/diagnostics/nameValidation";
 
 describe("findInvalidNameChar", () => {
   it("returns empty marker for empty name", () => {

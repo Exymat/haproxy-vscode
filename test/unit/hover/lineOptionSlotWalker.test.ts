@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildLineOptionAllowedSet,
   computeLineOptionArgumentEnd,
-} from "../../../src/lineOptionSpan";
+} from "../../../src/language/lineOptionSpan";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { bundles } from "./helpers";

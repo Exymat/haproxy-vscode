@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 
-import { fingerprintText } from "../contentFingerprint";
-import { isHaproxyLanguageId } from "../grammar";
-import { getParsedDocument } from "../parseCache";
+import { fingerprintText } from "../core/contentFingerprint";
+import { isHaproxyLanguageId } from "../extension/grammar";
+import { getParsedDocument } from "../parser/parseCache";
 import { parseDocumentLines, ParsedLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 import { sectionHeaderSet } from "../schema/layout";
@@ -11,7 +11,7 @@ import { buildSymbolIndex } from "./build";
 import { getSymbolIndex } from "./cache";
 import { buildReferencesByKey } from "./utils";
 import { SymbolKind, SymbolSite } from "./types";
-import { WorkspaceEntrySkipReason } from "../outputChannel";
+import { WorkspaceEntrySkipReason } from "../extension/outputChannel";
 import {
   SectionRange,
   WorkspaceDocumentSymbols,

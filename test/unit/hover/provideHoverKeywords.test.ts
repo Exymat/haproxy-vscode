@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import * as documentContext from "../../../src/documentContext";
+import * as documentContext from "../../../src/parser/documentContext";
 import { provideHover } from "../../../src/hover";
 import { createDocument } from "../../helpers/document";
 import { bundles, hoverMarkdown, hoverText } from "./helpers";

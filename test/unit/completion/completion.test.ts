@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { provideCompletionItems } from "../../../src/completion";
-import { getDocumentContext } from "../../../src/documentContext";
+import { getDocumentContext } from "../../../src/parser/documentContext";
 import { provideHover } from "../../../src/hover";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";

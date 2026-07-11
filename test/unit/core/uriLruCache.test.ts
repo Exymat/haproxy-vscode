@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { UriLruCache } from "../../../src/uriLruCache";
+import { UriLruCache } from "../../../src/core/uriLruCache";
 
 describe("UriLruCache", () => {
   it("evicts the oldest entry when capacity is exceeded", () => {

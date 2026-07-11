@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { canCast, resolveOutType } from "../../../src/expressionTypes";
+import { canCast, resolveOutType } from "../../../src/parser/expressionTypes";
 import { loadSchemaBundle } from "../../helpers/schema";
 
 const bundle = loadSchemaBundle("3.4");

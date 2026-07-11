@@ -3,7 +3,7 @@ import {
   findEnvironmentVariableReferences,
   findQuotedEnvironmentExpansions,
   isEnvironmentVariableName,
-} from "../../../src/environmentVariables";
+} from "../../../src/core/environmentVariables";
 
 function token(text: string, start = 0) {
   return { text, start, end: start + text.length } as never;

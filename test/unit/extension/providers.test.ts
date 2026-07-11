@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { provideDocumentSymbols } from "../../../src/documentSymbols";
-import { createBundleLoader, invalidateBundleLoad } from "../../../src/extensionBundle";
-import { provideFoldingRanges } from "../../../src/folding";
+import { provideDocumentSymbols } from "../../../src/navigation/documentSymbols";
+import { createBundleLoader, invalidateBundleLoad } from "../../../src/extension/extensionBundle";
+import { provideFoldingRanges } from "../../../src/navigation/folding";
 import { provideDefinition, provideReferences } from "../../../src/navigation";
-import * as languageData from "../../../src/languageData";
+import * as languageData from "../../../src/language/languageData";
 import * as schemaModule from "../../../src/schema/load";
 import { createDocument } from "../../helpers/document";
 import { mockExtensionContext } from "../../helpers/extensionContext";

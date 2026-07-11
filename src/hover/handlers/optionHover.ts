@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
-import { getKeywordFromLanguage, getKeywordFromSchema } from "../../directiveUtils";
-import { groupItems } from "../../documentContext";
+import { getKeywordFromLanguage, getKeywordFromSchema } from "../../language/directiveUtils";
+import { groupItems } from "../../parser/documentContext";
 import { addContextExtra, addSectionExtra, hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
 

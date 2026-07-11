@@ -5,7 +5,7 @@ import {
   splitLineAtComment,
   DEFAULT_FORMAT_OPTIONS,
   type FormatOptions,
-} from "../../../src/formatter";
+} from "../../../src/formatting";
 import { sectionHeaderSet } from "../../../src/schema/layout";
 import { formatOptionsWithSchema } from "../../helpers/formatOptions";
 import { loadSchema } from "../../helpers/schema";

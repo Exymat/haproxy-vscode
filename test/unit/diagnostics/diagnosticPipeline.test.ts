@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { runLineDiagnosticPipeline } from "../../../src/diagnosticPipeline";
-import { DiagnosticContext } from "../../../src/diagnosticContext";
+import { runLineDiagnosticPipeline } from "../../../src/diagnostics/diagnosticPipeline";
+import { DiagnosticContext } from "../../../src/diagnostics/diagnosticContext";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";

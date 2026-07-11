@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { provideDiagnosticSuppressionCodeActions } from "../../../src/diagnosticCodeActions";
-import { makeDiagnostic } from "../../../src/diagnosticUtils";
+import { provideDiagnosticSuppressionCodeActions } from "../../../src/diagnostics/diagnosticCodeActions";
+import { makeDiagnostic } from "../../../src/diagnostics/diagnosticUtils";
 import { createDocument } from "../../helpers/document";
 import * as vscode from "vscode";
 

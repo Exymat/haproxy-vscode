@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 
-import { DEFAULT_HAPROXY_VERSION, HaproxyVersion } from "../version";
+import { DEFAULT_HAPROXY_VERSION, HaproxyVersion } from "../extension/version";
 import { normalizeSchemaData } from "./contract";
 import type { HaproxySchema } from "./types";
 

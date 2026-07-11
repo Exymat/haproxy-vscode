@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { documentContentFingerprint, documentUriKey } from "../../../src/documentUriKey";
+import { documentContentFingerprint, documentUriKey } from "../../../src/parser/documentUriKey";
 import { createDocument } from "../../helpers/document";
 
 describe("documentUriKey", () => {

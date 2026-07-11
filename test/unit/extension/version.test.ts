@@ -5,7 +5,7 @@ import {
   onVersionConfigurationChanged,
   setConfiguredVersion,
   SUPPORTED_HAPROXY_VERSIONS,
-} from "../../../src/version";
+} from "../../../src/extension/version";
 import {
   ConfigurationTarget,
   resetMockVscode,

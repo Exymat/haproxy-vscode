@@ -1,14 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import * as directiveUtils from "../../../src/directiveUtils";
-import * as languageDataIndexes from "../../../src/languageDataIndexes";
+import * as directiveUtils from "../../../src/language/directiveUtils";
+import * as languageDataIndexes from "../../../src/language/languageDataIndexes";
 import { tryActionHover } from "../../../src/hover/handlers/actionHover";
 import { tryDirectiveHover } from "../../../src/hover/handlers/directiveHover";
 import { tryExpressionHover } from "../../../src/hover/handlers/expressionHover";
 import { tryLogFormatHover } from "../../../src/hover/handlers/logFormatHover";
 import { tryOptionHover } from "../../../src/hover/handlers/optionHover";
 import type { DocumentContextWithToken, HoverContext } from "../../../src/hover/types";
-import { getLineSemanticContext } from "../../../src/lineSemanticContext";
+import { getLineSemanticContext } from "../../../src/parser/lineSemanticContext";
 import {
   actionHoverContext,
   bundles,

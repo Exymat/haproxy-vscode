@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 import { describe, expect, it, vi } from "vitest";
 
-import { createDiagnosticScheduler } from "../../../src/diagnosticScheduler";
-import { getExtensionSettings } from "../../../src/settings";
+import { createDiagnosticScheduler } from "../../../src/diagnostics/diagnosticScheduler";
+import { getExtensionSettings } from "../../../src/extension/settings";
 
 describe("diagnosticScheduler branch behavior", () => {
   it("reports non-Error bundle failures as strings", async () => {

@@ -2,7 +2,7 @@ import { bench, describe } from "vitest";
 
 import { loadSchemaBundle } from "../helpers/schema";
 import { createDocument } from "../helpers/document";
-import { getParsedDocument } from "../../src/parseCache";
+import { getParsedDocument } from "../../src/parser/parseCache";
 import {
   createDiagnosticsEditRunner,
   runDiagnosticsAfterEditBaseline,

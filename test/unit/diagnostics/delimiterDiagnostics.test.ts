@@ -4,8 +4,8 @@ import {
   delimiterDiagnostics,
   filterExpressionIssuesAgainstDelimiters,
   validateLineDelimiters,
-} from "../../../src/delimiterDiagnostics";
-import { sampleIssue } from "../../../src/expressionTypes";
+} from "../../../src/diagnostics/delimiterDiagnostics";
+import { sampleIssue } from "../../../src/parser/expressionTypes";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { defaultSchema, runDiagnostics } from "../../helpers/diagnostics";

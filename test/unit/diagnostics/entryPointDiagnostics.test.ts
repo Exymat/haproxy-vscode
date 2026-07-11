@@ -4,7 +4,7 @@ import {
   buildSectionBlocks,
   entryPointWithoutBindDiagnostics,
   sectionHasBind,
-} from "../../../src/entryPointDiagnostics";
+} from "../../../src/diagnostics/entryPointDiagnostics";
 import { type ParsedLine } from "../../../src/parser";
 import { parseDocument } from "../../helpers/parse";
 import { bindDetectKeywordSet, entryPointSectionSet } from "../../../src/schema/symbols";

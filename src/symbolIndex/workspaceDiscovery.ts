@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { isHaproxyLanguageId } from "../grammar";
+import { isHaproxyLanguageId } from "../extension/grammar";
 
 import { FolderRef, WorkspaceRebuildOptions, WorkspaceSymbolSettings } from "./workspaceTypes";
 import { workspaceUriKey } from "./workspaceUri";

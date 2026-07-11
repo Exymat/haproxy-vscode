@@ -5,7 +5,7 @@ import { join } from "node:path";
 import type { Position } from "vscode";
 
 import { provideDefinition, provideReferences } from "../../../src/navigation";
-import { provideRenameEdits } from "../../../src/rename";
+import { provideRenameEdits } from "../../../src/navigation/rename";
 import { createDocument } from "../../helpers/document";
 import { loadSchema } from "../../helpers/schema";
 

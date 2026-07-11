@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 
-import { indexedGroupItems, indexedGroupItemsByName } from "../../languageDataIndexes";
+import { indexedGroupItems, indexedGroupItemsByName } from "../../language/languageDataIndexes";
 import { semanticStringMap, statementRuleGroupForKind } from "../../schema/semantic";
-import { resolveLanguageKeyword } from "../../keywordVariant";
+import { resolveLanguageKeyword } from "../../language/keywordVariant";
 import { CompletionContext } from "../types";
 import { filterByPrefix, markdownDoc } from "../helpers";
 

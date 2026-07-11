@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getParsedDocumentEntry } from "../../../src/parseCache";
+import { getParsedDocumentEntry } from "../../../src/parser/parseCache";
 import { sectionHeaderSet } from "../../../src/schema/layout";
 import { createDocument, updateDocument } from "../../helpers/document";
 import { formatOptionsWithSchema } from "../../helpers/formatOptions";

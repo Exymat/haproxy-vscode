@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createExtensionDiagnosticsService } from "../../../src/extensionDiagnosticsService";
-import { getExtensionSettings } from "../../../src/settings";
+import { createExtensionDiagnosticsService } from "../../../src/extension/extensionDiagnosticsService";
+import { getExtensionSettings } from "../../../src/extension/settings";
 import {
   getLastDiagnosticCollection,
   mockTextDocuments,

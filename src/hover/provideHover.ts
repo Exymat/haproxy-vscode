@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
-import { getLineSemanticContext } from "../lineSemanticContext";
-import { HaproxyLanguageData } from "../languageData";
+import { getLineSemanticContext } from "../parser/lineSemanticContext";
+import { HaproxyLanguageData } from "../language/languageData";
 import { HaproxySchema } from "../schema/types";
 import { tryAclRefHover } from "./handlers/aclRefHover";
 import { tryActionHover } from "./handlers/actionHover";

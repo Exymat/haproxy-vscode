@@ -1,4 +1,4 @@
-import { buildDeprecatedIndex } from "../../../src/deprecatedIndex";
+import { buildDeprecatedIndex } from "../../../src/language/deprecatedIndex";
 import { loadSchemaBundle } from "../../helpers/schema";
 
 const bundle = loadSchemaBundle("3.4");

@@ -5,7 +5,7 @@ import {
   isKeywordValuePair,
   skipOptionalSlotGroup,
   slotForPosition,
-} from "../../../src/argumentSlotValidation";
+} from "../../../src/diagnostics/argumentSlotValidation";
 import { ArgumentModel } from "../../../src/schema/types";
 
 describe("argumentSlotValidation", () => {

@@ -3,22 +3,22 @@ import * as vscode from "vscode";
 import {
   findEnvironmentVariableReferences,
   isEnvironmentVariableName,
-} from "../environmentVariables";
-import { getParsedDocument } from "../parseCache";
+} from "../core/environmentVariables";
+import { getParsedDocument } from "../parser/parseCache";
 import { ParsedLine } from "../parser";
-import { findReferencePatternAtToken } from "../referencePatternMatching";
+import { findReferencePatternAtToken } from "../parser/referencePatternMatching";
 import {
   isTopLevelSectionHeader,
   parseSectionHeader,
   sectionHeaderFromProfileTokenIndex,
-} from "../sectionUtils";
+} from "../language/sectionUtils";
 import { HaproxySchema, StatementRule } from "../schema/types";
 import { symbolStringList } from "../schema/symbols";
 import { keywordGroupSet } from "../schema/keywords";
 import { sectionHeaderSet } from "../schema/layout";
 import { sampleExpressionNameSets } from "../schema/tokens";
-import { ruleMatchesLine } from "../statementLayout";
-import { tokenIndexAtPosition, isLikelyValue } from "../tokenUtils";
+import { ruleMatchesLine } from "../formatting/statementLayout";
+import { tokenIndexAtPosition, isLikelyValue } from "../parser/tokenUtils";
 
 import { aclReferenceAt } from "./aclReferences";
 import { buildScopeKeyByLine } from "./scope";

@@ -1,4 +1,4 @@
-import { DEFAULT_FORMAT_OPTIONS, FormatOptions } from "../../src/formatter";
+import { DEFAULT_FORMAT_OPTIONS, FormatOptions } from "../../src/formatting";
 import { sectionHeaderSet } from "../../src/schema/layout";
 
 import { loadSchema, SupportedVersion } from "./schema";

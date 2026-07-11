@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { runSpecialArgumentHandlers } from "../../../src/argumentHandlers/registry";
-import { DiagnosticContext } from "../../../src/diagnosticContext";
-import { runLineDiagnosticPipeline } from "../../../src/diagnosticPipeline";
+import { runSpecialArgumentHandlers } from "../../../src/diagnostics/argumentHandlers/registry";
+import { DiagnosticContext } from "../../../src/diagnostics/diagnosticContext";
+import { runLineDiagnosticPipeline } from "../../../src/diagnostics/diagnosticPipeline";
 import { buildLineDiagnosticMemo } from "../../helpers/lineMemo";
 import { createDocument } from "../../helpers/document";
 import { parseDocument } from "../../helpers/parse";

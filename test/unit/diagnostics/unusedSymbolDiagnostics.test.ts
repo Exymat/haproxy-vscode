@@ -16,8 +16,8 @@ import {
 } from "../../../src/symbolIndex";
 import { buildSitesByLine } from "../../../src/symbolIndex/utils";
 import { entryPointSectionSet } from "../../../src/schema/symbols";
-import { DiagnosticContext } from "../../../src/diagnosticContext";
-import { unusedSymbolDiagnostics } from "../../../src/unusedSymbolDiagnostics";
+import { DiagnosticContext } from "../../../src/diagnostics/diagnosticContext";
+import { unusedSymbolDiagnostics } from "../../../src/diagnostics/unusedSymbolDiagnostics";
 import { createDocument } from "../../helpers/document";
 import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 import { loadSchema } from "../../helpers/schema";

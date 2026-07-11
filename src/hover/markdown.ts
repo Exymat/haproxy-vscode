@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import type { LanguageExample } from "../languageData";
+import type { LanguageExample } from "../language/languageData";
 import { formatHoverBlocks } from "./formatHoverText";
 
 function appendFormattedBlock(md: vscode.MarkdownString, text: string): void {

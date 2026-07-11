@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { describe, expect, it } from "vitest";
 
 import { tryLogFormatCompletion } from "../../../src/completion/handlers/logFormat";
-import { getDocumentContext } from "../../../src/documentContext";
+import { getDocumentContext } from "../../../src/parser/documentContext";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";
 

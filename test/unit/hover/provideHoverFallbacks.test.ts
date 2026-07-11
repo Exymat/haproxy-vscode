@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import * as documentContext from "../../../src/documentContext";
-import * as directiveUtils from "../../../src/directiveUtils";
-import * as languageData from "../../../src/languageData";
+import * as documentContext from "../../../src/parser/documentContext";
+import * as directiveUtils from "../../../src/language/directiveUtils";
+import * as languageData from "../../../src/language/languageData";
 import { provideHover } from "../../../src/hover";
 import { createDocument } from "../../helpers/document";
 import { bundles, hoverMarkdown, hoverText } from "./helpers";

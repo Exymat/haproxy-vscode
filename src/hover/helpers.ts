@@ -1,5 +1,5 @@
-import { HaproxyLanguageData, LanguageGroupItem } from "../languageData";
-import { findIndexedGroupItem } from "../languageDataIndexes";
+import { HaproxyLanguageData, LanguageGroupItem } from "../language/languageData";
+import { findIndexedGroupItem } from "../language/languageDataIndexes";
 
 export function findGroupItem(
   data: HaproxyLanguageData,

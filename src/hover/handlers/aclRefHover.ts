@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { groupItems } from "../../documentContext";
+import { groupItems } from "../../parser/documentContext";
 import { hoverMarkdown } from "../markdown";
 import { aclRefGroupNames } from "../../schema/semantic";
 import { HoverContext } from "../types";

@@ -1,7 +1,7 @@
 import { bench, describe } from "vitest";
 
-import { provideDocumentSymbols } from "../../src/documentSymbols";
-import { missingReferenceDiagnostics } from "../../src/missingReferenceDiagnostics";
+import { provideDocumentSymbols } from "../../src/navigation/documentSymbols";
+import { missingReferenceDiagnostics } from "../../src/diagnostics/missingReferenceDiagnostics";
 import { provideDefinition, provideReferences } from "../../src/navigation";
 import { getSymbolIndex } from "../../src/symbolIndex";
 import { loadSchemaBundle } from "../helpers/schema";

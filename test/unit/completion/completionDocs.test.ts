@@ -1,4 +1,4 @@
-import * as documentContext from "../../../src/documentContext";
+import * as documentContext from "../../../src/parser/documentContext";
 import { provideCompletionItems } from "../../../src/completion";
 import { createDocument } from "../../helpers/document";
 import { bundle, completionLabels, mockOptionsGroupItems } from "./helpers";

@@ -1,5 +1,5 @@
 import { ParsedLine } from "../parser";
-import { isTopLevelSectionHeader } from "../sectionUtils";
+import { isTopLevelSectionHeader } from "../language/sectionUtils";
 import { HaproxySchema } from "../schema/types";
 
 import { proxyScopeKey, proxySectionSet } from "./types";

@@ -4,7 +4,7 @@ import {
   lineOptionChapter,
   resolveLineOptionSchemaKeyword,
   resolveNestedOptionKeyword,
-} from "../../../src/lineOptionKeyword";
+} from "../../../src/language/lineOptionKeyword";
 import { bundles } from "./helpers";
 
 describe("line option keyword helpers", () => {

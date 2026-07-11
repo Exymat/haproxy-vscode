@@ -5,11 +5,14 @@ import {
   getKeywordFromLanguage,
   getKeywordFromSchema,
   resolveDirective,
-} from "../../../src/directiveUtils";
-import { analyzeLine } from "../../../src/lineAnalysis";
-import { indexedKeywordNameSetForSection } from "../../../src/languageDataIndexes";
-import { getLineSemanticContext, LineSemanticContext } from "../../../src/lineSemanticContext";
-import { HaproxyLanguageData } from "../../../src/languageData";
+} from "../../../src/language/directiveUtils";
+import { analyzeLine } from "../../../src/parser/lineAnalysis";
+import { indexedKeywordNameSetForSection } from "../../../src/language/languageDataIndexes";
+import {
+  getLineSemanticContext,
+  LineSemanticContext,
+} from "../../../src/parser/lineSemanticContext";
+import { HaproxyLanguageData } from "../../../src/language/languageData";
 import { HaproxySchema } from "../../../src/schema/types";
 import { sectionKeywordSet } from "../../../src/schema/keywords";
 import { modifierPrefixSet, noPrefixKeywordSet } from "../../../src/schema/tokens";

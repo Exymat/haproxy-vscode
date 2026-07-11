@@ -5,8 +5,8 @@ import {
   diagnosticCodeText,
   ignoredDiagnosticCodesForLine,
   lineTextWithIgnoredDiagnosticCode,
-} from "../../../src/diagnosticSuppressions";
-import { makeDiagnostic } from "../../../src/diagnosticUtils";
+} from "../../../src/diagnostics/diagnosticSuppressions";
+import { makeDiagnostic } from "../../../src/diagnostics/diagnosticUtils";
 import { parseDocumentLines } from "../../helpers/parse";
 import * as vscode from "vscode";
 

@@ -1,5 +1,5 @@
 import { ParsedLine } from "../../parser";
-import { findReferencePatternMatches } from "../../referencePatternMatching";
+import { findReferencePatternMatches } from "../../parser/referencePatternMatching";
 import { ReferencePattern } from "../../schema/types";
 
 import { FetchReferenceRule } from "../context";

@@ -1,6 +1,6 @@
 import { parseDocument } from "../../helpers/parse";
-import * as parseCache from "../../../src/parseCache";
-import { getParsedDocument, getParsedDocumentEntry } from "../../../src/parseCache";
+import * as parseCache from "../../../src/parser/parseCache";
+import { getParsedDocument, getParsedDocumentEntry } from "../../../src/parser/parseCache";
 import type { HaproxySchema, StatementRule } from "../../../src/schema/types";
 import { buildScopeKeyByLine, collectLineSymbolSites } from "../../../src/symbolIndex/build";
 import { clearSymbolIndexCaches, hasUriSymbolIndexCache } from "../../../src/symbolIndex/cache";

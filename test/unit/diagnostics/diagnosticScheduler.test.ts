@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createDiagnosticScheduler } from "../../../src/diagnosticScheduler";
+import { createDiagnosticScheduler } from "../../../src/diagnostics/diagnosticScheduler";
 import { resetMockVscode } from "../../helpers/vscode";
 import { loadSchemaBundle } from "../../helpers/schema";
-import { getExtensionSettings } from "../../../src/settings";
+import { getExtensionSettings } from "../../../src/extension/settings";
 
 const bundle = loadSchemaBundle("3.4");
 

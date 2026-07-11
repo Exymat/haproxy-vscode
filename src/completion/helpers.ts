@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 
-import { groupItems } from "../documentContext";
-import { HaproxyLanguageData, LanguageExample } from "../languageData";
-import { findIndexedGroupItem } from "../languageDataIndexes";
+import { groupItems } from "../parser/documentContext";
+import { HaproxyLanguageData, LanguageExample } from "../language/languageData";
+import { findIndexedGroupItem } from "../language/languageDataIndexes";
 import { languageDocMarkdown } from "../hover/markdown";
-import { logFormatCompletionPrefix } from "../logFormat";
+import { logFormatCompletionPrefix } from "../language/logFormat";
 import { HaproxySchema } from "../schema/types";
 import { semanticStringMap } from "../schema/semantic";
 

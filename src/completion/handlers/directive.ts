@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
-import { keywordsForSection } from "../../documentContext";
-import { resolveLanguageKeyword } from "../../keywordVariant";
+import { keywordsForSection } from "../../parser/documentContext";
+import { resolveLanguageKeyword } from "../../language/keywordVariant";
 import { CompletionContext } from "../types";
 import { markdownDoc } from "../helpers";
 

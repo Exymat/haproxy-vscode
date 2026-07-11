@@ -1,11 +1,11 @@
-import { argumentModelDiagnostics } from "../../../src/argumentDiagnostics";
-import { argumentTokenIndices } from "../../../src/directiveUtils";
-import { mysqlCheckOptionDiagnostics } from "../../../src/argumentHandlers/specialKeywords";
+import { argumentModelDiagnostics } from "../../../src/diagnostics/argumentDiagnostics";
+import { argumentTokenIndices } from "../../../src/language/directiveUtils";
+import { mysqlCheckOptionDiagnostics } from "../../../src/diagnostics/argumentHandlers/specialKeywords";
 import {
   allowsMissingArgs,
   balanceArgumentDiagnostics,
   formatEnumHint,
-} from "../../../src/argumentHandlers/balance";
+} from "../../../src/diagnostics/argumentHandlers/balance";
 import { computeDiagnostics } from "../../../src/diagnostics";
 import { parseDocument } from "../../helpers/parse";
 import { sectionKeywordSet } from "../../../src/schema/keywords";

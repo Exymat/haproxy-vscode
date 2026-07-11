@@ -1,4 +1,4 @@
-import { findEnvironmentVariableReferences } from "../../environmentVariables";
+import { findEnvironmentVariableReferences } from "../../core/environmentVariables";
 import { ParsedLine } from "../../parser";
 
 import { SymbolSite } from "../types";

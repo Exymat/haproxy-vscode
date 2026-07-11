@@ -1,6 +1,9 @@
 import * as vscode from "vscode";
 
-import { conditionalBlocksDocsUrl, lookupConditionalDirective } from "../../conditionalDirectives";
+import {
+  conditionalBlocksDocsUrl,
+  lookupConditionalDirective,
+} from "../../diagnostics/conditionalDirectives";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
 

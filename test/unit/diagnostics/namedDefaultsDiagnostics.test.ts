@@ -1,5 +1,5 @@
 import { parseDocument } from "../../helpers/parse";
-import { namedDefaultsDiagnostics } from "../../../src/namedDefaultsDiagnostics";
+import { namedDefaultsDiagnostics } from "../../../src/diagnostics/namedDefaultsDiagnostics";
 import { createDocument } from "../../helpers/document";
 import { loadSchema } from "../../helpers/schema";
 

@@ -2,8 +2,8 @@ import {
   formatIndentToOptions,
   isFormatIndent,
   legacyFormatIndent,
-} from "../../../src/formatIndent";
-import { formatConfig } from "../../../src/formatter";
+} from "../../../src/formatting/formatIndent";
+import { formatConfig } from "../../../src/formatting";
 import { formatOptionsWithSchema } from "../../helpers/formatOptions";
 
 describe("formatIndentToOptions", () => {

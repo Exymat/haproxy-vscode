@@ -1,5 +1,5 @@
 import { parseDocument } from "../../helpers/parse";
-import { buildSectionSymbols } from "../../../src/sectionOutline";
+import { buildSectionSymbols } from "../../../src/navigation/sectionOutline";
 import { createDocument } from "../../helpers/document";
 
 function runCase(

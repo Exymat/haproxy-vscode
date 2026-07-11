@@ -1,4 +1,4 @@
-export { fingerprintText } from "../contentFingerprint";
+export { fingerprintText } from "../core/contentFingerprint";
 export {
   buildScopeKeyByLine,
   buildSymbolIndex,

@@ -10,7 +10,7 @@ import {
   logFormatRegionAtOffset,
   validateLogFormatItems,
   validateLogFormatLine,
-} from "../../../src/logFormat";
+} from "../../../src/language/logFormat";
 import { tokenizeLine } from "../../../src/parser";
 import type { HaproxySchema } from "../../../src/schema/types";
 import { loadSchema } from "../../helpers/schema";

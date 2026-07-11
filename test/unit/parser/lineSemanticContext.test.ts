@@ -1,4 +1,7 @@
-import { getLineSemanticContext, keywordNameSetForSection } from "../../../src/lineSemanticContext";
+import {
+  getLineSemanticContext,
+  keywordNameSetForSection,
+} from "../../../src/parser/lineSemanticContext";
 import { createDocument } from "../../helpers/document";
 import { loadLanguageData, loadSchemaBundle } from "../../helpers/schema";
 

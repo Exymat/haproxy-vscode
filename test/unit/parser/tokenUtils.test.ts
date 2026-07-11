@@ -10,7 +10,7 @@ import {
   resolveDirectiveSpan,
   resolveLongestDirectiveMatch,
   resolveSubcommandSpan,
-} from "../../../src/tokenUtils";
+} from "../../../src/parser/tokenUtils";
 import { prefixFamilies } from "../../../src/schema/layout";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";

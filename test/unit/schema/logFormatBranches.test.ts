@@ -9,8 +9,8 @@ import {
   logformatFlagNames,
   validateLogFormatItems,
   validateLogFormatLine,
-} from "../../../src/logFormat";
-import { logFormatDiagnostics } from "../../../src/logFormatDiagnostics";
+} from "../../../src/language/logFormat";
+import { logFormatDiagnostics } from "../../../src/diagnostics/logFormatDiagnostics";
 import { tokenizeLine } from "../../../src/parser";
 import { parseDocument } from "../../helpers/parse";
 import type { HaproxySchema } from "../../../src/schema/types";

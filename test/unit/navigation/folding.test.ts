@@ -1,5 +1,8 @@
 import { parseDocument } from "../../helpers/parse";
-import { buildSectionFoldRanges, buildSectionSymbols } from "../../../src/sectionOutline";
+import {
+  buildSectionFoldRanges,
+  buildSectionSymbols,
+} from "../../../src/navigation/sectionOutline";
 import { createDocument } from "../../helpers/document";
 
 function runCase(

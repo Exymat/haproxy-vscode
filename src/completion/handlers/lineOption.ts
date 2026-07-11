@@ -1,12 +1,15 @@
 import * as vscode from "vscode";
 
-import { argumentPosition, completionValuesForPosition } from "../../directiveUtils";
-import { indexedGroupItems, indexedGroupItemsByName } from "../../languageDataIndexes";
+import { argumentPosition, completionValuesForPosition } from "../../language/directiveUtils";
+import { indexedGroupItems, indexedGroupItemsByName } from "../../language/languageDataIndexes";
 import { lineOptionGroupForKind } from "../../schema/semantic";
-import { resolveLineOptionSchemaKeyword } from "../../lineOptionKeyword";
-import { resolveLineOptionStartIndex, resolveNestedLineOptionSpan } from "../../lineOptionSpan";
-import { resolveLanguageKeyword } from "../../keywordVariant";
-import { findStatementRule } from "../../statementLayout";
+import { resolveLineOptionSchemaKeyword } from "../../language/lineOptionKeyword";
+import {
+  resolveLineOptionStartIndex,
+  resolveNestedLineOptionSpan,
+} from "../../language/lineOptionSpan";
+import { resolveLanguageKeyword } from "../../language/keywordVariant";
+import { findStatementRule } from "../../formatting/statementLayout";
 import { CompletionContext } from "../types";
 import { filterByPrefix, markdownDoc } from "../helpers";
 

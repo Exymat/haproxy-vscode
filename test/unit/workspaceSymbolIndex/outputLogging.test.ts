@@ -3,7 +3,7 @@ import {
   logWorkspaceIndexStarted,
   resetHaproxyOutputChannelState,
   setHaproxyLogSink,
-} from "../../../src/outputChannel";
+} from "../../../src/extension/outputChannel";
 import { scheduleWorkspaceSymbolIndexRebuild } from "../../../src/symbolIndex";
 import * as workspaceDocuments from "../../../src/symbolIndex/workspaceDocuments";
 import { setMockWorkspaceFile, setMockWorkspaceReadFailure } from "../../helpers/vscode";

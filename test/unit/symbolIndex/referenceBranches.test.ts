@@ -5,7 +5,7 @@ import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";
 import { provideReferences } from "../../../src/navigation";
-import { buildSectionSymbols } from "../../../src/sectionOutline";
+import { buildSectionSymbols } from "../../../src/navigation/sectionOutline";
 import {
   buildSymbolIndex,
   getSymbolIndex,
@@ -17,8 +17,8 @@ import {
 } from "../../../src/symbolIndex";
 import { buildLineFingerprints } from "../../../src/symbolIndex/build";
 import { buildReferencesByKey, symbolNameTokenIndex } from "../../../src/symbolIndex/utils";
-import { missingReferenceDiagnostics } from "../../../src/missingReferenceDiagnostics";
-import { resolveLongestDirectiveMatch } from "../../../src/tokenUtils";
+import { missingReferenceDiagnostics } from "../../../src/diagnostics/missingReferenceDiagnostics";
+import { resolveLongestDirectiveMatch } from "../../../src/parser/tokenUtils";
 
 const bundle = loadSchemaBundle("3.4");
 

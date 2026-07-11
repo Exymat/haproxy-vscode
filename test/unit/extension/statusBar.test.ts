@@ -1,5 +1,5 @@
-import { registerVersionStatusBar } from "../../../src/statusBar";
-import { getConfiguredVersion } from "../../../src/version";
+import { registerVersionStatusBar } from "../../../src/extension/statusBar";
+import { getConfiguredVersion } from "../../../src/extension/version";
 import {
   getRegisteredCommand,
   resetMockVscode,

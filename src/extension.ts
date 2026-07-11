@@ -1,22 +1,25 @@
 import * as vscode from "vscode";
 
-import { invalidateBundleLoad } from "./extensionBundle";
-import { createExtensionBundleService, ExtensionBundleService } from "./extensionBundleService";
+import { invalidateBundleLoad } from "./extension/extensionBundle";
+import {
+  createExtensionBundleService,
+  ExtensionBundleService,
+} from "./extension/extensionBundleService";
 import {
   createExtensionDiagnosticsService,
   ExtensionDiagnosticsService,
-} from "./extensionDiagnosticsService";
-import { registerExtensionLifecycle } from "./extensionLifecycle";
-import { registerExtensionProviders } from "./extensionProviders";
+} from "./extension/extensionDiagnosticsService";
+import { registerExtensionLifecycle } from "./extension/extensionLifecycle";
+import { registerExtensionProviders } from "./extension/extensionProviders";
 import {
   createExtensionWorkspaceSymbolService,
   ExtensionWorkspaceSymbolService,
-} from "./extensionWorkspaceSymbols";
-import { logExtensionActivated, registerHaproxyOutputChannel } from "./outputChannel";
-import { getExtensionSettings, HaproxyExtensionSettings } from "./settings";
-import { registerVersionStatusBar } from "./statusBar";
+} from "./extension/extensionWorkspaceSymbols";
+import { logExtensionActivated, registerHaproxyOutputChannel } from "./extension/outputChannel";
+import { getExtensionSettings, HaproxyExtensionSettings } from "./extension/settings";
+import { registerVersionStatusBar } from "./extension/statusBar";
 import { clearWorkspaceSymbolIndex, setWorkspaceSymbolIndexChangeListener } from "./symbolIndex";
-import { registerWorkspaceIndexStatusBar } from "./workspaceIndexStatusBar";
+import { registerWorkspaceIndexStatusBar } from "./extension/workspaceIndexStatusBar";
 
 let activeBundleService: ExtensionBundleService | undefined;
 let activeDiagnosticsService: ExtensionDiagnosticsService | undefined;

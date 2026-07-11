@@ -12,7 +12,7 @@ import {
   indexedKeywordsForSection,
   indexedResolvedKeywordsForSection,
   languageDataIndexes,
-} from "../../../src/languageDataIndexes";
+} from "../../../src/language/languageDataIndexes";
 import { loadLanguageData, loadSchema } from "../../helpers/schema";
 
 describe("languageDataIndexes", () => {

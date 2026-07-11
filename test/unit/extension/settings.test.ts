@@ -1,4 +1,8 @@
-import { getExtensionSettings, getFormatOptions, onSettingsChanged } from "../../../src/settings";
+import {
+  getExtensionSettings,
+  getFormatOptions,
+  onSettingsChanged,
+} from "../../../src/extension/settings";
 import {
   resetMockVscode,
   setMockConfig,

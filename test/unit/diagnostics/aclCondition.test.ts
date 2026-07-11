@@ -1,4 +1,7 @@
-import { extractAclConditionSpans, validateAclConditions } from "../../../src/aclCondition";
+import {
+  extractAclConditionSpans,
+  validateAclConditions,
+} from "../../../src/diagnostics/aclCondition";
 import { loadSchema } from "../../helpers/schema";
 
 const schema = loadSchema("3.4");

@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { registerExtensionLifecycle } from "../../../src/extensionLifecycle";
-import * as grammar from "../../../src/grammar";
-import { getExtensionSettings } from "../../../src/settings";
+import { registerExtensionLifecycle } from "../../../src/extension/extensionLifecycle";
+import * as grammar from "../../../src/extension/grammar";
+import { getExtensionSettings } from "../../../src/extension/settings";
 import {
   resetMockVscode,
   setMockConfigForUri,

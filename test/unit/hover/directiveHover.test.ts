@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import { tryDirectiveHover } from "../../../src/hover/handlers/directiveHover";
 import type { DocumentContextWithToken, HoverContext } from "../../../src/hover/types";
-import { resolveLanguageKeyword } from "../../../src/keywordVariant";
-import { analyzeLine } from "../../../src/lineAnalysis";
-import type { HaproxyLanguageData, LanguageKeyword } from "../../../src/languageData";
+import { resolveLanguageKeyword } from "../../../src/language/keywordVariant";
+import { analyzeLine } from "../../../src/parser/lineAnalysis";
+import type { HaproxyLanguageData, LanguageKeyword } from "../../../src/language/languageData";
 import { parseDocument } from "../../helpers/parse";
 import { sectionKeywordSet } from "../../../src/schema/keywords";
 import { noPrefixKeywordSet, modifierPrefixSet } from "../../../src/schema/tokens";

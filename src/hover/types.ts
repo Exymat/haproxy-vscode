@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 
-import { getDocumentContext } from "../documentContext";
-import { AnalyzedLine } from "../lineAnalysis";
-import { LineSemanticContext } from "../lineSemanticContext";
-import { HaproxyLanguageData } from "../languageData";
+import { getDocumentContext } from "../parser/documentContext";
+import { AnalyzedLine } from "../parser/lineAnalysis";
+import { LineSemanticContext } from "../parser/lineSemanticContext";
+import { HaproxyLanguageData } from "../language/languageData";
 import { HaproxySchema } from "../schema/types";
 
 type BaseDocumentContext = NonNullable<ReturnType<typeof getDocumentContext>>;

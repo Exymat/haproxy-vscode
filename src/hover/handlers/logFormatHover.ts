@@ -1,7 +1,11 @@
 import * as vscode from "vscode";
 
-import { logFormatContextAt, logFormatFlagAtOffset, logFormatItemAtOffset } from "../../logFormat";
-import { findIndexedGroupItem } from "../../languageDataIndexes";
+import {
+  logFormatContextAt,
+  logFormatFlagAtOffset,
+  logFormatItemAtOffset,
+} from "../../language/logFormat";
+import { findIndexedGroupItem } from "../../language/languageDataIndexes";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
 

@@ -6,13 +6,13 @@ import {
   getLoadedBundle,
   getLoadedBundleForUri,
   invalidateBundleLoad,
-} from "../../../src/extensionBundle";
+} from "../../../src/extension/extensionBundle";
 import {
   bundleErrorMessage,
   createExtensionBundleService,
-} from "../../../src/extensionBundleService";
-import * as languageData from "../../../src/languageData";
-import * as outputChannel from "../../../src/outputChannel";
+} from "../../../src/extension/extensionBundleService";
+import * as languageData from "../../../src/language/languageData";
+import * as outputChannel from "../../../src/extension/outputChannel";
 import * as schema from "../../../src/schema/load";
 import type { HaproxySchema } from "../../../src/schema/types";
 import { getSymbolIndex } from "../../../src/symbolIndex";

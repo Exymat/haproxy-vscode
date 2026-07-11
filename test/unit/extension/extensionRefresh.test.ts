@@ -1,4 +1,4 @@
-import { refreshDocumentsInFolders } from "../../../src/extensionRefresh";
+import { refreshDocumentsInFolders } from "../../../src/extension/extensionRefresh";
 
 describe("extensionRefresh", () => {
   it("schedules all documents when the global folder scope changed", () => {

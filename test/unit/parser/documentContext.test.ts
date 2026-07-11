@@ -4,10 +4,10 @@ import {
   groupItems,
   keywordsForSection,
   sectionKeywordNames,
-} from "../../../src/documentContext";
-import { getDocumentAnalysis } from "../../../src/documentAnalysis";
-import { DiagnosticContext } from "../../../src/diagnosticContext";
-import * as parseCache from "../../../src/parseCache";
+} from "../../../src/parser/documentContext";
+import { getDocumentAnalysis } from "../../../src/parser/documentAnalysis";
+import { DiagnosticContext } from "../../../src/diagnostics/diagnosticContext";
+import * as parseCache from "../../../src/parser/parseCache";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";

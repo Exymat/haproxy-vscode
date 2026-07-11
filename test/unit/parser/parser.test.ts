@@ -4,7 +4,7 @@ import {
   parseDocumentLines,
   tokenizeLine,
 } from "../../../src/parser";
-import { isInsideQuotedString } from "../../../src/expressionParsing";
+import { isInsideQuotedString } from "../../../src/parser/expressionParsing";
 import { createDocument } from "../../helpers/document";
 import { parseOptionsWithSchema } from "../../helpers/formatOptions";
 

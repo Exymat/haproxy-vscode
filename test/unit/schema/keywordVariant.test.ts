@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { LanguageKeyword } from "../../../src/languageData";
+import { LanguageKeyword } from "../../../src/language/languageData";
 import {
   languageVariantForSection,
   resolveLanguageKeyword,
   resolveSchemaKeyword,
   schemaVariantForSection,
-} from "../../../src/keywordVariant";
+} from "../../../src/language/keywordVariant";
 import { SchemaKeyword } from "../../../src/schema/types";
 
 describe("resolveLanguageKeyword", () => {

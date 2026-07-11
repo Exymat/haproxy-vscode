@@ -1,5 +1,5 @@
 import { logFormatCompletionItems } from "../../../src/completion/helpers";
-import * as documentContext from "../../../src/documentContext";
+import * as documentContext from "../../../src/parser/documentContext";
 import { bundle } from "./helpers";
 
 describe("logFormatCompletionItems", () => {

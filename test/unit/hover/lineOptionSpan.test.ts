@@ -6,8 +6,8 @@ import {
   lineOptionConditionalLimit,
   resolveLineOptionStartIndex,
   resolveNestedLineOptionSpan,
-} from "../../../src/lineOptionSpan";
-import { getDocumentContext } from "../../../src/documentContext";
+} from "../../../src/language/lineOptionSpan";
+import { getDocumentContext } from "../../../src/parser/documentContext";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { bundles } from "./helpers";
