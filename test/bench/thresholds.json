@@ -4,9 +4,9 @@
     {
       "name": "loadSchemaBundle cold",
       "maxMs": 30,
-      "baselineMs": 23.391,
-      "statisticalMarginMs": 0.5554,
-      "rawMaxMs": 23.391
+      "baselineMs": 24.41,
+      "statisticalMarginMs": 0.679,
+      "rawMaxMs": 24.41
     },
     {
       "namePattern": "^loadSchemaBundle cold \\(",
@@ -33,45 +33,45 @@
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg \\(",
-      "maxMs": 35,
-      "baselineMs": 29.062,
-      "statisticalMarginMs": 0.737,
-      "rawMaxMs": 29.062
+      "maxMs": 80,
+      "baselineMs": 67.236,
+      "statisticalMarginMs": 1.3132,
+      "rawMaxMs": 67.236
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg \\(",
       "maxMs": 2,
-      "baselineMs": 0.833,
+      "baselineMs": 0.835,
       "statisticalMarginMs": 0.0006,
-      "rawMaxMs": 0.833
+      "rawMaxMs": 0.835
     },
     {
       "namePattern": "^diagnostics edit: large-valid\\.cfg \\(",
-      "maxMs": 140,
-      "baselineMs": 118.724,
-      "statisticalMarginMs": 11.7231,
-      "rawMaxMs": 118.724
+      "maxMs": 120,
+      "baselineMs": 97.525,
+      "statisticalMarginMs": 8.6891,
+      "rawMaxMs": 97.525
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg unusedSymbols",
-      "maxMs": 35,
-      "baselineMs": 28.853,
-      "statisticalMarginMs": 0.7361,
-      "rawMaxMs": 28.853
+      "maxMs": 40,
+      "baselineMs": 32.549,
+      "statisticalMarginMs": 0.8129,
+      "rawMaxMs": 32.549
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg unusedSymbols",
       "maxMs": 2,
-      "baselineMs": 0.874,
+      "baselineMs": 0.883,
       "statisticalMarginMs": 0.0014,
-      "rawMaxMs": 0.874
+      "rawMaxMs": 0.883
     },
     {
       "namePattern": "^diagnostics edit: large-valid\\.cfg unusedSymbols",
       "maxMs": 40,
-      "baselineMs": 34.228,
-      "statisticalMarginMs": 1.2677,
-      "rawMaxMs": 34.228
+      "baselineMs": 33.042,
+      "statisticalMarginMs": 1.1644,
+      "rawMaxMs": 33.042
     },
     {
       "namePattern": "^diagnostics cold: large-mixed\\.cfg \\(",
@@ -83,16 +83,16 @@
     {
       "namePattern": "^diagnostics warm: large-mixed\\.cfg \\(",
       "maxMs": 2,
-      "baselineMs": 0.77,
+      "baselineMs": 0.759,
       "statisticalMarginMs": 0.0013,
-      "rawMaxMs": 0.77
+      "rawMaxMs": 0.759
     },
     {
       "namePattern": "^diagnostics edit: large-mixed\\.cfg \\(",
-      "maxMs": 40,
-      "baselineMs": 30.862,
+      "maxMs": 35,
+      "baselineMs": 29.736,
       "statisticalMarginMs": 1.1688,
-      "rawMaxMs": 30.862
+      "rawMaxMs": 29.736
     },
     {
       "namePattern": "^diagnostics cold: large-mixed\\.cfg unusedSymbols",
@@ -104,36 +104,36 @@
     {
       "namePattern": "^diagnostics warm: large-mixed\\.cfg unusedSymbols",
       "maxMs": 2,
-      "baselineMs": 0.78,
-      "statisticalMarginMs": 0.0008,
-      "rawMaxMs": 0.78
+      "baselineMs": 0.733,
+      "statisticalMarginMs": 0.0006,
+      "rawMaxMs": 0.733
     },
     {
       "namePattern": "^diagnostics edit: large-mixed\\.cfg unusedSymbols",
-      "maxMs": 35,
-      "baselineMs": 26.694,
-      "statisticalMarginMs": 0.7624,
-      "rawMaxMs": 26.694
+      "maxMs": 40,
+      "baselineMs": 31.047,
+      "statisticalMarginMs": 1.182,
+      "rawMaxMs": 31.047
     },
     {
       "namePattern": "^diagnostics cold: log-format validation",
       "maxMs": 2,
       "baselineMs": 0.023,
-      "statisticalMarginMs": 0.0014,
+      "statisticalMarginMs": 0.0012,
       "rawMaxMs": 0.023
     },
     {
       "namePattern": "^diagnostics warm: log-format validation",
       "maxMs": 2,
       "baselineMs": 0.016,
-      "statisticalMarginMs": 0.0003,
+      "statisticalMarginMs": 0.0002,
       "rawMaxMs": 0.016
     },
     {
       "namePattern": "^format: large-(valid|mixed)\\.cfg",
       "maxMs": 60,
       "baselineMs": 48.534,
-      "statisticalMarginMs": 2.4669,
+      "statisticalMarginMs": 2.6231,
       "rawMaxMs": 48.534
     },
     {
@@ -146,65 +146,65 @@
     {
       "namePattern": "^completion: large-valid\\.cfg",
       "maxMs": 40,
-      "baselineMs": 31.957,
+      "baselineMs": 31.327,
       "statisticalMarginMs": 1.2276,
-      "rawMaxMs": 31.957
+      "rawMaxMs": 31.327
     },
     {
       "namePattern": "^completion: log-format",
       "maxMs": 2,
       "baselineMs": 0.046,
-      "statisticalMarginMs": 0.001,
+      "statisticalMarginMs": 0.0008,
       "rawMaxMs": 0.046
     },
     {
       "namePattern": "^hover warm:",
-      "maxMs": 6,
-      "baselineMs": 3.133,
+      "maxMs": 4,
+      "baselineMs": 2.752,
       "statisticalMarginMs": 0.0176,
-      "rawMaxMs": 3.133
+      "rawMaxMs": 2.752
     },
     {
       "namePattern": "^hover cold:",
       "maxMs": 2,
       "baselineMs": 0.126,
-      "statisticalMarginMs": 0.0013,
+      "statisticalMarginMs": 0.0014,
       "rawMaxMs": 0.126
     },
     {
       "namePattern": "^definition: (cache-use|resolvers|inline ACL)",
       "maxMs": 2,
       "baselineMs": 0.045,
-      "statisticalMarginMs": 0.0022,
+      "statisticalMarginMs": 0.0021,
       "rawMaxMs": 0.045
     },
     {
       "namePattern": "^references: peers section",
       "maxMs": 2,
       "baselineMs": 0.027,
-      "statisticalMarginMs": 0.0016,
+      "statisticalMarginMs": 0.0017,
       "rawMaxMs": 0.027
     },
     {
       "namePattern": "^definition: large-valid\\.cfg",
       "maxMs": 8,
-      "baselineMs": 5.405,
-      "statisticalMarginMs": 0.0479,
-      "rawMaxMs": 5.405
+      "baselineMs": 5.462,
+      "statisticalMarginMs": 0.0484,
+      "rawMaxMs": 5.462
     },
     {
       "namePattern": "^references: large-valid\\.cfg",
       "maxMs": 8,
-      "baselineMs": 5.415,
+      "baselineMs": 5.427,
       "statisticalMarginMs": 0.048,
-      "rawMaxMs": 5.415
+      "rawMaxMs": 5.427
     },
     {
       "namePattern": "^definition warm: large-valid\\.cfg",
       "maxMs": 8,
-      "baselineMs": 5.114,
-      "statisticalMarginMs": 0.0526,
-      "rawMaxMs": 5.114
+      "baselineMs": 5.135,
+      "statisticalMarginMs": 0.0541,
+      "rawMaxMs": 5.135
     },
     {
       "namePattern": "^buildSymbolIndex cold: large-valid\\.cfg",
@@ -230,9 +230,9 @@
     {
       "namePattern": "^incremental reuse: single-line edit",
       "maxMs": 50,
-      "baselineMs": 42.543,
-      "statisticalMarginMs": 1.678,
-      "rawMaxMs": 42.543
+      "baselineMs": 40.849,
+      "statisticalMarginMs": 1.3621,
+      "rawMaxMs": 40.849
     },
     {
       "namePattern": "^missing references warm: large-valid\\.cfg",
@@ -251,21 +251,21 @@
     {
       "namePattern": "^build workspace graph:",
       "baselineMs": 65.926,
-      "statisticalMarginMs": 6.9358,
+      "statisticalMarginMs": 6.238,
       "maxMs": 80,
       "rawMaxMs": 65.926
     },
     {
       "namePattern": "^load disk entry: read\\+index",
       "baselineMs": 236.692,
-      "statisticalMarginMs": 9.6214,
+      "statisticalMarginMs": 9.8556,
       "maxMs": 280,
       "rawMaxMs": 236.692
     },
     {
       "namePattern": "^fingerprint \\d+ workspace documents",
       "baselineMs": 0.52,
-      "statisticalMarginMs": 0.0572,
+      "statisticalMarginMs": 0.0496,
       "maxMs": 2,
       "rawMaxMs": 0.52
     }

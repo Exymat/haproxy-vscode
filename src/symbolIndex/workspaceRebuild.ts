@@ -89,6 +89,7 @@ function createEmptyPendingRebuild(): PendingRebuild {
 }
 
 let pendingRebuild = createEmptyPendingRebuild();
+let inFlightRebuild: PendingRebuild | null = null;
 
 function removeIncrementalDocumentsInFolder(
   incrementalDocuments: Map<string, vscode.TextDocument>,
@@ -151,6 +152,42 @@ function mergePendingRebuild(
     forceRediscover: forceRediscover || (existing?.forceRediscover ?? false),
     uri,
   });
+  return next;
+}
+
+function mergePendingRebuilds(current: PendingRebuild, incoming: PendingRebuild): PendingRebuild {
+  if (current.workspaceFull || incoming.workspaceFull) {
+    return { ...createEmptyPendingRebuild(), workspaceFull: true };
+  }
+  if (current.workspaceContent || incoming.workspaceContent) {
+    return { ...createEmptyPendingRebuild(), workspaceContent: true };
+  }
+
+  const next: PendingRebuild = {
+    workspaceFull: false,
+    workspaceContent: false,
+    folderTargets: new Map(current.folderTargets),
+    incrementalDocuments: new Map(current.incrementalDocuments),
+  };
+
+  for (const [folderKey, target] of incoming.folderTargets) {
+    if (target.forceRediscover) {
+      removeIncrementalDocumentsInFolder(next.incrementalDocuments, folderKey);
+    }
+    const existing = next.folderTargets.get(folderKey);
+    next.folderTargets.set(folderKey, {
+      forceRediscover: target.forceRediscover || (existing?.forceRediscover ?? false),
+      uri: target.uri,
+    });
+  }
+
+  for (const [uriKey, document] of incoming.incrementalDocuments) {
+    const folderKey = workspaceFolderKey(workspaceFolderForUri(document.uri));
+    if (!next.folderTargets.get(folderKey)?.forceRediscover) {
+      next.incrementalDocuments.set(uriKey, document);
+    }
+  }
+
   return next;
 }
 
@@ -408,7 +445,10 @@ export function scheduleWorkspaceSymbolIndexRebuild(
   activeSettings = settings;
   activeMaxLines = maxLines;
   const resolveSchema = normalizeSchemaSource(schemaSource);
-  pendingRebuild = mergePendingRebuild(pendingRebuild, {
+  const mergeBase = inFlightRebuild
+    ? mergePendingRebuilds(inFlightRebuild, pendingRebuild)
+    : pendingRebuild;
+  pendingRebuild = mergePendingRebuild(mergeBase, {
     scope,
     document: options.document,
     uri: options.uri,
@@ -421,7 +461,14 @@ export function scheduleWorkspaceSymbolIndexRebuild(
     rebuildTimer = undefined;
     const rebuildWork = pendingRebuild;
     pendingRebuild = createEmptyPendingRebuild();
-    void flushPendingRebuild(resolveSchema, settings, maxLines, generation, rebuildWork);
+    inFlightRebuild = rebuildWork;
+    void flushPendingRebuild(resolveSchema, settings, maxLines, generation, rebuildWork).finally(
+      () => {
+        if (inFlightRebuild === rebuildWork) {
+          inFlightRebuild = null;
+        }
+      },
+    );
   }, settings.debounceMs);
 }
 
@@ -445,6 +492,7 @@ export function clearWorkspaceSymbolIndex(): void {
   activeSchemaSource = null;
   activeMaxLines = 0;
   pendingRebuild = createEmptyPendingRebuild();
+  inFlightRebuild = null;
   invalidateDiscoveryCache();
 }
 
