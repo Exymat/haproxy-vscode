@@ -1,5 +1,5 @@
 export function formatDiagnosticCode(
-  code: string | number | { value: string | number; target: unknown } | undefined,
+  code: string | number | { value: string | number; target?: unknown } | undefined,
 ): string {
   if (code === undefined) {
     return "unknown";

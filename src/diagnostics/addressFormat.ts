@@ -101,6 +101,17 @@ function isValidIpv6Host(host: string): boolean {
   return host.includes(":") && /^[0-9a-fA-F:.]+$/.test(host);
 }
 
+function isValidHostname(host: string): boolean {
+  if (!host || host.length > 253) {
+    return false;
+  }
+  const labels = host.split(".");
+  if (labels.some((label) => label.length === 0 || label.length > 63)) {
+    return false;
+  }
+  return labels.every((label) => /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(label));
+}
+
 function isValidBareHost(host: string): boolean {
   if (!host || host === "*" || host === "::") {
     return true;
@@ -117,12 +128,24 @@ function validateHostShape(host: string): AddressValidationResult {
     return { valid: true };
   }
   if (body.includes(".")) {
-    if (isValidIpv4Host(body)) {
+    const parts = body.split(".");
+    const allNumeric = parts.every((part) => /^\d+$/.test(part));
+    if (allNumeric) {
+      if (isValidIpv4Host(body)) {
+        return { valid: true };
+      }
+      return {
+        valid: false,
+        message: `invalid IPv4 address '${body}'`,
+        code: "invalid-address",
+      };
+    }
+    if (isValidHostname(body)) {
       return { valid: true };
     }
     return {
       valid: false,
-      message: `invalid IPv4 address '${body}'`,
+      message: `invalid address '${host}'`,
       code: "invalid-address",
     };
   }

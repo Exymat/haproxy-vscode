@@ -51,6 +51,14 @@ describe("symbolIndex acl references", () => {
     expect(findReferences(index, "acl", "blocked", "frontend:web")).toHaveLength(1);
   });
 
+  it("does not treat configured sample fetch calls inside inline braces as acl references", () => {
+    const parsed = parseDocument(
+      doc("frontend web\n    http-request deny if { src_port() -m int 443 }"),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+    expect(findReferences(index, "acl", "src_port()", "frontend:web")).toHaveLength(0);
+  });
+
   it("tracks chained acl references in implicit-and conditions", () => {
     const parsed = parseDocument(
       doc(

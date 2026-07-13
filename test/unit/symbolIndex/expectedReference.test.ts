@@ -122,6 +122,40 @@ describe("expectedReference", () => {
     });
   });
 
+  it("detects configured sample-fetch references in later arguments", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.symbols = {
+      ...customSchema.symbols,
+      sample_fetch_references: {
+        test_fetch: { reference_kind: "userlist", argument_index: 1, scope: "global" },
+      },
+    };
+    const line = "    acl AUTH test_fetch(ignored,stats-auth)";
+    const doc = createDocument(`userlist stats-auth\nfrontend web\n${line}`);
+    const col = line.indexOf("stats-auth") + 2;
+    expect(resolveExpectedSymbolReferenceAtCompletion(doc, pos(2, col), customSchema)).toEqual({
+      kind: "userlist",
+      scopeKey: null,
+    });
+  });
+
+  it("preserves section scope for configured sample-fetch references", () => {
+    const customSchema = structuredClone(schema);
+    customSchema.symbols = {
+      ...customSchema.symbols,
+      sample_fetch_references: {
+        test_acl: { reference_kind: "acl", scope: "section" },
+      },
+    };
+    const line = "    http-request deny if test_acl(local-acl)";
+    const doc = createDocument(`frontend web\n    acl local-acl path /local\n${line}`);
+    const col = line.indexOf("local-acl") + 2;
+    expect(resolveExpectedSymbolReferenceAtCompletion(doc, pos(2, col), customSchema)).toEqual({
+      kind: "acl",
+      scopeKey: "frontend:web",
+    });
+  });
+
   it("ignores sample-fetch tokens without configured reference rules", () => {
     const doc = createDocument("frontend web\n    acl X unknown_fetch(users)");
     const col = "    acl X unknown_fetch(users)".indexOf("users");

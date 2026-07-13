@@ -90,6 +90,18 @@ describe("validateHaproxyAddress", () => {
     );
   });
 
+  it("accepts dns hostnames with dotted labels", () => {
+    expect(validateHaproxyAddress("host.local:8080", policies.bind)).toEqual({ valid: true });
+    expect(validateHaproxyAddress("www.example.com:443", policies.bind)).toEqual({ valid: true });
+  });
+
+  it("rejects invalid dns hostnames", () => {
+    expect(validateHaproxyAddress("foo..bar:80", policies.bind).code).toBe("invalid-address");
+    const longHost = `${"a".repeat(60)}.${"b".repeat(60)}.${"c".repeat(60)}.${"d".repeat(60)}.${"e".repeat(20)}`;
+    expect(longHost.length).toBeGreaterThan(253);
+    expect(validateHaproxyAddress(`${longHost}:80`, policies.bind).code).toBe("invalid-address");
+  });
+
   it("rejects invalid ipv4 hosts", () => {
     expect(validateHaproxyAddress("999.999.999.999:80", policies.bind).code).toBe(
       "invalid-address",
@@ -127,6 +139,12 @@ describe("validateHaproxyAddress", () => {
     expect(validateHaproxyAddress("[::1]:8080", policies.bind)).toEqual({ valid: true });
     expect(validateHaproxyAddress("[::1]", policies.bind).code).toBe("missing-port");
     expect(validateHaproxyAddress("[::1]", policies.log)).toEqual({ valid: true });
+  });
+
+  it("rejects malformed bracketed IPv6 addresses", () => {
+    expect(validateHaproxyAddress("[::1", policies.log).code).toBe("invalid-address");
+    expect(validateHaproxyAddress("[]:8080", policies.bind).code).toBe("invalid-address");
+    expect(validateHaproxyAddress("[bad-host]:8080", policies.bind).code).toBe("invalid-address");
   });
 
   it("rejects malformed prefixed bracketed IPv6 addresses", () => {
@@ -191,6 +209,7 @@ describe("looksLikeAddressToken", () => {
     expect(looksLikeAddressToken("[::1]:8080")).toBe(true);
     expect(looksLikeAddressToken("bad!host:80")).toBe(true);
     expect(looksLikeAddressToken("bad!host:+80")).toBe(true);
+    expect(looksLikeAddressToken("bad!host:-80")).toBe(true);
     expect(looksLikeAddressToken("[unclosed:8080")).toBe(true);
     expect(looksLikeAddressToken("!!!:8080")).toBe(true);
   });

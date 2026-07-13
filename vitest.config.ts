@@ -19,9 +19,7 @@ export default defineConfig({
         "src/hover/index.ts",
         "src/hover/types.ts",
         "src/symbolIndex/workspaceTypes.ts",
-        "src/hover/handlers/optionHover.ts",
         "src/completion/types.ts",
-        "**/optionHover.ts",
       ],
       reporter: ["text", "lcov", "html"],
       thresholds: {

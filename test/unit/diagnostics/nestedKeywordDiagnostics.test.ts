@@ -77,6 +77,17 @@ describe("topLevelDiagnostics", () => {
     ).toBe(true);
   });
 
+  it("reports unknown prefix subcommands using the generated prefix metadata", () => {
+    const { ctx, line } = lineAt("defaults\n    http-check not-a-subcommand");
+    expect(
+      topLevelDiagnostics(ctx, line).some(
+        (d) =>
+          d.code === "unknown-keyword" &&
+          d.message.includes("Unknown http-check subcommand 'not-a-subcommand'"),
+      ),
+    ).toBe(true);
+  });
+
   it("falls through for known prefix subcommands without subcommand diagnostics", () => {
     const schema = structuredClone(bundle.schema);
     schema.line_layout = {

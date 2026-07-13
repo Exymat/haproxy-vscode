@@ -252,6 +252,76 @@ describe("argumentDiagnostics", () => {
     expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
   });
 
+  it("does not report condition-like values as unknown enum arguments", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.sections.defaults.keywords = [...schema.sections.defaults.keywords, "test-cond-enum"];
+    schema.keywords["test-cond-enum"] = {
+      name: "test-cond-enum",
+      sections: ["defaults"],
+      contexts: [],
+      signatures: ["test-cond-enum on"],
+      sources: [],
+      arguments: [],
+      argument_model: {
+        min_args: 1,
+        max_args: 1,
+        slots: [{ enum: ["on"], optional: false }],
+      },
+    };
+    const diags = argDiagsForBundle("defaults\n    test-cond-enum if", 1, schema);
+    expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
+  });
+
+  it("does not report condition-like values as unknown optional enum arguments", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.sections.defaults.keywords = [
+      ...schema.sections.defaults.keywords,
+      "test-optional-cond-enum",
+    ];
+    schema.keywords["test-optional-cond-enum"] = {
+      name: "test-optional-cond-enum",
+      sections: ["defaults"],
+      contexts: [],
+      signatures: ["test-optional-cond-enum [on]"],
+      sources: [],
+      arguments: [],
+      argument_model: {
+        min_args: 0,
+        max_args: 1,
+        slots: [{ enum: ["on"], optional: true }],
+      },
+    };
+    const diags = argDiagsForBundle("defaults\n    test-optional-cond-enum if", 1, schema);
+    expect(diags.filter((d) => d.code === "unknown-value")).toHaveLength(0);
+  });
+
+  it("uses the slot count as the max hint for unbounded enum models", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.sections.defaults.keywords = [...schema.sections.defaults.keywords, "test-unbounded"];
+    schema.keywords["test-unbounded"] = {
+      name: "test-unbounded",
+      sections: ["defaults"],
+      contexts: [],
+      signatures: ["test-unbounded on"],
+      sources: [],
+      arguments: [],
+      argument_model: {
+        min_args: 0,
+        max_args: null,
+        slots: [{ enum: ["on"], variadic: false }],
+      },
+    };
+    const diags = argDiagsForBundle("defaults\n    test-unbounded on extra", 1, schema);
+    expect(
+      diags.some(
+        (d) =>
+          d.code === "extra-argument" &&
+          d.message.includes("accepts at most 1 argument(s)") &&
+          d.message.includes("'extra'"),
+      ),
+    ).toBe(true);
+  });
+
   it("rejects host for http-send-name-header on source-validated schemas", () => {
     const diags = argDiags("listen l1\n    http-send-name-header host", 1);
     expect(diags.some((d) => d.code === "unknown-value")).toBe(true);

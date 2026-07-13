@@ -72,6 +72,12 @@ describe("statementDiagnostics addresses", () => {
     expect(diags.filter((d) => d.code === "missing-argument")).toHaveLength(0);
   });
 
+  it("validates the argument that follows a pending enum keyword with an address policy", () => {
+    const diags = lineDiag("backend b6\n\t server s1 : source 0.0.0.0 usesrc bad", 1);
+    expect(diags.some((d) => d.code === "invalid-address")).toBe(true);
+    expect(diags.filter((d) => d.code === "missing-argument")).toHaveLength(0);
+  });
+
   it("is invoked from computeDiagnostics for server lines", () => {
     const doc = createDocument("backend api\n    server s1 127.0.0.1:80 notreal");
     const diags = computeDiagnostics(doc, bundle.schema, {
@@ -97,9 +103,22 @@ describe("statementDiagnostics addresses", () => {
     expect(diags.filter((d) => d.code === "unknown-parameter")).toHaveLength(0);
   });
 
+  it("skips colon-only server address placeholders", () => {
+    const diags = lineDiag("backend api\n    server s1 :", 1);
+    expect(diags.filter((d) => d.code === "missing-port")).toHaveLength(0);
+    expect(diags.filter((d) => d.code === "invalid-address")).toHaveLength(0);
+  });
+
   it("skips placeholder server addresses", () => {
     const diags = lineDiag("backend api\n    server s1 /var/run/app.sock", 1);
     expect(diags.filter((d) => d.code === "invalid-address")).toHaveLength(0);
+  });
+
+  it("does not mistake tcp-check and http-check connect addresses for nested actions", () => {
+    const tcp = lineDiag("backend api\n    tcp-check connect addr 127.0.0.1", 1);
+    const http = lineDiag("backend api\n    http-check connect addr 127.0.0.1", 1);
+    expect(tcp.filter((d) => d.code === "invalid-address")).toHaveLength(0);
+    expect(http.filter((d) => d.code === "invalid-address")).toHaveLength(0);
   });
 
   it("ignores numeric server options in nested scan", () => {
