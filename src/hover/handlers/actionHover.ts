@@ -1,3 +1,4 @@
+/** Provides hover docs for HTTP/TCP action keywords. */
 import * as vscode from "vscode";
 
 import { findIndexedGroupItem } from "../../language/languageDataIndexes";

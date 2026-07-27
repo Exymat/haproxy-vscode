@@ -1,3 +1,5 @@
+/** Validates directive arguments against schema argument models. */
+
 import * as vscode from "vscode";
 
 import {

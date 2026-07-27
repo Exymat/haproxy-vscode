@@ -1,3 +1,5 @@
+/** Provides quick-fix actions to suppress HAProxy diagnostics on a line. */
+
 import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";

@@ -1,3 +1,4 @@
+/** HAProxy extension logging via the VS Code output channel. */
 import * as vscode from "vscode";
 
 import {

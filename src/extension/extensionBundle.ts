@@ -1,3 +1,4 @@
+/** Loads and caches versioned schema and language-data bundles for the extension. */
 import * as vscode from "vscode";
 
 import { invalidateAllExtensionCaches } from "./cacheInvalidation";

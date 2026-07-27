@@ -1,3 +1,4 @@
+/** Shared types and helpers for sample-expression diagnostics. */
 import { DIAG_SOURCE } from "../diagnostics/diagnosticUtils";
 import { HaproxySchema } from "../schema/types";
 import { schemaSampleCasts, schemaSampleTypes } from "../schema/samples";

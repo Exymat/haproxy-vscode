@@ -1,3 +1,4 @@
+/** Accessors for schema symbol lists and sets such as sections and ACL operators. */
 import { recordValue, stringArrayValue, stringMapValue } from "./contractHelpers";
 import { symbolStringSetCache } from "./cache";
 import type { HaproxySchema } from "./types";

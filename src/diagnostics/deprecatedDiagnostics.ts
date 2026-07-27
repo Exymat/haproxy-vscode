@@ -1,3 +1,5 @@
+/** Warns when deprecated keywords, sample fetches, or converters are used. */
+
 import * as vscode from "vscode";
 
 import { DiagnosticContext, LineDiagnosticMemo } from "./diagnosticContext";

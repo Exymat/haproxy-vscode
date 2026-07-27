@@ -1,3 +1,4 @@
+/** Resolves expected symbol references for completion and diagnostics. */
 import * as vscode from "vscode";
 
 import { getParsedDocument } from "../parser/parseCache";

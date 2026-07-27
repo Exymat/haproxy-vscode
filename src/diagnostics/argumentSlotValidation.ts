@@ -1,3 +1,5 @@
+/** Helpers for walking and validating argument_model slots. */
+
 import { enumNamesForSlotLower } from "./argumentEnumUtils";
 import { ArgumentModel, ArgumentSlot } from "../schema/types";
 import { ResolvedSchemaKeyword } from "../language/keywordVariant";

@@ -1,3 +1,4 @@
+/** Converts HAProxy doc text (tables/diagrams) into Markdown-friendly hover blocks. */
 function isAsciiTableBorder(line: string): boolean {
   return /^\s*[-+]{8,}\s*$/.test(line) || /^\s*[-]{4,}\+[-+]{4,}\s*$/.test(line);
 }

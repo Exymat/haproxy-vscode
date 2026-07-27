@@ -1,3 +1,4 @@
+/** Completes option names for `option` / `no option` lines. */
 import * as vscode from "vscode";
 
 import { indexedGroupItems, indexedGroupItemsByName } from "../../language/languageDataIndexes";

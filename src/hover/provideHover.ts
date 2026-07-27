@@ -1,3 +1,4 @@
+/** Provides HAProxy hover content by building context and running handlers. */
 import * as vscode from "vscode";
 
 import { getLineSemanticContext } from "../parser/lineSemanticContext";

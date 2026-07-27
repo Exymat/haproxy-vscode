@@ -1,3 +1,4 @@
+/** Schedules diagnostic refreshes for HAProxy documents in given workspace folders. */
 import * as vscode from "vscode";
 
 import { isHaproxyLanguageId } from "./grammar";

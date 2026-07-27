@@ -1,3 +1,5 @@
+/** Validates statement-rule argument shapes, including addresses and fixed slots. */
+
 import * as vscode from "vscode";
 
 import {

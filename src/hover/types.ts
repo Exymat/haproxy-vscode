@@ -1,3 +1,4 @@
+/** Shared types for hover handlers and their request context. */
 import * as vscode from "vscode";
 
 import { getDocumentContext } from "../parser/documentContext";

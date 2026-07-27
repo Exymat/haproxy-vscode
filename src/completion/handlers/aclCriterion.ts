@@ -1,3 +1,4 @@
+/** Completes ACL criterion names for ACL statement contexts. */
 import * as vscode from "vscode";
 
 import { groupItems } from "../../parser/documentContext";

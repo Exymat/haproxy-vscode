@@ -1,3 +1,5 @@
+/** Converts sample-expression and ACL condition issues into VS Code diagnostics. */
+
 import * as vscode from "vscode";
 
 import { ParsedLine } from "../parser";

@@ -1,3 +1,4 @@
+/** LRU cache keyed by URI with content-fingerprint invalidation. */
 interface UriCacheEntry<T> {
   fingerprint: string;
   value: T;

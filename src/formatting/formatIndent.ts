@@ -1,3 +1,4 @@
+/** Converts format-indent setting values into FormatOptions indent fields. */
 import { FormatOptions } from "./index";
 
 /** Indent style for directives inside a section (section headers stay left-aligned). */

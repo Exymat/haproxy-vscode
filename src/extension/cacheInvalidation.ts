@@ -1,3 +1,4 @@
+/** Clears all versioned and per-document caches after a bundle reload. */
 import { clearLanguageDataCache } from "../language/languageData";
 import { clearLanguageDataIndexCache } from "../language/languageDataIndexes";
 import { clearSchemaCache } from "../schema/load";

@@ -1,3 +1,4 @@
+/** LRU-caches parsed documents with incremental reuse across edits. */
 import * as vscode from "vscode";
 
 import { documentContentFingerprint, documentUriKey } from "./documentUriKey";

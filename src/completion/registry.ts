@@ -1,3 +1,4 @@
+/** Runs ordered completion handlers until the first one returns items. */
 import { tryAclCriterionCompletion } from "./handlers/aclCriterion";
 import { tryActionCompletion } from "./handlers/action";
 import { tryDirectiveCompletion } from "./handlers/directive";

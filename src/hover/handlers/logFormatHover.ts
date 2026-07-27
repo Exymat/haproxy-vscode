@@ -1,3 +1,4 @@
+/** Provides hover docs for log-format aliases and flags. */
 import * as vscode from "vscode";
 
 import {

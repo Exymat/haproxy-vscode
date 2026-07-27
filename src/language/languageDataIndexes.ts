@@ -1,3 +1,4 @@
+/** Builds and caches lookup indexes over HAProxy language data. */
 import { resolveLanguageKeyword, ResolvedLanguageKeyword } from "./keywordVariant";
 import { HaproxyLanguageData, LanguageGroupItem, LanguageKeyword } from "./languageData";
 

@@ -1,3 +1,5 @@
+/** Warns when frontend/listen entry points lack a bind directive. */
+
 import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";

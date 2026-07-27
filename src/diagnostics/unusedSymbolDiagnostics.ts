@@ -1,3 +1,5 @@
+/** Reports defined symbols that are never referenced. */
+
 import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";

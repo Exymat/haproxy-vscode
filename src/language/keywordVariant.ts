@@ -1,3 +1,4 @@
+/** Resolves section-specific keyword variants from language data and schema. */
 import {
   LanguageArgumentParam,
   LanguageExample,

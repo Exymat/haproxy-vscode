@@ -1,3 +1,4 @@
+/** Provides folding ranges for HAProxy configuration sections. */
 import * as vscode from "vscode";
 
 import { getLoadedBundleForUri } from "../extension/extensionBundle";

@@ -1,3 +1,4 @@
+/** Shared types for completion handlers and their request context. */
 import * as vscode from "vscode";
 
 import { DocumentContext } from "../parser/documentContext";

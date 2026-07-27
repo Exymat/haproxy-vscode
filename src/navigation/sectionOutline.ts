@@ -1,3 +1,4 @@
+/** Builds section outlines and fold ranges from parsed HAProxy documents. */
 import * as vscode from "vscode";
 
 import { ParsedLine } from "../parser";

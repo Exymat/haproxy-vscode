@@ -1,3 +1,4 @@
+/** Accessors for schema validation-rule metadata. */
 import {
   assertRecordShape,
   assertStringValue,

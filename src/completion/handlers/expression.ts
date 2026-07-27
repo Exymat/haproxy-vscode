@@ -1,3 +1,4 @@
+/** Completes sample fetch and converter names in expression contexts. */
 import * as vscode from "vscode";
 
 import { groupItems } from "../../parser/documentContext";

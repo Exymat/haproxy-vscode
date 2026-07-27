@@ -1,3 +1,4 @@
+/** Dispatches per-line symbol-site collection to section and statement collectors. */
 import { ParsedLine } from "../parser";
 import { isTopLevelSectionHeader } from "../language/sectionUtils";
 import { HaproxySchema } from "../schema/types";

@@ -1,3 +1,5 @@
+/** Special-case argument validation for the cookie directive. */
+
 import * as vscode from "vscode";
 
 import { makeLineDiagnostic } from "../diagnosticUtils";

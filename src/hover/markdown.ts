@@ -1,3 +1,4 @@
+/** Builds MarkdownString hover content from titles, signatures, and extras. */
 import * as vscode from "vscode";
 
 import type { LanguageExample } from "../language/languageData";

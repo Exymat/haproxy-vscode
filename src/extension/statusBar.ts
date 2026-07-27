@@ -1,3 +1,4 @@
+/** Status bar UI for selecting and displaying the configured HAProxy version. */
 import * as vscode from "vscode";
 
 import { isHaproxyLanguageId } from "./grammar";

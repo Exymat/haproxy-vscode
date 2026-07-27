@@ -1,3 +1,4 @@
+/** Collects environment-variable reference sites from token expansions. */
 import { findEnvironmentVariableReferences } from "../../core/environmentVariables";
 import { ParsedLine } from "../../parser";
 

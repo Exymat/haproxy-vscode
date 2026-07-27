@@ -1,3 +1,4 @@
+/** Validates and normalizes loaded HAProxy schema JSON against the metadata contract. */
 import {
   assertBooleanMatrixValue,
   assertNestedStringArrayRecord,

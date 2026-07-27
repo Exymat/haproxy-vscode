@@ -1,3 +1,4 @@
+/** Query helpers for definitions and references across the workspace index. */
 import * as vscode from "vscode";
 
 import { SymbolIndex, SymbolKind, symbolKeyForScopedKinds, SymbolSite } from "./types";

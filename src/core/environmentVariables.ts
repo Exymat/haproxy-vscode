@@ -1,3 +1,4 @@
+/** Finds `$NAME` / `${NAME}` environment-variable expansions in tokens. */
 import { ParsedToken } from "../parser";
 
 export interface EnvironmentVariableHit {

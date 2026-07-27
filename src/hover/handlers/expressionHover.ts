@@ -1,3 +1,4 @@
+/** Provides hover docs for sample fetches, converters, and ACL criteria in expressions. */
 import * as vscode from "vscode";
 
 import { LanguageGroupItem } from "../../language/languageData";

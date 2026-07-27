@@ -1,3 +1,5 @@
+/** Special-case argument validation for the balance directive. */
+
 import * as vscode from "vscode";
 
 import { slotForPosition as argumentSlotForPosition } from "../argumentSlotValidation";

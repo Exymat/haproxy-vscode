@@ -1,3 +1,5 @@
+/** Flags keywords that require a named defaults section when used anonymously. */
+
 import * as vscode from "vscode";
 
 import { diagRangeForTokens, DIAG_SOURCE } from "./diagnosticUtils";

@@ -1,3 +1,4 @@
+/** Completes nested line-option names and their argument values. */
 import * as vscode from "vscode";
 
 import { argumentPosition, completionValuesForPosition } from "../../language/directiveUtils";

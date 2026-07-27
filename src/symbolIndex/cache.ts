@@ -1,3 +1,4 @@
+/** LRU-caches per-document symbol indexes keyed by URI and version. */
 import * as vscode from "vscode";
 
 import { documentContentFingerprint, documentUriKey } from "../parser/documentUriKey";

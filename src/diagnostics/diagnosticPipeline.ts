@@ -1,3 +1,5 @@
+/** Runs the ordered per-line diagnostic phases for a config line. */
+
 import * as vscode from "vscode";
 
 import { argumentModelDiagnostics } from "./argumentDiagnostics";

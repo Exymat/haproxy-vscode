@@ -1,3 +1,4 @@
+/** Completes HAProxy section header keywords. */
 import * as vscode from "vscode";
 
 import { getSectionKeywords } from "../../parser/documentContext";

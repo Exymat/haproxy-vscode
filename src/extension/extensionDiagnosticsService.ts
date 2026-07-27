@@ -1,3 +1,4 @@
+/** Owns diagnostic scheduling and document refresh for HAProxy configs. */
 import * as vscode from "vscode";
 
 import { createDiagnosticScheduler, DiagnosticScheduler } from "../diagnostics/diagnosticScheduler";

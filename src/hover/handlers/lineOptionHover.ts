@@ -1,3 +1,4 @@
+/** Provides hover docs for nested line options and their arguments. */
 import * as vscode from "vscode";
 
 import { findArgumentValue, getKeywordFromSchema } from "../../language/directiveUtils";

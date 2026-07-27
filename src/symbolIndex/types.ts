@@ -1,3 +1,4 @@
+/** Core symbol-site and symbol-index types and key helpers. */
 import { HaproxySchema } from "../schema/types";
 import { symbolStringList, symbolStringMap } from "../schema/symbols";
 import { SymbolKind } from "../core/editorKinds";

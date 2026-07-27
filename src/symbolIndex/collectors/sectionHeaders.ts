@@ -1,3 +1,4 @@
+/** Collects definition sites from named section headers. */
 import { ParsedLine } from "../../parser";
 import { HaproxySchema } from "../../schema/types";
 import { parseSectionHeader } from "../../language/sectionUtils";

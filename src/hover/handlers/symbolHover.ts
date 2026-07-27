@@ -1,3 +1,4 @@
+/** Provides hover peeks at symbol definitions from the symbol index. */
 import * as vscode from "vscode";
 
 import { getParsedDocument } from "../../parser/parseCache";

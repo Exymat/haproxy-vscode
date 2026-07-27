@@ -1,3 +1,5 @@
+/** Computes and caches full-document HAProxy diagnostics. */
+
 import * as vscode from "vscode";
 
 import { documentContentFingerprint, documentUriKey } from "../parser/documentUriKey";

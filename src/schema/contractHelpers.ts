@@ -1,3 +1,4 @@
+/** Assertion helpers used by schema metadata contract checks. */
 export function metadataContractError(path: string): Error {
   return new Error(`HAProxy schema is missing required generated metadata: ${path}`);
 }

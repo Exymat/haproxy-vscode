@@ -1,3 +1,4 @@
+/** Maps HAProxy versions to language IDs and syncs TextMate grammar languages. */
 import * as path from "path";
 import * as vscode from "vscode";
 

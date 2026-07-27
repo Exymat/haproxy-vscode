@@ -1,3 +1,5 @@
+/** Shared helpers for building HAProxy diagnostic ranges and messages. */
+
 import * as vscode from "vscode";
 
 import { ParsedLine } from "../parser";

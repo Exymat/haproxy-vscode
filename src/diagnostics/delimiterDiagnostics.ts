@@ -1,3 +1,5 @@
+/** Detects unbalanced parentheses, brackets, braces, and quotes on a line. */
+
 import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";

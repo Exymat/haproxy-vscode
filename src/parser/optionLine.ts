@@ -1,3 +1,4 @@
+/** Detects option and no-option lines and locates the option-name token. */
 import { ParsedLine } from "./index";
 import { HaproxySchema } from "../schema/types";
 import { candidateRules, ruleMatchesLine } from "../formatting/statementLayout";

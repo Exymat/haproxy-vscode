@@ -1,3 +1,4 @@
+/** Builds and patches per-document symbol indexes from parsed lines. */
 import { ParsedLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 

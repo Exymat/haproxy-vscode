@@ -1,3 +1,4 @@
+/** Holds active workspace indexes, generation counters, and capped-folder state. */
 import * as vscode from "vscode";
 
 import {

@@ -1,3 +1,5 @@
+/** Debounces and schedules diagnostic computation for open documents. */
+
 import * as vscode from "vscode";
 
 import { computeDiagnostics } from "./index";

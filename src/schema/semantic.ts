@@ -1,3 +1,4 @@
+/** Accessors for semantic groups used by completion and validation. */
 import { recordValue, stringArrayValue, stringMapValue } from "./contractHelpers";
 import type { HaproxySchema } from "./types";
 

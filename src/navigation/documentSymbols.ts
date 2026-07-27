@@ -1,3 +1,4 @@
+/** Provides document symbols from the HAProxy section outline. */
 import * as vscode from "vscode";
 
 import { getLoadedBundleForUri } from "../extension/extensionBundle";

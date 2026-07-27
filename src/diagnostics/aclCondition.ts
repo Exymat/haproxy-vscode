@@ -1,3 +1,5 @@
+/** Validates sample-fetch subexpressions inside ACL condition braces. */
+
 import { HaproxySchema } from "../schema/types";
 import { keywordGroupSet } from "../schema/keywords";
 import { sampleExpressionNameSets } from "../schema/tokens";

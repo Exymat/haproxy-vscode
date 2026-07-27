@@ -1,3 +1,4 @@
+/** Provides hover docs for `.if` / `.elif` / `.else` / `.endif` conditionals. */
 import * as vscode from "vscode";
 
 import {

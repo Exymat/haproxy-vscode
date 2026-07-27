@@ -1,3 +1,4 @@
+/** Builds indexes of deprecated keywords, actions, and sample functions. */
 import { HaproxyLanguageData } from "./languageData";
 import { HaproxySchema } from "../schema/types";
 import { deprecatedActionGroupNames } from "../schema/semantic";

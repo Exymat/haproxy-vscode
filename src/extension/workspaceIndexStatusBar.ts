@@ -1,3 +1,4 @@
+/** Status bar warning when workspace symbol indexing hits configured limits. */
 import * as vscode from "vscode";
 
 import { isHaproxyLanguageId } from "./grammar";

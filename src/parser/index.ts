@@ -1,3 +1,4 @@
+/** Core HAProxy config line tokenizer and document parse types. */
 import * as vscode from "vscode";
 
 export interface ParseOptions {

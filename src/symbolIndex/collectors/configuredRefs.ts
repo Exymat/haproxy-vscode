@@ -1,3 +1,4 @@
+/** Collects configured reference-pattern and filter self-references from lines. */
 import { ParsedLine } from "../../parser";
 import { findReferencePatternMatches } from "../../parser/referencePatternMatching";
 import { ReferencePattern } from "../../schema/types";

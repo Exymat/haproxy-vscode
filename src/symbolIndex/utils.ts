@@ -1,3 +1,4 @@
+/** Shared helpers for symbol name tokens and index map maintenance. */
 import { StatementRule } from "../schema/types";
 
 import { SymbolIndex, SymbolKind, symbolKeyForScopedKinds, SymbolSite } from "./types";

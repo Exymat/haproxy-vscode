@@ -1,3 +1,4 @@
+/** Completes values for positional directive arguments. */
 import * as vscode from "vscode";
 
 import { completionValuesForPosition } from "../../language/directiveUtils";

@@ -1,3 +1,4 @@
+/** Matches schema reference patterns against token sequences. */
 import { ParsedToken } from "./index";
 import { ReferencePattern } from "../schema/types";
 

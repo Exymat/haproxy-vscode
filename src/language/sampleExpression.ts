@@ -1,3 +1,4 @@
+/** Extracts and validates HAProxy sample expression spans. */
 import { HaproxySchema, SampleFunction } from "../schema/types";
 import { validationRecord } from "../schema/validation";
 import { sampleExpressionNameSets } from "../schema/tokens";

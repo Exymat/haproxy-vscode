@@ -1,3 +1,4 @@
+/** Builds editor completion and hover context for a cursor position in a HAProxy document. */
 import * as vscode from "vscode";
 
 import { DocumentAnalysis, getDocumentAnalysis } from "./documentAnalysis";

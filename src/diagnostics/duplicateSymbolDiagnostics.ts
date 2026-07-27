@@ -1,3 +1,5 @@
+/** Reports duplicate section definitions across the workspace. */
+
 import * as vscode from "vscode";
 
 import { makeDiagnostic } from "./diagnosticUtils";

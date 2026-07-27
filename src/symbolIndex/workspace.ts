@@ -1,3 +1,4 @@
+/** Re-exports workspace symbol-index APIs. */
 export { buildWorkspaceSymbolIndexFromOpenDocuments } from "./workspaceDocuments";
 export { isUriExcludedFromWorkspaceSymbols } from "./workspaceDiscovery";
 export {

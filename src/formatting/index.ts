@@ -1,3 +1,4 @@
+/** Formats HAProxy configuration text according to indent and section layout options. */
 import { commentStartIndex, tokenizeLine } from "../parser";
 
 /**

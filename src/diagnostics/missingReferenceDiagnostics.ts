@@ -1,3 +1,5 @@
+/** Warns when symbol references have no matching definition. */
+
 import * as vscode from "vscode";
 
 import { makeDiagnostic } from "./diagnosticUtils";

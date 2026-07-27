@@ -1,3 +1,5 @@
+/** Resolves enum value names for argument slots from schema and documentation metadata. */
+
 import { LanguageArgumentParam, LanguageKeyword } from "../language/languageData";
 import { ArgumentSlot, SchemaArgumentParam, SchemaKeyword } from "../schema/types";
 

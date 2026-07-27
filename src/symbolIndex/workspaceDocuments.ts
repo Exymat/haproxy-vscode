@@ -1,3 +1,4 @@
+/** Loads and aggregates per-document symbol data for the workspace index. */
 import * as vscode from "vscode";
 
 import { fingerprintText } from "../core/contentFingerprint";

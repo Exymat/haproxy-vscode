@@ -1,3 +1,5 @@
+/** Dispatches special-case argument validators before generic argument_model checks. */
+
 import * as vscode from "vscode";
 
 import { argumentTokenIndices } from "../../language/directiveUtils";

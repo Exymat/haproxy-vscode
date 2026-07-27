@@ -1,3 +1,4 @@
+/** Service facade for resilient bundle loading, invalidation, and error reporting. */
 import * as vscode from "vscode";
 
 import {

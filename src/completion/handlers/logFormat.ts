@@ -1,3 +1,4 @@
+/** Completes log-format aliases and flags inside format strings. */
 import * as vscode from "vscode";
 
 import { logFormatContextAt } from "../../language/logFormat";

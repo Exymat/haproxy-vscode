@@ -1,3 +1,4 @@
+/** Reads and watches HAProxy extension configuration from VS Code settings. */
 import * as vscode from "vscode";
 
 import { FormatOptions } from "../formatting";

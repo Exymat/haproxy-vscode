@@ -1,3 +1,4 @@
+/** Provides go-to-definition and find-references for HAProxy symbols. */
 import * as vscode from "vscode";
 
 import { getDocumentAnalysis } from "../parser/documentAnalysis";

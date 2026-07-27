@@ -1,3 +1,5 @@
+/** Cached schema-derived keyword sets that gate diagnostic passes. */
+
 import { HaproxySchema } from "../schema/types";
 import { validationStringList } from "../schema/validation";
 

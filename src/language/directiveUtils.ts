@@ -1,3 +1,4 @@
+/** Resolves directives and argument values from schema and language data. */
 import {
   enumDescriptionsForKeyword,
   enumNamesForArgumentPosition,

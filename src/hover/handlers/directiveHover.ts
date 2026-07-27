@@ -1,3 +1,4 @@
+/** Provides hover docs for directives and their argument values. */
 import * as vscode from "vscode";
 
 import {

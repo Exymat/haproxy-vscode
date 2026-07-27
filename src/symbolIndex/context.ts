@@ -1,3 +1,4 @@
+/** Precomputes schema-backed lookup tables used while collecting symbol sites. */
 import { HaproxySchema } from "../schema/types";
 import { symbolRecord, symbolStringList } from "../schema/symbols";
 import { keywordGroupSet } from "../schema/keywords";

@@ -1,3 +1,5 @@
+/** Validates section headers and ACL names. */
+
 import * as vscode from "vscode";
 
 import { findInvalidNameChar } from "./nameValidation";

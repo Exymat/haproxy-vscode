@@ -1,3 +1,4 @@
+/** Collects definition and reference sites driven by statement rules. */
 import { ParsedLine } from "../../parser";
 import { isEnvironmentVariableName } from "../../core/environmentVariables";
 import { HaproxySchema } from "../../schema/types";

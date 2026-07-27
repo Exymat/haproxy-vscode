@@ -1,3 +1,4 @@
+/** Accessors for sample types, casts, and address policies in the schema. */
 import { metadataContractError, stringArrayValue } from "./contractHelpers";
 import type { HaproxySchema, SchemaAddressPolicy } from "./types";
 

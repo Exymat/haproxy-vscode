@@ -1,3 +1,4 @@
+/** Public barrel for document and workspace symbol-index APIs. */
 export { fingerprintText } from "../core/contentFingerprint";
 export {
   buildScopeKeyByLine,

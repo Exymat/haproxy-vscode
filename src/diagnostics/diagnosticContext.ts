@@ -1,3 +1,5 @@
+/** Shared per-document analysis state for running diagnostic passes. */
+
 import * as vscode from "vscode";
 
 import {

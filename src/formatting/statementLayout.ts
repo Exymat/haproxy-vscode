@@ -1,3 +1,4 @@
+/** Matches parsed lines to schema statement rules and resolves action/phase token positions. */
 import { ParsedLine, ParsedToken } from "../parser";
 import { HaproxySchema, StatementRule } from "../schema/types";
 

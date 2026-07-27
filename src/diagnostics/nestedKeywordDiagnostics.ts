@@ -1,3 +1,5 @@
+/** Validates keyword section, runtime mode, and nested-command context. */
+
 import * as vscode from "vscode";
 
 import { DiagnosticContext } from "./diagnosticContext";

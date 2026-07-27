@@ -1,3 +1,4 @@
+/** Loads and caches versioned HAProxy language documentation data. */
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";

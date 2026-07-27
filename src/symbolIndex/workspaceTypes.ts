@@ -1,3 +1,4 @@
+/** Shared types for workspace symbol indexes, settings, and rebuild scopes. */
 import type * as vscode from "vscode";
 
 import type { ParsedLine } from "../parser";

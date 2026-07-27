@@ -1,3 +1,5 @@
+/** Parses and applies `# haproxy: ignore=` diagnostic suppressions. */
+
 import * as vscode from "vscode";
 
 import { commentStartIndex } from "../parser";

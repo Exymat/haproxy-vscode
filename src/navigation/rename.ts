@@ -1,3 +1,4 @@
+/** Implements prepareRename and rename edits for HAProxy symbols. */
 import * as vscode from "vscode";
 
 import { isEnvironmentVariableName } from "../core/environmentVariables";

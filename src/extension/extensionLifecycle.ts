@@ -1,3 +1,4 @@
+/** Registers settings, version, and document lifecycle hooks for the extension. */
 import * as vscode from "vscode";
 
 import { hasWarmUriDocumentCache } from "../parser/documentCache";

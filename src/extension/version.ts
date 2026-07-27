@@ -1,3 +1,4 @@
+/** Resolves supported and configured HAProxy versions from settings and disk. */
 import * as fs from "fs";
 import * as path from "path";
 

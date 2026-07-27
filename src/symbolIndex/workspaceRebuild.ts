@@ -1,3 +1,4 @@
+/** Schedules and runs workspace symbol-index rebuilds on document and workspace changes. */
 import * as vscode from "vscode";
 
 import { documentContentFingerprint } from "../parser/documentUriKey";

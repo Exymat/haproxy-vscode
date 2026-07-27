@@ -1,3 +1,4 @@
+/** Helpers to push typed definition and reference sites onto collector lists. */
 import { ParsedLine } from "../parser";
 
 import { SymbolKind, SymbolSite } from "./types";

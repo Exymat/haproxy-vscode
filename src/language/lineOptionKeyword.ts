@@ -1,3 +1,4 @@
+/** Resolves schema keywords and chapters for line-option semantics. */
 import { getKeywordFromSchema } from "./directiveUtils";
 import { ArgumentModel, HaproxySchema, LineOptionSemantic } from "../schema/types";
 import { ResolvedSchemaKeyword } from "./keywordVariant";

@@ -1,3 +1,4 @@
+/** Completes symbol names expected at the cursor from the symbol index. */
 import * as vscode from "vscode";
 
 import { filterByPrefix } from "../helpers";

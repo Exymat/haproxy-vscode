@@ -1,3 +1,4 @@
+/** Normalizes document URIs and content fingerprints used as cache keys. */
 import * as vscode from "vscode";
 
 import { fingerprintText } from "../core/contentFingerprint";

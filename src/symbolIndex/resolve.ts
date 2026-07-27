@@ -1,3 +1,4 @@
+/** Resolves symbol definitions and references at a document position. */
 import * as vscode from "vscode";
 
 import {

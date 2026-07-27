@@ -1,3 +1,4 @@
+/** TypeScript types describing the HAProxy schema JSON shape. */
 export interface SchemaSection {
   name: string;
   keywords: string[];

@@ -1,3 +1,5 @@
+/** Lookup helpers for conditional and status preprocessor directives. */
+
 import { HaproxyLanguageData } from "../language/languageData";
 import { HaproxySchema } from "../schema/types";
 import { macroTokenSet } from "../schema/tokens";

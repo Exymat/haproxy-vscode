@@ -1,3 +1,4 @@
+/** Computes spans and argument bounds for HAProxy line options. */
 import {
   enumValuesForSlotLower,
   isKeywordValuePair,

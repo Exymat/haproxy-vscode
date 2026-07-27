@@ -1,3 +1,4 @@
+/** Builds a workspace symbol index for one folder with concurrency and size limits. */
 import * as vscode from "vscode";
 
 import {

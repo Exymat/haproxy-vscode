@@ -1,3 +1,4 @@
+/** Resolves statement rules, directives, and option spans for a parsed line. */
 import { conditionalStartIndex } from "../language/directiveUtils";
 import { resolveLineOptionStartIndex } from "../language/lineOptionSpan";
 import { ParsedLine } from "./index";

@@ -1,3 +1,4 @@
+/** Shared helpers for completion docs, prefix filtering, and log-format items. */
 import * as vscode from "vscode";
 
 import { groupItems } from "../parser/documentContext";

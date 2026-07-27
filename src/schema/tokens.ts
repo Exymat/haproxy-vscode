@@ -1,3 +1,4 @@
+/** Cached token-set accessors for modifiers, macros, and related schema tokens. */
 import {
   conditionalTokenCache,
   macroTokenCache,

@@ -1,3 +1,4 @@
+/** Section-header and line-layout helpers derived from the schema. */
 import {
   logFormatDirectiveKeywordCache,
   prefixFamilyCache,

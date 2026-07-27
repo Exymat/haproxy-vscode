@@ -1,3 +1,4 @@
+/** VS Code extension entry point that activates services and language providers. */
 import * as vscode from "vscode";
 
 import { invalidateBundleLoad } from "./extension/extensionBundle";

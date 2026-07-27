@@ -1,3 +1,4 @@
+/** Completes HTTP/TCP action keywords for rule contexts. */
 import * as vscode from "vscode";
 
 import { indexedGroupItems, indexedGroupItemsByName } from "../../language/languageDataIndexes";

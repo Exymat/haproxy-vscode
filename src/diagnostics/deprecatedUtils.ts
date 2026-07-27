@@ -1,3 +1,5 @@
+/** Detects whether a document enables expose-deprecated-directives. */
+
 import { ParsedLine } from "../parser";
 
 export function documentUsesExposeDeprecatedDirectives(parsed: ParsedLine[]): boolean {

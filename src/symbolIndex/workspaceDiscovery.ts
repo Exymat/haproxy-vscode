@@ -1,3 +1,4 @@
+/** Discovers HAProxy files for workspace indexing with include, exclude, and size limits. */
 import * as vscode from "vscode";
 
 import { isHaproxyLanguageId } from "../extension/grammar";

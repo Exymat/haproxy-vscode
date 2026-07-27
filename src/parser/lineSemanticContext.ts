@@ -1,3 +1,4 @@
+/** Assembles semantic keyword and directive context for a line at a cursor position. */
 import * as vscode from "vscode";
 
 import {

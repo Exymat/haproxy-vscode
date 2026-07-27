@@ -1,3 +1,4 @@
+/** Collects symbol references embedded in sample-fetch argument lists. */
 import { ParsedLine } from "../../parser";
 
 import { FetchReferenceRule } from "../context";

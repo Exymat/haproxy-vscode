@@ -1,3 +1,4 @@
+/** Provides HAProxy completion items by building context and running handlers. */
 import * as vscode from "vscode";
 
 import { getDocumentContext } from "../parser/documentContext";

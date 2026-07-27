@@ -1,3 +1,4 @@
+/** Collects ACL name references from condition expressions on parsed lines. */
 import { isAclOnlyCriterion } from "../diagnostics/aclCondition";
 import { ParsedLine } from "../parser";
 import { HaproxySchema } from "../schema/types";

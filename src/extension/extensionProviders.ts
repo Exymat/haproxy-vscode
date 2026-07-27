@@ -1,3 +1,4 @@
+/** Registers VS Code language feature providers for HAProxy documents. */
 import * as vscode from "vscode";
 
 import { provideCompletionItems } from "../completion";

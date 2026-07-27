@@ -1,3 +1,4 @@
+/** Shared helpers for resolving hover group items and sample-token candidates. */
 import { HaproxyLanguageData, LanguageGroupItem } from "../language/languageData";
 import { findIndexedGroupItem } from "../language/languageDataIndexes";
 

@@ -1,3 +1,4 @@
+/** Manages workspace symbol indexing, file watchers, and rebuild scheduling. */
 import * as vscode from "vscode";
 
 import { DiagnosticScheduler } from "../diagnostics/diagnosticScheduler";

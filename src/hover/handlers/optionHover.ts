@@ -1,3 +1,4 @@
+/** Provides hover docs for option names on option lines. */
 import * as vscode from "vscode";
 
 import { getKeywordFromLanguage, getKeywordFromSchema } from "../../language/directiveUtils";

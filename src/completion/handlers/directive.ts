@@ -1,3 +1,4 @@
+/** Completes section directive keywords at the start of a line. */
 import * as vscode from "vscode";
 
 import { keywordsForSection } from "../../parser/documentContext";

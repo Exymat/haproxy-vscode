@@ -1,3 +1,4 @@
+/** Parses, validates, and analyzes HAProxy log-format strings. */
 import { ParsedToken } from "../parser";
 import { HaproxySchema, LogformatAlias, LogformatSlot } from "../schema/types";
 import { logformatStopTokenSet } from "../schema/validation";

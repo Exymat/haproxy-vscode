@@ -1,3 +1,5 @@
+/** Emits diagnostics for invalid log-format sample expressions. */
+
 import * as vscode from "vscode";
 
 import { LogFormatLineMemo, validateLogFormatLine } from "../language/logFormat";

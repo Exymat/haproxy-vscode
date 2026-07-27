@@ -1,3 +1,4 @@
+/** Analyzes HAProxy documents line-by-line against the schema for directives and allowed keywords. */
 import * as vscode from "vscode";
 
 import { AnalyzedLine, analyzeLine } from "./lineAnalysis";

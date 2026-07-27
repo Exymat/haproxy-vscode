@@ -1,3 +1,4 @@
+/** Parses HAProxy sample-fetch and converter expressions and validates their arguments. */
 import {
   INTEGER_ARG,
   MSK4_ARG,

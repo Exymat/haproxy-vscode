@@ -1,3 +1,4 @@
+/** Token lookup and directive-matching helpers for parsed lines. */
 import { ParsedLine, ParsedToken } from "./index";
 
 /** Token index at a character offset, or null when the cursor is outside all tokens. */

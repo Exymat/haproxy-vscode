@@ -1,3 +1,4 @@
+/** Provides hover docs for ACL criteria, flags, and related references. */
 import * as vscode from "vscode";
 
 import { groupItems } from "../../parser/documentContext";

@@ -1,3 +1,4 @@
+/** Section keyword sets and prefix-subcommand lookups derived from the schema. */
 import {
   keywordGroupSetCached,
   lineOptionSetCached,

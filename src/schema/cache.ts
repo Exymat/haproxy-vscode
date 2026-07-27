@@ -1,3 +1,4 @@
+/** WeakMap caches for derived schema keyword, token, and layout lookups. */
 import type { HaproxySchema } from "./types";
 
 interface SectionKeywordCacheEntry {

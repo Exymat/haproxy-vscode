@@ -1,3 +1,4 @@
+/** Parses and classifies HAProxy section headers and from-modifiers. */
 import { ParsedLine } from "../parser";
 import { symbolStringSet } from "../schema/symbols";
 import { HaproxySchema } from "../schema/types";

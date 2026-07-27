@@ -1,3 +1,4 @@
+/** Completes service names for use-service action arguments. */
 import * as vscode from "vscode";
 
 import { groupItems } from "../../parser/documentContext";

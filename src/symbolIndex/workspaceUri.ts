@@ -1,3 +1,4 @@
+/** Normalizes workspace URIs for stable cache and map keys. */
 import * as vscode from "vscode";
 
 export function workspaceUriKey(uri: vscode.Uri): string {
