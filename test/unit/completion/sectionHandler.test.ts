@@ -65,9 +65,9 @@ describe("trySectionCompletion", () => {
   });
 
   it("filters the from modifier by prefix", () => {
-    expect(trySectionCompletion(modifierCompletionContext("fr"))?.map((item) => item.label)).toEqual(
-      ["from"],
-    );
+    expect(
+      trySectionCompletion(modifierCompletionContext("fr"))?.map((item) => item.label),
+    ).toEqual(["from"]);
     expect(trySectionCompletion(modifierCompletionContext("xyz"))).toEqual([]);
   });
 });

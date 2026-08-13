@@ -77,7 +77,11 @@ describe("section header parsing", () => {
       false,
     );
     expect(
-      isSectionHeaderFromModifierCompletion({ ...headerLine("frontend"), isSectionHeader: false }, 1, schema),
+      isSectionHeaderFromModifierCompletion(
+        { ...headerLine("frontend"), isSectionHeader: false },
+        1,
+        schema,
+      ),
     ).toBe(false);
     expect(isSectionHeaderFromModifierCompletion(headerLine(), 1, schema)).toBe(false);
   });
