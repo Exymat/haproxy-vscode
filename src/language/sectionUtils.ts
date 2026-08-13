@@ -97,6 +97,34 @@ export function isTopLevelSectionHeader(entry: ParsedLine): boolean {
   return entry.isSectionHeader && entry.tokens.length > 0 && entry.tokens[0].start === 0;
 }
 
+/** True when the cursor is in the `from` slot of a from-capable section header. */
+export function isSectionHeaderFromModifierCompletion(
+  line: ParsedLine,
+  tokenIndex: number,
+  schema?: HaproxySchema,
+): boolean {
+  if (tokenIndex <= 0) {
+    return false;
+  }
+
+  const header = parseSectionHeader(line, schema);
+  if (!header || !sectionHeaderSupportsFromModifier(schema, header.sectionType)) {
+    return false;
+  }
+
+  if (header.fromIndex >= 0 && tokenIndex > header.fromIndex) {
+    return false;
+  }
+
+  const fromModifier = sectionHeaderFromModifier(schema);
+  if (header.sectionType === defaultsSectionName(schema) && tokenIndex === 1) {
+    const token = line.tokens[1];
+    return !token || fromModifier.startsWith(token.text.toLowerCase());
+  }
+
+  return tokenIndex === 2;
+}
+
 export function isSectionHeaderCompletionContext(
   line: ParsedLine,
   tokenIndex: number,

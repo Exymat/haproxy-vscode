@@ -1,4 +1,5 @@
 import {
+  isSectionHeaderFromModifierCompletion,
   parseSectionHeader,
   sectionHeaderFromModifier,
   sectionHeaderSupportsFromModifier,
@@ -49,6 +50,36 @@ describe("section header parsing", () => {
   it("limits default from support to proxy/defaults section headers", () => {
     expect(sectionHeaderSupportsFromModifier(undefined, "frontend")).toBe(true);
     expect(sectionHeaderSupportsFromModifier(undefined, "peers")).toBe(false);
+  });
+
+  it("detects from-modifier completion slots", () => {
+    expect(isSectionHeaderFromModifierCompletion(headerLine("defaults"), 0, schema)).toBe(false);
+    expect(isSectionHeaderFromModifierCompletion(headerLine("defaults"), 1, schema)).toBe(true);
+    expect(isSectionHeaderFromModifierCompletion(headerLine("defaults", "fr"), 1, schema)).toBe(
+      true,
+    );
+    expect(isSectionHeaderFromModifierCompletion(headerLine("defaults", "web"), 1, schema)).toBe(
+      false,
+    );
+    expect(isSectionHeaderFromModifierCompletion(headerLine("defaults", "web"), 2, schema)).toBe(
+      true,
+    );
+    expect(isSectionHeaderFromModifierCompletion(headerLine("frontend", "web"), 1, schema)).toBe(
+      false,
+    );
+    expect(isSectionHeaderFromModifierCompletion(headerLine("frontend", "web"), 2, schema)).toBe(
+      true,
+    );
+    expect(
+      isSectionHeaderFromModifierCompletion(headerLine("frontend", "web", "from"), 3, schema),
+    ).toBe(false);
+    expect(isSectionHeaderFromModifierCompletion(headerLine("cache", "foo"), 2, schema)).toBe(
+      false,
+    );
+    expect(
+      isSectionHeaderFromModifierCompletion({ ...headerLine("frontend"), isSectionHeader: false }, 1, schema),
+    ).toBe(false);
+    expect(isSectionHeaderFromModifierCompletion(headerLine(), 1, schema)).toBe(false);
   });
 
   it("parses anonymous defaults with a parent profile", () => {

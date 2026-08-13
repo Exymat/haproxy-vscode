@@ -48,6 +48,24 @@ describe("documentContext", () => {
     expect(ctx("global\n    .if { always_true }", 1, 5)).toBeNull();
   });
 
+  it("classifies from-modifier slots on from-capable section headers", () => {
+    expect(ctx("defaults ", 0, "defaults ".length)?.kind).toBe("section-header-modifier");
+    expect(ctx("defaults fr", 0, "defaults fr".length)?.kind).toBe("section-header-modifier");
+    expect(ctx("defaults myname ", 0, "defaults myname ".length)?.kind).toBe(
+      "section-header-modifier",
+    );
+    expect(ctx("frontend web ", 0, "frontend web ".length)?.kind).toBe("section-header-modifier");
+    expect(ctx("backend api ", 0, "backend api ".length)?.kind).toBe("section-header-modifier");
+    expect(ctx("listen app ", 0, "listen app ".length)?.kind).toBe("section-header-modifier");
+  });
+
+  it("does not classify from-modifier slots on sections that cannot inherit", () => {
+    expect(ctx("cache foo ", 0, "cache foo ".length)).toBeNull();
+    expect(ctx("peers p1 ", 0, "peers p1 ".length)).toBeNull();
+    expect(ctx("defaults myname", 0, "defaults myname".indexOf("myname"))).toBeNull();
+    expect(ctx("frontend ", 0, "frontend ".length)).toBeNull();
+  });
+
   it("allows completion on inherited defaults profile references", () => {
     const hit = ctx("defaults base\nfrontend web from ", 1, "frontend web from ".length);
     expect(hit?.kind).toBe("directive-argument");

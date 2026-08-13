@@ -12,6 +12,7 @@ import { candidateRules, ruleMatchesLine } from "../formatting/statementLayout";
 import { keywordsForSection } from "../language/languageDataIndexes";
 import {
   isSectionHeaderCompletionContext,
+  isSectionHeaderFromModifierCompletion,
   sectionHeaderFromProfileTokenIndex,
 } from "../language/sectionUtils";
 import { resolveTokenIndex } from "./tokenUtils";
@@ -89,6 +90,16 @@ export function getDocumentContext(
   const prefix = linePrefixBeforeCursor(lineText, position.character);
 
   if (line.isSectionHeader && tokenIndex > 0) {
+    if (isSectionHeaderFromModifierCompletion(line, tokenIndex, schema)) {
+      return {
+        line,
+        lineText,
+        tokenIndex,
+        token,
+        kind: EDITOR_KINDS.sectionHeaderModifier,
+        prefix,
+      };
+    }
     const profileIndex = sectionHeaderFromProfileTokenIndex(line, schema);
     const fromToken = profileIndex > 0 ? line.tokens[profileIndex - 1] : undefined;
     const afterFrom = fromToken !== undefined && position.character > fromToken.end;

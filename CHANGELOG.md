@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.18.3
+
+- **Section header `from` completion** — suggests `from` after a named `defaults`, `frontend`, `backend`, or `listen` section (and after anonymous `defaults `), so inheritance from a defaults profile can be completed without typing the keyword first. Profile-name suggestions after `from` are unchanged. Sections that cannot inherit (`cache`, `peers`, and similar) are not offered `from`.
+
 ## 0.18.2
 
 - **Section header extra-argument diagnostics** — warns on unexpected extra tokens in section headers: spare tokens in proxy section names (e.g. `frontend web extra`), address-like tokens on proxy section headers (e.g. `frontend web :443`, `listen stats *:8888`), tokens after `from profile` (e.g. `defaults from base extra`, `frontend web from base extra`, `frontend web from profile *:443`), and extra arguments on simple named sections (e.g. `peers p1 extra`).

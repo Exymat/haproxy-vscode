@@ -57,4 +57,39 @@ describe("trySectionCompletion", () => {
     const items = trySectionCompletion(sectionCompletionContext("glob"));
     expect(items?.[0]?.detail).toBe("HAProxy section");
   });
+
+  it("suggests the from modifier in section-header-modifier context", () => {
+    const items = trySectionCompletion(modifierCompletionContext(""));
+    expect(items?.map((item) => item.label)).toEqual(["from"]);
+    expect(items?.[0]?.detail).toBe("inherit defaults profile");
+  });
+
+  it("filters the from modifier by prefix", () => {
+    expect(trySectionCompletion(modifierCompletionContext("fr"))?.map((item) => item.label)).toEqual(
+      ["from"],
+    );
+    expect(trySectionCompletion(modifierCompletionContext("xyz"))).toEqual([]);
+  });
 });
+
+function modifierCompletionContext(partial: string): CompletionContext {
+  return {
+    ...sectionCompletionContext(partial, 2),
+    ctx: {
+      kind: "section-header-modifier",
+      tokenIndex: 2,
+      prefix: "",
+      lineText: `frontend web ${partial}`,
+      line: {
+        line: 0,
+        section: null,
+        tokens: [
+          { text: "frontend", start: 0, end: 8 },
+          { text: "web", start: 9, end: 12 },
+        ],
+        isSectionHeader: true,
+        anonymousDefaults: false,
+      },
+    } as never,
+  };
+}

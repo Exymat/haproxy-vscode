@@ -37,6 +37,23 @@ describe("completion core", () => {
     expect(completionLabels("frontend web", 0, "frontend web".indexOf("web"))).toEqual([]);
   });
 
+  it("suggests from after named from-capable section headers", () => {
+    expect(completionLabels("frontend web ", 0)).toEqual(["from"]);
+    expect(completionLabels("backend api ", 0)).toEqual(["from"]);
+    expect(completionLabels("listen app ", 0)).toEqual(["from"]);
+    expect(completionLabels("defaults ", 0)).toEqual(["from"]);
+    expect(completionLabels("defaults myname ", 0)).toEqual(["from"]);
+    expect(completionLabels("frontend web fr", 0)).toEqual(["from"]);
+    expect(completionLabels("defaults fr", 0)).toEqual(["from"]);
+  });
+
+  it("does not suggest from after sections that cannot inherit", () => {
+    expect(completionLabels("cache foo ", 0)).toEqual([]);
+    expect(completionLabels("peers p1 ", 0)).toEqual([]);
+    expect(completionLabels("frontend ", 0)).toEqual([]);
+    expect(completionLabels("defaults myname", 0, "defaults myname".indexOf("myname"))).toEqual([]);
+  });
+
   it("suggests option names", () => {
     expect(completionLabels("defaults\n    no option ", 1)).toEqual(
       expect.arrayContaining(["httplog", "forwardfor"]),
