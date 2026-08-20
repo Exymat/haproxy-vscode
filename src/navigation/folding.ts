@@ -4,12 +4,17 @@ import * as vscode from "vscode";
 import { getLoadedBundleForUri } from "../extension/extensionBundle";
 import { getParsedDocument } from "../parser/parseCache";
 import { sectionHeaderSet } from "../schema/layout";
+import { HaproxySchema } from "../schema/types";
 import { buildSectionFoldRanges, getSectionOutline } from "./sectionOutline";
 
-export function provideFoldingRanges(document: vscode.TextDocument): vscode.FoldingRange[] {
+export function provideFoldingRanges(
+  document: vscode.TextDocument,
+  schema?: HaproxySchema,
+): vscode.FoldingRange[] {
   const bundle = getLoadedBundleForUri(document.uri);
+  const effectiveSchema = schema ?? bundle?.schema;
   const parsed = getParsedDocument(document, {
-    sectionHeaders: bundle ? sectionHeaderSet(bundle.schema) : undefined,
+    sectionHeaders: effectiveSchema ? sectionHeaderSet(effectiveSchema) : undefined,
   });
   return buildSectionFoldRanges(getSectionOutline(document, parsed)).map(
     (range) =>

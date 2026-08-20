@@ -8,6 +8,7 @@ import { tryFilterCompletion } from "./handlers/filter";
 import { tryLineOptionCompletion } from "./handlers/lineOption";
 import { tryLogFormatCompletion } from "./handlers/logFormat";
 import { tryOptionCompletion } from "./handlers/option";
+import { clearPathCompletionCache, tryPathCompletion } from "./handlers/pathCompletion";
 import { trySectionCompletion } from "./handlers/section";
 import { trySymbolReferenceCompletion } from "./handlers/symbolReference";
 import { tryUseServiceCompletion } from "./handlers/useService";
@@ -17,12 +18,15 @@ export interface CompletionHandlerOptions {
   maxSymbolLines: number;
 }
 
+type CompletionHandlerResult =
+  import("vscode").CompletionItem[] | null | Promise<import("vscode").CompletionItem[] | null>;
+
 /** Handlers are tried in order; first non-null result wins. */
-export function runCompletionHandlers(
+export async function runCompletionHandlers(
   cc: CompletionContext,
   options: CompletionHandlerOptions,
-): import("vscode").CompletionItem[] {
-  const handlers: Array<(cc: CompletionContext) => import("vscode").CompletionItem[] | null> = [
+): Promise<import("vscode").CompletionItem[]> {
+  const handlers: Array<(cc: CompletionContext) => CompletionHandlerResult> = [
     tryLogFormatCompletion,
     trySectionCompletion,
     (context) => trySymbolReferenceCompletion(context, options.maxSymbolLines),
@@ -33,16 +37,21 @@ export function runCompletionHandlers(
     tryFilterCompletion,
     tryExpressionCompletion,
     tryAclCriterionCompletion,
+    tryPathCompletion,
     tryDirectiveArgumentCompletion,
     tryDirectiveCompletion,
   ];
 
   for (const handler of handlers) {
-    const items = handler(cc);
+    const items = await handler(cc);
     if (items !== null) {
       return items;
     }
   }
 
   return [];
+}
+
+export function clearCompletionHandlerCache(): void {
+  clearPathCompletionCache();
 }

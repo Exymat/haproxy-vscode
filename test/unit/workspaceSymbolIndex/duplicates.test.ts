@@ -30,12 +30,12 @@ describe("workspace symbol index duplicates", () => {
     const firstDiags = computeDiagnostics(first, schema, {
       unusedSymbols: true,
       missingReferences: true,
-      maxLines: 4000,
+      maxSymbolLines: 4000,
     });
     const secondDiags = computeDiagnostics(second, schema, {
       unusedSymbols: true,
       missingReferences: true,
-      maxLines: 4000,
+      maxSymbolLines: 4000,
     });
 
     expect(
@@ -166,7 +166,7 @@ describe("workspace symbol index duplicates", () => {
     const diags = computeDiagnostics(first, schema, {
       unusedSymbols: true,
       missingReferences: true,
-      maxLines: 4000,
+      maxSymbolLines: 4000,
     });
 
     expect(diags.filter((d) => formatDiagnosticCode(d.code) === "duplicate-section")).toHaveLength(

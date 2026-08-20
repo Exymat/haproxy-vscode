@@ -15,10 +15,10 @@ export function provideCompletionItems(
   data: HaproxyLanguageData,
   schema: HaproxySchema,
   maxSymbolLines = Number.POSITIVE_INFINITY,
-): vscode.CompletionItem[] {
+): Promise<vscode.CompletionItem[]> {
   const ctx = getDocumentContext(document, position, schema);
   if (!ctx) {
-    return [];
+    return Promise.resolve([]);
   }
 
   const wordRange = document.getWordRangeAtPosition(position, /[a-zA-Z0-9_.-]+/);

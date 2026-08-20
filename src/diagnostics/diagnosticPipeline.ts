@@ -17,6 +17,7 @@ import {
 import { aclNameDiagnostics, sectionHeaderDiagnostics } from "./sectionDiagnostics";
 import { statementDiagnostics } from "./statementDiagnostics";
 import { ParsedLine } from "../parser";
+import { isInactiveConditionalBranch } from "./conditionalDirectives";
 import { macroTokenSet } from "../schema/tokens";
 
 type LineDiagnosticPhase = (
@@ -47,7 +48,9 @@ const TRAILING_PHASES: LineDiagnosticPhase[] = [
     const delimiterIssues = validateLineDelimiters(lineText);
     return [
       ...delimiterDiagnostics(line, delimiterIssues),
-      ...expressionDiagnostics(line, lineText, ctx.schema, delimiterIssues),
+      ...expressionDiagnostics(line, lineText, ctx.schema, delimiterIssues, {
+        softUnknownSamples: ctx.hasLuaLoad,
+      }),
       ...logFormatDiagnostics(line, lineText, ctx.schema, ctx.getLogFormatMemo(line)),
     ];
   },
@@ -65,20 +68,25 @@ export function runLineDiagnosticPipeline(
   if (line.tokens.length === 0) {
     return [];
   }
-  if (line.isSectionHeader) {
-    return sectionHeaderDiagnostics(line, ctx);
-  }
   if (macroTokenSet(ctx.schema).has(line.tokens[0].text.toLowerCase())) {
     return [];
   }
+  if (isInactiveConditionalBranch(ctx.branchStateForLine(line))) {
+    return [];
+  }
 
-  const memo = ctx.getLineMemo(line);
+  const effectiveLine = ctx.effectiveLine(line);
+  if (effectiveLine.isSectionHeader) {
+    return sectionHeaderDiagnostics(effectiveLine, ctx);
+  }
+
+  const memo = ctx.getLineMemo(effectiveLine);
   const diagnostics: vscode.Diagnostic[] = [];
   for (const phase of CORE_PHASES) {
-    diagnostics.push(...phase(ctx, line, memo));
+    diagnostics.push(...phase(ctx, effectiveLine, memo));
   }
   for (const phase of TRAILING_PHASES) {
-    diagnostics.push(...phase(ctx, line, memo));
+    diagnostics.push(...phase(ctx, effectiveLine, memo));
   }
   return diagnostics;
 }

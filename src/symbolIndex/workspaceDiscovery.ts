@@ -110,6 +110,7 @@ function discoverySettingsKey(settings: WorkspaceSymbolSettings, folderKey: stri
     folderKey,
     include: settings.include,
     exclude: settings.exclude,
+    roots: settings.roots,
     maxFiles: Number.isFinite(settings.maxFiles) ? settings.maxFiles : 0,
   });
 }
@@ -131,6 +132,55 @@ function relativePattern(
   pattern: string,
 ): vscode.GlobPattern {
   return folder ? new vscode.RelativePattern(folder, pattern) : pattern;
+}
+
+function normalizeRootPath(root: string): string {
+  return root.replace(/\\/g, "/").replace(/^\/+/, "").replace(/\/+$/, "");
+}
+
+function effectiveIncludePatterns(settings: WorkspaceSymbolSettings): string[] {
+  if (!settings.roots.length) {
+    return settings.include;
+  }
+  const patterns: string[] = [];
+  for (const root of settings.roots) {
+    const normalized = normalizeRootPath(root);
+    if (!normalized) {
+      continue;
+    }
+    for (const include of settings.include) {
+      patterns.push(`${normalized}/${include}`);
+    }
+  }
+  return patterns.length > 0 ? patterns : settings.include;
+}
+
+function uriUnderConfiguredRoots(
+  uri: vscode.Uri,
+  settings: WorkspaceSymbolSettings,
+  folder: vscode.WorkspaceFolder | undefined,
+): boolean {
+  if (!settings.roots.length) {
+    return true;
+  }
+  const rel = relativePathForUri(uri, folder);
+  if (rel === null) {
+    return false;
+  }
+  const normalized = rel.replace(/\\/g, "/");
+  const caseInsensitive = isCaseInsensitivePath(uri, folder);
+  return settings.roots.some((root) => {
+    const normalizedRoot = normalizeRootPath(root);
+    if (!normalizedRoot) {
+      return true;
+    }
+    if (caseInsensitive) {
+      const lower = normalized.toLowerCase();
+      const rootLower = normalizedRoot.toLowerCase();
+      return lower === rootLower || lower.startsWith(`${rootLower}/`);
+    }
+    return normalized === normalizedRoot || normalized.startsWith(`${normalizedRoot}/`);
+  });
 }
 
 function maxDiscoveryResults(settings: WorkspaceSymbolSettings): number | undefined {
@@ -346,7 +396,7 @@ async function discoverUris(
   const exclude = excludePattern(settings);
   const maxResults = maxDiscoveryResults(settings);
   const expectedFolderKey = folder ? workspaceFolderKey(folder) : undefined;
-  for (const include of settings.include) {
+  for (const include of effectiveIncludePatterns(settings)) {
     const uris = await findWorkspaceFiles(
       relativePattern(folder, include),
       exclude ? relativePattern(folder, exclude) : undefined,
@@ -357,6 +407,9 @@ async function discoverUris(
         expectedFolderKey !== undefined &&
         workspaceFolderKey(workspaceFolderForUri(uri)) !== expectedFolderKey
       ) {
+        continue;
+      }
+      if (!uriUnderConfiguredRoots(uri, settings, folder)) {
         continue;
       }
       discovered.set(workspaceUriKey(uri), uri);

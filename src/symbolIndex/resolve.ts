@@ -18,7 +18,7 @@ import { symbolStringList } from "../schema/symbols";
 import { keywordGroupSet } from "../schema/keywords";
 import { sectionHeaderSet } from "../schema/layout";
 import { sampleExpressionNameSets } from "../schema/tokens";
-import { ruleMatchesLine } from "../formatting/statementLayout";
+import { ruleMatchesLine } from "../schema/statementLayout";
 import { tokenIndexAtPosition, isLikelyValue } from "../parser/tokenUtils";
 
 import { aclReferenceAt } from "./aclReferences";

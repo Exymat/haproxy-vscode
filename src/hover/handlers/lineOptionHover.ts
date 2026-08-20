@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import { findArgumentValue, getKeywordFromSchema } from "../../language/directiveUtils";
 import { findIndexedGroupItem } from "../../language/languageDataIndexes";
 import { lineOptionGroupForKind } from "../../schema/semantic";
-import { findStatementRule } from "../../formatting/statementLayout";
+import { findStatementRule } from "../../schema/statementLayout";
 import { findGroupItem } from "../helpers";
 import { lineOptionChapter } from "../../language/lineOptionKeyword";
 import {

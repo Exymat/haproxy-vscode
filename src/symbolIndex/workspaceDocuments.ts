@@ -206,7 +206,10 @@ export function createOpenDocumentEntry(
       ),
     };
   }
-  const index = getSymbolIndex(document, schema, maxLines)!;
+  const index = getSymbolIndex(document, schema, maxLines);
+  if (!index) {
+    return skipEntry("too-many-lines");
+  }
   const parsed = getParsedDocument(document, { sectionHeaders: sectionHeaderSet(schema) });
   return {
     entry: entryForSchema(

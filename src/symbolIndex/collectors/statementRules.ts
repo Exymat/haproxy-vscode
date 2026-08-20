@@ -2,7 +2,7 @@
 import { ParsedLine } from "../../parser";
 import { isEnvironmentVariableName } from "../../core/environmentVariables";
 import { HaproxySchema } from "../../schema/types";
-import { ruleMatchesLine, candidateRules } from "../../formatting/statementLayout";
+import { ruleMatchesLine, candidateRules } from "../../schema/statementLayout";
 import { isLikelyValue } from "../../parser/tokenUtils";
 
 import { collectAclReferences } from "../aclReferences";

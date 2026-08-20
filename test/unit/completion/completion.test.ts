@@ -12,7 +12,7 @@ const bundles = {
 };
 type TestVersion = keyof typeof bundles;
 
-function completionLabels(
+async function completionLabels(
   content: string,
   lineNo: number,
   character: number,
@@ -20,7 +20,7 @@ function completionLabels(
 ) {
   const doc = createDocument(content);
   const bundle = bundles[version];
-  const items = provideCompletionItems(
+  const items = await provideCompletionItems(
     doc,
     { line: lineNo, character } as never,
     bundle.languageData,
@@ -61,18 +61,18 @@ describe("completion and hover", () => {
     expect(contextKind(modeAfterSpace, lineNo, cursor, "3.4")).toBe("directive-argument");
   });
 
-  it("mode completions on 3.4", () => {
+  it("mode completions on 3.4", async () => {
     const modeAfterSpace = "defaults\n    mode ";
     const cursor = modeAfterSpace.split("\n")[1].length;
-    const labels = completionLabels(modeAfterSpace, lineNo, cursor, "3.4");
+    const labels = await completionLabels(modeAfterSpace, lineNo, cursor, "3.4");
     expect(labels).toEqual(expect.arrayContaining(["tcp", "http", "haterm", "log", "spop"]));
     expect(labels).not.toEqual(expect.arrayContaining(["acl", "bind", "balance"]));
   });
 
-  it("mode prefix h completions", () => {
+  it("mode prefix h completions", async () => {
     const modePrefix = "defaults\n    mode h";
     const cursor = modePrefix.split("\n")[1].length;
-    const labels = completionLabels(modePrefix, lineNo, cursor, "3.4");
+    const labels = await completionLabels(modePrefix, lineNo, cursor, "3.4");
     expect(labels).toEqual(expect.arrayContaining(["http", "haterm"]));
   });
 
@@ -86,10 +86,10 @@ describe("completion and hover", () => {
     expect(text).not.toContain("haterm");
   });
 
-  it("bind directive completion uses the section-specific variant", () => {
+  it("bind directive completion uses the section-specific variant", async () => {
     const doc = createDocument("frontend web\n    bi");
     const bundle = bundles["3.4"];
-    const items = provideCompletionItems(
+    const items = await provideCompletionItems(
       doc,
       { line: 1, character: "    bi".length } as never,
       bundle.languageData,
@@ -145,11 +145,11 @@ describe("completion and hover", () => {
 
   it.each(completionCases)(
     "$directive completions",
-    ({ directive, section, expected, forbidden }) => {
+    async ({ directive, section, expected, forbidden }) => {
       const content = `${section}\n    ${directive}`;
       const testLine = 1;
       const cursor = content.split("\n")[1].length;
-      const labels = completionLabels(content, testLine, cursor, "3.4");
+      const labels = await completionLabels(content, testLine, cursor, "3.4");
       for (const name of expected) {
         expect(labels).toContain(name);
       }
@@ -159,26 +159,26 @@ describe("completion and hover", () => {
     },
   );
 
-  it("source completion skips packed optional port and suggests sub-options", () => {
+  it("source completion skips packed optional port and suggests sub-options", async () => {
     const content = "defaults\n    source 0.0.0.0 ";
-    const labels = completionLabels(content, 1, content.split("\n")[1].length, "3.4");
+    const labels = await completionLabels(content, 1, content.split("\n")[1].length, "3.4");
     expect(labels).toEqual(expect.arrayContaining(["interface", "usesrc"]));
     expect(labels).not.toContain("mode");
     expect(labels).not.toContain("balance");
   });
 
-  it("bind completion suggests bind options after repeated addresses", () => {
+  it("bind completion suggests bind options after repeated addresses", async () => {
     const content = "frontend web\n    bind 192.168.1.22:80, :81, 192.168.1.23:82 ";
-    const labels = completionLabels(content, 1, content.split("\n")[1].length, "3.4");
+    const labels = await completionLabels(content, 1, content.split("\n")[1].length, "3.4");
     expect(labels).toContain("ssl");
     expect(labels).toContain("interface");
     expect(labels).not.toContain("balance");
   });
 
-  it("bind directive completion uses the peers-specific variant", () => {
+  it("bind directive completion uses the peers-specific variant", async () => {
     const doc = createDocument("peers cluster\n    bi");
     const bundle = bundles["3.4"];
-    const items = provideCompletionItems(
+    const items = await provideCompletionItems(
       doc,
       { line: 1, character: "    bi".length } as never,
       bundle.languageData,
@@ -193,10 +193,10 @@ describe("completion and hover", () => {
     expect(documentation).not.toContain("#4.2-bind");
   });
 
-  it("bind directive completion uses the log-forward-specific variant", () => {
+  it("bind directive completion uses the log-forward-specific variant", async () => {
     const doc = createDocument("log-forward syslog\n    bi");
     const bundle = bundles["3.4"];
-    const items = provideCompletionItems(
+    const items = await provideCompletionItems(
       doc,
       { line: 1, character: "    bi".length } as never,
       bundle.languageData,
@@ -210,15 +210,15 @@ describe("completion and hover", () => {
     expect(documentation).not.toContain("#4.2-bind");
   });
 
-  it("bind completion suggests bind options in log-forward after the address", () => {
+  it("bind completion suggests bind options in log-forward after the address", async () => {
     const content = "log-forward syslog\n    bind 127.0.0.1:514 ";
-    const labels = completionLabels(content, 1, content.split("\n")[1].length, "3.4");
+    const labels = await completionLabels(content, 1, content.split("\n")[1].length, "3.4");
     expect(labels).toContain("ssl");
     expect(labels).toContain("interface");
     expect(labels).not.toContain("balance");
   });
 
-  it("omits documentation for sparse line-option enum values", () => {
+  it("omits documentation for sparse line-option enum values", async () => {
     const content = "backend api\n    server s1 127.0.0.1:80 testcomp ";
     const doc = createDocument(content);
     const bundle = bundles["3.4"];
@@ -252,7 +252,7 @@ describe("completion and hover", () => {
       },
     ];
 
-    const items = provideCompletionItems(
+    const items = await provideCompletionItems(
       doc,
       { line: 1, character: content.split("\n")[1].length } as never,
       data,
@@ -263,12 +263,12 @@ describe("completion and hover", () => {
     expect(value?.documentation).toBeUndefined();
   });
 
-  it("returns empty when no completion handler matches", () => {
+  it("returns empty when no completion handler matches", async () => {
     const content = "frontend web\n    bind :80 extra";
     const doc = createDocument(content);
     const bundle = bundles["3.2"];
     const line = content.split("\n")[1];
-    const items = provideCompletionItems(
+    const items = await provideCompletionItems(
       doc,
       { line: 1, character: line.indexOf("extra") + 3 } as never,
       bundle.languageData,

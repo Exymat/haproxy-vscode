@@ -1,7 +1,11 @@
 /** LRU-caches parsed documents with incremental reuse across edits. */
 import * as vscode from "vscode";
 
-import { documentContentFingerprint, documentUriKey } from "./documentUriKey";
+import {
+  documentContentFingerprint,
+  documentParseCacheFingerprint,
+  documentUriKey,
+} from "./documentUriKey";
 import { UriLruCache } from "../core/uriLruCache";
 
 import {
@@ -34,9 +38,11 @@ interface UriParsedDocumentEntry {
 
 const cache = new WeakMap<vscode.TextDocument, Map<string, ParsedDocumentEntry>>();
 const uriCache = new UriLruCache<UriParsedDocumentEntry>(64);
+let parseCacheGeneration = 0;
+const parseCacheGenerations = new WeakMap<vscode.TextDocument, number>();
 
 function lineTextsForDocument(document: vscode.TextDocument): string[] {
-  return Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
+  return document.getText().split(/\r?\n/);
 }
 
 function cloneParsedLine(line: ParsedLine, lineNo: number): ParsedLine {
@@ -173,6 +179,10 @@ export function getParsedDocumentEntry(
   document: vscode.TextDocument,
   options?: ParseOptions,
 ): ParsedDocumentEntry {
+  if (parseCacheGenerations.get(document) !== parseCacheGeneration) {
+    cache.delete(document);
+    parseCacheGenerations.set(document, parseCacheGeneration);
+  }
   const optionsKey = parseOptionsKey(options);
   let entries = cache.get(document);
   if (!entries) {
@@ -184,10 +194,9 @@ export function getParsedDocumentEntry(
     return hit;
   }
 
-  const contentFingerprint = documentContentFingerprint(document);
   const uriKey = documentUriKey(document);
   if (!hit) {
-    const uriHit = uriCache.get(uriKey, contentFingerprint);
+    const uriHit = uriCache.get(uriKey, documentContentFingerprint(document));
     if (uriHit && uriHit.optionsKey === optionsKey) {
       const restored: ParsedDocumentEntry = {
         ...uriHit.entry,
@@ -221,11 +230,23 @@ export function getParsedDocumentEntry(
         },
       };
   entries.set(optionsKey, next);
-  uriCache.set(documentUriKey(document), documentContentFingerprint(document), {
+  uriCache.set(uriKey, documentParseCacheFingerprint(document), {
     optionsKey,
     entry: next,
   });
   return next;
+}
+
+export function finalizeParseCacheForClosedDocument(document: vscode.TextDocument): void {
+  const entries = cache.get(document);
+  if (!entries) {
+    return;
+  }
+  const uriKey = documentUriKey(document);
+  const contentFingerprint = documentContentFingerprint(document);
+  for (const [optionsKey, entry] of entries) {
+    uriCache.set(uriKey, contentFingerprint, { optionsKey, entry });
+  }
 }
 
 export function getParsedDocument(
@@ -237,4 +258,9 @@ export function getParsedDocument(
 
 export function hasUriParseCache(document: vscode.TextDocument): boolean {
   return uriCache.get(documentUriKey(document), documentContentFingerprint(document)) !== undefined;
+}
+
+export function clearParseCache(): void {
+  uriCache.clear();
+  parseCacheGeneration += 1;
 }

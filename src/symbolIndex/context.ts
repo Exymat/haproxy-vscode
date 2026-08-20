@@ -3,11 +3,12 @@ import { HaproxySchema } from "../schema/types";
 import { symbolRecord, symbolStringList } from "../schema/symbols";
 import { keywordGroupSet } from "../schema/keywords";
 import { sampleExpressionNameSets } from "../schema/tokens";
+import { isSymbolKind } from "../core/editorKinds";
 
 import { scopedSymbolKindSet, SymbolKind } from "./types";
 
 export interface FetchReferenceRule {
-  reference_kind: string;
+  reference_kind: SymbolKind;
   argument_index?: number;
   scope?: string;
 }
@@ -33,7 +34,7 @@ export function fetchReferenceRules(schema: HaproxySchema): Record<string, Fetch
       continue;
     }
     const rule = value as Record<string, unknown>;
-    if (typeof rule.reference_kind === "string") {
+    if (typeof rule.reference_kind === "string" && isSymbolKind(rule.reference_kind)) {
       result[name] = {
         reference_kind: rule.reference_kind,
         argument_index: typeof rule.argument_index === "number" ? rule.argument_index : undefined,

@@ -104,9 +104,9 @@ describe("symbolIndex resolve", () => {
   });
 
   it("resolveSymbolAtPosition returns null for unsupported section headers", () => {
-    const document = doc("mailers smtp\n    mailer m1 127.0.0.1:25");
+    const document = doc("unknown-section smtp\n    mailer m1 127.0.0.1:25");
     expect(resolveSymbolAtPosition(document, pos(0, 0), schema)).toBeNull();
-    expect(resolveSymbolAtPosition(document, pos(0, 8), schema)).toBeNull();
+    expect(resolveSymbolAtPosition(document, pos(0, 17), schema)).toBeNull();
   });
 
   it("resolveSymbolAtPosition returns null on section header tokens without symbols", () => {
@@ -245,5 +245,18 @@ describe("symbolIndex resolve", () => {
     const document = doc("backend api\n    server s1 127.0.0.1:80");
     const serverCol = "    server s1".indexOf("s1");
     expect(resolveSymbolAtPosition(document, pos(1, serverCol), customSchema)).toBeNull();
+  });
+
+  it("returns null for section headers without a definition kind", () => {
+    const customSchema = {
+      ...schema,
+      line_layout: {
+        ...schema.line_layout,
+        section_headers: [...(schema.line_layout?.section_headers ?? []), "customsec"],
+      },
+    };
+    const document = doc("customsec named");
+    const nameCol = "customsec named".indexOf("named");
+    expect(resolveSymbolAtPosition(document, pos(0, nameCol), customSchema)).toBeNull();
   });
 });

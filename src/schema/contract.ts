@@ -93,6 +93,7 @@ function assertReferencePatternsContract(value: unknown): void {
       throw metadataContractError(`${path}.scope`);
     }
     assertOptionalStringValue(pattern.split, `${path}.split`);
+    assertOptionalStringValue(pattern.target_prefix, `${path}.target_prefix`);
   });
 }
 

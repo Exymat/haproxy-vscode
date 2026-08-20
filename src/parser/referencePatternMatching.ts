@@ -21,6 +21,28 @@ function tokensMatchPattern(tokens: ParsedToken[], start: number, matchTokens: s
   return true;
 }
 
+function adjustedTargetToken(
+  token: ParsedToken,
+  pattern: ReferencePattern,
+): ParsedToken | undefined {
+  const prefix = pattern.target_prefix;
+  if (!prefix) {
+    return token;
+  }
+  if (!token.text.toLowerCase().startsWith(prefix.toLowerCase())) {
+    return undefined;
+  }
+  const text = token.text.slice(prefix.length);
+  if (!text) {
+    return undefined;
+  }
+  return {
+    text,
+    start: token.start + prefix.length,
+    end: token.end,
+  };
+}
+
 /** All sliding-window matches for a reference pattern on a token line. */
 export function findReferencePatternMatches(
   tokens: ParsedToken[],
@@ -41,7 +63,11 @@ export function findReferencePatternMatches(
       continue;
     }
     const targetIndex = start + pattern.target_token_index;
-    const targetToken = tokens[targetIndex];
+    const rawTargetToken = tokens[targetIndex];
+    if (!rawTargetToken) {
+      continue;
+    }
+    const targetToken = adjustedTargetToken(rawTargetToken, pattern);
     if (!targetToken) {
       continue;
     }

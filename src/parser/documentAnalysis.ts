@@ -32,7 +32,7 @@ export class DocumentAnalysis {
   readonly entryPointSections: Set<string>;
   readonly bindDetectKeywords: Set<string>;
 
-  private readonly lineMemo = new Map<number, DocumentLineAnalysis>();
+  private readonly lineMemo = new Map<string, DocumentLineAnalysis>();
   private sectionsByStartLine: Map<number, SectionSymbolInfo> | undefined;
 
   constructor(
@@ -58,7 +58,8 @@ export class DocumentAnalysis {
   }
 
   getLineAnalysis(line: ParsedLine): DocumentLineAnalysis {
-    let memo = this.lineMemo.get(line.line);
+    const memoKey = `${line.line}\0${line.section ?? ""}`;
+    let memo = this.lineMemo.get(memoKey);
     if (!memo) {
       const allowed = sectionKeywordSet(this.schema, line.section);
       const analyzed = analyzeLine(line, {
@@ -74,7 +75,7 @@ export class DocumentAnalysis {
         statementRule: analyzed.statement.rule,
         analyzed,
       };
-      this.lineMemo.set(line.line, memo);
+      this.lineMemo.set(memoKey, memo);
     }
     return memo;
   }
@@ -87,9 +88,40 @@ export class DocumentAnalysis {
   }
 }
 
+interface DocumentAnalysisCacheEntry {
+  version: number;
+  generation: number;
+  analysis: DocumentAnalysis;
+}
+
+const analysisCache = new WeakMap<
+  vscode.TextDocument,
+  WeakMap<HaproxySchema, DocumentAnalysisCacheEntry>
+>();
+let analysisCacheGeneration = 0;
+
 export function getDocumentAnalysis(
   document: vscode.TextDocument,
   schema: HaproxySchema,
 ): DocumentAnalysis {
-  return new DocumentAnalysis(document, schema);
+  let entries = analysisCache.get(document);
+  if (!entries) {
+    entries = new WeakMap();
+    analysisCache.set(document, entries);
+  }
+  const hit = entries.get(schema);
+  if (hit && hit.version === document.version && hit.generation === analysisCacheGeneration) {
+    return hit.analysis;
+  }
+  const next = new DocumentAnalysis(document, schema);
+  entries.set(schema, {
+    version: document.version,
+    generation: analysisCacheGeneration,
+    analysis: next,
+  });
+  return next;
+}
+
+export function clearDocumentAnalysisCache(): void {
+  analysisCacheGeneration += 1;
 }

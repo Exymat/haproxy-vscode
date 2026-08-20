@@ -8,7 +8,7 @@ import { isConditionalOrStatusDirective } from "../diagnostics/conditionalDirect
 import { ParsedLine, ParsedToken } from "./index";
 import { HaproxySchema } from "../schema/types";
 import { sortedSectionHeaders } from "../schema/layout";
-import { candidateRules, ruleMatchesLine } from "../formatting/statementLayout";
+import { candidateRules, ruleMatchesLine } from "../schema/statementLayout";
 import { keywordsForSection } from "../language/languageDataIndexes";
 import {
   isSectionHeaderCompletionContext,

@@ -8,7 +8,7 @@ import { ParsedLine } from "../parser";
 import { getSectionOutline, SectionSymbolInfo } from "../navigation/sectionOutline";
 import { hasReferences, SymbolIndex, SymbolKind, SymbolSite } from "../symbolIndex";
 import { HaproxySchema } from "../schema/types";
-import { symbolStringList } from "../schema/symbols";
+import { symbolKindSet, symbolStringList } from "../schema/symbols";
 import { validationStringMap } from "../schema/validation";
 
 export interface UnusedSymbolOptions {
@@ -16,11 +16,11 @@ export interface UnusedSymbolOptions {
 }
 
 function unusedSymbolSectionBlockKinds(schema: HaproxySchema): Set<SymbolKind> {
-  return new Set(symbolStringList(schema, "unused_symbol_section_block_kinds"));
+  return symbolKindSet(schema, "unused_symbol_section_block_kinds");
 }
 
 function skippedUnusedSymbolKinds(schema: HaproxySchema): Set<SymbolKind> {
-  return new Set(symbolStringList(schema, "unused_symbol_skipped_kinds"));
+  return symbolKindSet(schema, "unused_symbol_skipped_kinds");
 }
 
 function conventionalDefaultsProfileNames(schema: HaproxySchema): Set<string> {

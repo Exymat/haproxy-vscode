@@ -10,7 +10,7 @@ import {
   resolveNestedLineOptionSpan,
 } from "../../language/lineOptionSpan";
 import { resolveLanguageKeyword } from "../../language/keywordVariant";
-import { findStatementRule } from "../../formatting/statementLayout";
+import { findStatementRule } from "../../schema/statementLayout";
 import { CompletionContext } from "../types";
 import { filterByPrefix, markdownDoc } from "../helpers";
 

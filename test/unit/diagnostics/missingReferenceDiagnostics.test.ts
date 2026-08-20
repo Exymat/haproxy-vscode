@@ -13,7 +13,7 @@ function missingRefs(content: string, enabled = true): vscode.Diagnostic[] {
   return computeDiagnostics(createDocument(content), schema, {
     unusedSymbols: false,
     missingReferences: enabled,
-    maxLines: 4000,
+    maxSymbolLines: 4000,
   }).filter((diag) => diag.code === "missing-reference");
 }
 
@@ -87,6 +87,8 @@ describe("missingReferenceDiagnostics", () => {
       '    use_backend non_www if { var(http_host) -m reg -p "^(?!www\\.).*" }',
       "    use_backend dynamic if { path_beg /dynamic }",
       "    use_backend %[var(http_host)] if { var(http_host) }",
+      "    use_backend be_%[req.hdr(host)] if { req.hdr(host) -m found }",
+      "    default_backend %[req.hdr(host),lower,map(hosts.lst)]",
       "backend www",
       "backend non_www",
       "backend dynamic",

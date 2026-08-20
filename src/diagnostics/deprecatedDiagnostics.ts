@@ -7,7 +7,7 @@ import { diagRange, diagRangeForMatch, diagRangeForTokens } from "./diagnosticUt
 import { DeprecatedIndex } from "../language/deprecatedIndex";
 import { ParsedLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
-import { resolveActionTokenIndex } from "../formatting/statementLayout";
+import { resolveActionTokenIndex } from "../schema/statementLayout";
 import { normalizeActionName } from "../parser/tokenUtils";
 
 export { documentUsesExposeDeprecatedDirectives } from "./deprecatedUtils";
@@ -47,6 +47,7 @@ function deprecatedLineDiagnostics(
     );
     diagnostic.source = "haproxy";
     diagnostic.code = "deprecated-keyword";
+    diagnostic.tags = [vscode.DiagnosticTag.Deprecated];
     diagnostics.push(diagnostic);
   }
 
@@ -61,6 +62,7 @@ function deprecatedLineDiagnostics(
       );
       diagnostic.source = "haproxy";
       diagnostic.code = "deprecated-sample";
+      diagnostic.tags = [vscode.DiagnosticTag.Deprecated];
       diagnostics.push(diagnostic);
     }
   }
@@ -87,6 +89,7 @@ function deprecatedLineDiagnostics(
       );
       diagnostic.source = "haproxy";
       diagnostic.code = "deprecated-sample";
+      diagnostic.tags = [vscode.DiagnosticTag.Deprecated];
       diagnostics.push(diagnostic);
     }
   }
@@ -111,6 +114,7 @@ function deprecatedLineDiagnostics(
   );
   diagnostic.source = "haproxy";
   diagnostic.code = "deprecated-action";
+  diagnostic.tags = [vscode.DiagnosticTag.Deprecated];
   diagnostics.push(diagnostic);
   return diagnostics;
 }

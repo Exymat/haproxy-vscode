@@ -19,6 +19,7 @@ describe("settings", () => {
       diagnosticsEnabled: true,
       diagnosticsDebounceMs: 500,
       maxDiagnosticsLines: 4000,
+      maxSymbolLines: 4000,
       formatEnabled: true,
       formatIndent: "spaces-4",
       formatInsertBlankLineBetweenSections: true,
@@ -34,6 +35,7 @@ describe("settings", () => {
         "**/out/**",
         "**/vendor/**",
       ],
+      workspaceSymbolsRoots: [],
       workspaceSymbolsMaxFiles: Number.POSITIVE_INFINITY,
       workspaceSymbolsMaxTotalLines: Number.POSITIVE_INFINITY,
       workspaceSymbolsMaxFileBytes: Number.POSITIVE_INFINITY,
@@ -46,9 +48,11 @@ describe("settings", () => {
   it("clamps debounce and max lines to minimums", () => {
     setMockConfig("haproxy", "diagnostics.debounceMs", 50);
     setMockConfig("haproxy", "diagnostics.maxLines", 10);
+    setMockConfig("haproxy", "symbols.maxLines", 10);
     const settings = getExtensionSettings();
     expect(settings.diagnosticsDebounceMs).toBe(100);
     expect(settings.maxDiagnosticsLines).toBe(100);
+    expect(settings.maxSymbolLines).toBe(100);
   });
 
   it("clamps debounce settings to maximums", () => {

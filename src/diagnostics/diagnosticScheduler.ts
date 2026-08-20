@@ -61,7 +61,7 @@ export function createDiagnosticScheduler(
         deprecatedWarnings: settings.deprecatedWarnings,
         unusedSymbols: settings.unusedSymbols,
         missingReferences: settings.missingReferences,
-        maxLines: settings.maxDiagnosticsLines,
+        maxSymbolLines: settings.maxSymbolLines,
       }),
     );
   };

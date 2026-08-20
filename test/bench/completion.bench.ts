@@ -57,9 +57,9 @@ const completionCases: CompletionCase[] = [
 
 describe("completion", () => {
   for (const testCase of completionCases) {
-    bench(`completion: ${testCase.name}`, () => {
+    bench(`completion: ${testCase.name}`, async () => {
       const doc = createDocument(testCase.content);
-      provideCompletionItems(
+      await provideCompletionItems(
         doc,
         { line: testCase.line, character: testCase.character } as never,
         bundle.languageData,
@@ -70,10 +70,10 @@ describe("completion", () => {
 
   bench(
     "completion warm: defaults directives",
-    () => {
+    async () => {
       const doc = createDocument("defaults\n    ");
       for (let i = 0; i < 20; i += 1) {
-        provideCompletionItems(
+        await provideCompletionItems(
           doc,
           { line: 1, character: 4 } as never,
           bundle.languageData,
@@ -86,10 +86,10 @@ describe("completion", () => {
 
   bench(
     "completion warm: log-format alias prefix",
-    () => {
+    async () => {
       const doc = createDocument('defaults\n    log-format "%c');
       for (let i = 0; i < 20; i += 1) {
-        provideCompletionItems(
+        await provideCompletionItems(
           doc,
           { line: 1, character: '    log-format "%c'.length } as never,
           bundle.languageData,

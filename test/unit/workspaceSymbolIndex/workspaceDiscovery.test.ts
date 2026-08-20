@@ -98,6 +98,84 @@ describe("workspace symbol discovery bounds", () => {
     expect(result.capped).toBe(false);
   });
 
+  it("scopes discovery to configured roots", async () => {
+    const folder = workspaceFolder("file:///repo");
+    setMockWorkspaceFolders([folder]);
+    const findFilesSpy = vi
+      .spyOn(workspace, "findFiles")
+      .mockResolvedValue([
+        Uri.file("file:///repo/haproxy.d/frontends/web.cfg"),
+        Uri.file("file:///repo/other/web.cfg"),
+      ]);
+
+    const result = await getDiscoveryResult(
+      defaultWorkspaceSymbolSettings({ roots: ["haproxy.d"] }),
+      folder as never,
+      "file:///repo",
+      true,
+    );
+
+    expect(findFilesSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ pattern: "haproxy.d/**/*.cfg" }),
+      undefined,
+    );
+    expect(result.uris.map((uri) => uri.toString())).toEqual([
+      "file:///repo/haproxy.d/frontends/web.cfg",
+    ]);
+  });
+
+  it("ignores blank roots and keeps Windows-style root matching case-insensitive", async () => {
+    const folder = workspaceFolder("file:///C:/repo");
+    setMockWorkspaceFolders([folder]);
+    const findFilesSpy = vi
+      .spyOn(workspace, "findFiles")
+      .mockResolvedValue([
+        Uri.file("file:///C:/repo/Haproxy.D/web.cfg"),
+        Uri.file("file:///C:/repo/other/web.cfg"),
+        Uri.file("file:///D:/outside/web.cfg"),
+      ]);
+
+    const blankRoots = await getDiscoveryResult(
+      defaultWorkspaceSymbolSettings({ roots: ["", "/"] }),
+      folder as never,
+      "file:///C:/repo",
+      true,
+    );
+    expect(findFilesSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ pattern: "**/*.cfg" }),
+      undefined,
+    );
+    expect(blankRoots.uris.length).toBeGreaterThan(0);
+
+    findFilesSpy.mockClear();
+    findFilesSpy.mockResolvedValue([
+      Uri.file("file:///C:/repo/Haproxy.D/web.cfg"),
+      Uri.file("file:///C:/repo/other/web.cfg"),
+      Uri.file("file:///D:/outside/web.cfg"),
+    ]);
+    const result = await getDiscoveryResult(
+      defaultWorkspaceSymbolSettings({ roots: ["Haproxy.D"] }),
+      folder as never,
+      "file:///C:/repo",
+      true,
+    );
+
+    expect(result.uris.map((uri) => uri.toString())).toEqual(["file:///C:/repo/Haproxy.D/web.cfg"]);
+
+    findFilesSpy.mockClear();
+    findFilesSpy.mockResolvedValue([
+      { fsPath: "", toString: () => "file:///no-fs-path.cfg" } as never,
+      Uri.file("file:///C:/repo/Haproxy.D/web.cfg"),
+    ]);
+    const noFsPath = await getDiscoveryResult(
+      defaultWorkspaceSymbolSettings({ roots: ["Haproxy.D"] }),
+      undefined,
+      GLOBAL_WORKSPACE_FOLDER_KEY,
+      true,
+    );
+    expect(noFsPath.uris.map((uri) => uri.toString())).not.toContain("file:///no-fs-path.cfg");
+  });
+
   it("returns only URIs from getDiscoveredUris", async () => {
     setMockWorkspaceFile("file:///a.cfg", "backend a");
 

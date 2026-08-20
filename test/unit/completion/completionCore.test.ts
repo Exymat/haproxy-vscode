@@ -12,55 +12,59 @@ describe("completion core", () => {
     vi.restoreAllMocks();
   });
 
-  it("suggests section headers at file start", () => {
-    const labels = completionLabels("", 0, 0);
+  it("suggests section headers at file start", async () => {
+    const labels = await completionLabels("", 0, 0);
     expect(labels).toEqual(expect.arrayContaining(["global", "defaults", "frontend", "backend"]));
   });
 
-  it("suggests section headers while typing partial names", () => {
-    expect(completionLabels("global", 0, 1)).toEqual(expect.arrayContaining(["global"]));
-    expect(completionLabels("fron", 0)).toEqual(["frontend"]);
-    expect(completionLabels("back", 0)).toEqual(expect.arrayContaining(["backend"]));
-    expect(completionLabels("fron", 0)).not.toContain("backend");
+  it("suggests section headers while typing partial names", async () => {
+    expect(await completionLabels("global", 0, 1)).toEqual(expect.arrayContaining(["global"]));
+    expect(await completionLabels("fron", 0)).toEqual(["frontend"]);
+    expect(await completionLabels("back", 0)).toEqual(expect.arrayContaining(["backend"]));
+    expect(await completionLabels("fron", 0)).not.toContain("backend");
   });
 
-  it("suggests section headers between sections but not on indented blank lines", () => {
-    expect(completionLabels("global\n    daemon\n", 2, 0)).toEqual(
+  it("suggests section headers between sections but not on indented blank lines", async () => {
+    expect(await completionLabels("global\n    daemon\n", 2, 0)).toEqual(
       expect.arrayContaining(["frontend", "backend", "defaults"]),
     );
     const indentedBlank = "defaults\n    mode http\n    \n    balance roundrobin";
-    expect(completionLabels(indentedBlank, 2, 4)).toEqual(expect.arrayContaining(["balance"]));
-    expect(completionLabels(indentedBlank, 2, 4)).not.toContain("frontend");
+    expect(await completionLabels(indentedBlank, 2, 4)).toEqual(
+      expect.arrayContaining(["balance"]),
+    );
+    expect(await completionLabels(indentedBlank, 2, 4)).not.toContain("frontend");
   });
 
-  it("returns no completions when document context is null", () => {
-    expect(completionLabels("frontend web", 0, "frontend web".indexOf("web"))).toEqual([]);
+  it("returns no completions when document context is null", async () => {
+    expect(await completionLabels("frontend web", 0, "frontend web".indexOf("web"))).toEqual([]);
   });
 
-  it("suggests from after named from-capable section headers", () => {
-    expect(completionLabels("frontend web ", 0)).toEqual(["from"]);
-    expect(completionLabels("backend api ", 0)).toEqual(["from"]);
-    expect(completionLabels("listen app ", 0)).toEqual(["from"]);
-    expect(completionLabels("defaults ", 0)).toEqual(["from"]);
-    expect(completionLabels("defaults myname ", 0)).toEqual(["from"]);
-    expect(completionLabels("frontend web fr", 0)).toEqual(["from"]);
-    expect(completionLabels("defaults fr", 0)).toEqual(["from"]);
+  it("suggests from after named from-capable section headers", async () => {
+    expect(await completionLabels("frontend web ", 0)).toEqual(["from"]);
+    expect(await completionLabels("backend api ", 0)).toEqual(["from"]);
+    expect(await completionLabels("listen app ", 0)).toEqual(["from"]);
+    expect(await completionLabels("defaults ", 0)).toEqual(["from"]);
+    expect(await completionLabels("defaults myname ", 0)).toEqual(["from"]);
+    expect(await completionLabels("frontend web fr", 0)).toEqual(["from"]);
+    expect(await completionLabels("defaults fr", 0)).toEqual(["from"]);
   });
 
-  it("does not suggest from after sections that cannot inherit", () => {
-    expect(completionLabels("cache foo ", 0)).toEqual([]);
-    expect(completionLabels("peers p1 ", 0)).toEqual([]);
-    expect(completionLabels("frontend ", 0)).toEqual([]);
-    expect(completionLabels("defaults myname", 0, "defaults myname".indexOf("myname"))).toEqual([]);
+  it("does not suggest from after sections that cannot inherit", async () => {
+    expect(await completionLabels("cache foo ", 0)).toEqual([]);
+    expect(await completionLabels("peers p1 ", 0)).toEqual([]);
+    expect(await completionLabels("frontend ", 0)).toEqual([]);
+    expect(
+      await completionLabels("defaults myname", 0, "defaults myname".indexOf("myname")),
+    ).toEqual([]);
   });
 
-  it("suggests option names", () => {
-    expect(completionLabels("defaults\n    no option ", 1)).toEqual(
+  it("suggests option names", async () => {
+    expect(await completionLabels("defaults\n    no option ", 1)).toEqual(
       expect.arrayContaining(["httplog", "forwardfor"]),
     );
   });
 
-  it("suggests services after http-request use-service", () => {
+  it("suggests services after http-request use-service", async () => {
     const origGroupItems = documentContext.groupItems;
     vi.spyOn(documentContext, "groupItems").mockImplementation((data, group) => {
       if (group === "services") {
@@ -68,66 +72,70 @@ describe("completion core", () => {
       }
       return origGroupItems(data, group);
     });
-    expect(completionLabels("frontend web\n    http-request use-service ", 1)).toContain("ping");
+    expect(await completionLabels("frontend web\n    http-request use-service ", 1)).toContain(
+      "ping",
+    );
   });
 
-  it("requires use-service metadata", () => {
+  it("requires use-service metadata", async () => {
     const schema = structuredClone(bundle.schema);
     schema.semantic_groups = { ...schema.semantic_groups, use_service: [] };
     const doc = createDocument("frontend web\n    http-request use-service ");
-    expect(() =>
+    await expect(
       provideCompletionItems(
         doc,
         cursorAtLineEnd("frontend web\n    http-request use-service ", 1),
         bundle.languageData,
         schema,
       ),
-    ).toThrow(/semantic_groups\.use_service/);
+    ).rejects.toThrow(/semantic_groups\.use_service/);
 
     const malformed = structuredClone(bundle.schema);
     malformed.semantic_groups = {
       ...malformed.semantic_groups,
       use_service: { rule_kinds: ["http-request"], action: 1, service_group: "services" },
     };
-    expect(() =>
+    await expect(
       provideCompletionItems(
         doc,
         cursorAtLineEnd("frontend web\n    http-request use-service ", 1),
         bundle.languageData,
         malformed,
       ),
-    ).toThrow(/semantic_groups\.use_service/);
+    ).rejects.toThrow(/semantic_groups\.use_service/);
 
     malformed.semantic_groups = {
       ...malformed.semantic_groups,
       use_service: { rule_kinds: "http-request", action: "use-service", service_group: "services" },
     };
-    expect(() =>
+    await expect(
       provideCompletionItems(
         doc,
         cursorAtLineEnd("frontend web\n    http-request use-service ", 1),
         bundle.languageData,
         malformed,
       ),
-    ).toThrow(/semantic_groups\.use_service/);
+    ).rejects.toThrow(/semantic_groups\.use_service/);
   });
 
-  it("suggests action, filter, expression, and acl completions", () => {
-    expect(completionLabels("frontend web\n    tcp-request connection ", 1)).not.toContain("acl");
-    expect(completionLabels("backend api\n    filter ", 1).length).toBeGreaterThan(0);
+  it("suggests action, filter, expression, and acl completions", async () => {
+    expect(await completionLabels("frontend web\n    tcp-request connection ", 1)).not.toContain(
+      "acl",
+    );
+    expect((await completionLabels("backend api\n    filter ", 1)).length).toBeGreaterThan(0);
     expect(
-      completionLabels("frontend web\n    http-request set-header X %[req.", 1).length,
+      (await completionLabels("frontend web\n    http-request set-header X %[req.", 1)).length,
     ).toBeGreaterThan(0);
     expect(
-      completionLabels("frontend web\n    http-request set-header X %[path(0):", 1).length,
+      (await completionLabels("frontend web\n    http-request set-header X %[path(0):", 1)).length,
     ).toBeGreaterThan(0);
-    expect(completionLabels("frontend web\n    acl test ", 1)).toEqual(
+    expect(await completionLabels("frontend web\n    acl test ", 1)).toEqual(
       expect.arrayContaining(["path", "hdr"]),
     );
   });
 
-  it("handles empty and non-matching directive-argument contexts", () => {
-    expect(completionLabels("defaults\n    notadirective ", 1)).toEqual([]);
+  it("handles empty and non-matching directive-argument contexts", async () => {
+    expect(await completionLabels("defaults\n    notadirective ", 1)).toEqual([]);
 
     const doc = createDocument("defaults\n    mode ");
     vi.spyOn(lineSemanticContext, "getLineSemanticContext").mockReturnValue(null);
@@ -153,56 +161,60 @@ describe("completion core", () => {
     expect(items).toEqual([]);
   });
 
-  it("covers directive and ruleset completions", () => {
-    expect(completionLabels("frontend web\n    bi", 1)).toEqual(expect.arrayContaining(["bind"]));
+  it("covers directive and ruleset completions", async () => {
+    expect(await completionLabels("frontend web\n    bi", 1)).toEqual(
+      expect.arrayContaining(["bind"]),
+    );
     expect(
-      completionLabels(
+      await completionLabels(
         "frontend web\n    http-request set",
         1,
         "    http-request set".indexOf("set"),
       ),
     ).toEqual(expect.arrayContaining(["set-header", "add-header"]));
     expect(
-      completionLabels(
+      await completionLabels(
         "frontend web\n    http-response set",
         1,
         "    http-response set".indexOf("set"),
       ),
     ).toEqual(expect.arrayContaining(["set-header", "add-header"]));
     expect(
-      completionLabels(
+      await completionLabels(
         "frontend web\n    http-after-response set",
         1,
         "    http-after-response set".indexOf("set"),
       ),
     ).toEqual(expect.arrayContaining(["set-header", "add-header"]));
-    expect(completionLabels("frontend web\n    tcp-response content ", 1)).not.toContain("acl");
+    expect(await completionLabels("frontend web\n    tcp-response content ", 1)).not.toContain(
+      "acl",
+    );
   });
 
-  it("handles line-option and bind token edge cases", () => {
+  it("handles line-option and bind token edge cases", async () => {
     expect(
-      completionLabels("backend api\n    filter", 1, "    filter".indexOf("filter")).length,
+      (await completionLabels("backend api\n    filter", 1, "    filter".indexOf("filter"))).length,
     ).toBeGreaterThan(0);
     expect(
-      completionLabels(
+      await completionLabels(
         "frontend web\n    bind :80 extra",
         1,
         "    bind :80 extra".indexOf("extra"),
       ),
     ).not.toContain("bind");
     expect(
-      completionLabels(
+      await completionLabels(
         "frontend web\n    bind 192.168.1.22:80, :81, 192.168.1.23:82 ",
         1,
         "    bind 192.168.1.22:80, :81, 192.168.1.23:82 ".indexOf(":81") + 1,
       ),
     ).toEqual([]);
-    expect(completionLabels("backend api\n    server s1 127.0.0.1:80 cookie app01 ins", 1)).toEqual(
-      expect.arrayContaining(["insert"]),
-    );
+    expect(
+      await completionLabels("backend api\n    server s1 127.0.0.1:80 cookie app01 ins", 1),
+    ).toEqual(expect.arrayContaining(["insert"]));
   });
 
-  it("covers directive-kind and schema-missing fallback paths", () => {
+  it("covers directive-kind and schema-missing fallback paths", async () => {
     vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
       kind: "directive",
       tokenIndex: 2,
@@ -234,7 +246,7 @@ describe("completion core", () => {
         arguments: [],
       },
     ] as never);
-    expect(completionLabels("defaults\n    mode http junk", 1, 14)).toEqual([]);
+    expect(await completionLabels("defaults\n    mode http junk", 1, 14)).toEqual([]);
 
     vi.restoreAllMocks();
     const doc2 = createDocument("defaults\n    mode ");

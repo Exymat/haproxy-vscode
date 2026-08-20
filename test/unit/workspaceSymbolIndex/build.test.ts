@@ -94,7 +94,7 @@ describe("workspace symbol index build", () => {
     const diagnostics = computeDiagnostics(frontend, schema, {
       unusedSymbols: false,
       missingReferences: true,
-      maxLines: 4000,
+      maxSymbolLines: 4000,
     });
     expect(
       diagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "missing-reference"),
@@ -114,7 +114,7 @@ describe("workspace symbol index build", () => {
     const diagnostics = computeDiagnostics(frontend, schema, {
       unusedSymbols: false,
       missingReferences: true,
-      maxLines: 4000,
+      maxSymbolLines: 4000,
     });
     expect(
       diagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "missing-reference"),

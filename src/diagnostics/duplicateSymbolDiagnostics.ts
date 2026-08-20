@@ -5,7 +5,7 @@ import * as vscode from "vscode";
 import { makeDiagnostic } from "./diagnosticUtils";
 import { ParsedLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
-import { symbolStringList, symbolStringMap } from "../schema/symbols";
+import { symbolKindSet, symbolStringMap } from "../schema/symbols";
 import type { SymbolKind } from "../symbolIndex/types";
 import {
   workspaceUriKey,
@@ -14,7 +14,7 @@ import {
 } from "../symbolIndex/workspace";
 
 function duplicateSectionKinds(schema: HaproxySchema): Set<SymbolKind> {
-  return new Set(symbolStringList(schema, "duplicate_section_kinds"));
+  return symbolKindSet(schema, "duplicate_section_kinds");
 }
 
 function duplicateSectionLabels(schema: HaproxySchema): Record<string, string> {

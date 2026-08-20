@@ -47,4 +47,17 @@ describe("findReferencePatternMatches", () => {
     expect(hits).toHaveLength(1);
     expect(hits[0]?.targetToken.text).toBe("images");
   });
+
+  it("filters and strips configured target prefixes", () => {
+    const pattern: ReferencePattern = {
+      match_tokens: ["log", "*"],
+      reference_kind: "ring",
+      target_token_index: 1,
+      target_prefix: "ring@",
+    };
+    const hits = findReferencePatternMatches([token("log", 4), token("ring@buffer", 8)], pattern);
+    expect(hits[0]?.targetToken).toEqual({ text: "buffer", start: 13, end: 19 });
+    expect(findReferencePatternMatches([token("log", 4), token("stderr", 8)], pattern)).toEqual([]);
+    expect(findReferencePatternMatches([token("log", 4), token("ring@", 8)], pattern)).toEqual([]);
+  });
 });

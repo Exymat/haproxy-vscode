@@ -31,7 +31,7 @@ function positionOf(content: string, needle: string, occurrence = 0) {
 }
 
 describe("cross-feature contracts on valid configs", () => {
-  it("keeps sample.cfg valid across diagnostics, symbols, navigation, completion, and hover", () => {
+  it("keeps sample.cfg valid across diagnostics, symbols, navigation, completion, and hover", async () => {
     const contract = loadFixtureContract("integration", "sample.cfg", "3.2", {
       missingReferences: true,
       unusedSymbols: true,
@@ -60,7 +60,7 @@ describe("cross-feature contracts on valid configs", () => {
       line: bindLine,
       character: contract.content.split(/\r?\n/)[bindLine].indexOf("bind"),
     };
-    const completion = provideCompletionItems(
+    const completion = await provideCompletionItems(
       doc,
       bindKeywordPos as never,
       bundle34.languageData,

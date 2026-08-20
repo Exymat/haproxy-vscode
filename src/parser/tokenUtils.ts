@@ -76,6 +76,10 @@ export function isLikelyValue(token: string, conditionals?: Set<string>): boolea
   if (token.startsWith("{") || token.startsWith("%[") || token.startsWith("(")) {
     return true;
   }
+  // Custom log-format backend names (e.g. be_%[req.hdr(host)], %[var(x)], map(...)).
+  if (token.includes("%") || /map\s*\(/i.test(token)) {
+    return true;
+  }
   if (/^[0-9]/.test(token)) {
     return true;
   }
