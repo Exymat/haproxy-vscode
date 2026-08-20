@@ -13,5 +13,27 @@ describe("uri key helpers", () => {
     const document = createDocument("global", uri.toString());
     expect(documentUriKey(document)).toBe(workspaceUriKey(uri));
     expect(documentUriKey(document)).toBe(normalizeUriKey(uri));
+    expect(documentUriKey(document)).toBe("file://c:/repo/config/haproxy.cfg");
+  });
+
+  it("lowercases Windows file URIs when only the URI string exposes the drive letter", () => {
+    const uri = {
+      scheme: "file",
+      fsPath: "file://C:/Repo/Config/haproxy.cfg",
+      toString: () => "file://C:/Repo/Config/haproxy.cfg",
+    } as vscode.Uri;
+    expect(normalizeUriKey(uri)).toBe("file://c:/repo/config/haproxy.cfg");
+  });
+
+  it("preserves case for POSIX file URIs outside Windows", () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const uri = {
+      scheme: "file",
+      fsPath: "/Repo/Config/haproxy.cfg",
+      toString: () => "file:///Repo/Config/haproxy.cfg",
+    } as vscode.Uri;
+    expect(normalizeUriKey(uri)).toBe("file:///Repo/Config/haproxy.cfg");
   });
 });
