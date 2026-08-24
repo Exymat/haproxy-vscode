@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.19.1
+
+- **Split-config defaults diagnostics** — adding or changing a named `defaults` profile in one file (for example `haproxy.d/defaults.cfg`) now updates unused-profile and missing-`from` diagnostics in open frontend and backend files. The workspace graph revision invalidates the diagnostics cache, and nested files in the same folder refresh immediately after the index update instead of keeping stale unused/unknown results.
+
 ## 0.19.0
 
 - **Signature Help** — parameter hints for directive signatures from the schema (triggered on space and comma), with the active argument highlighted as you type (e.g. `errorfile 400 |`).
