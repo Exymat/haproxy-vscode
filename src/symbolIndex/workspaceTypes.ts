@@ -50,6 +50,8 @@ export interface WorkspaceDocumentSymbols {
 
 export interface WorkspaceSymbolIndex {
   generation: number;
+  /** Monotonic id for published graph contents; used to invalidate diagnostics caches. */
+  revision: number;
   capped: boolean;
   documents: Map<string, WorkspaceDocumentSymbols>;
   definitions: Map<string, WorkspaceSymbolSite[]>;

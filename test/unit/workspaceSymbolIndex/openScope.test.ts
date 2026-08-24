@@ -5,6 +5,7 @@ import {
   isWorkspaceRebuildPending,
   resolveWorkspaceRebuildScopeOnOpen,
   scheduleWorkspaceSymbolIndexRebuild,
+  setWorkspaceSymbolIndexChangeListener,
   workspaceEntryForDocument,
 } from "../../../src/symbolIndex";
 import {
@@ -177,6 +178,8 @@ describe("workspace debounced burst rebuilds", () => {
     updateDocument(frontend, "frontend web\n    use_backend api_v2");
     updateDocument(backend, "backend api_v2");
 
+    const listener = vi.fn();
+    setWorkspaceSymbolIndexChangeListener(listener);
     scheduleWorkspaceSymbolIndexRebuild(schema, settings, 4000, {
       scope: "incremental",
       document: frontend,
@@ -188,6 +191,9 @@ describe("workspace debounced burst rebuilds", () => {
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
+    expect(listener).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ scope: "content", document: frontend }),
+    );
     const workspaceIndex = expectWorkspaceIndex(getWorkspaceSymbolIndex(frontend));
     expect(findWorkspaceDefinitions(workspaceIndex, "proxy-section", "api_v2", null)).toHaveLength(
       1,

@@ -12,6 +12,7 @@ import { buildSymbolIndex } from "./build";
 import { getSymbolIndex } from "./cache";
 import { buildReferencesByKey } from "./utils";
 import { SymbolKind, SymbolSite } from "./types";
+import { bumpWorkspaceContentRevision } from "./workspaceState";
 import { WorkspaceEntrySkipReason } from "../extension/outputChannel";
 import {
   SectionRange,
@@ -116,6 +117,7 @@ export function aggregateDocuments(
   const scoped = scopedSymbolKinds ?? new Set<SymbolKind>();
   return {
     generation,
+    revision: bumpWorkspaceContentRevision(),
     capped,
     documents,
     definitions,

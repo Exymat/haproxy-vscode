@@ -11,6 +11,7 @@ import {
   isUriExcludedFromWorkspaceSymbols,
   scheduleWorkspaceSymbolIndexRebuild,
   setWorkspaceSymbolIndexChangeListener,
+  workspaceUriKey,
   WorkspaceIndexChangeEvent,
   WorkspaceRebuildScope,
   WorkspaceSchemaSource,
@@ -79,11 +80,11 @@ export function createExtensionWorkspaceSymbolService(
     if (!folder) {
       return openHaproxyDocuments();
     }
-    const folderUri = folder.uri.toString();
-    return openHaproxyDocuments().filter(
-      (document) =>
-        vscode.workspace.getWorkspaceFolder?.(document.uri)?.uri.toString() === folderUri,
-    );
+    const folderKey = workspaceUriKey(folder.uri);
+    return openHaproxyDocuments().filter((document) => {
+      const documentFolder = vscode.workspace.getWorkspaceFolder?.(document.uri);
+      return documentFolder !== undefined && workspaceUriKey(documentFolder.uri) === folderKey;
+    });
   };
 
   const scheduleRebuildWithReadyBundle = (scope: WorkspaceRebuildScope = "full"): void => {
@@ -122,19 +123,6 @@ export function createExtensionWorkspaceSymbolService(
 
   const onWorkspaceIndexChanged = (event: WorkspaceIndexChangeEvent): void => {
     options.refreshWorkspaceIndexStatusBar();
-    if (event.scope === "incremental" && event.document) {
-      const folderDocs = openHaproxyDocumentsInFolder(event.document.uri);
-      const changedUri = event.document.uri.toString();
-      for (const document of folderDocs) {
-        if (document.uri.toString() === changedUri) {
-          options.scheduler.runNow(document);
-        } else {
-          options.scheduler.schedule(document);
-        }
-      }
-      return;
-    }
-
     const documents = event.document
       ? openHaproxyDocumentsInFolder(event.document.uri)
       : openHaproxyDocuments();

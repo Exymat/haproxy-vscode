@@ -15,6 +15,7 @@ import { workspaceUriKey } from "./workspaceUri";
 
 let activeWorkspaceIndexes = new Map<string, WorkspaceSymbolIndex>();
 let activeGeneration = 0;
+let contentRevision = 0;
 let onDidChangeWorkspaceIndex: ((event: WorkspaceIndexChangeEvent) => void) | undefined;
 const notifiedCappedFolders = new Set<string>();
 const cappedFolderKeys = new Set<string>();
@@ -26,6 +27,11 @@ export function getActiveGeneration(): number {
 export function bumpActiveGeneration(): number {
   activeGeneration += 1;
   return activeGeneration;
+}
+
+export function bumpWorkspaceContentRevision(): number {
+  contentRevision += 1;
+  return contentRevision;
 }
 
 export function isStaleGeneration(generation: number): boolean {

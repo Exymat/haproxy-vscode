@@ -204,7 +204,9 @@ async function flushPendingRebuild(
     return;
   }
 
-  for (const document of pending.incrementalDocuments.values()) {
+  const incrementalDocuments = [...pending.incrementalDocuments.values()];
+  const hasFollowOnRebuild = pending.workspaceContent || pending.folderTargets.size > 0;
+  for (const document of incrementalDocuments) {
     /* v8 ignore start -- stale async generations are race guards for debounced flush work. */
     if (isStaleGeneration(generation)) {
       return;
@@ -214,6 +216,9 @@ async function flushPendingRebuild(
       scope: "incremental",
       document,
     });
+  }
+  if (incrementalDocuments.length > 0 && !hasFollowOnRebuild) {
+    notifyIncrementalBatch(incrementalDocuments);
   }
 
   if (pending.workspaceContent) {
@@ -239,6 +244,14 @@ async function flushPendingRebuild(
       uri: target.uri,
     });
   }
+}
+
+function notifyIncrementalBatch(documents: readonly vscode.TextDocument[]): void {
+  if (documents.length === 1) {
+    notifyWorkspaceIndexChanged({ scope: "incremental", document: documents[0] });
+    return;
+  }
+  notifyWorkspaceIndexChanged({ scope: "content", document: documents[0] });
 }
 
 export function resolveWorkspaceRebuildScopeOnOpen(
@@ -324,7 +337,6 @@ async function updateSingleDocumentInWorkspaceIndex(
     const documents = new Map(existing.documents);
     documents.delete(uriKey);
     setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, false, documents));
-    notifyWorkspaceIndexChanged({ scope: "incremental", document });
     return;
   }
 
@@ -338,7 +350,6 @@ async function updateSingleDocumentInWorkspaceIndex(
   } else {
     setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, false, documents));
   }
-  notifyWorkspaceIndexChanged({ scope: "incremental", document });
 }
 
 async function rebuildWorkspaceIndexes(

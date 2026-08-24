@@ -30,6 +30,7 @@ interface DiagnosticsCacheKey {
   missingReferences: boolean;
   maxLines: number | undefined;
   workspaceGeneration: number | null;
+  workspaceRevision: number | null;
 }
 
 interface DiagnosticsCacheEntry {
@@ -66,6 +67,7 @@ function diagnosticsCacheKey(
     missingReferences: options.missingReferences !== false,
     maxLines: options.maxLines,
     workspaceGeneration: workspaceIndex?.generation ?? null,
+    workspaceRevision: workspaceIndex?.revision ?? null,
   };
 }
 
@@ -77,7 +79,8 @@ function sameCacheKey(left: DiagnosticsCacheKey, right: DiagnosticsCacheKey): bo
     left.unusedSymbols === right.unusedSymbols &&
     left.missingReferences === right.missingReferences &&
     left.maxLines === right.maxLines &&
-    left.workspaceGeneration === right.workspaceGeneration
+    left.workspaceGeneration === right.workspaceGeneration &&
+    left.workspaceRevision === right.workspaceRevision
   );
 }
 

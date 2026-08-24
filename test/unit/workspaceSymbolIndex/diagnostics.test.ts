@@ -1,10 +1,35 @@
 import { computeDiagnostics } from "../../../src/diagnostics";
 import { provideDefinition, provideReferences } from "../../../src/navigation";
-import { mockTextDocuments, setMockWorkspaceFile } from "../../helpers/vscode";
-import { createDocument } from "../../helpers/document";
+import {
+  findWorkspaceDefinitions,
+  findWorkspaceReferences,
+  getWorkspaceSymbolIndex,
+  scheduleWorkspaceSymbolIndexRebuild,
+  setWorkspaceSymbolIndexChangeListener,
+} from "../../../src/symbolIndex";
+import {
+  mockTextDocuments,
+  setMockWorkspaceFile,
+  setMockWorkspaceFolders,
+} from "../../helpers/vscode";
+import { createDocument, updateDocument } from "../../helpers/document";
 import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 
-import { buildWorkspace, pos, schema, setupWorkspaceSymbolIndexTests } from "./helpers";
+import {
+  buildWorkspace,
+  defaultWorkspaceSymbolSettings,
+  expectWorkspaceIndex,
+  pos,
+  schema,
+  setupWorkspaceSymbolIndexTests,
+  workspaceFolder,
+} from "./helpers";
+
+const symbolDiagnosticOptions = {
+  unusedSymbols: true,
+  missingReferences: true,
+  maxLines: 4000,
+} as const;
 
 describe("workspace symbol index diagnostics", () => {
   setupWorkspaceSymbolIndexTests();
@@ -138,5 +163,213 @@ describe("workspace symbol index diagnostics", () => {
     expect(references.map((location) => location.uri.toString())).toEqual([
       "file:///frontends/web.cfg",
     ]);
+  });
+
+  it("resolves a new defaults profile across split files after both incremental updates", async () => {
+    const defaultsUri = "file:///defaults.cfg";
+    const frontendUri = "file:///frontends/web.cfg";
+    const initialDefaults = ["defaults http", "    mode http"].join("\n");
+    const initialFrontend = ["frontend web", "    bind :80"].join("\n");
+    const updatedDefaults = [
+      "defaults http",
+      "    mode http",
+      "defaults api",
+      "    mode http",
+    ].join("\n");
+    const updatedFrontend = ["frontend web from api", "    bind :80"].join("\n");
+
+    setMockWorkspaceFile(defaultsUri, initialDefaults);
+    setMockWorkspaceFile(frontendUri, initialFrontend);
+    const defaultsDoc = createDocument(initialDefaults, defaultsUri);
+    const frontendDoc = createDocument(initialFrontend, frontendUri);
+    mockTextDocuments.push(defaultsDoc as never, frontendDoc as never);
+
+    await buildWorkspace();
+    computeDiagnostics(defaultsDoc, schema, symbolDiagnosticOptions);
+    computeDiagnostics(frontendDoc, schema, symbolDiagnosticOptions);
+
+    updateDocument(defaultsDoc, updatedDefaults);
+    updateDocument(frontendDoc, updatedFrontend);
+    setMockWorkspaceFile(defaultsUri, updatedDefaults);
+    setMockWorkspaceFile(frontendUri, updatedFrontend);
+
+    setWorkspaceSymbolIndexChangeListener((event) => {
+      if (event.document) {
+        computeDiagnostics(event.document, schema, symbolDiagnosticOptions);
+      }
+      computeDiagnostics(defaultsDoc, schema, symbolDiagnosticOptions);
+      computeDiagnostics(frontendDoc, schema, symbolDiagnosticOptions);
+    });
+
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000, {
+      scope: "incremental",
+      document: defaultsDoc,
+    });
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000, {
+      scope: "incremental",
+      document: frontendDoc,
+    });
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    const workspaceIndex = expectWorkspaceIndex(getWorkspaceSymbolIndex(defaultsDoc));
+    expect(findWorkspaceDefinitions(workspaceIndex, "defaults-profile", "api", null)).toHaveLength(
+      1,
+    );
+    expect(findWorkspaceReferences(workspaceIndex, "defaults-profile", "api", null)).toHaveLength(
+      1,
+    );
+
+    const defaultsDiags = computeDiagnostics(defaultsDoc, schema, symbolDiagnosticOptions);
+    const frontendDiags = computeDiagnostics(frontendDoc, schema, symbolDiagnosticOptions);
+
+    expect(
+      defaultsDiags.filter(
+        (diag) =>
+          formatDiagnosticCode(diag.code) === "unused-defaults-profile" &&
+          diag.message.includes("api"),
+      ),
+    ).toHaveLength(0);
+    expect(
+      frontendDiags.filter(
+        (diag) =>
+          formatDiagnosticCode(diag.code) === "missing-reference" && diag.message.includes("api"),
+      ),
+    ).toHaveLength(0);
+  });
+
+  it("does not keep missing-reference diagnostics when the frontend is indexed before the new defaults profile", async () => {
+    const defaultsUri = "file:///defaults.cfg";
+    const frontendUri = "file:///frontends/web.cfg";
+    const initialDefaults = ["defaults http", "    mode http"].join("\n");
+    const initialFrontend = ["frontend web", "    bind :80"].join("\n");
+    const updatedDefaults = [
+      "defaults http",
+      "    mode http",
+      "defaults api",
+      "    mode http",
+    ].join("\n");
+    const updatedFrontend = ["frontend web from api", "    bind :80"].join("\n");
+
+    setMockWorkspaceFile(defaultsUri, initialDefaults);
+    setMockWorkspaceFile(frontendUri, initialFrontend);
+    const defaultsDoc = createDocument(initialDefaults, defaultsUri);
+    const frontendDoc = createDocument(initialFrontend, frontendUri);
+    mockTextDocuments.push(defaultsDoc as never, frontendDoc as never);
+
+    await buildWorkspace();
+    computeDiagnostics(defaultsDoc, schema, symbolDiagnosticOptions);
+    computeDiagnostics(frontendDoc, schema, symbolDiagnosticOptions);
+
+    updateDocument(frontendDoc, updatedFrontend);
+    updateDocument(defaultsDoc, updatedDefaults);
+    setMockWorkspaceFile(frontendUri, updatedFrontend);
+    setMockWorkspaceFile(defaultsUri, updatedDefaults);
+
+    setWorkspaceSymbolIndexChangeListener((event) => {
+      if (event.document) {
+        computeDiagnostics(event.document, schema, symbolDiagnosticOptions);
+      }
+      computeDiagnostics(defaultsDoc, schema, symbolDiagnosticOptions);
+      computeDiagnostics(frontendDoc, schema, symbolDiagnosticOptions);
+    });
+
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000, {
+      scope: "incremental",
+      document: frontendDoc,
+    });
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000, {
+      scope: "incremental",
+      document: defaultsDoc,
+    });
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    const frontendDiags = computeDiagnostics(frontendDoc, schema, symbolDiagnosticOptions);
+    const defaultsDiags = computeDiagnostics(defaultsDoc, schema, symbolDiagnosticOptions);
+
+    expect(
+      frontendDiags.filter(
+        (diag) =>
+          formatDiagnosticCode(diag.code) === "missing-reference" && diag.message.includes("api"),
+      ),
+    ).toHaveLength(0);
+    expect(
+      defaultsDiags.filter(
+        (diag) =>
+          formatDiagnosticCode(diag.code) === "unused-defaults-profile" &&
+          diag.message.includes("api"),
+      ),
+    ).toHaveLength(0);
+  });
+
+  it("picks up a new defaults profile in nested haproxy.d frontends after only defaults.cfg changes", async () => {
+    const include = ["**/haproxy.d/**/*.cfg", "**/haproxy.d/*.cfg"];
+    const defaultsUri = "file:///test_dir/haproxy.d/defaults.cfg";
+    const frontendUri = "file:///test_dir/haproxy.d/frontends/fe_1.cfg";
+    const backendUri = "file:///test_dir/haproxy.d/backends/be_1.cfg";
+    const initialDefaults = ["defaults http", "    mode http"].join("\n");
+    const frontendContent = [
+      "frontend fe_1 from api",
+      "    bind :80",
+      "    default_backend be_1",
+    ].join("\n");
+    const backendContent = ["backend be_1", "    server s1 127.0.0.1:80"].join("\n");
+    const updatedDefaults = [
+      "defaults http",
+      "    mode http",
+      "defaults api",
+      "    mode http",
+    ].join("\n");
+
+    setMockWorkspaceFolders([workspaceFolder("file:///test_dir")]);
+    setMockWorkspaceFile(defaultsUri, initialDefaults);
+    setMockWorkspaceFile(frontendUri, frontendContent);
+    setMockWorkspaceFile(backendUri, backendContent);
+    const defaultsDoc = createDocument(initialDefaults, defaultsUri);
+    const frontendDoc = createDocument(frontendContent, frontendUri);
+    const backendDoc = createDocument(backendContent, backendUri);
+    mockTextDocuments.push(defaultsDoc as never, frontendDoc as never, backendDoc as never);
+
+    await buildWorkspace(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, include);
+
+    const before = computeDiagnostics(frontendDoc, schema, symbolDiagnosticOptions);
+    expect(
+      before.filter(
+        (diag) =>
+          formatDiagnosticCode(diag.code) === "missing-reference" && diag.message.includes("api"),
+      ),
+    ).toHaveLength(1);
+
+    updateDocument(defaultsDoc, updatedDefaults);
+    setMockWorkspaceFile(defaultsUri, updatedDefaults);
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings({ include }), 4000, {
+      scope: "incremental",
+      document: defaultsDoc,
+    });
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    const workspaceIndex = expectWorkspaceIndex(getWorkspaceSymbolIndex(frontendDoc));
+    expect(workspaceIndex.documents.has(frontendUri)).toBe(true);
+    expect(workspaceIndex.documents.has(backendUri)).toBe(true);
+    expect(findWorkspaceDefinitions(workspaceIndex, "defaults-profile", "api", null)).toHaveLength(
+      1,
+    );
+
+    const after = computeDiagnostics(frontendDoc, schema, symbolDiagnosticOptions);
+    expect(
+      after.filter(
+        (diag) =>
+          formatDiagnosticCode(diag.code) === "missing-reference" && diag.message.includes("api"),
+      ),
+    ).toHaveLength(0);
+    expect(
+      computeDiagnostics(defaultsDoc, schema, symbolDiagnosticOptions).filter(
+        (diag) =>
+          formatDiagnosticCode(diag.code) === "unused-defaults-profile" &&
+          diag.message.includes("api"),
+      ),
+    ).toHaveLength(0);
   });
 });

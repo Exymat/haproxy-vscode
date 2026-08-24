@@ -403,7 +403,7 @@ describe("extension workspace symbol integration", () => {
     expect(setUris).not.toContain("file:///repo/readme.txt");
   });
 
-  it("debounces diagnostics for sibling haproxy documents on incremental index updates", async () => {
+  it("refreshes sibling haproxy documents immediately on incremental index updates", async () => {
     setMockConfig("haproxy", "workspaceSymbols.debounceMs", 100);
     setMockConfig("haproxy", "diagnostics.debounceMs", 5000);
     setMockWorkspaceFolders([workspaceFolder("file:///repo")]);
@@ -444,12 +444,71 @@ describe("extension workspace symbol integration", () => {
 
     const immediateUris = diagnosticSetUris(collection);
     expect(immediateUris).toContain("file:///repo/a.cfg");
-    expect(immediateUris).not.toContain("file:///repo/c.cfg");
+    expect(immediateUris).toContain("file:///repo/c.cfg");
+  });
 
-    await vi.advanceTimersByTimeAsync(5000);
+  it("refreshes nested haproxy.d frontends immediately when defaults.cfg is indexed", async () => {
+    setMockConfig("haproxy", "workspaceSymbols.debounceMs", 100);
+    setMockConfig("haproxy", "diagnostics.debounceMs", 5000);
+    setMockConfig("haproxy", "workspaceSymbols.include", [
+      "**/haproxy.d/**/*.cfg",
+      "**/haproxy.d/*.cfg",
+    ]);
+    setMockWorkspaceFolders([workspaceFolder("file:///test_dir")]);
+
+    const defaultsContent = ["defaults http", "    mode http"].join("\n");
+    const frontendContent = ["frontend fe_1 from api", "    bind :80"].join("\n");
+    const backendContent = ["backend be_1", "    server s1 127.0.0.1:80"].join("\n");
+    setMockWorkspaceFile("file:///test_dir/haproxy.d/defaults.cfg", defaultsContent);
+    setMockWorkspaceFile("file:///test_dir/haproxy.d/frontends/fe_1.cfg", frontendContent);
+    setMockWorkspaceFile("file:///test_dir/haproxy.d/backends/be_1.cfg", backendContent);
+
+    const defaultsDoc = createDocument(defaultsContent, "file:///test_dir/haproxy.d/defaults.cfg");
+    const frontendDoc = createDocument(
+      frontendContent,
+      "file:///test_dir/haproxy.d/frontends/fe_1.cfg",
+    );
+    const backendDoc = createDocument(
+      backendContent,
+      "file:///test_dir/haproxy.d/backends/be_1.cfg",
+    );
+    mockTextDocuments.push(defaultsDoc as never, frontendDoc as never, backendDoc as never);
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+    await vi.waitFor(() => {
+      expect(getLoadedBundle()).toBeDefined();
+    });
+
+    const splitSettings = defaultWorkspaceSymbolSettings({
+      include: ["**/haproxy.d/**/*.cfg", "**/haproxy.d/*.cfg"],
+    });
+    symbolIndex.scheduleWorkspaceSymbolIndexRebuild(schema, splitSettings, 4000, { scope: "full" });
+    await vi.runAllTimersAsync();
     await Promise.resolve();
 
-    expect(diagnosticSetUris(collection)).toContain("file:///repo/c.cfg");
+    const collection = getLastDiagnosticCollection();
+    collection?.set.mockClear();
+
+    const updatedDefaults = [
+      "defaults http",
+      "    mode http",
+      "defaults api",
+      "    mode http",
+    ].join("\n");
+    updateDocument(defaultsDoc, updatedDefaults);
+    setMockWorkspaceFile("file:///test_dir/haproxy.d/defaults.cfg", updatedDefaults);
+    symbolIndex.scheduleWorkspaceSymbolIndexRebuild(schema, splitSettings, 4000, {
+      scope: "incremental",
+      document: defaultsDoc,
+    });
+    await vi.advanceTimersByTimeAsync(100);
+    await Promise.resolve();
+
+    const immediateUris = diagnosticSetUris(collection);
+    expect(immediateUris).toContain("file:///test_dir/haproxy.d/defaults.cfg");
+    expect(immediateUris).toContain("file:///test_dir/haproxy.d/frontends/fe_1.cfg");
+    expect(immediateUris).toContain("file:///test_dir/haproxy.d/backends/be_1.cfg");
   });
 
   it("skips non-haproxy documents when refreshing diagnostics after full workspace rebuilds", async () => {
