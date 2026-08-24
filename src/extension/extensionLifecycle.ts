@@ -2,6 +2,7 @@
 import * as vscode from "vscode";
 
 import { hasWarmUriDocumentCache } from "../parser/documentCache";
+import { finalizeParseCacheForClosedDocument } from "../parser/parseCache";
 import { ExtensionBundleService } from "./extensionBundleService";
 import { ExtensionDiagnosticsService } from "./extensionDiagnosticsService";
 import { ExtensionWorkspaceSymbolService } from "./extensionWorkspaceSymbols";
@@ -103,7 +104,10 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
         void workspaceSymbols.schedule("content", document);
       }
     }),
-    vscode.workspace.onDidCloseTextDocument(scheduler.disposeDocument),
+    vscode.workspace.onDidCloseTextDocument((document) => {
+      finalizeParseCacheForClosedDocument(document);
+      scheduler.disposeDocument(document);
+    }),
     onVersionConfigurationChanged((change) => {
       void reloadBundleForChange(change);
     }),

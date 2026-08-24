@@ -1,7 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { documentContentFingerprint, documentUriKey } from "../../../src/parser/documentUriKey";
+import {
+  documentContentFingerprint,
+  documentOpenCacheFingerprint,
+  documentParseCacheFingerprint,
+  documentUriKey,
+  isOpenTextDocument,
+} from "../../../src/parser/documentUriKey";
 import { createDocument } from "../../helpers/document";
+import { mockTextDocuments } from "../../helpers/vscode";
 
 describe("documentUriKey", () => {
   afterEach(() => {
@@ -41,5 +48,23 @@ describe("documentUriKey", () => {
       getText: () => "backend api",
     } as never;
     expect(documentUriKey(document)).toBe("file:///c:/projects/test.cfg");
+  });
+
+  it("uses document version for open-editor cache fingerprints", () => {
+    mockTextDocuments.length = 0;
+    const document = createDocument("backend api", "file:///open.cfg");
+    expect(documentOpenCacheFingerprint(document)).toBe("1");
+    expect(isOpenTextDocument(document)).toBe(false);
+
+    mockTextDocuments.push(document as never);
+    expect(isOpenTextDocument(document)).toBe(true);
+    expect(documentParseCacheFingerprint(document)).toBe("1");
+    expect(documentParseCacheFingerprint(document)).not.toBe(documentContentFingerprint(document));
+  });
+
+  it("uses content fingerprint for documents that are not open in the editor", () => {
+    mockTextDocuments.length = 0;
+    const document = createDocument("backend api", "file:///closed.cfg");
+    expect(documentParseCacheFingerprint(document)).toBe(documentContentFingerprint(document));
   });
 });

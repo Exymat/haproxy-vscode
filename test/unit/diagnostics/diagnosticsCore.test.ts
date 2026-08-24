@@ -218,7 +218,7 @@ describe("diagnostics core branches", () => {
     expect(
       computeDiagnostics(oversized, bundle34.schema, {
         languageData: bundle34.languageData,
-        maxLines: 1,
+        maxSymbolLines: 1,
         unusedSymbols: true,
         missingReferences: true,
       }).some((diagnostic) => diagnostic.code === "no-bind-entry-point"),
@@ -226,7 +226,7 @@ describe("diagnostics core branches", () => {
     expect(
       computeDiagnostics(createDocument("frontend web\n    use_backend missing"), bundle34.schema, {
         languageData: bundle34.languageData,
-        maxLines: 1,
+        maxSymbolLines: 1,
         unusedSymbols: false,
         missingReferences: true,
       }).some((diagnostic) => diagnostic.code === "missing-reference"),

@@ -2,6 +2,7 @@
 import { ParsedLine } from "../../parser";
 import { findReferencePatternMatches } from "../../parser/referencePatternMatching";
 import { ReferencePattern } from "../../schema/types";
+import { isSymbolKind } from "../../core/editorKinds";
 
 import { FetchReferenceRule } from "../context";
 import { pushReference } from "../referenceHelpers";
@@ -26,7 +27,7 @@ export function collectFilterSelfReference(
   const rule = ruleRaw as Record<string, unknown>;
   const tokenIndex = typeof rule.token_index === "number" ? rule.token_index : 1;
   const referenceKind = typeof rule.reference_kind === "string" ? rule.reference_kind : null;
-  if (!referenceKind || !line.tokens[tokenIndex]) {
+  if (!referenceKind || !isSymbolKind(referenceKind) || !line.tokens[tokenIndex]) {
     return;
   }
   const refScope = rule.scope === "section" ? scopeKey : null;

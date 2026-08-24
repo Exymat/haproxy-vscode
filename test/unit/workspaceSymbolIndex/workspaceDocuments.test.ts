@@ -1,8 +1,11 @@
+import { describe, expect, it, vi } from "vitest";
+
 import {
   createDiskEntry,
   createOpenDocumentEntry,
   looksLikeHaproxyConfig,
 } from "../../../src/symbolIndex/workspaceDocuments";
+import * as symbolCache from "../../../src/symbolIndex/cache";
 import { sectionHeaderSet } from "../../../src/schema/layout";
 import {
   mockTextDocuments,
@@ -90,5 +93,13 @@ describe("createOpenDocumentEntry", () => {
     });
 
     expect(entry).toBeNull();
+  });
+
+  it("returns null when symbol index cannot be built", () => {
+    vi.spyOn(symbolCache, "getSymbolIndex").mockReturnValue(null);
+    const doc = createDocument("backend api\n    server s1 127.0.0.1:80");
+    const { entry, skipReason } = createOpenDocumentEntry(doc, schema, 4000);
+    expect(entry).toBeNull();
+    expect(skipReason).toBe("too-many-lines");
   });
 });

@@ -11,9 +11,21 @@ export class Range {
   start: Position;
   end: Position;
 
-  constructor(startLine: number, startChar: number, endLine: number, endChar: number) {
-    this.start = new Position(startLine, startChar);
-    this.end = new Position(endLine, endChar);
+  constructor(start: Position, end: Position);
+  constructor(startLine: number, startChar: number, endLine: number, endChar: number);
+  constructor(
+    startLineOrPosition: number | Position,
+    startCharOrPosition: number | Position,
+    endLine?: number,
+    endChar?: number,
+  ) {
+    if (typeof startLineOrPosition === "object" && typeof startCharOrPosition === "object") {
+      this.start = new Position(startLineOrPosition.line, startLineOrPosition.character);
+      this.end = new Position(startCharOrPosition.line, startCharOrPosition.character);
+      return;
+    }
+    this.start = new Position(startLineOrPosition as number, startCharOrPosition as number);
+    this.end = new Position(endLine as number, endChar as number);
   }
 }
 
@@ -77,6 +89,7 @@ export const CompletionItemKind = {
   Keyword: 14,
   Module: 19,
   Function: 3,
+  File: 17,
 };
 
 export class Hover {
@@ -122,8 +135,6 @@ export class DocumentSymbol {
   ) {}
 }
 
-export const SymbolKind = { Namespace: 1 };
-
 export class FoldingRange {
   constructor(
     public start: number,
@@ -133,6 +144,87 @@ export class FoldingRange {
 }
 
 export const FoldingRangeKind = { Region: 1 };
+
+export class DocumentHighlight {
+  constructor(
+    public range: Range,
+    public kind?: number,
+  ) {}
+}
+
+export const DocumentHighlightKind = { Text: 0, Read: 1, Write: 2 };
+
+export class ParameterInformation {
+  constructor(
+    public label: string | [number, number],
+    public documentation?: MarkdownString,
+  ) {}
+}
+
+export class SignatureInformation {
+  parameters: ParameterInformation[] = [];
+
+  constructor(
+    public label: string,
+    public documentation?: MarkdownString,
+  ) {}
+}
+
+export interface SignatureHelp {
+  signatures: SignatureInformation[];
+  activeSignature: number;
+  activeParameter: number;
+}
+
+export class SymbolInformation {
+  constructor(
+    public name: string,
+    public kind: number,
+    public containerName: string,
+    public location: Location,
+  ) {}
+}
+
+export const SymbolKind = {
+  Namespace: 1,
+  Class: 5,
+  Interface: 8,
+  Module: 19,
+  Field: 8,
+  Struct: 22,
+  Method: 6,
+};
+
+export class SemanticTokensLegend {
+  constructor(
+    public tokenTypes: string[],
+    public tokenModifiers: string[] = [],
+  ) {}
+}
+
+export class SemanticTokensBuilder {
+  private data: number[] = [];
+  private prevLine = 0;
+  private prevChar = 0;
+
+  constructor(_legend?: SemanticTokensLegend) {}
+
+  push(line: number, char: number, length: number, tokenType: number, tokenModifiers = 0): void {
+    const deltaLine = line - this.prevLine;
+    const deltaStart = deltaLine === 0 ? char - this.prevChar : char;
+    this.data.push(deltaLine, deltaStart, length, tokenType, tokenModifiers);
+    this.prevLine = line;
+    this.prevChar = char;
+  }
+
+  build(): SemanticTokens {
+    return new SemanticTokens(new Uint32Array(this.data));
+  }
+}
+
+export class SemanticTokens {
+  constructor(public data: Uint32Array) {}
+}
 
 export class Location {
   constructor(
@@ -152,13 +244,18 @@ export class LocationLink {
 
 export class WorkspaceEdit {
   edits: Array<{ uri: unknown; range: Range; newText: string }> = [];
+  insertions: Array<{ uri: unknown; position: Position; newText: string }> = [];
 
   get size(): number {
-    return this.edits.length;
+    return this.edits.length + this.insertions.length;
   }
 
   replace(uri: unknown, range: Range, newText: string): void {
     this.edits.push({ uri, range, newText });
+  }
+
+  insert(uri: unknown, position: Position, newText: string): void {
+    this.insertions.push({ uri, position, newText });
   }
 }
 
@@ -246,6 +343,10 @@ const workspaceFolderChangeListeners: Array<
   }) => void
 > = [];
 const activeEditorListeners: Array<() => void> = [];
+const textDocumentChangeListeners: Array<
+  (event: { document: (typeof mockTextDocuments)[0] }) => void
+> = [];
+const openTextDocumentListeners: Array<(doc: (typeof mockTextDocuments)[0]) => void> = [];
 const mockWorkspaceFiles = new Map<string, string>();
 const mockWorkspaceFileStats = new Map<string, { mtime: number; size: number }>();
 const mockWorkspaceReadFailures = new Set<string>();
@@ -272,6 +373,8 @@ export function resetVscodeMock(): void {
   configListeners.length = 0;
   workspaceFolderChangeListeners.length = 0;
   activeEditorListeners.length = 0;
+  textDocumentChangeListeners.length = 0;
+  openTextDocumentListeners.length = 0;
   mockTextDocuments = [];
   mockActiveTextEditor = undefined;
   mockWorkspaceFolders = undefined;
@@ -474,6 +577,36 @@ export function triggerMockActiveEditorChange(): void {
   }
 }
 
+export function triggerMockTextDocumentChange(
+  doc: (typeof mockTextDocuments)[0] = mockTextDocuments[0] ?? {
+    uri: { toString: () => "file:///test.cfg" },
+    languageId: "haproxy",
+    version: 1,
+    lineCount: 1,
+    lineAt: () => ({ text: "" }),
+    getText: () => "",
+  },
+): void {
+  for (const listener of textDocumentChangeListeners) {
+    listener({ document: doc });
+  }
+}
+
+export function triggerMockOpenTextDocument(
+  doc: (typeof mockTextDocuments)[0] = mockTextDocuments[0] ?? {
+    uri: { toString: () => "file:///test.cfg" },
+    languageId: "haproxy",
+    version: 1,
+    lineCount: 1,
+    lineAt: () => ({ text: "" }),
+    getText: () => "",
+  },
+): void {
+  for (const listener of openTextDocumentListeners) {
+    listener(doc);
+  }
+}
+
 export class OutputChannel {
   lines: string[] = [];
   appendLine = vi.fn((value: string) => {
@@ -536,11 +669,15 @@ export const workspace = {
   ) {
     const includeParts = relativePatternParts(include);
     const excludeParts = exclude ? relativePatternParts(exclude) : undefined;
+    const cfgOnly = includeParts.pattern.includes(".cfg");
     const uris = [...mockWorkspaceFiles.keys()]
-      .filter((path) => path.endsWith(".cfg"))
+      .filter((path) => !cfgOnly || path.endsWith(".cfg"))
       .filter((path) => {
-        const rel = relativePath(includeParts.base, path);
-        return rel !== null && globMatches(includeParts.pattern, rel);
+        if (includeParts.base) {
+          const rel = relativePath(includeParts.base, path);
+          return rel !== null && globMatches(includeParts.pattern, rel);
+        }
+        return globMatches(includeParts.pattern, path.replace(/^file:\/\//, ""));
       })
       .filter((path) => {
         if (!excludeParts) {
@@ -559,6 +696,13 @@ export const workspace = {
       const folderKey = uriKey(folder.uri);
       return key === folderKey || key.startsWith(`${folderKey}/`);
     });
+  },
+  asRelativePath(
+    uri: { fsPath?: string; toString: () => string },
+    _includeWorkspaceFolder?: boolean,
+  ) {
+    const path = uri.fsPath ?? uri.toString().replace(/^file:\/\//, "");
+    return path.replace(/\\/g, "/");
   },
   fs: {
     stat(uri: { fsPath?: string; toString: () => string }) {
@@ -640,21 +784,15 @@ export const workspace = {
     return { dispose: () => {} };
   },
   onDidOpenTextDocument(listener: (doc: (typeof mockTextDocuments)[0]) => void) {
-    const disposable = {
-      dispose: () => {},
-    };
+    openTextDocumentListeners.push(listener);
     for (const doc of mockTextDocuments) {
       listener(doc);
     }
-    return disposable;
+    return { dispose: () => {} };
   },
   onDidChangeTextDocument(listener: (event: { document: (typeof mockTextDocuments)[0] }) => void) {
-    return {
-      dispose: () => {},
-      trigger(doc: (typeof mockTextDocuments)[0]) {
-        listener({ document: doc });
-      },
-    };
+    textDocumentChangeListeners.push(listener);
+    return { dispose: () => {} };
   },
   onDidSaveTextDocument(_listener: (doc: (typeof mockTextDocuments)[0]) => void) {
     return { dispose: () => {} };
@@ -730,6 +868,10 @@ export const languages = {
     registeredDisposables.push({ dispose: () => {} });
     return { provider, dispose: () => {} };
   },
+  registerDocumentRangeFormattingEditProvider(_selector: unknown, provider: unknown) {
+    registeredDisposables.push({ dispose: () => {} });
+    return { provider, dispose: () => {} };
+  },
   registerDocumentSymbolProvider(_selector: unknown, provider: unknown) {
     registeredDisposables.push({ dispose: () => {} });
     return { provider, dispose: () => {} };
@@ -747,6 +889,22 @@ export const languages = {
     return { provider, dispose: () => {} };
   },
   registerRenameProvider(_selector: unknown, provider: unknown) {
+    registeredDisposables.push({ dispose: () => {} });
+    return { provider, dispose: () => {} };
+  },
+  registerWorkspaceSymbolProvider(provider: unknown) {
+    registeredDisposables.push({ dispose: () => {} });
+    return { provider, dispose: () => {} };
+  },
+  registerDocumentHighlightProvider(_selector: unknown, provider: unknown) {
+    registeredDisposables.push({ dispose: () => {} });
+    return { provider, dispose: () => {} };
+  },
+  registerSignatureHelpProvider(_selector: unknown, provider: unknown, ..._triggers: string[]) {
+    registeredDisposables.push({ dispose: () => {} });
+    return { provider, dispose: () => {} };
+  },
+  registerDocumentSemanticTokensProvider(_selector: unknown, provider: unknown) {
     registeredDisposables.push({ dispose: () => {} });
     return { provider, dispose: () => {} };
   },

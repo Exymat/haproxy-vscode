@@ -44978,16 +44978,11 @@
       "resolvers",
       "mailers",
       "program",
-      "healthcheck",
       "http-errors",
       "ring",
       "cache",
       "crt-list",
-      "crt-store",
-      "traces",
-      "acme",
       "log-forward",
-      "log-profile",
       "fcgi-app"
     ],
     "stats_socket_levels": [
@@ -45101,6 +45096,7 @@
       "reference_kind": "defaults-profile",
       "scope": "section-header",
       "split": null,
+      "target_prefix": null,
       "target_token_index": 3
     },
     {
@@ -45110,6 +45106,7 @@
       "reference_kind": "resolvers",
       "scope": "global",
       "split": null,
+      "target_prefix": null,
       "target_token_index": 1
     },
     {
@@ -45119,6 +45116,7 @@
       "reference_kind": "peers",
       "scope": "global",
       "split": null,
+      "target_prefix": null,
       "target_token_index": 1
     },
     {
@@ -45128,6 +45126,7 @@
       "reference_kind": "cache",
       "scope": "global",
       "split": null,
+      "target_prefix": null,
       "target_token_index": 1
     },
     {
@@ -45137,6 +45136,7 @@
       "reference_kind": "cache",
       "scope": "global",
       "split": null,
+      "target_prefix": null,
       "target_token_index": 1
     },
     {
@@ -45147,6 +45147,7 @@
       "reference_kind": "cache",
       "scope": "global",
       "split": null,
+      "target_prefix": null,
       "target_token_index": 2
     },
     {
@@ -45156,7 +45157,81 @@
       "reference_kind": "filter",
       "scope": "section",
       "split": ",",
+      "target_prefix": null,
       "target_token_index": 2
+    },
+    {
+      "match_tokens": [
+        "email-alert",
+        "mailers"
+      ],
+      "reference_kind": "mailers",
+      "scope": "global",
+      "split": null,
+      "target_prefix": null,
+      "target_token_index": 2
+    },
+    {
+      "match_tokens": [
+        "errorfiles"
+      ],
+      "reference_kind": "http-errors",
+      "scope": "global",
+      "split": null,
+      "target_prefix": null,
+      "target_token_index": 1
+    },
+    {
+      "match_tokens": [
+        "use-fcgi-app"
+      ],
+      "reference_kind": "fcgi-app",
+      "scope": "global",
+      "split": null,
+      "target_prefix": null,
+      "target_token_index": 1
+    },
+    {
+      "match_tokens": [
+        "filter",
+        "fcgi-app"
+      ],
+      "reference_kind": "fcgi-app",
+      "scope": "global",
+      "split": null,
+      "target_prefix": null,
+      "target_token_index": 2
+    },
+    {
+      "match_tokens": [
+        "healthcheck"
+      ],
+      "reference_kind": "healthcheck",
+      "scope": "global",
+      "split": null,
+      "target_prefix": null,
+      "target_token_index": 1
+    },
+    {
+      "match_tokens": [
+        "table"
+      ],
+      "reference_kind": "proxy-section",
+      "scope": "section",
+      "split": null,
+      "target_prefix": null,
+      "target_token_index": 1
+    },
+    {
+      "match_tokens": [
+        "log",
+        "*"
+      ],
+      "reference_kind": "ring",
+      "scope": "global",
+      "split": null,
+      "target_prefix": "ring@",
+      "target_token_index": 1
     }
   ],
   "sample_casts": [
@@ -62294,6 +62369,7 @@
       "http-after-response": "http_after_response_actions",
       "http-request": "http_request_actions",
       "http-response": "http_response_actions",
+      "quic-initial": "quic_initial_actions",
       "tcp-request": "tcp_request_actions",
       "tcp-response": "tcp_response_actions"
     },
@@ -62452,6 +62528,113 @@
       "value_token_index": null
     },
     {
+      "action_token_index": null,
+      "definition_kind": "server-template",
+      "fixed_slots": [
+        {
+          "address_policy": null,
+          "port": null,
+          "role": "name"
+        },
+        {
+          "address_policy": null,
+          "port": null,
+          "role": "count-or-range"
+        },
+        {
+          "address_policy": "server",
+          "port": "optional",
+          "role": "address"
+        }
+      ],
+      "group": "server_options",
+      "keyword": "server-template",
+      "kind": "server",
+      "match_tokens": [
+        "server-template"
+      ],
+      "minimum_token_index": 4,
+      "nested_start_index": 4,
+      "phase_token_index": null,
+      "prefix": null,
+      "reference_kind": null,
+      "sections": [],
+      "symbol_name_token_from_index": null,
+      "symbol_name_token_index": 1,
+      "value_token_index": null
+    },
+    {
+      "action_token_index": null,
+      "definition_kind": "peer",
+      "fixed_slots": [],
+      "group": null,
+      "keyword": "peer",
+      "kind": "directive",
+      "match_tokens": [
+        "peer"
+      ],
+      "minimum_token_index": 2,
+      "nested_start_index": null,
+      "phase_token_index": null,
+      "prefix": null,
+      "reference_kind": null,
+      "sections": [],
+      "symbol_name_token_from_index": null,
+      "symbol_name_token_index": 1,
+      "value_token_index": null
+    },
+    {
+      "action_token_index": null,
+      "definition_kind": "mailer",
+      "fixed_slots": [],
+      "group": null,
+      "keyword": "mailer",
+      "kind": "directive",
+      "match_tokens": [
+        "mailer"
+      ],
+      "minimum_token_index": 2,
+      "nested_start_index": null,
+      "phase_token_index": null,
+      "prefix": null,
+      "reference_kind": null,
+      "sections": [],
+      "symbol_name_token_from_index": null,
+      "symbol_name_token_index": 1,
+      "value_token_index": null
+    },
+    {
+      "action_token_index": null,
+      "definition_kind": "nameserver",
+      "fixed_slots": [
+        {
+          "address_policy": null,
+          "port": null,
+          "role": "name"
+        },
+        {
+          "address_policy": "server",
+          "port": "optional",
+          "role": "address"
+        }
+      ],
+      "group": null,
+      "keyword": "nameserver",
+      "kind": "directive",
+      "match_tokens": [
+        "nameserver"
+      ],
+      "minimum_token_index": 2,
+      "nested_start_index": 3,
+      "phase_token_index": null,
+      "prefix": null,
+      "reference_kind": null,
+      "sections": [],
+      "symbol_name_token_from_index": null,
+      "symbol_name_token_index": 1,
+      "value_token_index": null
+    },
+    {
       "action_token_index": 1,
       "definition_kind": null,
       "fixed_slots": [],
@@ -62544,6 +62727,26 @@
       "minimum_token_index": 1,
       "nested_start_index": null,
       "phase_token_index": 1,
+      "prefix": null,
+      "reference_kind": null,
+      "sections": [],
+      "symbol_name_token_from_index": null,
+      "symbol_name_token_index": null,
+      "value_token_index": null
+    },
+    {
+      "action_token_index": 1,
+      "definition_kind": null,
+      "fixed_slots": [],
+      "group": "quic_initial_actions",
+      "keyword": "quic-initial",
+      "kind": "quic-initial",
+      "match_tokens": [
+        "quic-initial"
+      ],
+      "minimum_token_index": 1,
+      "nested_start_index": null,
+      "phase_token_index": null,
       "prefix": null,
       "reference_kind": null,
       "sections": [],
@@ -62791,7 +62994,18 @@
       "cache",
       "userlist",
       "resolvers",
-      "peers"
+      "peers",
+      "mailers",
+      "http-errors",
+      "ring",
+      "fcgi-app",
+      "healthcheck",
+      "acme",
+      "log-profile",
+      "log-forward",
+      "crt-store",
+      "traces",
+      "program"
     ],
     "entry_point_labels": {
       "frontend": "Frontend",
@@ -62807,7 +63021,13 @@
       "listen",
       "defaults",
       "peers",
-      "userlist"
+      "userlist",
+      "mailers",
+      "http-errors",
+      "ring",
+      "fcgi-app",
+      "log-forward",
+      "program"
     ],
     "proxy_sections": [
       "frontend",
@@ -62838,16 +63058,26 @@
       "acl",
       "environment-variable",
       "filter",
-      "server"
+      "mailer",
+      "nameserver",
+      "peer",
+      "server",
+      "server-template"
     ],
     "section_definition_kinds": {
       "backend": "proxy-section",
       "cache": "cache",
       "defaults": "defaults-profile",
+      "fcgi-app": "fcgi-app",
       "frontend": "proxy-section",
+      "http-errors": "http-errors",
       "listen": "proxy-section",
+      "log-forward": "log-forward",
+      "mailers": "mailers",
       "peers": "peers",
+      "program": "program",
       "resolvers": "resolvers",
+      "ring": "ring",
       "userlist": "userlist"
     },
     "self_reference_keywords": {
@@ -62858,11 +63088,27 @@
       }
     },
     "symbol_kind_labels": {
+      "acme": "acme section",
       "cache": "cache section",
+      "crt-store": "crt-store section",
       "defaults-profile": "Defaults profile",
+      "fcgi-app": "fcgi-app section",
+      "healthcheck": "healthcheck section",
+      "http-errors": "http-errors section",
+      "log-forward": "log-forward section",
+      "log-profile": "log-profile section",
+      "mailer": "mailer",
+      "mailers": "mailers section",
+      "nameserver": "nameserver",
+      "peer": "peer",
       "peers": "peers section",
+      "program": "program section",
       "proxy-section": "Proxy section",
       "resolvers": "resolvers section",
+      "ring": "ring section",
+      "server-template": "server template",
+      "stick-table": "stick-table",
+      "traces": "traces section",
       "userlist": "Userlist"
     },
     "unused_symbol_section_block_kinds": [
@@ -62871,11 +63117,32 @@
       "cache",
       "userlist",
       "resolvers",
-      "peers"
+      "peers",
+      "mailers",
+      "http-errors",
+      "ring",
+      "fcgi-app",
+      "healthcheck",
+      "acme",
+      "log-profile",
+      "log-forward",
+      "crt-store",
+      "traces",
+      "program"
     ],
     "unused_symbol_skipped_kinds": [
       "filter",
-      "server"
+      "server",
+      "server-template",
+      "peer",
+      "mailer",
+      "nameserver",
+      "acme",
+      "crt-store",
+      "log-forward",
+      "log-profile",
+      "program",
+      "traces"
     ]
   },
   "tokens": {
@@ -63031,6 +63298,7 @@
       "http-request",
       "http-response",
       "option",
+      "quic-initial",
       "server",
       "stats",
       "tcp-check",
@@ -63127,6 +63395,7 @@
       "mode",
       "no",
       "option",
+      "quic-initial",
       "server",
       "stats",
       "tcp-request",
@@ -63204,12 +63473,23 @@
     },
     "unused_symbol_messages": {
       "acl": "ACL '{name}' is defined but never referenced in this section",
+      "acme": "ACME section '{name}' is never referenced",
       "cache": "Cache '{name}' is never referenced",
+      "crt-store": "CRT store section '{name}' is never referenced",
       "default": "'{name}' appears unused",
       "defaults-profile": "Defaults profile '{name}' is never referenced by 'from'",
+      "fcgi-app": "FCGI app section '{name}' is never referenced",
+      "healthcheck": "Healthcheck section '{name}' is never referenced",
+      "http-errors": "HTTP errors section '{name}' is never referenced",
+      "log-forward": "Log-forward section '{name}' is never referenced",
+      "log-profile": "Log profile section '{name}' is never referenced",
+      "mailers": "Mailers section '{name}' is never referenced",
       "peers": "Peers section '{name}' is never referenced",
+      "program": "Program section '{name}' is never referenced",
       "proxy-section": "Backend '{name}' is never referenced by use_backend or default_backend",
       "resolvers": "Resolvers '{name}' is never referenced",
+      "ring": "Ring section '{name}' is never referenced",
+      "traces": "Traces section '{name}' is never referenced",
       "userlist": "Userlist '{name}' is never referenced"
     }
   },

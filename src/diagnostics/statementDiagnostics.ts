@@ -29,7 +29,7 @@ import {
   addressDirectivePolicyKey,
 } from "../schema/validation";
 import { keywordGroupSet, lineOptionSet, optionsWithValueSet } from "../schema/keywords";
-import { findStatementRule } from "../formatting/statementLayout";
+import { findStatementRule } from "../schema/statementLayout";
 import { lowerToken, normalizedOptionToken } from "../parser/tokenUtils";
 
 type StmtDiagCode =

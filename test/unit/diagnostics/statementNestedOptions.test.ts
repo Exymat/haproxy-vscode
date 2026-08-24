@@ -2,6 +2,7 @@ import * as addressFormat from "../../../src/diagnostics/addressFormat";
 import { parseDocument } from "../../helpers/parse";
 import { statementDiagnostics } from "../../../src/diagnostics/statementDiagnostics";
 import { createDocument } from "../../helpers/document";
+import type { CompletionKind } from "../../../src/core/editorKinds";
 
 import { lineDiag, bundle } from "./statementHelpers";
 
@@ -363,7 +364,7 @@ describe("statementDiagnostics nested options", () => {
     schema.statement_rules = [
       {
         keyword: "custom",
-        kind: "custom",
+        kind: "custom" as CompletionKind,
         group: "server_options",
         nested_start_index: 1,
         fixed_slots: [],

@@ -5,7 +5,7 @@ import {
   resolvePhaseTokenIndex,
   ruleActionGroup,
   ruleMatchesLine,
-} from "../../../src/formatting/statementLayout";
+} from "../../../src/schema/statementLayout";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";

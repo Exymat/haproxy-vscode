@@ -51,7 +51,7 @@ describe("refactor helpers", () => {
     ];
     const pattern: ReferencePattern = {
       match_tokens: ["use-backend"],
-      reference_kind: "backend",
+      reference_kind: "proxy-section",
       target_token_index: 1,
       scope: "global",
     };

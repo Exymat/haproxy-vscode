@@ -21,9 +21,14 @@ function pos(line: number, character: number) {
   return { line, character } as never;
 }
 
-function completionAt(content: string, line: number, character: number) {
+async function completionAt(content: string, line: number, character: number) {
   const doc = createDocument(content);
-  return provideCompletionItems(doc, pos(line, character), bundle.languageData, bundle.schema);
+  return await provideCompletionItems(
+    doc,
+    pos(line, character),
+    bundle.languageData,
+    bundle.schema,
+  );
 }
 
 describe("expected symbol reference resolution", () => {
@@ -114,8 +119,8 @@ describe("listDefinitionNames", () => {
 });
 
 describe("symbol reference completion", () => {
-  it("suggests backends for use_backend", () => {
-    const labels = completionLabels(
+  it("suggests backends for use_backend", async () => {
+    const labels = await completionLabels(
       "backend api\nfrontend web\n    use_backend ",
       2,
       "    use_backend ".length,
@@ -123,8 +128,8 @@ describe("symbol reference completion", () => {
     expect(labels).toContain("api");
   });
 
-  it("filters backend suggestions by prefix", () => {
-    const labels = completionLabels(
+  it("filters backend suggestions by prefix", async () => {
+    const labels = await completionLabels(
       "backend api\nbackend app\nfrontend web\n    use_backend a",
       3,
       "    use_backend a".length,
@@ -133,8 +138,8 @@ describe("symbol reference completion", () => {
     expect(labels).not.toContain("web");
   });
 
-  it("suggests named defaults profiles after from", () => {
-    const labels = completionLabels(
+  it("suggests named defaults profiles after from", async () => {
+    const labels = await completionLabels(
       "defaults base\nfrontend web from ",
       1,
       "frontend web from ".length,
@@ -142,8 +147,8 @@ describe("symbol reference completion", () => {
     expect(labels).toContain("base");
   });
 
-  it("suggests scoped ACLs in rule conditions", () => {
-    const labels = completionLabels(
+  it("suggests scoped ACLs in rule conditions", async () => {
+    const labels = await completionLabels(
       "frontend web\n    acl is_api path_beg /api\n    use_backend api if ",
       2,
       "    use_backend api if ".length,
@@ -152,8 +157,8 @@ describe("symbol reference completion", () => {
     expect(labels).toContain("TRUE");
   });
 
-  it("does not suggest ACLs from other sections", () => {
-    const labels = completionLabels(
+  it("does not suggest ACLs from other sections", async () => {
+    const labels = await completionLabels(
       "frontend web\n    acl local path_beg /local\nbackend api\n    acl remote path_beg /remote\nfrontend web\n    use_backend api if ",
       5,
       "    use_backend api if ".length,
@@ -162,8 +167,8 @@ describe("symbol reference completion", () => {
     expect(labels).not.toContain("remote");
   });
 
-  it("suggests servers for use-server", () => {
-    const labels = completionLabels(
+  it("suggests servers for use-server", async () => {
+    const labels = await completionLabels(
       "backend api\n    server s1 127.0.0.1:80\n    server s2 127.0.0.1:81\n    use-server ",
       3,
       "    use-server ".length,
@@ -171,8 +176,8 @@ describe("symbol reference completion", () => {
     expect(labels).toEqual(expect.arrayContaining(["s1", "s2"]));
   });
 
-  it("suggests filter instance names in filter-sequence", () => {
-    const labels = completionLabels(
+  it("suggests filter instance names in filter-sequence", async () => {
+    const labels = await completionLabels(
       "frontend web\n    filter comp-req\n    filter comp-res\n    filter-sequence request ",
       3,
       "    filter-sequence request ".length,
@@ -180,14 +185,14 @@ describe("symbol reference completion", () => {
     expect(labels).toEqual(expect.arrayContaining(["comp-req", "comp-res"]));
   });
 
-  it("still prefers ACL criteria when defining an ACL", () => {
-    const labels = completionLabels("frontend web\n    acl test ", 1, "    acl test ".length);
+  it("still prefers ACL criteria when defining an ACL", async () => {
+    const labels = await completionLabels("frontend web\n    acl test ", 1, "    acl test ".length);
     expect(labels).toContain("path");
     expect(labels).not.toContain("test");
   });
 
-  it("still suggests filter-sequence phase enums before filter names", () => {
-    const labels = completionLabels(
+  it("still suggests filter-sequence phase enums before filter names", async () => {
+    const labels = await completionLabels(
       "frontend web\n    filter comp-req\n    filter-sequence ",
       2,
       "    filter-sequence ".length,
@@ -196,7 +201,7 @@ describe("symbol reference completion", () => {
     expect(labels).not.toContain("comp-req");
   });
 
-  it("suggests cache, resolvers, peers, and userlist references", () => {
+  it("suggests cache, resolvers, peers, and userlist references", async () => {
     const content = [
       "cache my_cache",
       "resolvers dns-main",
@@ -212,25 +217,25 @@ describe("symbol reference completion", () => {
     ].join("\n");
 
     expect(
-      completionAt(content, 5, "    http-request cache-use ".length)
+      (await completionAt(content, 5, "    http-request cache-use ".length))
         .map((item) => item.label)
         .sort(),
     ).toContain("my_cache");
 
     expect(
-      completionAt(content, 7, "    server s1 host:80 resolvers ".length)
+      (await completionAt(content, 7, "    server s1 host:80 resolvers ".length))
         .map((item) => item.label)
         .sort(),
     ).toContain("dns-main");
 
     expect(
-      completionAt(content, 8, "    stick-table type ip size 1 peers ".length)
+      (await completionAt(content, 8, "    stick-table type ip size 1 peers ".length))
         .map((item) => item.label)
         .sort(),
     ).toContain("cluster");
 
     expect(
-      completionAt(content, 9, "    acl AUTH http_auth(".length)
+      (await completionAt(content, 9, "    acl AUTH http_auth(".length))
         .map((item) => item.label)
         .sort(),
     ).toContain("stats-auth");
@@ -255,11 +260,13 @@ describe("symbol reference completion", () => {
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
-    const labels = provideCompletionItems(
-      frontend,
-      pos(1, "    use_backend ".length),
-      bundle.languageData,
-      bundle.schema,
+    const labels = (
+      await provideCompletionItems(
+        frontend,
+        pos(1, "    use_backend ".length),
+        bundle.languageData,
+        bundle.schema,
+      )
     ).map((item) => item.label);
 
     expect(labels).toContain("api");
@@ -268,27 +275,29 @@ describe("symbol reference completion", () => {
     vi.useRealTimers();
   });
 
-  it("returns an empty list when the prefix filters out every candidate", () => {
+  it("returns an empty list when the prefix filters out every candidate", async () => {
     const line = "backend api\nfrontend web\n    use_backend z";
     const zCol = line.lastIndexOf("z");
-    const items = completionAt(line, 2, zCol);
+    const items = await completionAt(line, 2, zCol);
     expect(items).toEqual([]);
   });
 
-  it("falls back to predefined ACLs when the symbol index is unavailable", () => {
-    const labels = provideCompletionItems(
-      createDocument("frontend web\n    use_backend api if "),
-      pos(1, "    use_backend api if ".length),
-      bundle.languageData,
-      bundle.schema,
-      0,
+  it("falls back to predefined ACLs when the symbol index is unavailable", async () => {
+    const labels = (
+      await provideCompletionItems(
+        createDocument("frontend web\n    use_backend api if "),
+        pos(1, "    use_backend api if ".length),
+        bundle.languageData,
+        bundle.schema,
+        0,
+      )
     ).map((item) => item.label);
     expect(labels).toContain("TRUE");
     expect(labels).not.toContain("api");
   });
 
-  it("returns no candidates for unavailable indexes on non-ACL references", () => {
-    const items = provideCompletionItems(
+  it("returns no candidates for unavailable indexes on non-ACL references", async () => {
+    const items = await provideCompletionItems(
       createDocument("backend api\nfrontend web\n    use_backend "),
       pos(2, "    use_backend ".length),
       bundle.languageData,
@@ -317,11 +326,13 @@ describe("symbol reference completion", () => {
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
-    const labels = provideCompletionItems(
-      doc,
-      pos(2, "    filter-sequence request ".length),
-      bundle.languageData,
-      bundle.schema,
+    const labels = (
+      await provideCompletionItems(
+        doc,
+        pos(2, "    filter-sequence request ".length),
+        bundle.languageData,
+        bundle.schema,
+      )
     ).map((item) => item.label);
 
     expect(labels).toContain("fa");
@@ -331,15 +342,17 @@ describe("symbol reference completion", () => {
     vi.useRealTimers();
   });
 
-  it("uses predefined ACL names when the schema omits acl_predefined tokens", () => {
+  it("uses predefined ACL names when the schema omits acl_predefined tokens", async () => {
     const customSchema = structuredClone(bundle.schema);
     delete customSchema.tokens.acl_predefined;
-    const labels = provideCompletionItems(
-      createDocument("frontend web\n    use_backend api if "),
-      pos(1, "    use_backend api if ".length),
-      bundle.languageData,
-      customSchema,
-      0,
+    const labels = (
+      await provideCompletionItems(
+        createDocument("frontend web\n    use_backend api if "),
+        pos(1, "    use_backend api if ".length),
+        bundle.languageData,
+        customSchema,
+        0,
+      )
     ).map((item) => item.label);
     expect(labels).toEqual([]);
   });

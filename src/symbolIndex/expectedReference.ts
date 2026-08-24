@@ -12,7 +12,7 @@ import { symbolStringList } from "../schema/symbols";
 import { keywordGroupSet } from "../schema/keywords";
 import { sectionHeaderSet } from "../schema/layout";
 import { sampleExpressionNameSets } from "../schema/tokens";
-import { candidateRules, ruleMatchesLine } from "../formatting/statementLayout";
+import { candidateRules, ruleMatchesLine } from "../schema/statementLayout";
 import { isLikelyValue, resolveTokenIndex } from "../parser/tokenUtils";
 
 import { aclReferenceExpectedAt } from "./aclReferences";

@@ -25,10 +25,15 @@ export function mockOptionsGroupItems(items: LanguageGroupItem[]): void {
   });
 }
 
-export function completionLabels(content: string, lineNo: number, character?: number) {
+export async function completionLabels(content: string, lineNo: number, character?: number) {
   const doc = createDocument(content);
   const position =
     character === undefined ? cursorAtLineEnd(content, lineNo) : { line: lineNo, character };
-  const items = provideCompletionItems(doc, position as never, bundle.languageData, bundle.schema);
+  const items = await provideCompletionItems(
+    doc,
+    position as never,
+    bundle.languageData,
+    bundle.schema,
+  );
   return items.map((item) => item.label).sort();
 }

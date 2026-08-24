@@ -36,7 +36,7 @@ function unusedDiags(content: string): vscode.Diagnostic[] {
   const document = createDocument(content);
   return computeDiagnostics(document, schema, {
     unusedSymbols: true,
-    maxLines: 4000,
+    maxSymbolLines: 4000,
   }).filter((diag) => formatDiagnosticCode(diag.code).startsWith("unused-"));
 }
 
@@ -44,7 +44,7 @@ function symbolHintDiags(content: string): vscode.Diagnostic[] {
   const document = createDocument(content);
   return computeDiagnostics(document, schema, {
     unusedSymbols: true,
-    maxLines: 4000,
+    maxSymbolLines: 4000,
   });
 }
 
@@ -101,6 +101,24 @@ describe("unusedSymbolDiagnostics", () => {
       "frontend web\n    bind :80\n    use_backend api\nbackend api\n    server s1 127.0.0.1:80",
     );
     expect(diags.filter((d) => d.code === "unused-section")).toHaveLength(0);
+  });
+
+  it("suppresses unused ring when referenced by a ring log target", () => {
+    const diags = unusedDiags("global\n    log ring@events local0\nring events\n    size 1024");
+    expect(diags.some((diag) => diag.message.includes("events"))).toBe(false);
+  });
+
+  it("skips standalone section kinds that have no reference syntax", () => {
+    const diags = unusedDiags(
+      [
+        "acme letsencrypt",
+        "crt-store certs",
+        "log-forward logs",
+        "log-profile profile",
+        "traces trace",
+      ].join("\n"),
+    );
+    expect(diags).toEqual([]);
   });
 
   it("does not report frontend with bind as unused", () => {
@@ -356,7 +374,7 @@ describe("symbolIndex reference expansion", () => {
         "custom:widget",
         [
           {
-            kind: "widget",
+            kind: "widget" as SymbolKind,
             name: "widget",
             line: 1,
             start: 4,

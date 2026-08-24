@@ -28,6 +28,7 @@ export {
   findWorkspaceDefinitions,
   findWorkspaceReferences,
   getWorkspaceSymbolIndex,
+  getWorkspaceSymbolIndexes,
   hasCappedWorkspaceFolders,
   isDocumentWorkspaceIndexCapped,
   isUriExcludedFromWorkspaceSymbols,

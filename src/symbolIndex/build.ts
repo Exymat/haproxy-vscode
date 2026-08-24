@@ -1,4 +1,8 @@
 /** Builds and patches per-document symbol indexes from parsed lines. */
+import {
+  conditionalBranchInfoForDocument,
+  isInactiveConditionalBranch,
+} from "../diagnostics/conditionalDirectives";
 import { ParsedLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 
@@ -89,8 +93,17 @@ export function buildSymbolIndexWithFingerprints(
   const buildContext = createSymbolBuildContext(schema);
   const proxySections = proxySectionSet(schema);
   const scopeState = { currentScopeKey: null as string | null };
+  const branchInfoByLine = conditionalBranchInfoForDocument(parsed);
 
   for (const line of parsed) {
+    if (isInactiveConditionalBranch(branchInfoByLine[line.line]?.branchState ?? "active")) {
+      scopeKeyByLine[line.line] = scopeState.currentScopeKey;
+      if (computeFingerprints) {
+        lineFingerprints[line.line] = "";
+      }
+      continue;
+    }
+
     const scopeKey = updateScopeKeyForLine(line, proxySections, scopeState);
     scopeKeyByLine[line.line] = scopeKey;
 

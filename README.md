@@ -107,6 +107,7 @@ Run **Format Document** (or enable format-on-save) to normalize layout according
 - Comments and quoted strings are preserved; inline `#` comments stay on the same line.
 - Optional blank lines are inserted before each new section header.
 - Multiple blank lines between sections collapse to one; trailing blank lines at end of file are removed.
+- **Format Selection** preserves intra-line spacing in the selected range for minimal diffs while still normalizing section indent.
 
 Indent style (4 spaces, 2 spaces, or tab) and blank-line behavior are configurable — see **Settings** below.
 
@@ -132,6 +133,19 @@ Split HAProxy layouts — separate files for frontends, backends, ACLs, or share
 - **Limits and fallback** — when disabled or when configured opt-in file, line, or byte limits are exceeded for a VS Code workspace folder, navigation, rename, and symbol diagnostics in that folder fall back to single-file behavior
 
 The graph rebuilds after workspace file changes (debounced via `haproxy.workspaceSymbols.debounceMs`). It indexes files on disk in the workspace — not HAProxy `include` paths.
+
+#### Glob discovery vs HAProxy `-f` load order
+
+The workspace symbol graph is built from **VS Code glob patterns** (`haproxy.workspaceSymbols.include`, optional `haproxy.workspaceSymbols.roots`, and `exclude`). This is **not** the same as the file list HAProxy loads with `haproxy -f file` or `haproxy -f /etc/haproxy.d/`:
+
+|                      | Workspace graph                             | HAProxy process                                   |
+| -------------------- | ------------------------------------------- | ------------------------------------------------- |
+| File discovery       | VS Code globs under workspace folders       | Explicit `-f` paths and directories               |
+| Load order           | All matching files indexed together         | Order of `-f` arguments matters                   |
+| `include` directives | Not followed                                | HAPEE / some layouts follow includes              |
+| Fragment files       | Need section headers in each indexed `.cfg` | Can be spliced after a file that opened a section |
+
+Use `haproxy.workspaceSymbols.roots` to scope indexing to known config trees (for example `haproxy.d` or `etc/haproxy`). Narrow `include` when unrelated `.cfg` files share names and would collide on cross-file rename.
 
 ### Go to definition, find references, and rename
 
@@ -197,17 +211,19 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 | `haproxy.diagnostics.enabled`                   | `true`          | Turn off if opening very large `.cfg` files feels slow                                                                                                                   |
 | `haproxy.diagnostics.debounceMs`                | `500`           | Delay after edits before recomputing diagnostics (100-5000 ms)                                                                                                           |
 | `haproxy.diagnostics.maxLines`                  | `4000`          | Skip diagnostics above this line count to limit memory use                                                                                                               |
+| `haproxy.symbols.maxLines`                      | `4000`          | Skip per-document symbol indexing above this line count; navigation, rename, symbol completion, and semantic highlighting are disabled for larger files.                 |
 | `haproxy.diagnostics.deprecatedWarnings`        | `true`          | Warn on directives and rule actions marked `(deprecated)` in the official docs. Warnings are suppressed when `global` contains `expose-deprecated-directives`.           |
 | `haproxy.diagnostics.unusedSymbols`             | `true`          | Hint and fade unused ACL lines and unreferenced section blocks in the current file (Ty-style unnecessary-code styling). Turn off if you prefer a cleaner Problems panel. |
 | `haproxy.diagnostics.missingReferences`         | `true`          | Warn when a named reference (ACL, backend, cache, userlist, resolvers, peers, defaults profile) has no definition in the current file or workspace graph.                |
 | `haproxy.workspaceSymbols.enabled`              | `true`          | Build a workspace-level symbol graph for cross-file navigation and symbol diagnostics across split `.cfg` layouts.                                                       |
 | `haproxy.workspaceSymbols.include`              | `["**/*.cfg"]`  | Glob patterns for HAProxy files included in the workspace symbol graph.                                                                                                  |
 | `haproxy.workspaceSymbols.exclude`              | see description | Glob patterns excluded from workspace indexing (default: `.git`, `node_modules`, `dist`, `out`, `vendor`).                                                               |
-| `haproxy.workspaceSymbols.maxFiles`             | `0`             | Optional maximum indexed files per VS Code workspace folder; `0` means unlimited.                                                                                        |
-| `haproxy.workspaceSymbols.maxTotalLines`        | `0`             | Optional maximum total indexed lines per VS Code workspace folder; `0` means unlimited.                                                                                  |
-| `haproxy.workspaceSymbols.maxFileBytes`         | `0`             | Optional maximum bytes per indexed HAProxy file; `0` means unlimited.                                                                                                    |
-| `haproxy.workspaceSymbols.maxTotalBytes`        | `0`             | Optional maximum total indexed bytes per VS Code workspace folder; `0` means unlimited.                                                                                  |
-| `haproxy.workspaceSymbols.maxLineBytes`         | `0`             | Optional maximum encoded bytes per line in an indexed HAProxy file; `0` means unlimited.                                                                                 |
+| `haproxy.workspaceSymbols.roots`                | `[]`            | Optional workspace-relative directory roots that limit discovery (for example `haproxy.d`). Empty means the whole workspace folder. Does not follow HAProxy `-f` order.  |
+| `haproxy.workspaceSymbols.maxFiles`             | `500`           | Optional maximum indexed files per VS Code workspace folder; `0` means unlimited.                                                                                        |
+| `haproxy.workspaceSymbols.maxTotalLines`        | `200000`        | Optional maximum total indexed lines per VS Code workspace folder; `0` means unlimited.                                                                                  |
+| `haproxy.workspaceSymbols.maxFileBytes`         | `2097152`       | Optional maximum bytes per indexed HAProxy file (2 MiB); `0` means unlimited.                                                                                            |
+| `haproxy.workspaceSymbols.maxTotalBytes`        | `52428800`      | Optional maximum total indexed bytes per workspace folder (50 MiB); `0` means unlimited.                                                                                 |
+| `haproxy.workspaceSymbols.maxLineBytes`         | `65536`         | Optional maximum encoded bytes per line in an indexed file; `0` means unlimited.                                                                                         |
 | `haproxy.workspaceSymbols.debounceMs`           | `750`           | Delay after workspace file changes before rebuilding the symbol graph (100-10000 ms).                                                                                    |
 | `haproxy.format.enabled`                        | `true`          | Enable **Format Document** for HAProxy configs                                                                                                                           |
 | `haproxy.format.indent`                         | `spaces-4`      | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                                                                                                            |
@@ -223,9 +239,10 @@ Pre-0.12 settings `haproxy.format.indentStyle` and `haproxy.format.indentSize` a
 
 ## Commands
 
-| Command                             | Description                                    |
-| ----------------------------------- | ---------------------------------------------- |
-| **HAProxy: Select HAProxy Version** | Quick-pick between 2.6, 2.8, 3.0, 3.2, and 3.4 |
+| Command                                     | Description                                                                |
+| ------------------------------------------- | -------------------------------------------------------------------------- |
+| **HAProxy: Select HAProxy Version**         | Quick-pick between 2.6, 2.8, 3.0, 3.2, and 3.4                             |
+| **HAProxy: Open Workspace Symbol Settings** | Opens workspace symbol graph settings (`include`, `roots`, caps, debounce) |
 
 ---
 

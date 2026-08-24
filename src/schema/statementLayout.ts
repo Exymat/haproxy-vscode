@@ -1,6 +1,6 @@
 /** Matches parsed lines to schema statement rules and resolves action/phase token positions. */
 import { ParsedLine, ParsedToken } from "../parser";
-import { HaproxySchema, StatementRule } from "../schema/types";
+import { HaproxySchema, StatementRule } from "./types";
 
 const statementRuleIndexCache = new WeakMap<HaproxySchema, Map<string, StatementRule[]>>();
 

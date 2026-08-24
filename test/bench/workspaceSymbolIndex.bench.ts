@@ -47,6 +47,7 @@ const discoverySettings: WorkspaceSymbolSettings = {
   enabled: true,
   include: ["**/*.cfg"],
   exclude: [],
+  roots: [],
   maxFiles: Number.POSITIVE_INFINITY,
   maxTotalLines: Number.POSITIVE_INFINITY,
   maxFileBytes: Number.POSITIVE_INFINITY,

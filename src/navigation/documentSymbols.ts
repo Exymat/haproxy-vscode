@@ -4,12 +4,17 @@ import * as vscode from "vscode";
 import { getLoadedBundleForUri } from "../extension/extensionBundle";
 import { getParsedDocument } from "../parser/parseCache";
 import { sectionHeaderSet } from "../schema/layout";
+import { HaproxySchema } from "../schema/types";
 import { getSectionOutline } from "./sectionOutline";
 
-export function provideDocumentSymbols(document: vscode.TextDocument): vscode.DocumentSymbol[] {
+export function provideDocumentSymbols(
+  document: vscode.TextDocument,
+  schema?: HaproxySchema,
+): vscode.DocumentSymbol[] {
   const bundle = getLoadedBundleForUri(document.uri);
+  const effectiveSchema = schema ?? bundle?.schema;
   const parsed = getParsedDocument(document, {
-    sectionHeaders: bundle ? sectionHeaderSet(bundle.schema) : undefined,
+    sectionHeaders: effectiveSchema ? sectionHeaderSet(effectiveSchema) : undefined,
   });
   return getSectionOutline(document, parsed).map((symbol) => {
     return new vscode.DocumentSymbol(

@@ -1,4 +1,5 @@
 /** TypeScript types describing the HAProxy schema JSON shape. */
+import type { CompletionKind, SymbolKind } from "../core/editorKinds";
 export interface SchemaSection {
   name: string;
   keywords: string[];
@@ -94,7 +95,7 @@ export interface SchemaAddressPolicy {
 
 export interface StatementRule {
   keyword: string;
-  kind: string;
+  kind: CompletionKind;
   group?: string;
   match_tokens?: string[];
   minimum_token_index?: number;
@@ -105,18 +106,19 @@ export interface StatementRule {
   prefix?: string;
   sections?: string[];
   fixed_slots?: FixedSlotSpec[];
-  reference_kind?: string;
-  definition_kind?: string;
+  reference_kind?: SymbolKind;
+  definition_kind?: SymbolKind;
   symbol_name_token_index?: number;
   symbol_name_token_from_index?: number;
 }
 
 export interface ReferencePattern {
   match_tokens: string[];
-  reference_kind: string;
+  reference_kind: SymbolKind;
   target_token_index: number;
   scope?: "global" | "section" | "section-header";
   split?: string;
+  target_prefix?: string;
 }
 
 export interface LineLayout {

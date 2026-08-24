@@ -169,3 +169,7 @@ export function getWorkspaceSymbolIndex(
   const [index] = activeWorkspaceIndexes.values();
   return index?.capped ? null : index;
 }
+
+export function getWorkspaceSymbolIndexes(): WorkspaceSymbolIndex[] {
+  return [...activeWorkspaceIndexes.values()].filter((index) => !index.capped);
+}

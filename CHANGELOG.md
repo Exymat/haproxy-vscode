@@ -2,6 +2,22 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.19.0
+
+- **Signature Help** — parameter hints for directive signatures from the schema (triggered on space and comma), with the active argument highlighted as you type (e.g. `errorfile 400 |`).
+- **Path completion** — suggests workspace files for path-typed arguments such as `errorfile`, `lua-load`, and `bind … crt`.
+- **Document highlights and backend semantic highlighting** — occurrences of the symbol under the cursor are highlighted in the current file (definitions vs references). `use_backend` and `default_backend` names use a dedicated `backendReference` semantic token.
+- **Go to Symbol in Workspace** — `Ctrl+T` / `Cmd+T` searches indexed section definitions (frontends, backends, listens, defaults profiles, and other named sections) across the workspace graph.
+- **Create backend stub Quick Fix** — a missing `use_backend` / `default_backend` reference can insert a stub `backend` section at the end of the file.
+- **Format Selection** — range formatting preserves intra-line spacing for smaller diffs while still applying section indent.
+- **Editor indent and word selection** — Enter after a section header indents the next line; `#` comments stay unindented; double-click and word navigation treat HAProxy names such as `use_backend` as a single word.
+- **Conditional `.if` branches** — known predicates (`true`, `false`, quoted `streq(...)`) mark inactive `.elif`/`.else` blocks so diagnostics and symbol indexing skip dead branches. Unknown predicates (e.g. `defined(...)`) stay active on all arms.
+- **Lua-aware sample diagnostics** — unknown fetches and converters are hints instead of errors when the file loads Lua (`lua-load` / `lua-load-per-thread`).
+- **Dynamic backend names** — computed `use_backend` targets such as `%[var(http_host)]`, `be_%[req.hdr(host)]`, and `map(...)` are not reported as missing references.
+- **Broader named-section symbols** — navigation, completion, unused-section hints, and missing-reference checks cover `mailers`, `http-errors`, `fcgi-app`, `healthcheck`, `ring` (`log ring@name`), `server-template`, peer/mailer/nameserver members, and related section types. `table` references a stick-table proxy section.
+- **`haproxy.symbols.maxLines`** (default `4000`) — per-document symbol indexing is skipped above this line count (navigation, rename, symbol completion, and semantic highlighting). A status bar warning appears when the active file is capped.
+- **Workspace graph roots and default caps** — `haproxy.workspaceSymbols.roots` limits discovery to directories such as `haproxy.d` (this is not HAProxy `-f` load order). Default folder caps are `maxFiles` 500, `maxTotalLines` 200000, `maxFileBytes` 2 MiB, `maxTotalBytes` 50 MiB, and `maxLineBytes` 64 KiB (`0` remains unlimited). **HAProxy: Open Workspace Symbol Settings** opens these settings.
+
 ## 0.18.3
 
 - **Section header `from` completion** — suggests `from` after a named `defaults`, `frontend`, `backend`, or `listen` section (and after anonymous `defaults `), so inheritance from a defaults profile can be completed without typing the keyword first. Profile-name suggestions after `from` are unchanged. Sections that cannot inherit (`cache`, `peers`, and similar) are not offered `from`.

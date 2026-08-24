@@ -13,29 +13,59 @@ import {
 } from "../../symbolIndex";
 import { CompletionContext } from "../types";
 
-const SYMBOL_KIND_DETAIL: Record<SymbolKind, string> = {
+const SYMBOL_KIND_DETAIL: Record<string, string> = {
   "proxy-section": "backend",
   "defaults-profile": "defaults profile",
   server: "server",
+  "server-template": "server template",
   acl: "ACL",
   filter: "filter",
   cache: "cache",
   userlist: "userlist",
   resolvers: "resolvers",
   peers: "peers",
+  mailers: "mailers",
+  "http-errors": "http-errors",
+  ring: "ring",
+  "fcgi-app": "fcgi-app",
+  healthcheck: "healthcheck",
+  acme: "acme",
+  "log-profile": "log-profile",
+  "log-forward": "log-forward",
+  "crt-store": "crt-store",
+  traces: "traces",
+  program: "program",
+  peer: "peer",
+  mailer: "mailer",
+  nameserver: "nameserver",
   "environment-variable": "environment variable",
 };
 
-const SYMBOL_KIND_ITEM_KIND: Record<SymbolKind, vscode.CompletionItemKind> = {
+const SYMBOL_KIND_ITEM_KIND: Record<string, vscode.CompletionItemKind> = {
   "proxy-section": vscode.CompletionItemKind.Class,
   "defaults-profile": vscode.CompletionItemKind.Interface,
   server: vscode.CompletionItemKind.Property,
+  "server-template": vscode.CompletionItemKind.Property,
   acl: vscode.CompletionItemKind.Variable,
   filter: vscode.CompletionItemKind.Method,
   cache: vscode.CompletionItemKind.Struct,
   userlist: vscode.CompletionItemKind.Enum,
   resolvers: vscode.CompletionItemKind.Reference,
   peers: vscode.CompletionItemKind.Reference,
+  mailers: vscode.CompletionItemKind.Reference,
+  "http-errors": vscode.CompletionItemKind.Reference,
+  ring: vscode.CompletionItemKind.Reference,
+  "fcgi-app": vscode.CompletionItemKind.Reference,
+  healthcheck: vscode.CompletionItemKind.Reference,
+  acme: vscode.CompletionItemKind.Reference,
+  "log-profile": vscode.CompletionItemKind.Reference,
+  "log-forward": vscode.CompletionItemKind.Reference,
+  "crt-store": vscode.CompletionItemKind.Reference,
+  traces: vscode.CompletionItemKind.Reference,
+  program: vscode.CompletionItemKind.Reference,
+  peer: vscode.CompletionItemKind.Property,
+  mailer: vscode.CompletionItemKind.Property,
+  nameserver: vscode.CompletionItemKind.Property,
   "environment-variable": vscode.CompletionItemKind.Constant,
 };
 
@@ -113,8 +143,8 @@ export function trySymbolReferenceCompletion(
     return [];
   }
 
-  const detail = SYMBOL_KIND_DETAIL[expected.kind];
-  const itemKind = SYMBOL_KIND_ITEM_KIND[expected.kind];
+  const detail = SYMBOL_KIND_DETAIL[expected.kind] ?? expected.kind;
+  const itemKind = SYMBOL_KIND_ITEM_KIND[expected.kind] ?? vscode.CompletionItemKind.Value;
 
   return filtered.map((name) => {
     const item = new vscode.CompletionItem(name, itemKind);

@@ -3,11 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 import { registerExtensionLifecycle } from "../../../src/extension/extensionLifecycle";
 import * as grammar from "../../../src/extension/grammar";
 import { getExtensionSettings } from "../../../src/extension/settings";
+import * as documentCache from "../../../src/parser/documentCache";
 import {
+  mockTextDocuments,
   resetMockVscode,
   setMockConfigForUri,
   setMockWorkspaceFolders,
   triggerMockFolderConfigurationChange,
+  triggerMockOpenTextDocument,
 } from "../../helpers/vscode";
 import { mockExtensionContext } from "../../helpers/extensionContext";
 import { loadSchemaBundle } from "../../helpers/schema";
@@ -77,5 +80,58 @@ describe("extension lifecycle", () => {
     expect(firstCall?.[1]).toBe("full");
     const uri = firstCall?.[0] as { toString: () => string } | undefined;
     expect(uri?.toString()).toBe("file:///folder-a");
+  });
+
+  it("runs diagnostics immediately when a reopened document has a warm URI cache", () => {
+    vi.spyOn(grammar, "syncDocumentGrammarLanguage").mockResolvedValue(true);
+    vi.spyOn(documentCache, "hasWarmUriDocumentCache").mockReturnValue(true);
+    const diagnostics = {
+      scheduler: {
+        schedule: vi.fn(),
+        runNow: vi.fn(),
+        disposeDocument: vi.fn(),
+        clearPending: vi.fn(),
+      },
+      refreshAllDocuments: vi.fn(),
+      refreshDocumentsInWorkspaceFolders: vi.fn(),
+      dispose: vi.fn(),
+    };
+
+    registerExtensionLifecycle({
+      context: mockExtensionContext() as never,
+      extensionVersion: "test",
+      getSettings: getExtensionSettings,
+      refreshSettings: vi.fn(),
+      diagnostics,
+      bundle: {
+        ensureBundleResilient: vi.fn(() => Promise.resolve(bundle)),
+        safeEnsureBundle: vi.fn(() => Promise.resolve(bundle)),
+        resolveWorkspaceSchema: vi.fn(() => Promise.resolve(bundle.schema)),
+        invalidate: vi.fn(),
+        reportBundleError: vi.fn(),
+        resetErrorReporting: vi.fn(),
+        dispose: vi.fn(),
+      },
+      workspaceSymbols: {
+        settings: () => defaultWorkspaceSymbolSettings(),
+        scheduleForUri: vi.fn(),
+        schedule: vi.fn(() => Promise.resolve()),
+        scheduleRebuildWithReadyBundle: vi.fn(),
+        configureWatchers: vi.fn(),
+        handleWorkspaceFoldersChanged: vi.fn(),
+      } as never,
+    });
+
+    const doc = {
+      uri: { toString: () => "file:///warm.cfg" },
+      languageId: "haproxy",
+      version: 1,
+      lineCount: 1,
+      lineAt: () => ({ text: "backend api" }),
+      getText: () => "backend api",
+    };
+    mockTextDocuments.push(doc as never);
+    triggerMockOpenTextDocument(doc as never);
+    expect(diagnostics.scheduler.runNow).toHaveBeenCalledWith(doc);
   });
 });

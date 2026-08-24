@@ -1,6 +1,6 @@
 /** Core symbol-site and symbol-index types and key helpers. */
 import { HaproxySchema } from "../schema/types";
-import { symbolStringList, symbolStringMap } from "../schema/symbols";
+import { symbolKindMap, symbolKindSet, symbolStringList } from "../schema/symbols";
 import { SymbolKind } from "../core/editorKinds";
 
 export type { SymbolKind } from "../core/editorKinds";
@@ -43,7 +43,7 @@ export function proxySectionSet(schema: HaproxySchema): Set<string> {
 export function sectionDefinitionKinds(schema: HaproxySchema): Record<string, SymbolKind> {
   let cached = sectionDefinitionKindsCache.get(schema);
   if (!cached) {
-    cached = symbolStringMap(schema, "section_definition_kinds");
+    cached = symbolKindMap(schema, "section_definition_kinds");
     sectionDefinitionKindsCache.set(schema, cached);
   }
   return cached;
@@ -52,7 +52,7 @@ export function sectionDefinitionKinds(schema: HaproxySchema): Record<string, Sy
 export function scopedSymbolKindSet(schema: HaproxySchema): Set<SymbolKind> {
   let cached = scopedSymbolKindCache.get(schema);
   if (!cached) {
-    cached = new Set(symbolStringList(schema, "scoped_symbol_kinds"));
+    cached = symbolKindSet(schema, "scoped_symbol_kinds");
     scopedSymbolKindCache.set(schema, cached);
   }
   return cached;

@@ -37,6 +37,13 @@ describe("provideDocumentSymbols", () => {
     expect(symbols.map((s) => s.name)).toEqual(["global", "defaults"]);
     expect(symbols[0].kind).toBe(1);
   });
+
+  it("accepts an explicit schema argument", () => {
+    const doc = createDocument("global\n    daemon\nfrontend web\n    bind :80");
+    expect(provideDocumentSymbols(doc, schema).map((symbol) => symbol.name)).toEqual(
+      expect.arrayContaining(["global", "frontend web"]),
+    );
+  });
 });
 
 describe("provideFoldingRanges", () => {
@@ -47,6 +54,11 @@ describe("provideFoldingRanges", () => {
     const ranges = provideFoldingRanges(doc);
     expect(ranges.length).toBeGreaterThan(0);
     expect(ranges[0].start).toBe(0);
+  });
+
+  it("accepts an explicit schema argument", () => {
+    const doc = createDocument("global\n    daemon\nfrontend web\n    bind :80");
+    expect(provideFoldingRanges(doc, schema).length).toBeGreaterThan(0);
   });
 });
 

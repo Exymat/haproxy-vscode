@@ -39,6 +39,7 @@ export interface HaproxyExtensionSettings {
   diagnosticsEnabled: boolean;
   diagnosticsDebounceMs: number;
   maxDiagnosticsLines: number;
+  maxSymbolLines: number;
   formatEnabled: boolean;
   formatIndent: FormatIndent;
   formatInsertBlankLineBetweenSections: boolean;
@@ -48,6 +49,7 @@ export interface HaproxyExtensionSettings {
   workspaceSymbolsEnabled: boolean;
   workspaceSymbolsInclude: string[];
   workspaceSymbolsExclude: string[];
+  workspaceSymbolsRoots: string[];
   workspaceSymbolsMaxFiles: number;
   workspaceSymbolsMaxTotalLines: number;
   workspaceSymbolsMaxFileBytes: number;
@@ -77,6 +79,7 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
       DIAGNOSTICS_DEBOUNCE_MS_MAX,
     ),
     maxDiagnosticsLines: Math.max(100, config.get<number>("diagnostics.maxLines", 4000)),
+    maxSymbolLines: Math.max(100, config.get<number>("symbols.maxLines", 4000)),
     formatEnabled: config.get<boolean>("format.enabled", true),
     formatIndent: readFormatIndent(config),
     formatInsertBlankLineBetweenSections: config.get<boolean>(
@@ -95,6 +98,7 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
       "**/out/**",
       "**/vendor/**",
     ]),
+    workspaceSymbolsRoots: config.get<string[]>("workspaceSymbols.roots", []),
     workspaceSymbolsMaxFiles: workspaceSymbolLimit(config, "workspaceSymbols.maxFiles", 1),
     workspaceSymbolsMaxTotalLines: workspaceSymbolLimit(
       config,

@@ -9,12 +9,12 @@ describe("tryUseServiceCompletion", () => {
     vi.restoreAllMocks();
   });
 
-  it("returns null outside use-service action position", () => {
+  it("returns null outside use-service action position", async () => {
     expect(tryUseServiceCompletion).toBeDefined();
-    expect(completionLabels("frontend web\n    bind :80 ", 1)).not.toContain("ping");
+    expect(await completionLabels("frontend web\n    bind :80 ", 1)).not.toContain("ping");
   });
 
-  it("returns service names for use-service actions", () => {
+  it("returns service names for use-service actions", async () => {
     const origGroupItems = documentContext.groupItems;
     vi.spyOn(documentContext, "groupItems").mockImplementation((data, group) => {
       if (group === "services") {
@@ -22,6 +22,8 @@ describe("tryUseServiceCompletion", () => {
       }
       return origGroupItems(data, group);
     });
-    expect(completionLabels("frontend web\n    http-request use-service ", 1)).toContain("ping");
+    expect(await completionLabels("frontend web\n    http-request use-service ", 1)).toContain(
+      "ping",
+    );
   });
 });

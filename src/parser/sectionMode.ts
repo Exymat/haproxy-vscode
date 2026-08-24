@@ -1,11 +1,12 @@
 /** Tracks runtime mode inheritance across HAProxy section blocks. */
 import { ParsedLine } from "./index";
 import { ParsedDocumentReuse } from "./parseCache";
+import { RuntimeMode } from "../core/editorKinds";
 import { HaproxySchema } from "../schema/types";
 import { symbolStringList } from "../schema/symbols";
 import { parseSectionHeader } from "../language/sectionUtils";
 
-export type RuntimeMode = string;
+export type { RuntimeMode } from "../core/editorKinds";
 
 export interface RuntimeModeCacheEntry {
   version: number;
@@ -76,24 +77,22 @@ export function runtimeModeForLine(
     typeof schema.symbols?.defaults_section_name === "string"
       ? schema.symbols.defaults_section_name
       : "defaults";
-  const findNamedDefaultsBefore = (idx: number, name: string): number =>
-    (() => {
-      for (let i = idx - 1; i >= 0; i -= 1) {
-        if (blocks[i].kind === defaultsSection && blocks[i].name === name) {
-          return i;
-        }
+  const findNamedDefaultsBefore = (idx: number, name: string): number => {
+    for (let i = idx - 1; i >= 0; i -= 1) {
+      if (blocks[i].kind === defaultsSection && blocks[i].name === name) {
+        return i;
       }
-      return -1;
-    })();
-  const findPreviousDefaults = (idx: number): number =>
-    (() => {
-      for (let i = idx - 1; i >= 0; i -= 1) {
-        if (blocks[i].kind === defaultsSection) {
-          return i;
-        }
+    }
+    return -1;
+  };
+  const findPreviousDefaults = (idx: number): number => {
+    for (let i = idx - 1; i >= 0; i -= 1) {
+      if (blocks[i].kind === defaultsSection) {
+        return i;
       }
-      return -1;
-    })();
+    }
+    return -1;
+  };
 
   const resolveMode = (idx: number): RuntimeMode | null => {
     const hit = memo.get(idx);
@@ -117,9 +116,10 @@ export function runtimeModeForLine(
     return mode;
   };
 
+  const blockModes = blocks.map((_, idx) => resolveMode(idx));
   return parsed.map((line) => {
     const idx = blockByLine.get(line.line)!;
-    return idx >= 0 ? resolveMode(idx) : null;
+    return idx >= 0 ? blockModes[idx] : null;
   });
 }
 

@@ -20,6 +20,7 @@ export function expressionDiagnostics(
   lineText: string,
   schema: HaproxySchema,
   delimiterIssues: DelimiterDiagnostic[] = [],
+  options: { softUnknownSamples?: boolean } = {},
 ): vscode.Diagnostic[] {
   if (!mightContainExpressionSyntax(lineText)) {
     return [];
@@ -30,11 +31,14 @@ export function expressionDiagnostics(
     delimiterIssues,
   );
   for (const issue of expressionIssues) {
+    const softUnknown =
+      options.softUnknownSamples === true &&
+      (issue.code === "sample-unknown-fetch" || issue.code === "sample-unknown-converter");
     diagnostics.push(
       new vscode.Diagnostic(
         new vscode.Range(line.line, issue.start, line.line, issue.end),
         issue.message,
-        vscode.DiagnosticSeverity.Error,
+        softUnknown ? vscode.DiagnosticSeverity.Hint : vscode.DiagnosticSeverity.Error,
       ),
     );
     const last = diagnostics[diagnostics.length - 1];

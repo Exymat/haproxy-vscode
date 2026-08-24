@@ -461,4 +461,80 @@ describe("symbolIndex build", () => {
       false,
     );
   });
+
+  it("indexes mailers, http-errors, fcgi-app, peers, and server-template symbols", () => {
+    const content = [
+      "ring events",
+      "    size 1024",
+      "mailers alerts",
+      "    mailer m1 127.0.0.1:25",
+      "http-errors pages",
+      "    errorfile 503 /dev/null",
+      "fcgi-app app",
+      "    docroot /var/www",
+      "peers cluster",
+      "    peer local 127.0.0.1:10000",
+      "resolvers dns",
+      "    nameserver ns1 1.1.1.1:53",
+      "frontend web",
+      "    bind :80",
+      "    log ring@events local0",
+      "    email-alert mailers alerts",
+      "    errorfiles pages",
+      "    use-fcgi-app app",
+      "backend api",
+      "    server-template srv 1-3 127.0.0.1:80",
+    ].join("\n");
+    const index = getSymbolIndex(createDocument(content), schema, 4000);
+    expect(index).not.toBeNull();
+    if (!index) {
+      return;
+    }
+    const kinds = [...index.definitions.values()].flat().map((site) => `${site.kind}:${site.name}`);
+    expect(kinds).toEqual(
+      expect.arrayContaining([
+        "mailers:alerts",
+        "mailer:m1",
+        "http-errors:pages",
+        "fcgi-app:app",
+        "peers:cluster",
+        "peer:local",
+        "resolvers:dns",
+        "nameserver:ns1",
+        "server-template:srv",
+        "proxy-section:api",
+        "ring:events",
+      ]),
+    );
+    const refs = index.references.map((site) => `${site.kind}:${site.name}`);
+    expect(refs).toEqual(
+      expect.arrayContaining([
+        "mailers:alerts",
+        "http-errors:pages",
+        "fcgi-app:app",
+        "ring:events",
+      ]),
+    );
+  });
+
+  it("wires quic-initial as an action statement rule", () => {
+    const rule = schema.statement_rules?.find((entry) => entry.keyword === "quic-initial");
+    expect(rule?.kind).toBe("quic-initial");
+    expect(rule?.group).toBe("quic_initial_actions");
+    const completionMap = schema.semantic_groups?.completion_kind_to_action_group as
+      Record<string, string> | undefined;
+    expect(completionMap?.["quic-initial"]).toBe("quic_initial_actions");
+  });
+
+  it("reuses the symbol index across inactive-branch line edits", () => {
+    const document = createDocument(
+      ["frontend web", "    .if FALSE", "    acl foo path_beg /a", "    .endif"].join("\n"),
+    );
+    getSymbolIndex(document, schema, 4000);
+    updateDocument(
+      document,
+      ["frontend web", "    .if FALSE", "    acl foo path_beg /b", "    .endif"].join("\n"),
+    );
+    expect(getSymbolIndex(document, schema, 4000)).not.toBeNull();
+  });
 });

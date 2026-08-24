@@ -2,6 +2,11 @@
 import * as vscode from "vscode";
 
 import { documentContentFingerprint, documentUriKey } from "../parser/documentUriKey";
+import {
+  conditionalBranchInfoForDocument,
+  isConditionalBlockDirective,
+  isInactiveConditionalBranch,
+} from "../diagnostics/conditionalDirectives";
 import { getParsedDocumentEntry, ParsedDocumentEntry } from "../parser/parseCache";
 import { isTopLevelSectionHeader } from "../language/sectionUtils";
 import { HaproxySchema } from "../schema/types";
@@ -58,8 +63,13 @@ function canReuseSymbolIndex(
   }
 
   const line = parsed[dirtyLineNo];
-  if (!line || isTopLevelSectionHeader(line)) {
+  if (!line || isTopLevelSectionHeader(line) || isConditionalBlockDirective(line.tokens[0]?.text)) {
     return false;
+  }
+
+  const branchInfo = conditionalBranchInfoForDocument(parsed);
+  if (isInactiveConditionalBranch(branchInfo[dirtyLineNo]?.branchState ?? "active")) {
+    return symbolSiteFingerprint([]) === cached.lineFingerprints[dirtyLineNo];
   }
 
   const scopeKey = cached.index.scopeKeyByLine[dirtyLineNo] ?? null;
@@ -76,7 +86,9 @@ function canIncrementalPatch(parseEntry: ParsedDocumentEntry): boolean {
     return false;
   }
   const line = parseEntry.parsed[dirtyLineNo];
-  return Boolean(line && !isTopLevelSectionHeader(line));
+  return Boolean(
+    line && !isTopLevelSectionHeader(line) && !isConditionalBlockDirective(line.tokens[0]?.text),
+  );
 }
 
 function storeIndexCache(document: vscode.TextDocument, entry: IndexCacheEntry): void {
@@ -143,9 +155,12 @@ export function getSymbolIndex(
     const dirtyLineNo = parseEntry.reuse.prefixLines;
     const line = parseEntry.parsed[dirtyLineNo];
     if (line) {
+      const branchInfo = conditionalBranchInfoForDocument(parseEntry.parsed);
       const scopeKey = matchingHit.index.scopeKeyByLine[dirtyLineNo] ?? null;
       const buildContext = createSymbolBuildContext(schema);
-      const sites = collectLineSymbolSites(line, schema, scopeKey, buildContext);
+      const sites = isInactiveConditionalBranch(branchInfo[dirtyLineNo]?.branchState ?? "active")
+        ? []
+        : collectLineSymbolSites(line, schema, scopeKey, buildContext);
       const { index, lineFingerprints } = patchSymbolIndexLine(
         matchingHit.index,
         line,

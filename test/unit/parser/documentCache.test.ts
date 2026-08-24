@@ -36,7 +36,7 @@ describe("uri document caches", () => {
     const options = {
       unusedSymbols: false,
       missingReferences: true,
-      maxLines: 4000,
+      maxSymbolLines: 4000,
     };
     const first = computeDiagnostics(firstDoc, schema, options);
 
@@ -56,7 +56,7 @@ describe("uri document caches", () => {
       deprecatedWarnings: true,
       unusedSymbols: false,
       missingReferences: false,
-      maxLines: 4000,
+      maxSymbolLines: 4000,
     };
     const first = computeDiagnostics(firstDoc, schema, options);
 

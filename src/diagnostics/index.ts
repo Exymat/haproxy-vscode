@@ -28,7 +28,7 @@ interface DiagnosticsCacheKey {
   deprecatedWarnings: boolean;
   unusedSymbols: boolean;
   missingReferences: boolean;
-  maxLines: number | undefined;
+  maxSymbolLines?: number;
   workspaceGeneration: number | null;
   workspaceRevision: number | null;
 }
@@ -51,7 +51,7 @@ export interface ComputeDiagnosticsOptions {
   deprecatedWarnings?: boolean;
   unusedSymbols?: boolean;
   missingReferences?: boolean;
-  maxLines?: number;
+  maxSymbolLines?: number;
 }
 
 function diagnosticsCacheKey(
@@ -65,7 +65,7 @@ function diagnosticsCacheKey(
     deprecatedWarnings: options.deprecatedWarnings !== false,
     unusedSymbols: options.unusedSymbols === true,
     missingReferences: options.missingReferences !== false,
-    maxLines: options.maxLines,
+    maxSymbolLines: options.maxSymbolLines,
     workspaceGeneration: workspaceIndex?.generation ?? null,
     workspaceRevision: workspaceIndex?.revision ?? null,
   };
@@ -78,7 +78,7 @@ function sameCacheKey(left: DiagnosticsCacheKey, right: DiagnosticsCacheKey): bo
     left.deprecatedWarnings === right.deprecatedWarnings &&
     left.unusedSymbols === right.unusedSymbols &&
     left.missingReferences === right.missingReferences &&
-    left.maxLines === right.maxLines &&
+    left.maxSymbolLines === right.maxSymbolLines &&
     left.workspaceGeneration === right.workspaceGeneration &&
     left.workspaceRevision === right.workspaceRevision
   );
@@ -174,8 +174,8 @@ export function computeDiagnostics(
   let cachedSymbolIndex: SymbolIndex | null = null;
 
   if (needSymbolDiagnostics) {
-    const maxLines = options.maxLines ?? document.lineCount;
-    const index = getSymbolIndex(document, schema, maxLines);
+    const maxSymbolLines = options.maxSymbolLines ?? document.lineCount;
+    const index = getSymbolIndex(document, schema, maxSymbolLines);
     if (index) {
       cachedSymbolIndex = index;
       if (cached?.cachedSymbolIndex === index && sameCacheKey(cached.key, key)) {
@@ -217,4 +217,8 @@ export function computeDiagnostics(
   });
 
   return finalDiagnostics;
+}
+
+export function clearDiagnosticsCache(): void {
+  uriDiagnosticsCache.clear();
 }

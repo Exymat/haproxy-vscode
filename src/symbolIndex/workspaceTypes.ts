@@ -9,6 +9,7 @@ export interface WorkspaceSymbolSettings {
   enabled: boolean;
   include: string[];
   exclude: string[];
+  roots: string[];
   maxFiles: number;
   maxTotalLines: number;
   maxFileBytes: number;

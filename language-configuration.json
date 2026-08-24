@@ -37,5 +37,26 @@
     ["{", "}"],
     ["[", "]"],
     ["(", ")"]
+  ],
+  "wordPattern": "(-?\\d*\\.\\d\\w*)|([A-Za-z0-9_.-]+)",
+  "indentationRules": {
+    "increaseIndentPattern": "^(acme|backend|cache|crt-list|crt-store|defaults|fcgi-app|frontend|global|healthcheck|http-errors|listen|log-forward|log-profile|mailers|peers|program|resolvers|ring|traces|userlist)(\\s+\\S+)?\\s*$",
+    "decreaseIndentPattern": "^(acme|backend|cache|crt-list|crt-store|defaults|fcgi-app|frontend|global|healthcheck|http-errors|listen|log-forward|log-profile|mailers|peers|program|resolvers|ring|traces|userlist)\\b"
+  },
+  "onEnterRules": [
+    {
+      "beforeText": "^\\s*#.*$",
+      "action": {
+        "indent": "none",
+        "appendText": ""
+      }
+    },
+    {
+      "beforeText": "^(acme|backend|cache|crt-list|crt-store|defaults|fcgi-app|frontend|global|healthcheck|http-errors|listen|log-forward|log-profile|mailers|peers|program|resolvers|ring|traces|userlist)(\\s+\\S+)?\\s*$",
+      "action": {
+        "indent": "indent",
+        "appendText": ""
+      }
+    }
   ]
 }

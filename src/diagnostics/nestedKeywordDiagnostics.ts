@@ -26,7 +26,7 @@ import {
   resolveActionTokenIndex,
   resolvePhaseTokenIndex,
   ruleActionGroup,
-} from "../formatting/statementLayout";
+} from "../schema/statementLayout";
 import {
   isLikelyValue,
   lowerToken,

@@ -7,6 +7,7 @@ import { createDocument } from "../../helpers/document";
 import { Range } from "../../helpers/vscode";
 import { bundles, hoverMarkdown, hoverText } from "./helpers";
 import { provideHover } from "../../../src/hover";
+import type { CompletionKind } from "../../../src/core/editorKinds";
 
 describe("provideHover nested line options", () => {
   afterEach(() => {
@@ -319,7 +320,7 @@ describe("provideHover nested line options", () => {
       semantic,
       ctx: {
         ...semantic.ctx,
-        kind: "custom",
+        kind: "custom" as CompletionKind,
         tokenIndex: 1,
         token: semantic.ctx.line.tokens[1],
       },
@@ -351,7 +352,7 @@ describe("provideHover nested line options", () => {
       semantic,
       ctx: {
         ...semantic.ctx,
-        kind: "custom",
+        kind: "custom" as CompletionKind,
         tokenIndex: 2,
         token: childToken,
       },

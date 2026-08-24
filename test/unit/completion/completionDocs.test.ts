@@ -8,7 +8,7 @@ describe("completion documentation", () => {
     vi.restoreAllMocks();
   });
 
-  it("builds keyword docs when descriptions and signatures are sparse", () => {
+  it("builds keyword docs when descriptions and signatures are sparse", async () => {
     const doc = createDocument("frontend web\n    ");
     vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
       kind: "directive",
@@ -19,16 +19,18 @@ describe("completion documentation", () => {
       { name: "fake-keyword", signatures: [], description: "", docsUrl: undefined, arguments: [] },
     ] as never);
     expect(
-      provideCompletionItems(
-        doc,
-        { line: 1, character: 4 } as never,
-        bundle.languageData,
-        bundle.schema,
+      (
+        await provideCompletionItems(
+          doc,
+          { line: 1, character: 4 } as never,
+          bundle.languageData,
+          bundle.schema,
+        )
       )[0]?.detail,
     ).toBe("fake-keyword");
   });
 
-  it("builds option documentation from keyword and group fallbacks", () => {
+  it("builds option documentation from keyword and group fallbacks", async () => {
     const doc = createDocument("defaults\n    option legacy");
     const data = structuredClone(bundle.languageData);
     vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
@@ -58,12 +60,13 @@ describe("completion documentation", () => {
       arguments: [],
     };
     expect(
-      provideCompletionItems(doc, { line: 1, character: 17 } as never, data, bundle.schema)[0]
-        ?.documentation,
+      (
+        await provideCompletionItems(doc, { line: 1, character: 17 } as never, data, bundle.schema)
+      )[0]?.documentation,
     ).toBeDefined();
   });
 
-  it("uses group and direct keyword docs when available", () => {
+  it("uses group and direct keyword docs when available", async () => {
     const groupedDoc = createDocument("defaults\n    option grouped");
     const groupedData = structuredClone(bundle.languageData);
     vi.spyOn(documentContext, "getDocumentContext").mockReturnValue({
@@ -98,11 +101,13 @@ describe("completion documentation", () => {
       arguments: [],
     } as never;
     expect(
-      provideCompletionItems(
-        groupedDoc,
-        { line: 1, character: 18 } as never,
-        groupedData,
-        bundle.schema,
+      (
+        await provideCompletionItems(
+          groupedDoc,
+          { line: 1, character: 18 } as never,
+          groupedData,
+          bundle.schema,
+        )
       )[0]?.documentation,
     ).toBeDefined();
 
@@ -135,16 +140,18 @@ describe("completion documentation", () => {
       arguments: [],
     };
     expect(
-      provideCompletionItems(
-        directDoc,
-        { line: 1, character: 20 } as never,
-        directData,
-        bundle.schema,
+      (
+        await provideCompletionItems(
+          directDoc,
+          { line: 1, character: 20 } as never,
+          directData,
+          bundle.schema,
+        )
       )[0]?.documentation,
     ).toBeDefined();
   });
 
-  it("covers expression-converter and log-format completion docs", () => {
+  it("covers expression-converter and log-format completion docs", async () => {
     const content = "frontend web\n    http-request set-header X %[path:";
     const doc = createDocument(content);
     const originalGroupItems = documentContext.groupItems;
@@ -167,19 +174,21 @@ describe("completion documentation", () => {
       return originalGroupItems(groupData, group);
     });
     expect(
-      provideCompletionItems(
-        doc,
-        { line: 1, character: content.split("\n")[1].length } as never,
-        data,
-        bundle.schema,
+      (
+        await provideCompletionItems(
+          doc,
+          { line: 1, character: content.split("\n")[1].length } as never,
+          data,
+          bundle.schema,
+        )
       ).map((i) => i.label),
     ).toContain("lower");
     vi.restoreAllMocks();
-    expect(completionLabels('defaults\n    log-format "%c', 1)).toContain("ci");
-    expect(completionLabels('defaults\n    log-format "%{+', 1)).toEqual(
+    expect(await completionLabels('defaults\n    log-format "%c', 1)).toContain("ci");
+    expect(await completionLabels('defaults\n    log-format "%{+', 1)).toEqual(
       expect.arrayContaining(["Q", "E", "X"]),
     );
-    const items = provideCompletionItems(
+    const items = await provideCompletionItems(
       createDocument('defaults\n    log-format "%ci'),
       { line: 1, character: '    log-format "%ci'.length } as never,
       bundle.languageData,

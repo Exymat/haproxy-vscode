@@ -1,8 +1,8 @@
 {
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
-  "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, and go-to-definition — LTS versions (2.6 - 3.4) supported.",
-  "version": "0.18.3",
+  "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, rename, cross-file navigation, and workspace symbol graph — LTS versions (2.6 - 3.4) supported.",
+  "version": "0.19.0",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
@@ -105,6 +105,12 @@
           "minimum": 100,
           "description": "Skip diagnostics above this line count to protect editor memory."
         },
+        "haproxy.symbols.maxLines": {
+          "type": "number",
+          "default": 4000,
+          "minimum": 100,
+          "description": "Skip per-document symbol indexing above this line count. Affects navigation, rename, completions, hover, and workspace symbol graph entries for large files."
+        },
         "haproxy.diagnostics.deprecatedWarnings": {
           "type": "boolean",
           "default": true,
@@ -149,33 +155,41 @@
           ],
           "description": "Glob patterns excluded from workspace symbol indexing."
         },
+        "haproxy.workspaceSymbols.roots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Optional workspace-relative directory roots that limit symbol graph discovery (for example haproxy.d or etc/haproxy). Empty means the whole workspace folder. This does not follow HAProxy -f load order or include directives."
+        },
         "haproxy.workspaceSymbols.maxFiles": {
           "type": "number",
-          "default": 0,
+          "default": 500,
           "minimum": 0,
           "description": "Optional maximum number of HAProxy files to index per VS Code workspace folder. Set to 0 for no file-count limit. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
         },
         "haproxy.workspaceSymbols.maxTotalLines": {
           "type": "number",
-          "default": 0,
+          "default": 200000,
           "minimum": 0,
           "description": "Optional maximum total HAProxy lines to index per VS Code workspace folder. Set to 0 for no line limit. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
         },
         "haproxy.workspaceSymbols.maxFileBytes": {
           "type": "number",
-          "default": 0,
+          "default": 2097152,
           "minimum": 0,
           "description": "Optional maximum bytes per HAProxy file to index. Set to 0 for no per-file byte limit. Files larger than this are skipped before being read into memory."
         },
         "haproxy.workspaceSymbols.maxTotalBytes": {
           "type": "number",
-          "default": 0,
+          "default": 52428800,
           "minimum": 0,
           "description": "Optional maximum total indexed bytes per VS Code workspace folder. Set to 0 for no total byte limit. When exceeded, cross-file navigation, rename, completions, and missing-reference checks in that folder fall back to single-file behavior and a warning is shown."
         },
         "haproxy.workspaceSymbols.maxLineBytes": {
           "type": "number",
-          "default": 0,
+          "default": 65536,
           "minimum": 0,
           "description": "Optional maximum encoded bytes per line in an indexed HAProxy file. Set to 0 for no per-line byte limit. Files containing longer lines are skipped."
         },
@@ -304,26 +318,40 @@
         "title": "Open Workspace Symbol Settings",
         "category": "HAProxy"
       }
-    ]
+    ],
+    "semanticTokenTypes": [
+      {
+        "id": "backendReference",
+        "superType": "type",
+        "description": "Reference to a backend section"
+      }
+    ],
+    "semanticTokenModifiers": []
   },
   "configurationDefaults": {
     "[haproxy]": {
-      "editor.maxTokenizationLineLength": 20000
+      "editor.maxTokenizationLineLength": 20000,
+      "editor.semanticHighlighting.enabled": true
     },
     "[haproxy-2.6]": {
-      "editor.maxTokenizationLineLength": 20000
+      "editor.maxTokenizationLineLength": 20000,
+      "editor.semanticHighlighting.enabled": true
     },
     "[haproxy-2.8]": {
-      "editor.maxTokenizationLineLength": 20000
+      "editor.maxTokenizationLineLength": 20000,
+      "editor.semanticHighlighting.enabled": true
     },
     "[haproxy-3.0]": {
-      "editor.maxTokenizationLineLength": 20000
+      "editor.maxTokenizationLineLength": 20000,
+      "editor.semanticHighlighting.enabled": true
     },
     "[haproxy-3.2]": {
-      "editor.maxTokenizationLineLength": 20000
+      "editor.maxTokenizationLineLength": 20000,
+      "editor.semanticHighlighting.enabled": true
     },
     "[haproxy-3.4]": {
-      "editor.maxTokenizationLineLength": 20000
+      "editor.maxTokenizationLineLength": 20000,
+      "editor.semanticHighlighting.enabled": true
     }
   },
   "scripts": {
@@ -389,11 +417,11 @@
     "eslint": "^10.8.1",
     "eslint-config-prettier": "^10.1.8",
     "glob": "^13.0.6",
-    "globals": "^17.9.0",
+    "globals": "^17.11.0",
     "mocha": "^11.8.0",
     "prettier": "^3.9.6",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.66.0",
+    "typescript-eslint": "^8.67.0",
     "vitest": "^4.1.8",
     "vscode-oniguruma": "^2.0.1",
     "vscode-textmate": "^9.3.2"

@@ -29,7 +29,18 @@ function haproxyDocument(content: string) {
     version: 1,
     lineCount: lines.length,
     lineAt(lineNo: number) {
-      return { text: lines[lineNo] ?? "" };
+      const text = lines[lineNo] ?? "";
+      return {
+        text,
+        range: {
+          start: { line: lineNo, character: 0 },
+          end: { line: lineNo, character: text.length },
+        },
+        rangeIncludingLineBreak: {
+          start: { line: lineNo, character: 0 },
+          end: { line: lineNo, character: text.length + 1 },
+        },
+      };
     },
     getText(range?: {
       start: { line: number; character: number };
@@ -116,6 +127,30 @@ describe("extension providers", () => {
         return { provider, dispose: () => {} };
       },
     );
+    vi.spyOn(languages, "registerDocumentRangeFormattingEditProvider").mockImplementation(
+      (_s, provider) => {
+        capturedProviders.rangeFormat = provider;
+        return { provider, dispose: () => {} };
+      },
+    );
+    vi.spyOn(languages, "registerSignatureHelpProvider").mockImplementation((_s, provider) => {
+      capturedProviders.signatureHelp = provider;
+      return { provider, dispose: () => {} };
+    });
+    vi.spyOn(languages, "registerDocumentHighlightProvider").mockImplementation((_s, provider) => {
+      capturedProviders.highlights = provider;
+      return { provider, dispose: () => {} };
+    });
+    vi.spyOn(languages, "registerDocumentSemanticTokensProvider").mockImplementation(
+      (_s, provider) => {
+        capturedProviders.semanticTokens = provider;
+        return { provider, dispose: () => {} };
+      },
+    );
+    vi.spyOn(languages, "registerWorkspaceSymbolProvider").mockImplementation((provider) => {
+      capturedProviders.workspaceSymbols = provider;
+      return { provider, dispose: () => {} };
+    });
   });
 
   afterEach(() => {
@@ -164,10 +199,10 @@ describe("extension providers", () => {
       ) => Promise<unknown>;
     };
     const symbols = capturedProviders.symbols as {
-      provideDocumentSymbols: (doc: unknown) => unknown;
+      provideDocumentSymbols: (doc: unknown) => Promise<unknown>;
     };
     const folding = capturedProviders.folding as {
-      provideFoldingRanges: (doc: unknown) => unknown;
+      provideFoldingRanges: (doc: unknown) => Promise<unknown>;
     };
 
     await completion.provideCompletionItems(doc, { line: 1, character: 4 });
@@ -180,8 +215,8 @@ describe("extension providers", () => {
     );
     await rename.prepareRename(doc, { line: 6, character: "backend ".length });
     await rename.provideRenameEdits(doc, { line: 6, character: "backend ".length }, "api_v2");
-    expect(symbols.provideDocumentSymbols(doc)).toBeDefined();
-    expect(folding.provideFoldingRanges(doc)).toBeDefined();
+    expect(await symbols.provideDocumentSymbols(doc)).toBeDefined();
+    expect(await folding.provideFoldingRanges(doc)).toBeDefined();
   });
 
   it("runs the internal peek definition command", async () => {
@@ -361,7 +396,23 @@ describe("extension providers", () => {
     const format = capturedProviders.format as {
       provideDocumentFormattingEdits: (doc: unknown) => Promise<unknown[]>;
     };
-    expect(await format.provideDocumentFormattingEdits(haproxyDocument("global"))).toEqual([]);
+    const rangeFormat = capturedProviders.rangeFormat as {
+      provideDocumentRangeFormattingEdits: (
+        doc: unknown,
+        range: {
+          start: { line: number; character?: number };
+          end: { line: number; character?: number };
+        },
+      ) => Promise<unknown[]>;
+    };
+    const doc = haproxyDocument("global");
+    expect(await format.provideDocumentFormattingEdits(doc)).toEqual([]);
+    expect(
+      await rangeFormat.provideDocumentRangeFormattingEdits(doc, {
+        start: { line: 0 },
+        end: { line: 0 },
+      }),
+    ).toEqual([]);
   });
 
   it("returns no format edits when bundle load fails", async () => {
@@ -372,11 +423,146 @@ describe("extension providers", () => {
     const format = capturedProviders.format as {
       provideDocumentFormattingEdits: (doc: unknown) => Promise<unknown[]>;
     };
-    const editsPromise = format.provideDocumentFormattingEdits(
-      haproxyDocument("    fcgi-app myapp\n        mode http"),
-    );
+    const rangeFormat = capturedProviders.rangeFormat as {
+      provideDocumentRangeFormattingEdits: (
+        doc: unknown,
+        range: {
+          start: { line: number; character?: number };
+          end: { line: number; character?: number };
+        },
+      ) => Promise<unknown[]>;
+    };
+    const signatureHelp = capturedProviders.signatureHelp as {
+      provideSignatureHelp: (
+        doc: unknown,
+        pos: { line: number; character: number },
+      ) => Promise<unknown>;
+    };
+    const symbols = capturedProviders.symbols as {
+      provideDocumentSymbols: (doc: unknown) => Promise<unknown>;
+    };
+    const folding = capturedProviders.folding as {
+      provideFoldingRanges: (doc: unknown) => Promise<unknown>;
+    };
+    const highlights = capturedProviders.highlights as {
+      provideDocumentHighlights: (
+        doc: unknown,
+        pos: { line: number; character: number },
+      ) => Promise<unknown>;
+    };
+    const semanticTokens = capturedProviders.semanticTokens as {
+      provideDocumentSemanticTokens: (doc: unknown) => Promise<{ data: Uint32Array }>;
+    };
+    const workspaceSymbols = capturedProviders.workspaceSymbols as {
+      provideWorkspaceSymbols: (query: string) => Promise<unknown>;
+    };
+    const doc = haproxyDocument("    fcgi-app myapp\n        mode http");
+    const formatPromise = format.provideDocumentFormattingEdits(doc);
+    const rangePromise = rangeFormat.provideDocumentRangeFormattingEdits(doc, {
+      start: { line: 0 },
+      end: { line: 1 },
+    });
+    const signaturePromise = signatureHelp.provideSignatureHelp(doc, { line: 1, character: 8 });
+    const symbolsPromise = symbols.provideDocumentSymbols(doc);
+    const foldingPromise = folding.provideFoldingRanges(doc);
+    const highlightsPromise = highlights.provideDocumentHighlights(doc, { line: 0, character: 4 });
+    const semanticPromise = semanticTokens.provideDocumentSemanticTokens(doc);
+    const workspacePromise = workspaceSymbols.provideWorkspaceSymbols("api");
     await vi.runAllTimersAsync();
-    expect(await editsPromise).toEqual([]);
+    expect(await formatPromise).toEqual([]);
+    expect(await rangePromise).toEqual([]);
+    expect(await signaturePromise).toBeNull();
+    expect(await symbolsPromise).toEqual([]);
+    expect(await foldingPromise).toEqual([]);
+    expect(await highlightsPromise).toEqual([]);
+    expect((await semanticPromise).data.length).toBe(0);
+    expect(await workspacePromise).toEqual([]);
+  });
+
+  it("invokes range format, signature help, highlights, semantic tokens, and workspace symbols", async () => {
+    const doc = haproxyDocument(
+      "frontend web\n    bind :80\n    use_backend api\nbackend api\n    server s1 127.0.0.1:80",
+    );
+    mockTextDocuments.push(doc);
+    setMockWorkspaceFile("file:///test.cfg", doc.getText());
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    const rangeFormat = capturedProviders.rangeFormat as {
+      provideDocumentRangeFormattingEdits: (
+        doc: unknown,
+        range: {
+          start: { line: number; character?: number };
+          end: { line: number; character?: number };
+        },
+      ) => Promise<unknown[]>;
+    };
+    const signatureHelp = capturedProviders.signatureHelp as {
+      provideSignatureHelp: (
+        doc: unknown,
+        pos: { line: number; character: number },
+      ) => Promise<unknown>;
+    };
+    const highlights = capturedProviders.highlights as {
+      provideDocumentHighlights: (
+        doc: unknown,
+        pos: { line: number; character: number },
+      ) => Promise<unknown[]>;
+    };
+    const semanticTokens = capturedProviders.semanticTokens as {
+      provideDocumentSemanticTokens: (doc: unknown) => Promise<{ data: Uint32Array }>;
+    };
+    const workspaceSymbols = capturedProviders.workspaceSymbols as {
+      provideWorkspaceSymbols: (query: string) => Promise<unknown[]>;
+    };
+
+    const rangeEdits = await rangeFormat.provideDocumentRangeFormattingEdits(doc, {
+      start: { line: 1 },
+      end: { line: 2 },
+    });
+    expect(rangeEdits.length).toBe(1);
+
+    const lineBoundaryEdits = (await rangeFormat.provideDocumentRangeFormattingEdits(doc, {
+      start: { line: 1, character: 0 },
+      end: { line: 2, character: 0 },
+    })) as Array<{
+      range: { end: { line: number; character: number } };
+      newText: string;
+    }>;
+    expect(lineBoundaryEdits[0]?.range.end).toEqual({ line: 1, character: "    bind :80".length });
+    expect(lineBoundaryEdits[0]?.newText).not.toContain("use_backend");
+
+    const lastLineEdits = await rangeFormat.provideDocumentRangeFormattingEdits(doc, {
+      start: { line: 4 },
+      end: { line: 4 },
+    });
+    expect(lastLineEdits.length).toBe(1);
+
+    await signatureHelp.provideSignatureHelp(doc, { line: 1, character: 8 });
+    expect(
+      await highlights.provideDocumentHighlights(doc, {
+        line: 2,
+        character: "    use_backend ".length,
+      }),
+    ).toBeDefined();
+    expect((await semanticTokens.provideDocumentSemanticTokens(doc)).data.length).toBeGreaterThan(
+      0,
+    );
+    expect(await workspaceSymbols.provideWorkspaceSymbols("api")).toBeDefined();
+  });
+
+  it("returns empty workspace symbols when workspace indexing is disabled", async () => {
+    setMockConfig("haproxy", "workspaceSymbols.enabled", false);
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+
+    const workspaceSymbols = capturedProviders.workspaceSymbols as {
+      provideWorkspaceSymbols: (query: string) => Promise<unknown>;
+    };
+    const symbolsPromise = workspaceSymbols.provideWorkspaceSymbols("api");
+    await vi.runAllTimersAsync();
+    expect(await symbolsPromise).toEqual([]);
   });
 
   it("cleans up on document close", async () => {

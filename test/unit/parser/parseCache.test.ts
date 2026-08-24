@@ -1,7 +1,16 @@
-import { getParsedDocument, getParsedDocumentEntry } from "../../../src/parser/parseCache";
+import { describe, expect, it, vi } from "vitest";
+
+import { invalidateAllExtensionCaches } from "../../../src/extension/cacheInvalidation";
+import {
+  finalizeParseCacheForClosedDocument,
+  getParsedDocument,
+  getParsedDocumentEntry,
+  hasUriParseCache,
+} from "../../../src/parser/parseCache";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument, updateDocument } from "../../helpers/document";
 import { parseOptionsWithSchema } from "../../helpers/formatOptions";
+import { mockTextDocuments } from "../../helpers/vscode";
 
 const parseOptions = parseOptionsWithSchema("3.2");
 
@@ -112,5 +121,71 @@ describe("getParsedDocument", () => {
     const second = getParsedDocumentEntry(doc, parseOptions);
     expect(second.reuse.suffixLines).toBe(0);
     expect(second.parsed[2].section).toBe("frontend");
+  });
+
+  it("extracts line texts with getText split instead of lineAt", () => {
+    const doc = createDocument(["frontend web", "    bind :80", "    mode http"].join("\n"));
+    const lineAtSpy = vi.spyOn(doc, "lineAt");
+    const entry = getParsedDocumentEntry(doc, parseOptions);
+    expect(entry.lineTexts).toEqual(["frontend web", "    bind :80", "    mode http"]);
+    expect(lineAtSpy).not.toHaveBeenCalled();
+  });
+
+  it("stores version-based uri cache fingerprints for open documents", () => {
+    mockTextDocuments.length = 0;
+    const doc = createDocument("backend api\n    server s1 127.0.0.1:80", "file:///open-cache.cfg");
+    mockTextDocuments.push(doc as never);
+    getParsedDocumentEntry(doc, parseOptions);
+    updateDocument(doc, "backend api\n    server s1 127.0.0.1:8080");
+    expect(getParsedDocumentEntry(doc, parseOptions).parsed[1].tokens).not.toEqual(
+      getParsedDocumentEntry(
+        createDocument("backend api\n    server s1 127.0.0.1:80", doc.uri.toString()),
+        parseOptions,
+      ).parsed[1].tokens,
+    );
+  });
+
+  it("persists content fingerprints when an open document closes", () => {
+    mockTextDocuments.length = 0;
+    const doc = createDocument("backend api\n    server s1 127.0.0.1:80", "file:///persist.cfg");
+    mockTextDocuments.push(doc as never);
+    getParsedDocumentEntry(doc, parseOptions);
+    mockTextDocuments.length = 0;
+    finalizeParseCacheForClosedDocument(doc);
+    const reopened = createDocument("backend api\n    server s1 127.0.0.1:80", doc.uri.toString());
+    expect(hasUriParseCache(reopened)).toBe(true);
+  });
+
+  it("reuses suffix object identity through several single-line edits", () => {
+    const doc = createDocument(
+      ["frontend web", "    bind :80", "    mode http", "    default_backend api"].join("\n"),
+    );
+    const first = getParsedDocumentEntry(doc, parseOptions);
+
+    updateDocument(
+      doc,
+      ["frontend web", "    bind :81", "    mode http", "    default_backend api"].join("\n"),
+    );
+    const second = getParsedDocumentEntry(doc, parseOptions);
+    expect(second.parsed[2]).toBe(first.parsed[2]);
+    expect(second.parsed[3]).toBe(first.parsed[3]);
+
+    updateDocument(
+      doc,
+      ["frontend web", "    bind :81", "    mode tcp", "    default_backend api"].join("\n"),
+    );
+    const third = getParsedDocumentEntry(doc, parseOptions);
+    expect(third.parsed[3]).toBe(first.parsed[3]);
+    expect(third.parsed[2]).not.toBe(first.parsed[2]);
+  });
+
+  it("starts fresh after invalidateAllExtensionCaches", () => {
+    const doc = createDocument("defaults\n    mode http");
+    const first = getParsedDocumentEntry(doc, parseOptions);
+    invalidateAllExtensionCaches();
+    updateDocument(doc, "defaults\n    mode tcp");
+    const second = getParsedDocumentEntry(doc, parseOptions);
+    expect(second.parsed).not.toBe(first.parsed);
+    expect(second.parsed[1].tokens[1]?.text).toBe("tcp");
   });
 });

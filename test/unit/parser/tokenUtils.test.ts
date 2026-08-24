@@ -44,6 +44,9 @@ describe("tokenUtils", () => {
     expect(isLikelyValue(".if")).toBe(true);
     expect(isLikelyValue("unknownword")).toBe(false);
     expect(isLikelyValue("TRUE", new Set(["true"]))).toBe(true);
+    expect(isLikelyValue("be_%[req.hdr(host)]")).toBe(true);
+    expect(isLikelyValue("%[var(http_host),lower,map(map.lst)]")).toBe(true);
+    expect(isLikelyValue("api")).toBe(false);
     expect(isAddressOrPathToken(":443")).toBe(true);
     expect(isAddressOrPathToken('"path"')).toBe(true);
   });

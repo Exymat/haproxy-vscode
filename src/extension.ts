@@ -19,6 +19,7 @@ import {
 import { logExtensionActivated, registerHaproxyOutputChannel } from "./extension/outputChannel";
 import { getExtensionSettings, HaproxyExtensionSettings } from "./extension/settings";
 import { registerVersionStatusBar } from "./extension/statusBar";
+import { registerSymbolLinesStatusBar } from "./extension/symbolLinesStatusBar";
 import { clearWorkspaceSymbolIndex, setWorkspaceSymbolIndexChangeListener } from "./symbolIndex";
 import { registerWorkspaceIndexStatusBar } from "./extension/workspaceIndexStatusBar";
 
@@ -38,6 +39,7 @@ export function activate(context: vscode.ExtensionContext): void {
   };
 
   const refreshWorkspaceIndexStatusBar = registerWorkspaceIndexStatusBar(context);
+  registerSymbolLinesStatusBar(context, getSettings);
   registerVersionStatusBar(context);
 
   const bundle = createExtensionBundleService(context);
@@ -48,7 +50,7 @@ export function activate(context: vscode.ExtensionContext): void {
   });
   const workspaceSymbols = createExtensionWorkspaceSymbolService({
     getSettings,
-    getMaxDiagnosticsLines: () => getSettings().maxDiagnosticsLines,
+    getMaxSymbolLines: () => getSettings().maxSymbolLines,
     resolveWorkspaceSchema: bundle.resolveWorkspaceSchema,
     safeEnsureBundle: bundle.safeEnsureBundle,
     scheduler: diagnostics.scheduler,

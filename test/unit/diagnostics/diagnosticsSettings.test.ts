@@ -171,7 +171,7 @@ describe("diagnostics settings branches", () => {
     expect(
       computeDiagnostics(doc, bundle34.schema, {
         unusedSymbols: true,
-        maxLines: 4000,
+        maxSymbolLines: 4000,
       }).some((d) => d.code === "unused-section"),
     ).toBe(true);
     const largeDoc = createDocument(
@@ -180,9 +180,10 @@ describe("diagnostics settings branches", () => {
       ).join("\n"),
     );
     expect(
-      computeDiagnostics(largeDoc, bundle34.schema, { unusedSymbols: true, maxLines: 100 }).filter(
-        (d) => formatDiagnosticCode(d.code).startsWith("unused-"),
-      ),
+      computeDiagnostics(largeDoc, bundle34.schema, {
+        unusedSymbols: true,
+        maxSymbolLines: 100,
+      }).filter((d) => formatDiagnosticCode(d.code).startsWith("unused-")),
     ).toHaveLength(0);
   });
 

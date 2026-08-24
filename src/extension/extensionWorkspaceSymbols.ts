@@ -38,7 +38,7 @@ export interface ExtensionWorkspaceSymbolService extends vscode.Disposable {
 
 interface ExtensionWorkspaceSymbolServiceOptions {
   getSettings: () => HaproxyExtensionSettings;
-  getMaxDiagnosticsLines: () => number;
+  getMaxSymbolLines: () => number;
   resolveWorkspaceSchema: WorkspaceSchemaSource;
   safeEnsureBundle: (uri?: vscode.Uri) => Promise<ExtensionBundle | undefined>;
   scheduler: DiagnosticScheduler;
@@ -63,6 +63,7 @@ export function createExtensionWorkspaceSymbolService(
       enabled: settings.workspaceSymbolsEnabled,
       include: settings.workspaceSymbolsInclude,
       exclude: settings.workspaceSymbolsExclude,
+      roots: settings.workspaceSymbolsRoots,
       maxFiles: settings.workspaceSymbolsMaxFiles,
       maxTotalLines: settings.workspaceSymbolsMaxTotalLines,
       maxFileBytes: settings.workspaceSymbolsMaxFileBytes,
@@ -91,7 +92,7 @@ export function createExtensionWorkspaceSymbolService(
     scheduleWorkspaceSymbolIndexRebuild(
       options.resolveWorkspaceSchema,
       workspaceSymbolSettings(),
-      options.getMaxDiagnosticsLines(),
+      options.getMaxSymbolLines(),
       { scope },
     );
   };
@@ -107,7 +108,7 @@ export function createExtensionWorkspaceSymbolService(
     scheduleWorkspaceSymbolIndexRebuild(
       options.resolveWorkspaceSchema,
       workspaceSymbolSettings(),
-      options.getMaxDiagnosticsLines(),
+      options.getMaxSymbolLines(),
       { scope, document, uri },
     );
   };

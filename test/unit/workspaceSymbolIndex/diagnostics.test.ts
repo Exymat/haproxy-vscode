@@ -45,7 +45,7 @@ describe("workspace symbol index diagnostics", () => {
     const diagnostics = computeDiagnostics(frontend, schema, {
       unusedSymbols: false,
       missingReferences: true,
-      maxLines: 4000,
+      maxSymbolLines: 4000,
     });
 
     expect(
@@ -70,12 +70,12 @@ describe("workspace symbol index diagnostics", () => {
     const frontendDiags = computeDiagnostics(frontend, schema, {
       unusedSymbols: true,
       missingReferences: true,
-      maxLines: 4000,
+      maxSymbolLines: 4000,
     });
     const backendDiags = computeDiagnostics(backend, schema, {
       unusedSymbols: true,
       missingReferences: true,
-      maxLines: 4000,
+      maxSymbolLines: 4000,
     });
 
     expect(frontendDiags.filter((d) => d.code === "missing-reference")).toHaveLength(0);
@@ -96,7 +96,7 @@ describe("workspace symbol index diagnostics", () => {
     const diags = computeDiagnostics(backend, schema, {
       unusedSymbols: true,
       missingReferences: true,
-      maxLines: 4000,
+      maxSymbolLines: 4000,
     });
 
     expect(diags.some((d) => formatDiagnosticCode(d.code) === "unused-section")).toBe(true);

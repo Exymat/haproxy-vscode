@@ -7,7 +7,7 @@ import {
   findStatementRule,
   resolveActionTokenIndex,
   resolvePhaseTokenIndex,
-} from "../formatting/statementLayout";
+} from "../schema/statementLayout";
 import { DirectiveMatch, resolveLongestDirectiveMatch } from "./tokenUtils";
 
 export interface ResolvedStatement {

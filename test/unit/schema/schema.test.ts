@@ -1,4 +1,5 @@
 import * as fs from "node:fs";
+import type { CompletionKind } from "../../../src/core/editorKinds";
 
 import { clearSchemaCache, loadSchema, loadSchemaAsync } from "../../../src/schema/load";
 import { symbolStringMap, symbolStringList } from "../../../src/schema/symbols";
@@ -678,7 +679,7 @@ describe("schema helpers", () => {
     withUngroupedRule.statement_rules = [
       ...(withUngroupedRule.statement_rules ?? []),
       {
-        kind: "__test_kind__",
+        kind: "__test_kind__" as CompletionKind,
         keyword: "__test_kind__",
         match_tokens: ["__test_kind__"],
         sections: [],

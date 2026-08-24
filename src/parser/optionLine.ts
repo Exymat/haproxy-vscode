@@ -1,7 +1,7 @@
 /** Detects option and no-option lines and locates the option-name token. */
 import { ParsedLine } from "./index";
 import { HaproxySchema } from "../schema/types";
-import { candidateRules, ruleMatchesLine } from "../formatting/statementLayout";
+import { candidateRules, ruleMatchesLine } from "../schema/statementLayout";
 
 /** True when the line is `option …` or `no option …`. */
 export function isOptionLine(line: ParsedLine, schema?: HaproxySchema): boolean {

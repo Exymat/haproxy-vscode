@@ -38,6 +38,10 @@ describe("statementDiagnostics addresses", () => {
     expect(reserved.some((d) => d.code === "reserved-name")).toBe(true);
   });
 
+  it("accepts the server-template count before its address", () => {
+    expect(lineDiag("backend api\n    server-template srv 1-3 127.0.0.1:80 check", 1)).toEqual([]);
+  });
+
   it("reports unknown server parameters", () => {
     const diags = lineDiag("backend api\n    server s1 127.0.0.1:80 notreal", 1);
     expect(diags.some((d) => d.code === "unknown-parameter")).toBe(true);

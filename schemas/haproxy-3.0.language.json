@@ -53,304 +53,304 @@
   "groups": {
     "acl_criteria": [
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This returns the concatenation of the first Host header and the path part of the request, which starts at the first slash and ends before the question mark. It can be useful in virtual hosted environments to detect URL abuses as well as to improve shared caches efficiency. Using this with a limited size stick table also allows one to collect statistics about most commonly requested objects by host/path. With ACLs it can allow simple content switching rules involving the host and the path at the same time, such as \"www.example.com/favicon.ico\". See also \"path\" and \"uri\".",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-base",
         "examples": [],
         "name": "base",
         "rulesets": [],
-        "signature": ""
+        "signature": "base"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This returns the concatenation of the first Host header and the path part of the request, which starts at the first slash and ends before the question mark. It can be useful in virtual hosted environments to detect URL abuses as well as to improve shared caches efficiency. Using this with a limited size stick table also allows one to collect statistics about most commonly requested objects by host/path. With ACLs it can allow simple content switching rules involving the host and the path at the same time, such as \"www.example.com/favicon.ico\". See also \"path\" and \"uri\".",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-base_beg",
         "examples": [],
         "name": "base_beg",
         "rulesets": [],
-        "signature": ""
+        "signature": "base_beg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This returns the concatenation of the first Host header and the path part of the request, which starts at the first slash and ends before the question mark. It can be useful in virtual hosted environments to detect URL abuses as well as to improve shared caches efficiency. Using this with a limited size stick table also allows one to collect statistics about most commonly requested objects by host/path. With ACLs it can allow simple content switching rules involving the host and the path at the same time, such as \"www.example.com/favicon.ico\". See also \"path\" and \"uri\".",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-base_dir",
         "examples": [],
         "name": "base_dir",
         "rulesets": [],
-        "signature": ""
+        "signature": "base_dir ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This returns the concatenation of the first Host header and the path part of the request, which starts at the first slash and ends before the question mark. It can be useful in virtual hosted environments to detect URL abuses as well as to improve shared caches efficiency. Using this with a limited size stick table also allows one to collect statistics about most commonly requested objects by host/path. With ACLs it can allow simple content switching rules involving the host and the path at the same time, such as \"www.example.com/favicon.ico\". See also \"path\" and \"uri\".",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-base_dom",
         "examples": [],
         "name": "base_dom",
         "rulesets": [],
-        "signature": ""
+        "signature": "base_dom ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This returns the concatenation of the first Host header and the path part of the request, which starts at the first slash and ends before the question mark. It can be useful in virtual hosted environments to detect URL abuses as well as to improve shared caches efficiency. Using this with a limited size stick table also allows one to collect statistics about most commonly requested objects by host/path. With ACLs it can allow simple content switching rules involving the host and the path at the same time, such as \"www.example.com/favicon.ico\". See also \"path\" and \"uri\".",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-base_end",
         "examples": [],
         "name": "base_end",
         "rulesets": [],
-        "signature": ""
+        "signature": "base_end ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This returns the concatenation of the first Host header and the path part of the request, which starts at the first slash and ends before the question mark. It can be useful in virtual hosted environments to detect URL abuses as well as to improve shared caches efficiency. Using this with a limited size stick table also allows one to collect statistics about most commonly requested objects by host/path. With ACLs it can allow simple content switching rules involving the host and the path at the same time, such as \"www.example.com/favicon.ico\". See also \"path\" and \"uri\".",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-base_len",
         "examples": [],
         "name": "base_len",
         "rulesets": [],
-        "signature": ""
+        "signature": "base_len ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This returns the concatenation of the first Host header and the path part of the request, which starts at the first slash and ends before the question mark. It can be useful in virtual hosted environments to detect URL abuses as well as to improve shared caches efficiency. Using this with a limited size stick table also allows one to collect statistics about most commonly requested objects by host/path. With ACLs it can allow simple content switching rules involving the host and the path at the same time, such as \"www.example.com/favicon.ico\". See also \"path\" and \"uri\".",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-base_reg",
         "examples": [],
         "name": "base_reg",
         "rulesets": [],
-        "signature": ""
+        "signature": "base_reg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This returns the concatenation of the first Host header and the path part of the request, which starts at the first slash and ends before the question mark. It can be useful in virtual hosted environments to detect URL abuses as well as to improve shared caches efficiency. Using this with a limited size stick table also allows one to collect statistics about most commonly requested objects by host/path. With ACLs it can allow simple content switching rules involving the host and the path at the same time, such as \"www.example.com/favicon.ico\". See also \"path\" and \"uri\".",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-base_sub",
         "examples": [],
         "name": "base_sub",
         "rulesets": [],
-        "signature": ""
+        "signature": "base_sub ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Cookie\" header line from the request, and returns its value as string. If no name is specified, the first cookie value is returned. When used with ACLs, all matching cookies are evaluated. Spaces around the name and the value are ignored as requested by the Cookie header specification (RFC6265). The cookie name is case-sensitive. Empty cookies are valid, so an empty cookie may very well return an empty value if it is present. Use the \"found\" match to detect presence. Use the res.cook() variant for response cookies sent by the server.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-cook",
         "examples": [],
         "name": "cook",
         "rulesets": [],
-        "signature": ""
+        "signature": "cook([<name>]) (deprecated)"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Cookie\" header line from the request, and returns its value as string. If no name is specified, the first cookie value is returned. When used with ACLs, all matching cookies are evaluated. Spaces around the name and the value are ignored as requested by the Cookie header specification (RFC6265). The cookie name is case-sensitive. Empty cookies are valid, so an empty cookie may very well return an empty value if it is present. Use the \"found\" match to detect presence. Use the res.cook() variant for response cookies sent by the server.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-cook_beg",
         "examples": [],
         "name": "cook_beg",
         "rulesets": [],
-        "signature": ""
+        "signature": "cook_beg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Cookie\" header line from the request, and returns its value as string. If no name is specified, the first cookie value is returned. When used with ACLs, all matching cookies are evaluated. Spaces around the name and the value are ignored as requested by the Cookie header specification (RFC6265). The cookie name is case-sensitive. Empty cookies are valid, so an empty cookie may very well return an empty value if it is present. Use the \"found\" match to detect presence. Use the res.cook() variant for response cookies sent by the server.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-cook_dir",
         "examples": [],
         "name": "cook_dir",
         "rulesets": [],
-        "signature": ""
+        "signature": "cook_dir ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Cookie\" header line from the request, and returns its value as string. If no name is specified, the first cookie value is returned. When used with ACLs, all matching cookies are evaluated. Spaces around the name and the value are ignored as requested by the Cookie header specification (RFC6265). The cookie name is case-sensitive. Empty cookies are valid, so an empty cookie may very well return an empty value if it is present. Use the \"found\" match to detect presence. Use the res.cook() variant for response cookies sent by the server.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-cook_dom",
         "examples": [],
         "name": "cook_dom",
         "rulesets": [],
-        "signature": ""
+        "signature": "cook_dom ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Cookie\" header line from the request, and returns its value as string. If no name is specified, the first cookie value is returned. When used with ACLs, all matching cookies are evaluated. Spaces around the name and the value are ignored as requested by the Cookie header specification (RFC6265). The cookie name is case-sensitive. Empty cookies are valid, so an empty cookie may very well return an empty value if it is present. Use the \"found\" match to detect presence. Use the res.cook() variant for response cookies sent by the server.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-cook_end",
         "examples": [],
         "name": "cook_end",
         "rulesets": [],
-        "signature": ""
+        "signature": "cook_end ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Cookie\" header line from the request, and returns its value as string. If no name is specified, the first cookie value is returned. When used with ACLs, all matching cookies are evaluated. Spaces around the name and the value are ignored as requested by the Cookie header specification (RFC6265). The cookie name is case-sensitive. Empty cookies are valid, so an empty cookie may very well return an empty value if it is present. Use the \"found\" match to detect presence. Use the res.cook() variant for response cookies sent by the server.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-cook_len",
         "examples": [],
         "name": "cook_len",
         "rulesets": [],
-        "signature": ""
+        "signature": "cook_len ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Cookie\" header line from the request, and returns its value as string. If no name is specified, the first cookie value is returned. When used with ACLs, all matching cookies are evaluated. Spaces around the name and the value are ignored as requested by the Cookie header specification (RFC6265). The cookie name is case-sensitive. Empty cookies are valid, so an empty cookie may very well return an empty value if it is present. Use the \"found\" match to detect presence. Use the res.cook() variant for response cookies sent by the server.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-cook_reg",
         "examples": [],
         "name": "cook_reg",
         "rulesets": [],
-        "signature": ""
+        "signature": "cook_reg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Cookie\" header line from the request, and returns its value as string. If no name is specified, the first cookie value is returned. When used with ACLs, all matching cookies are evaluated. Spaces around the name and the value are ignored as requested by the Cookie header specification (RFC6265). The cookie name is case-sensitive. Empty cookies are valid, so an empty cookie may very well return an empty value if it is present. Use the \"found\" match to detect presence. Use the res.cook() variant for response cookies sent by the server.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-cook_sub",
         "examples": [],
         "name": "cook_sub",
         "rulesets": [],
-        "signature": ""
+        "signature": "cook_sub ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is equivalent to req.hdr() when used on requests, and to res.hdr() when used on responses. Please refer to these respective fetches for more details. In case of doubt about the fetch direction, please use the explicit ones. Note that contrary to the hdr() sample fetch method, the hdr_* ACL keywords unambiguously apply to the request headers.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-hdr",
         "examples": [],
         "name": "hdr",
         "rulesets": [],
-        "signature": ""
+        "signature": "hdr([<name>[,<occ>]])"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is equivalent to req.hdr() when used on requests, and to res.hdr() when used on responses. Please refer to these respective fetches for more details. In case of doubt about the fetch direction, please use the explicit ones. Note that contrary to the hdr() sample fetch method, the hdr_* ACL keywords unambiguously apply to the request headers.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-hdr_beg",
         "examples": [],
         "name": "hdr_beg",
         "rulesets": [],
-        "signature": ""
+        "signature": "hdr_beg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is equivalent to req.hdr() when used on requests, and to res.hdr() when used on responses. Please refer to these respective fetches for more details. In case of doubt about the fetch direction, please use the explicit ones. Note that contrary to the hdr() sample fetch method, the hdr_* ACL keywords unambiguously apply to the request headers.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-hdr_dir",
         "examples": [],
         "name": "hdr_dir",
         "rulesets": [],
-        "signature": ""
+        "signature": "hdr_dir ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is equivalent to req.hdr() when used on requests, and to res.hdr() when used on responses. Please refer to these respective fetches for more details. In case of doubt about the fetch direction, please use the explicit ones. Note that contrary to the hdr() sample fetch method, the hdr_* ACL keywords unambiguously apply to the request headers.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-hdr_dom",
         "examples": [],
         "name": "hdr_dom",
         "rulesets": [],
-        "signature": ""
+        "signature": "hdr_dom ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is equivalent to req.hdr() when used on requests, and to res.hdr() when used on responses. Please refer to these respective fetches for more details. In case of doubt about the fetch direction, please use the explicit ones. Note that contrary to the hdr() sample fetch method, the hdr_* ACL keywords unambiguously apply to the request headers.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-hdr_end",
         "examples": [],
         "name": "hdr_end",
         "rulesets": [],
-        "signature": ""
+        "signature": "hdr_end ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is equivalent to req.hdr() when used on requests, and to res.hdr() when used on responses. Please refer to these respective fetches for more details. In case of doubt about the fetch direction, please use the explicit ones. Note that contrary to the hdr() sample fetch method, the hdr_* ACL keywords unambiguously apply to the request headers.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-hdr_len",
         "examples": [],
         "name": "hdr_len",
         "rulesets": [],
-        "signature": ""
+        "signature": "hdr_len ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is equivalent to req.hdr() when used on requests, and to res.hdr() when used on responses. Please refer to these respective fetches for more details. In case of doubt about the fetch direction, please use the explicit ones. Note that contrary to the hdr() sample fetch method, the hdr_* ACL keywords unambiguously apply to the request headers.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-hdr_reg",
         "examples": [],
         "name": "hdr_reg",
         "rulesets": [],
-        "signature": ""
+        "signature": "hdr_reg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is equivalent to req.hdr() when used on requests, and to res.hdr() when used on responses. Please refer to these respective fetches for more details. In case of doubt about the fetch direction, please use the explicit ones. Note that contrary to the hdr() sample fetch method, the hdr_* ACL keywords unambiguously apply to the request headers.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-hdr_sub",
         "examples": [],
         "name": "hdr_sub",
         "rulesets": [],
-        "signature": ""
+        "signature": "hdr_sub ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Returns a string corresponding to the user name found in the authentication data received from the client if both the user name and password are valid according to the specified userlist. The main purpose is to use it in ACLs where it is then checked whether the user belongs to any group within a list. This fetch function is not really useful outside of ACLs. Currently only http basic auth is supported.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-http_auth_group",
         "examples": [],
         "name": "http_auth_group",
         "rulesets": [],
-        "signature": ""
+        "signature": "http_auth_group(<userlist>)"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Returns an integer value corresponding to the method in the HTTP request. For example, \"GET\" equals 1 (check sources to establish the matching). Value 9 means \"other method\" and may be converted to a string extracted from the stream. This should not be used directly as a sample, this is only meant to be used from ACLs, which transparently convert methods from patterns to these integer + string values. Some predefined ACL already check for most common methods.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-method",
         "examples": [],
         "name": "method",
         "rulesets": [],
-        "signature": ""
+        "signature": "method"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL path, which starts at the first slash and ends before the question mark (without the host part). A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. Note that with outgoing caches, it would be wiser to use \"url\" instead. With ACLs, it's typically used to match exact file names (e.g. \"/login.php\"), or directory parts using the derivative forms. See also the \"url\" and \"base\" fetch methods. Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the path.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-path",
         "examples": [],
         "name": "path",
         "rulesets": [],
-        "signature": ""
+        "signature": "path"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL path, which starts at the first slash and ends before the question mark (without the host part). A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. Note that with outgoing caches, it would be wiser to use \"url\" instead. With ACLs, it's typically used to match exact file names (e.g. \"/login.php\"), or directory parts using the derivative forms. See also the \"url\" and \"base\" fetch methods. Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the path.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-path_beg",
         "examples": [],
         "name": "path_beg",
         "rulesets": [],
-        "signature": ""
+        "signature": "path_beg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL path, which starts at the first slash and ends before the question mark (without the host part). A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. Note that with outgoing caches, it would be wiser to use \"url\" instead. With ACLs, it's typically used to match exact file names (e.g. \"/login.php\"), or directory parts using the derivative forms. See also the \"url\" and \"base\" fetch methods. Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the path.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-path_dir",
         "examples": [],
         "name": "path_dir",
         "rulesets": [],
-        "signature": ""
+        "signature": "path_dir ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL path, which starts at the first slash and ends before the question mark (without the host part). A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. Note that with outgoing caches, it would be wiser to use \"url\" instead. With ACLs, it's typically used to match exact file names (e.g. \"/login.php\"), or directory parts using the derivative forms. See also the \"url\" and \"base\" fetch methods. Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the path.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-path_dom",
         "examples": [],
         "name": "path_dom",
         "rulesets": [],
-        "signature": ""
+        "signature": "path_dom ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL path, which starts at the first slash and ends before the question mark (without the host part). A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. Note that with outgoing caches, it would be wiser to use \"url\" instead. With ACLs, it's typically used to match exact file names (e.g. \"/login.php\"), or directory parts using the derivative forms. See also the \"url\" and \"base\" fetch methods. Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the path.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-path_end",
         "examples": [],
         "name": "path_end",
         "rulesets": [],
-        "signature": ""
+        "signature": "path_end ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL path, which starts at the first slash and ends before the question mark (without the host part). A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. Note that with outgoing caches, it would be wiser to use \"url\" instead. With ACLs, it's typically used to match exact file names (e.g. \"/login.php\"), or directory parts using the derivative forms. See also the \"url\" and \"base\" fetch methods. Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the path.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-path_len",
         "examples": [],
         "name": "path_len",
         "rulesets": [],
-        "signature": ""
+        "signature": "path_len ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL path, which starts at the first slash and ends before the question mark (without the host part). A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. Note that with outgoing caches, it would be wiser to use \"url\" instead. With ACLs, it's typically used to match exact file names (e.g. \"/login.php\"), or directory parts using the derivative forms. See also the \"url\" and \"base\" fetch methods. Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the path.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-path_reg",
         "examples": [],
         "name": "path_reg",
         "rulesets": [],
-        "signature": ""
+        "signature": "path_reg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL path, which starts at the first slash and ends before the question mark (without the host part). A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. Note that with outgoing caches, it would be wiser to use \"url\" instead. With ACLs, it's typically used to match exact file names (e.g. \"/login.php\"), or directory parts using the derivative forms. See also the \"url\" and \"base\" fetch methods. Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the path.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-path_sub",
         "examples": [],
         "name": "path_sub",
         "rulesets": [],
-        "signature": ""
+        "signature": "path_sub ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is an alias for \"req.payload\" when used in the context of a request (e.g. \"stick on\", \"stick match\"), and for \"res.payload\" when used in the context of a response such as in \"stick store response\".",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-payload",
         "examples": [],
         "name": "payload",
         "rulesets": [],
-        "signature": ""
+        "signature": "payload(<offset>,<length>) (deprecated)"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This is an alias for \"req.payload_lv\" when used in the context of a request (e.g. \"stick on\", \"stick match\"), and for \"res.payload_lv\" when used in the context of a response such as in \"stick store response\".",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-payload_lv",
         "examples": [],
         "name": "payload_lv",
         "rulesets": [],
-        "signature": ""
+        "signature": "payload_lv(<offset1>,<length>[,<offset2>]) (deprecated)"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-req.ssl_ver",
         "examples": [],
         "name": "req.ssl_ver",
         "rulesets": [],
-        "signature": ""
+        "signature": "req.ssl_ver"
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-req_rdp_cookie",
         "examples": [],
         "name": "req_rdp_cookie",
         "rulesets": [],
@@ -358,315 +358,315 @@
       },
       {
         "description": "",
-        "docsUrl": "",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-req_rdp_cookie_cnt",
         "examples": [],
         "name": "req_rdp_cookie_cnt",
         "rulesets": [],
         "signature": ""
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Returns a string containing the value of the Server Name TLS extension sent by a client in a TLS stream passing through the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This will only work for actual implicit TLS based protocols like HTTPS (443), IMAPS (993), SMTPS (465), however it will not work for explicit TLS based protocols, like SMTP (25/587) or IMAP (143). SNI normally contains the name of the host the client tries to connect to (for recent browsers). SNI is useful for allowing or denying access to certain hosts when SSL/TLS is used by the client. This test was designed to be used with TCP request content inspection. If content switching is needed, it is recommended to first wait for a complete client hello (type 1), like in the example below. See also \"ssl_fc_sni\".",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-req_ssl_sni",
         "examples": [],
         "name": "req_ssl_sni",
         "rulesets": [],
-        "signature": ""
+        "signature": "req_ssl_sni (deprecated)"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-req_ssl_ver",
         "examples": [],
         "name": "req_ssl_ver",
         "rulesets": [],
-        "signature": ""
+        "signature": "req_ssl_ver (deprecated)"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Returns the version string from the HTTP request, for example \"1.1\". This can be useful for ACL. For logs use the \"%HV\" logformat alias. Some predefined ACL already check for versions 1.0 and 1.1.\n\nCommon values are \"1.0\", \"1.1\", \"2.0\" or \"3.0\".\n\nIn the case of http/2 and http/3, the value is not extracted from the HTTP version in the request line but is determined by the negotiated protocol version.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-req_ver",
         "examples": [],
         "name": "req_ver",
         "rulesets": [],
-        "signature": ""
+        "signature": "req_ver (deprecated)"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "Returns the version string from the HTTP response, for example \"1.1\". This can be useful for logs, but is mostly there for ACL.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-resp_ver",
         "examples": [],
         "name": "resp_ver",
         "rulesets": [],
-        "signature": ""
+        "signature": "resp_ver (deprecated)"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Set-Cookie\" header line from the response, and returns its value as string. If no name is specified, the first cookie value is returned.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-scook",
         "examples": [],
         "name": "scook",
         "rulesets": [],
-        "signature": ""
+        "signature": "scook([<name>]) (deprecated)"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Set-Cookie\" header line from the response, and returns its value as string. If no name is specified, the first cookie value is returned.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-scook_beg",
         "examples": [],
         "name": "scook_beg",
         "rulesets": [],
-        "signature": ""
+        "signature": "scook_beg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Set-Cookie\" header line from the response, and returns its value as string. If no name is specified, the first cookie value is returned.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-scook_dir",
         "examples": [],
         "name": "scook_dir",
         "rulesets": [],
-        "signature": ""
+        "signature": "scook_dir ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Set-Cookie\" header line from the response, and returns its value as string. If no name is specified, the first cookie value is returned.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-scook_dom",
         "examples": [],
         "name": "scook_dom",
         "rulesets": [],
-        "signature": ""
+        "signature": "scook_dom ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Set-Cookie\" header line from the response, and returns its value as string. If no name is specified, the first cookie value is returned.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-scook_end",
         "examples": [],
         "name": "scook_end",
         "rulesets": [],
-        "signature": ""
+        "signature": "scook_end ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Set-Cookie\" header line from the response, and returns its value as string. If no name is specified, the first cookie value is returned.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-scook_len",
         "examples": [],
         "name": "scook_len",
         "rulesets": [],
-        "signature": ""
+        "signature": "scook_len ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Set-Cookie\" header line from the response, and returns its value as string. If no name is specified, the first cookie value is returned.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-scook_reg",
         "examples": [],
         "name": "scook_reg",
         "rulesets": [],
-        "signature": ""
+        "signature": "scook_reg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the last occurrence of the cookie name <name> on a \"Set-Cookie\" header line from the response, and returns its value as string. If no name is specified, the first cookie value is returned.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-scook_sub",
         "examples": [],
         "name": "scook_sub",
         "rulesets": [],
-        "signature": ""
+        "signature": "scook_sub ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This fetch works like the req.hdr() fetch with the difference that it acts on the headers within an HTTP response.\n\nLike req.hdr() the res.hdr() fetch considers the comma to be a delimiter. If this is not desired res.fhdr() should be used.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-shdr",
         "examples": [],
         "name": "shdr",
         "rulesets": [],
-        "signature": ""
+        "signature": "shdr([<name>[,<occ>]]) (deprecated)"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This fetch works like the req.hdr() fetch with the difference that it acts on the headers within an HTTP response.\n\nLike req.hdr() the res.hdr() fetch considers the comma to be a delimiter. If this is not desired res.fhdr() should be used.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-shdr_beg",
         "examples": [],
         "name": "shdr_beg",
         "rulesets": [],
-        "signature": ""
+        "signature": "shdr_beg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This fetch works like the req.hdr() fetch with the difference that it acts on the headers within an HTTP response.\n\nLike req.hdr() the res.hdr() fetch considers the comma to be a delimiter. If this is not desired res.fhdr() should be used.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-shdr_dir",
         "examples": [],
         "name": "shdr_dir",
         "rulesets": [],
-        "signature": ""
+        "signature": "shdr_dir ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This fetch works like the req.hdr() fetch with the difference that it acts on the headers within an HTTP response.\n\nLike req.hdr() the res.hdr() fetch considers the comma to be a delimiter. If this is not desired res.fhdr() should be used.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-shdr_dom",
         "examples": [],
         "name": "shdr_dom",
         "rulesets": [],
-        "signature": ""
+        "signature": "shdr_dom ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This fetch works like the req.hdr() fetch with the difference that it acts on the headers within an HTTP response.\n\nLike req.hdr() the res.hdr() fetch considers the comma to be a delimiter. If this is not desired res.fhdr() should be used.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-shdr_end",
         "examples": [],
         "name": "shdr_end",
         "rulesets": [],
-        "signature": ""
+        "signature": "shdr_end ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This fetch works like the req.hdr() fetch with the difference that it acts on the headers within an HTTP response.\n\nLike req.hdr() the res.hdr() fetch considers the comma to be a delimiter. If this is not desired res.fhdr() should be used.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-shdr_len",
         "examples": [],
         "name": "shdr_len",
         "rulesets": [],
-        "signature": ""
+        "signature": "shdr_len ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This fetch works like the req.hdr() fetch with the difference that it acts on the headers within an HTTP response.\n\nLike req.hdr() the res.hdr() fetch considers the comma to be a delimiter. If this is not desired res.fhdr() should be used.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-shdr_reg",
         "examples": [],
         "name": "shdr_reg",
         "rulesets": [],
-        "signature": ""
+        "signature": "shdr_reg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This fetch works like the req.hdr() fetch with the difference that it acts on the headers within an HTTP response.\n\nLike req.hdr() the res.hdr() fetch considers the comma to be a delimiter. If this is not desired res.fhdr() should be used.\n\nIt may be used in tcp-check based expect rules.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-shdr_sub",
         "examples": [],
         "name": "shdr_sub",
         "rulesets": [],
-        "signature": ""
+        "signature": "shdr_sub ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the Server Name Indication TLS extension (SNI) field from an incoming connection made via an SSL/TLS transport layer and locally deciphered by HAProxy. The result (when present) typically is a string matching the HTTPS host name (253 chars or less). The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv).\n\nThis fetch is different from \"req.ssl_sni\" above in that it applies to the connection being deciphered by HAProxy and not to SSL contents being blindly forwarded. See also \"ssl_fc_sni_end\" and \"ssl_fc_sni_reg\" below. This requires that the SSL library is built with support for TLS extensions enabled (check haproxy -vv).\n\nCAUTION! Except under very specific conditions, it is normally not correct to use this field as a substitute for the HTTP \"Host\" header field. For example, when forwarding an HTTPS connection to a server, the SNI field must be set from the HTTP Host header field using \"req.hdr(host)\" and not from the front SNI value. The reason is that SNI is solely used to select the certificate the server side will present, and that clients are then allowed to send requests with different Host values as long as they match the names in the certificate. As such, \"ssl_fc_sni\" should normally not be used as an argument to the \"sni\" server keyword, unless the backend works in TCP mode.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-ssl_fc_sni_end",
         "examples": [],
         "name": "ssl_fc_sni_end",
         "rulesets": [],
-        "signature": ""
+        "signature": "ssl_fc_sni_end ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the Server Name Indication TLS extension (SNI) field from an incoming connection made via an SSL/TLS transport layer and locally deciphered by HAProxy. The result (when present) typically is a string matching the HTTPS host name (253 chars or less). The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv).\n\nThis fetch is different from \"req.ssl_sni\" above in that it applies to the connection being deciphered by HAProxy and not to SSL contents being blindly forwarded. See also \"ssl_fc_sni_end\" and \"ssl_fc_sni_reg\" below. This requires that the SSL library is built with support for TLS extensions enabled (check haproxy -vv).\n\nCAUTION! Except under very specific conditions, it is normally not correct to use this field as a substitute for the HTTP \"Host\" header field. For example, when forwarding an HTTPS connection to a server, the SNI field must be set from the HTTP Host header field using \"req.hdr(host)\" and not from the front SNI value. The reason is that SNI is solely used to select the certificate the server side will present, and that clients are then allowed to send requests with different Host values as long as they match the names in the certificate. As such, \"ssl_fc_sni\" should normally not be used as an argument to the \"sni\" server keyword, unless the backend works in TCP mode.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-ssl_fc_sni_reg",
         "examples": [],
         "name": "ssl_fc_sni_reg",
         "rulesets": [],
-        "signature": ""
+        "signature": "ssl_fc_sni_reg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL as presented in the request. A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. With ACLs, using \"path\" is preferred over using \"url\", because clients may send a full URL as is normally done with proxies. The only real use is to match \"*\" which does not match in \"path\", and for which there is already a predefined ACL. See also \"path\" and \"base\". Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the url.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-url",
         "examples": [],
         "name": "url",
         "rulesets": [],
-        "signature": ""
+        "signature": "url"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL as presented in the request. A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. With ACLs, using \"path\" is preferred over using \"url\", because clients may send a full URL as is normally done with proxies. The only real use is to match \"*\" which does not match in \"path\", and for which there is already a predefined ACL. See also \"path\" and \"base\". Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the url.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-url_beg",
         "examples": [],
         "name": "url_beg",
         "rulesets": [],
-        "signature": ""
+        "signature": "url_beg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL as presented in the request. A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. With ACLs, using \"path\" is preferred over using \"url\", because clients may send a full URL as is normally done with proxies. The only real use is to match \"*\" which does not match in \"path\", and for which there is already a predefined ACL. See also \"path\" and \"base\". Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the url.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-url_dir",
         "examples": [],
         "name": "url_dir",
         "rulesets": [],
-        "signature": ""
+        "signature": "url_dir ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL as presented in the request. A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. With ACLs, using \"path\" is preferred over using \"url\", because clients may send a full URL as is normally done with proxies. The only real use is to match \"*\" which does not match in \"path\", and for which there is already a predefined ACL. See also \"path\" and \"base\". Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the url.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-url_dom",
         "examples": [],
         "name": "url_dom",
         "rulesets": [],
-        "signature": ""
+        "signature": "url_dom ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL as presented in the request. A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. With ACLs, using \"path\" is preferred over using \"url\", because clients may send a full URL as is normally done with proxies. The only real use is to match \"*\" which does not match in \"path\", and for which there is already a predefined ACL. See also \"path\" and \"base\". Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the url.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-url_end",
         "examples": [],
         "name": "url_end",
         "rulesets": [],
-        "signature": ""
+        "signature": "url_end ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL as presented in the request. A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. With ACLs, using \"path\" is preferred over using \"url\", because clients may send a full URL as is normally done with proxies. The only real use is to match \"*\" which does not match in \"path\", and for which there is already a predefined ACL. See also \"path\" and \"base\". Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the url.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-url_len",
         "examples": [],
         "name": "url_len",
         "rulesets": [],
-        "signature": ""
+        "signature": "url_len ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL as presented in the request. A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. With ACLs, using \"path\" is preferred over using \"url\", because clients may send a full URL as is normally done with proxies. The only real use is to match \"*\" which does not match in \"path\", and for which there is already a predefined ACL. See also \"path\" and \"base\". Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the url.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-url_reg",
         "examples": [],
         "name": "url_reg",
         "rulesets": [],
-        "signature": ""
+        "signature": "url_reg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the request's URL as presented in the request. A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. With ACLs, using \"path\" is preferred over using \"url\", because clients may send a full URL as is normally done with proxies. The only real use is to match \"*\" which does not match in \"path\", and for which there is already a predefined ACL. See also \"path\" and \"base\". Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the url.",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-url_sub",
         "examples": [],
         "name": "url_sub",
         "rulesets": [],
-        "signature": ""
+        "signature": "url_sub ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the first occurrence of the parameter <name> in the query string, which begins after either '?' or <delim>, and which ends before '&', ';' or <delim>. The parameter name is case-sensitive, unless\"i\" is added as a third argument. If no name is given, any parameter will match, and the first one will be returned. The result is a string corresponding to the value of the parameter <name> as presented in the request (no URL decoding is performed). This can be used for session stickiness based on a client ID, to extract an application cookie passed as a URL parameter, or in ACLs to apply some checks. Note that the ACL version of this fetch iterates over multiple parameters and will iteratively report all parameters values if no name is given",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-urlp",
         "examples": [],
         "name": "urlp",
         "rulesets": [],
-        "signature": ""
+        "signature": "urlp([<name>[,<delim>[,i]]])"
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the first occurrence of the parameter <name> in the query string, which begins after either '?' or <delim>, and which ends before '&', ';' or <delim>. The parameter name is case-sensitive, unless\"i\" is added as a third argument. If no name is given, any parameter will match, and the first one will be returned. The result is a string corresponding to the value of the parameter <name> as presented in the request (no URL decoding is performed). This can be used for session stickiness based on a client ID, to extract an application cookie passed as a URL parameter, or in ACLs to apply some checks. Note that the ACL version of this fetch iterates over multiple parameters and will iteratively report all parameters values if no name is given",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-urlp_beg",
         "examples": [],
         "name": "urlp_beg",
         "rulesets": [],
-        "signature": ""
+        "signature": "urlp_beg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the first occurrence of the parameter <name> in the query string, which begins after either '?' or <delim>, and which ends before '&', ';' or <delim>. The parameter name is case-sensitive, unless\"i\" is added as a third argument. If no name is given, any parameter will match, and the first one will be returned. The result is a string corresponding to the value of the parameter <name> as presented in the request (no URL decoding is performed). This can be used for session stickiness based on a client ID, to extract an application cookie passed as a URL parameter, or in ACLs to apply some checks. Note that the ACL version of this fetch iterates over multiple parameters and will iteratively report all parameters values if no name is given",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-urlp_dir",
         "examples": [],
         "name": "urlp_dir",
         "rulesets": [],
-        "signature": ""
+        "signature": "urlp_dir ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the first occurrence of the parameter <name> in the query string, which begins after either '?' or <delim>, and which ends before '&', ';' or <delim>. The parameter name is case-sensitive, unless\"i\" is added as a third argument. If no name is given, any parameter will match, and the first one will be returned. The result is a string corresponding to the value of the parameter <name> as presented in the request (no URL decoding is performed). This can be used for session stickiness based on a client ID, to extract an application cookie passed as a URL parameter, or in ACLs to apply some checks. Note that the ACL version of this fetch iterates over multiple parameters and will iteratively report all parameters values if no name is given",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-urlp_dom",
         "examples": [],
         "name": "urlp_dom",
         "rulesets": [],
-        "signature": ""
+        "signature": "urlp_dom ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the first occurrence of the parameter <name> in the query string, which begins after either '?' or <delim>, and which ends before '&', ';' or <delim>. The parameter name is case-sensitive, unless\"i\" is added as a third argument. If no name is given, any parameter will match, and the first one will be returned. The result is a string corresponding to the value of the parameter <name> as presented in the request (no URL decoding is performed). This can be used for session stickiness based on a client ID, to extract an application cookie passed as a URL parameter, or in ACLs to apply some checks. Note that the ACL version of this fetch iterates over multiple parameters and will iteratively report all parameters values if no name is given",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-urlp_end",
         "examples": [],
         "name": "urlp_end",
         "rulesets": [],
-        "signature": ""
+        "signature": "urlp_end ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the first occurrence of the parameter <name> in the query string, which begins after either '?' or <delim>, and which ends before '&', ';' or <delim>. The parameter name is case-sensitive, unless\"i\" is added as a third argument. If no name is given, any parameter will match, and the first one will be returned. The result is a string corresponding to the value of the parameter <name> as presented in the request (no URL decoding is performed). This can be used for session stickiness based on a client ID, to extract an application cookie passed as a URL parameter, or in ACLs to apply some checks. Note that the ACL version of this fetch iterates over multiple parameters and will iteratively report all parameters values if no name is given",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-urlp_len",
         "examples": [],
         "name": "urlp_len",
         "rulesets": [],
-        "signature": ""
+        "signature": "urlp_len ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the first occurrence of the parameter <name> in the query string, which begins after either '?' or <delim>, and which ends before '&', ';' or <delim>. The parameter name is case-sensitive, unless\"i\" is added as a third argument. If no name is given, any parameter will match, and the first one will be returned. The result is a string corresponding to the value of the parameter <name> as presented in the request (no URL decoding is performed). This can be used for session stickiness based on a client ID, to extract an application cookie passed as a URL parameter, or in ACLs to apply some checks. Note that the ACL version of this fetch iterates over multiple parameters and will iteratively report all parameters values if no name is given",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-urlp_reg",
         "examples": [],
         "name": "urlp_reg",
         "rulesets": [],
-        "signature": ""
+        "signature": "urlp_reg ..."
       },
       {
-        "description": "",
-        "docsUrl": "",
+        "description": "This extracts the first occurrence of the parameter <name> in the query string, which begins after either '?' or <delim>, and which ends before '&', ';' or <delim>. The parameter name is case-sensitive, unless\"i\" is added as a third argument. If no name is given, any parameter will match, and the first one will be returned. The result is a string corresponding to the value of the parameter <name> as presented in the request (no URL decoding is performed). This can be used for session stickiness based on a client ID, to extract an application cookie passed as a URL parameter, or in ACLs to apply some checks. Note that the ACL version of this fetch iterates over multiple parameters and will iteratively report all parameters values if no name is given",
+        "docsUrl": "https://docs.haproxy.org/3.0/configuration.html#7.3.2-urlp_sub",
         "examples": [],
         "name": "urlp_sub",
         "rulesets": [],
-        "signature": ""
+        "signature": "urlp_sub ..."
       }
     ],
     "acl_flags": [

@@ -20,6 +20,7 @@ export {
 export type { WorkspaceSchemaSource } from "./workspaceRebuild";
 export {
   getWorkspaceSymbolIndex,
+  getWorkspaceSymbolIndexes,
   hasCappedWorkspaceFolders,
   isDocumentWorkspaceIndexCapped,
   workspaceEntryForDocument,
