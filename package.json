@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, rename, cross-file navigation, and workspace symbol graph — LTS versions (2.6 - 3.4) supported.",
-  "version": "0.19.1",
+  "version": "0.19.2",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
@@ -161,7 +161,7 @@
             "type": "string"
           },
           "default": [],
-          "description": "Optional workspace-relative directory roots that limit symbol graph discovery (for example haproxy.d or etc/haproxy). Empty means the whole workspace folder. This does not follow HAProxy -f load order or include directives."
+          "description": "Optional directory prefixes relative to each VS Code workspace folder that limit symbol graph discovery (for example haproxy.d or etc/haproxy). Empty means the whole folder. Multi-root workspaces already get a separate graph per folder; this does not follow HAProxy -f load order or include directives."
         },
         "haproxy.workspaceSymbols.maxFiles": {
           "type": "number",

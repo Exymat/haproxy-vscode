@@ -1,8 +1,6 @@
 /** Discovers HAProxy files for workspace indexing with include, exclude, and size limits. */
 import * as vscode from "vscode";
 
-import { isHaproxyLanguageId } from "../extension/grammar";
-
 import { FolderRef, WorkspaceRebuildOptions, WorkspaceSymbolSettings } from "./workspaceTypes";
 import { workspaceUriKey } from "./workspaceUri";
 
@@ -28,58 +26,20 @@ export function workspaceFolderForUri(uri: vscode.Uri): vscode.WorkspaceFolder |
   return vscode.workspace.getWorkspaceFolder?.(uri);
 }
 
-function activeWorkspaceFolders(): Array<vscode.WorkspaceFolder | undefined> {
+function configuredWorkspaceFolders(): FolderRef[] {
   const folders = vscode.workspace.workspaceFolders;
   if (!folders || folders.length === 0) {
-    return [undefined];
+    return [];
   }
-
-  const active = new Map<string, vscode.WorkspaceFolder>();
-  for (const document of vscode.workspace.textDocuments) {
-    if (!isHaproxyLanguageId(document.languageId)) {
-      continue;
-    }
-    const folder = workspaceFolderForUri(document.uri);
-    if (folder) {
-      active.set(workspaceFolderKey(folder), folder);
-    }
-  }
-  return [...active.values()];
+  return folders.map((folder) => ({ folder, folderKey: workspaceFolderKey(folder) }));
 }
 
-function folderRefForKey(folderKey: string): FolderRef | undefined {
-  if (folderKey === GLOBAL_WORKSPACE_FOLDER_KEY) {
-    return { folder: undefined, folderKey };
+export function indexedWorkspaceFolders(_activeFolderKeys: Iterable<string> = []): FolderRef[] {
+  const configured = configuredWorkspaceFolders();
+  if (configured.length > 0) {
+    return configured;
   }
-  const folder = vscode.workspace.workspaceFolders?.find(
-    (entry) => workspaceFolderKey(entry) === folderKey,
-  );
-  if (!folder) {
-    return undefined;
-  }
-  return { folder, folderKey };
-}
-
-export function indexedWorkspaceFolders(activeFolderKeys: Iterable<string>): FolderRef[] {
-  const refs = new Map<string, FolderRef>();
-
-  for (const folderKey of activeFolderKeys) {
-    const ref = folderRefForKey(folderKey);
-    if (ref) {
-      refs.set(folderKey, ref);
-    }
-  }
-
-  for (const folder of activeWorkspaceFolders()) {
-    const folderKey = workspaceFolderKey(folder);
-    refs.set(folderKey, { folder, folderKey });
-  }
-
-  if (refs.size === 0) {
-    return [{ folder: undefined, folderKey: GLOBAL_WORKSPACE_FOLDER_KEY }];
-  }
-
-  return [...refs.values()];
+  return [{ folder: undefined, folderKey: GLOBAL_WORKSPACE_FOLDER_KEY }];
 }
 
 function folderRefForDocument(document: vscode.TextDocument): FolderRef {

@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { computeDiagnostics } from "../../../src/diagnostics";
 import { provideDefinition, provideReferences } from "../../../src/navigation";
 import {
@@ -6,6 +8,7 @@ import {
   getWorkspaceSymbolIndex,
   scheduleWorkspaceSymbolIndexRebuild,
   setWorkspaceSymbolIndexChangeListener,
+  type SymbolKind,
 } from "../../../src/symbolIndex";
 import {
   mockTextDocuments,
@@ -30,6 +33,114 @@ const symbolDiagnosticOptions = {
   missingReferences: true,
   maxLines: 4000,
 } as const;
+
+interface NamedSectionIncrementalCase {
+  label: string;
+  kind: SymbolKind;
+  name: string;
+  unusedCode: string;
+  expectMissingBefore: boolean;
+  definitionUri: string;
+  referenceUri: string;
+  initialDefinition: string;
+  updatedDefinition: string;
+  referenceContent: string;
+  referenceLine: number;
+  referenceCol: number;
+}
+
+const namedSectionIncrementalCases: NamedSectionIncrementalCase[] = [
+  {
+    label: "backend",
+    kind: "proxy-section",
+    name: "api",
+    unusedCode: "unused-section",
+    expectMissingBefore: true,
+    definitionUri: "file:///test_dir/haproxy.d/backends/api.cfg",
+    referenceUri: "file:///test_dir/haproxy.d/frontends/web.cfg",
+    initialDefinition: ["defaults", "    mode http"].join("\n"),
+    updatedDefinition: ["backend api", "    server s1 127.0.0.1:80"].join("\n"),
+    referenceContent: ["frontend web", "    bind :80", "    use_backend api"].join("\n"),
+    referenceLine: 2,
+    referenceCol: "    use_backend ".length,
+  },
+  {
+    label: "cache",
+    kind: "cache",
+    name: "pages",
+    unusedCode: "unused-symbol",
+    expectMissingBefore: true,
+    definitionUri: "file:///test_dir/haproxy.d/cache.cfg",
+    referenceUri: "file:///test_dir/haproxy.d/frontends/web.cfg",
+    initialDefinition: ["defaults", "    mode http"].join("\n"),
+    updatedDefinition: ["cache pages", "    total-max-size 4"].join("\n"),
+    referenceContent: ["frontend web", "    bind :80", "    http-request cache-use pages"].join(
+      "\n",
+    ),
+    referenceLine: 2,
+    referenceCol: "    http-request cache-use ".length,
+  },
+  {
+    label: "userlist",
+    kind: "userlist",
+    name: "stats-auth",
+    unusedCode: "unused-symbol",
+    expectMissingBefore: true,
+    definitionUri: "file:///test_dir/haproxy.d/auth.cfg",
+    referenceUri: "file:///test_dir/haproxy.d/frontends/web.cfg",
+    initialDefinition: ["defaults", "    mode http"].join("\n"),
+    updatedDefinition: ["userlist stats-auth", "    user admin insecure-password admin"].join("\n"),
+    referenceContent: ["frontend web", "    bind :80", "    acl AUTH http_auth(stats-auth)"].join(
+      "\n",
+    ),
+    referenceLine: 2,
+    referenceCol: "    acl AUTH http_auth(".length,
+  },
+  {
+    label: "resolvers",
+    kind: "resolvers",
+    name: "dns-main",
+    unusedCode: "unused-symbol",
+    expectMissingBefore: true,
+    definitionUri: "file:///test_dir/haproxy.d/dns.cfg",
+    referenceUri: "file:///test_dir/haproxy.d/backends/api.cfg",
+    initialDefinition: ["defaults", "    mode http"].join("\n"),
+    updatedDefinition: ["resolvers dns-main", "    nameserver ns1 127.0.0.1:53"].join("\n"),
+    referenceContent: ["backend api", "    server s1 host.local:80 resolvers dns-main"].join("\n"),
+    referenceLine: 1,
+    referenceCol: "    server s1 host.local:80 resolvers ".length,
+  },
+  {
+    label: "setenv",
+    kind: "environment-variable",
+    name: "FOO",
+    unusedCode: "unused-symbol",
+    expectMissingBefore: false,
+    definitionUri: "file:///test_dir/haproxy.d/global.cfg",
+    referenceUri: "file:///test_dir/haproxy.d/frontends/web.cfg",
+    initialDefinition: ["global", "    daemon"].join("\n"),
+    updatedDefinition: ["global", "    daemon", "    setenv FOO bar"].join("\n"),
+    referenceContent: ["frontend web", "    bind :80", '    log "${FOO-default}:514" local0'].join(
+      "\n",
+    ),
+    referenceLine: 2,
+    referenceCol: '    log "${'.length,
+  },
+];
+
+function definitionTargetUri(definition: ReturnType<typeof provideDefinition>): string | undefined {
+  if (!definition) {
+    return undefined;
+  }
+  const target = Array.isArray(definition) ? definition[0] : definition;
+  if (!target) {
+    return undefined;
+  }
+  if ("targetUri" in target) {
+    return target.targetUri.toString();
+  }
+  return target.uri.toString();
+}
 
 describe("workspace symbol index diagnostics", () => {
   setupWorkspaceSymbolIndexTests();
@@ -372,4 +483,74 @@ describe("workspace symbol index diagnostics", () => {
       ),
     ).toHaveLength(0);
   });
+
+  it.each(namedSectionIncrementalCases)(
+    "picks up a new $label in nested haproxy.d files after only the definition file changes",
+    async (tc) => {
+      const include = ["**/haproxy.d/**/*.cfg", "**/haproxy.d/*.cfg"];
+
+      setMockWorkspaceFolders([workspaceFolder("file:///test_dir")]);
+      setMockWorkspaceFile(tc.definitionUri, tc.initialDefinition);
+      setMockWorkspaceFile(tc.referenceUri, tc.referenceContent);
+      const definitionDoc = createDocument(tc.initialDefinition, tc.definitionUri);
+      const referenceDoc = createDocument(tc.referenceContent, tc.referenceUri);
+      mockTextDocuments.push(definitionDoc as never, referenceDoc as never);
+
+      await buildWorkspace(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, include);
+
+      const before = computeDiagnostics(referenceDoc, schema, symbolDiagnosticOptions);
+      expect(
+        before.filter(
+          (diag) =>
+            formatDiagnosticCode(diag.code) === "missing-reference" &&
+            diag.message.includes(tc.name),
+        ),
+      ).toHaveLength(tc.expectMissingBefore ? 1 : 0);
+
+      updateDocument(definitionDoc, tc.updatedDefinition);
+      setMockWorkspaceFile(tc.definitionUri, tc.updatedDefinition);
+      scheduleWorkspaceSymbolIndexRebuild(
+        schema,
+        defaultWorkspaceSymbolSettings({ include }),
+        4000,
+        {
+          scope: "incremental",
+          document: definitionDoc,
+        },
+      );
+      await vi.runAllTimersAsync();
+      await Promise.resolve();
+
+      const workspaceIndex = expectWorkspaceIndex(getWorkspaceSymbolIndex(referenceDoc));
+      expect(workspaceIndex.documents.has(tc.referenceUri)).toBe(true);
+      expect(findWorkspaceDefinitions(workspaceIndex, tc.kind, tc.name, null)).toHaveLength(1);
+      expect(
+        findWorkspaceReferences(workspaceIndex, tc.kind, tc.name, null).length,
+      ).toBeGreaterThan(0);
+
+      const afterReference = computeDiagnostics(referenceDoc, schema, symbolDiagnosticOptions);
+      expect(
+        afterReference.filter(
+          (diag) =>
+            formatDiagnosticCode(diag.code) === "missing-reference" &&
+            diag.message.includes(tc.name),
+        ),
+      ).toHaveLength(0);
+      expect(
+        computeDiagnostics(definitionDoc, schema, symbolDiagnosticOptions).filter(
+          (diag) =>
+            formatDiagnosticCode(diag.code) === tc.unusedCode && diag.message.includes(tc.name),
+        ),
+      ).toHaveLength(0);
+
+      const definition = provideDefinition(
+        referenceDoc,
+        pos(tc.referenceLine, tc.referenceCol),
+        schema,
+        4000,
+      );
+      expect(definition).not.toBeNull();
+      expect(definitionTargetUri(definition)).toBe(tc.definitionUri);
+    },
+  );
 });

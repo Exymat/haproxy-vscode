@@ -109,7 +109,7 @@ export function provideRenameEdits(
   const workspaceIndex = workspaceIndexForDocument(document);
 
   if (!caseOnlyRename) {
-    if (workspaceIndex && site.kind !== "environment-variable") {
+    if (workspaceIndex) {
       if (findWorkspaceDefinitions(workspaceIndex, site.kind, newName, site.scopeKey).length > 0) {
         throw new Error(`A ${site.kind} named '${newName}' already exists in this scope.`);
       }
@@ -118,7 +118,7 @@ export function provideRenameEdits(
     }
   }
 
-  const useWorkspaceRename = workspaceIndex !== null && site.kind !== "environment-variable";
+  const useWorkspaceRename = workspaceIndex !== null;
   let targets: Array<SymbolSite | WorkspaceSymbolSite>;
 
   if (useWorkspaceRename) {

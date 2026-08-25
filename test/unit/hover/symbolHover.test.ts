@@ -153,6 +153,35 @@ describe("symbol hover", () => {
     expect(text).not.toContain("Switches the connection to a named backend");
   });
 
+  it("shows workspace definition previews for cross-file environment variable references", () => {
+    const frontend = createDocument(
+      ["frontend web", '    log "${FOO-default}:514" local0'].join("\n"),
+      "file:///repo/haproxy.d/frontends/web.cfg",
+    );
+    const global = createDocument(
+      "global\n    setenv FOO bar",
+      "file:///repo/haproxy.d/global.cfg",
+    );
+    const bundle = bundles["3.4"];
+    const workspaceIndex = symbolIndex.buildWorkspaceSymbolIndexFromOpenDocuments(
+      [frontend, global],
+      bundle.schema,
+      1000,
+    );
+    vi.spyOn(symbolIndex, "getWorkspaceSymbolIndex").mockReturnValue(workspaceIndex);
+
+    const hover = provideHover(
+      frontend,
+      { line: 1, character: '    log "${'.length } as never,
+      bundle.languageData,
+      bundle.schema,
+    );
+
+    expect(hoverText(hover as never)).toContain(
+      ["```haproxy", "    setenv FOO bar", "```"].join("\n"),
+    );
+  });
+
   it("falls back to local symbol hover when the workspace graph is not applicable", () => {
     const content = "backend api\nfrontend web\n    use_backend api";
     const bundle = bundles["3.4"];

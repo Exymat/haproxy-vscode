@@ -11,9 +11,11 @@ describe("README rename documentation", () => {
     expect(readme).not.toMatch(/all in-scope references in the \*\*current file\*\* are updated/i);
   });
 
-  it("documents cross-file rename and environment-variable scope", () => {
+  it("documents cross-file rename including environment variables", () => {
     expect(readme).toMatch(/across indexed `\.cfg` files/i);
-    expect(readme).toMatch(/Environment variable rename remains single-file/i);
+    expect(readme).toMatch(/environment variables/i);
+    expect(readme).not.toMatch(/Environment variable rename remains single-file/i);
+    expect(readme).not.toMatch(/not part of the workspace graph/i);
     expect(readme).toMatch(/haproxy\.workspaceSymbols\.include/i);
     expect(readme).toMatch(/same-scope collisions/i);
   });

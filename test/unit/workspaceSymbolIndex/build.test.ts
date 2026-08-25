@@ -166,6 +166,47 @@ describe("workspace symbol index build", () => {
     expect(findWorkspaceDefinitions(repo1Index, "proxy-section", "be_www", null)).toHaveLength(1);
   });
 
+  it("indexes and caps each workspace folder independently when no HAProxy tabs are open", async () => {
+    setMockWorkspaceFolders([
+      workspaceFolder("file:///git_repo_1"),
+      workspaceFolder("file:///git_repo_2"),
+    ]);
+    setMockWorkspaceFile("file:///git_repo_1/haproxy.d/frontends/FE_WWW.cfg", "frontend fe_www");
+    setMockWorkspaceFile("file:///git_repo_1/haproxy.d/backends/BE_WWW.cfg", "backend api");
+    setMockWorkspaceFile("file:///git_repo_2/haproxy.d/frontends/FE_API.cfg", "frontend fe_api");
+    setMockWorkspaceFile("file:///git_repo_2/haproxy.d/backends/BE_API.cfg", "backend api");
+
+    await buildWorkspace(2, 100000, ["**/haproxy.d/**/*.cfg", "**/haproxy.d/*.cfg"]);
+
+    const repo1Doc = createDocument(
+      "frontend fe_www",
+      "file:///git_repo_1/haproxy.d/frontends/FE_WWW.cfg",
+    );
+    const repo2Doc = createDocument(
+      "frontend fe_api",
+      "file:///git_repo_2/haproxy.d/frontends/FE_API.cfg",
+    );
+    const repo1Index = expectWorkspaceIndex(getWorkspaceSymbolIndex(repo1Doc));
+    const repo2Index = expectWorkspaceIndex(getWorkspaceSymbolIndex(repo2Doc));
+
+    expect(repo1Index.documents.size).toBe(2);
+    expect(repo2Index.documents.size).toBe(2);
+    expect(repo1Index.documents.has("file:///git_repo_2/haproxy.d/frontends/FE_API.cfg")).toBe(
+      false,
+    );
+    expect(findWorkspaceDefinitions(repo1Index, "proxy-section", "api", null)).toHaveLength(1);
+    expect(findWorkspaceDefinitions(repo2Index, "proxy-section", "api", null)).toHaveLength(1);
+
+    const diagnostics = computeDiagnostics(repo1Doc, schema, {
+      unusedSymbols: false,
+      missingReferences: true,
+      maxSymbolLines: 4000,
+    });
+    expect(
+      diagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "duplicate-section"),
+    ).toHaveLength(0);
+  });
+
   it("aggregates defaults and global referenced sections across files", async () => {
     setMockWorkspaceFile("file:///defaults.cfg", "defaults base\n    mode http");
     setMockWorkspaceFile("file:///cache.cfg", "cache main_cache\n    total-max-size 4");
@@ -193,6 +234,23 @@ describe("workspace symbol index build", () => {
     expect(findWorkspaceReferences(workspaceIndex, "userlist", "stats", null)).toHaveLength(1);
     expect(findWorkspaceReferences(workspaceIndex, "resolvers", "dns-main", null)).toHaveLength(1);
     expect(findWorkspaceReferences(workspaceIndex, "peers", "cluster", null)).toHaveLength(1);
+  });
+
+  it("aggregates setenv definitions and quoted expansions across files", async () => {
+    setMockWorkspaceFile("file:///global.cfg", "global\n    setenv FOO bar");
+    setMockWorkspaceFile(
+      "file:///frontends/web.cfg",
+      ["frontend web", '    log "${FOO-default}:514" local0'].join("\n"),
+    );
+
+    const workspaceIndex = expectWorkspaceIndex(await buildWorkspace());
+
+    expect(
+      findWorkspaceDefinitions(workspaceIndex, "environment-variable", "FOO", null),
+    ).toHaveLength(1);
+    expect(
+      findWorkspaceReferences(workspaceIndex, "environment-variable", "FOO", null),
+    ).toHaveLength(1);
   });
 
   it("keeps duplicate definitions as separate targets", async () => {

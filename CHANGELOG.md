@@ -2,6 +2,11 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.19.2
+
+- **Multi-root workspace indexing** — each VS Code workspace folder is indexed and capped on its own. Opening a multi-root workspace, or a workspace-wide rebuild with no HAProxy tab focused, no longer scans every root as one global graph, so duplicate-section warnings and file/line/byte limits stay per folder.
+- **Split-config named sections and environment variables** — adding or changing a named section (`backend`, `cache`, `userlist`, `resolvers`, and similar) or a `setenv` / `presetenv` in one indexed file now updates unused and missing-reference diagnostics in open files that reference it, matching the named-defaults refresh from 0.19.1. Go to Definition, Find References, and Rename follow those names across the workspace graph. Environment variables are still never reported as missing references (OS-supplied `$VAR` names remain valid without a `setenv`).
+
 ## 0.19.1
 
 - **Split-config defaults diagnostics** — adding or changing a named `defaults` profile in one file (for example `haproxy.d/defaults.cfg`) now updates unused-profile and missing-`from` diagnostics in open frontend and backend files. The workspace graph revision invalidates the diagnostics cache, and nested files in the same folder refresh immediately after the index update instead of keeping stale unused/unknown results.

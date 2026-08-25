@@ -33,6 +33,27 @@ function diagnosticSetUris(collection: ReturnType<typeof getLastDiagnosticCollec
   );
 }
 
+async function pumpRebuildTimers(): Promise<void> {
+  await Promise.resolve();
+  await vi.runAllTimersAsync();
+  await Promise.resolve();
+  await vi.runAllTimersAsync();
+}
+
+async function waitUntilIndexed(uri: string): Promise<void> {
+  await vi.waitFor(
+    async () => {
+      await pumpRebuildTimers();
+      expect(hasIndexedUri(uri)).toBe(true);
+    },
+    { timeout: 2000 },
+  );
+}
+
+function hasIndexedUri(uri: string): boolean {
+  return symbolIndex.getWorkspaceSymbolIndexes().some((index) => index.documents.has(uri));
+}
+
 describe("extension workspace symbol integration", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -183,30 +204,17 @@ describe("extension workspace symbol integration", () => {
     });
 
     activate(mockExtensionContext() as never);
-    await vi.runAllTimersAsync();
-    await Promise.resolve();
+    await waitUntilIndexed("file:///repo/haproxy.cfg");
 
     watchers[0]?.triggerCreate(Uri.file("file:///repo/haproxy.cfg"));
-    await vi.runAllTimersAsync();
-    await Promise.resolve();
-
-    await vi.waitFor(() => {
-      expect(symbolIndex.getWorkspaceSymbolIndex()?.documents.has("file:///repo/haproxy.cfg")).toBe(
-        true,
-      );
-    });
+    await waitUntilIndexed("file:///repo/haproxy.cfg");
 
     watchers[0]?.triggerChange(Uri.file("file:///repo/haproxy.cfg"));
-    await vi.runAllTimersAsync();
-    await Promise.resolve();
-    expect(symbolIndex.getWorkspaceSymbolIndex()?.documents.has("file:///repo/haproxy.cfg")).toBe(
-      true,
-    );
+    await waitUntilIndexed("file:///repo/haproxy.cfg");
 
     watchers[0]?.triggerDelete(Uri.file("file:///repo/haproxy.cfg"));
-    await vi.runAllTimersAsync();
-    await Promise.resolve();
-    expect(symbolIndex.getWorkspaceSymbolIndex()).not.toBeNull();
+    await pumpRebuildTimers();
+    expect(symbolIndex.getWorkspaceSymbolIndexes().length).toBeGreaterThan(0);
   });
 
   it("skips workspace rebuild when reopening unchanged indexed content", async () => {
@@ -628,8 +636,7 @@ describe("extension workspace symbol integration", () => {
     const findFilesSpy = vi.spyOn(workspace, "findFiles");
 
     activate(mockExtensionContext() as never);
-    await vi.runAllTimersAsync();
-    await Promise.resolve();
+    await waitUntilIndexed("file:///repo/haproxy.cfg");
 
     const initialWatcherCount = watcherSpy.mock.calls.length;
     expect(initialWatcherCount).toBeGreaterThan(0);
@@ -638,22 +645,10 @@ describe("extension workspace symbol integration", () => {
 
     setMockWorkspaceFolders([repo, confd]);
     triggerMockWorkspaceFoldersChange([confd], []);
-    await Promise.resolve();
+    await waitUntilIndexed("file:///repo/confd/backends.cfg");
 
     expect(watcherSpy.mock.calls.length).toBeGreaterThan(initialWatcherCount);
-    await vi.waitFor(() => {
-      expect(symbolIndex.isWorkspaceRebuildPending()).toBe(true);
-    });
-
-    await vi.runAllTimersAsync();
-    await Promise.resolve();
-
-    await vi.waitFor(() => {
-      expect(findFilesSpy).toHaveBeenCalled();
-      expect(
-        symbolIndex.getWorkspaceSymbolIndex()?.documents.has("file:///repo/confd/backends.cfg"),
-      ).toBe(true);
-    });
+    expect(findFilesSpy).toHaveBeenCalled();
 
     const watchersAfterAdd = watchers.length;
     watcherSpy.mockClear();
@@ -661,15 +656,19 @@ describe("extension workspace symbol integration", () => {
 
     setMockWorkspaceFolders([repo]);
     triggerMockWorkspaceFoldersChange([], [confd]);
-    await Promise.resolve();
+    await vi.waitFor(
+      async () => {
+        await pumpRebuildTimers();
+        expect(findFilesSpy).toHaveBeenCalled();
+      },
+      { timeout: 2000 },
+    );
 
     expect(watcherSpy).toHaveBeenCalled();
     for (let i = 0; i < watchersAfterAdd; i += 1) {
       expect(watchers[i]?.dispose).toHaveBeenCalled();
     }
-    await vi.waitFor(() => {
-      expect(symbolIndex.isWorkspaceRebuildPending()).toBe(true);
-    });
+    expect(findFilesSpy).toHaveBeenCalled();
   });
 
   it("refreshes diagnostics for the affected workspace folder after a folder-scoped version change", async () => {

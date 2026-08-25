@@ -179,6 +179,59 @@ describe("rename provider", () => {
     vi.useRealTimers();
   });
 
+  it("renames environment variables across workspace files", async () => {
+    vi.useFakeTimers();
+    resetRenameTestState();
+    setMockWorkspaceFile("file:///global.cfg", "global\n    setenv FOO bar");
+    setMockWorkspaceFile(
+      "file:///frontends/web.cfg",
+      ["frontend web", '    log "${FOO-default}:514" local0'].join("\n"),
+    );
+    const frontend = createDocument(
+      ["frontend web", '    log "${FOO-default}:514" local0'].join("\n"),
+      "file:///frontends/web.cfg",
+    );
+    mockTextDocuments.push(frontend as never);
+
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000);
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    const edit = provideRenameEdits(frontend, pos(1, '    log "${'.length), "FOO_V2", schema, 4000);
+    expect(editRanges(edit as vscode.WorkspaceEdit)).toHaveLength(2);
+    expect(editUris(edit as vscode.WorkspaceEdit)).toEqual([
+      "file:///frontends/web.cfg",
+      "file:///global.cfg",
+    ]);
+    clearWorkspaceSymbolIndex();
+    vi.useRealTimers();
+  });
+
+  it("rejects workspace-wide environment variable collisions during rename", async () => {
+    vi.useFakeTimers();
+    resetRenameTestState();
+    setMockWorkspaceFile("file:///global.cfg", "global\n    setenv FOO bar\n    presetenv BAR baz");
+    setMockWorkspaceFile(
+      "file:///frontends/web.cfg",
+      ["frontend web", '    log "${FOO-default}:514" local0'].join("\n"),
+    );
+    const frontend = createDocument(
+      ["frontend web", '    log "${FOO-default}:514" local0'].join("\n"),
+      "file:///frontends/web.cfg",
+    );
+    mockTextDocuments.push(frontend as never);
+
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000);
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    expect(() =>
+      provideRenameEdits(frontend, pos(1, '    log "${'.length), "BAR", schema, 4000),
+    ).toThrow("already exists");
+    clearWorkspaceSymbolIndex();
+    vi.useRealTimers();
+  });
+
   it("rejects workspace-wide duplicate names during cross-file rename", async () => {
     vi.useFakeTimers();
     resetRenameTestState();

@@ -41,6 +41,16 @@ describe("workspace symbol coverage paths", () => {
     expect(typeof refs[0]?.folderKey).toBe("string");
   });
 
+  it("targets each workspace folder when no sticky folders or open docs exist", () => {
+    setMockWorkspaceFolders([
+      workspaceFolder("file:///git_repo_1"),
+      workspaceFolder("file:///git_repo_2"),
+    ]);
+
+    const refs = targetFolderRefs({ scope: "full" }, []);
+    expect(refs.map((ref) => ref.folderKey)).toEqual(["file:///git_repo_1", "file:///git_repo_2"]);
+  });
+
   it("ignores open haproxy documents that are outside workspace folders", async () => {
     setMockWorkspaceFolders([workspaceFolder("file:///repo")]);
     setMockWorkspaceFile("file:///repo/a.cfg", "backend a");
@@ -121,11 +131,15 @@ describe("workspace symbol coverage paths", () => {
     setMockWorkspaceFolders([]);
     mockTextDocuments.length = 0;
 
+    expect(
+      targetFolderRefs({ scope: "content" }, ["file:///repo"]).map((ref) => ref.folderKey),
+    ).toEqual(["<global>"]);
+
     scheduleWorkspaceSymbolIndexRebuild(schema, workspaceSettings, 4000, { scope: "content" });
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
-    expect(getWorkspaceSymbolIndex()).toBeNull();
+    expect(getWorkspaceSymbolIndex()?.documents.has("file:///repo/a.cfg")).toBe(true);
   });
 
   it("returns full scope when reopening a document missing from the workspace index", async () => {
@@ -136,9 +150,10 @@ describe("workspace symbol coverage paths", () => {
     );
   });
 
-  it("falls back to the global workspace folder when nothing is indexed yet", async () => {
+  it("indexes configured workspace folders instead of a global scan when nothing is indexed yet", async () => {
     setMockWorkspaceFolders([workspaceFolder("file:///repo")]);
     mockTextDocuments.length = 0;
+    setMockWorkspaceFile("file:///repo/a.cfg", "backend a");
     setMockWorkspaceFile("file:///solo.cfg", "backend solo");
 
     scheduleWorkspaceSymbolIndexRebuild(schema, workspaceSettings, 4000, {
@@ -147,9 +162,10 @@ describe("workspace symbol coverage paths", () => {
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
-    expect(expectWorkspaceIndex(getWorkspaceSymbolIndex())?.documents.has("file:///solo.cfg")).toBe(
-      true,
-    );
+    const repoDoc = createDocument("backend a", "file:///repo/a.cfg");
+    const index = expectWorkspaceIndex(getWorkspaceSymbolIndex(repoDoc));
+    expect(index.documents.has("file:///repo/a.cfg")).toBe(true);
+    expect(index.documents.has("file:///solo.cfg")).toBe(false);
   });
 
   it("skips folders when schema resolution fails during rebuild", async () => {

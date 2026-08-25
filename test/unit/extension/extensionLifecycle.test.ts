@@ -82,6 +82,137 @@ describe("extension lifecycle", () => {
     expect(uri?.toString()).toBe("file:///folder-a");
   });
 
+  it("indexes all workspace folders on activation when no HAProxy documents are open", async () => {
+    setMockWorkspaceFolders([workspaceFolder("file:///folder-a")]);
+    const scheduleRebuildWithReadyBundle = vi.fn();
+    const diagnostics = {
+      scheduler: {
+        schedule: vi.fn(),
+        runNow: vi.fn(),
+        disposeDocument: vi.fn(),
+        clearPending: vi.fn(),
+      },
+      refreshAllDocuments: vi.fn(),
+      refreshDocumentsInWorkspaceFolders: vi.fn(),
+      dispose: vi.fn(),
+    };
+
+    registerExtensionLifecycle({
+      context: mockExtensionContext() as never,
+      extensionVersion: "test",
+      getSettings: getExtensionSettings,
+      refreshSettings: vi.fn(),
+      diagnostics,
+      bundle: {
+        ensureBundleResilient: vi.fn(() => Promise.resolve(bundle)),
+        safeEnsureBundle: vi.fn(() => Promise.resolve(bundle)),
+        resolveWorkspaceSchema: vi.fn(() => Promise.resolve(bundle.schema)),
+        invalidate: vi.fn(),
+        reportBundleError: vi.fn(),
+        resetErrorReporting: vi.fn(),
+        dispose: vi.fn(),
+      },
+      workspaceSymbols: {
+        settings: () => defaultWorkspaceSymbolSettings(),
+        scheduleForUri: vi.fn(),
+        schedule: vi.fn(() => Promise.resolve()),
+        scheduleRebuildWithReadyBundle,
+        configureWatchers: vi.fn(),
+        handleWorkspaceFoldersChanged: vi.fn(),
+      } as never,
+    });
+
+    await vi.runAllTimersAsync();
+    expect(scheduleRebuildWithReadyBundle).toHaveBeenCalledWith("full");
+  });
+
+  it("skips workspace indexing on activation when the schema bundle is unavailable", async () => {
+    setMockWorkspaceFolders([workspaceFolder("file:///folder-a")]);
+    const scheduleRebuildWithReadyBundle = vi.fn();
+    const diagnostics = {
+      scheduler: {
+        schedule: vi.fn(),
+        runNow: vi.fn(),
+        disposeDocument: vi.fn(),
+        clearPending: vi.fn(),
+      },
+      refreshAllDocuments: vi.fn(),
+      refreshDocumentsInWorkspaceFolders: vi.fn(),
+      dispose: vi.fn(),
+    };
+
+    registerExtensionLifecycle({
+      context: mockExtensionContext() as never,
+      extensionVersion: "test",
+      getSettings: getExtensionSettings,
+      refreshSettings: vi.fn(),
+      diagnostics,
+      bundle: {
+        ensureBundleResilient: vi.fn(() => Promise.resolve(bundle)),
+        safeEnsureBundle: vi.fn(() => Promise.resolve(undefined)),
+        resolveWorkspaceSchema: vi.fn(() => Promise.resolve(bundle.schema)),
+        invalidate: vi.fn(),
+        reportBundleError: vi.fn(),
+        resetErrorReporting: vi.fn(),
+        dispose: vi.fn(),
+      },
+      workspaceSymbols: {
+        settings: () => defaultWorkspaceSymbolSettings(),
+        scheduleForUri: vi.fn(),
+        schedule: vi.fn(() => Promise.resolve()),
+        scheduleRebuildWithReadyBundle,
+        configureWatchers: vi.fn(),
+        handleWorkspaceFoldersChanged: vi.fn(),
+      } as never,
+    });
+
+    await vi.runAllTimersAsync();
+    expect(scheduleRebuildWithReadyBundle).not.toHaveBeenCalled();
+  });
+
+  it("does not index on activation when there are no workspace folders or HAProxy documents", async () => {
+    const scheduleRebuildWithReadyBundle = vi.fn();
+    const diagnostics = {
+      scheduler: {
+        schedule: vi.fn(),
+        runNow: vi.fn(),
+        disposeDocument: vi.fn(),
+        clearPending: vi.fn(),
+      },
+      refreshAllDocuments: vi.fn(),
+      refreshDocumentsInWorkspaceFolders: vi.fn(),
+      dispose: vi.fn(),
+    };
+
+    registerExtensionLifecycle({
+      context: mockExtensionContext() as never,
+      extensionVersion: "test",
+      getSettings: getExtensionSettings,
+      refreshSettings: vi.fn(),
+      diagnostics,
+      bundle: {
+        ensureBundleResilient: vi.fn(() => Promise.resolve(bundle)),
+        safeEnsureBundle: vi.fn(() => Promise.resolve(bundle)),
+        resolveWorkspaceSchema: vi.fn(() => Promise.resolve(bundle.schema)),
+        invalidate: vi.fn(),
+        reportBundleError: vi.fn(),
+        resetErrorReporting: vi.fn(),
+        dispose: vi.fn(),
+      },
+      workspaceSymbols: {
+        settings: () => defaultWorkspaceSymbolSettings(),
+        scheduleForUri: vi.fn(),
+        schedule: vi.fn(() => Promise.resolve()),
+        scheduleRebuildWithReadyBundle,
+        configureWatchers: vi.fn(),
+        handleWorkspaceFoldersChanged: vi.fn(),
+      } as never,
+    });
+
+    await vi.runAllTimersAsync();
+    expect(scheduleRebuildWithReadyBundle).not.toHaveBeenCalled();
+  });
+
   it("runs diagnostics immediately when a reopened document has a warm URI cache", () => {
     vi.spyOn(grammar, "syncDocumentGrammarLanguage").mockResolvedValue(true);
     vi.spyOn(documentCache, "hasWarmUriDocumentCache").mockReturnValue(true);

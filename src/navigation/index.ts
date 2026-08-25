@@ -129,7 +129,7 @@ export function provideDefinition(
   }
 
   const workspaceIndex = workspaceIndexForDocument(document);
-  if (workspaceIndex && symbol.kind !== "environment-variable") {
+  if (workspaceIndex) {
     const definitions = findWorkspaceDefinitions(
       workspaceIndex,
       symbol.kind,
@@ -173,7 +173,7 @@ export function provideReferences(
   }
 
   const workspaceIndex = workspaceIndexForDocument(document);
-  if (workspaceIndex && symbol.kind !== "environment-variable") {
+  if (workspaceIndex) {
     const references = findWorkspaceReferences(
       workspaceIndex,
       symbol.kind,

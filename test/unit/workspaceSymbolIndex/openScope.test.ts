@@ -120,7 +120,7 @@ describe("workspace uri-targeted rebuild", () => {
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
-    const index = expectWorkspaceIndex(getWorkspaceSymbolIndex());
+    const index = expectWorkspaceIndex(getWorkspaceSymbolIndex(repoDoc));
     expect(index.documents.has("file:///repo/a.cfg")).toBe(true);
     expect(index.documents.has("file:///other/b.cfg")).toBe(false);
   });

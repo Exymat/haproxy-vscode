@@ -390,9 +390,10 @@ async function rebuildWorkspaceIndexes(
   const folderRefs = targetFolderRefs(options, activeWorkspaceIndexes.keys());
   const foldersToRebuild = new Set(folderRefs.map((ref) => ref.folderKey));
   const nextIndexes = new Map<string, WorkspaceSymbolIndex>();
+  const workspaceWide = !options.document && !options.uri;
 
   for (const [folderKey, index] of activeWorkspaceIndexes) {
-    if (!foldersToRebuild.has(folderKey)) {
+    if (!foldersToRebuild.has(folderKey) && !workspaceWide) {
       nextIndexes.set(folderKey, { ...index, generation });
     }
   }

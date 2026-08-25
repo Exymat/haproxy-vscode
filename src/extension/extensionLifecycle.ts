@@ -128,6 +128,15 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
         isHaproxyLanguageId(document.languageId),
       );
       if (openHaproxyDocs.length === 0) {
+        if (!vscode.workspace.workspaceFolders?.length) {
+          return;
+        }
+        const loadedBundle = await bundle.safeEnsureBundle();
+        if (!loadedBundle) {
+          return;
+        }
+        logSupportSnapshotIfReady(loadedBundle.version);
+        workspaceSymbols.scheduleRebuildWithReadyBundle("full");
         return;
       }
       for (const document of openHaproxyDocs) {
