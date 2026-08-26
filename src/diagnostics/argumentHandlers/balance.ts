@@ -40,6 +40,131 @@ function allowsMissingArgs(
   return false;
 }
 
+function unknownAlgorithmDiagnostics(
+  line: ParsedLine,
+  algoIdx: number,
+  algo: string,
+  algoBase: string,
+  allowedAlgorithms: string[],
+  conditionals: Set<string>,
+): vscode.Diagnostic[] {
+  if (
+    allowedAlgorithms.length === 0 ||
+    allowedAlgorithms.includes(algo) ||
+    allowedAlgorithms.includes(algoBase) ||
+    isLikelyValue(algo, conditionals)
+  ) {
+    return [];
+  }
+  return [
+    makeLineDiagnostic(
+      line,
+      algoIdx,
+      `Unknown balance algorithm '${line.tokens[algoIdx].text}' (expected: ${formatEnumHint(allowedAlgorithms)})`,
+      "unknown-value",
+    ),
+  ];
+}
+
+function urlParamSlotDiagnostics(
+  line: ParsedLine,
+  tokenIdx: number,
+  pos: number,
+  value: string,
+  variantModel: ArgumentModel,
+  variant: ResolvedSchemaKeyword | undefined,
+  conditionals: Set<string>,
+): vscode.Diagnostic | undefined {
+  if (
+    variantModel.max_args !== null &&
+    variantModel.max_args !== undefined &&
+    pos >= variantModel.max_args
+  ) {
+    return makeLineDiagnostic(
+      line,
+      tokenIdx,
+      `'balance url_param' accepts at most ${variantModel.max_args} argument(s); '${value}' is unexpected`,
+      "extra-argument",
+    );
+  }
+  const slot = argumentSlotForPosition(variantModel, pos);
+  if (!slot) {
+    return makeLineDiagnostic(
+      line,
+      tokenIdx,
+      `'balance url_param' accepts at most ${variantModel.slots.length} argument(s); '${value}' is unexpected`,
+      "extra-argument",
+    );
+  }
+  const allowedValues = enumValuesForSlot(slot, variant, pos);
+  if (allowedValues.length === 0) {
+    return undefined;
+  }
+  const lower = value.toLowerCase();
+  const base = lower.split("(", 1)[0];
+  if (isLikelyValue(lower, conditionals)) {
+    return undefined;
+  }
+  const allowedSet = new Set(allowedValues);
+  if (allowedSet.has(lower) || allowedSet.has(base)) {
+    return undefined;
+  }
+  return makeLineDiagnostic(
+    line,
+    tokenIdx,
+    `Unknown value '${value}' for 'balance url_param' (expected: ${formatEnumHint(allowedValues)})`,
+    "unknown-value",
+  );
+}
+
+function urlParamBalanceDiagnostics(
+  line: ParsedLine,
+  algoIdx: number,
+  argIndices: number[],
+  schema: HaproxySchema,
+  conditionals: Set<string>,
+): vscode.Diagnostic[] {
+  const diagnostics: vscode.Diagnostic[] = [];
+  const variant = schema.keywords["balance url_param"];
+  const variantModel = variant?.argument_model;
+  if (!variantModel) {
+    return diagnostics;
+  }
+  const variantArgs = argIndices.slice(1);
+  if (
+    variantArgs.length < variantModel.min_args &&
+    !allowsMissingArgs(variant, variantModel, variant?.signatures)
+  ) {
+    const missing = variantModel.min_args - variantArgs.length;
+    diagnostics.push(
+      makeLineDiagnostic(
+        line,
+        algoIdx,
+        `'balance url_param' expects at least ${variantModel.min_args} argument(s) (${missing} missing)`,
+        "missing-argument",
+        vscode.DiagnosticSeverity.Error,
+      ),
+    );
+    return diagnostics;
+  }
+  for (let pos = 0; pos < variantArgs.length; pos += 1) {
+    const tokenIdx = variantArgs[pos];
+    const diagnostic = urlParamSlotDiagnostics(
+      line,
+      tokenIdx,
+      pos,
+      line.tokens[tokenIdx].text,
+      variantModel,
+      variant,
+      conditionals,
+    );
+    if (diagnostic) {
+      diagnostics.push(diagnostic);
+    }
+  }
+  return diagnostics;
+}
+
 export function balanceArgumentDiagnostics(
   line: ParsedLine,
   match: { end: number },
@@ -59,96 +184,14 @@ export function balanceArgumentDiagnostics(
   const algoIdx = argIndices[0];
   const algo = line.tokens[algoIdx].text.toLowerCase();
   const algoBase = algo.split("(", 1)[0];
-  if (
-    allowedAlgorithms.length > 0 &&
-    !allowedAlgorithms.includes(algo) &&
-    !allowedAlgorithms.includes(algoBase) &&
-    !isLikelyValue(algo, conditionals)
-  ) {
-    diagnostics.push(
-      makeLineDiagnostic(
-        line,
-        algoIdx,
-        `Unknown balance algorithm '${line.tokens[algoIdx].text}' (expected: ${formatEnumHint(allowedAlgorithms)})`,
-        "unknown-value",
-      ),
-    );
-  }
+  diagnostics.push(
+    ...unknownAlgorithmDiagnostics(line, algoIdx, algo, algoBase, allowedAlgorithms, conditionals),
+  );
 
   if (algoBase === "url_param") {
-    const variant = schema.keywords["balance url_param"];
-    const variantModel = variant?.argument_model;
-    if (!variantModel) {
-      return diagnostics;
-    }
-    const variantArgs = argIndices.slice(1);
-    if (
-      variantArgs.length < variantModel.min_args &&
-      !allowsMissingArgs(variant, variantModel, variant?.signatures)
-    ) {
-      const missing = variantModel.min_args - variantArgs.length;
-      diagnostics.push(
-        makeLineDiagnostic(
-          line,
-          algoIdx,
-          `'balance url_param' expects at least ${variantModel.min_args} argument(s) (${missing} missing)`,
-          "missing-argument",
-          vscode.DiagnosticSeverity.Error,
-        ),
-      );
-      return diagnostics;
-    }
-    for (let pos = 0; pos < variantArgs.length; pos += 1) {
-      const tokenIdx = variantArgs[pos];
-      const slot = argumentSlotForPosition(variantModel, pos);
-      const value = line.tokens[tokenIdx].text;
-      if (
-        variantModel.max_args !== null &&
-        variantModel.max_args !== undefined &&
-        pos >= variantModel.max_args
-      ) {
-        diagnostics.push(
-          makeLineDiagnostic(
-            line,
-            tokenIdx,
-            `'balance url_param' accepts at most ${variantModel.max_args} argument(s); '${value}' is unexpected`,
-            "extra-argument",
-          ),
-        );
-        continue;
-      }
-      if (!slot) {
-        diagnostics.push(
-          makeLineDiagnostic(
-            line,
-            tokenIdx,
-            `'balance url_param' accepts at most ${variantModel.slots.length} argument(s); '${value}' is unexpected`,
-            "extra-argument",
-          ),
-        );
-        continue;
-      }
-      const allowedValues = enumValuesForSlot(slot, variant, pos);
-      if (allowedValues.length === 0) {
-        continue;
-      }
-      const lower = value.toLowerCase();
-      const base = lower.split("(", 1)[0];
-      if (isLikelyValue(lower, conditionals)) {
-        continue;
-      }
-      const allowedSet = new Set(allowedValues);
-      if (!allowedSet.has(lower) && !allowedSet.has(base)) {
-        diagnostics.push(
-          makeLineDiagnostic(
-            line,
-            tokenIdx,
-            `Unknown value '${value}' for 'balance url_param' (expected: ${formatEnumHint(allowedValues)})`,
-            "unknown-value",
-          ),
-        );
-      }
-    }
+    diagnostics.push(
+      ...urlParamBalanceDiagnostics(line, algoIdx, argIndices, schema, conditionals),
+    );
     return diagnostics;
   }
 

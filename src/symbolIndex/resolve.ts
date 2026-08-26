@@ -87,72 +87,77 @@ function resolveSectionHeaderSymbol(
   return null;
 }
 
-function resolveStatementRuleSymbol(
-  line: ParsedLine,
-  tokenIndex: number,
-  schema: HaproxySchema,
-  rules: StatementRule[],
-  scopeKey: string | null,
-  positionCharacter: number,
-): {
+type ResolvedSymbol = {
   kind: SymbolKind;
   name: string;
   scopeKey: string | null;
   proxyCapabilities?: readonly ProxyCapability[];
-} | null {
-  const envSymbol = resolveEnvironmentVariableSymbol(line, tokenIndex, positionCharacter);
-  if (envSymbol) {
-    return envSymbol;
-  }
+};
 
-  for (const rule of rules) {
-    if (!ruleMatchesLine(rule, line.tokens)) {
+function resolveRuleDefinition(
+  rule: StatementRule,
+  line: ParsedLine,
+  tokenIndex: number,
+  scopeKey: string | null,
+): ResolvedSymbol | null {
+  if (!rule.definition_kind) {
+    return null;
+  }
+  for (const idx of symbolNameTokenIndices(rule, line.tokens.length)) {
+    if (idx !== tokenIndex) {
       continue;
     }
-
-    if (rule.definition_kind) {
-      for (const idx of symbolNameTokenIndices(rule, line.tokens.length)) {
-        if (idx !== tokenIndex) {
-          continue;
-        }
-        const token = line.tokens[idx];
-        if (
-          rule.definition_kind === "environment-variable" &&
-          !isEnvironmentVariableName(token.text)
-        ) {
-          continue;
-        }
-        return {
-          kind: rule.definition_kind,
-          name: token.text,
-          scopeKey,
-        };
-      }
+    const token = line.tokens[idx];
+    if (rule.definition_kind === "environment-variable" && !isEnvironmentVariableName(token.text)) {
+      continue;
     }
-
-    if (rule.reference_kind) {
-      for (const idx of symbolNameTokenIndices(rule, line.tokens.length)) {
-        if (idx !== tokenIndex) {
-          continue;
-        }
-        const token = line.tokens[idx];
-        const kind = rule.reference_kind;
-        if (kind === "environment-variable" && !isEnvironmentVariableName(token.text)) {
-          continue;
-        }
-        if (kind !== "environment-variable" && isLikelyValue(token.text)) {
-          continue;
-        }
-        return {
-          kind,
-          name: token.text,
-          scopeKey: effectiveScopeKeyForSchema(schema, kind, scopeKey),
-          proxyCapabilities: proxyCapabilitiesForReference(kind, line.tokens[0]?.text),
-        };
-      }
-    }
+    return {
+      kind: rule.definition_kind,
+      name: token.text,
+      scopeKey,
+    };
   }
+  return null;
+}
 
+function resolveRuleReference(
+  rule: StatementRule,
+  line: ParsedLine,
+  tokenIndex: number,
+  schema: HaproxySchema,
+  scopeKey: string | null,
+): ResolvedSymbol | null {
+  if (!rule.reference_kind) {
+    return null;
+  }
+  for (const idx of symbolNameTokenIndices(rule, line.tokens.length)) {
+    if (idx !== tokenIndex) {
+      continue;
+    }
+    const token = line.tokens[idx];
+    const kind = rule.reference_kind;
+    if (kind === "environment-variable" && !isEnvironmentVariableName(token.text)) {
+      continue;
+    }
+    if (kind !== "environment-variable" && isLikelyValue(token.text)) {
+      continue;
+    }
+    return {
+      kind,
+      name: token.text,
+      scopeKey: effectiveScopeKeyForSchema(schema, kind, scopeKey),
+      proxyCapabilities: proxyCapabilitiesForReference(kind, line.tokens[0]?.text),
+    };
+  }
+  return null;
+}
+
+function resolveAclOrPatternSymbol(
+  line: ParsedLine,
+  tokenIndex: number,
+  schema: HaproxySchema,
+  scopeKey: string | null,
+): ResolvedSymbol | null {
   if (scopeKey) {
     const aclOperators = new Set(symbolStringList(schema, "acl_condition_operators"));
     const fetchNames = sampleExpressionNameSets(schema).fetchNames;
@@ -173,8 +178,37 @@ function resolveStatementRuleSymbol(
       };
     }
   }
-
   return null;
+}
+
+function resolveStatementRuleSymbol(
+  line: ParsedLine,
+  tokenIndex: number,
+  schema: HaproxySchema,
+  rules: StatementRule[],
+  scopeKey: string | null,
+  positionCharacter: number,
+): ResolvedSymbol | null {
+  const envSymbol = resolveEnvironmentVariableSymbol(line, tokenIndex, positionCharacter);
+  if (envSymbol) {
+    return envSymbol;
+  }
+
+  for (const rule of rules) {
+    if (!ruleMatchesLine(rule, line.tokens)) {
+      continue;
+    }
+    const definition = resolveRuleDefinition(rule, line, tokenIndex, scopeKey);
+    if (definition) {
+      return definition;
+    }
+    const reference = resolveRuleReference(rule, line, tokenIndex, schema, scopeKey);
+    if (reference) {
+      return reference;
+    }
+  }
+
+  return resolveAclOrPatternSymbol(line, tokenIndex, schema, scopeKey);
 }
 
 function resolveEnvironmentVariableSymbol(

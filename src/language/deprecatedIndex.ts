@@ -21,6 +21,68 @@ function signatureIsDeprecated(signatures: string[]): boolean {
   return signatures.some((signature) => DEPRECATED_MARK.test(signature));
 }
 
+function addDeprecatedKeywordNames(
+  target: Set<string>,
+  table: Record<string, { signatures: string[] }>,
+): void {
+  for (const [name, keyword] of Object.entries(table)) {
+    if (signatureIsDeprecated(keyword.signatures)) {
+      target.add(name.toLowerCase());
+    }
+  }
+}
+
+function addDeprecatedGroupItems(
+  target: Set<string>,
+  items: Array<{ name: string; signature: string }> | undefined,
+): void {
+  for (const item of items ?? []) {
+    if (DEPRECATED_MARK.test(item.signature)) {
+      target.add(item.name.toLowerCase());
+    }
+  }
+}
+
+function addDeprecatedSamples(
+  target: Set<string>,
+  table: Record<string, { deprecated?: boolean; signature?: string }> | undefined,
+): void {
+  for (const [name, sample] of Object.entries(table ?? {})) {
+    if (sample.deprecated || DEPRECATED_MARK.test(sample.signature ?? "")) {
+      target.add(name.toLowerCase());
+    }
+  }
+}
+
+function collectDeprecatedIndex(
+  schema: HaproxySchema,
+  languageData?: HaproxyLanguageData,
+): DeprecatedIndex {
+  const keywords = new Set<string>();
+  addDeprecatedKeywordNames(keywords, schema.keywords);
+  if (languageData) {
+    addDeprecatedKeywordNames(keywords, languageData.keywords);
+  }
+
+  const actions = new Set<string>();
+  if (languageData) {
+    for (const groupKey of deprecatedActionGroupNames(schema)) {
+      addDeprecatedGroupItems(actions, languageData.groups[groupKey]);
+    }
+  }
+
+  const sampleFetches = new Set<string>();
+  const sampleConverters = new Set<string>();
+  addDeprecatedSamples(sampleFetches, schema.sample_fetches);
+  addDeprecatedSamples(sampleConverters, schema.sample_converters);
+  if (languageData) {
+    addDeprecatedGroupItems(sampleFetches, languageData.groups.sample_fetches);
+    addDeprecatedGroupItems(sampleConverters, languageData.groups.sample_converters);
+  }
+
+  return { keywords, actions, sampleFetches, sampleConverters };
+}
+
 export function buildDeprecatedIndex(
   schema: HaproxySchema,
   languageData?: HaproxyLanguageData,
@@ -35,60 +97,7 @@ export function buildDeprecatedIndex(
     return cached;
   }
 
-  const keywords = new Set<string>();
-  for (const [name, keyword] of Object.entries(schema.keywords)) {
-    if (signatureIsDeprecated(keyword.signatures)) {
-      keywords.add(name.toLowerCase());
-    }
-  }
-
-  if (languageData) {
-    for (const [name, keyword] of Object.entries(languageData.keywords)) {
-      if (signatureIsDeprecated(keyword.signatures)) {
-        keywords.add(name.toLowerCase());
-      }
-    }
-  }
-
-  const actions = new Set<string>();
-  if (languageData) {
-    for (const groupKey of deprecatedActionGroupNames(schema)) {
-      for (const item of languageData.groups[groupKey] ?? []) {
-        if (DEPRECATED_MARK.test(item.signature)) {
-          actions.add(item.name.toLowerCase());
-        }
-      }
-    }
-  }
-
-  const sampleFetches = new Set<string>();
-  for (const [name, sample] of Object.entries(schema.sample_fetches ?? {})) {
-    if (sample.deprecated || DEPRECATED_MARK.test(sample.signature ?? "")) {
-      sampleFetches.add(name.toLowerCase());
-    }
-  }
-
-  const sampleConverters = new Set<string>();
-  for (const [name, sample] of Object.entries(schema.sample_converters ?? {})) {
-    if (sample.deprecated || DEPRECATED_MARK.test(sample.signature ?? "")) {
-      sampleConverters.add(name.toLowerCase());
-    }
-  }
-
-  if (languageData) {
-    for (const item of languageData.groups.sample_fetches ?? []) {
-      if (DEPRECATED_MARK.test(item.signature)) {
-        sampleFetches.add(item.name.toLowerCase());
-      }
-    }
-    for (const item of languageData.groups.sample_converters ?? []) {
-      if (DEPRECATED_MARK.test(item.signature)) {
-        sampleConverters.add(item.name.toLowerCase());
-      }
-    }
-  }
-
-  const index: DeprecatedIndex = { keywords, actions, sampleFetches, sampleConverters };
+  const index = collectDeprecatedIndex(schema, languageData);
   perSchema.set(languageData, index);
   return index;
 }

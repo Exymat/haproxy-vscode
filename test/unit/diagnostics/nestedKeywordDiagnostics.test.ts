@@ -363,6 +363,17 @@ describe("unknownNestedDiagnostics", () => {
     ).toHaveLength(0);
   });
 
+  it("does not report unknown service when use-service has no target", () => {
+    const schema = structuredClone(bundle.schema);
+    schema.keyword_groups.services = ["known-service"];
+    const doc = createDocument("frontend x\n    bind :80\n    http-request use-service");
+    const ctx = new DiagnosticContext(doc, schema, { languageData: bundle.languageData });
+    const line = parseDocument(doc)[2];
+    expect(
+      unknownNestedDiagnostics(ctx, line).filter((d) => d.code === "unknown-service"),
+    ).toHaveLength(0);
+  });
+
   it("does not report lua-prefixed service names", () => {
     const schema = structuredClone(bundle.schema);
     schema.keyword_groups.services = ["known-service"];

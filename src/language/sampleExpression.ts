@@ -130,33 +130,29 @@ function lookupSample(
   return table[name] ?? table[name.toLowerCase()];
 }
 
-export function validateExpressionBody(
+function resolveFetchHead(
   body: string,
   spanStart: number,
   fetches: Record<string, SampleFunction>,
-  converters: Record<string, SampleFunction>,
   fetchNames: Set<string>,
-  convNames: Set<string>,
-  schema: HaproxySchema,
-): SampleDiagnostic[] {
+):
+  | { done: true; issues: SampleDiagnostic[] }
+  | { done: false; pos: number; spec: SampleFunction; name: string } {
   const issues: SampleDiagnostic[] = [];
-  let pos = 0;
-  const id = readIdentifier(body, pos);
-  pos = id.end;
-
+  const id = readIdentifier(body, 0);
   if (!id.name) {
     if (body.trimStart().startsWith("(")) {
       issues.push(
         sampleIssue(spanStart, spanStart + 1, "missing fetch method", "sample-missing-fetch"),
       );
     }
-    return issues;
+    return { done: true, issues };
   }
 
   const fetchSpec = lookupSample(id.name, fetches);
   if (!fetchSpec && !fetchNames.has(id.name.toLowerCase())) {
     if (id.name.startsWith("wurfl-")) {
-      return issues;
+      return { done: true, issues };
     }
     issues.push(
       sampleIssue(
@@ -166,26 +162,103 @@ export function validateExpressionBody(
         "sample-unknown-fetch",
       ),
     );
-    return issues;
+    return { done: true, issues };
   }
 
-  const spec = fetchSpec ?? { name: id.name, args: [], out_type: "any" };
-  const parsedFetch = parseArgList(
+  return {
+    done: false,
+    pos: id.end,
+    spec: fetchSpec ?? { name: id.name, args: [], out_type: "any" },
+    name: id.name,
+  };
+}
+
+function converterSyntaxIssue(
+  body: string,
+  spanStart: number,
+  pos: number,
+  lastConv: string,
+): SampleDiagnostic {
+  return sampleIssue(
+    spanStart + pos,
+    spanStart + pos + 1,
+    lastConv ? `missing comma after converter '${lastConv}'` : "missing comma after fetch keyword",
+    "sample-syntax",
+  );
+}
+
+function validateConverterStep(
+  body: string,
+  spanStart: number,
+  convId: { name: string; end: number },
+  pos: number,
+  converters: Record<string, SampleFunction>,
+  convNames: Set<string>,
+  sampleType: string,
+  schema: HaproxySchema,
+):
+  | { done: true; issue: SampleDiagnostic }
+  | { done: false; pos: number; sampleType: string; lastConv: string } {
+  const convSpec = lookupSample(convId.name, converters);
+  if (!convSpec && !convNames.has(convId.name.toLowerCase())) {
+    return {
+      done: true,
+      issue: sampleIssue(
+        spanStart + (convId.end - convId.name.length),
+        spanStart + convId.end,
+        `unknown converter '${convId.name}'`,
+        "sample-unknown-converter",
+      ),
+    };
+  }
+
+  const cspec = convSpec ?? { name: convId.name, args: [], in_type: "any", out_type: "any" };
+  const inType = cspec.in_type || "any";
+  if (!canCast(sampleType, inType, schema)) {
+    return {
+      done: true,
+      issue: sampleIssue(
+        spanStart + (convId.end - convId.name.length),
+        spanStart + convId.end,
+        `converter '${convId.name}' cannot be applied`,
+        "sample-converter-cast",
+      ),
+    };
+  }
+
+  const parsedConv = parseArgList(
     body,
     pos,
     spanStart,
-    spec.args,
-    Number(validationRecord(schema, "fetch_min_args")[id.name]) || sampleMinArgs(spec, id.name, 0),
+    cspec.args,
+    Number(validationRecord(schema, "converter_min_args")[convId.name]) || 0,
+    "sample-converter-args",
   );
-  const fetchArgIssue = validateFetchArgs(id.name, spec, parsedFetch, spanStart);
-  if (fetchArgIssue) {
-    issues.push(fetchArgIssue);
-    return issues;
+  const convArgIssue = validateConverterArgs(convId.name, cspec, parsedConv, spanStart);
+  if (convArgIssue) {
+    return { done: true, issue: convArgIssue };
   }
-  pos = parsedFetch.end;
+  return {
+    done: false,
+    pos: parsedConv.end,
+    sampleType: resolveOutType(sampleType, cspec, schema),
+    lastConv: convId.name,
+  };
+}
 
-  let sampleType = spec.out_type || "any";
+function validateConverterChain(
+  body: string,
+  spanStart: number,
+  startPos: number,
+  sampleType: string,
+  converters: Record<string, SampleFunction>,
+  convNames: Set<string>,
+  schema: HaproxySchema,
+): SampleDiagnostic[] {
+  const issues: SampleDiagnostic[] = [];
+  let pos = startPos;
   let lastConv = "";
+  let currentType = sampleType;
 
   while (true) {
     pos = skipSpace(body, pos);
@@ -193,16 +266,7 @@ export function validateExpressionBody(
       break;
     }
     if (body[pos] === ")") {
-      issues.push(
-        sampleIssue(
-          spanStart + pos,
-          spanStart + pos + 1,
-          lastConv
-            ? `missing comma after converter '${lastConv}'`
-            : "missing comma after fetch keyword",
-          "sample-syntax",
-        ),
-      );
+      issues.push(converterSyntaxIssue(body, spanStart, pos, lastConv));
       return issues;
     }
     if (body[pos] !== ",") {
@@ -215,51 +279,24 @@ export function validateExpressionBody(
       break;
     }
     pos = convId.end;
-    lastConv = convId.name;
 
-    const convSpec = lookupSample(convId.name, converters);
-    if (!convSpec && !convNames.has(convId.name.toLowerCase())) {
-      issues.push(
-        sampleIssue(
-          spanStart + (convId.end - convId.name.length),
-          spanStart + convId.end,
-          `unknown converter '${convId.name}'`,
-          "sample-unknown-converter",
-        ),
-      );
-      return issues;
-    }
-
-    const cspec = convSpec ?? { name: convId.name, args: [], in_type: "any", out_type: "any" };
-    const inType = cspec.in_type || "any";
-    if (!canCast(sampleType, inType, schema)) {
-      issues.push(
-        sampleIssue(
-          spanStart + (convId.end - convId.name.length),
-          spanStart + convId.end,
-          `converter '${convId.name}' cannot be applied`,
-          "sample-converter-cast",
-        ),
-      );
-      return issues;
-    }
-
-    const convStart = spanStart + (convId.end - convId.name.length);
-    const parsedConv = parseArgList(
+    const step = validateConverterStep(
       body,
-      pos,
       spanStart,
-      cspec.args,
-      Number(validationRecord(schema, "converter_min_args")[convId.name]) || 0,
-      "sample-converter-args",
+      convId,
+      pos,
+      converters,
+      convNames,
+      currentType,
+      schema,
     );
-    const convArgIssue = validateConverterArgs(convId.name, cspec, parsedConv, convStart);
-    if (convArgIssue) {
-      issues.push(convArgIssue);
+    if (step.done) {
+      issues.push(step.issue);
       return issues;
     }
-    pos = parsedConv.end;
-    sampleType = resolveOutType(sampleType, cspec, schema);
+    pos = step.pos;
+    currentType = step.sampleType;
+    lastConv = step.lastConv;
   }
 
   pos = skipSpace(body, pos);
@@ -273,8 +310,45 @@ export function validateExpressionBody(
       ),
     );
   }
-
   return issues;
+}
+
+export function validateExpressionBody(
+  body: string,
+  spanStart: number,
+  fetches: Record<string, SampleFunction>,
+  converters: Record<string, SampleFunction>,
+  fetchNames: Set<string>,
+  convNames: Set<string>,
+  schema: HaproxySchema,
+): SampleDiagnostic[] {
+  const head = resolveFetchHead(body, spanStart, fetches, fetchNames);
+  if (head.done) {
+    return head.issues;
+  }
+
+  const parsedFetch = parseArgList(
+    body,
+    head.pos,
+    spanStart,
+    head.spec.args,
+    Number(validationRecord(schema, "fetch_min_args")[head.name]) ||
+      sampleMinArgs(head.spec, head.name, 0),
+  );
+  const fetchArgIssue = validateFetchArgs(head.name, head.spec, parsedFetch, spanStart);
+  if (fetchArgIssue) {
+    return [fetchArgIssue];
+  }
+
+  return validateConverterChain(
+    body,
+    spanStart,
+    parsedFetch.end,
+    head.spec.out_type || "any",
+    converters,
+    convNames,
+    schema,
+  );
 }
 
 export function validateSampleExpressions(

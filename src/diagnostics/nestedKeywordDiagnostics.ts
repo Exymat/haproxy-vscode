@@ -9,7 +9,7 @@ import { nestedDiagnosticKeywordSet, statementRuleKeywordSet } from "./diagnosti
 import { resolveLineOptionStartIndex } from "../language/lineOptionSpan";
 import { isOptionLine, optionNameTokenIndex } from "../parser/optionLine";
 import { ParsedLine } from "../parser";
-import { HaproxySchema } from "../schema/types";
+import { HaproxySchema, StatementRule } from "../schema/types";
 import { symbolStringList } from "../schema/symbols";
 import { semanticRecord, dynamicActionPrefixes } from "../schema/semantic";
 import { validationObjectArray } from "../schema/validation";
@@ -173,62 +173,96 @@ export function contextDiagnostics(ctx: DiagnosticContext, line: ParsedLine): vs
   if (top.matched) {
     const kw = ctx.schema.keywords[lowerToken(top.keyword)];
     if (kw?.contexts?.length) {
-      const diag = modeContextDiagnostic(line, top.start, kw.name, kw.contexts, mode, ctx.schema);
-      if (diag) {
-        diagnostics.push(diag);
-      }
+      pushModeContextDiagnostic(
+        diagnostics,
+        line,
+        top.start,
+        kw.name,
+        kw.contexts,
+        mode,
+        ctx.schema,
+      );
     }
   }
 
-  if (isOptionLine(line, ctx.schema)) {
-    const idx = optionNameTokenIndex(line, ctx.schema);
-    const option = lowerToken(line.tokens[idx]?.text ?? "");
-    if (option) {
-      const contexts = ctx.schema.keyword_group_contexts?.options?.[option];
-      if (contexts?.length) {
-        const diag = modeContextDiagnostic(
-          line,
-          idx,
-          `option ${option}`,
-          contexts,
-          mode,
-          ctx.schema,
-        );
-        if (diag) {
-          diagnostics.push(diag);
-        }
-      }
-    }
-  }
-
-  if (t0 === "bind" || t0 === "server" || t0 === "default-server") {
-    const groupName = rule?.group;
-    const start = resolveLineOptionStartIndex(ctx.schema, line, rule);
-    if (groupName && start >= 0) {
-      const groupContexts = ctx.schema.keyword_group_contexts?.[groupName] ?? {};
-      if (Object.keys(groupContexts).length === 0) {
-        return diagnostics;
-      }
-      const allowedGroup = keywordGroupSet(ctx.schema, groupName);
-      const limit = conditionalStartIndex(line, 0);
-      for (let i = start; i < limit; i += 1) {
-        const option = normalizedOptionToken(line.tokens[i].text);
-        if (!allowedGroup.has(option)) {
-          continue;
-        }
-        const contexts = groupContexts[option];
-        if (!contexts?.length) {
-          continue;
-        }
-        const diag = modeContextDiagnostic(line, i, option, contexts, mode, ctx.schema);
-        if (diag) {
-          diagnostics.push(diag);
-        }
-      }
-    }
-  }
-
+  collectOptionLineModeDiagnostics(ctx, line, mode, diagnostics);
+  collectNestedOptionModeDiagnostics(ctx, line, rule, t0, mode, diagnostics);
   return diagnostics;
+}
+
+function pushModeContextDiagnostic(
+  diagnostics: vscode.Diagnostic[],
+  line: ParsedLine,
+  tokenIndex: number,
+  keyword: string,
+  contexts: string[],
+  mode: RuntimeMode,
+  schema: HaproxySchema,
+): void {
+  const diag = modeContextDiagnostic(line, tokenIndex, keyword, contexts, mode, schema);
+  if (diag) {
+    diagnostics.push(diag);
+  }
+}
+
+function collectOptionLineModeDiagnostics(
+  ctx: DiagnosticContext,
+  line: ParsedLine,
+  mode: RuntimeMode,
+  diagnostics: vscode.Diagnostic[],
+): void {
+  if (!isOptionLine(line, ctx.schema)) {
+    return;
+  }
+  const idx = optionNameTokenIndex(line, ctx.schema);
+  const option = lowerToken(line.tokens[idx]?.text ?? "");
+  if (!option) {
+    return;
+  }
+  const contexts = ctx.schema.keyword_group_contexts?.options?.[option];
+  if (!contexts?.length) {
+    return;
+  }
+  pushModeContextDiagnostic(diagnostics, line, idx, `option ${option}`, contexts, mode, ctx.schema);
+}
+
+function isBindOrServerLine(t0: string): boolean {
+  return t0 === "bind" || t0 === "server" || t0 === "default-server";
+}
+
+function collectNestedOptionModeDiagnostics(
+  ctx: DiagnosticContext,
+  line: ParsedLine,
+  rule: StatementRule | undefined,
+  t0: string,
+  mode: RuntimeMode,
+  diagnostics: vscode.Diagnostic[],
+): void {
+  if (!isBindOrServerLine(t0)) {
+    return;
+  }
+  const groupName = rule?.group;
+  const start = resolveLineOptionStartIndex(ctx.schema, line, rule);
+  if (!groupName || start < 0) {
+    return;
+  }
+  const groupContexts = ctx.schema.keyword_group_contexts?.[groupName] ?? {};
+  if (Object.keys(groupContexts).length === 0) {
+    return;
+  }
+  const allowedGroup = keywordGroupSet(ctx.schema, groupName);
+  const limit = conditionalStartIndex(line, 0);
+  for (let i = start; i < limit; i += 1) {
+    const option = normalizedOptionToken(line.tokens[i].text);
+    if (!allowedGroup.has(option)) {
+      continue;
+    }
+    const contexts = groupContexts[option];
+    if (!contexts?.length) {
+      continue;
+    }
+    pushModeContextDiagnostic(diagnostics, line, i, option, contexts, mode, ctx.schema);
+  }
 }
 
 type NestedKeywordHandler = (
@@ -363,6 +397,101 @@ const NESTED_KEYWORD_HANDLERS: NestedKeywordHandler[] = [
   handleTcpInspectDelayLine,
 ];
 
+function collectUnknownPhaseDiagnostic(
+  ctx: DiagnosticContext,
+  line: ParsedLine,
+  rule: StatementRule | undefined,
+  t0: string,
+  diagnostics: vscode.Diagnostic[],
+): void {
+  const phaseIdx = resolvePhaseTokenIndex(rule, line);
+  if (phaseIdx === null || (t0 !== "tcp-request" && t0 !== "tcp-response")) {
+    return;
+  }
+  const phases =
+    t0 === "tcp-request" ? tcpRequestPhaseSet(ctx.schema) : tcpResponsePhaseSet(ctx.schema);
+  const phase = lowerToken(line.tokens[phaseIdx].text);
+  if (phases.has(phase)) {
+    return;
+  }
+  const groupName = ruleActionGroup(rule);
+  const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : new Set<string>();
+  if (allowed.has(phase)) {
+    return;
+  }
+  diagnostics.push(
+    makeDiagnostic(
+      diagRange(line, phaseIdx),
+      `Unknown ${t0} phase '${line.tokens[phaseIdx].text}'`,
+      vscode.DiagnosticSeverity.Warning,
+      "unknown-value",
+    ),
+  );
+}
+
+function collectUnknownServiceDiagnostic(
+  ctx: DiagnosticContext,
+  line: ParsedLine,
+  actionIdx: number,
+  dynamicPrefixes: string[],
+  diagnostics: vscode.Diagnostic[],
+): void {
+  if (actionIdx + 1 >= line.tokens.length) {
+    return;
+  }
+  const serviceIdx = actionIdx + 1;
+  const serviceName = lowerToken(line.tokens[serviceIdx].text);
+  const services = keywordGroupSet(ctx.schema, "services");
+  if (
+    services.size === 0 ||
+    !serviceName ||
+    dynamicPrefixes.some((prefix) => serviceName.startsWith(prefix)) ||
+    services.has(serviceName)
+  ) {
+    return;
+  }
+  diagnostics.push(
+    makeDiagnostic(
+      diagRange(line, serviceIdx),
+      `Unknown service '${line.tokens[serviceIdx].text}'`,
+      vscode.DiagnosticSeverity.Warning,
+      "unknown-service",
+    ),
+  );
+}
+
+function collectUnknownActionDiagnostic(
+  ctx: DiagnosticContext,
+  line: ParsedLine,
+  rule: StatementRule | undefined,
+  diagnostics: vscode.Diagnostic[],
+): void {
+  const actionIdx = resolveActionTokenIndex(rule, line);
+  if (actionIdx === null) {
+    return;
+  }
+  const rawToken = line.tokens[actionIdx].text;
+  const token = normalizeActionName(rawToken);
+  const groupName = ruleActionGroup(rule);
+  const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : new Set<string>();
+  const dynamicPrefixes = dynamicActionPrefixes(ctx.schema);
+  const hasDynamicPrefix = dynamicPrefixes.some((prefix) => token.startsWith(prefix));
+  if (token && !hasDynamicPrefix && !allowed.has(token)) {
+    diagnostics.push(
+      makeDiagnostic(
+        diagRange(line, actionIdx),
+        `Unknown ${line.tokens[0].text} action '${rawToken}'`,
+        vscode.DiagnosticSeverity.Warning,
+        "unknown-action",
+      ),
+    );
+    return;
+  }
+  if (token === useServiceAction(ctx.schema)) {
+    collectUnknownServiceDiagnostic(ctx, line, actionIdx, dynamicPrefixes, diagnostics);
+  }
+}
+
 export function unknownNestedDiagnostics(
   ctx: DiagnosticContext,
   line: ParsedLine,
@@ -381,67 +510,8 @@ export function unknownNestedDiagnostics(
 
   const diagnostics: vscode.Diagnostic[] = [];
   const { statementRule: rule } = ctx.getLineMemo(line);
-
-  const phaseIdx = resolvePhaseTokenIndex(rule, line);
-  if (phaseIdx !== null && (t0 === "tcp-request" || t0 === "tcp-response")) {
-    const phases =
-      t0 === "tcp-request" ? tcpRequestPhaseSet(ctx.schema) : tcpResponsePhaseSet(ctx.schema);
-    const phase = lowerToken(line.tokens[phaseIdx].text);
-    if (!phases.has(phase)) {
-      const groupName = ruleActionGroup(rule);
-      const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : new Set<string>();
-      if (!allowed.has(phase)) {
-        diagnostics.push(
-          makeDiagnostic(
-            diagRange(line, phaseIdx),
-            `Unknown ${t0} phase '${line.tokens[phaseIdx].text}'`,
-            vscode.DiagnosticSeverity.Warning,
-            "unknown-value",
-          ),
-        );
-      }
-    }
-  }
-
-  const actionIdx = resolveActionTokenIndex(rule, line);
-  if (actionIdx !== null) {
-    const rawToken = line.tokens[actionIdx].text;
-    const token = normalizeActionName(rawToken);
-    const groupName = ruleActionGroup(rule);
-    const allowed = groupName ? keywordGroupSet(ctx.schema, groupName) : new Set<string>();
-    const dynamicPrefixes = dynamicActionPrefixes(ctx.schema);
-    const hasDynamicPrefix = dynamicPrefixes.some((prefix) => token.startsWith(prefix));
-    if (token && !hasDynamicPrefix && !allowed.has(token)) {
-      diagnostics.push(
-        makeDiagnostic(
-          diagRange(line, actionIdx),
-          `Unknown ${line.tokens[0].text} action '${rawToken}'`,
-          vscode.DiagnosticSeverity.Warning,
-          "unknown-action",
-        ),
-      );
-    } else if (token === useServiceAction(ctx.schema) && actionIdx + 1 < line.tokens.length) {
-      const serviceIdx = actionIdx + 1;
-      const serviceName = lowerToken(line.tokens[serviceIdx].text);
-      const services = keywordGroupSet(ctx.schema, "services");
-      if (
-        services.size > 0 &&
-        serviceName &&
-        !dynamicPrefixes.some((prefix) => serviceName.startsWith(prefix)) &&
-        !services.has(serviceName)
-      ) {
-        diagnostics.push(
-          makeDiagnostic(
-            diagRange(line, serviceIdx),
-            `Unknown service '${line.tokens[serviceIdx].text}'`,
-            vscode.DiagnosticSeverity.Warning,
-            "unknown-service",
-          ),
-        );
-      }
-    }
-  }
-
+  collectUnknownPhaseDiagnostic(ctx, line, rule, t0, diagnostics);
+  collectUnknownActionDiagnostic(ctx, line, rule, diagnostics);
   return diagnostics;
 }
 

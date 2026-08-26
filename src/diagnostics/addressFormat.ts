@@ -159,6 +159,86 @@ function validateHostShape(host: string): AddressValidationResult {
   };
 }
 
+const PORT_DIGITS = /^\d+$/;
+const PORT_DIGITS_OR_EMPTY = /^\d*$/;
+
+function invalidPort(portPart: string): AddressValidationResult {
+  return { valid: false, message: `invalid port '${portPart}'`, code: "invalid-port" };
+}
+
+function minAllowedPort(policy: PortAddressPolicy): number {
+  return policy.portMandatory ? 1 : 0;
+}
+
+function portOutOfRange(value: number, policy: PortAddressPolicy): boolean {
+  return value < minAllowedPort(policy) || value > 65535;
+}
+
+function validatePortOffset(
+  portPart: string,
+  policy: PortAddressPolicy,
+  full: string,
+): AddressValidationResult {
+  if (!policy.portOffset) {
+    return {
+      valid: false,
+      message: `port offset not permitted here in '${full}'`,
+      code: "port-offset-not-permitted",
+    };
+  }
+  const num = portPart.slice(1);
+  if (!PORT_DIGITS.test(num)) {
+    return invalidPort(portPart);
+  }
+  return { valid: true };
+}
+
+function validatePortRange(
+  portPart: string,
+  policy: PortAddressPolicy,
+  full: string,
+): AddressValidationResult {
+  if (!policy.portRange) {
+    return {
+      valid: false,
+      message: `port range not permitted here in '${full}'`,
+      code: "port-range-not-permitted",
+    };
+  }
+  const dash = portPart.indexOf("-");
+  const low = portPart.slice(0, dash);
+  const high = portPart.slice(dash + 1);
+  if (!PORT_DIGITS.test(low) || !PORT_DIGITS_OR_EMPTY.test(high)) {
+    return { valid: false, message: `invalid port range '${portPart}'`, code: "invalid-port" };
+  }
+  const portLow = Number.parseInt(low, 10);
+  const portHigh = high ? Number.parseInt(high, 10) : portLow;
+  if (portOutOfRange(portLow, policy)) {
+    return invalidPort(low);
+  }
+  if (!high) {
+    return invalidPort("");
+  }
+  if (portOutOfRange(portHigh, policy)) {
+    return invalidPort(high);
+  }
+  if (portLow > portHigh) {
+    return { valid: false, message: `invalid port range '${portPart}'`, code: "invalid-port" };
+  }
+  return { valid: true };
+}
+
+function validateSinglePort(portPart: string, policy: PortAddressPolicy): AddressValidationResult {
+  if (!PORT_DIGITS.test(portPart)) {
+    return invalidPort(portPart);
+  }
+  const port = Number.parseInt(portPart, 10);
+  if (portOutOfRange(port, policy)) {
+    return invalidPort(portPart);
+  }
+  return { valid: true };
+}
+
 function validatePortPart(
   portPart: string,
   policy: PortAddressPolicy,
@@ -183,76 +263,13 @@ function validatePortPart(
     };
   }
 
-  if (portPart.startsWith("+")) {
-    if (!policy.portOffset) {
-      return {
-        valid: false,
-        message: `port offset not permitted here in '${full}'`,
-        code: "port-offset-not-permitted",
-      };
-    }
-    const num = portPart.slice(1);
-    if (!/^\d+$/.test(num)) {
-      return { valid: false, message: `invalid port '${portPart}'`, code: "invalid-port" };
-    }
-    return { valid: true };
+  if (portPart.startsWith("+") || portPart.startsWith("-")) {
+    return validatePortOffset(portPart, policy, full);
   }
-
-  if (portPart.startsWith("-")) {
-    if (!policy.portOffset) {
-      return {
-        valid: false,
-        message: `port offset not permitted here in '${full}'`,
-        code: "port-offset-not-permitted",
-      };
-    }
-    const num = portPart.slice(1);
-    if (!/^\d+$/.test(num)) {
-      return { valid: false, message: `invalid port '${portPart}'`, code: "invalid-port" };
-    }
-    return { valid: true };
+  if (portPart.includes("-")) {
+    return validatePortRange(portPart, policy, full);
   }
-
-  const dash = portPart.indexOf("-");
-  if (dash >= 0) {
-    if (!policy.portRange) {
-      return {
-        valid: false,
-        message: `port range not permitted here in '${full}'`,
-        code: "port-range-not-permitted",
-      };
-    }
-    const low = portPart.slice(0, dash);
-    const high = portPart.slice(dash + 1);
-    if (!/^\d+$/.test(low) || !/^\d*$/.test(high)) {
-      return { valid: false, message: `invalid port range '${portPart}'`, code: "invalid-port" };
-    }
-    const portLow = Number.parseInt(low, 10);
-    const portHigh = high ? Number.parseInt(high, 10) : portLow;
-    if (portLow < (policy.portMandatory ? 1 : 0) || portLow > 65535) {
-      return { valid: false, message: `invalid port '${low}'`, code: "invalid-port" };
-    }
-    if (!high) {
-      return { valid: false, message: `invalid port ''`, code: "invalid-port" };
-    }
-    if (portHigh < (policy.portMandatory ? 1 : 0) || portHigh > 65535) {
-      return { valid: false, message: `invalid port '${high}'`, code: "invalid-port" };
-    }
-    if (portLow > portHigh) {
-      return { valid: false, message: `invalid port range '${portPart}'`, code: "invalid-port" };
-    }
-    return { valid: true };
-  }
-
-  if (!/^\d+$/.test(portPart)) {
-    return { valid: false, message: `invalid port '${portPart}'`, code: "invalid-port" };
-  }
-  const port = Number.parseInt(portPart, 10);
-  const minPort = policy.portMandatory ? 1 : 0;
-  if (port < minPort || port > 65535) {
-    return { valid: false, message: `invalid port '${portPart}'`, code: "invalid-port" };
-  }
-  return { valid: true };
+  return validateSinglePort(portPart, policy);
 }
 
 export function validateHaproxyAddress(

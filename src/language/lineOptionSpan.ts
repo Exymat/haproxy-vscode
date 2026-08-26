@@ -98,6 +98,22 @@ function lineOptionSemantic(
   return schema.keywords[option]?.line_option_semantics?.find((item) => item.parent_kind === kind);
 }
 
+function consumeUnmodeledLineOption(
+  line: ParsedLine,
+  optionIndex: number,
+  limit: number,
+  allowed: Set<string>,
+  takesValue: boolean,
+): number {
+  if (takesValue && optionIndex + 1 < limit) {
+    const next = line.tokens[optionIndex + 1].text.toLowerCase().replace(/\*$/, "");
+    if (!allowed.has(next)) {
+      return optionIndex + 2;
+    }
+  }
+  return optionIndex + 1;
+}
+
 export function computeLineOptionArgumentEnd(
   schema: HaproxySchema,
   line: ParsedLine,
@@ -114,17 +130,84 @@ export function computeLineOptionArgumentEnd(
   const model = schemaKw?.argument_model;
 
   if (!model || model.max_args === undefined) {
-    const takesValue = semantic?.takes_value ?? valueOptions.has(option);
-    if (takesValue && optionIndex + 1 < limit) {
-      const next = line.tokens[optionIndex + 1].text.toLowerCase().replace(/\*$/, "");
-      if (!allowed.has(next)) {
-        return optionIndex + 2;
-      }
-    }
-    return optionIndex + 1;
+    return consumeUnmodeledLineOption(
+      line,
+      optionIndex,
+      limit,
+      allowed,
+      semantic?.takes_value ?? valueOptions.has(option),
+    );
   }
 
   return consumeLineOptionSlots(line, optionIndex, limit, model, schemaKw, allowed);
+}
+
+interface LineOptionSlotState {
+  pos: number;
+  slotIdx: number;
+  consumed: number;
+  pendingValueKeyword: { tokenIndex: number } | null;
+}
+
+type LineOptionSlotStep = "advance" | "retry" | "stop";
+
+function consumeLineOptionEnumSlot(args: {
+  model: ArgumentModel;
+  schemaKw: ReturnType<typeof resolveLineOptionSchemaKeyword>;
+  slots: ArgumentModel["slots"];
+  token: string;
+  lower: string;
+  base: string;
+  tokenStartsOption: boolean;
+  slot: ArgumentModel["slots"][number];
+  allowedValues: string[];
+  state: LineOptionSlotState;
+}): LineOptionSlotStep | null {
+  const {
+    model,
+    schemaKw,
+    slots,
+    token,
+    lower,
+    base,
+    tokenStartsOption,
+    slot,
+    allowedValues,
+    state,
+  } = args;
+  if (allowedValues.length === 0) {
+    return null;
+  }
+  if (allowedValues.includes(lower) || allowedValues.includes(base)) {
+    state.pendingValueKeyword = signatureRequiresTrailingArgument(schemaKw?.signatures ?? [], token)
+      ? { tokenIndex: state.pos }
+      : null;
+    state.pos += 1;
+    state.consumed += 1;
+    state.slotIdx += 1;
+    return "advance";
+  }
+  if (slot.optional) {
+    if (isKeywordValuePair(slot, slots[state.slotIdx + 1])) {
+      state.slotIdx = skipOptionalSlotGroup(model, state.slotIdx);
+      return "retry";
+    }
+    if (matchesLaterEnumSlot(slots, schemaKw, state.slotIdx, lower)) {
+      state.slotIdx += 1;
+      return "retry";
+    }
+    state.pos += 1;
+    state.consumed += 1;
+    state.slotIdx += 1;
+    return "advance";
+  }
+  if (tokenStartsOption) {
+    return "stop";
+  }
+  state.pos += 1;
+  state.consumed += 1;
+  state.slotIdx += 1;
+  return "advance";
 }
 
 function consumeLineOptionSlots(
@@ -137,77 +220,67 @@ function consumeLineOptionSlots(
 ): number {
   const slots = model.slots ?? [];
   const maxArgs = model.max_args === null ? Number.POSITIVE_INFINITY : (model.max_args ?? 0);
-  let pos = optionIndex + 1;
-  let slotIdx = 0;
-  let consumed = 0;
-  let pendingValueKeyword: { tokenIndex: number } | null = null;
+  const state: LineOptionSlotState = {
+    pos: optionIndex + 1,
+    slotIdx: 0,
+    consumed: 0,
+    pendingValueKeyword: null,
+  };
 
-  while (pos < limit && slotIdx < slots.length && consumed < maxArgs) {
-    const token = line.tokens[pos].text;
+  while (state.pos < limit && state.slotIdx < slots.length && state.consumed < maxArgs) {
+    const token = line.tokens[state.pos].text;
     const lower = token.toLowerCase();
     const base = lower.split("(", 1)[0];
     const tokenStartsOption = allowed.has(lower.replace(/\*$/, ""));
-    const slot = slots[slotIdx];
-    const allowedValues = enumValuesForSlotLower(slot, schemaKw, slotIdx);
+    const slot = slots[state.slotIdx];
+    const allowedValues = enumValuesForSlotLower(slot, schemaKw, state.slotIdx);
 
     if (
       tokenStartsOption &&
-      remainingRequiredSlots(slots, slotIdx) === 0 &&
-      !matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)
+      remainingRequiredSlots(slots, state.slotIdx) === 0 &&
+      !matchesLaterEnumSlot(slots, schemaKw, state.slotIdx, lower)
     ) {
       break;
     }
-    if (allowedValues.length > 0) {
-      if (allowedValues.includes(lower) || allowedValues.includes(base)) {
-        pendingValueKeyword = signatureRequiresTrailingArgument(schemaKw?.signatures ?? [], token)
-          ? { tokenIndex: pos }
-          : null;
-        pos += 1;
-        consumed += 1;
-        slotIdx += 1;
-        continue;
-      }
-      if (slot.optional) {
-        if (isKeywordValuePair(slot, slots[slotIdx + 1])) {
-          slotIdx = skipOptionalSlotGroup(model, slotIdx);
-          continue;
-        }
-        if (matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)) {
-          slotIdx += 1;
-          continue;
-        }
-        pos += 1;
-        consumed += 1;
-        slotIdx += 1;
-        continue;
-      }
-      if (tokenStartsOption) {
-        break;
-      }
-      pos += 1;
-      consumed += 1;
-      slotIdx += 1;
-      continue;
+
+    const enumStep = consumeLineOptionEnumSlot({
+      model,
+      schemaKw,
+      slots,
+      token,
+      lower,
+      base,
+      tokenStartsOption,
+      slot,
+      allowedValues,
+      state,
+    });
+    if (enumStep === "stop") {
+      break;
     }
-    if (slot.optional && matchesLaterEnumSlot(slots, schemaKw, slotIdx, lower)) {
-      slotIdx += 1;
+    if (enumStep === "retry" || enumStep === "advance") {
       continue;
     }
 
-    pendingValueKeyword = null;
-    pos += 1;
-    consumed += 1;
-    slotIdx += 1;
+    if (slot.optional && matchesLaterEnumSlot(slots, schemaKw, state.slotIdx, lower)) {
+      state.slotIdx += 1;
+      continue;
+    }
+
+    state.pendingValueKeyword = null;
+    state.pos += 1;
+    state.consumed += 1;
+    state.slotIdx += 1;
   }
 
-  if (pendingValueKeyword && pos < limit) {
-    const next = line.tokens[pos].text.toLowerCase().replace(/\*$/, "");
+  if (state.pendingValueKeyword && state.pos < limit) {
+    const next = line.tokens[state.pos].text.toLowerCase().replace(/\*$/, "");
     if (!allowed.has(next)) {
-      return pos + 1;
+      return state.pos + 1;
     }
   }
 
-  return pos;
+  return state.pos;
 }
 
 function tokenInActiveOptionSpan(

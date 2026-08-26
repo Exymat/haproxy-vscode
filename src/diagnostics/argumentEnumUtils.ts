@@ -135,34 +135,61 @@ export function enumNamesForSlotLower(
   return enumNamesForSlot(slot, schemaKw, position).map((value) => value.toLowerCase());
 }
 
+function argumentParamAtPosition(
+  schemaKw: SchemaKeyword | undefined,
+  position: number,
+): SchemaArgumentParam | undefined {
+  const args = schemaKw?.arguments;
+  if (!args) {
+    return undefined;
+  }
+  return (
+    args[position] ??
+    (position === 0 ? args.find((p) => p?.parameter === "<algorithm>") : undefined)
+  );
+}
+
+function displayNameForEnumLower(
+  lower: string,
+  fromSignature: string[],
+  paramAtPosition: SchemaArgumentParam | undefined,
+): string {
+  const fromSig = fromSignature.find((v) => v.toLowerCase() === lower);
+  if (fromSig) {
+    return fromSig;
+  }
+  const fromDoc = (paramAtPosition?.values ?? []).find(
+    (value) => value.name.split("(", 1)[0].toLowerCase() === lower,
+  );
+  return fromDoc?.name.split("(", 1)[0] ?? lower;
+}
+
+function mergeSignatureAndDocEnums(
+  fromSignature: string[],
+  schemaKw: SchemaKeyword | undefined,
+  position: number,
+  paramAtPosition: SchemaArgumentParam | undefined,
+): string[] {
+  const values = new Set(fromSignature.map((v) => v.toLowerCase()));
+  const shouldMergeAllDocEnums = !(schemaKw?.name === "balance url_param" && position > 0);
+  const docNames = shouldMergeAllDocEnums
+    ? docEnumValueNames(schemaKw)
+    : docEnumValueNamesForParameter(paramAtPosition);
+  for (const name of docNames) {
+    values.add(name);
+  }
+  return [...values].map((lower) => displayNameForEnumLower(lower, fromSignature, paramAtPosition));
+}
+
 function computeEnumNamesForSlot(
   slot: ArgumentSlot | undefined,
   schemaKw: SchemaKeyword | undefined,
   position: number,
 ): string[] {
-  const paramAtPosition =
-    schemaKw?.arguments?.[position] ??
-    (position === 0 ? schemaKw?.arguments?.find((p) => p?.parameter === "<algorithm>") : undefined);
+  const paramAtPosition = argumentParamAtPosition(schemaKw, position);
   const fromSignature = (slot?.enum ?? []).map((value) => normalizeEnumDisplayName(value));
   if (fromSignature.length > 0) {
-    const values = new Set(fromSignature.map((v) => v.toLowerCase()));
-    const shouldMergeAllDocEnums = !(schemaKw?.name === "balance url_param" && position > 0);
-    const docNames = shouldMergeAllDocEnums
-      ? docEnumValueNames(schemaKw)
-      : docEnumValueNamesForParameter(paramAtPosition);
-    for (const name of docNames) {
-      values.add(name);
-    }
-    return [...values].map((lower) => {
-      const fromSig = fromSignature.find((v) => v.toLowerCase() === lower);
-      if (fromSig) {
-        return fromSig;
-      }
-      const fromDoc = (paramAtPosition?.values ?? []).find(
-        (value) => value.name.split("(", 1)[0].toLowerCase() === lower,
-      );
-      return fromDoc?.name.split("(", 1)[0] ?? lower;
-    });
+    return mergeSignatureAndDocEnums(fromSignature, schemaKw, position, paramAtPosition);
   }
 
   const slotKind = slot?.value_kind ?? schemaKw?.argument_model?.slots?.[position]?.value_kind;

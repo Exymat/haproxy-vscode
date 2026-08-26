@@ -38,6 +38,24 @@ export interface ParsedArgList {
   error?: SampleDiagnostic;
 }
 
+const ARG_ESCAPE_MAP: Record<string, string> = {
+  r: "\r",
+  n: "\n",
+  t: "\t",
+  "\\": "\\",
+  " ": " ",
+  '"': '"',
+  "'": "'",
+};
+
+function decodeArgEscape(next: string): string | undefined {
+  return ARG_ESCAPE_MAP[next];
+}
+
+function isArgListTerminator(ch: string, squote: boolean, dquote: boolean): boolean {
+  return !squote && !dquote && (ch === "," || ch === ")");
+}
+
 export function parseOneArg(
   text: string,
   pos: number,
@@ -59,17 +77,9 @@ export function parseOneArg(
       continue;
     }
     if (ch === "\\" && !squote && pos + 1 < text.length) {
-      const next = text[pos + 1];
-      if ("\\ \"'".includes(next) || next === "r" || next === "n" || next === "t") {
-        if (next === "r") {
-          out += "\r";
-        } else if (next === "n") {
-          out += "\n";
-        } else if (next === "t") {
-          out += "\t";
-        } else {
-          out += next;
-        }
+      const decoded = decodeArgEscape(text[pos + 1]);
+      if (decoded !== undefined) {
+        out += decoded;
         pos += 2;
         continue;
       }
@@ -77,7 +87,7 @@ export function parseOneArg(
       pos++;
       continue;
     }
-    if (!squote && !dquote && (ch === "," || ch === ")")) {
+    if (isArgListTerminator(ch, squote, dquote)) {
       break;
     }
     out += ch;

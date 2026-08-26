@@ -94,104 +94,114 @@ function advancePastPercentBracketExpr(
   return { end: close, unclosedBracketStart: -1 };
 }
 
-/** Line-oriented delimiter balance check (strings and # comments respected). */
-export function validateLineDelimiters(lineText: string): DelimiterDiagnostic[] {
-  if (!mightContainDelimiters(lineText)) {
-    return [];
+interface DelimiterScanState {
+  stack: OpenDelimiter[];
+  squote: QuoteKind | null;
+  dquote: QuoteKind | null;
+  quoteStart: number;
+}
+
+function trySkipEscape(
+  lineText: string,
+  i: number,
+  limit: number,
+  state: DelimiterScanState,
+): number | null {
+  if (lineText[i] === "\\" && !state.squote && i + 1 < limit) {
+    return i + 1;
   }
-  const issues: DelimiterDiagnostic[] = [];
-  const stack: OpenDelimiter[] = [];
-  let squote: QuoteKind | null = null;
-  let dquote: QuoteKind | null = null;
-  let quoteStart = 0;
-  const commentStart = commentStartIndex(lineText);
-  const limit = commentStart >= 0 ? commentStart : lineText.length;
+  return null;
+}
 
-  for (let i = 0; i < limit; i += 1) {
-    const ch = lineText[i];
-
-    if (ch === "\\" && !squote && i + 1 < limit) {
-      i += 1;
-      continue;
+function applyQuoteChar(ch: string, i: number, state: DelimiterScanState): boolean {
+  if (ch === '"') {
+    if (state.squote) {
+      return true;
     }
-
-    if (ch === '"') {
-      if (squote) {
-        continue;
-      }
-      if (dquote) {
-        dquote = null;
-      } else {
-        dquote = '"';
-        quoteStart = i;
-      }
-      continue;
+    if (state.dquote) {
+      state.dquote = null;
+    } else {
+      state.dquote = '"';
+      state.quoteStart = i;
     }
-
-    if (ch === "'") {
-      if (dquote) {
-        continue;
-      }
-      if (squote) {
-        squote = null;
-      } else {
-        squote = "'";
-        quoteStart = i;
-      }
-      continue;
-    }
-
-    if (squote || dquote) {
-      continue;
-    }
-
-    const percentBracketExpr = advancePastPercentBracketExpr(lineText, i);
-    if (percentBracketExpr) {
-      if (percentBracketExpr.unclosedBracketStart >= 0) {
-        stack.push({ kind: "[", start: percentBracketExpr.unclosedBracketStart });
-        break;
-      }
-      i = percentBracketExpr.end;
-      continue;
-    }
-
-    if (ch === "{") {
-      const close = findClosingBrace(lineText, i);
-      if (close >= 0) {
-        i = close;
-        continue;
-      }
-      stack.push({ kind: ch, start: i });
-      continue;
-    }
-
-    if (ch === "(" || ch === "[") {
-      stack.push({ kind: ch, start: i });
-      continue;
-    }
-
-    if (ch === ")" || ch === "]" || ch === "}") {
-      const expected = CLOSING_FOR[ch];
-      const top = stack[stack.length - 1];
-      if (!top || top.kind !== expected) {
-        issues.push(delimiterIssue(i, i + 1, `unexpected '${ch}'`, "delimiter-unexpected"));
-        continue;
-      }
-      stack.pop();
-    }
+    return true;
   }
+  if (ch === "'") {
+    if (state.dquote) {
+      return true;
+    }
+    if (state.squote) {
+      state.squote = null;
+    } else {
+      state.squote = "'";
+      state.quoteStart = i;
+    }
+    return true;
+  }
+  return false;
+}
 
-  if (dquote) {
+function applyBareDelimiter(
+  ch: string,
+  i: number,
+  lineText: string,
+  state: DelimiterScanState,
+  issues: DelimiterDiagnostic[],
+): number | null {
+  if (ch === "{") {
+    const close = findClosingBrace(lineText, i);
+    if (close >= 0) {
+      return close;
+    }
+    state.stack.push({ kind: ch, start: i });
+    return i;
+  }
+  if (ch === "(" || ch === "[") {
+    state.stack.push({ kind: ch, start: i });
+    return i;
+  }
+  if (ch === ")" || ch === "]" || ch === "}") {
+    const expected = CLOSING_FOR[ch];
+    const top = state.stack[state.stack.length - 1];
+    if (!top || top.kind !== expected) {
+      issues.push(delimiterIssue(i, i + 1, `unexpected '${ch}'`, "delimiter-unexpected"));
+      return i;
+    }
+    state.stack.pop();
+    return i;
+  }
+  return null;
+}
+
+function pushUnclosedQuoteIssues(state: DelimiterScanState, issues: DelimiterDiagnostic[]): void {
+  if (state.dquote) {
     issues.push(
-      delimiterIssue(quoteStart, quoteStart + 1, "missing closing '\"'", "delimiter-unclosed"),
+      delimiterIssue(
+        state.quoteStart,
+        state.quoteStart + 1,
+        "missing closing '\"'",
+        "delimiter-unclosed",
+      ),
     );
-  } else if (squote) {
+    return;
+  }
+  if (state.squote) {
     issues.push(
-      delimiterIssue(quoteStart, quoteStart + 1, "missing closing '''", "delimiter-unclosed"),
+      delimiterIssue(
+        state.quoteStart,
+        state.quoteStart + 1,
+        "missing closing '''",
+        "delimiter-unclosed",
+      ),
     );
   }
+}
 
-  for (const open of stack) {
+function pushUnclosedDelimiterIssues(
+  state: DelimiterScanState,
+  issues: DelimiterDiagnostic[],
+): void {
+  for (const open of state.stack) {
     issues.push(
       delimiterIssue(
         open.start,
@@ -201,7 +211,56 @@ export function validateLineDelimiters(lineText: string): DelimiterDiagnostic[] 
       ),
     );
   }
+}
 
+/** Line-oriented delimiter balance check (strings and # comments respected). */
+export function validateLineDelimiters(lineText: string): DelimiterDiagnostic[] {
+  if (!mightContainDelimiters(lineText)) {
+    return [];
+  }
+  const issues: DelimiterDiagnostic[] = [];
+  const state: DelimiterScanState = {
+    stack: [],
+    squote: null,
+    dquote: null,
+    quoteStart: 0,
+  };
+  const commentStart = commentStartIndex(lineText);
+  const limit = commentStart >= 0 ? commentStart : lineText.length;
+
+  for (let i = 0; i < limit; i += 1) {
+    const escapedAt = trySkipEscape(lineText, i, limit, state);
+    if (escapedAt !== null) {
+      i = escapedAt;
+      continue;
+    }
+
+    const ch = lineText[i];
+    if (applyQuoteChar(ch, i, state)) {
+      continue;
+    }
+    if (state.squote || state.dquote) {
+      continue;
+    }
+
+    const percentBracketExpr = advancePastPercentBracketExpr(lineText, i);
+    if (percentBracketExpr) {
+      if (percentBracketExpr.unclosedBracketStart >= 0) {
+        state.stack.push({ kind: "[", start: percentBracketExpr.unclosedBracketStart });
+        break;
+      }
+      i = percentBracketExpr.end;
+      continue;
+    }
+
+    const delimiterAt = applyBareDelimiter(ch, i, lineText, state, issues);
+    if (delimiterAt !== null) {
+      i = delimiterAt;
+    }
+  }
+
+  pushUnclosedQuoteIssues(state, issues);
+  pushUnclosedDelimiterIssues(state, issues);
   return issues;
 }
 
