@@ -167,6 +167,25 @@ describe("workspace symbol index diagnostics", () => {
     ).toContain("not defined in this workspace");
   });
 
+  it("does not resolve backend references to same-named frontend sections", async () => {
+    const content = ["frontend api", "frontend web", "    use_backend api"].join("\n");
+    setMockWorkspaceFile("file:///frontends/web.cfg", content);
+    const document = createDocument(content, "file:///frontends/web.cfg");
+    mockTextDocuments.push(document as never);
+
+    await buildWorkspace();
+
+    const diagnostics = computeDiagnostics(document, schema, {
+      unusedSymbols: false,
+      missingReferences: true,
+      maxSymbolLines: 4000,
+    });
+
+    expect(
+      diagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "missing-reference"),
+    ).toHaveLength(1);
+  });
+
   it("suppresses missing and unused diagnostics using workspace references", async () => {
     const frontendContent = "frontend web\n    use_backend api";
     const backendContent = "backend api\n    server s1 127.0.0.1:80";
