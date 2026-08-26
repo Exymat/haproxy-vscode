@@ -4,8 +4,26 @@ import { ParsedLine } from "../../parser";
 
 import { SymbolSite } from "../types";
 
+function containsEnvSampleFetch(text: string): boolean {
+  for (let i = 0; i <= text.length - 4; i += 1) {
+    if ((text.charCodeAt(i) | 32) !== 101) {
+      continue;
+    }
+    if ((text.charCodeAt(i + 1) | 32) !== 110) {
+      continue;
+    }
+    if ((text.charCodeAt(i + 2) | 32) !== 118) {
+      continue;
+    }
+    if (text.charCodeAt(i + 3) === 40) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function tokenMayContainEnvironmentReferences(text: string): boolean {
-  return text.includes("$") || text.toLowerCase().includes("env(");
+  return text.includes("$") || containsEnvSampleFetch(text);
 }
 
 /** Collect environment-variable references from $NAME / ${NAME} expansions in line tokens. */

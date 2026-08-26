@@ -134,6 +134,15 @@ describe("symbolIndex build", () => {
     expect(index?.sitesByLine.length).toBe(2);
   });
 
+  it("defers sitesByLine until lookup for buildSymbolIndex", () => {
+    const document = doc("backend api\n    server s1 127.0.0.1:80");
+    const index = buildSymbolIndex(parseDocument(document), schema);
+    expect(index.sitesByLine).toEqual([]);
+    const character = "    server s1 127.0.0.1:80".indexOf("s1");
+    expect(findSiteAtPosition(index, pos(1, character))?.kind).toBe("server");
+    expect(index.sitesByLine.length).toBe(2);
+  });
+
   it("getSymbolIndex returns null above max lines", () => {
     const lines = Array.from({ length: 5000 }, (_, i) => (i === 0 ? "global" : "    # pad"));
     const document = doc(lines.join("\n"));

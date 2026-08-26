@@ -98,9 +98,6 @@ export function buildSymbolIndexWithFingerprints(
   for (const line of parsed) {
     if (isInactiveConditionalBranch(branchInfoByLine[line.line]?.branchState ?? "active")) {
       scopeKeyByLine[line.line] = scopeState.currentScopeKey;
-      if (computeFingerprints) {
-        lineFingerprints[line.line] = "";
-      }
       continue;
     }
 
@@ -141,7 +138,10 @@ export function buildLineFingerprints(parsed: ParsedLine[], schema: HaproxySchem
 }
 
 export function buildSymbolIndex(parsed: ParsedLine[], schema: HaproxySchema): SymbolIndex {
-  return buildSymbolIndexWithFingerprints(parsed, schema).index;
+  return buildSymbolIndexWithFingerprints(parsed, schema, {
+    computeFingerprints: false,
+    buildSitesByLine: false,
+  }).index;
 }
 
 export function patchSymbolIndexLine(

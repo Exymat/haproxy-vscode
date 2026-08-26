@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.19.4
+
+- **Faster diagnostics on large configs** — unused-symbol and missing-reference hints reuse per-line results instead of rechecking every directive when only those hints need to refresh, and first-time indexing of a large file skips extra per-line work that is only needed while editing.
+
 ## 0.19.3
 
 - **Faster unused-symbol diagnostics while editing** — changing a line that does not add, rename, or retarget symbols (for example `global` `maxconn`) no longer rebuilds unused-symbol and missing-reference diagnostics in other open files. Adding or changing a named section or a `setenv` / `presetenv` still refreshes those diagnostics across the workspace graph, as in 0.19.2.

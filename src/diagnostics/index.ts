@@ -71,11 +71,17 @@ function diagnosticsCacheKey(
   };
 }
 
-function sameCacheKey(left: DiagnosticsCacheKey, right: DiagnosticsCacheKey): boolean {
+function sameLineCacheKey(left: DiagnosticsCacheKey, right: DiagnosticsCacheKey): boolean {
   return (
     left.schema === right.schema &&
     left.languageData === right.languageData &&
-    left.deprecatedWarnings === right.deprecatedWarnings &&
+    left.deprecatedWarnings === right.deprecatedWarnings
+  );
+}
+
+function sameCacheKey(left: DiagnosticsCacheKey, right: DiagnosticsCacheKey): boolean {
+  return (
+    sameLineCacheKey(left, right) &&
     left.unusedSymbols === right.unusedSymbols &&
     left.missingReferences === right.missingReferences &&
     left.maxSymbolLines === right.maxSymbolLines &&
@@ -88,9 +94,14 @@ function flattenDiagnostics(lineDiagnostics: vscode.Diagnostic[][]): vscode.Diag
   return lineDiagnostics.flatMap((diags) => diags);
 }
 
+type SymbolDiagnosticContext = Pick<
+  DiagnosticContext,
+  "parsed" | "schema" | "entryPointSections" | "bindDetectKeywords"
+>;
+
 function computeDocumentSymbolDiagnostics(
   document: vscode.TextDocument,
-  ctx: DiagnosticContext,
+  ctx: SymbolDiagnosticContext,
   index: SymbolIndex,
   workspaceIndex: WorkspaceSymbolIndex | null,
   options: ComputeDiagnosticsOptions,
@@ -122,6 +133,59 @@ function computeDocumentSymbolDiagnostics(
   return diagnostics;
 }
 
+function symbolContextFromAnalysis(
+  analysis: ReturnType<typeof getDocumentAnalysis>,
+): SymbolDiagnosticContext {
+  return {
+    parsed: analysis.parsed,
+    schema: analysis.schema,
+    entryPointSections: analysis.entryPointSections,
+    bindDetectKeywords: analysis.bindDetectKeywords,
+  };
+}
+
+function fillLineDiagnostics(
+  ctx: DiagnosticContext,
+  cached: DiagnosticsCacheEntry | undefined,
+  key: DiagnosticsCacheKey,
+): vscode.Diagnostic[][] {
+  const reuse = ctx.parsedEntry.reuse;
+  const previous =
+    cached &&
+    cached.version === reuse.previousVersion &&
+    sameLineCacheKey(cached.key, key) &&
+    cached.suppressDeprecated === ctx.suppressDeprecated
+      ? cached
+      : undefined;
+
+  const lineDiagnostics = new Array<vscode.Diagnostic[]>(ctx.parsed.length);
+  if (previous) {
+    for (let i = 0; i < reuse.prefixLines; i += 1) {
+      const reused = previous.lineDiagnostics[i];
+      if (reused) {
+        lineDiagnostics[i] = reused;
+      }
+    }
+    if (reuse.suffixLines > 0) {
+      const delta = ctx.parsed.length - previous.lineDiagnostics.length;
+      for (let i = reuse.newSuffixStart; i < ctx.parsed.length; i += 1) {
+        const reused = previous.lineDiagnostics[i - delta];
+        if (reused) {
+          lineDiagnostics[i] = reused;
+        }
+      }
+    }
+  }
+
+  for (let i = 0; i < ctx.parsed.length; i += 1) {
+    if (lineDiagnostics[i]) {
+      continue;
+    }
+    lineDiagnostics[i] = runLineDiagnosticPipeline(ctx, ctx.parsed[i]);
+  }
+  return lineDiagnostics;
+}
+
 export function computeDiagnostics(
   document: vscode.TextDocument,
   schema: HaproxySchema,
@@ -131,7 +195,6 @@ export function computeDiagnostics(
   const key = diagnosticsCacheKey(schema, options, workspaceIndex);
   const contentFingerprint = documentContentFingerprint(document);
   const uriHit = uriDiagnosticsCache.get(documentUriKey(document), contentFingerprint);
-  const analysis = getDocumentAnalysis(document, schema);
   const needSymbolDiagnostics = options.unusedSymbols || options.missingReferences !== false;
   const maxSymbolLines = options.maxSymbolLines ?? document.lineCount;
   if (uriHit && sameCacheKey(uriHit.key, key)) {
@@ -142,34 +205,20 @@ export function computeDiagnostics(
     return uriHit.diagnostics;
   }
 
-  const ctx = new DiagnosticContext(document, schema, options, analysis);
+  const analysis = getDocumentAnalysis(document, schema);
   const cached = diagnosticsCache.get(document);
-  const reuse = ctx.parsedEntry.reuse;
-  const canReuseLines =
-    cached &&
-    cached.version === reuse.previousVersion &&
-    sameCacheKey(cached.key, key) &&
-    cached.suppressDeprecated === ctx.suppressDeprecated;
-
-  const lineDiagnostics = new Array<vscode.Diagnostic[]>(ctx.parsed.length);
-  if (canReuseLines) {
-    for (let i = 0; i < reuse.prefixLines; i += 1) {
-      lineDiagnostics[i] = cached.lineDiagnostics[i]!;
-    }
-    if (reuse.suffixLines > 0) {
-      const delta = ctx.parsed.length - cached.lineDiagnostics.length;
-      for (let i = reuse.newSuffixStart; i < ctx.parsed.length; i += 1) {
-        const oldIndex = i - delta;
-        lineDiagnostics[i] = cached.lineDiagnostics[oldIndex]!;
-      }
-    }
-  }
-
-  for (let i = 0; i < ctx.parsed.length; i += 1) {
-    if (lineDiagnostics[i]) {
-      continue;
-    }
-    lineDiagnostics[i] = runLineDiagnosticPipeline(ctx, ctx.parsed[i]);
+  let lineDiagnostics: vscode.Diagnostic[][];
+  let suppressDeprecated: boolean;
+  let symbolCtx: SymbolDiagnosticContext;
+  if (uriHit && sameLineCacheKey(uriHit.key, key)) {
+    lineDiagnostics = uriHit.lineDiagnostics;
+    suppressDeprecated = uriHit.suppressDeprecated;
+    symbolCtx = symbolContextFromAnalysis(analysis);
+  } else {
+    const ctx = new DiagnosticContext(document, schema, options, analysis);
+    lineDiagnostics = fillLineDiagnostics(ctx, cached, key);
+    suppressDeprecated = ctx.suppressDeprecated;
+    symbolCtx = ctx;
   }
 
   const diagnostics = flattenDiagnostics(lineDiagnostics);
@@ -186,7 +235,7 @@ export function computeDiagnostics(
       } else {
         documentSymbolDiagnostics = computeDocumentSymbolDiagnostics(
           document,
-          ctx,
+          symbolCtx,
           index,
           workspaceIndex,
           options,
@@ -194,16 +243,16 @@ export function computeDiagnostics(
       }
       diagnostics.push(...documentSymbolDiagnostics);
     } else if (options.unusedSymbols) {
-      diagnostics.push(...entryPointWithoutBindDiagnostics(document, ctx.parsed, ctx));
+      diagnostics.push(...entryPointWithoutBindDiagnostics(document, symbolCtx.parsed, symbolCtx));
     }
   }
 
-  const finalDiagnostics = applyDiagnosticSuppressions(ctx.lineTexts, diagnostics);
+  const finalDiagnostics = applyDiagnosticSuppressions(analysis.lineTexts, diagnostics);
 
   diagnosticsCache.set(document, {
     version: document.version,
     key,
-    suppressDeprecated: ctx.suppressDeprecated,
+    suppressDeprecated,
     lineDiagnostics,
     diagnostics: finalDiagnostics,
     cachedSymbolIndex,
@@ -212,7 +261,7 @@ export function computeDiagnostics(
   uriDiagnosticsCache.set(documentUriKey(document), contentFingerprint, {
     version: document.version,
     key,
-    suppressDeprecated: ctx.suppressDeprecated,
+    suppressDeprecated,
     lineDiagnostics,
     diagnostics: finalDiagnostics,
     cachedSymbolIndex,

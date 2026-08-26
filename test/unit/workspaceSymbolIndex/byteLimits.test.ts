@@ -97,4 +97,57 @@ describe("workspace symbol byte limits", () => {
 
     expect(result).toBeNull();
   });
+
+  it("skips a line whose UTF-8 byte length exceeds maxLineBytes", async () => {
+    const longUtf8Line = `backend ${"é".repeat(50)}`;
+    setMockWorkspaceFile("file:///utf8-long-line.cfg", longUtf8Line);
+
+    const result = await createDiskEntry(
+      Uri.file("file:///utf8-long-line.cfg") as never,
+      schema,
+      4000,
+      undefined,
+      {
+        maxFileBytes: 2_000_000,
+        maxLineBytes: 80,
+      },
+    );
+
+    expect(result).toBeNull();
+  });
+
+  it("does not apply maxLineBytes when the limit is disabled", async () => {
+    const longLine = "backend api " + "x".repeat(10_000);
+    setMockWorkspaceFile("file:///unlimited-line.cfg", longLine);
+
+    const result = await createDiskEntry(
+      Uri.file("file:///unlimited-line.cfg") as never,
+      schema,
+      4000,
+      undefined,
+      {
+        maxFileBytes: 2_000_000,
+        maxLineBytes: 0,
+      },
+    );
+
+    expect(result).not.toBeNull();
+  });
+
+  it("indexes files whose lines stay well under maxLineBytes", async () => {
+    setMockWorkspaceFile("file:///short-line.cfg", "backend api\n    server s1 127.0.0.1:80");
+
+    const result = await createDiskEntry(
+      Uri.file("file:///short-line.cfg") as never,
+      schema,
+      4000,
+      undefined,
+      {
+        maxFileBytes: 2_000_000,
+        maxLineBytes: 8192,
+      },
+    );
+
+    expect(result).not.toBeNull();
+  });
 });

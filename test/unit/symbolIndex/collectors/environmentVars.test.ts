@@ -52,4 +52,20 @@ describe("environmentVars collector", () => {
       }),
     ]);
   });
+
+  it("collects ENV() sample-fetch references case-insensitively", () => {
+    const parsed = parseDocument(
+      doc("frontend web\n    http-request deny if { ENV(FOO) -m found }"),
+      "3.4",
+    );
+    const references: SymbolSite[] = [];
+    collectEnvironmentVariableSites(parsed[1], references);
+    expect(references).toEqual([
+      expect.objectContaining({
+        kind: "environment-variable",
+        name: "FOO",
+        role: "reference",
+      }),
+    ]);
+  });
 });

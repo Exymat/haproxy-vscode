@@ -55,7 +55,16 @@ function exceedsLimit(value: number, limit: number): boolean {
 }
 
 function lineExceedsMaxBytes(lines: string[], maxLineBytes: number): boolean {
+  if (!(maxLineBytes > 0) || !Number.isFinite(maxLineBytes)) {
+    return false;
+  }
   for (const line of lines) {
+    if (line.length > maxLineBytes) {
+      return true;
+    }
+    if (line.length * 4 <= maxLineBytes) {
+      continue;
+    }
     if (exceedsLimit(encodedTextByteLength(line), maxLineBytes)) {
       return true;
     }

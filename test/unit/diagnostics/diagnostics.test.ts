@@ -352,4 +352,25 @@ describe("diagnostics", () => {
       withoutUnused.some((diag) => formatDiagnosticCode(diag.code).startsWith("unused-")),
     ).toBe(false);
   });
+
+  it("reuses per-line diagnostics when unused-symbol hints are toggled on a reopened document", () => {
+    const content =
+      "frontend web\n    bind :80\n    acl blocked path_beg /admin\nbackend old_api\n    server s1 127.0.0.1:80\n";
+    const uri = "file:///unused-symbol-toggle.cfg";
+    const baseOptions = {
+      ...diagnosticOptions(DEFAULT_VERSION),
+      missingReferences: false,
+    };
+    computeDiagnostics(createDocument(content, uri), defaultSchema, {
+      ...baseOptions,
+      unusedSymbols: false,
+    });
+    const withUnused = computeDiagnostics(createDocument(content, uri), defaultSchema, {
+      ...baseOptions,
+      unusedSymbols: true,
+    });
+    expect(withUnused.some((diag) => formatDiagnosticCode(diag.code).startsWith("unused-"))).toBe(
+      true,
+    );
+  });
 });

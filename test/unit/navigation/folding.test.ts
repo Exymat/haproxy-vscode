@@ -11,12 +11,7 @@ function runCase(
   expected: Array<{ startLine: number; endLine: number }>,
 ) {
   const doc = createDocument(content);
-  const parsed = parseDocument({
-    lineCount: doc.lineCount,
-    lineAt(lineNo: number) {
-      return { text: content.split(/\r?\n/)[lineNo] ?? "" };
-    },
-  } as never);
+  const parsed = parseDocument(doc);
   const sections = buildSectionSymbols(parsed, doc.lineCount);
   const actual = buildSectionFoldRanges(sections);
   expect(actual).toEqual(expected);

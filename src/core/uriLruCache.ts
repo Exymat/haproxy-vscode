@@ -1,7 +1,11 @@
 /** LRU cache keyed by URI with content-fingerprint invalidation. */
-interface UriCacheEntry<T> {
+interface UriCacheFingerprint<T> {
   fingerprint: string;
   value: T;
+}
+
+interface UriCacheEntry<T> extends UriCacheFingerprint<T> {
+  previous?: UriCacheFingerprint<T>;
 }
 
 export class UriLruCache<T> {
@@ -11,19 +15,32 @@ export class UriLruCache<T> {
 
   get(uriKey: string, fingerprint: string): T | undefined {
     const hit = this.map.get(uriKey);
-    if (!hit || hit.fingerprint !== fingerprint) {
+    if (!hit) {
       return undefined;
     }
-    this.map.delete(uriKey);
-    this.map.set(uriKey, hit);
-    return hit.value;
+    if (hit.fingerprint === fingerprint) {
+      this.map.delete(uriKey);
+      this.map.set(uriKey, hit);
+      return hit.value;
+    }
+    if (hit.previous?.fingerprint === fingerprint) {
+      this.map.delete(uriKey);
+      this.map.set(uriKey, hit);
+      return hit.previous.value;
+    }
+    return undefined;
   }
 
   set(uriKey: string, fingerprint: string, value: T): void {
-    if (this.map.has(uriKey)) {
+    const existing = this.map.get(uriKey);
+    if (existing) {
       this.map.delete(uriKey);
     }
-    this.map.set(uriKey, { fingerprint, value });
+    const previous =
+      existing && existing.fingerprint !== fingerprint
+        ? { fingerprint: existing.fingerprint, value: existing.value }
+        : existing?.previous;
+    this.map.set(uriKey, { fingerprint, value, previous });
     while (this.map.size > this.maxEntries) {
       const oldest = this.map.keys().next().value as string;
       this.map.delete(oldest);

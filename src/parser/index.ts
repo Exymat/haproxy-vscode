@@ -212,6 +212,5 @@ export function parseDocumentLines(lineTexts: string[], options?: ParseOptions):
 }
 
 export function parseDocument(document: vscode.TextDocument, options?: ParseOptions): ParsedLine[] {
-  const lineTexts = Array.from({ length: document.lineCount }, (_, i) => document.lineAt(i).text);
-  return parseDocumentLines(lineTexts, options);
+  return parseDocumentLines(document.getText().split(/\r?\n/), options);
 }

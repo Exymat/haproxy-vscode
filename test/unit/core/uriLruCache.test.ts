@@ -15,6 +15,20 @@ describe("UriLruCache", () => {
     expect(cache.get("c", "1")).toBe("C");
   });
 
+  it("keeps the previous fingerprint after a same-URI overwrite", () => {
+    const cache = new UriLruCache<string>(2);
+    cache.set("a", "v1", "one");
+    cache.set("a", "v2", "two");
+
+    expect(cache.get("a", "v2")).toBe("two");
+    expect(cache.get("a", "v1")).toBe("one");
+
+    cache.set("a", "v3", "three");
+    expect(cache.get("a", "v3")).toBe("three");
+    expect(cache.get("a", "v2")).toBe("two");
+    expect(cache.get("a", "v1")).toBeUndefined();
+  });
+
   it("supports delete and clear", () => {
     const cache = new UriLruCache<string>(2);
     cache.set("a", "1", "A");
