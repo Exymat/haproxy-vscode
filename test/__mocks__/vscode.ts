@@ -699,10 +699,25 @@ export const workspace = {
   },
   asRelativePath(
     uri: { fsPath?: string; toString: () => string },
-    _includeWorkspaceFolder?: boolean,
+    includeWorkspaceFolder?: boolean,
   ) {
-    const path = uri.fsPath ?? uri.toString().replace(/^file:\/\//, "");
-    return path.replace(/\\/g, "/");
+    const normalizedPath = (uri.fsPath ?? uri.toString())
+      .replace(/^file:\/\/+/, "/")
+      .replace(/\\/g, "/");
+    const folder = this.getWorkspaceFolder(uri);
+    if (!folder) {
+      return normalizedPath;
+    }
+    const normalizedFolder = (folder.uri.fsPath ?? folder.uri.toString())
+      .replace(/^file:\/\/+/, "/")
+      .replace(/\\/g, "/");
+    const relative = relativePath(normalizedFolder.toLowerCase(), normalizedPath);
+    if (relative === null) {
+      return normalizedPath;
+    }
+    return includeWorkspaceFolder && mockWorkspaceFolders && mockWorkspaceFolders.length > 1
+      ? `${folder.name ?? "workspace"}/${relative}`
+      : relative;
   },
   fs: {
     stat(uri: { fsPath?: string; toString: () => string }) {

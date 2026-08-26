@@ -179,6 +179,37 @@ describe("rename provider", () => {
     vi.useRealTimers();
   });
 
+  it("renames an unresolved local reference when its document is workspace-indexed", async () => {
+    vi.useFakeTimers();
+    resetRenameTestState();
+    const content = "frontend web\n    use_backend missing";
+    setMockWorkspaceFile("file:///frontends/web.cfg", content);
+    const frontend = createDocument(content, "file:///frontends/web.cfg");
+    mockTextDocuments.push(frontend as never);
+
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000);
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    const edit = provideRenameEdits(
+      frontend,
+      pos(1, "    use_backend ".length),
+      "renamed",
+      schema,
+      4000,
+    );
+    expect(editRanges(edit as vscode.WorkspaceEdit)).toEqual([
+      {
+        line: 1,
+        start: "    use_backend ".length,
+        end: "    use_backend missing".length,
+        text: "renamed",
+      },
+    ]);
+    clearWorkspaceSymbolIndex();
+    vi.useRealTimers();
+  });
+
   it("renames environment variables across workspace files", async () => {
     vi.useFakeTimers();
     resetRenameTestState();

@@ -24,14 +24,15 @@ import {
   workspaceFolderKey,
 } from "./workspaceDiscovery";
 import {
+  assertCurrentWorkspaceGeneration,
   bumpActiveGeneration,
   folderLabel,
   getActiveGeneration,
   getActiveWorkspaceIndexes,
-  isStaleGeneration,
   limitExceeded,
   notifyWorkspaceIndexChanged,
   rebuildCappedFolderKeys,
+  rethrowUnlessStaleWorkspaceGeneration,
   resetWorkspaceIndexState,
   setActiveWorkspaceIndexes,
   setFolderWorkspaceIndex,
@@ -209,11 +210,7 @@ async function flushPendingRebuild(
   const hasFollowOnRebuild = pending.workspaceContent || pending.folderTargets.size > 0;
   let incrementalGraphChanged = false;
   for (const document of incrementalDocuments) {
-    /* v8 ignore start -- stale async generations are race guards for debounced flush work. */
-    if (isStaleGeneration(generation)) {
-      return;
-    }
-    /* v8 ignore stop */
+    assertCurrentWorkspaceGeneration(generation);
     const graphChanged = await rebuildWorkspaceIndexes(
       resolveSchema,
       settings,
@@ -233,11 +230,7 @@ async function flushPendingRebuild(
   }
 
   if (pending.workspaceContent) {
-    /* v8 ignore start -- stale async generations are race guards for debounced flush work. */
-    if (isStaleGeneration(generation)) {
-      return;
-    }
-    /* v8 ignore stop */
+    assertCurrentWorkspaceGeneration(generation);
     await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
       scope: "content",
     });
@@ -245,11 +238,7 @@ async function flushPendingRebuild(
   }
 
   for (const target of pending.folderTargets.values()) {
-    /* v8 ignore start -- stale async generations are race guards for debounced flush work. */
-    if (isStaleGeneration(generation)) {
-      return;
-    }
-    /* v8 ignore stop */
+    assertCurrentWorkspaceGeneration(generation);
     await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
       scope: target.forceRediscover ? "full" : "content",
       uri: target.uri,
@@ -322,11 +311,7 @@ async function updateSingleDocumentInWorkspaceIndex(
   }
 
   const schema = await resolveSchema(folder);
-  /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-  if (isStaleGeneration(generation)) {
-    return false;
-  }
-  /* v8 ignore stop */
+  assertCurrentWorkspaceGeneration(generation);
 
   const byteLimits = {
     maxFileBytes: settings.maxFileBytes,
@@ -334,11 +319,7 @@ async function updateSingleDocumentInWorkspaceIndex(
   };
   const previous = existing.documents.get(uriKey);
   const { entry } = createOpenDocumentEntry(document, schema, maxLines, previous, byteLimits);
-  /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-  if (isStaleGeneration(generation)) {
-    return false;
-  }
-  /* v8 ignore stop */
+  assertCurrentWorkspaceGeneration(generation);
   if (!entry) {
     const documents = new Map(existing.documents);
     documents.delete(uriKey);
@@ -421,11 +402,7 @@ async function rebuildWorkspaceIndexes(
       logWorkspaceIndexSchemaLoadFailed(folderLabel(folder, folderKey), scope, error);
       continue;
     }
-    /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-    if (isStaleGeneration(generation)) {
-      return false;
-    }
-    /* v8 ignore stop */
+    assertCurrentWorkspaceGeneration(generation);
     const previousDocuments =
       activeWorkspaceIndexes.get(folderKey)?.documents ??
       new Map<string, WorkspaceDocumentSymbols>();
@@ -440,19 +417,11 @@ async function rebuildWorkspaceIndexes(
       previousDocuments,
       scope,
     );
-    /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-    if (isStaleGeneration(generation) || index === null) {
-      return false;
-    }
-    /* v8 ignore stop */
+    assertCurrentWorkspaceGeneration(generation);
     setFolderWorkspaceIndex(folderKey, index, nextIndexes, activeWorkspaceIndexes);
   }
 
-  /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-  if (isStaleGeneration(generation)) {
-    return false;
-  }
-  /* v8 ignore stop */
+  assertCurrentWorkspaceGeneration(generation);
   setActiveWorkspaceIndexes(nextIndexes);
   rebuildCappedFolderKeys(nextIndexes);
   notifyWorkspaceIndexChanged({ scope, document: options.document });
@@ -491,13 +460,13 @@ export function scheduleWorkspaceSymbolIndexRebuild(
     const rebuildWork = pendingRebuild;
     pendingRebuild = createEmptyPendingRebuild();
     inFlightRebuild = rebuildWork;
-    void flushPendingRebuild(resolveSchema, settings, maxLines, generation, rebuildWork).finally(
-      () => {
+    void flushPendingRebuild(resolveSchema, settings, maxLines, generation, rebuildWork)
+      .catch(rethrowUnlessStaleWorkspaceGeneration)
+      .finally(() => {
         if (inFlightRebuild === rebuildWork) {
           inFlightRebuild = null;
         }
-      },
-    );
+      });
   }, settings.debounceMs);
 }
 

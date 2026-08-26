@@ -12,6 +12,10 @@ import { setMockWorkspaceFile, setMockWorkspaceFolders } from "../../helpers/vsc
 import { createDocument } from "../../helpers/document";
 import { loadSchema } from "../../helpers/schema";
 import {
+  rethrowUnlessStaleWorkspaceGeneration,
+  StaleWorkspaceGenerationError,
+} from "../../../src/symbolIndex/workspaceState";
+import {
   defaultWorkspaceSymbolSettings,
   setupWorkspaceSymbolIndexTests,
   workspaceFolder,
@@ -73,6 +77,15 @@ describe("workspaceRebuild scheduling", () => {
     clearWorkspaceSymbolIndex();
     scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000);
     expect(isWorkspaceRebuildPending()).toBe(true);
+  });
+
+  it("swallows only stale-generation cancellation errors", () => {
+    expect(() =>
+      rethrowUnlessStaleWorkspaceGeneration(new StaleWorkspaceGenerationError()),
+    ).not.toThrow();
+    expect(() => rethrowUnlessStaleWorkspaceGeneration(new Error("real failure"))).toThrow(
+      "real failure",
+    );
   });
 
   it("resolves open scope to none for non-haproxy documents", () => {
@@ -139,6 +152,42 @@ describe("workspaceRebuild scheduling", () => {
     await advanceRebuildDebounce();
     await flushRebuildTimers();
 
+    expect(getWorkspaceSymbolIndex(docA)?.documents.has(docA.uri.toString())).toBe(true);
+    expect(getWorkspaceSymbolIndex(docB)?.documents.has(docB.uri.toString())).toBe(true);
+  });
+
+  it("does not publish a stale in-flight workspace generation", async () => {
+    const docA = createDocument("backend a", "file:///folder-a/a.cfg");
+    const docB = createDocument("backend b", "file:///folder-b/b.cfg");
+    setMockWorkspaceFolders([
+      workspaceFolder("file:///folder-a"),
+      workspaceFolder("file:///folder-b"),
+    ]);
+    setMockWorkspaceFiles([docA, docB]);
+    const { releaseSchemaLoad, schemaSource } = blockedSchemaSource();
+    const listener = vi.fn();
+    setWorkspaceSymbolIndexChangeListener(listener);
+    const settings = delayedSettings();
+
+    scheduleWorkspaceSymbolIndexRebuild(schemaSource, settings, 4000, {
+      scope: "full",
+      uri: docA.uri,
+    });
+    await advanceRebuildDebounce();
+
+    scheduleWorkspaceSymbolIndexRebuild(schemaSource, settings, 4000, {
+      scope: "full",
+      uri: docB.uri,
+    });
+    releaseSchemaLoad();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(listener).not.toHaveBeenCalled();
+
+    await advanceRebuildDebounce();
+    await flushRebuildTimers();
+    expect(listener).toHaveBeenCalledTimes(2);
     expect(getWorkspaceSymbolIndex(docA)?.documents.has(docA.uri.toString())).toBe(true);
     expect(getWorkspaceSymbolIndex(docB)?.documents.has(docB.uri.toString())).toBe(true);
   });

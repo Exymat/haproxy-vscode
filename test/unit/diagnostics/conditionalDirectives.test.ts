@@ -114,6 +114,22 @@ describe("conditionalDirectives", () => {
     expect(isInactiveConditionalBranch("active")).toBe(false);
   });
 
+  it("evaluates deterministic negated predicates", () => {
+    const content = [
+      "frontend fe",
+      "    .if !TRUE",
+      "    bind :80",
+      "    .endif",
+      "    .if !FALSE",
+      "    bind :8080",
+      "    .endif",
+    ].join("\n");
+    const info = conditionalBranchInfoForDocument(parseDocument(createDocument(content)));
+
+    expect(info[2].branchState).toBe("inactive");
+    expect(info[5].branchState).toBe("active");
+  });
+
   it("evaluates streq predicates and orphan elif/else directives", () => {
     const parsed: ParsedLine[] = [
       line(0, ["frontend", "fe"]),
@@ -272,6 +288,20 @@ describe("conditionalDirectives", () => {
     expect(
       getSymbolIndex(doc, bundle.schema, 4000)?.references.some((site) => site.name === "hidden"),
     ).toBe(true);
+  });
+
+  it("does not collect symbols when an inactive branch line is patched incrementally", () => {
+    const inactive = ["frontend fe", "    .if FALSE", "    use_backend hidden", "    .endif"].join(
+      "\n",
+    );
+    const doc = createDocument(inactive);
+    expect(getSymbolIndex(doc, bundle.schema, 4000)?.references).toHaveLength(0);
+
+    updateDocument(doc, inactive.replace("hidden", "still-hidden"));
+
+    const updated = getSymbolIndex(doc, bundle.schema, 4000);
+    expect(updated?.references).toHaveLength(0);
+    expect(updated?.unresolvedReferences).toHaveLength(0);
   });
 
   it("valid-upstream conditional-if.cfg has no error diagnostics", () => {

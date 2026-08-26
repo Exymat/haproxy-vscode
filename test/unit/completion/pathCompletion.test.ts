@@ -53,6 +53,42 @@ describe("pathCompletion", () => {
     ).toBe(true);
   });
 
+  it("inserts quoted workspace-relative paths", async () => {
+    setMockWorkspaceFolders([{ uri: Uri.parse("file:///repo"), name: "repo" }]);
+    setMockWorkspaceFile("file:///repo/certs/site cert.pem", "cert");
+    const content = "frontend web\n    bind :443 ssl crt site";
+    const doc = createDocument(content, "file:///repo/haproxy.cfg");
+
+    const items = await tryPathCompletion({
+      document: doc,
+      position: cursorAtLineEnd(content, 1),
+      data: bundle.languageData,
+      schema: bundle.schema,
+      ctx: {
+        kind: "directive-argument",
+        line: {
+          line: 1,
+          tokens: [
+            { text: "bind", start: 4, end: 8 },
+            { text: ":443", start: 9, end: 13 },
+            { text: "ssl", start: 14, end: 17 },
+            { text: "crt", start: 18, end: 21 },
+            { text: "site", start: 22, end: 26 },
+          ],
+          section: "frontend",
+          isSectionHeader: false,
+          anonymousDefaults: false,
+        },
+        tokenIndex: 4,
+      } as never,
+      partial: "site",
+    });
+
+    expect(items).toHaveLength(1);
+    expect(items?.[0]?.label).toBe("certs/site cert.pem");
+    expect(items?.[0]?.insertText).toBe('"certs/site cert.pem"');
+  });
+
   it("completes bind-line crt paths and rejects non-path slots", async () => {
     setMockWorkspaceFolders([{ uri: Uri.file("C:/repo"), name: "repo" }]);
     setMockWorkspaceFile("file:///C:/repo/certs/site.pem", "cert");

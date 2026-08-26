@@ -38,6 +38,25 @@ export function isStaleGeneration(generation: number): boolean {
   return generation !== activeGeneration;
 }
 
+export class StaleWorkspaceGenerationError extends Error {
+  constructor() {
+    super("Workspace symbol rebuild was superseded by a newer generation.");
+    this.name = "StaleWorkspaceGenerationError";
+  }
+}
+
+export function assertCurrentWorkspaceGeneration(generation: number): void {
+  if (isStaleGeneration(generation)) {
+    throw new StaleWorkspaceGenerationError();
+  }
+}
+
+export function rethrowUnlessStaleWorkspaceGeneration(error: unknown): void {
+  if (!(error instanceof StaleWorkspaceGenerationError)) {
+    throw error;
+  }
+}
+
 export function getActiveWorkspaceIndexes(): Map<string, WorkspaceSymbolIndex> {
   return activeWorkspaceIndexes;
 }

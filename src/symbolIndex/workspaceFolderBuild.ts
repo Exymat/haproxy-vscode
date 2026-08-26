@@ -11,7 +11,13 @@ import { HaproxySchema } from "../schema/types";
 
 import { aggregateDocuments, loadDiskEntry, WorkspaceEntryLoadResult } from "./workspaceDocuments";
 import { getDiscoveryResult } from "./workspaceDiscovery";
-import { fileLimitReached, folderLabel, isStaleGeneration, limitExceeded } from "./workspaceState";
+import {
+  assertCurrentWorkspaceGeneration,
+  fileLimitReached,
+  folderLabel,
+  isStaleGeneration,
+  limitExceeded,
+} from "./workspaceState";
 import {
   WorkspaceDocumentSymbols,
   WorkspaceRebuildScope,
@@ -102,20 +108,12 @@ async function* loadDiskEntriesInDiscoveryOrder(
     pump();
     while (nextToYield < uris.length) {
       while (!results.has(nextToYield) && !errors.has(nextToYield)) {
-        /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-        if (isStaleGeneration(generation)) {
-          return;
-        }
-        /* v8 ignore stop */
+        assertCurrentWorkspaceGeneration(generation);
         await new Promise<void>((resolve) => {
           wake = resolve;
         });
       }
-      /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-      if (isStaleGeneration(generation)) {
-        return;
-      }
-      /* v8 ignore stop */
+      assertCurrentWorkspaceGeneration(generation);
       if (errors.has(nextToYield)) {
         throw errors.get(nextToYield);
       }
@@ -140,7 +138,7 @@ export async function buildFolderWorkspaceIndex(
   forceRediscover: boolean,
   previousDocuments: Map<string, WorkspaceDocumentSymbols>,
   scope: WorkspaceRebuildScope,
-): Promise<WorkspaceSymbolIndex | null> {
+): Promise<WorkspaceSymbolIndex> {
   const label = folderLabel(folder, folderKey);
   logWorkspaceIndexStarted(folderKey, label, scope, settings);
   const startedAt = Date.now();
@@ -154,11 +152,7 @@ export async function buildFolderWorkspaceIndex(
 
   for (;;) {
     const uris = discovery.uris;
-    /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-    if (isStaleGeneration(generation)) {
-      return null;
-    }
-    /* v8 ignore stop */
+    assertCurrentWorkspaceGeneration(generation);
 
     const documents = new Map<string, WorkspaceDocumentSymbols>();
     const skipReasons: Partial<Record<WorkspaceEntrySkipReason, number>> = {};
@@ -175,11 +169,7 @@ export async function buildFolderWorkspaceIndex(
       generation,
     )) {
       const { entry, skipReason } = result;
-      /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
-      if (isStaleGeneration(generation)) {
-        return null;
-      }
-      /* v8 ignore stop */
+      assertCurrentWorkspaceGeneration(generation);
       if (!entry) {
         logReadFailureIfPresent(result);
         recordSkipReason(skipReasons, skipReason);
