@@ -235,10 +235,7 @@ describe("extension workspace symbol integration", () => {
       4000,
       { scope: "full", document: doc as never },
     );
-    await vi.advanceTimersByTimeAsync(100);
-    await Promise.resolve();
-    const indexed = symbolIndex.getWorkspaceSymbolIndex();
-    expect(indexed?.documents.has("file:///test.cfg")).toBe(true);
+    await waitUntilIndexed("file:///test.cfg");
 
     const rebuildSpy = vi.spyOn(symbolIndex, "scheduleWorkspaceSymbolIndexRebuild");
     openListeners.at(-1)?.(createDocument("backend api", "file:///test.cfg") as MockDoc);
