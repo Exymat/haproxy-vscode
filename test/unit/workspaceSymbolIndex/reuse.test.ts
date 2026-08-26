@@ -80,6 +80,7 @@ describe("workspace symbol index reuse and resilience", () => {
     expect(second.parsed).toBe(first.parsed);
     expect(second.fingerprint).toBe(first.fingerprint);
     expect(second.version).toBe(2);
+    expect(expectWorkspaceIndex(getWorkspaceSymbolIndex()).revision).toBe(workspaceIndex.revision);
   });
 
   it("updates a single open document incrementally without rediscovering files", async () => {

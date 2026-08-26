@@ -455,6 +455,49 @@ describe("extension workspace symbol integration", () => {
     expect(immediateUris).toContain("file:///repo/c.cfg");
   });
 
+  it("does not refresh sibling documents when an incremental edit does not change symbols", async () => {
+    setMockConfig("haproxy", "workspaceSymbols.debounceMs", 100);
+    setMockConfig("haproxy", "diagnostics.debounceMs", 5000);
+    setMockWorkspaceFolders([workspaceFolder("file:///repo")]);
+    setMockWorkspaceFile("file:///repo/global.cfg", "global\n    maxconn 4096");
+    setMockWorkspaceFile("file:///repo/c.cfg", "backend c");
+
+    const globalDoc = createDocument("global\n    maxconn 4096", "file:///repo/global.cfg");
+    const docC = createDocument("backend c", "file:///repo/c.cfg");
+    mockTextDocuments.push(globalDoc as never, docC as never);
+
+    activate(mockExtensionContext() as never);
+    await vi.runAllTimersAsync();
+    await vi.waitFor(() => {
+      expect(getLoadedBundle()).toBeDefined();
+    });
+
+    symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
+      schema,
+      defaultWorkspaceSymbolSettings(),
+      4000,
+      { scope: "full" },
+    );
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    const collection = getLastDiagnosticCollection();
+    collection?.set.mockClear();
+
+    updateDocument(globalDoc, "global\n    maxconn 8192");
+    symbolIndex.scheduleWorkspaceSymbolIndexRebuild(
+      schema,
+      defaultWorkspaceSymbolSettings(),
+      4000,
+      { scope: "incremental", document: globalDoc },
+    );
+    await vi.advanceTimersByTimeAsync(100);
+    await Promise.resolve();
+
+    const immediateUris = diagnosticSetUris(collection);
+    expect(immediateUris).not.toContain("file:///repo/c.cfg");
+  });
+
   it("refreshes nested haproxy.d frontends immediately when defaults.cfg is indexed", async () => {
     setMockConfig("haproxy", "workspaceSymbols.debounceMs", 100);
     setMockConfig("haproxy", "diagnostics.debounceMs", 5000);

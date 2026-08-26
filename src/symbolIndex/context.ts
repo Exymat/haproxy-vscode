@@ -26,7 +26,14 @@ function aclConditionOperators(schema: HaproxySchema): Set<string> {
   return new Set(symbolStringList(schema, "acl_condition_operators"));
 }
 
+const fetchReferenceRulesCache = new WeakMap<HaproxySchema, Record<string, FetchReferenceRule>>();
+const symbolBuildContextCache = new WeakMap<HaproxySchema, SymbolBuildContext>();
+
 export function fetchReferenceRules(schema: HaproxySchema): Record<string, FetchReferenceRule> {
+  const cached = fetchReferenceRulesCache.get(schema);
+  if (cached) {
+    return cached;
+  }
   const raw = symbolRecord(schema, "sample_fetch_references");
   const result: Record<string, FetchReferenceRule> = {};
   for (const [name, value] of Object.entries(raw)) {
@@ -42,11 +49,16 @@ export function fetchReferenceRules(schema: HaproxySchema): Record<string, Fetch
       };
     }
   }
+  fetchReferenceRulesCache.set(schema, result);
   return result;
 }
 
 export function createSymbolBuildContext(schema: HaproxySchema): SymbolBuildContext {
-  return {
+  const cached = symbolBuildContextCache.get(schema);
+  if (cached) {
+    return cached;
+  }
+  const context: SymbolBuildContext = {
     aclCriteria: keywordGroupSet(schema, "acl_criteria"),
     aclOperators: aclConditionOperators(schema),
     fetchNames: sampleExpressionNameSets(schema).fetchNames,
@@ -54,4 +66,6 @@ export function createSymbolBuildContext(schema: HaproxySchema): SymbolBuildCont
     selfReferenceKeywords: symbolRecord(schema, "self_reference_keywords"),
     scopedSymbolKinds: scopedSymbolKindSet(schema),
   };
+  symbolBuildContextCache.set(schema, context);
+  return context;
 }

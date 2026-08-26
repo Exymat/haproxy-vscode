@@ -4,10 +4,17 @@ import { ParsedLine } from "../../parser";
 
 import { SymbolSite } from "../types";
 
+function tokenMayContainEnvironmentReferences(text: string): boolean {
+  return text.includes("$") || text.toLowerCase().includes("env(");
+}
+
 /** Collect environment-variable references from $NAME / ${NAME} expansions in line tokens. */
 export function collectEnvironmentVariableSites(line: ParsedLine, references: SymbolSite[]): void {
   for (const token of line.tokens) {
     if (!token) {
+      continue;
+    }
+    if (!tokenMayContainEnvironmentReferences(token.text)) {
       continue;
     }
     for (const hit of findEnvironmentVariableReferences(token)) {

@@ -132,8 +132,13 @@ export function computeDiagnostics(
   const contentFingerprint = documentContentFingerprint(document);
   const uriHit = uriDiagnosticsCache.get(documentUriKey(document), contentFingerprint);
   const analysis = getDocumentAnalysis(document, schema);
+  const needSymbolDiagnostics = options.unusedSymbols || options.missingReferences !== false;
+  const maxSymbolLines = options.maxSymbolLines ?? document.lineCount;
   if (uriHit && sameCacheKey(uriHit.key, key)) {
     diagnosticsCache.set(document, { ...uriHit, version: document.version });
+    if (needSymbolDiagnostics) {
+      getSymbolIndex(document, schema, maxSymbolLines);
+    }
     return uriHit.diagnostics;
   }
 
@@ -169,12 +174,10 @@ export function computeDiagnostics(
 
   const diagnostics = flattenDiagnostics(lineDiagnostics);
 
-  const needSymbolDiagnostics = options.unusedSymbols || options.missingReferences !== false;
   let documentSymbolDiagnostics: vscode.Diagnostic[] = [];
   let cachedSymbolIndex: SymbolIndex | null = null;
 
   if (needSymbolDiagnostics) {
-    const maxSymbolLines = options.maxSymbolLines ?? document.lineCount;
     const index = getSymbolIndex(document, schema, maxSymbolLines);
     if (index) {
       cachedSymbolIndex = index;

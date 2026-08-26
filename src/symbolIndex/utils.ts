@@ -89,3 +89,35 @@ export function ensureSitesByLine(index: SymbolIndex): void {
     index.references,
   );
 }
+
+const symbolGraphKeyCache = new WeakMap<SymbolIndex, string>();
+
+function siteGraphPart(prefix: string, key: string, site: SymbolSite): string {
+  return `${prefix}:${key}:${site.line}:${site.start}:${site.end}`;
+}
+
+export function symbolGraphKey(index: SymbolIndex): string {
+  const cached = symbolGraphKeyCache.get(index);
+  if (cached) {
+    return cached;
+  }
+  const parts: string[] = [];
+  for (const [key, defs] of index.definitions) {
+    for (const site of defs) {
+      parts.push(siteGraphPart("d", key, site));
+    }
+  }
+  for (const [key, refs] of index.referencesByKey) {
+    for (const site of refs) {
+      parts.push(siteGraphPart("r", key, site));
+    }
+  }
+  parts.sort();
+  const graphKey = parts.join("\n");
+  symbolGraphKeyCache.set(index, graphKey);
+  return graphKey;
+}
+
+export function sameSymbolGraph(left: SymbolIndex, right: SymbolIndex): boolean {
+  return left === right || symbolGraphKey(left) === symbolGraphKey(right);
+}

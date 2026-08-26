@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.19.3
+
+- **Faster unused-symbol diagnostics while editing** — changing a line that does not add, rename, or retarget symbols (for example `global` `maxconn`) no longer rebuilds unused-symbol and missing-reference diagnostics in other open files. Adding or changing a named section or a `setenv` / `presetenv` still refreshes those diagnostics across the workspace graph, as in 0.19.2.
+
 ## 0.19.2
 
 - **Multi-root workspace indexing** — each VS Code workspace folder is indexed and capped on its own. Opening a multi-root workspace, or a workspace-wide rebuild with no HAProxy tab focused, no longer scans every root as one global graph, so duplicate-section warnings and file/line/byte limits stay per folder.

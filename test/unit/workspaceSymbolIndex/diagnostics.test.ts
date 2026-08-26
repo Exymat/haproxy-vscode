@@ -553,4 +553,46 @@ describe("workspace symbol index diagnostics", () => {
       expect(definitionTargetUri(definition)).toBe(tc.definitionUri);
     },
   );
+
+  it("does not republish the workspace graph when an edit does not change symbols", async () => {
+    const globalUri = "file:///global.cfg";
+    const backendUri = "file:///backends/api.cfg";
+    const globalContent = ["global", "    maxconn 4096"].join("\n");
+    const backendContent = ["backend api", "    server s1 127.0.0.1:80"].join("\n");
+
+    setMockWorkspaceFile(globalUri, globalContent);
+    setMockWorkspaceFile(backendUri, backendContent);
+    const globalDoc = createDocument(globalContent, globalUri);
+    const backendDoc = createDocument(backendContent, backendUri);
+    mockTextDocuments.push(globalDoc as never, backendDoc as never);
+
+    await buildWorkspace();
+    computeDiagnostics(backendDoc, schema, symbolDiagnosticOptions);
+    const before = expectWorkspaceIndex(getWorkspaceSymbolIndex(globalDoc));
+    const beforeRevision = before.revision;
+    const beforeBackendIndex = before.documents.get(backendUri)?.index;
+
+    const listener = vi.fn();
+    setWorkspaceSymbolIndexChangeListener(listener);
+
+    const updatedGlobal = ["global", "    maxconn 8192"].join("\n");
+    updateDocument(globalDoc, updatedGlobal);
+    setMockWorkspaceFile(globalUri, updatedGlobal);
+    scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000, {
+      scope: "incremental",
+      document: globalDoc,
+    });
+    await vi.runAllTimersAsync();
+    await Promise.resolve();
+
+    expect(listener).not.toHaveBeenCalled();
+    const after = expectWorkspaceIndex(getWorkspaceSymbolIndex(globalDoc));
+    expect(after.revision).toBe(beforeRevision);
+    expect(after.documents.get(backendUri)?.index).toBe(beforeBackendIndex);
+    expect(
+      computeDiagnostics(backendDoc, schema, symbolDiagnosticOptions).some(
+        (diag) => formatDiagnosticCode(diag.code) === "unused-section",
+      ),
+    ).toBe(true);
+  });
 });

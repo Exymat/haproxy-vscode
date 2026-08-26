@@ -12,6 +12,7 @@ import {
   getSymbolIndex,
   resolveSymbolAtPosition,
 } from "../../../src/symbolIndex";
+import { sameSymbolGraph } from "../../../src/symbolIndex/utils";
 import { createDocument, updateDocument } from "../../helpers/document";
 import { parseOptionsWithSchema } from "../../helpers/formatOptions";
 import { vi } from "vitest";
@@ -228,6 +229,17 @@ describe("symbolIndex build", () => {
     getParsedDocument(document, parseOptions);
     const second = getSymbolIndex(document, schema, 4000);
     expect(second).toBe(first);
+  });
+
+  it("treats symbol graphs as equal when only non-symbol tokens change", () => {
+    const first = getSymbolIndex(doc("global\n    maxconn 4096\nbackend api"), schema, 4000);
+    const second = getSymbolIndex(doc("global\n    maxconn 8192\nbackend api"), schema, 4000);
+    expect(first).not.toBeNull();
+    expect(second).not.toBeNull();
+    if (!first || !second) {
+      return;
+    }
+    expect(sameSymbolGraph(first, second)).toBe(true);
   });
 
   it("getSymbolIndex rebuilds when a single-line edit changes a symbol definition", () => {

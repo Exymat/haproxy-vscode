@@ -10,7 +10,7 @@ import { sectionHeaderSet } from "../schema/layout";
 
 import { buildSymbolIndex } from "./build";
 import { getSymbolIndex } from "./cache";
-import { buildReferencesByKey } from "./utils";
+import { buildReferencesByKey, sameSymbolGraph } from "./utils";
 import { SymbolKind, SymbolSite } from "./types";
 import { bumpWorkspaceContentRevision } from "./workspaceState";
 import { WorkspaceEntrySkipReason } from "../extension/outputChannel";
@@ -213,6 +213,25 @@ export function createOpenDocumentEntry(
     return skipEntry("too-many-lines");
   }
   const parsed = getParsedDocument(document, { sectionHeaders: sectionHeaderSet(schema) });
+  if (entryHasSchemaIdentity(cached, schema) && sameSymbolGraph(cached.index, index)) {
+    return {
+      entry: entryForSchema(
+        {
+          ...cached,
+          uri: document.uri,
+          uriKey: workspaceUriKey(document.uri),
+          version: document.version,
+          fingerprint,
+          diskStatKey: null,
+          byteLength,
+          parsed,
+          lineTexts: lines,
+          index,
+        },
+        schema,
+      ),
+    };
+  }
   return {
     entry: entryForSchema(
       {

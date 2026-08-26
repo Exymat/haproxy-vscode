@@ -10,6 +10,7 @@ import {
 import { HaproxySchema } from "../schema/types";
 
 import { buildFolderWorkspaceIndex } from "./workspaceFolderBuild";
+import { sameSymbolGraph } from "./utils";
 import {
   aggregateDocuments,
   createOpenDocumentEntry,
@@ -206,18 +207,28 @@ async function flushPendingRebuild(
 
   const incrementalDocuments = [...pending.incrementalDocuments.values()];
   const hasFollowOnRebuild = pending.workspaceContent || pending.folderTargets.size > 0;
+  let incrementalGraphChanged = false;
   for (const document of incrementalDocuments) {
     /* v8 ignore start -- stale async generations are race guards for debounced flush work. */
     if (isStaleGeneration(generation)) {
       return;
     }
     /* v8 ignore stop */
-    await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
-      scope: "incremental",
-      document,
-    });
+    const graphChanged = await rebuildWorkspaceIndexes(
+      resolveSchema,
+      settings,
+      maxLines,
+      generation,
+      {
+        scope: "incremental",
+        document,
+      },
+    );
+    if (graphChanged) {
+      incrementalGraphChanged = true;
+    }
   }
-  if (incrementalDocuments.length > 0 && !hasFollowOnRebuild) {
+  if (incrementalDocuments.length > 0 && !hasFollowOnRebuild && incrementalGraphChanged) {
     notifyIncrementalBatch(incrementalDocuments);
   }
 
@@ -290,7 +301,7 @@ async function updateSingleDocumentInWorkspaceIndex(
   settings: WorkspaceSymbolSettings,
   maxLines: number,
   generation: number,
-): Promise<void> {
+): Promise<boolean> {
   const folder = workspaceFolderForUri(document.uri);
   const folderKey = workspaceFolderKey(folder);
   const activeWorkspaceIndexes = getActiveWorkspaceIndexes();
@@ -299,7 +310,7 @@ async function updateSingleDocumentInWorkspaceIndex(
     await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
       scope: "content",
     });
-    return;
+    return true;
   }
 
   const uriKey = workspaceUriKey(document.uri);
@@ -307,13 +318,13 @@ async function updateSingleDocumentInWorkspaceIndex(
     await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
       scope: "full",
     });
-    return;
+    return true;
   }
 
   const schema = await resolveSchema(folder);
   /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
   if (isStaleGeneration(generation)) {
-    return;
+    return false;
   }
   /* v8 ignore stop */
 
@@ -321,23 +332,27 @@ async function updateSingleDocumentInWorkspaceIndex(
     maxFileBytes: settings.maxFileBytes,
     maxLineBytes: settings.maxLineBytes,
   };
-  const { entry } = createOpenDocumentEntry(
-    document,
-    schema,
-    maxLines,
-    existing.documents.get(uriKey),
-    byteLimits,
-  );
+  const previous = existing.documents.get(uriKey);
+  const { entry } = createOpenDocumentEntry(document, schema, maxLines, previous, byteLimits);
   /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
   if (isStaleGeneration(generation)) {
-    return;
+    return false;
   }
   /* v8 ignore stop */
   if (!entry) {
     const documents = new Map(existing.documents);
     documents.delete(uriKey);
     setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, false, documents));
-    return;
+    return true;
+  }
+
+  if (previous && sameSymbolGraph(previous.index, entry.index)) {
+    if (previous.fingerprint !== entry.fingerprint || previous.version !== entry.version) {
+      const documents = new Map(existing.documents);
+      documents.set(entry.uriKey, entry);
+      setFolderWorkspaceIndex(folderKey, { ...existing, documents });
+    }
+    return false;
   }
 
   const documents = new Map(existing.documents);
@@ -350,6 +365,7 @@ async function updateSingleDocumentInWorkspaceIndex(
   } else {
     setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, false, documents));
   }
+  return true;
 }
 
 async function rebuildWorkspaceIndexes(
@@ -358,7 +374,7 @@ async function rebuildWorkspaceIndexes(
   maxLines: number,
   generation: number,
   options: ResolvedWorkspaceRebuildOptions,
-): Promise<void> {
+): Promise<boolean> {
   if (!settings.enabled) {
     if (generation === getActiveGeneration()) {
       resetWorkspaceIndexState();
@@ -366,19 +382,18 @@ async function rebuildWorkspaceIndexes(
       logWorkspaceIndexDisabled();
       notifyWorkspaceIndexChanged({ scope: options.scope, document: options.document });
     }
-    return;
+    return true;
   }
 
   const { scope } = options;
   if (scope === "incremental" && options.document) {
-    await updateSingleDocumentInWorkspaceIndex(
+    return updateSingleDocumentInWorkspaceIndex(
       options.document,
       resolveSchema,
       settings,
       maxLines,
       generation,
     );
-    return;
   }
 
   const forceRediscover = scope === "full";
@@ -408,7 +423,7 @@ async function rebuildWorkspaceIndexes(
     }
     /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
     if (isStaleGeneration(generation)) {
-      return;
+      return false;
     }
     /* v8 ignore stop */
     const previousDocuments =
@@ -427,7 +442,7 @@ async function rebuildWorkspaceIndexes(
     );
     /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
     if (isStaleGeneration(generation) || index === null) {
-      return;
+      return false;
     }
     /* v8 ignore stop */
     setFolderWorkspaceIndex(folderKey, index, nextIndexes, activeWorkspaceIndexes);
@@ -435,12 +450,13 @@ async function rebuildWorkspaceIndexes(
 
   /* v8 ignore start -- stale async generations are race guards for VS Code file scans. */
   if (isStaleGeneration(generation)) {
-    return;
+    return false;
   }
   /* v8 ignore stop */
   setActiveWorkspaceIndexes(nextIndexes);
   rebuildCappedFolderKeys(nextIndexes);
   notifyWorkspaceIndexChanged({ scope, document: options.document });
+  return true;
 }
 
 export function scheduleWorkspaceSymbolIndexRebuild(

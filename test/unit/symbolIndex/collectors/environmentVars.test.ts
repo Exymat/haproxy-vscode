@@ -29,4 +29,27 @@ describe("environmentVars collector", () => {
     collectEnvironmentVariableSites(parsed[1], references);
     expect(references.map((site) => site.name)).toEqual(["HAPROXY_USER", "HAPROXY_GROUP"]);
   });
+
+  it("skips lines with no environment expansions", () => {
+    const parsed = parseDocument(doc("global\n    maxconn 8192"), "3.4");
+    const references: SymbolSite[] = [];
+    collectEnvironmentVariableSites(parsed[1], references);
+    expect(references).toEqual([]);
+  });
+
+  it("collects env() sample-fetch references", () => {
+    const parsed = parseDocument(
+      doc("frontend web\n    http-request deny if { env(FOO) -m found }"),
+      "3.4",
+    );
+    const references: SymbolSite[] = [];
+    collectEnvironmentVariableSites(parsed[1], references);
+    expect(references).toEqual([
+      expect.objectContaining({
+        kind: "environment-variable",
+        name: "FOO",
+        role: "reference",
+      }),
+    ]);
+  });
 });
