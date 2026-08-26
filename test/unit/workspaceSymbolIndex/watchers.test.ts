@@ -299,6 +299,15 @@ describe("workspace symbol watcher helpers", () => {
     ).toBe(false);
   });
 
+  it("does not include URIs without a filesystem path", () => {
+    expect(
+      isUriIncludedInWorkspaceSymbols(
+        { fsPath: "", toString: () => "untitled:haproxy.cfg" } as never,
+        defaultWorkspaceSymbolSettings(),
+      ),
+    ).toBe(false);
+  });
+
   it("limits watcher patterns and events to configured roots", () => {
     const settings = defaultWorkspaceSymbolSettings({
       include: ["**/*.cfg"],
