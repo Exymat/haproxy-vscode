@@ -21,15 +21,39 @@ export function createDiagnosticScheduler(
   onBundleError: (message: string) => void,
 ): DiagnosticScheduler {
   const pendingDiagnostics = new Map<string, NodeJS.Timeout>();
+  const generations = new Map<string, number>();
+  let generationCounter = 0;
+
+  const nextGeneration = (key: string): number => {
+    generationCounter += 1;
+    generations.set(key, generationCounter);
+    return generationCounter;
+  };
+
+  const isCurrentRun = (
+    document: vscode.TextDocument,
+    versionAtStart: number,
+    generation: number,
+  ): boolean =>
+    document.version === versionAtStart &&
+    generations.get(document.uri.toString()) === generation &&
+    getSettings().diagnosticsEnabled &&
+    isHaproxyLanguageId(document.languageId);
 
   const clearPending = (): void => {
     for (const timer of pendingDiagnostics.values()) {
       clearTimeout(timer);
     }
     pendingDiagnostics.clear();
+    for (const key of generations.keys()) {
+      nextGeneration(key);
+    }
   };
 
-  const runDiagnostics = async (document: vscode.TextDocument): Promise<void> => {
+  const runDiagnostics = async (
+    document: vscode.TextDocument,
+    generation: number,
+  ): Promise<void> => {
     const versionAtStart = document.version;
     const settings = getSettings();
     if (!settings.diagnosticsEnabled || !isHaproxyLanguageId(document.languageId)) {
@@ -43,7 +67,7 @@ export function createDiagnosticScheduler(
     try {
       b = await ensureBundle(document);
     } catch (error) {
-      if (document.version !== versionAtStart) {
+      if (!isCurrentRun(document, versionAtStart, generation)) {
         return;
       }
       const message = error instanceof Error ? error.message : String(error);
@@ -51,7 +75,7 @@ export function createDiagnosticScheduler(
       diagnostics.set(document.uri, []);
       return;
     }
-    if (document.version !== versionAtStart) {
+    if (!isCurrentRun(document, versionAtStart, generation)) {
       return;
     }
     diagnostics.set(
@@ -80,16 +104,19 @@ export function createDiagnosticScheduler(
       return;
     }
     const settings = getSettings();
+    const key = document.uri.toString();
+    const generation = nextGeneration(key);
     if (!settings.diagnosticsEnabled) {
+      cancelPending(document);
       diagnostics.delete(document.uri);
       return;
     }
     cancelPending(document);
     pendingDiagnostics.set(
-      document.uri.toString(),
+      key,
       setTimeout(() => {
-        pendingDiagnostics.delete(document.uri.toString());
-        void runDiagnostics(document);
+        pendingDiagnostics.delete(key);
+        void runDiagnostics(document, generation);
       }, settings.diagnosticsDebounceMs),
     );
   };
@@ -99,16 +126,19 @@ export function createDiagnosticScheduler(
       return;
     }
     const settings = getSettings();
+    const generation = nextGeneration(document.uri.toString());
     if (!settings.diagnosticsEnabled) {
+      cancelPending(document);
       diagnostics.delete(document.uri);
       return;
     }
     cancelPending(document);
-    void runDiagnostics(document);
+    void runDiagnostics(document, generation);
   };
 
   const disposeDocument = (document: vscode.TextDocument): void => {
     cancelPending(document);
+    generations.delete(document.uri.toString());
     diagnostics.delete(document.uri);
   };
 

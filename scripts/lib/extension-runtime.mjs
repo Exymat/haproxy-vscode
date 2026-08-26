@@ -31,7 +31,7 @@ export function initExtensionRuntime() {
 export function loadCompiledModule(moduleRelativePath) {
   initExtensionRuntime();
   const require = createRequire(import.meta.url);
-  return require(join(extensionRoot, "out", moduleRelativePath));
+  return require(join(extensionRoot, "out", "tooling", moduleRelativePath));
 }
 
 export function createDocument(content, uri = "file:///test.cfg") {

@@ -105,15 +105,25 @@ export function provideRenameEdits(
 
   const { index, site } = resolved;
   const oldName = site.name;
-  const caseOnlyRename = oldName.toLowerCase() === newName.toLowerCase();
+  const unchangedName = oldName === newName;
   const workspaceIndex = workspaceIndexForDocument(document);
 
-  if (!caseOnlyRename) {
+  if (!unchangedName) {
     if (workspaceIndex) {
-      if (findWorkspaceDefinitions(workspaceIndex, site.kind, newName, site.scopeKey).length > 0) {
+      if (
+        findWorkspaceDefinitions(
+          workspaceIndex,
+          site.kind,
+          newName,
+          site.scopeKey,
+          site.proxyCapabilities,
+        ).length > 0
+      ) {
         throw new Error(`A ${site.kind} named '${newName}' already exists in this scope.`);
       }
-    } else if (findDefinitions(index, site.kind, newName, site.scopeKey).length > 0) {
+    } else if (
+      findDefinitions(index, site.kind, newName, site.scopeKey, site.proxyCapabilities).length > 0
+    ) {
       throw new Error(`A ${site.kind} named '${newName}' already exists in this scope.`);
     }
   }
@@ -127,6 +137,7 @@ export function provideRenameEdits(
       site.kind,
       oldName,
       site.scopeKey,
+      site.proxyCapabilities,
     );
     if (oldDefinitions.length > 1) {
       throw new Error(
@@ -135,10 +146,16 @@ export function provideRenameEdits(
     }
     targets =
       oldDefinitions.length === 1
-        ? findAllWorkspaceSites(workspaceIndex, site.kind, oldName, site.scopeKey)
-        : findAllSites(index, site.kind, oldName, site.scopeKey);
+        ? findAllWorkspaceSites(
+            workspaceIndex,
+            site.kind,
+            oldName,
+            site.scopeKey,
+            site.proxyCapabilities,
+          )
+        : findAllSites(index, site.kind, oldName, site.scopeKey, site.proxyCapabilities);
   } else {
-    targets = findAllSites(index, site.kind, oldName, site.scopeKey);
+    targets = findAllSites(index, site.kind, oldName, site.scopeKey, site.proxyCapabilities);
   }
 
   const edit = new vscode.WorkspaceEdit();

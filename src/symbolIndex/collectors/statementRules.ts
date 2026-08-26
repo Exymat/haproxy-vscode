@@ -7,7 +7,7 @@ import { isLikelyValue } from "../../parser/tokenUtils";
 
 import { collectAclReferences } from "../aclReferences";
 import { SymbolBuildContext } from "../context";
-import { effectiveScopeKey, SymbolKind, SymbolSite } from "../types";
+import { effectiveScopeKey, proxyCapabilitiesForReference, SymbolKind, SymbolSite } from "../types";
 import { addSite, symbolNameTokenIndices } from "../utils";
 
 import { collectConfiguredReferences, collectFilterSelfReference } from "./configuredRefs";
@@ -20,9 +20,10 @@ function siteFromToken(
   tokenIndex: number,
   scopeKey: string | null,
   role: "definition" | "reference",
+  proxyCapabilities?: SymbolSite["proxyCapabilities"],
 ): SymbolSite {
   const token = line.tokens[tokenIndex];
-  return {
+  const site: SymbolSite = {
     kind,
     name,
     line: line.line,
@@ -31,6 +32,10 @@ function siteFromToken(
     scopeKey,
     role,
   };
+  if (proxyCapabilities) {
+    site.proxyCapabilities = proxyCapabilities;
+  }
+  return site;
 }
 
 function isValidSymbolNameToken(kind: SymbolKind, tokenText: string): boolean {
@@ -83,6 +88,7 @@ export function collectStatementRuleSites(
           idx,
           effectiveScopeKey(context.scopedSymbolKinds, kind, scopeKey),
           "reference",
+          proxyCapabilitiesForReference(kind, line.tokens[0]?.text),
         );
         addSite(context.scopedSymbolKinds, definitions, references, site);
       }

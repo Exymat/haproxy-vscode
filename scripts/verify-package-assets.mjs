@@ -17,13 +17,27 @@ const vscodeignorePatterns = existsSync(vscodeignorePath)
 function isExcludedFromPackage(relativePath) {
   const normalized = relativePath.replaceAll("\\", "/");
   return vscodeignorePatterns.some((pattern) => {
-    if (pattern.includes("*")) {
-      const regex = new RegExp(
-        `^${pattern.replaceAll("/", "[/\\\\]").replaceAll("**", ".*").replaceAll("*", "[^/\\\\]*")}$`,
-      );
-      return regex.test(normalized);
+    const normalizedPattern = pattern.replaceAll("\\", "/");
+    let source = "";
+    for (let i = 0; i < normalizedPattern.length; i += 1) {
+      const ch = normalizedPattern[i];
+      if (ch === "*" && normalizedPattern[i + 1] === "*") {
+        if (normalizedPattern[i + 2] === "/") {
+          source += "(?:.*/)?";
+          i += 2;
+        } else {
+          source += ".*";
+          i += 1;
+        }
+      } else if (ch === "*") {
+        source += "[^/]*";
+      } else if (ch === "?") {
+        source += "[^/]";
+      } else {
+        source += ch.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+      }
     }
-    return normalized === pattern;
+    return new RegExp(`^${source}$`).test(normalized);
   });
 }
 
@@ -82,6 +96,9 @@ function walkOut(dir) {
     if (rel.startsWith("test/")) {
       continue;
     }
+    if (rel === "tooling/diagnostics.js") {
+      continue;
+    }
 
     runtimeJsFiles.push(rel);
 
@@ -106,6 +123,14 @@ if (runtimeJsFiles.length !== 1 || runtimeJsFiles[0] !== "extension.js") {
   fail(
     `out/ must contain only extension.js for the bundled runtime (found: ${runtimeJsFiles.sort().join(", ") || "(none)"})`,
   );
+}
+
+const toolingBundle = "out/tooling/diagnostics.js";
+if (!existsSync(join(root, toolingBundle))) {
+  fail(`missing diagnostics tooling bundle: ${toolingBundle}`);
+}
+if (!isExcludedFromPackage(toolingBundle)) {
+  fail(`${toolingBundle} must be excluded from the VSIX`);
 }
 
 const packageJson = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));

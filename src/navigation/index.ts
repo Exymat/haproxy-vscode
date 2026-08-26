@@ -24,6 +24,7 @@ interface ResolvedNavigationSymbol {
   kind: SymbolSite["kind"];
   name: string;
   scopeKey: string | null;
+  proxyCapabilities?: SymbolSite["proxyCapabilities"];
 }
 
 type DefinitionResult = vscode.Location | vscode.LocationLink;
@@ -135,6 +136,7 @@ export function provideDefinition(
       symbol.kind,
       symbol.name,
       symbol.scopeKey,
+      symbol.proxyCapabilities,
     );
     if (definitions.length > 0) {
       return toProviderResult(
@@ -143,7 +145,13 @@ export function provideDefinition(
     }
   }
 
-  const definitions = findDefinitions(index, symbol.kind, symbol.name, symbol.scopeKey);
+  const definitions = findDefinitions(
+    index,
+    symbol.kind,
+    symbol.name,
+    symbol.scopeKey,
+    symbol.proxyCapabilities,
+  );
   if (definitions.length === 0) {
     return null;
   }
@@ -179,6 +187,7 @@ export function provideReferences(
       symbol.kind,
       symbol.name,
       symbol.scopeKey,
+      symbol.proxyCapabilities,
     );
     if (context.includeDeclaration) {
       const definitions = findWorkspaceDefinitions(
@@ -186,6 +195,7 @@ export function provideReferences(
         symbol.kind,
         symbol.name,
         symbol.scopeKey,
+        symbol.proxyCapabilities,
       );
       return [...definitions, ...references].map((site) => siteToLocation(site.uri, site));
     }
@@ -193,15 +203,33 @@ export function provideReferences(
   }
 
   if (context.includeDeclaration) {
-    const definitions = findDefinitions(index, symbol.kind, symbol.name, symbol.scopeKey);
-    const references = findReferences(index, symbol.kind, symbol.name, symbol.scopeKey);
+    const definitions = findDefinitions(
+      index,
+      symbol.kind,
+      symbol.name,
+      symbol.scopeKey,
+      symbol.proxyCapabilities,
+    );
+    const references = findReferences(
+      index,
+      symbol.kind,
+      symbol.name,
+      symbol.scopeKey,
+      symbol.proxyCapabilities,
+    );
     if (definitions.length === 0 && references.length === 0) {
       return [];
     }
     return [...definitions, ...references].map((site) => siteToLocation(document.uri, site));
   }
 
-  const references = findReferences(index, symbol.kind, symbol.name, symbol.scopeKey);
+  const references = findReferences(
+    index,
+    symbol.kind,
+    symbol.name,
+    symbol.scopeKey,
+    symbol.proxyCapabilities,
+  );
   if (references.length === 0) {
     return [];
   }

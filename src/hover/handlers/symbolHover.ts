@@ -71,7 +71,13 @@ function workspaceSymbolHover(
     return null;
   }
 
-  const definitions = findWorkspaceDefinitions(workspaceIndex, site.kind, site.name, site.scopeKey);
+  const definitions = findWorkspaceDefinitions(
+    workspaceIndex,
+    site.kind,
+    site.name,
+    site.scopeKey,
+    site.proxyCapabilities,
+  );
   if (
     !definitions.length ||
     definitions.some((def) => isWorkspaceDefinitionSite(hc.document, site, def))
@@ -113,7 +119,13 @@ export function trySymbolHover(hc: HoverContext): vscode.Hover | null {
     }
   }
 
-  const definitions = findDefinitions(index, site.kind, site.name, site.scopeKey);
+  const definitions = findDefinitions(
+    index,
+    site.kind,
+    site.name,
+    site.scopeKey,
+    site.proxyCapabilities,
+  );
   const definition = definitions[0];
   if (!definition || definitions.some((def) => isDefinitionSite(site, def))) {
     return null;

@@ -2,6 +2,13 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.19.5
+
+- **Frontend vs backend vs listen names** — a `frontend` and a `backend` may share a name without a duplicate-section warning. A `listen` with the same name still conflicts with both because it is both a frontend and a backend. `use_backend` and `default_backend` completion, Go to Definition, Find References, Rename, hover, and unused/missing-reference diagnostics resolve to backends and listens, not a same-named frontend.
+- **Case-sensitive symbol names** — `backend api` and `backend API` are distinct. Duplicate-section diagnostics, navigation, completion, and rename match the exact name instead of folding case.
+- **Comments and backslash escapes** — an unprotected `#` starts a comment even when it is joined to a token (`global#comment`, `a#b`). Escapes work outside quotes and in double quotes (`\#`, `\ `); backslashes stay literal in single quotes. Format Document and delimiter diagnostics follow the same rules.
+- **Workspace indexing** — file watchers and rebuilds stay inside `haproxy.workspaceSymbols.roots` include globs. Configs that open with `.if` / `.endif` or status directives (`.diag`, `.notice`, `.warning`, `.alert`) before the first section are indexed. Go to Symbol in Workspace no longer needs an active HAProxy editor.
+
 ## 0.19.4
 
 - **Faster diagnostics on large configs** — unused-symbol and missing-reference hints reuse per-line results instead of rechecking every directive when only those hints need to refresh, and first-time indexing of a large file skips extra per-line work that is only needed while editing.

@@ -3,7 +3,12 @@ import { ParsedLine } from "../../parser";
 import { HaproxySchema } from "../../schema/types";
 import { parseSectionHeader } from "../../language/sectionUtils";
 
-import { sectionDefinitionKinds, SymbolKind, SymbolSite } from "../types";
+import {
+  proxyCapabilitiesForSectionType,
+  sectionDefinitionKinds,
+  SymbolKind,
+  SymbolSite,
+} from "../types";
 import { addSite } from "../utils";
 
 export function collectSectionHeaderSites(
@@ -33,6 +38,10 @@ export function collectSectionHeaderSites(
     scopeKey: null,
     role: "definition",
   };
+  const proxyCapabilities = proxyCapabilitiesForSectionType(header.sectionType);
+  if (proxyCapabilities) {
+    defSite.proxyCapabilities = proxyCapabilities;
+  }
   addSite(scopedSymbolKinds, definitions, references, defSite);
 
   if (header.fromIndex >= 0 && header.profileName) {

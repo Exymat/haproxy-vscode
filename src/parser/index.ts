@@ -36,48 +36,64 @@ function isAsciiWhitespace(ch: string): boolean {
   return code === 32 || (code >= 9 && code <= 13);
 }
 
-export function tokenizeLine(line: string): ParsedToken[] {
-  const tokens: ParsedToken[] = [];
-  const commentStart = commentStartIndex(line);
-  const limit = commentStart >= 0 ? commentStart : line.length;
+/**
+ * Splits one HAProxy configuration line without decoding token contents.
+ *
+ * HAProxy treats every unprotected hash as a comment delimiter, permits
+ * backslash escaping outside quotes and in weak quotes, and treats backslashes
+ * literally in strong quotes. Keeping the raw source text here lets callers
+ * retain exact ranges and formatting while sharing the same boundary rules.
+ */
+function scanLine(line: string, tokens?: ParsedToken[]): number {
   let i = 0;
   let tokenStart = -1;
   let quote: '"' | "'" | null = null;
-  let escaped = false;
 
   const flush = (end: number): void => {
-    if (tokenStart >= 0 && end > tokenStart) {
+    if (tokens && tokenStart >= 0 && end > tokenStart) {
       tokens.push({
         text: line.slice(tokenStart, end),
         start: tokenStart,
         end,
       });
-      tokenStart = -1;
     }
+    tokenStart = -1;
   };
 
-  while (i < limit) {
+  while (i < line.length) {
     const ch = line[i];
 
-    if (quote) {
-      if (escaped) {
-        escaped = false;
-      } else if (ch === "\\") {
-        escaped = true;
-      } else if (ch === quote) {
+    if (quote === "'") {
+      if (ch === "'") {
         quote = null;
       }
       i += 1;
       continue;
     }
 
-    if (ch === "'" || ch === '"') {
+    if (quote === '"') {
+      if (ch === "\\" && i + 1 < line.length) {
+        i += 2;
+        continue;
+      }
+      if (ch === '"') {
+        quote = null;
+      }
+      i += 1;
+      continue;
+    }
+
+    if (ch === "\\" && i + 1 < line.length) {
       if (tokenStart < 0) {
         tokenStart = i;
       }
-      quote = ch;
-      i += 1;
+      i += 2;
       continue;
+    }
+
+    if (ch === "#") {
+      flush(i);
+      return i;
     }
 
     if (isAsciiWhitespace(ch)) {
@@ -89,73 +105,24 @@ export function tokenizeLine(line: string): ParsedToken[] {
     if (tokenStart < 0) {
       tokenStart = i;
     }
+    if (ch === "'" || ch === '"') {
+      quote = ch;
+    }
     i += 1;
   }
 
-  flush(limit);
+  flush(line.length);
+  return -1;
+}
+
+export function tokenizeLine(line: string): ParsedToken[] {
+  const tokens: ParsedToken[] = [];
+  scanLine(line, tokens);
   return tokens;
 }
 
 export function commentStartIndex(line: string): number {
-  let i = 0;
-  let tokenStart = -1;
-  let quote: '"' | "'" | null = null;
-  let escaped = false;
-
-  while (i < line.length) {
-    const ch = line[i];
-
-    if (quote) {
-      if (escaped) {
-        escaped = false;
-      } else if (ch === "\\") {
-        escaped = true;
-      } else if (ch === quote) {
-        quote = null;
-      }
-      i += 1;
-      continue;
-    }
-
-    if (ch === "#" && tokenStart < 0) {
-      return i;
-    }
-
-    if (ch === "'" || ch === '"') {
-      if (tokenStart < 0) {
-        tokenStart = i;
-      }
-      quote = ch;
-      i += 1;
-      continue;
-    }
-
-    if (isAsciiWhitespace(ch)) {
-      tokenStart = -1;
-      i += 1;
-      continue;
-    }
-
-    if (tokenStart < 0) {
-      tokenStart = i;
-    }
-    i += 1;
-  }
-
-  return -1;
-}
-
-function isCommentLine(text: string): boolean {
-  for (let i = 0; i < text.length; i += 1) {
-    const ch = text[i];
-    if (ch === "#") {
-      return true;
-    }
-    if (!isAsciiWhitespace(ch)) {
-      return false;
-    }
-  }
-  return false;
+  return scanLine(line);
 }
 
 export function initialParseState(): ParseState {
@@ -168,7 +135,7 @@ export function parseLine(
   state: ParseState,
   options?: ParseOptions,
 ): { parsed: ParsedLine; nextState: ParseState } {
-  const tokens = isCommentLine(text) ? [] : tokenizeLine(text);
+  const tokens = tokenizeLine(text);
   let currentSection = state.currentSection;
   let inAnonymousDefaults = state.inAnonymousDefaults;
   let isSectionHeader = false;

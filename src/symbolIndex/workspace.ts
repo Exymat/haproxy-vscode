@@ -1,6 +1,10 @@
 /** Re-exports workspace symbol-index APIs. */
 export { buildWorkspaceSymbolIndexFromOpenDocuments } from "./workspaceDocuments";
-export { isUriExcludedFromWorkspaceSymbols } from "./workspaceDiscovery";
+export {
+  effectiveWorkspaceSymbolIncludePatterns,
+  isUriExcludedFromWorkspaceSymbols,
+  isUriIncludedInWorkspaceSymbols,
+} from "./workspaceDiscovery";
 export {
   findAllWorkspaceSites,
   findWorkspaceDefinitions,

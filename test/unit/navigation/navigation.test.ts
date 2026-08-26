@@ -43,7 +43,12 @@ function assertRefCount(
 function assertResolve(
   doc: ReturnType<typeof createDocument>,
   position: never,
-  expected: { kind: string; name: string; scopeKey: string | null } | null,
+  expected: {
+    kind: string;
+    name: string;
+    scopeKey: string | null;
+    proxyCapabilities?: readonly string[];
+  } | null,
 ) {
   expect(resolveSymbolAtPosition(doc as never, position, schema)).toEqual(expected);
 }
@@ -77,6 +82,7 @@ describe("navigation", () => {
           kind: "proxy-section",
           name: "api",
           scopeKey: null,
+          proxyCapabilities: ["backend"],
         });
       },
     );

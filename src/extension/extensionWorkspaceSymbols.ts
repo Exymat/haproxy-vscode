@@ -7,8 +7,10 @@ import { isHaproxyLanguageId } from "./grammar";
 import { HaproxyExtensionSettings } from "./settings";
 import {
   clearWorkspaceSymbolIndex,
+  effectiveWorkspaceSymbolIncludePatterns,
   invalidateDiscoveryCache,
   isUriExcludedFromWorkspaceSymbols,
+  isUriIncludedInWorkspaceSymbols,
   scheduleWorkspaceSymbolIndexRebuild,
   setWorkspaceSymbolIndexChangeListener,
   workspaceUriKey,
@@ -116,7 +118,10 @@ export function createExtensionWorkspaceSymbolService(
   const scheduleForUri = async (uri: vscode.Uri, scope: WorkspaceRebuildScope): Promise<void> => {
     const settings = workspaceSymbolSettings();
     const folder = vscode.workspace.getWorkspaceFolder?.(uri);
-    if (isUriExcludedFromWorkspaceSymbols(uri, settings, folder)) {
+    if (
+      !isUriIncludedInWorkspaceSymbols(uri, settings, folder) ||
+      isUriExcludedFromWorkspaceSymbols(uri, settings, folder)
+    ) {
       return;
     }
     await schedule(scope, undefined, uri);
@@ -144,7 +149,8 @@ export function createExtensionWorkspaceSymbolService(
         ? vscode.workspace.workspaceFolders
         : [undefined];
     for (const folder of folders) {
-      for (const include of settings.workspaceSymbolsInclude) {
+      const workspaceSettings = workspaceSymbolSettings();
+      for (const include of effectiveWorkspaceSymbolIncludePatterns(workspaceSettings)) {
         const pattern = folder ? new vscode.RelativePattern(folder, include) : include;
         const watcher = vscode.workspace.createFileSystemWatcher(pattern);
         const listeners = [

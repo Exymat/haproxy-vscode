@@ -1,7 +1,6 @@
 /** Exposes workspace symbol definitions through VS Code workspace symbol search. */
 import * as vscode from "vscode";
 
-import { HaproxySchema } from "../schema/types";
 import {
   getWorkspaceSymbolIndexes,
   workspaceSiteRange,
@@ -54,10 +53,7 @@ function siteToSymbolInformation(
   );
 }
 
-export function provideWorkspaceSymbols(
-  query: string,
-  _schema: HaproxySchema,
-): vscode.SymbolInformation[] {
+export function provideWorkspaceSymbols(query: string): vscode.SymbolInformation[] {
   const workspaceIndexes = getWorkspaceSymbolIndexes();
   if (workspaceIndexes.length === 0) {
     return [];
@@ -80,7 +76,7 @@ export function provideWorkspaceSymbols(
             continue;
           }
         }
-        const key = `${site.uriKey}\0${site.kind}\0${site.name.toLowerCase()}\0${site.line}`;
+        const key = `${site.uriKey}\0${site.kind}\0${site.name}\0${site.line}`;
         if (seen.has(key)) {
           continue;
         }

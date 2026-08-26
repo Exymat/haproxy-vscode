@@ -23,6 +23,28 @@ describe("looksLikeHaproxyConfig", () => {
   it("accepts configs that start with a known section header", () => {
     expect(looksLikeHaproxyConfig(["# comment", "", "backend api"], headers)).toBe(true);
     expect(looksLikeHaproxyConfig(["global", "    daemon"], headers)).toBe(true);
+    expect(looksLikeHaproxyConfig(["global# comment", "    daemon"], headers)).toBe(true);
+  });
+
+  it("accepts configs with conditional and status directives before the first section", () => {
+    expect(
+      looksLikeHaproxyConfig(
+        [
+          ".if version_atleast(3.1-dev8)",
+          ".diag supported",
+          ".notice supported",
+          ".endif",
+          "traces",
+        ],
+        headers,
+      ),
+    ).toBe(true);
+  });
+
+  it("does not accept arbitrary dot-prefixed preambles", () => {
+    expect(looksLikeHaproxyConfig([".not-a-haproxy-directive", "backend api"], headers)).toBe(
+      false,
+    );
   });
 
   it("rejects configs whose first substantive line is not a section header", () => {

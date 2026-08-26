@@ -20,14 +20,7 @@ function symbolLabel(schema: HaproxySchema, kind: SymbolKind): string {
 }
 
 function siteKey(site: SymbolSite): string {
-  return [
-    site.kind,
-    site.name.toLowerCase(),
-    site.scopeKey ?? "",
-    site.line,
-    site.start,
-    site.end,
-  ].join("\0");
+  return [site.kind, site.name, site.scopeKey ?? "", site.line, site.start, site.end].join("\0");
 }
 
 export interface MissingReferenceDiagnosticsOptions {

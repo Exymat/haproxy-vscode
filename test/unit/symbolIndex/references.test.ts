@@ -12,6 +12,34 @@ import {
 import { doc, schema } from "./helpers";
 
 describe("symbolIndex references", () => {
+  it("preserves case-sensitive proxy names and filters definitions by capability", () => {
+    const parsed = parseDocument(
+      doc(
+        [
+          "frontend shared",
+          "backend shared",
+          "backend api",
+          "backend API",
+          "frontend web",
+          "    use_backend shared",
+          "    default_backend API",
+        ].join("\n"),
+      ),
+    );
+    const index = buildSymbolIndex(parsed, schema);
+
+    expect(index.definitions.get("proxy-section:api")).toHaveLength(1);
+    expect(index.definitions.get("proxy-section:API")).toHaveLength(1);
+    expect(findDefinitions(index, "proxy-section", "Api", null)).toEqual([]);
+    expect(
+      findDefinitions(index, "proxy-section", "shared", null, ["frontend"]).map((s) => s.line),
+    ).toEqual([0]);
+    expect(
+      findDefinitions(index, "proxy-section", "shared", null, ["backend"]).map((s) => s.line),
+    ).toEqual([1]);
+    expect(index.unresolvedReferences).toEqual([]);
+  });
+
   it("uses value token indexes for definitions and unscoped symbol keys", () => {
     const customSchema = structuredClone(schema);
     customSchema.statement_rules = [
@@ -26,7 +54,7 @@ describe("symbolIndex references", () => {
     const index = buildSymbolIndex(parsed, customSchema);
     expect(findDefinitions(index, "proxy-section", "api", "frontend:web")).toHaveLength(1);
     expect(symbolKeyForSchema(schema, "proxy-section", "Api", "frontend:web")).toBe(
-      "proxy-section:api",
+      "proxy-section:Api",
     );
   });
 

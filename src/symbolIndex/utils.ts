@@ -93,7 +93,7 @@ export function ensureSitesByLine(index: SymbolIndex): void {
 const symbolGraphKeyCache = new WeakMap<SymbolIndex, string>();
 
 function siteGraphPart(prefix: string, key: string, site: SymbolSite): string {
-  return `${prefix}:${key}:${site.line}:${site.start}:${site.end}`;
+  return `${prefix}:${key}:${site.proxyCapabilities?.join(",") ?? ""}:${site.line}:${site.start}:${site.end}`;
 }
 
 export function symbolGraphKey(index: SymbolIndex): string {

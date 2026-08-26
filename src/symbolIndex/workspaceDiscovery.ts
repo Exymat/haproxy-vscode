@@ -98,7 +98,9 @@ function normalizeRootPath(root: string): string {
   return root.replace(/\\/g, "/").replace(/^\/+/, "").replace(/\/+$/, "");
 }
 
-function effectiveIncludePatterns(settings: WorkspaceSymbolSettings): string[] {
+export function effectiveWorkspaceSymbolIncludePatterns(
+  settings: WorkspaceSymbolSettings,
+): string[] {
   if (!settings.roots.length) {
     return settings.include;
   }
@@ -348,6 +350,24 @@ export function isUriExcludedFromWorkspaceSymbols(
   return settings.exclude.some((pattern) => globMatches(pattern, rel, caseInsensitive));
 }
 
+export function isUriIncludedInWorkspaceSymbols(
+  uri: vscode.Uri,
+  settings: WorkspaceSymbolSettings,
+  folder?: vscode.WorkspaceFolder,
+): boolean {
+  if (!uriUnderConfiguredRoots(uri, settings, folder)) {
+    return false;
+  }
+  const rel = relativePathForUri(uri, folder);
+  if (rel === null) {
+    return false;
+  }
+  const caseInsensitive = isCaseInsensitivePath(uri, folder);
+  return effectiveWorkspaceSymbolIncludePatterns(settings).some((pattern) =>
+    globMatches(pattern, rel, caseInsensitive),
+  );
+}
+
 async function discoverUris(
   settings: WorkspaceSymbolSettings,
   folder: vscode.WorkspaceFolder | undefined,
@@ -356,7 +376,7 @@ async function discoverUris(
   const exclude = excludePattern(settings);
   const maxResults = maxDiscoveryResults(settings);
   const expectedFolderKey = folder ? workspaceFolderKey(folder) : undefined;
-  for (const include of effectiveIncludePatterns(settings)) {
+  for (const include of effectiveWorkspaceSymbolIncludePatterns(settings)) {
     const uris = await findWorkspaceFiles(
       relativePattern(folder, include),
       exclude ? relativePattern(folder, exclude) : undefined,

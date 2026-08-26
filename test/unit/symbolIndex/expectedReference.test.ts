@@ -64,6 +64,7 @@ describe("expectedReference", () => {
     expect(resolveExpectedSymbolReferenceAtCompletion(doc, pos(2, col), schema)).toEqual({
       kind: "proxy-section",
       scopeKey: null,
+      proxyCapabilities: ["backend"],
     });
   });
 

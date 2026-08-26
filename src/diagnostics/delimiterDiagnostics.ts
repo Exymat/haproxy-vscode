@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";
 import { findClosingBrace } from "../parser/expressionParsing";
+import { commentStartIndex } from "../parser";
 import { SampleDiagnostic } from "../parser/expressionTypes";
 import { ParsedLine } from "../parser";
 
@@ -44,17 +45,6 @@ function delimiterIssue(
   code: DelimiterDiagCode,
 ): DelimiterDiagnostic {
   return { start, end: Math.max(end, start + 1), message, code, source: DIAG_SOURCE };
-}
-
-function advancePastEscape(lineText: string, pos: number): number {
-  const next = lineText[pos + 1];
-  if (next === undefined) {
-    return pos + 1;
-  }
-  if ("\\ \"'".includes(next) || next === "r" || next === "n" || next === "t") {
-    return pos + 2;
-  }
-  return pos + 1;
 }
 
 function mightContainDelimiters(lineText: string): boolean {
@@ -114,16 +104,14 @@ export function validateLineDelimiters(lineText: string): DelimiterDiagnostic[] 
   let squote: QuoteKind | null = null;
   let dquote: QuoteKind | null = null;
   let quoteStart = 0;
+  const commentStart = commentStartIndex(lineText);
+  const limit = commentStart >= 0 ? commentStart : lineText.length;
 
-  for (let i = 0; i < lineText.length; i += 1) {
+  for (let i = 0; i < limit; i += 1) {
     const ch = lineText[i];
 
-    if (!squote && !dquote && ch === "#") {
-      break;
-    }
-
-    if (ch === "\\" && dquote && !squote) {
-      i = advancePastEscape(lineText, i) - 1;
+    if (ch === "\\" && !squote && i + 1 < limit) {
+      i += 1;
       continue;
     }
 

@@ -7,6 +7,7 @@ import { ParsedLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 import { symbolKindSet, symbolStringMap } from "../schema/symbols";
 import type { SymbolKind } from "../symbolIndex/types";
+import { proxyCapabilitiesOverlap } from "../symbolIndex/types";
 import {
   workspaceUriKey,
   type WorkspaceSymbolIndex,
@@ -78,14 +79,22 @@ export function duplicateSectionDiagnostics(
 
     const currentDefinitions = definitions.filter((site) => site.uriKey === documentKey);
     for (const site of currentDefinitions) {
-      const key = [site.kind, site.name.toLowerCase(), site.line, site.start, site.end].join("\0");
+      const compatibleDefinitions = definitions.filter((candidate) =>
+        proxyCapabilitiesOverlap(site.proxyCapabilities, candidate.proxyCapabilities),
+      );
+      if (compatibleDefinitions.length < 2) {
+        continue;
+      }
+      const conflictingDefinitions = [...compatibleDefinitions];
+      conflictingDefinitions.splice(conflictingDefinitions.indexOf(site), 1);
+      const key = [site.kind, site.name, site.line, site.start, site.end].join("\0");
       if (reported.has(key)) {
         continue;
       }
       reported.add(key);
 
       const label = sectionLabel(schema, parsed, site);
-      const locationSummary = definitionLocationSummary(definitions, documentKey);
+      const locationSummary = definitionLocationSummary(conflictingDefinitions, documentKey);
       diagnostics.push(
         makeDiagnostic(
           siteRange(site),

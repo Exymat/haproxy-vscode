@@ -121,6 +121,7 @@ describe("symbolIndex resolve", () => {
       kind: "proxy-section",
       name: "web",
       scopeKey: null,
+      proxyCapabilities: ["frontend"],
     });
   });
 
@@ -158,6 +159,7 @@ describe("symbolIndex resolve", () => {
       kind: "proxy-section",
       name: "api",
       scopeKey: null,
+      proxyCapabilities: ["backend"],
     });
   });
 

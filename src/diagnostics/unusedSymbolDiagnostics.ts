@@ -131,52 +131,57 @@ export function unusedSymbolDiagnostics(
   const outlineByStartLine = sectionOutlineByStartLine(document, parsed);
 
   for (const [key, defs] of index.definitions) {
-    if (reported.has(key) || defs.length === 0) {
-      continue;
-    }
-    reported.add(key);
+    for (const site of defs) {
+      const reportKey =
+        site.kind === "proxy-section"
+          ? `${key}:${site.proxyCapabilities?.join(",") ?? "any"}`
+          : key;
+      if (reported.has(reportKey)) {
+        continue;
+      }
+      reported.add(reportKey);
 
-    const site = defs[0];
-    const { kind } = site;
+      const { kind } = site;
 
-    if (skippedKinds.has(kind)) {
-      continue;
-    }
+      if (skippedKinds.has(kind)) {
+        continue;
+      }
 
-    if (
-      kind === "proxy-section" &&
-      isEntryPointProxySection(parsed, site.line, ctx.entryPointSections)
-    ) {
-      continue;
-    }
+      if (
+        kind === "proxy-section" &&
+        isEntryPointProxySection(parsed, site.line, ctx.entryPointSections)
+      ) {
+        continue;
+      }
 
-    if (isConventionalDefaultProfile(ctx.schema, site)) {
-      continue;
-    }
+      if (isConventionalDefaultProfile(ctx.schema, site)) {
+        continue;
+      }
 
-    if (hasReferences(index, kind, site.name, site.scopeKey)) {
-      continue;
-    }
+      if (hasReferences(index, kind, site.name, site.scopeKey, site.proxyCapabilities)) {
+        continue;
+      }
 
-    const outline = outlineByStartLine.get(site.line);
-    const message = unusedMessage(ctx.schema, kind, site.name);
-    const code = unusedCode(ctx.schema, kind);
+      const outline = outlineByStartLine.get(site.line);
+      const message = unusedMessage(ctx.schema, kind, site.name);
+      const code = unusedCode(ctx.schema, kind);
 
-    if (sectionBlockKinds.has(kind)) {
+      if (sectionBlockKinds.has(kind)) {
+        diagnostics.push(
+          makeUnusedLineDiagnostic(sectionBlockRange(outline, site, kind, document), message, code),
+        );
+        continue;
+      }
+
+      const lineText = document.lineAt(site.line).text;
       diagnostics.push(
-        makeUnusedLineDiagnostic(sectionBlockRange(outline, site, kind, document), message, code),
+        makeUnusedLineDiagnostic(
+          new vscode.Range(site.line, 0, site.line, lineText.length),
+          message,
+          code,
+        ),
       );
-      continue;
     }
-
-    const lineText = document.lineAt(site.line).text;
-    diagnostics.push(
-      makeUnusedLineDiagnostic(
-        new vscode.Range(site.line, 0, site.line, lineText.length),
-        message,
-        code,
-      ),
-    );
   }
 
   return diagnostics;

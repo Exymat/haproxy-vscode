@@ -19,12 +19,20 @@ import { aclReferenceExpectedAt } from "./aclReferences";
 import { fetchReferenceRules } from "./context";
 import { buildScopeKeyByLine } from "./scope";
 import { symbolNameTokenIndex } from "./utils";
-import { effectiveScopeKeyForSchema, SymbolIndex, SymbolKind } from "./types";
+import {
+  effectiveScopeKeyForSchema,
+  proxyCapabilitiesForReference,
+  ProxyCapability,
+  siteMatchesProxyCapabilities,
+  SymbolIndex,
+  SymbolKind,
+} from "./types";
 import { resolveSymbolAtPosition } from "./resolve";
 
 export interface ExpectedSymbolReference {
   kind: SymbolKind;
   scopeKey: string | null;
+  proxyCapabilities?: readonly ProxyCapability[];
 }
 
 const SAMPLE_FETCH_REF = /^([a-z_][\w.-]*)\(([^)]*)\)$/i;
@@ -159,7 +167,11 @@ function expectedStatementRuleReference(
       return null;
     }
     const kind = rule.reference_kind;
-    return { kind, scopeKey: effectiveScopeKeyForSchema(schema, kind, scopeKey) };
+    return {
+      kind,
+      scopeKey: effectiveScopeKeyForSchema(schema, kind, scopeKey),
+      proxyCapabilities: proxyCapabilitiesForReference(kind, line.tokens[0]?.text),
+    };
   }
   return null;
 }
@@ -345,7 +357,11 @@ export function resolveExpectedSymbolReferenceAtCompletion(
       if (isLikelyValue(token.text)) {
         return null;
       }
-      return { kind: resolved.kind, scopeKey: resolved.scopeKey };
+      return {
+        kind: resolved.kind,
+        scopeKey: resolved.scopeKey,
+        proxyCapabilities: resolved.proxyCapabilities,
+      };
     }
   }
 
@@ -356,6 +372,7 @@ export function listDefinitionNames(
   index: SymbolIndex,
   kind: SymbolKind,
   scopeKey: string | null,
+  proxyCapabilities?: readonly ProxyCapability[],
 ): string[] {
   const names = new Set<string>();
 
@@ -365,6 +382,9 @@ export function listDefinitionNames(
         continue;
       }
       if (index.scopedSymbolKinds.has(kind) && site.scopeKey !== scopeKey) {
+        continue;
+      }
+      if (!siteMatchesProxyCapabilities(site, proxyCapabilities)) {
         continue;
       }
       names.add(site.name);

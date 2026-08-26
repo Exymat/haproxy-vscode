@@ -5,6 +5,12 @@ import { SymbolKind } from "../core/editorKinds";
 
 export type { SymbolKind } from "../core/editorKinds";
 
+export type ProxyCapability = "frontend" | "backend";
+
+const FRONTEND_CAPABILITY = ["frontend"] as const;
+const BACKEND_CAPABILITY = ["backend"] as const;
+const LISTEN_CAPABILITIES = ["frontend", "backend"] as const;
+
 export interface SymbolSite {
   kind: SymbolKind;
   name: string;
@@ -13,6 +19,8 @@ export interface SymbolSite {
   end: number;
   scopeKey: string | null;
   role: "definition" | "reference";
+  /** Proxy capabilities supplied by a section or required by a reference. */
+  proxyCapabilities?: readonly ProxyCapability[];
 }
 
 export interface SymbolIndex {
@@ -80,11 +88,55 @@ export function symbolKeyForScopedKinds(
   name: string,
   scopeKey: string | null,
 ): string {
-  const lower = name.toLowerCase();
   if (scopeKey && scopedKinds.has(kind)) {
-    return `${kind}:${scopeKey}:${lower}`;
+    return `${kind}:${scopeKey}:${name}`;
   }
-  return `${kind}:${lower}`;
+  return `${kind}:${name}`;
+}
+
+export function proxyCapabilitiesForSectionType(
+  sectionType: string,
+): readonly ProxyCapability[] | undefined {
+  if (sectionType === "listen") {
+    return LISTEN_CAPABILITIES;
+  }
+  if (sectionType === "frontend") {
+    return FRONTEND_CAPABILITY;
+  }
+  if (sectionType === "backend") {
+    return BACKEND_CAPABILITY;
+  }
+  return undefined;
+}
+
+export function proxyCapabilitiesForReference(
+  kind: SymbolKind,
+  keyword: string | undefined,
+): readonly ProxyCapability[] | undefined {
+  const normalizedKeyword = keyword?.toLowerCase();
+  if (
+    kind === "proxy-section" &&
+    (normalizedKeyword === "use_backend" || normalizedKeyword === "default_backend")
+  ) {
+    return BACKEND_CAPABILITY;
+  }
+  return undefined;
+}
+
+export function proxyCapabilitiesOverlap(
+  left: readonly ProxyCapability[] | undefined,
+  right: readonly ProxyCapability[] | undefined,
+): boolean {
+  return left === undefined || right === undefined || left.some((value) => right.includes(value));
+}
+
+export function siteMatchesProxyCapabilities(
+  site: Pick<SymbolSite, "kind" | "proxyCapabilities">,
+  requested: readonly ProxyCapability[] | undefined,
+): boolean {
+  return (
+    site.kind !== "proxy-section" || proxyCapabilitiesOverlap(site.proxyCapabilities, requested)
+  );
 }
 
 export function symbolKeyForSchema(

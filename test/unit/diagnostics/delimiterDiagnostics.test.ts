@@ -115,6 +115,16 @@ describe("validateLineDelimiters", () => {
     expect(validateLineDelimiters('    acl x path "unknown\\z" if { ok }')).toEqual([]);
   });
 
+  it("respects escapes outside quotes", () => {
+    expect(validateLineDelimiters('    description \\"literal quote\\"')).toEqual([]);
+    expect(validateLineDelimiters("    description value\\#literal { open")).toEqual([
+      expect.objectContaining({
+        code: "delimiter-unclosed",
+        message: "missing closing '}'",
+      }),
+    ]);
+  });
+
   it("reports unexpected closing brackets", () => {
     expect(validateLineDelimiters("    ]")).toEqual([
       expect.objectContaining({

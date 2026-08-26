@@ -1,4 +1,8 @@
-import { isUriExcludedFromWorkspaceSymbols } from "../../../src/symbolIndex";
+import {
+  effectiveWorkspaceSymbolIncludePatterns,
+  isUriExcludedFromWorkspaceSymbols,
+  isUriIncludedInWorkspaceSymbols,
+} from "../../../src/symbolIndex";
 import { Uri } from "../../helpers/vscode";
 import { defaultWorkspaceSymbolSettings } from "./helpers";
 
@@ -291,6 +295,32 @@ describe("workspace symbol watcher helpers", () => {
         Uri.file("file:///repo/vendor/x.cfg") as never,
         defaultWorkspaceSymbolSettings({ debounceMs: 750 }),
         { uri: Uri.file("file:///repo"), name: "repo", index: 0 } as never,
+      ),
+    ).toBe(false);
+  });
+
+  it("limits watcher patterns and events to configured roots", () => {
+    const settings = defaultWorkspaceSymbolSettings({
+      include: ["**/*.cfg"],
+      roots: ["etc/haproxy", "deploy/proxy"],
+    });
+
+    expect(effectiveWorkspaceSymbolIncludePatterns(settings)).toEqual([
+      "etc/haproxy/**/*.cfg",
+      "deploy/proxy/**/*.cfg",
+    ]);
+    expect(
+      isUriIncludedInWorkspaceSymbols(
+        Uri.file("file:///repo/etc/haproxy/main.cfg") as never,
+        settings,
+        repoFolder as never,
+      ),
+    ).toBe(true);
+    expect(
+      isUriIncludedInWorkspaceSymbols(
+        Uri.file("file:///repo/unrelated/main.cfg") as never,
+        settings,
+        repoFolder as never,
       ),
     ).toBe(false);
   });

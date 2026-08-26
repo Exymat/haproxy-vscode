@@ -16,5 +16,11 @@ class Diagnostic {
 }
 
 const DiagnosticSeverity = { Warning: 1, Error: 0, Information: 2, Hint: 3 };
+const DiagnosticTag = { Unnecessary: 1, Deprecated: 2 };
+const workspace = {
+  textDocuments: [],
+  workspaceFolders: undefined,
+  getWorkspaceFolder: () => undefined,
+};
 
-module.exports = { Range, Diagnostic, DiagnosticSeverity };
+module.exports = { Range, Diagnostic, DiagnosticSeverity, DiagnosticTag, workspace };

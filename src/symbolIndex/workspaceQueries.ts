@@ -1,7 +1,14 @@
 /** Query helpers for definitions and references across the workspace index. */
 import * as vscode from "vscode";
 
-import { SymbolIndex, SymbolKind, symbolKeyForScopedKinds, SymbolSite } from "./types";
+import {
+  ProxyCapability,
+  siteMatchesProxyCapabilities,
+  SymbolIndex,
+  SymbolKind,
+  symbolKeyForScopedKinds,
+  SymbolSite,
+} from "./types";
 import { SectionRange, WorkspaceSymbolIndex, WorkspaceSymbolSite } from "./workspaceTypes";
 import { workspaceUriKey } from "./workspaceUri";
 
@@ -10,9 +17,12 @@ export function findWorkspaceDefinitions(
   kind: SymbolKind,
   name: string,
   scopeKey: string | null,
+  proxyCapabilities?: readonly ProxyCapability[],
 ): WorkspaceSymbolSite[] {
   const key = symbolKeyForScopedKinds(workspaceIndex.scopedSymbolKinds, kind, name, scopeKey);
-  return workspaceIndex.definitions.get(key) ?? [];
+  return (workspaceIndex.definitions.get(key) ?? []).filter((site) =>
+    siteMatchesProxyCapabilities(site, proxyCapabilities),
+  );
 }
 
 export function findWorkspaceReferences(
@@ -20,9 +30,12 @@ export function findWorkspaceReferences(
   kind: SymbolKind,
   name: string,
   scopeKey: string | null,
+  proxyCapabilities?: readonly ProxyCapability[],
 ): WorkspaceSymbolSite[] {
   const key = symbolKeyForScopedKinds(workspaceIndex.scopedSymbolKinds, kind, name, scopeKey);
-  return workspaceIndex.referencesByKey.get(key) ?? [];
+  return (workspaceIndex.referencesByKey.get(key) ?? []).filter((site) =>
+    siteMatchesProxyCapabilities(site, proxyCapabilities),
+  );
 }
 
 export function findAllWorkspaceSites(
@@ -30,9 +43,22 @@ export function findAllWorkspaceSites(
   kind: SymbolKind,
   name: string,
   scopeKey: string | null,
+  proxyCapabilities?: readonly ProxyCapability[],
 ): WorkspaceSymbolSite[] {
-  const definitions = findWorkspaceDefinitions(workspaceIndex, kind, name, scopeKey);
-  const references = findWorkspaceReferences(workspaceIndex, kind, name, scopeKey);
+  const definitions = findWorkspaceDefinitions(
+    workspaceIndex,
+    kind,
+    name,
+    scopeKey,
+    proxyCapabilities,
+  );
+  const references = findWorkspaceReferences(
+    workspaceIndex,
+    kind,
+    name,
+    scopeKey,
+    proxyCapabilities,
+  );
   return [...definitions, ...references];
 }
 
@@ -76,7 +102,19 @@ function localReferencesMissingInWorkspace(
       reference.name,
       reference.scopeKey,
     );
-    if (!workspaceIndex.definitions.has(key)) {
+    const definitions = workspaceIndex.definitions.get(key);
+    if (!definitions) {
+      unresolved.push(reference);
+      continue;
+    }
+    if (reference.kind !== "proxy-section") {
+      continue;
+    }
+    if (
+      !definitions.some((definition) =>
+        siteMatchesProxyCapabilities(definition, reference.proxyCapabilities),
+      )
+    ) {
       unresolved.push(reference);
     }
   }

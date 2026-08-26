@@ -41,19 +41,19 @@ describe("tokenizeLine", () => {
 
   const commentBoundaryCases: CommentBoundaryCase[] = [
     {
-      name: "keeps unquoted hash inside token",
+      name: "starts a comment at an unprotected hash inside a token",
       line: "set-var(txn.x) a#b",
       tokens: [
         { text: "set-var(txn.x)", start: 0, end: 14 },
-        { text: "a#b", start: 15, end: 18 },
+        { text: "a", start: 15, end: 16 },
       ],
-      commentStart: -1,
+      commentStart: 16,
     },
     {
-      name: "keeps hash joined to section-like token",
+      name: "starts a comment at a hash joined to a section token",
       line: "global#comment",
-      tokens: [{ text: "global#comment", start: 0, end: 14 }],
-      commentStart: -1,
+      tokens: [{ text: "global", start: 0, end: 6 }],
+      commentStart: 6,
     },
     {
       name: "keeps quoted hash inside token and finds trailing comment",
@@ -87,6 +87,25 @@ describe("tokenizeLine", () => {
       expect(tokenizeLine(testCase.line)).toEqual(testCase.tokens);
     });
   }
+
+  it("keeps escaped delimiters inside unquoted tokens", () => {
+    expect(tokenizeLine("set-header X foo\\  bar\\#baz")).toEqual([
+      { text: "set-header", start: 0, end: 10 },
+      { text: "X", start: 11, end: 12 },
+      { text: "foo\\ ", start: 13, end: 18 },
+      { text: "bar\\#baz", start: 19, end: 27 },
+    ]);
+    expect(commentStartIndex("set-header X bar\\#baz")).toBe(-1);
+  });
+
+  it("does not treat backslashes as escapes in strong quotes", () => {
+    expect(tokenizeLine("set-var x 'a\\' # trailing")).toEqual([
+      { text: "set-var", start: 0, end: 7 },
+      { text: "x", start: 8, end: 9 },
+      { text: "'a\\'", start: 10, end: 14 },
+    ]);
+    expect(commentStartIndex("set-var x 'a\\' # trailing")).toBe(15);
+  });
 
   it("parses anonymous defaults section header", () => {
     const doc = createDocument("defaults\n    maxconn 100");

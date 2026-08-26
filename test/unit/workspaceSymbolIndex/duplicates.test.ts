@@ -46,6 +46,50 @@ describe("workspace symbol index duplicates", () => {
     ).toHaveLength(1);
   });
 
+  it("permits frontend/backend name reuse but reports overlapping listen capabilities", () => {
+    const document = createDocument(
+      "frontend shared\nbackend shared\nlisten shared",
+      "file:///capabilities.cfg",
+    );
+    const workspaceIndex = buildWorkspaceSymbolIndexFromOpenDocuments([document], schema, 4000);
+    const diagnostics = duplicateSectionDiagnostics(
+      document,
+      expectWorkspaceDocumentSymbols(workspaceIndex, document.uri.toString()).parsed,
+      workspaceIndex,
+      schema,
+    );
+
+    expect(diagnostics.map((diagnostic) => diagnostic.range.start.line).sort()).toEqual([0, 1, 2]);
+
+    const legalDocument = createDocument(
+      "frontend shared\nbackend shared",
+      "file:///legal-capabilities.cfg",
+    );
+    const legalIndex = buildWorkspaceSymbolIndexFromOpenDocuments([legalDocument], schema, 4000);
+    expect(
+      duplicateSectionDiagnostics(
+        legalDocument,
+        expectWorkspaceDocumentSymbols(legalIndex, legalDocument.uri.toString()).parsed,
+        legalIndex,
+        schema,
+      ),
+    ).toEqual([]);
+  });
+
+  it("treats differently-cased proxy names as distinct", () => {
+    const document = createDocument("backend api\nbackend API", "file:///case-sensitive.cfg");
+    const workspaceIndex = buildWorkspaceSymbolIndexFromOpenDocuments([document], schema, 4000);
+
+    expect(
+      duplicateSectionDiagnostics(
+        document,
+        expectWorkspaceDocumentSymbols(workspaceIndex, document.uri.toString()).parsed,
+        workspaceIndex,
+        schema,
+      ),
+    ).toEqual([]);
+  });
+
   it("labels duplicate section kinds and same-file duplicates", () => {
     const content = [
       "defaults base",

@@ -25,7 +25,7 @@ describe("workspaceSymbols", () => {
   });
 
   it("returns an empty list when the workspace index is missing", () => {
-    expect(provideWorkspaceSymbols("api", schema)).toEqual([]);
+    expect(provideWorkspaceSymbols("api")).toEqual([]);
   });
 
   it("filters, deduplicates, and maps workspace symbol kinds", () => {
@@ -105,11 +105,9 @@ describe("workspaceSymbols", () => {
       } as never,
     ]);
 
-    expect(provideWorkspaceSymbols("", schema).length).toBeGreaterThan(0);
-    expect(provideWorkspaceSymbols("api", schema).some((symbol) => symbol.name === "api")).toBe(
-      true,
-    );
-    expect(provideWorkspaceSymbols("zzzz-no-match", schema)).toEqual([]);
+    expect(provideWorkspaceSymbols("").length).toBeGreaterThan(0);
+    expect(provideWorkspaceSymbols("api").some((symbol) => symbol.name === "api")).toBe(true);
+    expect(provideWorkspaceSymbols("zzzz-no-match")).toEqual([]);
   });
 
   it("lists workspace symbols from a rebuilt workspace index", async () => {
@@ -132,18 +130,10 @@ describe("workspaceSymbols", () => {
       4000,
     );
     await vi.runAllTimersAsync();
-    expect(provideWorkspaceSymbols("", schema).length).toBeGreaterThan(0);
-    expect(
-      provideWorkspaceSymbols("frontend", schema).some((symbol) => symbol.name === "web"),
-    ).toBe(true);
-    expect(provideWorkspaceSymbols("listen", schema).some((symbol) => symbol.name === "both")).toBe(
-      true,
-    );
-    expect(
-      provideWorkspaceSymbols("defaults", schema).some((symbol) => symbol.name === "base"),
-    ).toBe(true);
-    expect(provideWorkspaceSymbols("api", schema).some((symbol) => symbol.name === "api")).toBe(
-      true,
-    );
+    expect(provideWorkspaceSymbols("").length).toBeGreaterThan(0);
+    expect(provideWorkspaceSymbols("frontend").some((symbol) => symbol.name === "web")).toBe(true);
+    expect(provideWorkspaceSymbols("listen").some((symbol) => symbol.name === "both")).toBe(true);
+    expect(provideWorkspaceSymbols("defaults").some((symbol) => symbol.name === "base")).toBe(true);
+    expect(provideWorkspaceSymbols("api").some((symbol) => symbol.name === "api")).toBe(true);
   });
 });

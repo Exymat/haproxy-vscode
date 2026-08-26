@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import { fingerprintText } from "../core/contentFingerprint";
 import { isHaproxyLanguageId } from "../extension/grammar";
 import { getParsedDocument } from "../parser/parseCache";
-import { parseDocumentLines, ParsedLine } from "../parser";
+import { parseDocumentLines, ParsedLine, tokenizeLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 import { sectionHeaderSet } from "../schema/layout";
 
@@ -45,6 +45,16 @@ export function defaultWorkspaceIndexByteLimits(): WorkspaceIndexByteLimits {
 
 const textEncoder = new TextEncoder();
 const workspaceEntrySchema = new WeakMap<WorkspaceDocumentSymbols, HaproxySchema>();
+const HAPROXY_PREAMBLE_DIRECTIVES = new Set([
+  ".if",
+  ".elif",
+  ".else",
+  ".endif",
+  ".diag",
+  ".notice",
+  ".warning",
+  ".alert",
+]);
 
 export function encodedTextByteLength(text: string): number {
   return textEncoder.encode(text).length;
@@ -146,11 +156,14 @@ export function looksLikeHaproxyConfig(
   sectionHeaders: ReadonlySet<string>,
 ): boolean {
   for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) {
+    const tokens = tokenizeLine(line);
+    if (tokens.length === 0) {
       continue;
     }
-    const first = trimmed.split(/\s+/)[0]?.toLowerCase();
+    const first = tokens[0]?.text.toLowerCase();
+    if (first !== undefined && HAPROXY_PREAMBLE_DIRECTIVES.has(first)) {
+      continue;
+    }
     return first !== undefined && sectionHeaders.has(first);
   }
   return false;

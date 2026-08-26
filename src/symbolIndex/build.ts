@@ -10,7 +10,7 @@ import { aclReferenceAt } from "./aclReferences";
 import { createSymbolBuildContext, SymbolBuildContext } from "./context";
 import { collectLineSitesInto } from "./lineSites";
 import { buildScopeKeyByLine, updateScopeKeyForLine } from "./scope";
-import { proxySectionSet, SymbolIndex, SymbolSite } from "./types";
+import { proxyCapabilitiesOverlap, proxySectionSet, SymbolIndex, SymbolSite } from "./types";
 import { addSite, buildReferencesByKey, buildSitesByLine, ensureSitesByLine } from "./utils";
 
 export interface SymbolIndexBuildOptions {
@@ -46,7 +46,7 @@ export function symbolSiteFingerprint(sites: SymbolSite[]): string {
     return "";
   }
   const fingerprintPart = (site: SymbolSite) =>
-    `${site.role}:${site.kind}:${site.scopeKey ?? ""}:${site.name.toLowerCase()}:${site.start}:${site.end}`;
+    `${site.role}:${site.kind}:${site.scopeKey ?? ""}:${site.name}:${site.proxyCapabilities?.join(",") ?? ""}:${site.start}:${site.end}`;
   if (sites.length === 1) {
     return fingerprintPart(sites[0]);
   }
@@ -70,10 +70,23 @@ function collectUnresolvedReferences(
     if (refs.every((ref) => ref.kind === "environment-variable")) {
       continue;
     }
-    if (definitions.has(key)) {
+    const defs = definitions.get(key);
+    if (!defs) {
+      unresolved.push(...refs);
       continue;
     }
-    unresolved.push(...refs);
+    if (refs[0]?.kind !== "proxy-section") {
+      continue;
+    }
+    for (const reference of refs) {
+      if (
+        !defs.some((definition) =>
+          proxyCapabilitiesOverlap(definition.proxyCapabilities, reference.proxyCapabilities),
+        )
+      ) {
+        unresolved.push(reference);
+      }
+    }
   }
 
   return unresolved;

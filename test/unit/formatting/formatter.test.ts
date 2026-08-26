@@ -32,8 +32,8 @@ describe("formatter", () => {
         "     mode             http   # or tcp",
       ].join("\n"),
       expected: [
-        "    global#this is the global section",
-        "    daemon#daemonize",
+        "global #this is the global section",
+        "    daemon #daemonize",
         "",
         "frontend foo",
         "    mode http # or tcp",
@@ -91,14 +91,24 @@ describe("formatter", () => {
       expected: '    http-request set-header X "#not-a-comment"',
     },
     {
-      name: "unquoted hash inside token is not a comment",
+      name: "unprotected hash inside token starts a comment",
       input: "    set-var(txn.slug) a#b",
-      expected: "    set-var(txn.slug) a#b",
+      expected: "    set-var(txn.slug) a #b",
     },
     {
-      name: "hash joined to section name is not a comment",
+      name: "hash joined to section name starts a comment",
       input: "     global#comment\n     daemon",
-      expected: "    global#comment\n    daemon",
+      expected: "global #comment\n    daemon",
+    },
+    {
+      name: "preserves escaped whitespace between distinct arguments",
+      input: "frontend f\n    http-request set-header X foo\\  bar",
+      expected: "frontend f\n    http-request set-header X foo\\  bar",
+    },
+    {
+      name: "preserves an escaped hash as code",
+      input: "frontend f\n    http-request set-header X foo\\#bar",
+      expected: "frontend f\n    http-request set-header X foo\\#bar",
     },
     {
       name: "2-space indent",
@@ -147,15 +157,21 @@ describe("formatter", () => {
       comment: "# trailing",
     },
     {
-      name: "unquoted hash inside token stays in code",
+      name: "unprotected hash inside token starts comment",
       line: "set-var(txn.x) a#b",
-      code: "set-var(txn.x) a#b",
-      comment: null,
+      code: "set-var(txn.x) a",
+      comment: "#b",
     },
     {
-      name: "section-like token with hash stays in code",
+      name: "section-like token with hash starts comment",
       line: "global#comment",
-      code: "global#comment",
+      code: "global",
+      comment: "#comment",
+    },
+    {
+      name: "escaped hash stays in code",
+      line: "set-var(txn.x) a\\#b",
+      code: "set-var(txn.x) a\\#b",
       comment: null,
     },
     {

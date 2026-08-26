@@ -26,8 +26,12 @@ import { buildScopeKeyByLine } from "./scope";
 import { symbolNameTokenIndices, ensureSitesByLine } from "./utils";
 import {
   effectiveScopeKeyForSchema,
+  proxyCapabilitiesForReference,
+  proxyCapabilitiesForSectionType,
   sectionDefinitionKinds,
+  siteMatchesProxyCapabilities,
   symbolKeyForScopedKinds,
+  ProxyCapability,
   SymbolIndex,
   SymbolKind,
   SymbolSite,
@@ -49,7 +53,12 @@ function resolveSectionHeaderSymbol(
   line: ParsedLine,
   tokenIndex: number,
   schema: HaproxySchema,
-): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
+): {
+  kind: SymbolKind;
+  name: string;
+  scopeKey: string | null;
+  proxyCapabilities?: readonly ProxyCapability[];
+} | null {
   if (!isTopLevelSectionHeader(line) || line.tokens.length < 2) {
     return null;
   }
@@ -62,7 +71,12 @@ function resolveSectionHeaderSymbol(
   }
 
   if (tokenIndex === 1) {
-    return { kind: defKind, name: line.tokens[1].text, scopeKey: null };
+    return {
+      kind: defKind,
+      name: line.tokens[1].text,
+      scopeKey: null,
+      proxyCapabilities: proxyCapabilitiesForSectionType(header.sectionType),
+    };
   }
 
   const profileIndex = sectionHeaderFromProfileTokenIndex(line, schema);
@@ -80,7 +94,12 @@ function resolveStatementRuleSymbol(
   rules: StatementRule[],
   scopeKey: string | null,
   positionCharacter: number,
-): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
+): {
+  kind: SymbolKind;
+  name: string;
+  scopeKey: string | null;
+  proxyCapabilities?: readonly ProxyCapability[];
+} | null {
   const envSymbol = resolveEnvironmentVariableSymbol(line, tokenIndex, positionCharacter);
   if (envSymbol) {
     return envSymbol;
@@ -128,6 +147,7 @@ function resolveStatementRuleSymbol(
           kind,
           name: token.text,
           scopeKey: effectiveScopeKeyForSchema(schema, kind, scopeKey),
+          proxyCapabilities: proxyCapabilitiesForReference(kind, line.tokens[0]?.text),
         };
       }
     }
@@ -161,7 +181,12 @@ function resolveEnvironmentVariableSymbol(
   line: ParsedLine,
   tokenIndex: number,
   positionCharacter: number,
-): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
+): {
+  kind: SymbolKind;
+  name: string;
+  scopeKey: string | null;
+  proxyCapabilities?: readonly ProxyCapability[];
+} | null {
   const token = line.tokens[tokenIndex];
 
   for (const hit of findEnvironmentVariableReferences(token)) {
@@ -178,7 +203,12 @@ export function resolveSymbolAtPosition(
   position: vscode.Position,
   schema: HaproxySchema,
   scopeKeyByLine?: (string | null)[],
-): { kind: SymbolKind; name: string; scopeKey: string | null } | null {
+): {
+  kind: SymbolKind;
+  name: string;
+  scopeKey: string | null;
+  proxyCapabilities?: readonly ProxyCapability[];
+} | null {
   const parsed = getParsedDocument(document, { sectionHeaders: sectionHeaderSet(schema) });
   const line = parsed[position.line];
   if (!line || line.tokens.length === 0) {
@@ -211,11 +241,12 @@ export function findDefinitions(
   kind: SymbolKind,
   name: string,
   scopeKey: string | null,
+  proxyCapabilities?: readonly ProxyCapability[],
 ): SymbolSite[] {
-  return (
+  const definitions =
     index.definitions.get(symbolKeyForScopedKinds(index.scopedSymbolKinds, kind, name, scopeKey)) ??
-    []
-  );
+    [];
+  return definitions.filter((site) => siteMatchesProxyCapabilities(site, proxyCapabilities));
 }
 
 export function findReferences(
@@ -223,11 +254,12 @@ export function findReferences(
   kind: SymbolKind,
   name: string,
   scopeKey: string | null,
+  proxyCapabilities?: readonly ProxyCapability[],
 ): SymbolSite[] {
   const key = symbolKeyForScopedKinds(index.scopedSymbolKinds, kind, name, scopeKey);
   const refs = index.referencesByKey.get(key);
   if (refs) {
-    return refs;
+    return refs.filter((site) => siteMatchesProxyCapabilities(site, proxyCapabilities));
   }
   return [];
 }
@@ -237,10 +269,9 @@ export function hasReferences(
   kind: SymbolKind,
   name: string,
   scopeKey: string | null,
+  proxyCapabilities?: readonly ProxyCapability[],
 ): boolean {
-  return index.referencesByKey.has(
-    symbolKeyForScopedKinds(index.scopedSymbolKinds, kind, name, scopeKey),
-  );
+  return findReferences(index, kind, name, scopeKey, proxyCapabilities).length > 0;
 }
 
 export function findAllSites(
@@ -248,9 +279,10 @@ export function findAllSites(
   kind: SymbolKind,
   name: string,
   scopeKey: string | null,
+  proxyCapabilities?: readonly ProxyCapability[],
 ): SymbolSite[] {
-  const defs = findDefinitions(index, kind, name, scopeKey);
-  const refs = findReferences(index, kind, name, scopeKey);
+  const defs = findDefinitions(index, kind, name, scopeKey, proxyCapabilities);
+  const refs = findReferences(index, kind, name, scopeKey, proxyCapabilities);
   return [...defs, ...refs];
 }
 

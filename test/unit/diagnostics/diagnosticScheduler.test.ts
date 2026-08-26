@@ -257,4 +257,47 @@ describe("diagnosticScheduler", () => {
     expect(deleteDiagnostics).toHaveBeenCalledWith(document.uri);
     expect(setDiagnostics).not.toHaveBeenCalled();
   });
+
+  it("does not republish an in-flight result after diagnostics are disabled", async () => {
+    const setDiagnostics = vi.fn();
+    const deleteDiagnostics = vi.fn();
+    const diagnostics = {
+      set: setDiagnostics,
+      delete: deleteDiagnostics,
+    } as unknown as vscode.DiagnosticCollection;
+    let enabled = true;
+    let resolveBundle = (_value: unknown): void => {
+      throw new Error("bundle load not started");
+    };
+    const ensureBundle = vi.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveBundle = resolve;
+        }),
+    );
+    const scheduler = createDiagnosticScheduler(
+      diagnostics,
+      () => ({ ...getExtensionSettings(), diagnosticsEnabled: enabled }),
+      ensureBundle,
+      vi.fn(),
+    );
+    const document = {
+      uri: { toString: () => "file:///test.cfg" },
+      languageId: "haproxy",
+      lineCount: 1,
+      lineAt: () => ({ text: "global" }),
+      getText: () => "global",
+      version: 1,
+    } as unknown as vscode.TextDocument;
+
+    scheduler.runNow(document);
+    await Promise.resolve();
+    enabled = false;
+    scheduler.schedule(document);
+    resolveBundle({ ...bundle, version: "3.4" });
+    await Promise.resolve();
+
+    expect(deleteDiagnostics).toHaveBeenCalledWith(document.uri);
+    expect(setDiagnostics).not.toHaveBeenCalled();
+  });
 });

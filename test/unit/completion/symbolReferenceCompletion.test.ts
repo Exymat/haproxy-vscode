@@ -38,6 +38,7 @@ describe("expected symbol reference resolution", () => {
     expect(resolveExpectedSymbolReferenceAtCompletion(doc, pos(2, col), bundle.schema)).toEqual({
       kind: "proxy-section",
       scopeKey: null,
+      proxyCapabilities: ["backend"],
     });
   });
 

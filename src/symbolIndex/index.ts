@@ -32,6 +32,8 @@ export {
   hasCappedWorkspaceFolders,
   isDocumentWorkspaceIndexCapped,
   isUriExcludedFromWorkspaceSymbols,
+  isUriIncludedInWorkspaceSymbols,
+  effectiveWorkspaceSymbolIncludePatterns,
   isWorkspaceRebuildPending,
   refreshWorkspaceSymbolIndexNow,
   resolveWorkspaceRebuildScopeOnOpen,
@@ -43,7 +45,7 @@ export {
   workspaceSiteRange,
   workspaceSiteText,
 } from "./workspace";
-export type { SymbolIndex, SymbolKind, SymbolSite } from "./types";
+export type { ProxyCapability, SymbolIndex, SymbolKind, SymbolSite } from "./types";
 export type {
   WorkspaceIndexChangeEvent,
   WorkspaceRebuildOptions,

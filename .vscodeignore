@@ -5,6 +5,7 @@ scripts/**
 test/**
 coverage/**
 out/test/**
+out/tooling/**
 **/*.ts
 **/*.map
 tsconfig.json

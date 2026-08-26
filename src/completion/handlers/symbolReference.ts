@@ -8,9 +8,11 @@ import {
   getWorkspaceSymbolIndex,
   listDefinitionNames,
   resolveExpectedSymbolReferenceAtCompletion,
+  ProxyCapability,
   SymbolKind,
   workspaceUriKey,
 } from "../../symbolIndex";
+import { siteMatchesProxyCapabilities } from "../../symbolIndex/types";
 import { CompletionContext } from "../types";
 
 const SYMBOL_KIND_DETAIL: Record<string, string> = {
@@ -77,6 +79,7 @@ function workspaceDefinitionNames(
   workspaceIndex: NonNullable<ReturnType<typeof getWorkspaceSymbolIndex>>,
   kind: SymbolKind,
   scopeKey: string | null,
+  proxyCapabilities?: readonly ProxyCapability[],
 ): string[] {
   const names = new Set<string>();
   for (const defs of workspaceIndex.definitions.values()) {
@@ -85,6 +88,9 @@ function workspaceDefinitionNames(
         continue;
       }
       if (workspaceIndex.scopedSymbolKinds.has(kind) && site.scopeKey !== scopeKey) {
+        continue;
+      }
+      if (!siteMatchesProxyCapabilities(site, proxyCapabilities)) {
         continue;
       }
       names.add(site.name);
@@ -99,16 +105,22 @@ function symbolCandidateNames(
   kind: SymbolKind,
   scopeKey: string | null,
   maxLines: number,
+  proxyCapabilities?: readonly ProxyCapability[],
 ): string[] {
   const index = getSymbolIndex(document, schema, maxLines);
   if (!index) {
     return kind === "acl" ? predefinedAclNames(schema) : [];
   }
 
-  const names = new Set(listDefinitionNames(index, kind, scopeKey));
+  const names = new Set(listDefinitionNames(index, kind, scopeKey, proxyCapabilities));
   const workspaceIndex = getWorkspaceSymbolIndex(document);
   if (workspaceIndex?.documents.has(workspaceUriKey(document.uri))) {
-    for (const name of workspaceDefinitionNames(workspaceIndex, kind, scopeKey)) {
+    for (const name of workspaceDefinitionNames(
+      workspaceIndex,
+      kind,
+      scopeKey,
+      proxyCapabilities,
+    )) {
       names.add(name);
     }
   }
@@ -137,6 +149,7 @@ export function trySymbolReferenceCompletion(
     expected.kind,
     expected.scopeKey,
     maxLines,
+    expected.proxyCapabilities,
   );
   const filtered = filterByPrefix(names, cc.partial);
   if (filtered.length === 0) {

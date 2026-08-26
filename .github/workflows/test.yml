@@ -246,6 +246,35 @@ jobs:
       - name: Lint
         run: npm run lint
 
+  typecheck:
+    name: Typecheck
+    needs: changes
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      needs.changes.outputs.source == 'true' ||
+      needs.changes.outputs.build_tooling == 'true' ||
+      needs.changes.outputs.unit_tests == 'true' ||
+      needs.changes.outputs.integration_tests == 'true' ||
+      needs.changes.outputs.bench_code == 'true' ||
+      needs.changes.outputs.package == 'true' ||
+      needs.changes.outputs.deps == 'true' ||
+      needs.changes.outputs.tooling == 'true' ||
+      needs.changes.outputs.workflows == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
   audit:
     name: Dependency audit
     needs: changes
@@ -342,7 +371,11 @@ jobs:
     if: >
       github.event_name == 'workflow_dispatch' ||
       needs.changes.outputs.source == 'true' ||
-      needs.changes.outputs.build_tooling == 'true'
+      needs.changes.outputs.build_tooling == 'true' ||
+      needs.changes.outputs.scripts == 'true' ||
+      needs.changes.outputs.package == 'true' ||
+      needs.changes.outputs.deps == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -361,6 +394,9 @@ jobs:
 
       - name: Compile
         run: npm run compile
+
+      - name: Test diagnostics tooling bundle
+        run: npm run test:tooling-bundle
 
   unit:
     name: Unit tests
@@ -473,7 +509,6 @@ jobs:
       needs.changes.outputs.bench_code == 'true' ||
       needs.changes.outputs.bench_thresholds == 'true'
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v7
 

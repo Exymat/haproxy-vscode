@@ -219,13 +219,11 @@ export function registerExtensionProviders(
       backendReferenceLegend,
     ),
     vscode.languages.registerWorkspaceSymbolProvider({
-      async provideWorkspaceSymbols(query) {
-        const active = vscode.window.activeTextEditor?.document;
-        const b = await options.safeEnsureBundle(active?.uri);
-        if (!b || !options.getSettings().workspaceSymbolsEnabled) {
+      provideWorkspaceSymbols(query) {
+        if (!options.getSettings().workspaceSymbolsEnabled) {
           return [];
         }
-        return provideWorkspaceSymbols(query, b.schema);
+        return provideWorkspaceSymbols(query);
       },
     }),
     vscode.languages.registerDefinitionProvider(selector, {
