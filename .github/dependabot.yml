@@ -4,6 +4,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Must stay aligned with engines.vscode; newer types allow APIs we cannot use.
+      - dependency-name: "@types/vscode"
     groups:
       dev-dependencies:
         patterns:
