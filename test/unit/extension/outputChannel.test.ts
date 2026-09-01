@@ -67,6 +67,23 @@ describe("outputChannel", () => {
     expect(lines.filter((line) => line.includes("Failed to load schema bundle"))).toHaveLength(2);
   });
 
+  it("logs HAPEE edition on bundle load and configured profiles", () => {
+    logBundleLoadStarted("3.2", "hapee");
+    logBundleLoadSucceeded("3.2", "hapee");
+    setMockConfig("haproxy", "edition", "hapee");
+    logConfiguredVersion("3.2", "document-open");
+
+    expect(lines.some((line) => line.includes("HAProxy 3.2 HAPEE"))).toBe(true);
+    expect(lines.some((line) => line.includes("HAProxy version 3.2 HAPEE"))).toBe(true);
+  });
+
+  it("logs the effective community edition when HAPEE is unavailable", () => {
+    setMockConfig("haproxy", "edition", "hapee");
+    logConfiguredVersion("3.4", "document-open");
+    expect(lines.some((line) => line.includes("HAProxy version 3.4 HAPEE"))).toBe(false);
+    expect(lines.some((line) => line.includes("HAProxy version 3.4"))).toBe(true);
+  });
+
   it("logs configured version once per folder on document open", () => {
     setMockWorkspaceFolders([
       { uri: { fsPath: "/workspace", toString: () => "file:///workspace" } },

@@ -9,7 +9,11 @@ import {
   syncDocumentGrammarLanguage,
   versionForLanguageId,
 } from "../../../src/extension/grammar";
-import { SUPPORTED_HAPROXY_VERSIONS } from "../../../src/extension/version";
+import {
+  HAPEE_SCHEMA_VERSIONS,
+  hapeeSchemaAvailable,
+  SUPPORTED_HAPROXY_VERSIONS,
+} from "../../../src/extension/version";
 import {
   languages,
   mockTextDocuments,
@@ -25,18 +29,32 @@ describe("grammar paths and language ids", () => {
     expect(grammarPathForVersion(root, "3.2")).toBe(
       path.join(root, "syntaxes", "haproxy-3.2.tmLanguage.json"),
     );
+    expect(grammarPathForVersion(root, "3.2", "hapee")).toBe(
+      path.join(root, "syntaxes", "haproxy-3.2r1.tmLanguage.json"),
+    );
+    expect(grammarPathForVersion(root, "3.4", "hapee")).toBe(
+      path.join(root, "syntaxes", "haproxy-3.4.tmLanguage.json"),
+    );
   });
 
   it("maps versions to stable per-version language ids", () => {
     for (const version of SUPPORTED_HAPROXY_VERSIONS) {
       expect(languageIdForVersion(version)).toBe(`haproxy-${version}`);
+      expect(languageIdForVersion(version, "hapee")).toBe(
+        hapeeSchemaAvailable(version) ? `haproxy-${version}r1` : `haproxy-${version}`,
+      );
       expect(versionForLanguageId(`haproxy-${version}`)).toBe(version);
     }
+    expect(languageIdForVersion("3.2", "hapee")).toBe("haproxy-3.2r1");
+    expect(versionForLanguageId("haproxy-3.2r1")).toBe("3.2");
+    expect(versionForLanguageId("haproxy-3.4r1")).toBeUndefined();
   });
 
   it("recognizes base and version-specific haproxy language ids", () => {
     expect(isHaproxyLanguageId("haproxy")).toBe(true);
     expect(isHaproxyLanguageId("haproxy-3.4")).toBe(true);
+    expect(isHaproxyLanguageId("haproxy-3.2r1")).toBe(true);
+    expect(isHaproxyLanguageId("haproxy-3.4r1")).toBe(false);
     expect(isHaproxyLanguageId("plaintext")).toBe(false);
     expect(versionForLanguageId("haproxy")).toBeUndefined();
     expect(versionForLanguageId("haproxy-9.9")).toBeUndefined();
@@ -48,6 +66,7 @@ describe("grammar paths and language ids", () => {
       expect.arrayContaining([
         { language: "haproxy" },
         ...SUPPORTED_HAPROXY_VERSIONS.map((version) => ({ language: `haproxy-${version}` })),
+        ...HAPEE_SCHEMA_VERSIONS.map((version) => ({ language: `haproxy-${version}r1` })),
       ]),
     );
   });
@@ -80,6 +99,18 @@ describe("syncDocumentGrammarLanguage", () => {
     expect(changed).toBe(true);
     expect(languages.setTextDocumentLanguage).toHaveBeenCalledWith(doc, "haproxy-2.6");
     expect(doc.languageId).toBe("haproxy-2.6");
+  });
+
+  it("assigns the HAPEE grammar language from edition configuration", async () => {
+    const doc = haproxyDoc("file:///workspace-a/app.cfg");
+    setMockConfigForUri(doc.uri, "haproxy", "version", "3.2");
+    setMockConfigForUri(doc.uri, "haproxy", "edition", "hapee");
+
+    const changed = await syncDocumentGrammarLanguage(doc as never);
+
+    expect(changed).toBe(true);
+    expect(languages.setTextDocumentLanguage).toHaveBeenCalledWith(doc, "haproxy-3.2r1");
+    expect(doc.languageId).toBe("haproxy-3.2r1");
   });
 
   it("returns false when the document already uses the configured grammar language", async () => {
@@ -128,6 +159,10 @@ describe("syncDocumentGrammarLanguage", () => {
     for (const version of SUPPORTED_HAPROXY_VERSIONS) {
       const grammarPath = grammarPathForVersion(context.extensionPath, version);
       expect(grammarPath).toContain(`haproxy-${version}.tmLanguage.json`);
+    }
+    for (const version of HAPEE_SCHEMA_VERSIONS) {
+      const grammarPath = grammarPathForVersion(context.extensionPath, version, "hapee");
+      expect(grammarPath).toContain(`haproxy-${version}r1.tmLanguage.json`);
     }
   });
 });

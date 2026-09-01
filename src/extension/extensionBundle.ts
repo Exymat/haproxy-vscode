@@ -6,10 +6,20 @@ import { HaproxyLanguageData, loadLanguageDataAsync } from "../language/language
 import { logBundleLoadFailed, logBundleLoadStarted, logBundleLoadSucceeded } from "./outputChannel";
 import { HaproxySchema } from "../schema/types";
 import { loadSchemaAsync } from "../schema/load";
-import { getConfiguredVersionForUri, HaproxyVersion } from "./version";
+import {
+  bundleCacheKey,
+  DEFAULT_HAPROXY_EDITION,
+  effectiveEditionForVersion,
+  getConfiguredEditionForUri,
+  getConfiguredVersionForUri,
+  HaproxyEdition,
+  HaproxyVersion,
+  schemaArtifactId,
+} from "./version";
 
 export interface ExtensionBundle {
   version: HaproxyVersion;
+  edition: HaproxyEdition;
   schema: HaproxySchema;
   languageData: HaproxyLanguageData;
 }
@@ -33,13 +43,20 @@ interface BundleCacheEntry {
   pendingLoadReject?: (error: BundleLoadStaleError) => void;
 }
 
-const bundlesByVersion = new Map<HaproxyVersion, BundleCacheEntry>();
+const bundlesByKey = new Map<string, BundleCacheEntry>();
 
-function getOrCreateEntry(version: HaproxyVersion): BundleCacheEntry {
-  let entry = bundlesByVersion.get(version);
+function cacheKey(
+  version: HaproxyVersion,
+  edition: HaproxyEdition = DEFAULT_HAPROXY_EDITION,
+): string {
+  return bundleCacheKey(version, edition);
+}
+
+function getOrCreateEntry(key: string): BundleCacheEntry {
+  let entry = bundlesByKey.get(key);
   if (!entry) {
     entry = { generation: 0 };
-    bundlesByVersion.set(version, entry);
+    bundlesByKey.set(key, entry);
   }
   return entry;
 }
@@ -56,43 +73,60 @@ function rejectPendingLoad(entry: BundleCacheEntry): void {
   }
 }
 
+function keysForVersion(version: HaproxyVersion): string[] {
+  const prefix = `${version}::`;
+  return [...bundlesByKey.keys()].filter((key) => key === version || key.startsWith(prefix));
+}
+
 export function invalidateBundleLoad(version?: HaproxyVersion): void {
   invalidateAllExtensionCaches();
 
   if (version) {
-    const entry = bundlesByVersion.get(version);
-    if (entry) {
-      entry.generation += 1;
-      entry.bundle = undefined;
-      entry.loadPromise = undefined;
-      entry.loadError = undefined;
-      rejectPendingLoad(entry);
+    for (const key of keysForVersion(version)) {
+      const entry = bundlesByKey.get(key);
+      if (entry) {
+        entry.generation += 1;
+        entry.bundle = undefined;
+        entry.loadPromise = undefined;
+        entry.loadError = undefined;
+        rejectPendingLoad(entry);
+      }
     }
     return;
   }
 
-  bundlesByVersion.clear();
+  bundlesByKey.clear();
 }
 
-export function getLoadedBundle(version?: HaproxyVersion): ExtensionBundle | undefined {
+export function getLoadedBundle(
+  version?: HaproxyVersion,
+  edition: HaproxyEdition = DEFAULT_HAPROXY_EDITION,
+): ExtensionBundle | undefined {
   if (version) {
-    return bundlesByVersion.get(version)?.bundle;
+    return bundlesByKey.get(cacheKey(version, edition))?.bundle;
   }
-  const loaded = [...bundlesByVersion.values()].map((entry) => entry.bundle).filter(Boolean);
+  const loaded = [...bundlesByKey.values()].map((entry) => entry.bundle).filter(Boolean);
   return loaded.length === 1 ? loaded[0] : undefined;
 }
 
 export function getLoadedBundleForUri(uri?: vscode.Uri): ExtensionBundle | undefined {
-  return getLoadedBundle(getConfiguredVersionForUri(uri));
+  const version = getConfiguredVersionForUri(uri);
+  const edition = getConfiguredEditionForUri(uri);
+  return getLoadedBundle(version, edition);
 }
 
 export function createBundleLoader(context: vscode.ExtensionContext): {
-  ensureBundle: (version: HaproxyVersion) => Promise<ExtensionBundle>;
+  ensureBundle: (version: HaproxyVersion, edition?: HaproxyEdition) => Promise<ExtensionBundle>;
   ensureBundleForUri: (uri?: vscode.Uri) => Promise<ExtensionBundle>;
   invalidate: (version?: HaproxyVersion) => void;
 } {
-  const ensureBundle = (version: HaproxyVersion): Promise<ExtensionBundle> => {
-    const entry = getOrCreateEntry(version);
+  const ensureBundle = (
+    version: HaproxyVersion,
+    edition: HaproxyEdition = DEFAULT_HAPROXY_EDITION,
+  ): Promise<ExtensionBundle> => {
+    const resolvedEdition = effectiveEditionForVersion(version, edition);
+    const key = cacheKey(version, resolvedEdition);
+    const entry = getOrCreateEntry(key);
     if (entry.bundle) {
       return Promise.resolve(entry.bundle);
     }
@@ -114,18 +148,19 @@ export function createBundleLoader(context: vscode.ExtensionContext): {
         };
         setImmediate(() => {
           void (async () => {
-            logBundleLoadStarted(version);
+            logBundleLoadStarted(version, resolvedEdition);
+            const artifactId = schemaArtifactId(version, resolvedEdition);
             let schemaError: Error | undefined;
             let languageError: Error | undefined;
             let loadedSchema: HaproxySchema | undefined;
             let loadedLanguageData: HaproxyLanguageData | undefined;
             try {
-              loadedSchema = await loadSchemaAsync(context, version);
+              loadedSchema = await loadSchemaAsync(context, artifactId);
             } catch (error) {
               schemaError = error instanceof Error ? error : new Error(String(error));
             }
             try {
-              loadedLanguageData = await loadLanguageDataAsync(context, version);
+              loadedLanguageData = await loadLanguageDataAsync(context, artifactId);
             } catch (error) {
               languageError = error instanceof Error ? error : new Error(String(error));
             }
@@ -141,6 +176,7 @@ export function createBundleLoader(context: vscode.ExtensionContext): {
             }
             const loaded = {
               version,
+              edition: resolvedEdition,
               schema: loadedSchema!,
               languageData: loadedLanguageData!,
             };
@@ -149,7 +185,7 @@ export function createBundleLoader(context: vscode.ExtensionContext): {
               return;
             }
             entry.bundle = loaded;
-            logBundleLoadSucceeded(version);
+            logBundleLoadSucceeded(version, resolvedEdition);
             resolveLoad(loaded);
           })().catch((error) => {
             if (isStale()) {
@@ -173,7 +209,7 @@ export function createBundleLoader(context: vscode.ExtensionContext): {
   };
 
   const ensureBundleForUri = (uri?: vscode.Uri): Promise<ExtensionBundle> =>
-    ensureBundle(getConfiguredVersionForUri(uri));
+    ensureBundle(getConfiguredVersionForUri(uri), getConfiguredEditionForUri(uri));
 
   const invalidate = (version?: HaproxyVersion): void => {
     invalidateBundleLoad(version);

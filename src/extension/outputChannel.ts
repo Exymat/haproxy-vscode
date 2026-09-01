@@ -8,9 +8,12 @@ import {
 } from "../symbolIndex/workspaceDiscovery";
 import { WorkspaceRebuildScope, WorkspaceSymbolSettings } from "../symbolIndex/workspaceTypes";
 import {
+  getConfiguredEditionForUri,
   getConfiguredVersion,
   getConfiguredVersionForUri,
+  HaproxyEdition,
   HaproxyVersion,
+  effectiveEditionForVersion,
   SUPPORTED_HAPROXY_VERSIONS,
 } from "./version";
 import { workspaceUriKey } from "../symbolIndex/workspaceUri";
@@ -43,7 +46,7 @@ export interface WorkspaceIndexBuildStats {
 }
 
 let logSink: HaproxyLogSink | undefined;
-const loggedVersionsByFolder = new Map<string, HaproxyVersion>();
+const loggedVersionsByFolder = new Map<string, string>();
 
 function timestamp(): string {
   return new Date().toISOString();
@@ -104,26 +107,35 @@ export function logExtensionActivated(extensionVersion: string): void {
   writeln(`Supported HAProxy versions: ${SUPPORTED_HAPROXY_VERSIONS.join(", ")}`);
 }
 
+function editionLabel(edition?: HaproxyEdition): string {
+  return edition === "hapee" ? " HAPEE" : "";
+}
+
 export function logConfiguredVersion(
   version: HaproxyVersion,
   reason: "config-change" | "document-open",
   resource?: vscode.Uri,
 ): void {
   const { folderKey, folderLabel } = folderContext(resource);
-  if (reason === "document-open" && loggedVersionsByFolder.get(folderKey) === version) {
+  const edition = effectiveEditionForVersion(version, getConfiguredEditionForUri(resource));
+  const label = `${version}${editionLabel(edition)}`;
+  if (
+    reason === "document-open" &&
+    loggedVersionsByFolder.get(folderKey) === `${version}:${edition}`
+  ) {
     return;
   }
-  loggedVersionsByFolder.set(folderKey, version);
+  loggedVersionsByFolder.set(folderKey, `${version}:${edition}`);
   const reasonLabel = reason === "config-change" ? "configuration changed" : "document opened";
-  writeln(`HAProxy version ${version} for ${folderLabel} (${reasonLabel})`);
+  writeln(`HAProxy version ${label} for ${folderLabel} (${reasonLabel})`);
 }
 
-export function logBundleLoadStarted(version: HaproxyVersion): void {
-  writeln(`Loading schema and language data for HAProxy ${version}...`);
+export function logBundleLoadStarted(version: HaproxyVersion, edition?: HaproxyEdition): void {
+  writeln(`Loading schema and language data for HAProxy ${version}${editionLabel(edition)}...`);
 }
 
-export function logBundleLoadSucceeded(version: HaproxyVersion): void {
-  writeln(`Loaded schema and language data for HAProxy ${version}`);
+export function logBundleLoadSucceeded(version: HaproxyVersion, edition?: HaproxyEdition): void {
+  writeln(`Loaded schema and language data for HAProxy ${version}${editionLabel(edition)}`);
 }
 
 export function logBundleLoadFailed(

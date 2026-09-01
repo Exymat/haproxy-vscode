@@ -61,6 +61,87 @@ describe("extensionBundle", () => {
     expect(languageSpy).toHaveBeenCalledTimes(1);
   });
 
+  it("caches community and HAPEE bundles separately for the same version", async () => {
+    const hapeeSchema = {
+      ...fixture.schema,
+      version: "3.2r1",
+      keywords: {
+        ...fixture.schema.keywords,
+        "module-load": {
+          name: "module-load",
+          sections: ["global"],
+          signatures: ["module-load <path>"],
+          sources: ["hapee"],
+        },
+      },
+    };
+    vi.spyOn(schema, "loadSchemaAsync").mockImplementation((_context, artifact) =>
+      Promise.resolve(artifact === "3.2r1" ? hapeeSchema : fixture.schema),
+    );
+    vi.spyOn(languageData, "loadLanguageDataAsync").mockResolvedValue(fixture.languageData);
+    const { ensureBundle } = createBundleLoader(mockExtensionContext() as never);
+
+    const community = await ensureBundle("3.2", "community");
+    const enterprise = await ensureBundle("3.2", "hapee");
+
+    expect(community).not.toBe(enterprise);
+    expect(community.edition).toBe("community");
+    expect(enterprise.edition).toBe("hapee");
+    expect(community.schema.keywords["module-load"]).toBeUndefined();
+    expect(enterprise.schema.keywords["module-load"]?.name).toBe("module-load");
+    expect("module-load" in fixture.schema.keywords).toBe(false);
+  });
+
+  it("keeps the community schema when HAPEE is selected for 3.4", async () => {
+    const schemaSpy = vi.spyOn(schema, "loadSchemaAsync").mockResolvedValue(fixture34.schema);
+    vi.spyOn(languageData, "loadLanguageDataAsync").mockResolvedValue(fixture34.languageData);
+    const { ensureBundle } = createBundleLoader(mockExtensionContext() as never);
+
+    const bundle = await ensureBundle("3.4", "hapee");
+
+    expect(bundle.edition).toBe("community");
+    expect(bundle.schema).toBe(fixture34.schema);
+    expect(schemaSpy).toHaveBeenCalledWith(expect.anything(), "3.4");
+    expect(schemaSpy).not.toHaveBeenCalledWith(expect.anything(), "3.4r1");
+  });
+
+  it("fails loudly when a selected HAPEE schema file is missing", async () => {
+    const missing = Object.assign(new Error("Failed to load HAProxy schema for 3.2r1"), {
+      cause: { code: "ENOENT" },
+    });
+    vi.spyOn(schema, "loadSchemaAsync").mockImplementation((_context, artifact) => {
+      if (artifact === "3.2r1") {
+        return Promise.reject(missing);
+      }
+      return Promise.resolve(fixture.schema);
+    });
+    vi.spyOn(languageData, "loadLanguageDataAsync").mockImplementation((_context, artifact) => {
+      if (artifact === "3.2r1") {
+        return Promise.reject(missing);
+      }
+      return Promise.resolve(fixture.languageData);
+    });
+    const { ensureBundle } = createBundleLoader(mockExtensionContext() as never);
+
+    await expect(ensureBundle("3.2", "hapee")).rejects.toThrow("3.2r1");
+    expect(getLoadedBundle("3.2", "hapee")).toBeUndefined();
+  });
+
+  it("does not silently substitute community data for a HAPEE load failure", async () => {
+    const missing = new Error("Failed to load HAProxy schema for 3.2r1: no such file");
+    vi.spyOn(schema, "loadSchemaAsync").mockImplementation((_context, artifact) => {
+      if (artifact === "3.2r1") {
+        return Promise.reject(missing);
+      }
+      return Promise.resolve(fixture.schema);
+    });
+    vi.spyOn(languageData, "loadLanguageDataAsync").mockResolvedValue(fixture.languageData);
+    const { ensureBundle } = createBundleLoader(mockExtensionContext() as never);
+
+    await expect(ensureBundle("3.2", "hapee")).rejects.toThrow("no such file");
+    expect(getLoadedBundle("3.2", "hapee")).toBeUndefined();
+  });
+
   it("loads and caches different versions independently", async () => {
     const schemaSpy = vi
       .spyOn(schema, "loadSchemaAsync")

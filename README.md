@@ -191,13 +191,15 @@ Pick the release that matches the binaries you operate:
 | **2.8** |          | Latest supported 2.x line                  |
 | **2.6** |          | 2.x LTS                                    |
 
+HAPEE (HAProxy Enterprise) LTS **2.6–3.2** is available as a separate edition: pick **3.2 HAPEE** (or the matching LTS) in the version picker, or set `haproxy.edition` to `hapee`. That loads the `haproxy-3.2r1` schema, language, and TextMate grammar files, including core Enterprise syntax and release-gated overlays for WAF, response-body injection, UDP, SAML, Captcha, Bot Management, OIDC, and RHI. Community OSS **3.4** has no HAPEE schema yet.
+
 Schemas for **2.6** and **2.8** are generated from the legacy `configuration.txt` layout (actions listed under each ruleset in §4.2 rather than §4.3/§4.4). Completion, diagnostics, and hover reflect keywords available in that release.
 
 **Ways to change version:**
 
 - **Status bar** — click **HAProxy** while a `.cfg` file is active.
 - **Command Palette** — run **HAProxy: Select HAProxy Version**.
-- **Settings** — set **HAProxy: Version** (`haproxy.version`).
+- **Settings** — set **HAProxy: Version** (`haproxy.version`) and optionally **HAProxy: Edition** (`haproxy.edition`).
 
 Completion, diagnostics, and hover update as soon as the setting changes. Syntax highlighting switches the active TextMate grammar; if colors do not refresh, use **Developer: Reload Window** when prompted.
 
@@ -210,6 +212,7 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 | Setting                                         | Default         | Description                                                                                                                                                                                                       |
 | ----------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `haproxy.version`                               | `3.2`           | HAProxy release used for completion, diagnostics, hover, and syntax highlighting                                                                                                                                  |
+| `haproxy.edition`                               | `community`     | `community` or `hapee`. HAPEE loads Enterprise schema/language files (`haproxy-X.Yr1`) for 2.6–3.2. Ignored for 3.4 until HAPEE 3.4 exists.                                                                       |
 | `haproxy.diagnostics.enabled`                   | `true`          | Turn off if opening very large `.cfg` files feels slow                                                                                                                                                            |
 | `haproxy.diagnostics.debounceMs`                | `500`           | Delay after edits before recomputing diagnostics (100-5000 ms)                                                                                                                                                    |
 | `haproxy.diagnostics.maxLines`                  | `4000`          | Skip diagnostics above this line count to limit memory use                                                                                                                                                        |
@@ -243,7 +246,7 @@ Pre-0.12 settings `haproxy.format.indentStyle` and `haproxy.format.indentSize` a
 
 | Command                                     | Description                                                                |
 | ------------------------------------------- | -------------------------------------------------------------------------- |
-| **HAProxy: Select HAProxy Version**         | Quick-pick between 2.6, 2.8, 3.0, 3.2, and 3.4                             |
+| **HAProxy: Select HAProxy Version**         | Quick-pick between community 2.6–3.4 and HAPEE 2.6–3.2                     |
 | **HAProxy: Open Workspace Symbol Settings** | Opens workspace symbol graph settings (`include`, `roots`, caps, debounce) |
 
 ---
@@ -402,7 +405,7 @@ npm run generate:schema
 npm run compile
 ```
 
-`generate:schema` regenerates every supported version (`2.6`, `2.8`, `3.0`, `3.2`, `3.4`). You can still regenerate one specific version with `npm run generate:schema:<version>`. To refresh keyword dumps (requires a DEBUG build of the matching HAProxy binary in `haproxy_git/`):
+`generate:schema` regenerates every supported community version (`2.6`, `2.8`, `3.0`, `3.2`, `3.4`), then the HAPEE schema, language, and grammar files (`haproxy-X.Yr1.*`). Community grammars stay in `haproxy-X.Y.tmLanguage.json`; HAPEE grammars are written to `haproxy-X.Yr1.tmLanguage.json`. You can regenerate one community version with `npm run generate:schema:<version>` or all HAPEE artifacts with `npm run generate:schema:hapee`. HAPEE source downloads are checksum-pinned; an upstream manual change stops generation until it is reviewed and deliberately pinned. To refresh keyword dumps (requires a DEBUG build of the matching HAProxy binary in `haproxy_git/`):
 
 ```powershell
 npm run generate:dkall:2.6

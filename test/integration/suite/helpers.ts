@@ -19,12 +19,13 @@ const DEFAULT_HAPROXY_VERSION = "3.2";
 const INTEGRATION_DIAGNOSTICS_DEBOUNCE_MS = 100;
 const INTEGRATION_WORKSPACE_DEBOUNCE_MS = 100;
 
-function languageIdForVersion(version: string): string {
-  return `haproxy-${version}`;
+function languageIdForVersion(version: string, edition = getConfiguredHaproxyEdition()): string {
+  const artifact = edition === "hapee" && version !== "3.4" ? `${version}r1` : version;
+  return `haproxy-${artifact}`;
 }
 
 function isHaproxyLanguageId(languageId: string): boolean {
-  return languageId === "haproxy" || /^haproxy-\d+\.\d+$/.test(languageId);
+  return languageId === "haproxy" || /^haproxy-\d+\.\d+(r1)?$/.test(languageId);
 }
 
 function getConfiguredHaproxyVersion(): string {
@@ -33,6 +34,10 @@ function getConfiguredHaproxyVersion(): string {
     return raw;
   }
   return DEFAULT_HAPROXY_VERSION;
+}
+
+function getConfiguredHaproxyEdition(): string {
+  return vscode.workspace.getConfiguration("haproxy").get<string>("edition", "community");
 }
 
 export async function waitForHaproxyGrammarLanguage(
@@ -409,6 +414,14 @@ export async function ensureHaproxyVersion(version: string): Promise<void> {
   await updateHaproxySetting("version", version, 2500);
 }
 
+export async function ensureHaproxyEdition(edition: "community" | "hapee"): Promise<void> {
+  const current = vscode.workspace.getConfiguration("haproxy").get<string>("edition");
+  if (current === edition) {
+    await updateHaproxySetting("edition", edition === "hapee" ? "community" : "hapee", 800);
+  }
+  await updateHaproxySetting("edition", edition, 2500);
+}
+
 export function filterDiagnostics(
   diags: vscode.Diagnostic[],
   severity: vscode.DiagnosticSeverity,
@@ -504,6 +517,7 @@ export async function resetHaproxySettings(): Promise<void> {
   );
   const defaults: Array<[string, unknown]> = [
     ["version", "3.2"],
+    ["edition", "community"],
     ["format.enabled", true],
     ["format.indent", "spaces-4"],
     ["format.insertBlankLineBetweenSections", true],

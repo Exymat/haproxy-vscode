@@ -673,6 +673,17 @@
     "rule-actions": {
       "patterns": [
         {
+          "match": "\\b(filter)\\s+((?:compression|bwlim\\-out|bwlim\\-in|fcgi\\-app|cache|trace|spoe))\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.directive.haproxy"
+            },
+            "2": {
+              "name": "keyword.other.directive.haproxy"
+            }
+          }
+        },
+        {
           "match": "\\b(http\\-request)\\s+((?:set\\-bandwidth\\-limit|set\\-priority\\-offset|set\\-priority\\-class|wait\\-for\\-handshake|disable\\-l7\\-retry|send\\-spoe\\-group|replace\\-header|normalize\\-uri|replace\\-pathq|replace\\-value|set\\-log\\-level|wait\\-for\\-body|replace\\-path|set\\-dst\\-port|set\\-src\\-port|replace\\-uri|sc\\-inc\\-gpc0|sc\\-inc\\-gpc1|sc\\-set\\-gpt0|set\\-timeout|set\\-var\\-fmt|silent\\-drop|strict\\-mode|use\\-service|add\\-header|del\\-header|do\\-resolve|early\\-hint|sc\\-add\\-gpc|sc\\-inc\\-gpc|sc\\-set\\-gpt|set\\-header|set\\-method|cache\\-use|set\\-pathq|set\\-query|track\\-sc0|track\\-sc1|track\\-sc2|unset\\-var|redirect|set\\-mark|set\\-nice|set\\-path|track\\-sc|add\\-acl|capture|del\\-acl|del\\-map|set\\-dst|set\\-map|set\\-src|set\\-tos|set\\-uri|set\\-var|reject|return|tarpit|allow|auth|deny))\\b",
           "captures": {
             "1": {

@@ -2,24 +2,48 @@
 import * as path from "path";
 import * as vscode from "vscode";
 
-import { getConfiguredVersionForUri, HaproxyVersion, SUPPORTED_HAPROXY_VERSIONS } from "./version";
+import {
+  DEFAULT_HAPROXY_EDITION,
+  getConfiguredEditionForUri,
+  getConfiguredVersionForUri,
+  HAPEE_SCHEMA_VERSIONS,
+  HaproxyEdition,
+  HaproxyVersion,
+  schemaArtifactId,
+  SUPPORTED_HAPROXY_VERSIONS,
+} from "./version";
 
 export const HAPROXY_LANGUAGE_BASE = "haproxy";
 
-export function grammarPathForVersion(extensionPath: string, version: HaproxyVersion): string {
-  return path.join(extensionPath, "syntaxes", `haproxy-${version}.tmLanguage.json`);
+export function grammarPathForVersion(
+  extensionPath: string,
+  version: HaproxyVersion,
+  edition: HaproxyEdition = DEFAULT_HAPROXY_EDITION,
+): string {
+  return path.join(
+    extensionPath,
+    "syntaxes",
+    `haproxy-${schemaArtifactId(version, edition)}.tmLanguage.json`,
+  );
 }
 
-export function languageIdForVersion(version: HaproxyVersion): string {
-  return `haproxy-${version}`;
+export function languageIdForVersion(
+  version: HaproxyVersion,
+  edition: HaproxyEdition = DEFAULT_HAPROXY_EDITION,
+): string {
+  return `haproxy-${schemaArtifactId(version, edition)}`;
 }
 
 export function versionForLanguageId(languageId: string): HaproxyVersion | undefined {
-  const match = /^haproxy-(\d+\.\d+)$/.exec(languageId);
+  const match = /^haproxy-(\d+\.\d+)(r1)?$/.exec(languageId);
   if (!match) {
     return undefined;
   }
-  return SUPPORTED_HAPROXY_VERSIONS.includes(match[1]) ? match[1] : undefined;
+  const version = match[1];
+  if (match[2]) {
+    return HAPEE_SCHEMA_VERSIONS.includes(version) ? version : undefined;
+  }
+  return SUPPORTED_HAPROXY_VERSIONS.includes(version) ? version : undefined;
 }
 
 export function isHaproxyLanguageId(languageId: string): boolean {
@@ -32,6 +56,9 @@ export function haproxyDocumentSelector(): vscode.DocumentSelector {
     ...SUPPORTED_HAPROXY_VERSIONS.map((version) => ({
       language: languageIdForVersion(version),
     })),
+    ...HAPEE_SCHEMA_VERSIONS.map((version) => ({
+      language: languageIdForVersion(version, "hapee"),
+    })),
   ];
 }
 
@@ -40,7 +67,10 @@ export async function syncDocumentGrammarLanguage(document: vscode.TextDocument)
   if (!isHaproxyLanguageId(document.languageId)) {
     return false;
   }
-  const targetLanguageId = languageIdForVersion(getConfiguredVersionForUri(document.uri));
+  const targetLanguageId = languageIdForVersion(
+    getConfiguredVersionForUri(document.uri),
+    getConfiguredEditionForUri(document.uri),
+  );
   if (document.languageId === targetLanguageId) {
     return false;
   }

@@ -109,14 +109,50 @@ if (isMainModule) {
     requireFile(pkg.icon);
   }
 
+  const languages = pkg.contributes?.languages ?? [];
+  const languageIds = new Set();
+  for (const language of languages) {
+    if (!language.id) {
+      fail("language entry is missing id");
+    }
+    if (languageIds.has(language.id)) {
+      fail(`duplicate language id: ${language.id}`);
+    }
+    languageIds.add(language.id);
+  }
+
+  const grammarLanguages = new Set();
   for (const grammar of pkg.contributes?.grammars ?? []) {
+    if (!languageIds.has(grammar.language)) {
+      fail(`grammar references undeclared language id: ${grammar.language}`);
+    }
+    if (grammarLanguages.has(grammar.language)) {
+      fail(`duplicate grammar for language id: ${grammar.language}`);
+    }
+    grammarLanguages.add(grammar.language);
     if (!grammar.path) {
       fail("grammar entry is missing path");
+    }
+    const artifact = /^haproxy-(\d+\.\d+(?:r1)?)$/.exec(grammar.language)?.[1];
+    if (artifact) {
+      const expectedPath = `./syntaxes/haproxy-${artifact}.tmLanguage.json`;
+      if (grammar.path !== expectedPath) {
+        fail(
+          `${grammar.language} must use its dedicated grammar ${expectedPath}, found ${grammar.path}`,
+        );
+      }
     }
     requireFile(grammar.path);
   }
 
-  for (const language of pkg.contributes?.languages ?? []) {
+  const activationEvents = new Set(pkg.activationEvents ?? []);
+  for (const language of languages) {
+    if (!grammarLanguages.has(language.id)) {
+      fail(`language id has no grammar: ${language.id}`);
+    }
+    if (!activationEvents.has(`onLanguage:${language.id}`)) {
+      fail(`language id has no activation event: ${language.id}`);
+    }
     if (language.configuration) {
       requireFile(language.configuration);
     }

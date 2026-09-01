@@ -38,7 +38,7 @@ describe("extension diagnostics service", () => {
 
     const service = createExtensionDiagnosticsService(mockExtensionContext() as never, {
       getSettings: getExtensionSettings,
-      ensureBundle: () => Promise.resolve({ version: "3.4", ...bundle }),
+      ensureBundle: () => Promise.resolve({ version: "3.4", edition: "community", ...bundle }),
       onBundleError: vi.fn(),
     });
 

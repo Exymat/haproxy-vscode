@@ -14,6 +14,7 @@ import {
 import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
 import { createDocument, updateDocument } from "../../helpers/document";
 import { computeDiagnostics } from "../../../src/diagnostics";
+import { loadHapeeBundle } from "../../helpers/schema";
 
 const fixturesDir = join(__dirname, "..", "..", "fixtures");
 
@@ -228,6 +229,105 @@ const cases: Array<{
 describe("diagnostics", () => {
   it.each(cases)("$name", ({ name, content, expectations, schema, version }) => {
     runDiagnosticCase(name, content, expectations, schema, version ?? DEFAULT_VERSION);
+  });
+
+  it("accepts HAPEE module keywords in global from the 3.2r1 schema", () => {
+    const { schema, languageData } = loadHapeeBundle("3.2");
+    expect(schema.keywords["module-load"]).toBeDefined();
+    expect(schema.keywords["module-path"]).toBeDefined();
+    const doc = createDocument(
+      "global\n    module-path /usr/lib/hapee/modules\n    module-load example-module.so\n    oidc-sso-dir /etc/hapee/oidc\n",
+    );
+    const diagnostics = computeDiagnostics(doc, schema, {
+      ...diagnosticOptions("3.2"),
+      languageData,
+    });
+    expect(diagnostics.filter((diag) => diag.code === "unknown-keyword")).toHaveLength(0);
+  });
+
+  it("accepts OIDC module sections and request/response actions", () => {
+    const { schema, languageData } = loadHapeeBundle("3.2");
+    const doc = createDocument(
+      "oidc-sso login\n" +
+        "    issuer https://issuer.example\n" +
+        "    client-id example\n" +
+        "    redirect-uri https://proxy.example/callback\n" +
+        "frontend web\n" +
+        "    http-request oidc-sso login\n" +
+        "    http-response oidc-sso login\n",
+    );
+    const diagnostics = computeDiagnostics(doc, schema, {
+      ...diagnosticOptions("3.2"),
+      languageData,
+    });
+    expect(
+      diagnostics.filter((diag) =>
+        typeof diag.code === "string"
+          ? ["unknown-section", "unknown-keyword", "unknown-action", "wrong-section"].includes(
+              diag.code,
+            )
+          : false,
+      ),
+    ).toHaveLength(0);
+  });
+
+  it("accepts the release-gated HAPEE security, SAML, and RHI module syntax", () => {
+    const { schema, languageData } = loadHapeeBundle("3.2");
+    const doc = createDocument(
+      "global\n" +
+        "    saml-sso-load /etc/hapee/saml /etc/hapee/saml.ini\n" +
+        "    botmgmt-data-file /opt/hapee/data-hapee\n" +
+        "    waf-body-limit 1m\n" +
+        "captcha challenge\n" +
+        "    mode recaptcha\n" +
+        "    site-key public\n" +
+        "    secret-key private\n" +
+        "    on-error allow\n" +
+        "botmgmt-profile bots\n" +
+        "    score-version 1\n" +
+        "    track-defaults size 100k expire 1h period 1m\n" +
+        "waf-profile strict\n" +
+        "    rules-file /etc/hapee/waf.rules\n" +
+        "    body-limit 1m\n" +
+        "waf-global\n" +
+        "    rules-path /etc/hapee/waf\n" +
+        "    analyzer-cache 10000\n" +
+        "rhi-bgp dc1\n" +
+        "    local-as 65001\n" +
+        "    local-id 192.0.2.1\n" +
+        "    neighbor router 192.0.2.2:179 as 65001\n" +
+        "    rhi-announce addrs 198.51.100.10/32\n" +
+        "frontend web\n" +
+        "    filter botmgmt profile bots\n" +
+        "    filter waf profile strict\n" +
+        "    http-request botmgmt-evaluate profile bots\n" +
+        "    http-request waf-evaluate profile strict\n" +
+        "    http-request saml-sso app\n" +
+        "    http-response saml-sso app\n" +
+        "    http-after-response saml-sso app\n",
+    );
+    const diagnostics = computeDiagnostics(doc, schema, {
+      ...diagnosticOptions("3.2"),
+      languageData,
+    });
+    expect(
+      diagnostics.filter((diag) =>
+        typeof diag.code === "string"
+          ? ["unknown-section", "unknown-keyword", "unknown-action", "wrong-section"].includes(
+              diag.code,
+            )
+          : false,
+      ),
+    ).toHaveLength(0);
+  });
+
+  it("still flags HAPEE module keywords outside global", () => {
+    const { schema } = loadHapeeBundle("3.2");
+    const doc = createDocument("frontend x\n    module-load example-module.so\n");
+    const diagnostics = computeDiagnostics(doc, schema, diagnosticOptions("3.2"));
+    expect(
+      diagnostics.some((diag) => diag.code === "wrong-section" || diag.code === "unknown-keyword"),
+    ).toBe(true);
   });
 
   it("suppresses unknown actions with inline ignore comments", () => {

@@ -1,5 +1,5 @@
 import { registerVersionStatusBar } from "../../../src/extension/statusBar";
-import { getConfiguredVersion } from "../../../src/extension/version";
+import { getConfiguredEdition, getConfiguredVersion } from "../../../src/extension/version";
 import {
   getRegisteredCommand,
   resetMockVscode,
@@ -75,7 +75,22 @@ describe("statusBar", () => {
     expect(item.hide).toHaveBeenCalled();
   });
 
-  it("refreshes label when version configuration changes", () => {
+  it("refreshes label when edition configuration changes", async () => {
+    const items: StatusBarItem[] = [];
+    vi.spyOn(window, "createStatusBarItem").mockImplementation(() => {
+      const item = new StatusBarItem();
+      items.push(item);
+      return item;
+    });
+
+    registerVersionStatusBar(mockExtensionContext() as never);
+    setMockConfig("haproxy", "edition", "hapee");
+    triggerMockConfigurationChange("haproxy.edition");
+
+    await vi.waitFor(() => expect(items[0]?.text).toBe("$(versions) HAProxy 3.2 HAPEE"));
+  });
+
+  it("refreshes label when version configuration changes", async () => {
     const items: StatusBarItem[] = [];
     vi.spyOn(window, "createStatusBarItem").mockImplementation(() => {
       const item = new StatusBarItem();
@@ -87,12 +102,12 @@ describe("statusBar", () => {
     setMockConfig("haproxy", "version", "3.4");
     triggerMockConfigurationChange("haproxy.version");
 
-    expect(items[0]?.text).toBe("$(versions) HAProxy 3.4");
+    await vi.waitFor(() => expect(items[0]?.text).toBe("$(versions) HAProxy 3.4"));
   });
 
   it("command sets version from quick pick", async () => {
     registerVersionStatusBar(mockExtensionContext() as never);
-    setMockQuickPickResult({ label: "2.8" });
+    setMockQuickPickResult({ label: "2.8", version: "2.8", edition: "community" });
 
     const handler = getRegisteredCommand("haproxy.selectVersion");
     await handler?.();
@@ -100,9 +115,30 @@ describe("statusBar", () => {
     expect(getConfiguredVersion()).toBe("2.8");
   });
 
+  it("command sets HAPEE edition from quick pick", async () => {
+    registerVersionStatusBar(mockExtensionContext() as never);
+    setMockQuickPickResult({ label: "3.2 HAPEE", version: "3.2", edition: "hapee" });
+
+    const handler = getRegisteredCommand("haproxy.selectVersion");
+    await handler?.();
+
+    expect(getConfiguredVersion()).toBe("3.2");
+    expect(getConfiguredEdition()).toBe("hapee");
+  });
+
   it("command ignores pick when version unchanged", async () => {
     registerVersionStatusBar(mockExtensionContext() as never);
-    setMockQuickPickResult({ label: "3.2" });
+    setMockQuickPickResult({ label: "3.2", version: "3.2", edition: "community" });
+
+    const handler = getRegisteredCommand("haproxy.selectVersion");
+    await handler?.();
+
+    expect(getConfiguredVersion()).toBe("3.2");
+  });
+
+  it("command ignores cancel when no version is picked", async () => {
+    registerVersionStatusBar(mockExtensionContext() as never);
+    setMockQuickPickResult(undefined);
 
     const handler = getRegisteredCommand("haproxy.selectVersion");
     await handler?.();

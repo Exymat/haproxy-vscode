@@ -4,7 +4,7 @@ import { provideCompletionItems } from "../../../src/completion";
 import { getDocumentContext } from "../../../src/parser/documentContext";
 import { provideHover } from "../../../src/hover";
 import { createDocument } from "../../helpers/document";
-import { loadSchemaBundle } from "../../helpers/schema";
+import { loadHapeeBundle, loadSchemaBundle } from "../../helpers/schema";
 
 const bundles = {
   "3.2": loadSchemaBundle("3.2"),
@@ -275,5 +275,26 @@ describe("completion and hover", () => {
       bundle.schema,
     );
     expect(items).toEqual([]);
+  });
+
+  it("suggests HAPEE module keywords from the 3.2r1 schema", async () => {
+    const { schema, languageData } = loadHapeeBundle("3.2");
+    const content = "global\n    module-";
+    const doc = createDocument(content);
+    const items = await provideCompletionItems(
+      doc,
+      { line: 1, character: content.split("\n")[1].length } as never,
+      languageData,
+      schema,
+    );
+    expect(items.map((item) => item.label)).toEqual(expect.arrayContaining(["module-load"]));
+    const hoverDoc = createDocument("global\n    module-load example.so");
+    const hover = provideHover(
+      hoverDoc,
+      { line: 1, character: "    module-load".length } as never,
+      languageData,
+      schema,
+    );
+    expect(hover).toBeTruthy();
   });
 });

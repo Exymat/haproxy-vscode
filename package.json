@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, rename, cross-file navigation, and workspace symbol graph — LTS versions (2.6 - 3.4) supported.",
-  "version": "0.19.6",
+  "version": "0.20.0",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
@@ -45,7 +45,11 @@
     "onLanguage:haproxy-2.8",
     "onLanguage:haproxy-3.0",
     "onLanguage:haproxy-3.2",
-    "onLanguage:haproxy-3.4"
+    "onLanguage:haproxy-3.4",
+    "onLanguage:haproxy-2.6r1",
+    "onLanguage:haproxy-2.8r1",
+    "onLanguage:haproxy-3.0r1",
+    "onLanguage:haproxy-3.2r1"
   ],
   "engines": {
     "node": ">=24",
@@ -86,6 +90,20 @@
           ],
           "default": "3.2",
           "description": "HAProxy release used for completion, diagnostics, hover, and syntax highlighting."
+        },
+        "haproxy.edition": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "community",
+            "hapee"
+          ],
+          "enumDescriptions": [
+            "HAProxy community (OSS) keywords",
+            "HAProxy Enterprise (HAPEE) schema for the selected LTS version (2.6r1–3.2r1)"
+          ],
+          "default": "community",
+          "description": "Keyword edition. HAPEE loads the matching Enterprise schema (2.6r1–3.2r1) for the selected OSS version. No HAPEE schema exists for 3.4 yet."
         },
         "haproxy.diagnostics.enabled": {
           "type": "boolean",
@@ -273,6 +291,34 @@
           "HAProxy 3.4"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "haproxy-2.6r1",
+        "aliases": [
+          "HAProxy 2.6 HAPEE"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "haproxy-2.8r1",
+        "aliases": [
+          "HAProxy 2.8 HAPEE"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "haproxy-3.0r1",
+        "aliases": [
+          "HAProxy 3.0 HAPEE"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "haproxy-3.2r1",
+        "aliases": [
+          "HAProxy 3.2 HAPEE"
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
@@ -305,6 +351,26 @@
         "language": "haproxy-3.4",
         "scopeName": "source.haproxy",
         "path": "./syntaxes/haproxy-3.4.tmLanguage.json"
+      },
+      {
+        "language": "haproxy-2.6r1",
+        "scopeName": "source.haproxy",
+        "path": "./syntaxes/haproxy-2.6r1.tmLanguage.json"
+      },
+      {
+        "language": "haproxy-2.8r1",
+        "scopeName": "source.haproxy",
+        "path": "./syntaxes/haproxy-2.8r1.tmLanguage.json"
+      },
+      {
+        "language": "haproxy-3.0r1",
+        "scopeName": "source.haproxy",
+        "path": "./syntaxes/haproxy-3.0r1.tmLanguage.json"
+      },
+      {
+        "language": "haproxy-3.2r1",
+        "scopeName": "source.haproxy",
+        "path": "./syntaxes/haproxy-3.2r1.tmLanguage.json"
       }
     ],
     "commands": [
@@ -352,6 +418,22 @@
     "[haproxy-3.4]": {
       "editor.maxTokenizationLineLength": 20000,
       "editor.semanticHighlighting.enabled": true
+    },
+    "[haproxy-2.6r1]": {
+      "editor.maxTokenizationLineLength": 20000,
+      "editor.semanticHighlighting.enabled": true
+    },
+    "[haproxy-2.8r1]": {
+      "editor.maxTokenizationLineLength": 20000,
+      "editor.semanticHighlighting.enabled": true
+    },
+    "[haproxy-3.0r1]": {
+      "editor.maxTokenizationLineLength": 20000,
+      "editor.semanticHighlighting.enabled": true
+    },
+    "[haproxy-3.2r1]": {
+      "editor.maxTokenizationLineLength": 20000,
+      "editor.semanticHighlighting.enabled": true
     }
   },
   "scripts": {
@@ -392,12 +474,17 @@
     "compare:haproxy:matrix": "node scripts/compare-haproxy-c.mjs --matrix",
     "compare:haproxy:docker:matrix": "node scripts/compare-haproxy-c.mjs --matrix --runtime docker",
     "test:all": "npm run compile && npm run test:grammar-coverage && npm run test && npm run test:upstream && npm run compare:haproxy:matrix",
-    "generate:schema": "npm run generate:schema:2.6 && npm run generate:schema:2.8 && npm run generate:schema:3.0 && npm run generate:schema:3.2 && npm run generate:schema:3.4 && npm run format:generated",
+    "generate:schema": "npm run generate:schema:2.6 && npm run generate:schema:2.8 && npm run generate:schema:3.0 && npm run generate:schema:3.2 && npm run generate:schema:3.4 && npm run generate:schema:hapee",
     "generate:schema:2.6": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-2.6/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-2.6.txt --out ./schemas/haproxy-2.6.schema.json --language-data-out ./schemas/haproxy-2.6.language.json --grammar-out ./syntaxes/haproxy-2.6.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-2.6.json --metadata-provenance-out ../haproxy-schema/haproxy_schema/schema-metadata-provenance-2.6.json --version 2.6",
     "generate:schema:2.8": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-2.8/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-2.8.txt --out ./schemas/haproxy-2.8.schema.json --language-data-out ./schemas/haproxy-2.8.language.json --grammar-out ./syntaxes/haproxy-2.8.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-2.8.json --metadata-provenance-out ../haproxy-schema/haproxy_schema/schema-metadata-provenance-2.8.json --version 2.8",
     "generate:schema:3.0": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-3.0/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-3.0.txt --out ./schemas/haproxy-3.0.schema.json --language-data-out ./schemas/haproxy-3.0.language.json --grammar-out ./syntaxes/haproxy-3.0.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-3.0.json --metadata-provenance-out ../haproxy-schema/haproxy_schema/schema-metadata-provenance-3.0.json --version 3.0",
     "generate:schema:3.2": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-3.2/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-3.2.txt --out ./schemas/haproxy-3.2.schema.json --language-data-out ./schemas/haproxy-3.2.language.json --grammar-out ./syntaxes/haproxy-3.2.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-3.2.json --metadata-provenance-out ../haproxy-schema/haproxy_schema/schema-metadata-provenance-3.2.json --version 3.2",
     "generate:schema:3.4": "python -m haproxy_schema build --doc ../haproxy_git/haproxy-3.4/doc/configuration.txt --dkall ../haproxy-schema/haproxy_schema/dkall-3.4.txt --out ./schemas/haproxy-3.4.schema.json --language-data-out ./schemas/haproxy-3.4.language.json --grammar-out ./syntaxes/haproxy-3.4.tmLanguage.json --coverage-out ../haproxy-schema/haproxy_schema/coverage-3.4.json --metadata-provenance-out ../haproxy-schema/haproxy_schema/schema-metadata-provenance-3.4.json --version 3.4",
+    "generate:schema:hapee": "npm run generate:schema:hapee:2.6 && npm run generate:schema:hapee:2.8 && npm run generate:schema:hapee:3.0 && npm run generate:schema:hapee:3.2 && npm run format:generated",
+    "generate:schema:hapee:2.6": "uv run --project ../haproxy-schema haproxy-schema build-hapee --hapee-version 2.6r1 --fetch --dkall ../haproxy-schema/haproxy_schema/dkall-2.6.txt --out ./schemas/haproxy-2.6r1.schema.json --language-data-out ./schemas/haproxy-2.6r1.language.json --grammar-out ./syntaxes/haproxy-2.6r1.tmLanguage.json",
+    "generate:schema:hapee:2.8": "uv run --project ../haproxy-schema haproxy-schema build-hapee --hapee-version 2.8r1 --fetch --dkall ../haproxy-schema/haproxy_schema/dkall-2.8.txt --out ./schemas/haproxy-2.8r1.schema.json --language-data-out ./schemas/haproxy-2.8r1.language.json --grammar-out ./syntaxes/haproxy-2.8r1.tmLanguage.json",
+    "generate:schema:hapee:3.0": "uv run --project ../haproxy-schema haproxy-schema build-hapee --hapee-version 3.0r1 --fetch --dkall ../haproxy-schema/haproxy_schema/dkall-3.0.txt --out ./schemas/haproxy-3.0r1.schema.json --language-data-out ./schemas/haproxy-3.0r1.language.json --grammar-out ./syntaxes/haproxy-3.0r1.tmLanguage.json",
+    "generate:schema:hapee:3.2": "uv run --project ../haproxy-schema haproxy-schema build-hapee --hapee-version 3.2r1 --fetch --dkall ../haproxy-schema/haproxy_schema/dkall-3.2.txt --out ./schemas/haproxy-3.2r1.schema.json --language-data-out ./schemas/haproxy-3.2r1.language.json --grammar-out ./syntaxes/haproxy-3.2r1.tmLanguage.json",
     "generate:dkall:2.6": "powershell -ExecutionPolicy Bypass -File ../haproxy-schema/scripts/generate-dkall.ps1 -Version 2.6",
     "generate:dkall:2.8": "powershell -ExecutionPolicy Bypass -File ../haproxy-schema/scripts/generate-dkall.ps1 -Version 2.8",
     "generate:dkall:3.0": "powershell -ExecutionPolicy Bypass -File ../haproxy-schema/scripts/generate-dkall.ps1 -Version 3.0",

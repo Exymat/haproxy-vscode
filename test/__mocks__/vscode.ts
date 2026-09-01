@@ -623,7 +623,7 @@ export class OutputChannel {
 
 export let lastOutputChannel: OutputChannel | undefined;
 export let lastQuickPickItems: unknown;
-export let lastQuickPickResult: { label: string } | undefined;
+export let lastQuickPickResult: { label: string; version?: string; edition?: string } | undefined;
 export let lastInfoMessageResult: string | undefined;
 
 const registeredCommands = new Map<string, (...args: unknown[]) => unknown>();
@@ -787,7 +787,14 @@ export const workspace = {
     listener: (event: { affectsConfiguration: (section: string) => boolean }) => void,
   ) {
     configListeners.push(listener);
-    return { dispose: () => {} };
+    return {
+      dispose: () => {
+        const index = configListeners.indexOf(listener);
+        if (index >= 0) {
+          configListeners.splice(index, 1);
+        }
+      },
+    };
   },
   onDidChangeWorkspaceFolders(
     listener: (event: {

@@ -16,7 +16,7 @@ import { mockExtensionContext } from "../../helpers/extensionContext";
 import { loadSchemaBundle } from "../../helpers/schema";
 import { defaultWorkspaceSymbolSettings, workspaceFolder } from "../workspaceSymbolIndex/helpers";
 
-const bundle = { version: "3.4", ...loadSchemaBundle("3.4") };
+const bundle = { version: "3.4", edition: "community" as const, ...loadSchemaBundle("3.4") };
 
 describe("extension lifecycle", () => {
   beforeEach(() => {

@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.20.0
+
+- **HAProxy Enterprise (HAPEE) edition** — choose **2.6 / 2.8 / 3.0 / 3.2 HAPEE** from the version status bar to load the matching Enterprise schema, language data, and TextMate grammar (`haproxy-3.2r1`, not the community `haproxy-3.2` files). Generated schemas preserve the complete OSS base and add Enterprise core/module syntax. HAPEE 3.4 is not available yet.
+
 ## 0.19.6
 
 - **Runtime variables** — indexes `set-var` / `set-var-fmt` definitions (including converters and global unparenthesized `set-var <name>`) and `var(...)` / `%[var(...)]` / `unset-var(...)` references. Completion inside those parentheses suggests known names plus `proc.` / `sess.` / `txn.` / `req.` / `res.` / `check.` scopes. Hover on the name peeks the defining line; Go to Definition, Find References, and Rename follow the name. Missing `var()` / `unset-var()` names warn (`missing-reference`); unused `set-var` lines hint (`unused-variable`). Variables set or read only from Lua can false-positive, same as unused ACLs.

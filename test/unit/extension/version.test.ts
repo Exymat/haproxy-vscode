@@ -1,8 +1,12 @@
 import {
   DEFAULT_HAPROXY_VERSION,
+  effectiveEditionForVersion,
+  getConfiguredEdition,
   getConfiguredVersion,
   getConfiguredVersionForUri,
+  HAPEE_SCHEMA_VERSIONS,
   onVersionConfigurationChanged,
+  schemaArtifactId,
   setConfiguredVersion,
   SUPPORTED_HAPROXY_VERSIONS,
 } from "../../../src/extension/version";
@@ -36,6 +40,39 @@ describe("version", () => {
     expect(getConfiguredVersion()).toBe(DEFAULT_HAPROXY_VERSION);
     setMockConfig("haproxy", "version", "");
     expect(getConfiguredVersion()).toBe(DEFAULT_HAPROXY_VERSION);
+  });
+
+  it("returns default community edition when missing or invalid", () => {
+    expect(getConfiguredEdition()).toBe("community");
+    setMockConfig("haproxy", "edition", "enterprise");
+    expect(getConfiguredEdition()).toBe("community");
+  });
+
+  it("discovers OSS schema versions and ignores HAPEE r1 filenames", () => {
+    expect(SUPPORTED_HAPROXY_VERSIONS).toEqual(["2.6", "2.8", "3.0", "3.2", "3.4"]);
+    expect(SUPPORTED_HAPROXY_VERSIONS.every((version) => /^\d+\.\d+$/.test(version))).toBe(true);
+    expect(HAPEE_SCHEMA_VERSIONS).toEqual(["2.6", "2.8", "3.0", "3.2"]);
+  });
+
+  it("falls back HAPEE 3.4 to community because no r1 schema exists", () => {
+    expect(effectiveEditionForVersion("3.4", "hapee")).toBe("community");
+    expect(effectiveEditionForVersion("3.2", "hapee")).toBe("hapee");
+    expect(effectiveEditionForVersion("3.2", "community")).toBe("community");
+    expect(schemaArtifactId("3.2", "hapee")).toBe("3.2r1");
+    expect(schemaArtifactId("3.4", "hapee")).toBe("3.4");
+  });
+
+  it("notifies onVersionConfigurationChanged when edition changes", async () => {
+    const listener = vi.fn();
+    onVersionConfigurationChanged(listener);
+    setMockConfig("haproxy", "edition", "hapee");
+    triggerMockConfigurationChange("haproxy.edition");
+    await vi.waitFor(() =>
+      expect(listener).toHaveBeenCalledWith({
+        versions: [DEFAULT_HAPROXY_VERSION],
+        affectedFolderUris: [undefined],
+      }),
+    );
   });
 
   it("reads version scoped to a workspace resource", () => {
@@ -97,15 +134,17 @@ describe("version", () => {
     expect(capturedTarget).toBe(ConfigurationTarget.Global);
   });
 
-  it("notifies onVersionConfigurationChanged with affected versions and folders", () => {
+  it("notifies onVersionConfigurationChanged with affected versions and folders", async () => {
     const listener = vi.fn();
     onVersionConfigurationChanged(listener);
     setMockConfig("haproxy", "version", "3.0");
     triggerMockConfigurationChange("haproxy.version");
-    expect(listener).toHaveBeenCalledWith({
-      versions: ["3.0"],
-      affectedFolderUris: [undefined],
-    });
+    await vi.waitFor(() =>
+      expect(listener).toHaveBeenCalledWith({
+        versions: ["3.0"],
+        affectedFolderUris: [undefined],
+      }),
+    );
   });
 
   it("ignores unrelated configuration changes", () => {
@@ -115,7 +154,7 @@ describe("version", () => {
     expect(listener).not.toHaveBeenCalled();
   });
 
-  it("collects affected workspace folders for folder-scoped version changes", () => {
+  it("collects affected workspace folders for folder-scoped version changes", async () => {
     setMockWorkspaceFolders([
       { uri: { toString: () => "file:///folder-a", fsPath: "/folder-a" }, name: "a" },
       { uri: { toString: () => "file:///folder-b", fsPath: "/folder-b" }, name: "b" },
@@ -129,13 +168,15 @@ describe("version", () => {
       folderUris: ["file:///folder-a"],
     });
 
-    expect(listener).toHaveBeenCalledWith({
-      versions: ["2.6"],
-      affectedFolderUris: ["file:///folder-a"],
-    });
+    await vi.waitFor(() =>
+      expect(listener).toHaveBeenCalledWith({
+        versions: ["2.6"],
+        affectedFolderUris: ["file:///folder-a"],
+      }),
+    );
   });
 
-  it("deduplicates repeated workspace folders in version change events", () => {
+  it("deduplicates repeated workspace folders in version change events", async () => {
     setMockWorkspaceFolders([
       { uri: { toString: () => "file:///folder-a", fsPath: "/folder-a" }, name: "a" },
       { uri: { toString: () => "file:///folder-a", fsPath: "/folder-a" }, name: "a-copy" },
@@ -148,9 +189,50 @@ describe("version", () => {
       folderUris: ["file:///folder-a"],
     });
 
-    expect(listener).toHaveBeenCalledWith({
-      versions: ["2.6"],
-      affectedFolderUris: ["file:///folder-a"],
-    });
+    await vi.waitFor(() =>
+      expect(listener).toHaveBeenCalledWith({
+        versions: ["2.6"],
+        affectedFolderUris: ["file:///folder-a"],
+      }),
+    );
+  });
+
+  it("coalesces adjacent version and edition events into one profile change", async () => {
+    const listener = vi.fn();
+    onVersionConfigurationChanged(listener);
+    setMockConfig("haproxy", "version", "3.2");
+    setMockConfig("haproxy", "edition", "hapee");
+    triggerMockConfigurationChange("haproxy.version");
+    triggerMockConfigurationChange("haproxy.edition");
+    await vi.waitFor(() => expect(listener).toHaveBeenCalledTimes(1));
+  });
+
+  it("cancels a pending profile change when disposed", () => {
+    vi.useFakeTimers();
+    try {
+      const listener = vi.fn();
+      const disposable = onVersionConfigurationChanged(listener);
+      triggerMockConfigurationChange("haproxy.edition");
+
+      disposable.dispose();
+      vi.runAllTimers();
+
+      expect(listener).not.toHaveBeenCalled();
+      triggerMockConfigurationChange("haproxy.edition");
+      vi.runAllTimers();
+      expect(listener).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("disposes an idle profile-change subscription", () => {
+    const listener = vi.fn();
+    const disposable = onVersionConfigurationChanged(listener);
+
+    disposable.dispose();
+    triggerMockConfigurationChange("haproxy.version");
+
+    expect(listener).not.toHaveBeenCalled();
   });
 });
