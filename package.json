@@ -1,13 +1,15 @@
 {
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
-  "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, rename, cross-file navigation, and workspace symbol graph — LTS versions (2.6 - 3.4) supported.",
+  "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, rename, cross-file navigation, and workspace symbol graph — community LTS 2.6-3.4 and HAProxy Enterprise (HAPEE) 2.6r1-3.2r1.",
   "version": "0.20.0",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
   "keywords": [
     "haproxy",
+    "hapee",
+    "haproxy enterprise",
     "load balancer",
     "reverse proxy",
     "proxy",
@@ -25,7 +27,9 @@
     "acl",
     "devops",
     "networking",
-    "formatting"
+    "formatting",
+    "waf",
+    "enterprise"
   ],
   "repository": {
     "type": "git",
@@ -89,7 +93,7 @@
             "3.4"
           ],
           "default": "3.2",
-          "description": "HAProxy release used for completion, diagnostics, hover, and syntax highlighting."
+          "description": "HAProxy release used for completion, diagnostics, hover, and syntax highlighting. Pair with haproxy.edition to load HAProxy Enterprise (HAPEE) artifacts for 2.6-3.2."
         },
         "haproxy.edition": {
           "type": "string",
@@ -99,11 +103,11 @@
             "hapee"
           ],
           "enumDescriptions": [
-            "HAProxy community (OSS) keywords",
-            "HAProxy Enterprise (HAPEE) schema for the selected LTS version (2.6r1–3.2r1)"
+            "HAProxy community (OSS) keywords and grammar",
+            "HAProxy Enterprise (HAPEE) schema, language data, and grammar for the selected LTS (2.6r1-3.2r1)"
           ],
           "default": "community",
-          "description": "Keyword edition. HAPEE loads the matching Enterprise schema (2.6r1–3.2r1) for the selected OSS version. No HAPEE schema exists for 3.4 yet."
+          "description": "Keyword edition. Community loads OSS artifacts. HAPEE loads the matching Enterprise schema, language data, and grammar (2.6r1-3.2r1). No HAPEE artifacts exist for 3.4 yet."
         },
         "haproxy.diagnostics.enabled": {
           "type": "boolean",
@@ -376,7 +380,7 @@
     "commands": [
       {
         "command": "haproxy.selectVersion",
-        "title": "Select HAProxy Version",
+        "title": "Select HAProxy Version and Edition",
         "category": "HAProxy"
       },
       {

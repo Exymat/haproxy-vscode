@@ -51,6 +51,7 @@ describe("outputChannel", () => {
     logExtensionActivated("0.17.1");
     expect(lines.some((line) => line.includes("Extension activated (v0.17.1)"))).toBe(true);
     expect(lines.some((line) => line.includes("Supported HAProxy versions"))).toBe(true);
+    expect(lines.some((line) => line.includes("Supported HAPEE editions"))).toBe(true);
   });
 
   it("logs bundle load lifecycle events", () => {

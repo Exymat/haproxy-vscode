@@ -14,6 +14,7 @@ import {
   HaproxyEdition,
   HaproxyVersion,
   effectiveEditionForVersion,
+  HAPEE_SCHEMA_VERSIONS,
   SUPPORTED_HAPROXY_VERSIONS,
 } from "./version";
 import { workspaceUriKey } from "../symbolIndex/workspaceUri";
@@ -105,6 +106,9 @@ export function resetHaproxyOutputChannelState(): void {
 export function logExtensionActivated(extensionVersion: string): void {
   writeln(`Extension activated (v${extensionVersion})`);
   writeln(`Supported HAProxy versions: ${SUPPORTED_HAPROXY_VERSIONS.join(", ")}`);
+  writeln(
+    `Supported HAPEE editions: ${HAPEE_SCHEMA_VERSIONS.map((version) => `${version}r1`).join(", ")}`,
+  );
 }
 
 function editionLabel(edition?: HaproxyEdition): string {

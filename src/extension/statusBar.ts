@@ -79,7 +79,7 @@ export function registerVersionStatusBar(context: vscode.ExtensionContext): void
       const currentVersion = getConfiguredVersionForUri(editor?.document.uri);
       const currentEdition = getConfiguredEditionForUri(editor?.document.uri);
       const picked = await vscode.window.showQuickPick(versionPickItems(), {
-        title: "HAProxy version",
+        title: "HAProxy version and edition",
         placeHolder: "Select the HAProxy release and edition",
       });
       if (!picked) {

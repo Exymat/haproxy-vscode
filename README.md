@@ -8,7 +8,7 @@
 
 **Schema-driven language support for HAProxy configuration files** in Visual Studio Code and compatible editors.
 
-Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, log-format intelligence, schema-based diagnostics, **rename symbol**, **symbol hover on references**, **go to definition** and **find all references** (including cross-file navigation and rename when the workspace graph is active), document formatting, and section outline — all tuned to the HAProxy release you run in production (**2.6**, **2.8**, **3.0**, **3.2**, or **3.4**).
+Open any `.cfg` file and get syntax highlighting, context-aware completion, inline documentation, log-format intelligence, schema-based diagnostics, **rename symbol**, **symbol hover on references**, **go to definition** and **find all references** (including cross-file navigation and rename when the workspace graph is active), document formatting, and section outline — all tuned to the HAProxy release you run in production. Community LTS **2.6**, **2.8**, **3.0**, **3.2**, and **3.4** are supported, plus HAProxy Enterprise (HAPEE) LTS **2.6r1**, **2.8r1**, **3.0r1**, and **3.2r1**.
 
 ---
 
@@ -33,7 +33,7 @@ Suggestions follow where you are in the file:
 - **Log-format aliases and flags** inside format strings (see **Log-format support** below)
 - **Enum argument values** where the schema defines allowed choices (e.g. `mode tcp|http`)
 
-Completion reloads immediately when you change the configured HAProxy version.
+Completion reloads immediately when you change the configured HAProxy version or edition.
 
 ![Context-aware completion for section directives](docs/images/completion-directives.png)
 
@@ -88,7 +88,7 @@ Catch common mistakes while you type:
 
 Diagnostics are **schema-based** — they help you write valid-looking config faster, but they do **not** replace `haproxy -c` for a full syntax check. Context checks use the effective runtime mode inferred from your section/config flow, but you should still validate with your real binary before deploying.
 
-Suppress a specific same-line diagnostic with `# haproxy: ignore=<code>`, for example `# haproxy: ignore=unknown-action` or `# haproxy: ignore=unknown-action,unknown-keyword`. This is useful for runtime-provided module keywords that the bundled schema cannot know about, and diagnostics offer a Quick Fix to add or extend the ignore comment automatically.
+Suppress a specific same-line diagnostic with `# haproxy: ignore=<code>`, for example `# haproxy: ignore=unknown-action` or `# haproxy: ignore=unknown-action,unknown-keyword`. This is useful for third-party or runtime module keywords that the selected community or HAPEE schema does not include, and diagnostics offer a Quick Fix to add or extend the ignore comment automatically.
 
 **Missing-reference warnings** (on by default via `haproxy.diagnostics.missingReferences`) flag named references with no matching definition — ACLs, backends, cache, userlist, resolvers, peers, named defaults profiles, and runtime variables (`var(...)` / `unset-var(...)`). When the workspace symbol graph is active, definitions in other indexed `.cfg` files satisfy the reference; environment variables are never flagged (external `$VAR` names without a `setenv` in the graph simply have no jump target).
 
@@ -173,37 +173,37 @@ Reference resolution is **schema-driven** via reference patterns in the bundled 
 
 1. **Install** the extension from the Marketplace (or load a `.vsix` locally).
 2. **Open** a HAProxy config (`.cfg` extension is recognized automatically; `#` line comments, bracket matching, and auto-closing pairs are enabled). For cross-file navigation and workspace symbol diagnostics, open a **workspace folder** containing your `.cfg` files.
-3. **Choose your HAProxy version** so completion, hover, diagnostics, formatting, and highlighting match your deployment (see below).
+3. **Choose your HAProxy version and edition** so completion, hover, diagnostics, formatting, and highlighting match your deployment (see below).
 
 No extra runtime is required for day-to-day editing — schemas and grammars ship with the extension. If bundled schema or language data fails to load, the extension shows a one-time error notification.
 
 ---
 
-## HAProxy version
+## HAProxy version and edition
 
-Pick the release that matches the binaries you operate:
+Pick the community or Enterprise release that matches the binaries you operate:
 
-| Version | Default? | Notes                                      |
-| ------- | -------- | ------------------------------------------ |
-| **3.2** | Yes      | Recommended for most users on the 3.x line |
-| **3.4** |          | Latest supported 3.x line                  |
-| **3.0** |          | 3.x LTS                                    |
-| **2.8** |          | Latest supported 2.x line                  |
-| **2.6** |          | 2.x LTS                                    |
+| Version | Community     | HAPEE                |
+| ------- | ------------- | -------------------- |
+| **3.2** | Yes (default) | **3.2r1**            |
+| **3.4** | Yes           | — (not released yet) |
+| **3.0** | Yes           | **3.0r1**            |
+| **2.8** | Yes           | **2.8r1**            |
+| **2.6** | Yes           | **2.6r1**            |
 
-HAPEE (HAProxy Enterprise) LTS **2.6–3.2** is available as a separate edition: pick **3.2 HAPEE** (or the matching LTS) in the version picker, or set `haproxy.edition` to `hapee`. That loads the `haproxy-3.2r1` schema, language, and TextMate grammar files, including core Enterprise syntax and release-gated overlays for WAF, response-body injection, UDP, SAML, Captcha, Bot Management, OIDC, and RHI. Community OSS **3.4** has no HAPEE schema yet.
+HAPEE (HAProxy Enterprise) is a separate edition of the matching LTS: pick **3.2 HAPEE** (or 2.6 / 2.8 / 3.0 HAPEE) in the version picker, or set `haproxy.edition` to `hapee`. That loads the `haproxy-X.Yr1` schema, language data, and TextMate grammar, including core Enterprise syntax and release-gated modules (WAF, response-body injection, UDP, SAML, Captcha, Bot Management, OIDC, and RHI). Community OSS **3.4** has no HAPEE artifacts yet.
 
 Schemas for **2.6** and **2.8** are generated from the legacy `configuration.txt` layout (actions listed under each ruleset in §4.2 rather than §4.3/§4.4). Completion, diagnostics, and hover reflect keywords available in that release.
 
-**Ways to change version:**
+**Ways to change version and edition:**
 
 - **Status bar** — click **HAProxy** while a `.cfg` file is active.
-- **Command Palette** — run **HAProxy: Select HAProxy Version**.
-- **Settings** — set **HAProxy: Version** (`haproxy.version`) and optionally **HAProxy: Edition** (`haproxy.edition`).
+- **Command Palette** — run **HAProxy: Select HAProxy Version and Edition**.
+- **Settings** — set **HAProxy: Version** (`haproxy.version`) and **HAProxy: Edition** (`haproxy.edition`).
 
-Completion, diagnostics, and hover update as soon as the setting changes. Syntax highlighting switches the active TextMate grammar; if colors do not refresh, use **Developer: Reload Window** when prompted.
+Completion, diagnostics, hover, and highlighting update as soon as the setting changes. Syntax highlighting switches the active TextMate grammar (`haproxy-3.2` vs `haproxy-3.2r1`); if colors do not refresh, use **Developer: Reload Window** when prompted.
 
-![Quick-pick to select the HAProxy release](docs/images/version-select.png)
+![Quick-pick to select the HAProxy release and edition](docs/images/version-select.png)
 
 ---
 
@@ -211,8 +211,8 @@ Completion, diagnostics, and hover update as soon as the setting changes. Syntax
 
 | Setting                                         | Default         | Description                                                                                                                                                                                                       |
 | ----------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `haproxy.version`                               | `3.2`           | HAProxy release used for completion, diagnostics, hover, and syntax highlighting                                                                                                                                  |
-| `haproxy.edition`                               | `community`     | `community` or `hapee`. HAPEE loads Enterprise schema/language files (`haproxy-X.Yr1`) for 2.6–3.2. Ignored for 3.4 until HAPEE 3.4 exists.                                                                       |
+| `haproxy.version`                               | `3.2`           | HAProxy release used for completion, diagnostics, hover, and syntax highlighting. Pair with `haproxy.edition` for HAPEE.                                                                                          |
+| `haproxy.edition`                               | `community`     | `community` or `hapee`. HAPEE loads Enterprise schema, language, and grammar files (`haproxy-X.Yr1`) for 2.6–3.2. Ignored for 3.4 until HAPEE 3.4 exists.                                                         |
 | `haproxy.diagnostics.enabled`                   | `true`          | Turn off if opening very large `.cfg` files feels slow                                                                                                                                                            |
 | `haproxy.diagnostics.debounceMs`                | `500`           | Delay after edits before recomputing diagnostics (100-5000 ms)                                                                                                                                                    |
 | `haproxy.diagnostics.maxLines`                  | `4000`          | Skip diagnostics above this line count to limit memory use                                                                                                                                                        |
@@ -244,21 +244,22 @@ Pre-0.12 settings `haproxy.format.indentStyle` and `haproxy.format.indentSize` a
 
 ## Commands
 
-| Command                                     | Description                                                                |
-| ------------------------------------------- | -------------------------------------------------------------------------- |
-| **HAProxy: Select HAProxy Version**         | Quick-pick between community 2.6–3.4 and HAPEE 2.6–3.2                     |
-| **HAProxy: Open Workspace Symbol Settings** | Opens workspace symbol graph settings (`include`, `roots`, caps, debounce) |
+| Command                                         | Description                                                                |
+| ----------------------------------------------- | -------------------------------------------------------------------------- |
+| **HAProxy: Select HAProxy Version and Edition** | Quick-pick between community 2.6–3.4 and HAPEE 2.6r1–3.2r1                 |
+| **HAProxy: Open Workspace Symbol Settings**     | Opens workspace symbol graph settings (`include`, `roots`, caps, debounce) |
 
 ---
 
 ## How it works
 
-Language data is built offline from two upstream sources:
+Language data is built offline from upstream sources:
 
-1. **`configuration.txt`** — descriptions and documentation structure per HAProxy release.
-2. **`haproxy -dKall`** — the complete keyword list emitted by the binary.
+1. **`configuration.txt`** — descriptions and documentation structure per community HAProxy release.
+2. **`haproxy -dKall`** — the complete keyword list emitted by the matching OSS binary.
+3. **HAPEE configuration manuals** — Enterprise HTML for 2.6r1–3.2r1, merged on top of the OSS base.
 
-Those inputs are merged into JSON schemas, completion/hover payloads, and TextMate grammars (see the companion [**haproxy-schema**](https://github.com/Exymat/haproxy-schema) repository). The VS Code extension loads the bundled artifacts for the version you select — no Python or local HAProxy install needed to **use** the extension.
+Those inputs are merged into JSON schemas, completion/hover payloads, and TextMate grammars (see the companion [**haproxy-schema**](https://github.com/Exymat/haproxy-schema) repository). The VS Code extension loads the bundled artifacts for the version and edition you select — no Python or local HAProxy install needed to **use** the extension.
 
 ---
 
@@ -286,7 +287,7 @@ The extension is built for interactive editing. The table below shows **median**
 - **Diagnostics still dominate** full-pass cost on very large files - the main reason `haproxy.diagnostics.maxLines` defaults to **4000** and very large files skip validation unless you raise that limit. CI guards the incremental stress-edit path at p99.5 under **45 ms** without unused-symbol hints and **40 ms** with them (robust thresholds from 21 CI runs), while full-pass stress benchmarks remain guarded separately.
 - **Highlighting** scales with file size; the editor tokenizes incrementally, so the stress numbers above are a full-file worst case, not what you pay on every keystroke. Grammars are **line-isolated** (no `begin`/`end` region may carry state past end-of-line), so tokenization cost reflects correct per-line highlighting even when earlier lines contain deliberate syntax errors.
 - **Stress fixtures:** `large-valid.cfg` (mostly valid) tokenizes at ~**2.2 s** median; `large-mixed.cfg` (valid baseline plus injected invalid lines every ~5 blocks) at ~**1.8 s** median. The p99.5 tokenization thresholds are **2.7 s** and **2.2 s** respectively.
-- **Startup** pays a one-time ~19 ms JSON parse when the extension first loads language data for your selected HAProxy version; the p99.5 threshold is **30 ms**.
+- **Startup** pays a one-time ~19 ms JSON parse when the extension first loads language data for your selected HAProxy version and edition; the p99.5 threshold is **30 ms**.
 
 CI runs these benchmarks on every push (`npm run bench:ci`) and tracks regressions against [`test/bench/thresholds.json`](test/bench/thresholds.json). To reproduce locally:
 
@@ -311,7 +312,7 @@ Found a false positive, missing completion, or wrong hover text? Open an issue o
 
 **Helpful context** (include when relevant):
 
-- **HAProxy: Version** (`haproxy.version`) — e.g. `3.2`
+- **HAProxy: Version** (`haproxy.version`) and **HAProxy: Edition** (`haproxy.edition`) — e.g. `3.2` community or `3.2` HAPEE
 - Extension version and editor (VS Code version)
 - Whether `haproxy -c` accepts or rejects the same config on your binary
 
@@ -344,7 +345,7 @@ npm install
 npm run compile
 ```
 
-`compile` only builds TypeScript. HAProxy version-specific schema/language data is loaded at extension startup from `haproxy.version` (default `3.2`), and grammar switching is handled by the extension when the version changes.
+`compile` only builds TypeScript. HAProxy version-specific schema/language data is loaded at extension startup from `haproxy.version` (default `3.2`) and `haproxy.edition` (default `community`), and grammar switching is handled by the extension when the version or edition changes.
 
 Use **Run HAProxy Extension** in the Run and Debug view after compiling.
 
@@ -429,4 +430,4 @@ Produces a `.vsix` via `@vscode/vsce` (`vscode:prepublish` compiles TypeScript a
 
 [MIT](LICENSE). See [NOTICE](NOTICE) for third-party and data-source attributions.
 
-Bundled files under `schemas/` and `syntaxes/` are generated from HAProxy `configuration.txt` and `haproxy -dKall` output via the companion [**haproxy-schema**](https://github.com/Exymat/haproxy-schema) project (Apache-2.0). Documentation excerpts in hover and completion payloads are derived from HAProxy's official configuration reference (GPL-2.0-or-later). Keyword-line parsing in haproxy-schema is aligned with [haproxy-dconv](https://github.com/cbonte/haproxy-dconv) (Apache-2.0).
+Bundled files under `schemas/` and `syntaxes/` are generated from HAProxy `configuration.txt` and `haproxy -dKall` output via the companion [**haproxy-schema**](https://github.com/Exymat/haproxy-schema) project (Apache-2.0). Community documentation excerpts in hover and completion payloads are derived from HAProxy's official configuration reference (GPL-2.0-or-later). HAPEE artifacts additionally use the Enterprise configuration manuals published at [haproxy.com](https://www.haproxy.com/documentation/haproxy-configuration-manual/). Keyword-line parsing in haproxy-schema is aligned with [haproxy-dconv](https://github.com/cbonte/haproxy-dconv) (Apache-2.0).
