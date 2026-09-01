@@ -129,13 +129,13 @@ describe("highlight", () => {
     const closes = tokens.filter((token) => token.text === "]");
     expect(closes.length).toBe(4);
     const lastClose = closes[closes.length - 1];
-    expect(lastClose?.scopes.some((scope) => scope.includes("meta.embedded.sample-expression"))).toBe(
-      true,
-    );
+    expect(
+      lastClose?.scopes.some((scope) => scope.includes("meta.embedded.sample-expression")),
+    ).toBe(true);
     const firstOpen = tokens.find((token) => token.text === "[");
-    expect(firstOpen?.scopes.some((scope) => scope.includes("meta.embedded.sample-expression"))).toBe(
-      true,
-    );
+    expect(
+      firstOpen?.scopes.some((scope) => scope.includes("meta.embedded.sample-expression")),
+    ).toBe(true);
   });
 
   it("recovers highlighting after an unclosed sample expression", async () => {

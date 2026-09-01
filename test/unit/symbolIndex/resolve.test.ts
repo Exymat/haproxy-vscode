@@ -271,7 +271,9 @@ describe("symbolIndex resolve", () => {
       name: "proc.state",
       scopeKey: null,
     });
-    expect(resolveSymbolAtPosition(document, pos(1, "    set-var".indexOf("set")), schema)).toBeNull();
+    expect(
+      resolveSymbolAtPosition(document, pos(1, "    set-var".indexOf("set")), schema),
+    ).toBeNull();
   });
 
   it("ignores statement-rule token indices beyond the parsed line", () => {
