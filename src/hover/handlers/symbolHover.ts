@@ -42,7 +42,7 @@ function commandUri(document: vscode.TextDocument, site: SymbolSite): string {
 }
 
 function definitionPreviewText(hc: HoverContext, definition: SymbolSite): string {
-  if (definition.role !== "definition") {
+  if (definition.kind === "variable" || definition.role !== "definition") {
     return hc.document.lineAt(definition.line).text;
   }
   const parsed = getParsedDocument(hc.document, {

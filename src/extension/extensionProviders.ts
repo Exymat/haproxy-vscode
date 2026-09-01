@@ -75,6 +75,7 @@ export function registerExtensionProviders(
       ":",
       "/",
       ".",
+      "(",
     ),
     vscode.languages.registerCodeActionsProvider(
       selector,

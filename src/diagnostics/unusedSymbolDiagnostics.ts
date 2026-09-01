@@ -92,12 +92,19 @@ function isConventionalDefaultProfile(schema: HaproxySchema, site: SymbolSite): 
 
 function unusedMessage(schema: HaproxySchema, kind: SymbolKind, name: string): string {
   const messages = validationStringMap(schema, "unused_symbol_messages");
-  const template = messages[kind] ?? messages.default ?? "'{name}' appears unused";
+  const template =
+    messages[kind] ??
+    (kind === "variable" ? "Variable '{name}' appears unused" : undefined) ??
+    messages.default ??
+    "'{name}' appears unused";
   return template.replaceAll("{name}", name);
 }
 
 function unusedCode(schema: HaproxySchema, kind: SymbolKind): string {
-  return validationStringMap(schema, "unused_symbol_codes")[kind] ?? "unused-symbol";
+  return (
+    validationStringMap(schema, "unused_symbol_codes")[kind] ??
+    (kind === "variable" ? "unused-variable" : "unused-symbol")
+  );
 }
 
 /** Information severity: full-line squiggle on unused ACL and similar symbols. */

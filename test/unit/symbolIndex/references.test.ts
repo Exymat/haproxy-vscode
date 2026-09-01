@@ -85,7 +85,11 @@ describe("symbolIndex references", () => {
         .filter((site) => site.kind === ("map" as (typeof site)["kind"]))
         .map((site) => site.name),
     ).toEqual(["a", "b"]);
-    expect(collectLineSymbolSites(parsed[2], customSchema, "backend:api")).toEqual([]);
+    expect(
+      collectLineSymbolSites(parsed[2], customSchema, "backend:api").filter(
+        (site) => site.kind !== "variable",
+      ),
+    ).toEqual([]);
   });
 
   it("tracks sample-fetch references from non-first arguments with precise ranges", () => {

@@ -234,6 +234,46 @@ describe("symbolIndex resolve", () => {
     expect(resolveSymbolAtPosition(referenceDoc, pos(1, referenceCol), customSchema)).toBeNull();
   });
 
+  it("resolves runtime variable names inside set-var() and var()", () => {
+    const document = doc(
+      [
+        "frontend web",
+        "    http-request set-var(txn.host) req.hdr(host)",
+        "    http-request deny if { var(txn.host) -m found }",
+        "    use_backend %[var(txn.host)]",
+      ].join("\n"),
+    );
+    const defCol = "    http-request set-var(txn.host) req.hdr(host)".indexOf("txn.host");
+    expect(resolveSymbolAtPosition(document, pos(1, defCol), schema)).toEqual({
+      kind: "variable",
+      name: "txn.host",
+      scopeKey: null,
+    });
+    const refCol = "    http-request deny if { var(txn.host) -m found }".indexOf("txn.host");
+    expect(resolveSymbolAtPosition(document, pos(2, refCol), schema)).toEqual({
+      kind: "variable",
+      name: "txn.host",
+      scopeKey: null,
+    });
+    const exprCol = "    use_backend %[var(txn.host)]".indexOf("txn.host");
+    expect(resolveSymbolAtPosition(document, pos(3, exprCol), schema)).toEqual({
+      kind: "variable",
+      name: "txn.host",
+      scopeKey: null,
+    });
+  });
+
+  it("resolves unparenthesized global set-var names", () => {
+    const document = doc('global\n    set-var proc.state str("up")');
+    const nameCol = "    set-var proc.state".indexOf("proc");
+    expect(resolveSymbolAtPosition(document, pos(1, nameCol), schema)).toEqual({
+      kind: "variable",
+      name: "proc.state",
+      scopeKey: null,
+    });
+    expect(resolveSymbolAtPosition(document, pos(1, "    set-var".indexOf("set")), schema)).toBeNull();
+  });
+
   it("ignores statement-rule token indices beyond the parsed line", () => {
     const customSchema = structuredClone(schema);
     customSchema.statement_rules = [

@@ -333,4 +333,36 @@ describe("symbol hover", () => {
       text.match(/\[Peek Definition\]\(command:haproxy\.peekDefinitionAtPosition/g) ?? [];
     expect(commandLinks).toHaveLength(1);
   });
+
+  it("peeks the set-var line when hovering a var() name", () => {
+    const content = [
+      "frontend web",
+      "    http-request set-var(txn.host) req.hdr(host)",
+      "    http-request deny if { var(txn.host) -m found }",
+    ].join("\n");
+    const col = "    http-request deny if { var(txn.host) -m found }".indexOf("txn.host");
+    const hover = provideHover(
+      createDocument(content),
+      { line: 2, character: col } as never,
+      bundles["3.4"].languageData,
+      bundles["3.4"].schema,
+    );
+    expect(hover).not.toBeNull();
+    const text = hoverText(hover as never);
+    expect(text).toContain("set-var(txn.host)");
+    expect(text).toContain("command:haproxy.peekDefinitionAtPosition");
+  });
+
+  it("keeps set-var action docs when hovering the keyword rather than the name", () => {
+    const content = "frontend web\n    http-request set-var(txn.host) req.hdr(host)";
+    const col = "    http-request set-var(txn.host) req.hdr(host)".indexOf("set-var") + 2;
+    const hover = provideHover(
+      createDocument(content),
+      { line: 1, character: col } as never,
+      bundles["3.4"].languageData,
+      bundles["3.4"].schema,
+    );
+    expect(hoverText(hover as never).toLowerCase()).toContain("set-var");
+    expect(hoverText(hover as never)).not.toContain("Peek Definition");
+  });
 });

@@ -14,6 +14,7 @@ import { sectionHeaderSet } from "../schema/layout";
 import { sampleExpressionNameSets } from "../schema/tokens";
 import { candidateRules, ruleMatchesLine } from "../schema/statementLayout";
 import { isLikelyValue, resolveTokenIndex } from "../parser/tokenUtils";
+import { runtimeVariableNameExpectedAt } from "../core/runtimeVariables";
 
 import { aclReferenceExpectedAt } from "./aclReferences";
 import { fetchReferenceRules } from "./context";
@@ -295,6 +296,10 @@ function expectedReferenceAtTokenIndex(
     return expectedSectionHeaderReference(line, tokenIndex, character, schema);
   }
 
+  if (runtimeVariableNameExpectedAt(line, tokenIndex, character)) {
+    return { kind: "variable", scopeKey: null };
+  }
+
   const statementRef = expectedStatementRuleReference(line, tokenIndex, schema, scopeKey);
   if (statementRef) {
     return statementRef;
@@ -353,6 +358,9 @@ export function resolveExpectedSymbolReferenceAtCompletion(
     if (resolved) {
       if (resolved.kind === "environment-variable") {
         return null;
+      }
+      if (resolved.kind === "variable") {
+        return { kind: "variable", scopeKey: resolved.scopeKey };
       }
       if (isLikelyValue(token.text)) {
         return null;

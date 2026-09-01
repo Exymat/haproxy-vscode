@@ -97,6 +97,28 @@ describe("validateLineDelimiters", () => {
     expect(validateLineDelimiters("    acl x hdr('say \"hi\"') if { ok }")).toEqual([]);
   });
 
+  it("balances nested brackets inside quoted log-format strings", () => {
+    expect(
+      validateLineDelimiters(
+        '    log-format-sd "$fusion_log_format_sd_default[custom@58750 Origin-URI=%[var(txn.orgpath)] Request-Host-Header=%[var(txn.hostheader)] Rewritten-URI=%[var(txn.rwtpath)]]"',
+      ),
+    ).toEqual([]);
+    expect(
+      validateLineDelimiters(
+        '    log-format-sd "$fusion_log_format_sd_default[custom@58750 Origin-URI=%[var(txn.orgpath)]"',
+      ),
+    ).toEqual([
+      expect.objectContaining({
+        code: "delimiter-unclosed",
+        message: "missing closing ']'",
+      }),
+    ]);
+  });
+
+  it("accepts nested brackets inside unquoted sample expressions", () => {
+    expect(validateLineDelimiters("    http-request set-header x %[foo[bar]]")).toEqual([]);
+  });
+
   it("handles escaped characters inside double-quoted strings", () => {
     expect(validateLineDelimiters('    acl x path "foo\\nbar" if { ok }')).toEqual([]);
     expect(validateLineDelimiters('    acl x path "foo\\\\bar" if { ok }')).toEqual([]);
@@ -272,6 +294,16 @@ describe("computeDiagnostics delimiter integration", () => {
     ].join("\n");
     const diagnostics = runDiagnostics(createDocument(content), defaultSchema);
     expect(diagnostics.some((diag) => diag.message === "unexpected ']'")).toBe(false);
+    expect(diagnostics.some((diag) => diag.code === "delimiter-unexpected")).toBe(false);
+  });
+
+  it("does not flag nested brackets in quoted log-format-sd strings", () => {
+    const content = [
+      "defaults",
+      '    log-format-sd "$fusion_log_format_sd_default[custom@58750 Origin-URI=%[var(txn.orgpath)] Request-Host-Header=%[var(txn.hostheader)] Rewritten-URI=%[var(txn.rwtpath)]]"',
+    ].join("\n");
+    const diagnostics = runDiagnostics(createDocument(content), defaultSchema);
+    expect(diagnostics.some((diag) => diag.code === "delimiter-unclosed")).toBe(false);
     expect(diagnostics.some((diag) => diag.code === "delimiter-unexpected")).toBe(false);
   });
 

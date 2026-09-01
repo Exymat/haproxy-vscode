@@ -505,4 +505,26 @@ describe("symbolIndex reference expansion", () => {
     expect(inlineFrontendDiag).toHaveLength(1);
     expect(inlineFrontendDiag[0]?.message).toContain("Backend 'ghost'");
   });
+
+  it("reports unused set-var definitions and suppresses them when var() or unset-var references exist", () => {
+    const unused = unusedDiags(
+      "frontend web\n    http-request set-var(txn.host) req.hdr(host)\n    bind :80",
+    );
+    expect(unused).toHaveLength(1);
+    expect(unused[0]?.code).toBe("unused-variable");
+    expect(unused[0]?.message).toContain("txn.host");
+    expect(unused[0]?.severity).toBe(vscode.DiagnosticSeverity.Information);
+
+    expect(
+      unusedDiags(
+        "frontend web\n    http-request set-var(txn.host) req.hdr(host)\n    http-request deny if { var(txn.host) -m found }",
+      ).filter((diag) => diag.code === "unused-variable"),
+    ).toHaveLength(0);
+
+    expect(
+      unusedDiags(
+        "frontend web\n    http-request set-var(txn.host) req.hdr(host)\n    http-request unset-var(txn.host)",
+      ).filter((diag) => diag.code === "unused-variable"),
+    ).toHaveLength(0);
+  });
 });

@@ -5,6 +5,10 @@ import {
   findEnvironmentVariableReferences,
   isEnvironmentVariableName,
 } from "../core/environmentVariables";
+import {
+  findRuntimeVariableHits,
+  findUnparenthesizedRuntimeVariable,
+} from "../core/runtimeVariables";
 import { getParsedDocument } from "../parser/parseCache";
 import { ParsedLine } from "../parser";
 import { findReferencePatternAtToken } from "../parser/referencePatternMatching";
@@ -193,6 +197,10 @@ function resolveStatementRuleSymbol(
   if (envSymbol) {
     return envSymbol;
   }
+  const runtimeVar = resolveRuntimeVariableSymbol(line, tokenIndex, positionCharacter);
+  if (runtimeVar) {
+    return runtimeVar;
+  }
 
   for (const rule of rules) {
     if (!ruleMatchesLine(rule, line.tokens)) {
@@ -209,6 +217,41 @@ function resolveStatementRuleSymbol(
   }
 
   return resolveAclOrPatternSymbol(line, tokenIndex, schema, scopeKey);
+}
+
+function resolveRuntimeVariableSymbol(
+  line: ParsedLine,
+  tokenIndex: number,
+  positionCharacter: number,
+): {
+  kind: SymbolKind;
+  name: string;
+  scopeKey: string | null;
+  proxyCapabilities?: readonly ProxyCapability[];
+} | null {
+  const token = line.tokens[tokenIndex];
+  if (token) {
+    for (const hit of findRuntimeVariableHits(token)) {
+      if (positionCharacter >= hit.start && positionCharacter <= hit.end) {
+        return { kind: "variable", name: hit.name, scopeKey: null };
+      }
+    }
+  }
+
+  const unparenthesized = findUnparenthesizedRuntimeVariable(line);
+  if (!unparenthesized) {
+    return null;
+  }
+  const nameToken = line.tokens[tokenIndex];
+  if (
+    nameToken &&
+    positionCharacter >= unparenthesized.start &&
+    positionCharacter <= unparenthesized.end &&
+    nameToken.start === unparenthesized.start
+  ) {
+    return { kind: "variable", name: unparenthesized.name, scopeKey: null };
+  }
+  return null;
 }
 
 function resolveEnvironmentVariableSymbol(

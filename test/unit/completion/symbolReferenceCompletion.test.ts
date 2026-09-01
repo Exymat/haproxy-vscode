@@ -357,4 +357,64 @@ describe("symbol reference completion", () => {
     ).map((item) => item.label);
     expect(labels).toEqual([]);
   });
+
+  it("completes runtime variable names and scopes inside set-var() and var()", async () => {
+    const content = [
+      "frontend web",
+      "    http-request set-var(txn.host) req.hdr(host)",
+      "    http-request deny if { var(",
+      "    http-request set-var(",
+      "    use_backend %[var(",
+    ].join("\n");
+    const varLabels = (
+      await provideCompletionItems(
+        createDocument(content),
+        pos(2, "    http-request deny if { var(".length),
+        bundle.languageData,
+        bundle.schema,
+      )
+    ).map((item) => item.label);
+    expect(varLabels).toContain("txn.host");
+    expect(varLabels).toContain("txn.");
+    expect(varLabels).toContain("sess.");
+
+    const setVarLabels = (
+      await provideCompletionItems(
+        createDocument(content),
+        pos(3, "    http-request set-var(".length),
+        bundle.languageData,
+        bundle.schema,
+      )
+    ).map((item) => item.label);
+    expect(setVarLabels).toContain("txn.host");
+    expect(setVarLabels).toContain("proc.");
+
+    const sampleLabels = (
+      await provideCompletionItems(
+        createDocument(content),
+        pos(4, "    use_backend %[var(".length),
+        bundle.languageData,
+        bundle.schema,
+      )
+    ).map((item) => item.label);
+    expect(sampleLabels).toContain("txn.host");
+
+    const filtered = (
+      await provideCompletionItems(
+        createDocument(
+          [
+            "frontend web",
+            "    http-request set-var(txn.host) req.hdr(host)",
+            "    http-request deny if { var(z",
+          ].join("\n"),
+        ),
+        pos(2, "    http-request deny if { var(z".length),
+        bundle.languageData,
+        bundle.schema,
+      )
+    ).map((item) => item.label);
+    expect(filtered).not.toContain("txn.");
+    expect(filtered).not.toContain("sess.");
+    expect(filtered).toEqual([]);
+  });
 });

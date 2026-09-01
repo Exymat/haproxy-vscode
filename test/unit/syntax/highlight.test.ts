@@ -117,6 +117,27 @@ describe("highlight", () => {
     );
   });
 
+  it("keeps nested quoted log-format-sd brackets in one sample-expression region", async () => {
+    const line =
+      '    log-format-sd "$fusion_log_format_sd_default[custom@58750 Origin-URI=%[var(txn.orgpath)] Request-Host-Header=%[var(txn.hostheader)] Rewritten-URI=%[var(txn.rwtpath)]]"';
+    const lineTokens = await tokenizeDocument(`defaults\n${line}\n`);
+    const tokens = lineTokens[1]?.tokens ?? [];
+    const vars = tokens.filter((token) => token.text === "var");
+    expect(vars).toHaveLength(3);
+    expect(vars.every((token) => token.displayScope === SCOPES.storage)).toBe(true);
+
+    const closes = tokens.filter((token) => token.text === "]");
+    expect(closes.length).toBe(4);
+    const lastClose = closes[closes.length - 1];
+    expect(lastClose?.scopes.some((scope) => scope.includes("meta.embedded.sample-expression"))).toBe(
+      true,
+    );
+    const firstOpen = tokens.find((token) => token.text === "[");
+    expect(firstOpen?.scopes.some((scope) => scope.includes("meta.embedded.sample-expression"))).toBe(
+      true,
+    );
+  });
+
   it("recovers highlighting after an unclosed sample expression", async () => {
     const lineTokens = await tokenizeDocument(
       [

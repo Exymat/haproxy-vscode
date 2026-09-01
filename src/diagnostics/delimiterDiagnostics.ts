@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 
 import { DIAG_SOURCE } from "./diagnosticUtils";
-import { findClosingBrace } from "../parser/expressionParsing";
+import { findClosingBrace, findClosingSquareBracket } from "../parser/expressionParsing";
 import { commentStartIndex } from "../parser";
 import { SampleDiagnostic } from "../parser/expressionTypes";
 import { ParsedLine } from "../parser";
@@ -87,7 +87,7 @@ function advancePastPercentBracketExpr(
     return null;
   }
 
-  const close = lineText.indexOf("]", pos + 1);
+  const close = findClosingSquareBracket(lineText, pos);
   if (close < 0) {
     return { end: pos, unclosedBracketStart: pos };
   }
@@ -213,7 +213,7 @@ function pushUnclosedDelimiterIssues(
   }
 }
 
-/** Line-oriented delimiter balance check (strings and # comments respected). */
+/** Line-oriented delimiter balance check (# comments ignored; `[` `]` still count inside quotes). */
 export function validateLineDelimiters(lineText: string): DelimiterDiagnostic[] {
   if (!mightContainDelimiters(lineText)) {
     return [];
@@ -240,6 +240,10 @@ export function validateLineDelimiters(lineText: string): DelimiterDiagnostic[] 
       continue;
     }
     if (state.squote || state.dquote) {
+      // Log-format strings nest %[…] inside [sd-id …]; those brackets must balance.
+      if (ch === "[" || ch === "]") {
+        applyBareDelimiter(ch, i, lineText, state, issues);
+      }
       continue;
     }
 

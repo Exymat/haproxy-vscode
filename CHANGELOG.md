@@ -2,6 +2,11 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.19.6
+
+- **Runtime variables** — indexes `set-var` / `set-var-fmt` definitions (including converters and global unparenthesized `set-var <name>`) and `var(...)` / `%[var(...)]` / `unset-var(...)` references. Completion inside those parentheses suggests known names plus `proc.` / `sess.` / `txn.` / `req.` / `res.` / `check.` scopes. Hover on the name peeks the defining line; Go to Definition, Find References, and Rename follow the name. Missing `var()` / `unset-var()` names warn (`missing-reference`); unused `set-var` lines hint (`unused-variable`). Variables set or read only from Lua can false-positive, same as unused ACLs.
+- **Nested brackets in quoted log formats** — `log-format-sd` strings such as `"$alias[sd-id key=%[var(txn.x)]]"` no longer treat the first `]` as the end of the outer `[…]`. The opening bracket stays matched, and delimiter diagnostics also check `[` `]` inside the quoted string.
+
 ## 0.19.5
 
 - **Frontend vs backend vs listen names** — a `frontend` and a `backend` may share a name without a duplicate-section warning. A `listen` with the same name still conflicts with both because it is both a frontend and a backend. `use_backend` and `default_backend` completion, Go to Definition, Find References, Rename, hover, and unused/missing-reference diagnostics resolve to backends and listens, not a same-named frontend.

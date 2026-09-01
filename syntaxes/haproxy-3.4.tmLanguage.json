@@ -1216,6 +1216,9 @@
           },
           "patterns": [
             {
+              "include": "#sample-expressions"
+            },
+            {
               "include": "#strings"
             },
             {
@@ -1268,6 +1271,9 @@
             }
           },
           "patterns": [
+            {
+              "include": "#sample-expressions"
+            },
             {
               "include": "#strings"
             },

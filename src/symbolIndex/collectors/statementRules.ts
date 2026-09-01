@@ -12,6 +12,7 @@ import { addSite, symbolNameTokenIndices } from "../utils";
 
 import { collectConfiguredReferences, collectFilterSelfReference } from "./configuredRefs";
 import { collectEnvironmentVariableSites } from "./environmentVars";
+import { collectRuntimeVariableSites } from "./runtimeVars";
 
 function siteFromToken(
   kind: SymbolKind,
@@ -113,4 +114,5 @@ export function collectStatementRuleSites(
     context.fetchRules,
   );
   collectEnvironmentVariableSites(line, references);
+  collectRuntimeVariableSites(line, context.scopedSymbolKinds, definitions, references);
 }

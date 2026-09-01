@@ -141,6 +141,34 @@ describe("rename provider", () => {
     );
   });
 
+  it("renames runtime variables across set-var and var() with name validation", () => {
+    const doc = createDocument(
+      [
+        "frontend web",
+        "    http-request set-var(txn.host) req.hdr(host)",
+        "    http-request deny if { var(txn.host) -m found }",
+      ].join("\n"),
+    );
+    const col = "    http-request deny if { var(txn.host) -m found }".indexOf("txn.host");
+    const edit = provideRenameEdits(doc, pos(2, col), "txn.hostname", schema, 4000);
+    expect(editRanges(edit as vscode.WorkspaceEdit)).toEqual([
+      {
+        line: 1,
+        start: "    http-request set-var(".length,
+        end: "    http-request set-var(txn.host".length,
+        text: "txn.hostname",
+      },
+      { line: 2, start: col, end: col + "txn.host".length, text: "txn.hostname" },
+    ]);
+
+    expect(() => provideRenameEdits(doc, pos(2, col), "bad-name", schema, 4000)).toThrow(
+      "variable names",
+    );
+    expect(() => provideRenameEdits(doc, pos(2, col), "", schema, 4000)).toThrow(
+      "variable names cannot be empty",
+    );
+  });
+
   it("returns null when no renameable symbol can be resolved", () => {
     const doc = createDocument("frontend web\n    use_backend api");
     expect(prepareRename(doc, pos(1, 0), schema, 4000)).toBeNull();

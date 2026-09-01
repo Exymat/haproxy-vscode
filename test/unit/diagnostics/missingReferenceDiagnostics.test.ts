@@ -83,6 +83,7 @@ describe("missingReferenceDiagnostics", () => {
   it("does not treat inline sample fetches or dynamic backends as missing references", () => {
     const content = [
       "frontend web",
+      "    http-request set-var(http_host) req.hdr(host)",
       '    use_backend www if { var(http_host) -m reg -p "^www\\." }',
       '    use_backend non_www if { var(http_host) -m reg -p "^(?!www\\.).*" }',
       "    use_backend dynamic if { path_beg /dynamic }",
@@ -219,5 +220,34 @@ describe("missingReferenceDiagnostics", () => {
       unresolvedReferences: [ref],
     };
     expect(missingReferenceDiagnostics(index, schema)).toEqual([]);
+  });
+
+  it("reports missing var() and unset-var names and suppresses them when set-var exists", () => {
+    const missing = missingRefs(
+      [
+        "frontend web",
+        "    http-request deny if { var(missing) -m found }",
+        "    use_backend %[var(also_missing)]",
+        "    http-request unset-var(gone)",
+        "backend api",
+      ].join("\n"),
+    );
+    expect(missing.map((diag) => diag.message).sort()).toEqual([
+      expect.stringContaining("Variable 'also_missing'"),
+      expect.stringContaining("Variable 'gone'"),
+      expect.stringContaining("Variable 'missing'"),
+    ]);
+
+    expect(
+      missingRefs(
+        [
+          "frontend web",
+          "    http-request set-var(txn.host) req.hdr(host)",
+          "backend api",
+          "    http-request deny if { var(txn.host) -m found }",
+          "    http-request unset-var(txn.host)",
+        ].join("\n"),
+      ).filter((diag) => diag.message.includes("Variable")),
+    ).toEqual([]);
   });
 });

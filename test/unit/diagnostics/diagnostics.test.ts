@@ -33,7 +33,7 @@ const cases: Array<{
   {
     name: "hapee acl snippet",
     content: hapeeAclSnippet,
-    expectations: { total: 1, counts: { "missing-reference": 1 } },
+    expectations: { total: 2, counts: { "missing-reference": 2 } },
   },
   {
     name: "bind in global",
@@ -114,7 +114,8 @@ const cases: Array<{
   },
   {
     name: "unset-var with inline variable name",
-    content: "backend x\n\thttp-request unset-var(txn.rwtpath)\n",
+    content:
+      "backend x\n\thttp-request set-var(txn.rwtpath) path\n\thttp-request unset-var(txn.rwtpath)\n",
     expectations: { total: 0 },
   },
   {

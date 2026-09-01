@@ -3,7 +3,12 @@ import {
   validateExpressionBody,
   validateSampleExpressions,
 } from "../../../src/language/sampleExpression";
-import { findClosingBrace, findExprEnd, parseArgList } from "../../../src/parser/expressionParsing";
+import {
+  findClosingBrace,
+  findClosingSquareBracket,
+  findExprEnd,
+  parseArgList,
+} from "../../../src/parser/expressionParsing";
 import { readGoldenFixture } from "../../helpers/fixtures";
 import { loadSchema } from "../../helpers/schema";
 
@@ -274,6 +279,11 @@ describe("validateSampleExpressions inline", () => {
     expect(findClosingBrace("if { outer { inner } } tail", 3)).toBe(
       "if { outer { inner } }".length - 1,
     );
+    const nestedBrackets = "$fusion[custom Origin-URI=%[var(txn.orgpath)] extra]";
+    expect(findClosingSquareBracket(nestedBrackets, nestedBrackets.indexOf("["))).toBe(
+      nestedBrackets.length - 1,
+    );
+    expect(findClosingSquareBracket("%[str(']')] tail", 1)).toBe("%[str(']')]".length - 1);
     expect(parseArgList("fetch()", "fetch".length, 0, ["string"], 1).error?.message).toContain(
       "expected type 'string'",
     );

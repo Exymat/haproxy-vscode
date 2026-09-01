@@ -333,7 +333,12 @@ export function isInsideQuotedString(text: string, pos: number): boolean {
   return squote || dquote;
 }
 
-export function findClosingBrace(lineText: string, open: number): number {
+function findClosingPair(
+  lineText: string,
+  open: number,
+  openChar: string,
+  closeChar: string,
+): number {
   let depth = 0;
   let squote = false;
   let dquote = false;
@@ -350,9 +355,9 @@ export function findClosingBrace(lineText: string, open: number): number {
     if (squote || dquote) {
       continue;
     }
-    if (ch === "{") {
+    if (ch === openChar) {
       depth++;
-    } else if (ch === "}") {
+    } else if (ch === closeChar) {
       depth--;
       if (depth === 0) {
         return i;
@@ -360,4 +365,12 @@ export function findClosingBrace(lineText: string, open: number): number {
     }
   }
   return -1;
+}
+
+export function findClosingBrace(lineText: string, open: number): number {
+  return findClosingPair(lineText, open, "{", "}");
+}
+
+export function findClosingSquareBracket(lineText: string, open: number): number {
+  return findClosingPair(lineText, open, "[", "]");
 }

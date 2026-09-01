@@ -57,6 +57,7 @@ export const SCHEMA_SYMBOL_KINDS = [
   "server-template",
   "traces",
   "userlist",
+  "variable",
 ] as const;
 
 export type SchemaSymbolKind = (typeof SCHEMA_SYMBOL_KINDS)[number];

@@ -2,6 +2,7 @@
 import * as vscode from "vscode";
 
 import { isEnvironmentVariableName } from "../core/environmentVariables";
+import { isRuntimeVariableName } from "../core/runtimeVariables";
 import { findInvalidNameChar } from "../diagnostics/nameValidation";
 import { HaproxySchema } from "../schema/types";
 import {
@@ -46,6 +47,18 @@ function validateNewName(newName: string, kind: SymbolSite["kind"]): void {
     if (!isEnvironmentVariableName(newName)) {
       throw new Error(
         "HAProxy environment variable names must start with a letter or underscore and contain only letters, digits, and underscores.",
+      );
+    }
+    return;
+  }
+
+  if (kind === "variable") {
+    if (!newName) {
+      throw new Error("HAProxy variable names cannot be empty.");
+    }
+    if (!isRuntimeVariableName(newName)) {
+      throw new Error(
+        "HAProxy variable names must be identifiers, optionally scoped as scope.name (for example txn.foo).",
       );
     }
     return;

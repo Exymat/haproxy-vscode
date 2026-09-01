@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { getLineSemanticContext } from "../parser/lineSemanticContext";
 import { HaproxyLanguageData } from "../language/languageData";
 import { HaproxySchema } from "../schema/types";
+import { findSiteAtPosition, getSymbolIndex } from "../symbolIndex";
 import { tryAclRefHover } from "./handlers/aclRefHover";
 import { tryActionHover } from "./handlers/actionHover";
 import { tryConditionalHover } from "./handlers/conditionalHover";
@@ -41,6 +42,14 @@ export function provideHover(
     analyzed: semantic.analyzed,
     maxSymbolLines,
   };
+
+  const index = getSymbolIndex(document, schema, maxSymbolLines ?? document.lineCount);
+  if (index) {
+    const site = findSiteAtPosition(index, position);
+    if (site?.kind === "variable") {
+      return trySymbolHover(hc);
+    }
+  }
 
   return (
     tryOptionHover(hc) ??

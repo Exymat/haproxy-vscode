@@ -94,6 +94,27 @@ describe("expectedReference", () => {
     expect(resolveExpectedSymbolReferenceAtCompletion(doc, pos(0, fromCol), schema)).toBeNull();
   });
 
+  it("detects runtime variable names inside set-var() and incomplete var()", () => {
+    const content = [
+      "frontend web",
+      "    http-request set-var(txn.host) req.hdr(host)",
+      "    http-request deny if { var(",
+    ].join("\n");
+    const doc = createDocument(content);
+    const nameCol = "    http-request set-var(txn.host) req.hdr(host)".indexOf("txn.host");
+    expect(resolveExpectedSymbolReferenceAtCompletion(doc, pos(1, nameCol), schema)).toEqual({
+      kind: "variable",
+      scopeKey: null,
+    });
+    expect(
+      resolveExpectedSymbolReferenceAtCompletion(
+        doc,
+        pos(2, "    http-request deny if { var(".length),
+        schema,
+      ),
+    ).toEqual({ kind: "variable", scopeKey: null });
+  });
+
   it("detects split filter references inside comma-separated tokens", () => {
     const line = "    filter-sequence request comp-req,comp-res";
     const doc = createDocument(`frontend web\n    filter comp-req\n    filter comp-res\n${line}`);

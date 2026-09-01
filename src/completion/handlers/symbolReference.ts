@@ -2,6 +2,7 @@
 import * as vscode from "vscode";
 
 import { filterByPrefix } from "../helpers";
+import { RUNTIME_VARIABLE_SCOPES } from "../../core/runtimeVariables";
 import { HaproxySchema } from "../../schema/types";
 import {
   getSymbolIndex,
@@ -41,6 +42,7 @@ const SYMBOL_KIND_DETAIL: Record<string, string> = {
   mailer: "mailer",
   nameserver: "nameserver",
   "environment-variable": "environment variable",
+  variable: "variable",
 };
 
 const SYMBOL_KIND_ITEM_KIND: Record<string, vscode.CompletionItemKind> = {
@@ -69,6 +71,7 @@ const SYMBOL_KIND_ITEM_KIND: Record<string, vscode.CompletionItemKind> = {
   mailer: vscode.CompletionItemKind.Property,
   nameserver: vscode.CompletionItemKind.Property,
   "environment-variable": vscode.CompletionItemKind.Constant,
+  variable: vscode.CompletionItemKind.Variable,
 };
 
 function predefinedAclNames(schema: HaproxySchema): string[] {
@@ -152,16 +155,30 @@ export function trySymbolReferenceCompletion(
     expected.proxyCapabilities,
   );
   const filtered = filterByPrefix(names, cc.partial);
-  if (filtered.length === 0) {
+  const items = filtered.map((name) => {
+    const item = new vscode.CompletionItem(
+      name,
+      SYMBOL_KIND_ITEM_KIND[expected.kind] ?? vscode.CompletionItemKind.Value,
+    );
+    item.detail = SYMBOL_KIND_DETAIL[expected.kind] ?? expected.kind;
+    return item;
+  });
+
+  if (expected.kind === "variable") {
+    for (const scope of RUNTIME_VARIABLE_SCOPES) {
+      const label = `${scope}.`;
+      if (cc.partial && !label.toLowerCase().startsWith(cc.partial.toLowerCase())) {
+        continue;
+      }
+      const item = new vscode.CompletionItem(label, vscode.CompletionItemKind.Enum);
+      item.detail = "variable scope";
+      items.push(item);
+    }
+  }
+
+  if (items.length === 0) {
     return [];
   }
 
-  const detail = SYMBOL_KIND_DETAIL[expected.kind] ?? expected.kind;
-  const itemKind = SYMBOL_KIND_ITEM_KIND[expected.kind] ?? vscode.CompletionItemKind.Value;
-
-  return filtered.map((name) => {
-    const item = new vscode.CompletionItem(name, itemKind);
-    item.detail = detail;
-    return item;
-  });
+  return items;
 }
