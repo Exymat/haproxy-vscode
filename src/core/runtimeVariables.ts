@@ -21,7 +21,23 @@ const PAREN_KEYWORDS: ReadonlyArray<{ needle: string; role: RuntimeVariableRole 
   { needle: "var(", role: "reference" },
 ];
 
-const UNPARENTHESIZED_DEFINITION_KEYWORDS = new Set(["set-var", "set-var-fmt"]);
+function asciiEqualsIgnoreCase(text: string, expected: string): boolean {
+  if (text.length !== expected.length) {
+    return false;
+  }
+  for (let index = 0; index < text.length; index += 1) {
+    const code = text.charCodeAt(index);
+    const folded = code >= 65 && code <= 90 ? code + 32 : code;
+    if (folded !== expected.charCodeAt(index)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function isUnparenthesizedRuntimeVariableKeyword(text: string): boolean {
+  return asciiEqualsIgnoreCase(text, "set-var") || asciiEqualsIgnoreCase(text, "set-var-fmt");
+}
 
 function isIdentifierBoundary(ch: string | undefined): boolean {
   return ch === undefined || !/[A-Za-z0-9_.-]/.test(ch);
@@ -85,8 +101,21 @@ export function isRuntimeVariableName(name: string): boolean {
 }
 
 export function tokenMayContainRuntimeVariables(text: string): boolean {
-  const lower = text.toLowerCase();
-  return lower.includes("var(");
+  for (let index = 0; index <= text.length - 4; index += 1) {
+    if ((text.charCodeAt(index) | 32) !== 118) {
+      continue;
+    }
+    if ((text.charCodeAt(index + 1) | 32) !== 97) {
+      continue;
+    }
+    if ((text.charCodeAt(index + 2) | 32) !== 114) {
+      continue;
+    }
+    if (text.charCodeAt(index + 3) === 40) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function findRuntimeVariableHits(token: ParsedToken): RuntimeVariableHit[] {
@@ -157,7 +186,7 @@ export function findUnparenthesizedRuntimeVariable(line: ParsedLine): RuntimeVar
     if (!keyword || !nameToken) {
       continue;
     }
-    if (!UNPARENTHESIZED_DEFINITION_KEYWORDS.has(keyword.text.toLowerCase())) {
+    if (!isUnparenthesizedRuntimeVariableKeyword(keyword.text)) {
       continue;
     }
     if (!isRuntimeVariableName(nameToken.text)) {
@@ -180,7 +209,7 @@ export function unparenthesizedRuntimeVariableExpectedAt(
 ): boolean {
   for (let i = 0; i < line.tokens.length; i += 1) {
     const keyword = line.tokens[i];
-    if (!keyword || !UNPARENTHESIZED_DEFINITION_KEYWORDS.has(keyword.text.toLowerCase())) {
+    if (!keyword || !isUnparenthesizedRuntimeVariableKeyword(keyword.text)) {
       continue;
     }
     const nameIndex = i + 1;

@@ -42,4 +42,17 @@ describe("runtimeVars collector", () => {
     const { definitions } = collect('global\n    set-var proc.state str("up")', 1);
     expect([...definitions.values()].flat().map((site) => site.name)).toEqual(["proc.state"]);
   });
+
+  it("collects at most one unparenthesized definition from a statement", () => {
+    const { definitions } = collect(
+      'global\n    set-var proc.state str("up") set-var proc.duplicate',
+      1,
+    );
+    expect([...definitions.values()].flat().map((site) => site.name)).toEqual(["proc.state"]);
+  });
+
+  it("skips invalid unparenthesized variable names", () => {
+    const { definitions } = collect("global\n    set-var 1bad value", 1);
+    expect(definitions.size).toBe(0);
+  });
 });

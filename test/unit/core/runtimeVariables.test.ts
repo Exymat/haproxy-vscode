@@ -2,6 +2,7 @@ import {
   findRuntimeVariableHits,
   findUnparenthesizedRuntimeVariable,
   isRuntimeVariableName,
+  isUnparenthesizedRuntimeVariableKeyword,
   runtimeVariableArgumentExpectedAt,
   runtimeVariableNameExpectedAt,
   unparenthesizedRuntimeVariableExpectedAt,
@@ -22,6 +23,12 @@ describe("runtimeVariables", () => {
     expect(isRuntimeVariableName("1bad")).toBe(false);
     expect(isRuntimeVariableName("txn.")).toBe(false);
     expect(isRuntimeVariableName("txn.foo-bar")).toBe(false);
+  });
+
+  it("detects unparenthesized runtime-variable keywords without case-sensitive matching", () => {
+    expect(isUnparenthesizedRuntimeVariableKeyword("set-var")).toBe(true);
+    expect(isUnparenthesizedRuntimeVariableKeyword("SET-VAR-FMT")).toBe(true);
+    expect(isUnparenthesizedRuntimeVariableKeyword("set-variable")).toBe(false);
   });
 
   it("finds set-var, set-var-fmt, unset-var, and var names in a token", () => {

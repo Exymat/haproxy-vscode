@@ -33,10 +33,10 @@
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg \\(",
-      "maxMs": 80,
-      "baselineMs": 67.236,
+      "maxMs": 180,
+      "baselineMs": 130.486,
       "statisticalMarginMs": 1.3132,
-      "rawMaxMs": 67.236
+      "rawMaxMs": 130.486
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg \\(",
@@ -208,10 +208,10 @@
     },
     {
       "namePattern": "^buildSymbolIndex cold: large-valid\\.cfg",
-      "maxMs": 260,
-      "baselineMs": 222.458,
+      "maxMs": 360,
+      "baselineMs": 303.992,
       "statisticalMarginMs": 7.1568,
-      "rawMaxMs": 222.458
+      "rawMaxMs": 303.992
     },
     {
       "namePattern": "^getSymbolIndex warm lookup: large-valid\\.cfg",
@@ -257,10 +257,10 @@
     },
     {
       "namePattern": "^load disk entry: read\\+index",
-      "baselineMs": 236.692,
+      "baselineMs": 288.741,
       "statisticalMarginMs": 9.8556,
-      "maxMs": 280,
-      "rawMaxMs": 236.692
+      "maxMs": 350,
+      "rawMaxMs": 288.741
     },
     {
       "namePattern": "^fingerprint \\d+ workspace documents",

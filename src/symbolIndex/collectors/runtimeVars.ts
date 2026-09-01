@@ -1,7 +1,8 @@
 /** Collects HAProxy runtime-variable definition and reference sites. */
 import {
   findRuntimeVariableHits,
-  findUnparenthesizedRuntimeVariable,
+  isRuntimeVariableName,
+  isUnparenthesizedRuntimeVariableKeyword,
   tokenMayContainRuntimeVariables,
 } from "../../core/runtimeVariables";
 import { ParsedLine } from "../../parser";
@@ -34,17 +35,32 @@ export function collectRuntimeVariableSites(
   definitions: Map<string, SymbolSite[]>,
   references: SymbolSite[],
 ): void {
-  for (const token of line.tokens) {
-    if (!token || !tokenMayContainRuntimeVariables(token.text)) {
+  let unparenthesizedFound = false;
+  for (let index = 0; index < line.tokens.length; index += 1) {
+    const token = line.tokens[index];
+    if (!token) {
       continue;
     }
-    for (const hit of findRuntimeVariableHits(token)) {
-      pushHit(scopedKinds, definitions, references, line, hit);
-    }
-  }
 
-  const unparenthesized = findUnparenthesizedRuntimeVariable(line);
-  if (unparenthesized) {
-    pushHit(scopedKinds, definitions, references, line, unparenthesized);
+    if (tokenMayContainRuntimeVariables(token.text)) {
+      for (const hit of findRuntimeVariableHits(token)) {
+        pushHit(scopedKinds, definitions, references, line, hit);
+      }
+    }
+
+    if (unparenthesizedFound || !isUnparenthesizedRuntimeVariableKeyword(token.text)) {
+      continue;
+    }
+    const nameToken = line.tokens[index + 1];
+    if (!nameToken || !isRuntimeVariableName(nameToken.text)) {
+      continue;
+    }
+    pushHit(scopedKinds, definitions, references, line, {
+      name: nameToken.text,
+      start: nameToken.start,
+      end: nameToken.end,
+      role: "definition",
+    });
+    unparenthesizedFound = true;
   }
 }
