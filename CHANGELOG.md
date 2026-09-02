@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.20.1
+
+- **Faster edits on large configs** — parse, analysis, diagnostics, and symbol indexing share one per-document session instead of four separate caches. Scope lookup for a line no longer scans the whole file.
+
 ## 0.20.0
 
 - **HAProxy Enterprise (HAPEE) edition** — choose **2.6 / 2.8 / 3.0 / 3.2 HAPEE** from the version status bar to load the matching Enterprise schema, language data, and TextMate grammar (`haproxy-3.2r1`, not the community `haproxy-3.2` files). Generated schemas preserve the complete OSS base and add Enterprise core/module syntax. HAPEE 3.4 is not available yet.
