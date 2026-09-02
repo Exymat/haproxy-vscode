@@ -121,7 +121,7 @@ function ensureAnalysis(
 }
 
 function ensureModes(record: DocumentSessionRecord, schema: HaproxySchema): RuntimeModeCacheEntry {
-  if (record.modes?.version === record.version) {
+  if (record.modes && record.modes.version === record.version) {
     return record.modes;
   }
   record.modes = runtimeModeForDocument(

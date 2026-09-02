@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { clearRuntimeModeCache } from "../../../src/diagnostics/diagnosticContext";
 import {
+  getDocumentDerivedState,
   getDocumentSession,
   getSymbolIndex,
   getSymbolIndexVersion,
@@ -24,6 +25,14 @@ describe("document session", () => {
     expect(session.hasLuaLoad).toBe(false);
     expect(session.symbols?.definitions.get("proxy-section:api")).toHaveLength(1);
     expect(session.symbolLineFingerprints).toHaveLength(2);
+  });
+
+  it("computes runtime modes when the document version is missing", () => {
+    const document = createDocument("global\n    daemon");
+    Object.defineProperty(document, "version", { value: undefined });
+    const derived = getDocumentDerivedState(document, schema);
+    expect(derived.modes.modes).toHaveLength(document.lineCount);
+    expect(derived.modes.modes[0]).toBeNull();
   });
 
   it("reuses a live session on a second lookup", () => {

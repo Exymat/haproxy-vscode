@@ -38,6 +38,7 @@ export function createDocument(content, uri = "file:///test.cfg") {
   const lines = content.split(/\r?\n/);
   return {
     uri,
+    version: 1,
     lineCount: lines.length,
     lineAt(lineNo) {
       return { text: lines[lineNo] ?? "" };
