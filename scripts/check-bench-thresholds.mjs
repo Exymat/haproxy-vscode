@@ -5,6 +5,7 @@
  *
  * Thresholds are derived from baselines via:
  *   threshold = baseline + max(absoluteFloorMs, relativeMargin × baseline, statisticalMarginMs)
+ *   (relativeMargin is 0.25 to absorb GitHub-hosted runner noise on p99.5)
  * Regenerate with: npm run bench:update-thresholds [--conservative]
  * Default aggregation dismisses IQR outliers then uses max of retained; --conservative keeps global max.
  */
@@ -34,6 +35,7 @@ function collectBenchmarks(report) {
           name: bench.name,
           mean: bench.mean ?? 0,
           median: bench.median ?? 0,
+          p75: bench.p75 ?? bench.median ?? 0,
           p995: bench.p995 ?? bench.p99 ?? bench.mean ?? 0,
           sampleCount: bench.sampleCount,
         });
@@ -96,7 +98,7 @@ function main() {
       const status = actual <= rule.maxMs ? "ok" : "FAIL";
       const baselineHint = rule.baselineMs !== undefined ? `, baseline ${rule.baselineMs}ms` : "";
       console.log(
-        `[${status}] ${bench.name}: p99.5=${actual.toFixed(3)}ms (limit ${rule.maxMs}ms${baselineHint})${suffix}`,
+        `[${status}] ${bench.name}: p99.5=${actual.toFixed(3)}ms (limit ${rule.maxMs}ms${baselineHint}, p75 ${bench.p75.toFixed(3)}ms, median ${bench.median.toFixed(3)}ms)${suffix}`,
       );
       if (actual > rule.maxMs) {
         failures.push({

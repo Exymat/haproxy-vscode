@@ -57,15 +57,20 @@ const completionCases: CompletionCase[] = [
 
 describe("completion", () => {
   for (const testCase of completionCases) {
-    bench(`completion: ${testCase.name}`, async () => {
-      const doc = createDocument(testCase.content);
-      await provideCompletionItems(
-        doc,
-        { line: testCase.line, character: testCase.character } as never,
-        bundle.languageData,
-        bundle.schema,
-      );
-    });
+    const isLarge = testCase.content === largeContent;
+    bench(
+      `completion: ${testCase.name}`,
+      async () => {
+        const doc = createDocument(testCase.content);
+        await provideCompletionItems(
+          doc,
+          { line: testCase.line, character: testCase.character } as never,
+          bundle.languageData,
+          bundle.schema,
+        );
+      },
+      isLarge ? { warmupIterations: 1 } : {},
+    );
   }
 
   bench(

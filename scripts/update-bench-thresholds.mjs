@@ -28,7 +28,7 @@ const defaultReportPath = join(repoRoot, "scripts/reports/bench-latest.json");
 
 const DEFAULT_FORMULA = {
   absoluteFloorMs: 1,
-  relativeMargin: 0.15,
+  relativeMargin: 0.25,
 };
 
 const DEFAULT_DERIVED = {
@@ -693,7 +693,7 @@ function main() {
     mode: conservative ? "max" : "robust",
     description: conservative
       ? "baseline = global max p995 across reports"
-      : "per-benchmark IQR outlier dismissal; rule limit = max across grouped benchmarks, each covering all retained CI runs",
+      : "per-benchmark IQR outlier dismissal; rule limit = max across grouped benchmarks, each covering all retained CI runs; relativeMargin 0.25 absorbs GitHub-hosted runner noise on p99.5",
   };
 
   writeFileSync(thresholdsPath, `${JSON.stringify(config, null, 2)}\n`);
