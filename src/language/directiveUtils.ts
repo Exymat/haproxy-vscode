@@ -26,8 +26,8 @@ export interface ResolvedDirective {
 
 export function resolveDirective(
   line: ParsedLine,
-  allowed: Set<string>,
-  options?: { noPrefixKeywords?: Set<string>; modifierPrefixes?: Set<string> },
+  allowed: ReadonlySet<string>,
+  options?: { noPrefixKeywords?: ReadonlySet<string>; modifierPrefixes?: ReadonlySet<string> },
 ): ResolvedDirective {
   const match = resolveLongestDirectiveMatch(
     line,

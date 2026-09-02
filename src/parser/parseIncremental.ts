@@ -24,11 +24,20 @@ export interface ParsedDocumentEntry {
   reuse: ParsedDocumentReuse;
 }
 
+const parseOptionsKeyCache = new WeakMap<ReadonlySet<string>, string>();
+
 export function parseOptionsKey(options?: ParseOptions): string {
-  if (!options?.sectionHeaders) {
+  const headers = options?.sectionHeaders;
+  if (!headers) {
     return "";
   }
-  return [...options.sectionHeaders].sort().join("\0");
+  const cached = parseOptionsKeyCache.get(headers);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const key = [...headers].sort().join("\0");
+  parseOptionsKeyCache.set(headers, key);
+  return key;
 }
 
 export function lineTextsForDocument(document: vscode.TextDocument): string[] {

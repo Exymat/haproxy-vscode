@@ -104,7 +104,7 @@ jobs:
               - 'test/unit/**'
               - 'test/helpers/**'
               - 'test/__mocks__/**'
-              - 'vitest.config.ts'
+              - 'vitest.config.mjs'
               - 'tsconfig.test.json'
             integration_tests:
               - 'test/integration/**'
@@ -125,7 +125,7 @@ jobs:
               - 'test/bench/**/*.bench.ts'
               - 'test/bench/**/*.ts'
               - 'test/bench/fixtures/**'
-              - 'vitest.bench.config.ts'
+              - 'vitest.bench.config.mjs'
               - 'scripts/generate-bench-fixture.mjs'
               - 'scripts/check-bench-thresholds.mjs'
               - 'scripts/update-bench-thresholds.mjs'

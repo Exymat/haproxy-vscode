@@ -43,9 +43,7 @@ export function getLineSemanticContext(
   const lineAnalysis = analysis.getLineAnalysis(ctx.line);
   const allowed = lineAnalysis.allowed;
   const directiveAllowed =
-    data && ctx.line.section
-      ? new Set(indexedKeywordNameSetForSection(data, ctx.line.section))
-      : allowed;
+    data && ctx.line.section ? indexedKeywordNameSetForSection(data, ctx.line.section) : allowed;
   const directive = resolveDirective(ctx.line, directiveAllowed, {
     noPrefixKeywords: analysis.noPrefix,
     modifierPrefixes: analysis.modifierPrefixes,

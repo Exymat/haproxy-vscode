@@ -10,7 +10,8 @@ out/tooling/**
 **/*.map
 tsconfig.json
 tsconfig*.json
-vitest.config.ts
+vitest.config.mjs
+vitest.bench.config.mjs
 eslint.config.mjs
 package-lock.json
 .npmrc

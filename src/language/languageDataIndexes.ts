@@ -139,14 +139,16 @@ export function indexedResolvedKeywordsForSection(
   return languageDataIndexes(data).resolvedKeywordsBySection.get(section) ?? [];
 }
 
+const EMPTY_KEYWORD_NAMES: ReadonlySet<string> = new Set();
+
 export function indexedKeywordNameSetForSection(
   data: HaproxyLanguageData,
   section: string | null,
 ): ReadonlySet<string> {
   if (!section) {
-    return new Set<string>();
+    return EMPTY_KEYWORD_NAMES;
   }
-  return languageDataIndexes(data).keywordNamesLowerBySection.get(section) ?? new Set<string>();
+  return languageDataIndexes(data).keywordNamesLowerBySection.get(section) ?? EMPTY_KEYWORD_NAMES;
 }
 
 export function clearLanguageDataIndexCache(): void {

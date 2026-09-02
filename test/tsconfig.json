@@ -4,5 +4,5 @@
     "noEmit": true,
     "types": ["node", "mocha", "vitest/globals"]
   },
-  "include": ["../src/**/*.ts", "./**/*.ts", "../vitest.config.ts"]
+  "include": ["../src/**/*.ts", "./**/*.ts"]
 }

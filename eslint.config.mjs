@@ -7,7 +7,7 @@ import tseslint from "typescript-eslint";
 import vitest from "@vitest/eslint-plugin";
 
 const srcFiles = ["src/**/*.ts"];
-const testFiles = ["test/**/*.ts", "vitest.config.ts"];
+const testFiles = ["test/**/*.ts"];
 
 /** @type {import("eslint").Linter.RulesRecord} */
 const testRuleOverrides = {
@@ -109,7 +109,7 @@ export default defineConfig(
     },
   },
   {
-    files: ["scripts/**/*.mjs"],
+    files: ["scripts/**/*.mjs", "vitest.config.mjs", "vitest.bench.config.mjs"],
     extends: [js.configs.recommended, eslintConfigPrettier],
     languageOptions: {
       globals: globals.node,

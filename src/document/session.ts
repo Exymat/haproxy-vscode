@@ -21,7 +21,8 @@ import {
 } from "../parser/conditionalDirectives";
 import { DocumentAnalysis } from "../parser/documentAnalysis";
 import { getParsedDocumentEntry } from "../parser/parseCache";
-import { parseOptionsKey } from "../parser/parseIncremental";
+import { ParsedDocumentEntry, parseOptionsKey } from "../parser/parseIncremental";
+import { ParsedLine, type ParseOptions } from "../parser";
 import { runtimeModeForDocument, RuntimeModeCacheEntry } from "../parser/sectionMode";
 import { isTopLevelSectionHeader } from "../language/sectionUtils";
 import { HaproxySchema } from "../schema/types";
@@ -34,8 +35,8 @@ import {
 } from "../symbolIndex/build";
 import { createSymbolBuildContext } from "../symbolIndex/context";
 import { SymbolIndex } from "../symbolIndex/types";
-import { ParsedDocumentEntry } from "../parser/parseIncremental";
-import { ParsedLine } from "../parser";
+
+const schemaParseOptionsCache = new WeakMap<HaproxySchema, ParseOptions>();
 
 export interface DocumentSession {
   readonly document: vscode.TextDocument;
@@ -51,7 +52,13 @@ export interface DocumentSession {
 }
 
 function schemaParseOptions(schema: HaproxySchema) {
-  return { sectionHeaders: sectionHeaderSet(schema) };
+  const cached = schemaParseOptionsCache.get(schema);
+  if (cached) {
+    return cached;
+  }
+  const options = { sectionHeaders: sectionHeaderSet(schema) };
+  schemaParseOptionsCache.set(schema, options);
+  return options;
 }
 
 function liveRecordForParse(

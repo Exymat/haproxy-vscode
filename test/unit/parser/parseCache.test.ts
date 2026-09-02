@@ -7,6 +7,7 @@ import {
   getParsedDocument,
   getParsedDocumentEntry,
   hasUriParseCache,
+  parseOptionsKey,
 } from "../../../src/parser/parseCache";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument, updateDocument } from "../../helpers/document";
@@ -195,5 +196,12 @@ describe("getParsedDocument", () => {
     const first = getParsedDocumentEntry(doc, parseOptions);
     clearParseCache();
     expect(getParsedDocumentEntry(doc, parseOptions).parsed).not.toBe(first.parsed);
+  });
+
+  it("reuses a stable parseOptionsKey for the same section header set", () => {
+    const first = parseOptionsKey(parseOptions);
+    const second = parseOptionsKey(parseOptions);
+    expect(first).toBe(second);
+    expect(first).toContain("frontend");
   });
 });

@@ -123,10 +123,10 @@ export function joinTokens(tokens: ParsedToken[], start: number, end: number): s
 
 export function resolveLongestDirectiveMatch(
   line: ParsedLine,
-  allowed: Set<string>,
+  allowed: ReadonlySet<string>,
   maxParts = 4,
-  noPrefixKeywords?: Set<string>,
-  modifierPrefixes?: Set<string>,
+  noPrefixKeywords?: ReadonlySet<string>,
+  modifierPrefixes?: ReadonlySet<string>,
 ): DirectiveMatch {
   const tokens = line.tokens;
   if (tokens.length === 0) {
