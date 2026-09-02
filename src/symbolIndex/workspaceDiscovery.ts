@@ -200,7 +200,14 @@ function globBracketClassToRegExpSource(
   return { source, closeIndex };
 }
 
+const globRegexpCache = new Map<string, RegExp>();
+
 function globPatternToRegExp(pattern: string, caseInsensitive: boolean): RegExp {
+  const cacheKey = `${caseInsensitive ? "i" : ""}\0${pattern}`;
+  const cached = globRegexpCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
   const normalized = pattern.replace(/\\/g, "/");
   let source = "";
   for (let i = 0; i < normalized.length; i += 1) {
@@ -235,7 +242,9 @@ function globPatternToRegExp(pattern: string, caseInsensitive: boolean): RegExp 
     }
     source += escapeRegExp(ch);
   }
-  return new RegExp(`^${source}$`, caseInsensitive ? "i" : "");
+  const regexp = new RegExp(`^${source}$`, caseInsensitive ? "i" : "");
+  globRegexpCache.set(cacheKey, regexp);
+  return regexp;
 }
 
 function expandBracePattern(pattern: string): string[] {
@@ -376,12 +385,17 @@ async function discoverUris(
   const exclude = excludePattern(settings);
   const maxResults = maxDiscoveryResults(settings);
   const expectedFolderKey = folder ? workspaceFolderKey(folder) : undefined;
-  for (const include of effectiveWorkspaceSymbolIncludePatterns(settings)) {
-    const uris = await findWorkspaceFiles(
-      relativePattern(folder, include),
-      exclude ? relativePattern(folder, exclude) : undefined,
-      maxResults,
-    );
+  const includePatterns = effectiveWorkspaceSymbolIncludePatterns(settings);
+  const found = await Promise.all(
+    includePatterns.map((include) =>
+      findWorkspaceFiles(
+        relativePattern(folder, include),
+        exclude ? relativePattern(folder, exclude) : undefined,
+        maxResults,
+      ),
+    ),
+  );
+  for (const uris of found) {
     for (const uri of uris) {
       if (
         expectedFolderKey !== undefined &&

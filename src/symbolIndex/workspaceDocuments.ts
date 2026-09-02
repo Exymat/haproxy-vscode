@@ -2,8 +2,9 @@
 import * as vscode from "vscode";
 
 import { fingerprintText } from "../core/contentFingerprint";
+import { normalizeUriKey } from "../core/uriKey";
 import { isHaproxyLanguageId } from "../extension/grammar";
-import { getParsedDocument } from "../parser/parseCache";
+import { getParsedDocumentEntry } from "../parser/parseCache";
 import { parseDocumentLines, ParsedLine, tokenizeLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 import { sectionHeaderSet } from "../schema/layout";
@@ -82,13 +83,20 @@ function lineExceedsMaxBytes(lines: string[], maxLineBytes: number): boolean {
   return false;
 }
 
-function textDocumentContent(document: vscode.TextDocument): { text: string; lines: string[] } {
-  const text = document.getText();
-  return { text, lines: text.split(/\r?\n/) };
+export function sameLineTexts(left: string[], right: string[]): boolean {
+  if (left.length !== right.length) {
+    return false;
+  }
+  for (let i = 0; i < left.length; i += 1) {
+    if (left[i] !== right[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
-function diskStatKey(stat: vscode.FileStat): string {
-  return `${stat.mtime}:${stat.size}`;
+function firstTokensFromParsed(parsed: ParsedLine[]): string[] {
+  return parsed.map((line) => line.tokens[0]?.text ?? "");
 }
 
 function sectionRanges(parsed: ParsedLine[], lineTexts: string[]): Map<number, SectionRange> {
@@ -101,6 +109,7 @@ function sectionRanges(parsed: ParsedLine[], lineTexts: string[]): Map<number, S
     ranges.set(start, {
       endLine,
       endColumn: lineTexts[endLine]?.length ?? 0,
+      headerKeyword: parsed[start]?.tokens[0]?.text ?? "",
     });
   }
   return ranges;
@@ -146,9 +155,13 @@ export function aggregateDocuments(
   };
 }
 
+function diskStatKey(stat: vscode.FileStat): string {
+  return `${stat.mtime}:${stat.size}`;
+}
+
 function openDocumentForUri(uri: vscode.Uri): vscode.TextDocument | undefined {
-  const key = workspaceUriKey(uri);
-  return vscode.workspace.textDocuments.find((document) => workspaceUriKey(document.uri) === key);
+  const key = normalizeUriKey(uri);
+  return vscode.workspace.textDocuments.find((document) => normalizeUriKey(document.uri) === key);
 }
 
 export function looksLikeHaproxyConfig(
@@ -201,10 +214,9 @@ export function createOpenDocumentEntry(
   if (document.lineCount > maxLines) {
     return skipEntry("too-many-lines");
   }
-  const { text, lines } = textDocumentContent(document);
-  if (exceedsLimit(encodedTextByteLength(text), limits.maxFileBytes)) {
-    return skipEntry("file-too-large");
-  }
+  const parse = getParsedDocumentEntry(document, { sectionHeaders: sectionHeaderSet(schema) });
+  const lines = parse.lineTexts;
+  const parsed = parse.parsed;
   if (lineExceedsMaxBytes(lines, limits.maxLineBytes)) {
     return skipEntry("line-too-long");
   }
@@ -212,9 +224,18 @@ export function createOpenDocumentEntry(
   if (!looksLikeHaproxyConfig(lines, headers)) {
     return skipEntry("not-haproxy-config");
   }
-  const fingerprint = fingerprintText(text);
-  const byteLength = encodedTextByteLength(text);
-  if (entryHasSchemaIdentity(cached, schema) && cached.fingerprint === fingerprint) {
+  const byteLength =
+    cached && sameLineTexts(cached.lineTexts, lines)
+      ? cached.byteLength
+      : encodedTextByteLength(document.getText());
+  if (exceedsLimit(byteLength, limits.maxFileBytes)) {
+    return skipEntry("file-too-large");
+  }
+  const fingerprint =
+    cached && sameLineTexts(cached.lineTexts, lines)
+      ? cached.fingerprint
+      : `open:${document.version}`;
+  if (entryHasSchemaIdentity(cached, schema) && sameLineTexts(cached.lineTexts, lines)) {
     return {
       entry: entryForSchema(
         {
@@ -234,7 +255,7 @@ export function createOpenDocumentEntry(
   if (!index) {
     return skipEntry("too-many-lines");
   }
-  const parsed = getParsedDocument(document, { sectionHeaders: sectionHeaderSet(schema) });
+  const tokens = firstTokensFromParsed(parsed);
   if (entryHasSchemaIdentity(cached, schema) && sameSymbolGraph(cached.index, index)) {
     return {
       entry: entryForSchema(
@@ -246,8 +267,9 @@ export function createOpenDocumentEntry(
           fingerprint,
           diskStatKey: null,
           byteLength,
-          parsed,
+          lineCount: parsed.length,
           lineTexts: lines,
+          firstTokens: tokens,
           index,
         },
         schema,
@@ -263,8 +285,9 @@ export function createOpenDocumentEntry(
         fingerprint,
         diskStatKey: null,
         byteLength,
-        parsed,
+        lineCount: parsed.length,
         lineTexts: lines,
+        firstTokens: tokens,
         index,
         sectionRangesByStartLine: sectionRanges(parsed, lines),
       },
@@ -341,8 +364,9 @@ export async function loadDiskEntry(
           fingerprint: fingerprintText(text),
           diskStatKey: statKey,
           byteLength,
-          parsed,
+          lineCount: parsed.length,
           lineTexts: lines,
+          firstTokens: firstTokensFromParsed(parsed),
           index,
           sectionRangesByStartLine: sectionRanges(parsed, lines),
         },
@@ -378,7 +402,7 @@ export async function createDiskEntry(
 export function totalDocumentLines(documents: Map<string, WorkspaceDocumentSymbols>): number {
   let totalLines = 0;
   for (const entry of documents.values()) {
-    totalLines += entry.parsed.length;
+    totalLines += entry.lineCount;
   }
   return totalLines;
 }

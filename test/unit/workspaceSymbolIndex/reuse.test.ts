@@ -77,7 +77,8 @@ describe("workspace symbol index reuse and resilience", () => {
       "file:///api.cfg",
     );
     expect(second.index).toBe(first.index);
-    expect(second.parsed).toBe(first.parsed);
+    expect(second.lineTexts).toEqual(first.lineTexts);
+    expect(second.lineCount).toBe(first.lineCount);
     expect(second.fingerprint).toBe(first.fingerprint);
     expect(second.version).toBe(2);
     expect(expectWorkspaceIndex(getWorkspaceSymbolIndex()).revision).toBe(workspaceIndex.revision);

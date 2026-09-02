@@ -2,14 +2,14 @@
 import * as vscode from "vscode";
 
 import { AnalyzedLine, analyzeLine } from "./lineAnalysis";
-import { getParsedDocumentEntry, ParsedDocumentEntry } from "./parseCache";
+import { ParsedDocumentEntry } from "./parseIncremental";
 import { ParsedLine } from "./index";
 import { HaproxySchema, StatementRule } from "../schema/types";
 import { bindDetectKeywordSet, entryPointSectionSet, namedSectionSet } from "../schema/symbols";
 import { sectionHasOptionKeywords, sectionKeywordSet } from "../schema/keywords";
 import { sectionHeaderSet } from "../schema/layout";
 import { modifierPrefixSet, noPrefixKeywordSet } from "../schema/tokens";
-import { sectionOutlineByStartLine, SectionSymbolInfo } from "../navigation/sectionOutline";
+import { sectionOutlineByStartLine, SectionSymbolInfo } from "./sectionOutline";
 import { DirectiveMatch } from "./tokenUtils";
 
 export interface DocumentLineAnalysis {
@@ -38,12 +38,11 @@ export class DocumentAnalysis {
   constructor(
     private readonly document: vscode.TextDocument,
     schema: HaproxySchema,
+    parsedEntry: ParsedDocumentEntry,
   ) {
     this.schema = schema;
     this.sectionHeaders = sectionHeaderSet(schema);
-    this.parsedEntry = getParsedDocumentEntry(document, {
-      sectionHeaders: this.sectionHeaders,
-    });
+    this.parsedEntry = parsedEntry;
     this.parsed = this.parsedEntry.parsed;
     this.lineTexts = this.parsedEntry.lineTexts;
     this.noPrefix = noPrefixKeywordSet(schema);
@@ -88,40 +87,5 @@ export class DocumentAnalysis {
   }
 }
 
-interface DocumentAnalysisCacheEntry {
-  version: number;
-  generation: number;
-  analysis: DocumentAnalysis;
-}
-
-const analysisCache = new WeakMap<
-  vscode.TextDocument,
-  WeakMap<HaproxySchema, DocumentAnalysisCacheEntry>
->();
-let analysisCacheGeneration = 0;
-
-export function getDocumentAnalysis(
-  document: vscode.TextDocument,
-  schema: HaproxySchema,
-): DocumentAnalysis {
-  let entries = analysisCache.get(document);
-  if (!entries) {
-    entries = new WeakMap();
-    analysisCache.set(document, entries);
-  }
-  const hit = entries.get(schema);
-  if (hit && hit.version === document.version && hit.generation === analysisCacheGeneration) {
-    return hit.analysis;
-  }
-  const next = new DocumentAnalysis(document, schema);
-  entries.set(schema, {
-    version: document.version,
-    generation: analysisCacheGeneration,
-    analysis: next,
-  });
-  return next;
-}
-
-export function clearDocumentAnalysisCache(): void {
-  analysisCacheGeneration += 1;
-}
+export { getDocumentAnalysis } from "../document/session";
+export { clearDocumentSessions as clearDocumentAnalysisCache } from "../document/sessionStore";

@@ -348,7 +348,9 @@ export function hasReferences(
   scopeKey: string | null,
   proxyCapabilities?: readonly ProxyCapability[],
 ): boolean {
-  return findReferences(index, kind, name, scopeKey, proxyCapabilities).length > 0;
+  const key = symbolKeyForScopedKinds(index.scopedSymbolKinds, kind, name, scopeKey);
+  const refs = index.referencesByKey.get(key);
+  return Boolean(refs?.some((site) => siteMatchesProxyCapabilities(site, proxyCapabilities)));
 }
 
 export function findAllSites(

@@ -10,35 +10,17 @@ import {
 import { DeprecatedIndex, buildDeprecatedIndex } from "../language/deprecatedIndex";
 import { documentUsesExposeDeprecatedDirectives } from "./deprecatedUtils";
 import { HaproxyLanguageData } from "../language/languageData";
-import { ParsedDocumentEntry } from "../parser/parseCache";
+import { ParsedDocumentEntry } from "../parser/parseIncremental";
 import { ParsedLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 import { LogFormatLineMemo, extractLogFormatRegions } from "../language/logFormat";
-import { runtimeModeForDocument, RuntimeMode, RuntimeModeCacheEntry } from "../parser/sectionMode";
-import {
-  conditionalBranchInfoForDocument,
-  ConditionalBranchState,
-  ConditionalLineInfo,
-} from "./conditionalDirectives";
-
-const runtimeModeCache = new WeakMap<vscode.TextDocument, RuntimeModeCacheEntry>();
-let runtimeModeCacheGeneration = 0;
-const runtimeModeCacheGenerations = new WeakMap<vscode.TextDocument, number>();
+import { RuntimeMode } from "../parser/sectionMode";
+import { ConditionalBranchState, ConditionalLineInfo } from "../parser/conditionalDirectives";
+import { getDocumentDerivedState } from "../document/session";
+import { clearDocumentSessions } from "../document/sessionStore";
 
 export function clearRuntimeModeCache(): void {
-  runtimeModeCacheGeneration += 1;
-}
-
-function readRuntimeModeCache(document: vscode.TextDocument): RuntimeModeCacheEntry | undefined {
-  if (runtimeModeCacheGenerations.get(document) !== runtimeModeCacheGeneration) {
-    return undefined;
-  }
-  return runtimeModeCache.get(document);
-}
-
-function writeRuntimeModeCache(document: vscode.TextDocument, entry: RuntimeModeCacheEntry): void {
-  runtimeModeCacheGenerations.set(document, runtimeModeCacheGeneration);
-  runtimeModeCache.set(document, entry);
+  clearDocumentSessions();
 }
 
 export type { AnalyzedLine } from "../parser/lineAnalysis";
@@ -77,31 +59,20 @@ export class DiagnosticContext {
     options: DiagnosticContextOptions = {},
     analysis: DocumentAnalysis = getDocumentAnalysis(document, schema),
   ) {
+    const session = getDocumentDerivedState(document, schema);
     this.analysis = analysis;
     this.schema = analysis.schema;
     this.parsedEntry = analysis.parsedEntry;
     this.parsed = analysis.parsed;
-    const previousModes = readRuntimeModeCache(document);
-    const nextModes = runtimeModeForDocument(
-      this.parsed,
-      document.version,
-      this.parsedEntry.reuse,
-      previousModes,
-      schema,
-    );
-    writeRuntimeModeCache(document, nextModes);
-    this.modesByLine = nextModes.modes;
-    this.branchInfoByLine = conditionalBranchInfoForDocument(this.parsed);
+    this.modesByLine = session.modes.modes;
+    this.branchInfoByLine = session.branches;
     this.lineTexts = analysis.lineTexts;
     this.noPrefix = analysis.noPrefix;
     this.modifierPrefixes = analysis.modifierPrefixes;
     this.namedSections = analysis.namedSections;
     this.entryPointSections = analysis.entryPointSections;
     this.bindDetectKeywords = analysis.bindDetectKeywords;
-    this.hasLuaLoad = this.parsed.some((line) => {
-      const first = line.tokens[0]?.text.toLowerCase();
-      return first === "lua-load" || first === "lua-load-per-thread";
-    });
+    this.hasLuaLoad = session.hasLuaLoad;
     const deprecatedWarnings = options.deprecatedWarnings !== false;
     this.deprecatedIndex = deprecatedWarnings
       ? buildDeprecatedIndex(schema, options.languageData)

@@ -40,6 +40,18 @@ describe("workspace open scope and uri targeting", () => {
     expect(resolveWorkspaceRebuildScopeOnOpen(doc)).toBe("incremental");
   });
 
+  it("returns none when an open document matches disk-indexed text", async () => {
+    const content = "frontend web\n    use_backend api";
+    setMockWorkspaceFile("file:///frontends/disk.cfg", content);
+    await buildWorkspace();
+
+    const opened = createDocument(content, "file:///frontends/disk.cfg");
+    expect(
+      getWorkspaceSymbolIndex()?.documents.get("file:///frontends/disk.cfg")?.version,
+    ).toBeNull();
+    expect(resolveWorkspaceRebuildScopeOnOpen(opened)).toBe("none");
+  });
+
   it("reports pending rebuild state while debounced work is scheduled", async () => {
     scheduleWorkspaceSymbolIndexRebuild(
       schema,

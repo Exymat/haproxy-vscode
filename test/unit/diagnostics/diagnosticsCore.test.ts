@@ -1,4 +1,7 @@
-import { computeDiagnostics } from "../../../src/diagnostics";
+import {
+  computeDiagnostics,
+  finalizeDiagnosticsCacheForClosedDocument,
+} from "../../../src/diagnostics";
 import { createDocument, updateDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";
 
@@ -175,6 +178,7 @@ describe("diagnostics core branches", () => {
       languageData: bundle34.languageData,
       missingReferences: false,
     });
+    finalizeDiagnosticsCacheForClosedDocument(first);
     const reopened = createDocument(content, "file:///diagnostics-cache.cfg");
     expect(
       computeDiagnostics(reopened, bundle34.schema, {

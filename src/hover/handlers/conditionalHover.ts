@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import {
   conditionalBlocksDocsUrl,
   lookupConditionalDirective,
-} from "../../diagnostics/conditionalDirectives";
+} from "../../parser/conditionalDirectives";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
 

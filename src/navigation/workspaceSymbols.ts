@@ -12,7 +12,14 @@ function sectionHeaderForSite(
   workspaceIndex: WorkspaceSymbolIndex,
   site: WorkspaceSymbolSite,
 ): string | undefined {
-  return workspaceIndex.documents.get(site.uriKey)?.parsed[site.line]?.tokens[0]?.text;
+  const document = workspaceIndex.documents.get(site.uriKey);
+  if (!document) {
+    return undefined;
+  }
+  return (
+    document.sectionRangesByStartLine.get(site.line)?.headerKeyword ??
+    document.firstTokens?.[site.line]
+  );
 }
 
 function symbolKindForSite(

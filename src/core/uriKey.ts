@@ -23,3 +23,11 @@ export function normalizeUriKey(uri: vscode.Uri): string {
   }
   return isWindowsFileUri(uri, value) ? value.toLowerCase() : value;
 }
+
+export function documentUriKey(document: vscode.TextDocument): string {
+  return normalizeUriKey(document.uri);
+}
+
+export function workspaceUriKey(uri: vscode.Uri): string {
+  return normalizeUriKey(uri);
+}

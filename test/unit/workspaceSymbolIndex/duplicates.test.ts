@@ -1,5 +1,7 @@
 import { computeDiagnostics } from "../../../src/diagnostics";
 import { duplicateSectionDiagnostics } from "../../../src/diagnostics/duplicateSymbolDiagnostics";
+import { getParsedDocument } from "../../../src/parser/parseCache";
+import { sectionHeaderSet } from "../../../src/schema/layout";
 import {
   buildWorkspaceSymbolIndexFromOpenDocuments,
   findWorkspaceDefinitions,
@@ -7,13 +9,16 @@ import {
 import { mockTextDocuments, setMockWorkspaceFile } from "../../helpers/vscode";
 import { createDocument } from "../../helpers/document";
 import { formatDiagnosticCode } from "../../helpers/diagnosticFormat";
+import type { HaproxySchema } from "../../../src/schema/types";
 
-import {
-  buildWorkspace,
-  expectWorkspaceDocumentSymbols,
-  schema,
-  setupWorkspaceSymbolIndexTests,
-} from "./helpers";
+import { buildWorkspace, schema, setupWorkspaceSymbolIndexTests } from "./helpers";
+
+function parsedLines(
+  document: ReturnType<typeof createDocument>,
+  activeSchema: HaproxySchema = schema,
+) {
+  return getParsedDocument(document, { sectionHeaders: sectionHeaderSet(activeSchema) });
+}
 
 describe("workspace symbol index duplicates", () => {
   setupWorkspaceSymbolIndexTests();
@@ -54,7 +59,7 @@ describe("workspace symbol index duplicates", () => {
     const workspaceIndex = buildWorkspaceSymbolIndexFromOpenDocuments([document], schema, 4000);
     const diagnostics = duplicateSectionDiagnostics(
       document,
-      expectWorkspaceDocumentSymbols(workspaceIndex, document.uri.toString()).parsed,
+      parsedLines(document),
       workspaceIndex,
       schema,
     );
@@ -67,12 +72,7 @@ describe("workspace symbol index duplicates", () => {
     );
     const legalIndex = buildWorkspaceSymbolIndexFromOpenDocuments([legalDocument], schema, 4000);
     expect(
-      duplicateSectionDiagnostics(
-        legalDocument,
-        expectWorkspaceDocumentSymbols(legalIndex, legalDocument.uri.toString()).parsed,
-        legalIndex,
-        schema,
-      ),
+      duplicateSectionDiagnostics(legalDocument, parsedLines(legalDocument), legalIndex, schema),
     ).toEqual([]);
   });
 
@@ -81,12 +81,7 @@ describe("workspace symbol index duplicates", () => {
     const workspaceIndex = buildWorkspaceSymbolIndexFromOpenDocuments([document], schema, 4000);
 
     expect(
-      duplicateSectionDiagnostics(
-        document,
-        expectWorkspaceDocumentSymbols(workspaceIndex, document.uri.toString()).parsed,
-        workspaceIndex,
-        schema,
-      ),
+      duplicateSectionDiagnostics(document, parsedLines(document), workspaceIndex, schema),
     ).toEqual([]);
   });
 
@@ -108,7 +103,7 @@ describe("workspace symbol index duplicates", () => {
 
     const diagnostics = duplicateSectionDiagnostics(
       document,
-      expectWorkspaceDocumentSymbols(workspaceIndex, document.uri.toString()).parsed,
+      parsedLines(document),
       workspaceIndex,
       schema,
     );
@@ -132,9 +127,7 @@ describe("workspace symbol index duplicates", () => {
       schema,
       4000,
     );
-    const parsed = structuredClone(
-      expectWorkspaceDocumentSymbols(workspaceIndex, first.uri.toString()).parsed,
-    );
+    const parsed = structuredClone(parsedLines(first));
     parsed[0] = { ...parsed[0], tokens: [] };
     const diagnostics = duplicateSectionDiagnostics(first, parsed, workspaceIndex, schema);
     expect(diagnostics[0]?.message).toContain("Duplicate proxy section 'api'");
@@ -153,9 +146,7 @@ describe("workspace symbol index duplicates", () => {
       customSchema,
       4000,
     );
-    const parsed = structuredClone(
-      expectWorkspaceDocumentSymbols(workspaceIndex, document.uri.toString()).parsed,
-    );
+    const parsed = structuredClone(parsedLines(document, customSchema));
     const diagnostics = duplicateSectionDiagnostics(document, parsed, workspaceIndex, customSchema);
     expect(diagnostics[0]?.message).toContain("Duplicate cache 'shared'");
   });
@@ -172,7 +163,7 @@ describe("workspace symbol index duplicates", () => {
 
     const diagnostics = duplicateSectionDiagnostics(
       first,
-      expectWorkspaceDocumentSymbols(workspaceIndex, first.uri.toString()).parsed,
+      parsedLines(first),
       workspaceIndex,
       schema,
     );
@@ -190,7 +181,7 @@ describe("workspace symbol index duplicates", () => {
 
     const diagnostics = duplicateSectionDiagnostics(
       document,
-      expectWorkspaceDocumentSymbols(workspaceIndex, document.uri.toString()).parsed,
+      parsedLines(document),
       workspaceIndex,
       schema,
     );

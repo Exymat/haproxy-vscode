@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import { DocumentAnalysis, getDocumentAnalysis } from "./documentAnalysis";
 import { CompletionKind, EDITOR_KINDS } from "../core/editorKinds";
 import { HaproxyLanguageData } from "../language/languageData";
-import { isConditionalOrStatusDirective } from "../diagnostics/conditionalDirectives";
+import { isConditionalOrStatusDirective } from "./conditionalDirectives";
 import { ParsedLine, ParsedToken } from "./index";
 import { HaproxySchema } from "../schema/types";
 import { sortedSectionHeaders } from "../schema/layout";

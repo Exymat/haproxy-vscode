@@ -6,7 +6,7 @@ import {
   findSiteAtPosition,
 } from "../../../src/symbolIndex";
 import { effectiveScopeKeyForSchema } from "../../../src/symbolIndex/types";
-import { buildSitesByLine } from "../../../src/symbolIndex/utils";
+import { buildSitesByLine, ensureSitesByLine } from "../../../src/symbolIndex/utils";
 
 import { doc, pos, schema } from "./helpers";
 
@@ -63,5 +63,14 @@ describe("symbolIndex lookup", () => {
         pos(0, 3),
       ),
     ).toEqual(narrow);
+  });
+
+  it("rebuilds sitesByLine when the per-line table is missing", () => {
+    const parsed = parseDocument(doc("backend api\n    server s1 127.0.0.1:80"));
+    const index = buildSymbolIndex(parsed, schema);
+    index.sitesByLine = [];
+    ensureSitesByLine(index);
+    expect(index.sitesByLine).toHaveLength(parsed.length);
+    expect(index.sitesByLine[0]?.some((site) => site.kind === "proxy-section")).toBe(true);
   });
 });

@@ -29,6 +29,15 @@ describe("UriLruCache", () => {
     expect(cache.get("a", "v1")).toBeUndefined();
   });
 
+  it("reports whether a URI key is present without a fingerprint", () => {
+    const cache = new UriLruCache<string>(2);
+    cache.set("a", "1", "A");
+    expect(cache.has("a")).toBe(true);
+    expect(cache.has("b")).toBe(false);
+    cache.delete("a");
+    expect(cache.has("a")).toBe(false);
+  });
+
   it("supports delete and clear", () => {
     const cache = new UriLruCache<string>(2);
     cache.set("a", "1", "A");

@@ -47,6 +47,10 @@ export class UriLruCache<T> {
     }
   }
 
+  has(uriKey: string): boolean {
+    return this.map.has(uriKey);
+  }
+
   delete(uriKey: string): void {
     this.map.delete(uriKey);
   }

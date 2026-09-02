@@ -1,7 +1,6 @@
 /** Schedules and runs workspace symbol-index rebuilds on document and workspace changes. */
 import * as vscode from "vscode";
 
-import { documentContentFingerprint } from "../parser/documentUriKey";
 import { isHaproxyLanguageId } from "../extension/grammar";
 import {
   logWorkspaceIndexDisabled,
@@ -14,6 +13,7 @@ import { sameSymbolGraph } from "./utils";
 import {
   aggregateDocuments,
   createOpenDocumentEntry,
+  sameLineTexts,
   totalDocumentBytes,
   totalDocumentLines,
 } from "./workspaceDocuments";
@@ -273,7 +273,10 @@ export function resolveWorkspaceRebuildScopeOnOpen(
     return "full";
   }
 
-  if (entry.fingerprint === documentContentFingerprint(document)) {
+  if (entry.version !== null && entry.version === document.version) {
+    return "none";
+  }
+  if (sameLineTexts(entry.lineTexts, document.getText().split(/\r?\n/))) {
     return "none";
   }
 

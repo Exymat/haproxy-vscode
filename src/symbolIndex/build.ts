@@ -2,7 +2,7 @@
 import {
   conditionalBranchInfoForDocument,
   isInactiveConditionalBranch,
-} from "../diagnostics/conditionalDirectives";
+} from "../parser/conditionalDirectives";
 import { ParsedLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 
@@ -10,7 +10,13 @@ import { aclReferenceAt } from "./aclReferences";
 import { createSymbolBuildContext, SymbolBuildContext } from "./context";
 import { collectLineSitesInto } from "./lineSites";
 import { buildScopeKeyByLine, updateScopeKeyForLine } from "./scope";
-import { proxyCapabilitiesOverlap, proxySectionSet, SymbolIndex, SymbolSite } from "./types";
+import {
+  proxyCapabilitiesOverlap,
+  proxySectionSet,
+  symbolKeyForScopedKinds,
+  SymbolIndex,
+  SymbolSite,
+} from "./types";
 import { addSite, buildReferencesByKey, buildSitesByLine, ensureSitesByLine } from "./utils";
 
 export interface SymbolIndexBuildOptions {
@@ -153,8 +159,49 @@ export function buildLineFingerprints(parsed: ParsedLine[], schema: HaproxySchem
 export function buildSymbolIndex(parsed: ParsedLine[], schema: HaproxySchema): SymbolIndex {
   return buildSymbolIndexWithFingerprints(parsed, schema, {
     computeFingerprints: false,
-    buildSitesByLine: false,
+    buildSitesByLine: true,
   }).index;
+}
+
+function removeLineSitesFromMaps(
+  index: SymbolIndex,
+  lineNo: number,
+  oldSites: SymbolSite[],
+  buildContext: SymbolBuildContext,
+): {
+  definitions: Map<string, SymbolSite[]>;
+  referencesByKey: Map<string, SymbolSite[]>;
+} {
+  const definitions = new Map(index.definitions);
+  const referencesByKey = new Map(index.referencesByKey);
+  const scoped = buildContext.scopedSymbolKinds;
+  for (const site of oldSites) {
+    const key = symbolKeyForScopedKinds(scoped, site.kind, site.name, site.scopeKey);
+    if (site.role === "definition") {
+      const defs = definitions.get(key);
+      if (!defs) {
+        continue;
+      }
+      const filtered = defs.filter((entry) => entry.line !== lineNo);
+      if (filtered.length === 0) {
+        definitions.delete(key);
+      } else {
+        definitions.set(key, filtered);
+      }
+      continue;
+    }
+    const refs = referencesByKey.get(key);
+    if (!refs) {
+      continue;
+    }
+    const filtered = refs.filter((entry) => entry.line !== lineNo);
+    if (filtered.length === 0) {
+      referencesByKey.delete(key);
+    } else {
+      referencesByKey.set(key, filtered);
+    }
+  }
+  return { definitions, referencesByKey };
 }
 
 export function patchSymbolIndexLine(
@@ -163,24 +210,32 @@ export function patchSymbolIndexLine(
   sites: SymbolSite[],
   buildContext: SymbolBuildContext,
 ): SymbolIndexBuildResult {
-  const definitions = new Map<string, SymbolSite[]>();
-  for (const [key, defs] of index.definitions) {
-    const filtered = defs.filter((entry) => entry.line !== line.line);
-    if (filtered.length > 0) {
-      definitions.set(key, filtered);
-    }
-  }
+  ensureSitesByLine(index);
+  const { definitions, referencesByKey } = removeLineSitesFromMaps(
+    index,
+    line.line,
+    index.sitesByLine[line.line] ?? [],
+    buildContext,
+  );
 
   const references = index.references.filter((entry) => entry.line !== line.line);
-  ensureSitesByLine(index);
   const sitesByLine = index.sitesByLine.slice();
+  const scoped = buildContext.scopedSymbolKinds;
 
   for (const site of sites) {
-    addSite(buildContext.scopedSymbolKinds, definitions, references, site);
+    const key = symbolKeyForScopedKinds(scoped, site.kind, site.name, site.scopeKey);
+    if (site.role === "definition") {
+      const list = [...(definitions.get(key) ?? [])];
+      list.push(site);
+      definitions.set(key, list);
+    } else {
+      references.push(site);
+      const list = [...(referencesByKey.get(key) ?? [])];
+      list.push(site);
+      referencesByKey.set(key, list);
+    }
   }
   sitesByLine[line.line] = [...sites];
-
-  const referencesByKey = buildReferencesByKey(buildContext.scopedSymbolKinds, references);
 
   const patched: SymbolIndex = {
     definitions,

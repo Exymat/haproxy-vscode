@@ -1,8 +1,18 @@
 import { parseDocument } from "../../helpers/parse";
 import * as parseCache from "../../../src/parser/parseCache";
-import { getParsedDocument, getParsedDocumentEntry } from "../../../src/parser/parseCache";
+import {
+  finalizeParseCacheForClosedDocument,
+  getParsedDocument,
+  getParsedDocumentEntry,
+} from "../../../src/parser/parseCache";
 import type { HaproxySchema, StatementRule } from "../../../src/schema/types";
-import { buildScopeKeyByLine, collectLineSymbolSites } from "../../../src/symbolIndex/build";
+import {
+  buildScopeKeyByLine,
+  collectLineSymbolSites,
+  createSymbolBuildContext,
+  patchSymbolIndexLine,
+} from "../../../src/symbolIndex/build";
+import type { SymbolIndex, SymbolSite } from "../../../src/symbolIndex/types";
 import { clearSymbolIndexCaches, hasUriSymbolIndexCache } from "../../../src/symbolIndex/cache";
 import {
   buildSymbolIndex,
@@ -69,6 +79,7 @@ describe("symbolIndex build", () => {
     );
     const first = getSymbolIndex(document, schema, 4000);
     expect(first).not.toBeNull();
+    finalizeParseCacheForClosedDocument(document);
     expect(hasUriSymbolIndexCache(document)).toBe(true);
 
     clearSymbolIndexCaches();
@@ -120,27 +131,25 @@ describe("symbolIndex build", () => {
     clearSymbolIndexCaches();
   });
 
-  it("lazy-builds sitesByLine on first findSiteAtPosition after cold index", () => {
+  it("builds sitesByLine during cold getSymbolIndex", () => {
     const document = doc("backend api\n    server s1 127.0.0.1:80");
     const index = getSymbolIndex(document, schema, 4000);
-    expect(index?.sitesByLine).toEqual([]);
     expect(index).not.toBeNull();
     if (!index) {
       return;
     }
+    expect(index.sitesByLine).toHaveLength(2);
     const character = "    server s1 127.0.0.1:80".indexOf("s1");
     const site = findSiteAtPosition(index, pos(1, character));
     expect(site?.kind).toBe("server");
-    expect(index?.sitesByLine.length).toBe(2);
   });
 
-  it("defers sitesByLine until lookup for buildSymbolIndex", () => {
+  it("builds sitesByLine during buildSymbolIndex", () => {
     const document = doc("backend api\n    server s1 127.0.0.1:80");
     const index = buildSymbolIndex(parseDocument(document), schema);
-    expect(index.sitesByLine).toEqual([]);
+    expect(index.sitesByLine).toHaveLength(2);
     const character = "    server s1 127.0.0.1:80".indexOf("s1");
     expect(findSiteAtPosition(index, pos(1, character))?.kind).toBe("server");
-    expect(index.sitesByLine.length).toBe(2);
   });
 
   it("getSymbolIndex returns null above max lines", () => {
@@ -557,5 +566,50 @@ describe("symbolIndex build", () => {
       ["frontend web", "    .if FALSE", "    acl foo path_beg /b", "    .endif"].join("\n"),
     );
     expect(getSymbolIndex(document, schema, 4000)).not.toBeNull();
+  });
+
+  it("patches stale line sites and keeps remaining same-key entries", () => {
+    const parsed = parseDocument(doc("backend api\nbackend api"));
+    const line = parsed.find((entry) => entry.line === 1);
+    expect(line).toBeDefined();
+    if (!line) {
+      return;
+    }
+
+    const defA: SymbolSite = {
+      kind: "proxy-section",
+      name: "api",
+      line: 0,
+      start: 8,
+      end: 11,
+      scopeKey: null,
+      role: "definition",
+    };
+    const defB: SymbolSite = { ...defA, line: 1 };
+    const refKept: SymbolSite = { ...defA, role: "reference", line: 2 };
+    const refOnLine: SymbolSite = { ...refKept, line: 1 };
+    const ghostDef: SymbolSite = {
+      kind: "server",
+      name: "ghost",
+      line: 1,
+      start: 0,
+      end: 1,
+      scopeKey: "backend:api",
+      role: "definition",
+    };
+    const ghostRef: SymbolSite = { ...ghostDef, name: "ghost-ref", role: "reference" };
+    const index: SymbolIndex = {
+      definitions: new Map([["proxy-section:api", [defA, defB]]]),
+      references: [refOnLine, refKept],
+      referencesByKey: new Map([["proxy-section:api", [refOnLine, refKept]]]),
+      scopeKeyByLine: [null, null, null],
+      scopedSymbolKinds: createSymbolBuildContext(schema).scopedSymbolKinds,
+      sitesByLine: [[defA], [defB, ghostDef, ghostRef, refOnLine], [refKept]],
+      unresolvedReferences: [],
+    };
+
+    const patched = patchSymbolIndexLine(index, line, [], createSymbolBuildContext(schema));
+    expect(patched.index.definitions.get("proxy-section:api")).toEqual([defA]);
+    expect(patched.index.referencesByKey.get("proxy-section:api")).toEqual([refKept]);
   });
 });

@@ -193,7 +193,7 @@ export async function buildFolderWorkspaceIndex(
         });
         return aggregateDocuments(generation, true, new Map());
       }
-      totalLines += entry.parsed.length;
+      totalLines += entry.lineCount;
       if (limitExceeded(totalLines, settings.maxTotalLines)) {
         capReason = "maxTotalLines";
         logWorkspaceIndexCompleted({

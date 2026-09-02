@@ -154,15 +154,25 @@ export function createBundleLoader(context: vscode.ExtensionContext): {
             let languageError: Error | undefined;
             let loadedSchema: HaproxySchema | undefined;
             let loadedLanguageData: HaproxyLanguageData | undefined;
-            try {
-              loadedSchema = await loadSchemaAsync(context, artifactId);
-            } catch (error) {
-              schemaError = error instanceof Error ? error : new Error(String(error));
+            const [schemaResult, languageResult] = await Promise.allSettled([
+              loadSchemaAsync(context, artifactId),
+              loadLanguageDataAsync(context, artifactId),
+            ]);
+            if (schemaResult.status === "fulfilled") {
+              loadedSchema = schemaResult.value;
+            } else {
+              schemaError =
+                schemaResult.reason instanceof Error
+                  ? schemaResult.reason
+                  : new Error(String(schemaResult.reason));
             }
-            try {
-              loadedLanguageData = await loadLanguageDataAsync(context, artifactId);
-            } catch (error) {
-              languageError = error instanceof Error ? error : new Error(String(error));
+            if (languageResult.status === "fulfilled") {
+              loadedLanguageData = languageResult.value;
+            } else {
+              languageError =
+                languageResult.reason instanceof Error
+                  ? languageResult.reason
+                  : new Error(String(languageResult.reason));
             }
             if (schemaError) {
               logBundleLoadFailed(version, schemaError.message, "schema");

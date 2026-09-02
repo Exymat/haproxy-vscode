@@ -5,6 +5,7 @@ import {
   createOpenDocumentEntry,
   looksLikeHaproxyConfig,
 } from "../../../src/symbolIndex/workspaceDocuments";
+import type { WorkspaceDocumentSymbols } from "../../../src/symbolIndex/workspaceTypes";
 import * as symbolCache from "../../../src/symbolIndex/cache";
 import { sectionHeaderSet } from "../../../src/schema/layout";
 import {
@@ -91,6 +92,7 @@ describe("createOpenDocumentEntry", () => {
   beforeEach(() => {
     resetMockVscode();
     mockTextDocuments.length = 0;
+    vi.restoreAllMocks();
   });
 
   it("returns null when open document text exceeds maxFileBytes", () => {
@@ -123,5 +125,37 @@ describe("createOpenDocumentEntry", () => {
     const { entry, skipReason } = createOpenDocumentEntry(doc, schema, 4000);
     expect(entry).toBeNull();
     expect(skipReason).toBe("too-many-lines");
+  });
+
+  it("reuses cached byte length when skipping an oversized open document", () => {
+    const doc = createDocument("backend api\n    server s1 127.0.0.1:80", "file:///cached.cfg");
+    const cached: WorkspaceDocumentSymbols = {
+      uri: doc.uri,
+      uriKey: "file:///cached.cfg",
+      version: doc.version,
+      fingerprint: "open:1",
+      diskStatKey: null,
+      byteLength: 100,
+      lineCount: 2,
+      lineTexts: ["backend api", "    server s1 127.0.0.1:80"],
+      firstTokens: ["backend", "server"],
+      index: {
+        definitions: new Map(),
+        references: [],
+        referencesByKey: new Map(),
+        scopeKeyByLine: [null, null],
+        scopedSymbolKinds: new Set(),
+        sitesByLine: [[], []],
+        unresolvedReferences: [],
+      },
+      sectionRangesByStartLine: new Map(),
+    };
+
+    const { entry, skipReason } = createOpenDocumentEntry(doc, schema, 4000, cached, {
+      maxFileBytes: 1,
+      maxLineBytes: 8192,
+    });
+    expect(entry).toBeNull();
+    expect(skipReason).toBe("file-too-large");
   });
 });

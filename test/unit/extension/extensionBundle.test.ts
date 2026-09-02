@@ -15,6 +15,7 @@ import * as languageData from "../../../src/language/languageData";
 import * as outputChannel from "../../../src/extension/outputChannel";
 import * as schema from "../../../src/schema/load";
 import type { HaproxySchema } from "../../../src/schema/types";
+import { finalizeParseCacheForClosedDocument } from "../../../src/parser/parseCache";
 import { getSymbolIndex } from "../../../src/symbolIndex";
 import { hasUriSymbolIndexCache } from "../../../src/symbolIndex/cache";
 import { resetMockVscode, setMockConfigForUri, window } from "../../helpers/vscode";
@@ -391,6 +392,7 @@ describe("extensionBundle", () => {
     );
     const first = getSymbolIndex(document, fixture.schema, 4000);
     expect(first).not.toBeNull();
+    finalizeParseCacheForClosedDocument(document);
     expect(hasUriSymbolIndexCache(document)).toBe(true);
 
     invalidate();
@@ -407,6 +409,7 @@ describe("extensionBundle", () => {
     );
     const first = getSymbolIndex(document, fixture.schema, 4000);
     expect(first).not.toBeNull();
+    finalizeParseCacheForClosedDocument(document);
     expect(hasUriSymbolIndexCache(document)).toBe(true);
 
     invalidate("3.2");

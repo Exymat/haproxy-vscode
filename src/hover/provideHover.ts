@@ -29,6 +29,7 @@ export function provideHover(
     return null;
   }
 
+  const index = getSymbolIndex(document, schema, maxSymbolLines ?? document.lineCount);
   const hc: HoverContext = {
     document,
     position,
@@ -41,9 +42,9 @@ export function provideHover(
     tokenLower: ctx.token.text.toLowerCase(),
     analyzed: semantic.analyzed,
     maxSymbolLines,
+    symbolIndex: index,
   };
 
-  const index = getSymbolIndex(document, schema, maxSymbolLines ?? document.lineCount);
   if (index) {
     const site = findSiteAtPosition(index, position);
     if (site?.kind === "variable") {

@@ -1,8 +1,6 @@
 /** Shared types for workspace symbol indexes, settings, and rebuild scopes. */
 import type * as vscode from "vscode";
 
-import type { ParsedLine } from "../parser";
-
 import type { SymbolIndex, SymbolKind, SymbolSite } from "./types";
 
 export interface WorkspaceSymbolSettings {
@@ -34,6 +32,7 @@ export interface WorkspaceSymbolSite extends SymbolSite {
 export interface SectionRange {
   endLine: number;
   endColumn: number;
+  headerKeyword: string;
 }
 
 export interface WorkspaceDocumentSymbols {
@@ -43,8 +42,9 @@ export interface WorkspaceDocumentSymbols {
   fingerprint: string;
   diskStatKey: string | null;
   byteLength: number;
-  parsed: ParsedLine[];
+  lineCount: number;
   lineTexts: string[];
+  firstTokens: string[];
   index: SymbolIndex;
   sectionRangesByStartLine: Map<number, SectionRange>;
 }

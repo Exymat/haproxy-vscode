@@ -1,252 +1,99 @@
 /** LRU-caches parsed documents with incremental reuse across edits. */
 import * as vscode from "vscode";
 
+import { fingerprintText } from "../core/contentFingerprint";
+import { normalizeUriKey } from "../core/uriKey";
 import {
-  documentContentFingerprint,
-  documentParseCacheFingerprint,
-  documentUriKey,
-} from "./documentUriKey";
-import { UriLruCache } from "../core/uriLruCache";
-
+  DocumentSessionRecord,
+  documentSessionGeneration,
+  getLiveSession,
+  getUriSession,
+  setLiveSession,
+  setUriSession,
+  hasUriSession,
+  hasUriSessionKey,
+  clearDocumentSessions,
+  finalizeDocumentSessionForClose,
+} from "../document/sessionStore";
+import { ParseOptions, ParsedLine } from "./index";
 import {
-  initialParseState,
-  ParseOptions,
-  parseDocumentLines,
-  parseLine,
-  ParsedLine,
-} from "./index";
+  parseDocumentFresh,
+  parseDocumentIncremental,
+  parseOptionsKey,
+  restoredParseReuse,
+  ParsedDocumentEntry,
+} from "./parseIncremental";
 
-export interface ParsedDocumentReuse {
-  previousVersion: number | null;
-  prefixLines: number;
-  suffixLines: number;
-  oldSuffixStart: number;
-  newSuffixStart: number;
-}
+export type { ParsedDocumentEntry, ParsedDocumentReuse } from "./parseIncremental";
+export { parseOptionsKey } from "./parseIncremental";
 
-export interface ParsedDocumentEntry {
-  version: number;
-  lineTexts: string[];
-  parsed: ParsedLine[];
-  reuse: ParsedDocumentReuse;
-}
-
-interface UriParsedDocumentEntry {
-  optionsKey: string;
-  entry: ParsedDocumentEntry;
-}
-
-const cache = new WeakMap<vscode.TextDocument, Map<string, ParsedDocumentEntry>>();
-const uriCache = new UriLruCache<UriParsedDocumentEntry>(64);
-let parseCacheGeneration = 0;
-const parseCacheGenerations = new WeakMap<vscode.TextDocument, number>();
-
-function lineTextsForDocument(document: vscode.TextDocument): string[] {
-  return document.getText().split(/\r?\n/);
-}
-
-function cloneParsedLine(line: ParsedLine, lineNo: number): ParsedLine {
-  if (line.line === lineNo) {
-    return line;
-  }
-  return { ...line, line: lineNo };
-}
-
-function stateAfterLine(line: ParsedLine | undefined): ReturnType<typeof initialParseState> {
-  if (!line) {
-    return initialParseState();
-  }
-  return {
-    currentSection: line.section,
-    inAnonymousDefaults: line.anonymousDefaults,
-  };
-}
-
-function sameState(
-  left: ReturnType<typeof initialParseState>,
-  right: ReturnType<typeof initialParseState>,
-): boolean {
-  return (
-    left.currentSection === right.currentSection &&
-    left.inAnonymousDefaults === right.inAnonymousDefaults
-  );
-}
-
-function parseOptionsKey(options?: ParseOptions): string {
-  if (!options?.sectionHeaders) {
-    return "";
-  }
-  return [...options.sectionHeaders].sort().join("\0");
-}
-
-function parseDocumentIncremental(
-  previous: ParsedDocumentEntry,
+function restoreUriParse(
   document: vscode.TextDocument,
-  options?: ParseOptions,
+  optionsKey: string,
+  uriHit: DocumentSessionRecord,
 ): ParsedDocumentEntry {
-  const lineTexts = lineTextsForDocument(document);
-  const prevLineTexts = previous.lineTexts;
-  const minLength = Math.min(prevLineTexts.length, lineTexts.length);
-  let prefixLines = 0;
-  while (prefixLines < minLength && prevLineTexts[prefixLines] === lineTexts[prefixLines]) {
-    prefixLines += 1;
-  }
-
-  let suffixLines = 0;
-  while (
-    suffixLines < prevLineTexts.length - prefixLines &&
-    suffixLines < lineTexts.length - prefixLines &&
-    prevLineTexts[prevLineTexts.length - 1 - suffixLines] ===
-      lineTexts[lineTexts.length - 1 - suffixLines]
-  ) {
-    suffixLines += 1;
-  }
-
-  if (prefixLines === lineTexts.length && prefixLines === prevLineTexts.length) {
-    return {
-      version: document.version,
-      lineTexts,
-      parsed: previous.parsed,
-      reuse: {
-        previousVersion: previous.version,
-        prefixLines,
-        suffixLines: 0,
-        oldSuffixStart: previous.parsed.length,
-        newSuffixStart: lineTexts.length,
-      },
-    };
-  }
-
-  const parsed = new Array<ParsedLine>(lineTexts.length);
-  for (let i = 0; i < prefixLines; i += 1) {
-    parsed[i] = previous.parsed[i];
-  }
-
-  let state = stateAfterLine(parsed[prefixLines - 1]);
-  const oldSuffixStart = prevLineTexts.length - suffixLines;
-  const newSuffixStart = lineTexts.length - suffixLines;
-
-  for (let lineNo = prefixLines; lineNo < newSuffixStart; lineNo += 1) {
-    const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state, options);
-    parsed[lineNo] = next.parsed;
-    state = next.nextState;
-  }
-
-  if (suffixLines > 0) {
-    const expectedState = stateAfterLine(previous.parsed[oldSuffixStart - 1]);
-    if (sameState(state, expectedState)) {
-      const delta = lineTexts.length - prevLineTexts.length;
-      for (let lineNo = newSuffixStart; lineNo < lineTexts.length; lineNo += 1) {
-        const oldLineNo = lineNo - delta;
-        parsed[lineNo] = cloneParsedLine(previous.parsed[oldLineNo], lineNo);
-      }
-      return {
-        version: document.version,
-        lineTexts,
-        parsed,
-        reuse: {
-          previousVersion: previous.version,
-          prefixLines,
-          suffixLines,
-          oldSuffixStart,
-          newSuffixStart,
-        },
-      };
-    }
-  }
-
-  for (let lineNo = newSuffixStart; lineNo < lineTexts.length; lineNo += 1) {
-    const next = parseLine(lineTexts[lineNo] ?? "", lineNo, state, options);
-    parsed[lineNo] = next.parsed;
-    state = next.nextState;
-  }
-
-  return {
+  const restored: DocumentSessionRecord = {
+    ...uriHit,
+    generation: documentSessionGeneration(),
     version: document.version,
-    lineTexts,
-    parsed,
-    reuse: {
-      previousVersion: previous.version,
-      prefixLines,
-      suffixLines: 0,
-      oldSuffixStart: previous.parsed.length,
-      newSuffixStart: lineTexts.length,
+    parse: {
+      ...uriHit.parse,
+      version: document.version,
+      reuse: restoredParseReuse(uriHit.parse.parsed.length, uriHit.parse.version),
     },
+    analysis: undefined,
+    modes: undefined,
+    branches: undefined,
+    hasLuaLoad: undefined,
   };
+  setLiveSession(document, restored);
+  return restored.parse;
+}
+
+function storeParseRecord(
+  document: vscode.TextDocument,
+  optionsKey: string,
+  parse: ParsedDocumentEntry,
+  previous: DocumentSessionRecord | undefined,
+): DocumentSessionRecord {
+  const record: DocumentSessionRecord = {
+    generation: documentSessionGeneration(),
+    optionsKey,
+    version: document.version,
+    schema: previous?.schema,
+    parse,
+    modes: previous?.modes,
+    symbols: previous?.symbols,
+  };
+  setLiveSession(document, record);
+  setUriSession(normalizeUriKey(document.uri), fingerprintText(document.getText()), record);
+  return record;
 }
 
 export function getParsedDocumentEntry(
   document: vscode.TextDocument,
   options?: ParseOptions,
 ): ParsedDocumentEntry {
-  if (parseCacheGenerations.get(document) !== parseCacheGeneration) {
-    cache.delete(document);
-    parseCacheGenerations.set(document, parseCacheGeneration);
-  }
   const optionsKey = parseOptionsKey(options);
-  let entries = cache.get(document);
-  if (!entries) {
-    entries = new Map();
-    cache.set(document, entries);
-  }
-  const hit = entries.get(optionsKey);
-  if (hit && hit.version === document.version) {
-    return hit;
+  const liveHit = getLiveSession(document, optionsKey);
+  if (liveHit && liveHit.version === document.version) {
+    return liveHit.parse;
   }
 
-  const uriKey = documentUriKey(document);
-  if (!hit) {
-    const uriHit = uriCache.get(uriKey, documentContentFingerprint(document));
-    if (uriHit && uriHit.optionsKey === optionsKey) {
-      const restored: ParsedDocumentEntry = {
-        ...uriHit.entry,
-        version: document.version,
-        reuse: {
-          previousVersion: uriHit.entry.version,
-          prefixLines: uriHit.entry.parsed.length,
-          suffixLines: 0,
-          oldSuffixStart: uriHit.entry.parsed.length,
-          newSuffixStart: uriHit.entry.parsed.length,
-        },
-      };
-      entries.set(optionsKey, restored);
-      return restored;
+  if (!liveHit) {
+    const uriKey = normalizeUriKey(document.uri);
+    if (hasUriSessionKey(uriKey)) {
+      const uriHit = getUriSession(uriKey, fingerprintText(document.getText()));
+      if (uriHit && uriHit.optionsKey === optionsKey) {
+        return restoreUriParse(document, optionsKey, uriHit);
+      }
     }
   }
 
-  const lineTexts = lineTextsForDocument(document);
-  const next = hit
-    ? parseDocumentIncremental(hit, document, options)
-    : {
-        version: document.version,
-        lineTexts,
-        parsed: parseDocumentLines(lineTexts, options),
-        reuse: {
-          previousVersion: null,
-          prefixLines: 0,
-          suffixLines: 0,
-          oldSuffixStart: 0,
-          newSuffixStart: 0,
-        },
-      };
-  entries.set(optionsKey, next);
-  uriCache.set(uriKey, documentParseCacheFingerprint(document), {
-    optionsKey,
-    entry: next,
-  });
-  return next;
-}
-
-export function finalizeParseCacheForClosedDocument(document: vscode.TextDocument): void {
-  const entries = cache.get(document);
-  if (!entries) {
-    return;
-  }
-  const uriKey = documentUriKey(document);
-  const contentFingerprint = documentContentFingerprint(document);
-  for (const [optionsKey, entry] of entries) {
-    uriCache.set(uriKey, contentFingerprint, { optionsKey, entry });
-  }
+  const parse = liveHit
+    ? parseDocumentIncremental(liveHit.parse, document, options)
+    : parseDocumentFresh(document, options);
+  return storeParseRecord(document, optionsKey, parse, liveHit).parse;
 }
 
 export function getParsedDocument(
@@ -257,10 +104,12 @@ export function getParsedDocument(
 }
 
 export function hasUriParseCache(document: vscode.TextDocument): boolean {
-  return uriCache.get(documentUriKey(document), documentContentFingerprint(document)) !== undefined;
+  const uriKey = normalizeUriKey(document.uri);
+  return hasUriSessionKey(uriKey) && hasUriSession(uriKey, fingerprintText(document.getText()));
 }
 
 export function clearParseCache(): void {
-  uriCache.clear();
-  parseCacheGeneration += 1;
+  clearDocumentSessions();
 }
+
+export { finalizeDocumentSessionForClose as finalizeParseCacheForClosedDocument };

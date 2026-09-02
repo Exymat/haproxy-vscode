@@ -1,6 +1,13 @@
-import { computeDiagnostics } from "../../../src/diagnostics";
+import {
+  computeDiagnostics,
+  finalizeDiagnosticsCacheForClosedDocument,
+} from "../../../src/diagnostics";
 import { hasWarmUriDocumentCache } from "../../../src/parser/documentCache";
-import { getParsedDocumentEntry, hasUriParseCache } from "../../../src/parser/parseCache";
+import {
+  finalizeParseCacheForClosedDocument,
+  getParsedDocumentEntry,
+  hasUriParseCache,
+} from "../../../src/parser/parseCache";
 import { getSymbolIndex } from "../../../src/symbolIndex";
 import { hasUriSymbolIndexCache } from "../../../src/symbolIndex/cache";
 import { createDocument } from "../../helpers/document";
@@ -15,6 +22,7 @@ describe("uri document caches", () => {
     const firstDoc = createDocument("backend api\n    server s1 127.0.0.1:80");
     getParsedDocumentEntry(firstDoc, parseOptions);
     getSymbolIndex(firstDoc, schema, 4000);
+    finalizeParseCacheForClosedDocument(firstDoc);
 
     const reopened = createDocument(
       "backend api\n    server s1 127.0.0.1:80",
@@ -39,6 +47,7 @@ describe("uri document caches", () => {
       maxSymbolLines: 4000,
     };
     const first = computeDiagnostics(firstDoc, schema, options);
+    finalizeDiagnosticsCacheForClosedDocument(firstDoc);
 
     const reopened = createDocument(
       "backend api\n    server s1 127.0.0.1:80",
@@ -59,6 +68,7 @@ describe("uri document caches", () => {
       maxSymbolLines: 4000,
     };
     const first = computeDiagnostics(firstDoc, schema, options);
+    finalizeDiagnosticsCacheForClosedDocument(firstDoc);
 
     const reopened = createDocument(content, firstDoc.uri.toString());
     expect(

@@ -6,6 +6,7 @@ import { AnalyzedLine } from "../parser/lineAnalysis";
 import { LineSemanticContext } from "../parser/lineSemanticContext";
 import { HaproxyLanguageData } from "../language/languageData";
 import { HaproxySchema } from "../schema/types";
+import type { SymbolIndex } from "../symbolIndex/types";
 
 type BaseDocumentContext = NonNullable<ReturnType<typeof getDocumentContext>>;
 export type DocumentContextWithToken = BaseDocumentContext & {
@@ -24,4 +25,5 @@ export interface HoverContext {
   tokenLower: string;
   analyzed?: AnalyzedLine;
   maxSymbolLines?: number;
+  symbolIndex?: SymbolIndex | null;
 }

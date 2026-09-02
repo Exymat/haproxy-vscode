@@ -101,7 +101,7 @@ function workspaceSymbolHover(
 
 export function trySymbolHover(hc: HoverContext): vscode.Hover | null {
   const maxLines = hc.maxSymbolLines ?? hc.document.lineCount;
-  const index = getSymbolIndex(hc.document, hc.schema, maxLines);
+  const index = hc.symbolIndex ?? getSymbolIndex(hc.document, hc.schema, maxLines);
   if (!index) {
     return null;
   }

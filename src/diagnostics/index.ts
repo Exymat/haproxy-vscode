@@ -2,13 +2,15 @@
 
 import * as vscode from "vscode";
 
-import { documentContentFingerprint, documentUriKey } from "../parser/documentUriKey";
+import { persistDocumentSession } from "../document/sessionStore";
 import { getDocumentAnalysis } from "../parser/documentAnalysis";
 import { runLineDiagnosticPipeline } from "./diagnosticPipeline";
 import { DiagnosticContext } from "./diagnosticContext";
 import { HaproxyLanguageData } from "../language/languageData";
 import { HaproxySchema } from "../schema/types";
 import { UriLruCache } from "../core/uriLruCache";
+import { fingerprintText } from "../core/contentFingerprint";
+import { normalizeUriKey } from "../core/uriKey";
 import {
   getSymbolIndex,
   getWorkspaceSymbolIndex,
@@ -186,6 +188,58 @@ function fillLineDiagnostics(
   return lineDiagnostics;
 }
 
+function lookupUriDiagnostics(
+  document: vscode.TextDocument,
+  uriKey: string,
+): { fingerprint: string; hit: DiagnosticsCacheEntry | undefined } | undefined {
+  if (!uriDiagnosticsCache.has(uriKey)) {
+    return undefined;
+  }
+  const fingerprint = fingerprintText(document.getText());
+  return { fingerprint, hit: uriDiagnosticsCache.get(uriKey, fingerprint) };
+}
+
+function persistOpenDocumentDiagnostics(
+  document: vscode.TextDocument,
+  uriKey: string,
+  fingerprint: string | undefined,
+  entry: DiagnosticsCacheEntry,
+): void {
+  const contentFingerprint = fingerprint ?? fingerprintText(document.getText());
+  uriDiagnosticsCache.set(uriKey, contentFingerprint, entry);
+  persistDocumentSession(document, contentFingerprint);
+}
+
+function appendSymbolDiagnostics(
+  document: vscode.TextDocument,
+  schema: HaproxySchema,
+  options: ComputeDiagnosticsOptions,
+  key: DiagnosticsCacheKey,
+  cached: DiagnosticsCacheEntry | undefined,
+  symbolCtx: SymbolDiagnosticContext,
+  workspaceIndex: WorkspaceSymbolIndex | null,
+  maxSymbolLines: number,
+  diagnostics: vscode.Diagnostic[],
+): { cachedSymbolIndex: SymbolIndex | null; documentSymbolDiagnostics: vscode.Diagnostic[] } {
+  const needSymbolDiagnostics = options.unusedSymbols || options.missingReferences !== false;
+  if (!needSymbolDiagnostics) {
+    return { cachedSymbolIndex: null, documentSymbolDiagnostics: [] };
+  }
+  const index = getSymbolIndex(document, schema, maxSymbolLines);
+  if (!index) {
+    if (options.unusedSymbols) {
+      diagnostics.push(...entryPointWithoutBindDiagnostics(document, symbolCtx.parsed, symbolCtx));
+    }
+    return { cachedSymbolIndex: null, documentSymbolDiagnostics: [] };
+  }
+  const documentSymbolDiagnostics =
+    cached?.cachedSymbolIndex === index && sameCacheKey(cached.key, key)
+      ? cached.documentSymbolDiagnostics
+      : computeDocumentSymbolDiagnostics(document, symbolCtx, index, workspaceIndex, options);
+  diagnostics.push(...documentSymbolDiagnostics);
+  return { cachedSymbolIndex: index, documentSymbolDiagnostics };
+}
+
 export function computeDiagnostics(
   document: vscode.TextDocument,
   schema: HaproxySchema,
@@ -193,20 +247,21 @@ export function computeDiagnostics(
 ): vscode.Diagnostic[] {
   const workspaceIndex = getWorkspaceSymbolIndex(document);
   const key = diagnosticsCacheKey(schema, options, workspaceIndex);
-  const contentFingerprint = documentContentFingerprint(document);
-  const uriHit = uriDiagnosticsCache.get(documentUriKey(document), contentFingerprint);
-  const needSymbolDiagnostics = options.unusedSymbols || options.missingReferences !== false;
   const maxSymbolLines = options.maxSymbolLines ?? document.lineCount;
+  const cached = diagnosticsCache.get(document);
+  if (cached && cached.version === document.version && sameCacheKey(cached.key, key)) {
+    return cached.diagnostics;
+  }
+
+  const uriKey = normalizeUriKey(document.uri);
+  const uriLookup = cached ? undefined : lookupUriDiagnostics(document, uriKey);
+  const uriHit = uriLookup?.hit;
   if (uriHit && sameCacheKey(uriHit.key, key)) {
     diagnosticsCache.set(document, { ...uriHit, version: document.version });
-    if (needSymbolDiagnostics) {
-      getSymbolIndex(document, schema, maxSymbolLines);
-    }
     return uriHit.diagnostics;
   }
 
   const analysis = getDocumentAnalysis(document, schema);
-  const cached = diagnosticsCache.get(document);
   let lineDiagnostics: vscode.Diagnostic[][];
   let suppressDeprecated: boolean;
   let symbolCtx: SymbolDiagnosticContext;
@@ -222,34 +277,21 @@ export function computeDiagnostics(
   }
 
   const diagnostics = flattenDiagnostics(lineDiagnostics);
-
-  let documentSymbolDiagnostics: vscode.Diagnostic[] = [];
-  let cachedSymbolIndex: SymbolIndex | null = null;
-
-  if (needSymbolDiagnostics) {
-    const index = getSymbolIndex(document, schema, maxSymbolLines);
-    if (index) {
-      cachedSymbolIndex = index;
-      if (cached?.cachedSymbolIndex === index && sameCacheKey(cached.key, key)) {
-        documentSymbolDiagnostics = cached.documentSymbolDiagnostics;
-      } else {
-        documentSymbolDiagnostics = computeDocumentSymbolDiagnostics(
-          document,
-          symbolCtx,
-          index,
-          workspaceIndex,
-          options,
-        );
-      }
-      diagnostics.push(...documentSymbolDiagnostics);
-    } else if (options.unusedSymbols) {
-      diagnostics.push(...entryPointWithoutBindDiagnostics(document, symbolCtx.parsed, symbolCtx));
-    }
-  }
+  const { cachedSymbolIndex, documentSymbolDiagnostics } = appendSymbolDiagnostics(
+    document,
+    schema,
+    options,
+    key,
+    cached,
+    symbolCtx,
+    workspaceIndex,
+    maxSymbolLines,
+    diagnostics,
+  );
 
   const finalDiagnostics = applyDiagnosticSuppressions(analysis.lineTexts, diagnostics);
 
-  diagnosticsCache.set(document, {
+  const entry: DiagnosticsCacheEntry = {
     version: document.version,
     key,
     suppressDeprecated,
@@ -257,18 +299,25 @@ export function computeDiagnostics(
     diagnostics: finalDiagnostics,
     cachedSymbolIndex,
     documentSymbolDiagnostics,
-  });
-  uriDiagnosticsCache.set(documentUriKey(document), contentFingerprint, {
-    version: document.version,
-    key,
-    suppressDeprecated,
-    lineDiagnostics,
-    diagnostics: finalDiagnostics,
-    cachedSymbolIndex,
-    documentSymbolDiagnostics,
-  });
+  };
+  diagnosticsCache.set(document, entry);
+  if (!cached) {
+    persistOpenDocumentDiagnostics(document, uriKey, uriLookup?.fingerprint, entry);
+  }
 
   return finalDiagnostics;
+}
+
+export function finalizeDiagnosticsCacheForClosedDocument(document: vscode.TextDocument): void {
+  const cached = diagnosticsCache.get(document);
+  if (!cached) {
+    return;
+  }
+  uriDiagnosticsCache.set(
+    normalizeUriKey(document.uri),
+    fingerprintText(document.getText()),
+    cached,
+  );
 }
 
 export function clearDiagnosticsCache(): void {

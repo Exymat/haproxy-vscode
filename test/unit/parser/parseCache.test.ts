@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { invalidateAllExtensionCaches } from "../../../src/extension/cacheInvalidation";
 import {
+  clearParseCache,
   finalizeParseCacheForClosedDocument,
   getParsedDocument,
   getParsedDocumentEntry,
@@ -187,5 +188,12 @@ describe("getParsedDocument", () => {
     const second = getParsedDocumentEntry(doc, parseOptions);
     expect(second.parsed).not.toBe(first.parsed);
     expect(second.parsed[1].tokens[1]?.text).toBe("tcp");
+  });
+
+  it("clears the live parse cache", () => {
+    const doc = createDocument("defaults\n    mode http");
+    const first = getParsedDocumentEntry(doc, parseOptions);
+    clearParseCache();
+    expect(getParsedDocumentEntry(doc, parseOptions).parsed).not.toBe(first.parsed);
   });
 });

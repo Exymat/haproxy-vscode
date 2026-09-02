@@ -2,28 +2,45 @@
 import { ParsedLine, ParsedToken } from "../parser";
 import { HaproxySchema, StatementRule } from "./types";
 
-const statementRuleIndexCache = new WeakMap<HaproxySchema, Map<string, StatementRule[]>>();
-
-function ruleIndexKey(rule: StatementRule): string {
-  if (rule.match_tokens?.[0]) {
-    return rule.match_tokens[0].toLowerCase();
-  }
-  if (rule.prefix) {
-    return rule.prefix.split(/\s+/)[0].toLowerCase();
-  }
-  return rule.keyword.toLowerCase();
+interface IndexedStatementRule {
+  rule: StatementRule;
+  matchTokensLower: string[] | undefined;
+  prefixPartsLower: string[] | undefined;
+  keywordLower: string;
 }
 
-function statementRulesByFirstToken(schema: HaproxySchema): Map<string, StatementRule[]> {
+const statementRuleIndexCache = new WeakMap<HaproxySchema, Map<string, IndexedStatementRule[]>>();
+
+function indexStatementRule(rule: StatementRule): IndexedStatementRule {
+  return {
+    rule,
+    matchTokensLower: rule.match_tokens?.map((token) => token.toLowerCase()),
+    prefixPartsLower: rule.prefix?.split(/\s+/).map((part) => part.toLowerCase()),
+    keywordLower: rule.keyword.toLowerCase(),
+  };
+}
+
+function ruleIndexKey(indexed: IndexedStatementRule): string {
+  if (indexed.matchTokensLower?.[0]) {
+    return indexed.matchTokensLower[0];
+  }
+  if (indexed.prefixPartsLower?.[0]) {
+    return indexed.prefixPartsLower[0];
+  }
+  return indexed.keywordLower;
+}
+
+function statementRulesByFirstToken(schema: HaproxySchema): Map<string, IndexedStatementRule[]> {
   let index = statementRuleIndexCache.get(schema);
   if (index) {
     return index;
   }
   index = new Map();
   for (const rule of schema.statement_rules ?? []) {
-    const key = ruleIndexKey(rule);
+    const indexed = indexStatementRule(rule);
+    const key = ruleIndexKey(indexed);
     const list = index.get(key) ?? [];
-    list.push(rule);
+    list.push(indexed);
     index.set(key, list);
   }
   statementRuleIndexCache.set(schema, index);
@@ -40,45 +57,57 @@ export function candidateRules(
     return [];
   }
   const index = statementRulesByFirstToken(schema);
-  return index.get(t0) ?? [];
+  return (index.get(t0) ?? []).map((indexed) => indexed.rule);
 }
 
-export function ruleMatchesLine(rule: StatementRule, line: ParsedLine | ParsedToken[]): boolean {
-  const tokens = Array.isArray(line) ? line : line.tokens;
+function indexedRuleMatchesLine(indexed: IndexedStatementRule, tokens: ParsedToken[]): boolean {
   if (tokens.length === 0) {
     return false;
   }
-  if (rule.match_tokens?.length) {
-    if (tokens.length < rule.match_tokens.length) {
+  if (indexed.matchTokensLower?.length) {
+    if (tokens.length < indexed.matchTokensLower.length) {
       return false;
     }
-    return rule.match_tokens.every((token, index) => tokens[index]?.text.toLowerCase() === token);
+    return indexed.matchTokensLower.every(
+      (token, index) => tokens[index]?.text.toLowerCase() === token,
+    );
   }
   const t0 = tokens[0].text.toLowerCase();
-  if (rule.prefix) {
-    const parts = rule.prefix.split(/\s+/);
+  const parts = indexed.prefixPartsLower;
+  if (parts) {
     if (parts.length === 1) {
-      return t0 === parts[0] && tokens[1]?.text.toLowerCase() === rule.keyword.toLowerCase();
+      return t0 === parts[0] && tokens[1]?.text.toLowerCase() === indexed.keywordLower;
     }
     if (parts.length === 2) {
+      const t1 = tokens[1]?.text.toLowerCase();
       return (
         t0 === parts[0] &&
-        tokens[1]?.text.toLowerCase() === parts[1] &&
-        (rule.keyword === parts[1] || tokens[1]?.text.toLowerCase() === rule.keyword.toLowerCase())
+        t1 === parts[1] &&
+        (indexed.rule.keyword === parts[1] || t1 === indexed.keywordLower)
       );
     }
     return false;
   }
-  return t0 === rule.keyword.toLowerCase();
+  return t0 === indexed.keywordLower;
+}
+
+export function ruleMatchesLine(rule: StatementRule, line: ParsedLine | ParsedToken[]): boolean {
+  const tokens = Array.isArray(line) ? line : line.tokens;
+  return indexedRuleMatchesLine(indexStatementRule(rule), tokens);
 }
 
 export function findStatementRule(
   schema: HaproxySchema,
   line: ParsedLine,
 ): StatementRule | undefined {
-  for (const rule of candidateRules(schema, line)) {
-    if (ruleMatchesLine(rule, line)) {
-      return rule;
+  const tokens = line.tokens;
+  const t0 = tokens[0]?.text.toLowerCase();
+  if (!t0) {
+    return undefined;
+  }
+  for (const indexed of statementRulesByFirstToken(schema).get(t0) ?? []) {
+    if (indexedRuleMatchesLine(indexed, tokens)) {
+      return indexed.rule;
     }
   }
   return undefined;

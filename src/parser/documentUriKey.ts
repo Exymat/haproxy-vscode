@@ -2,11 +2,9 @@
 import * as vscode from "vscode";
 
 import { fingerprintText } from "../core/contentFingerprint";
-import { normalizeUriKey } from "../core/uriKey";
+import { documentUriKey, normalizeUriKey } from "../core/uriKey";
 
-export function documentUriKey(document: vscode.TextDocument): string {
-  return normalizeUriKey(document.uri);
-}
+export { documentUriKey };
 
 export function documentContentFingerprint(document: vscode.TextDocument): string {
   return fingerprintText(document.getText());
@@ -19,7 +17,7 @@ export function documentOpenCacheFingerprint(document: vscode.TextDocument): str
 
 export function isOpenTextDocument(document: vscode.TextDocument): boolean {
   const uriKey = documentUriKey(document);
-  return vscode.workspace.textDocuments.some((open) => documentUriKey(open) === uriKey);
+  return vscode.workspace.textDocuments.some((open) => normalizeUriKey(open.uri) === uriKey);
 }
 
 export function documentParseCacheFingerprint(document: vscode.TextDocument): string {

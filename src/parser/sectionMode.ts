@@ -1,6 +1,6 @@
 /** Tracks runtime mode inheritance across HAProxy section blocks. */
 import { ParsedLine } from "./index";
-import { ParsedDocumentReuse } from "./parseCache";
+import { ParsedDocumentReuse } from "./parseIncremental";
 import { RuntimeMode } from "../core/editorKinds";
 import { HaproxySchema } from "../schema/types";
 import { symbolStringList } from "../schema/symbols";
