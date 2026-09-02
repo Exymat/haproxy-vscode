@@ -114,7 +114,7 @@ export function persistDocumentSession(document: vscode.TextDocument, fingerprin
   }
   const uriKey = normalizeUriKey(document.uri);
   for (const record of sessions.values()) {
-    uriCache.set(uriKey, fingerprint, record);
+    setUriSession(uriKey, fingerprint, record);
   }
 }
 

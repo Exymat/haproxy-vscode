@@ -26,6 +26,14 @@ describe("loadLanguageData", () => {
     expect(first.keywords.mode).toBeDefined();
   });
 
+  it("returns cached language data from the async loader", async () => {
+    const context = mockExtensionContext();
+    const first = await loadLanguageDataAsync(context as never, "3.2");
+    const second = await loadLanguageDataAsync(context as never, "3.2");
+    expect(first).toBe(second);
+    expect(first.version).toBe("3.2");
+  });
+
   it("returns fresh data after cache clear", () => {
     const context = mockExtensionContext();
     const before = loadLanguageData(context as never, "3.4");
