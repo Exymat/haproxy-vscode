@@ -7,9 +7,8 @@ import {
   DocumentSessionRecord,
   documentSessionGeneration,
   getLiveSession,
-  getUriSession,
   setLiveSession,
-  setUriSession,
+  getUriSession,
   hasUriSession,
   hasUriSessionKey,
   clearDocumentSessions,
@@ -66,7 +65,6 @@ function storeParseRecord(
     symbols: previous?.symbols,
   };
   setLiveSession(document, record);
-  setUriSession(normalizeUriKey(document.uri), fingerprintText(document.getText()), record);
   return record;
 }
 

@@ -12,6 +12,7 @@ import {
   createSymbolBuildContext,
   patchSymbolIndexLine,
 } from "../../../src/symbolIndex/build";
+import { scopeKeyAtLine } from "../../../src/symbolIndex/scope";
 import type { SymbolIndex, SymbolSite } from "../../../src/symbolIndex/types";
 import { clearSymbolIndexCaches, hasUriSymbolIndexCache } from "../../../src/symbolIndex/cache";
 import {
@@ -482,6 +483,19 @@ describe("symbolIndex build", () => {
   it("buildScopeKeyByLine clears scope for named non-proxy sections", () => {
     const parsed = parseDocument(doc("frontend web\ncache c1\n    total-max-size 4"));
     expect(buildScopeKeyByLine(parsed, schema)).toEqual(["frontend:web", null, null]);
+  });
+
+  it("scopeKeyAtLine matches buildScopeKeyByLine without scanning the whole file", () => {
+    const parsed = parseDocument(
+      doc(
+        "frontend web\n    bind :80\nbackend api\n    server s1 127.0.0.1:80\ndefaults\n    mode http",
+      ),
+    );
+    const byLine = buildScopeKeyByLine(parsed, schema);
+    for (let lineNo = 0; lineNo < parsed.length; lineNo += 1) {
+      expect(scopeKeyAtLine(parsed, lineNo, schema)).toBe(byLine[lineNo]);
+    }
+    expect(scopeKeyAtLine(parsed, 3, schema, byLine)).toBe(byLine[3]);
   });
 
   it("does not treat misplaced from clauses as defaults-profile references", () => {

@@ -26,7 +26,7 @@ import { ruleMatchesLine } from "../schema/statementLayout";
 import { tokenIndexAtPosition, isLikelyValue } from "../parser/tokenUtils";
 
 import { aclReferenceAt } from "./aclReferences";
-import { buildScopeKeyByLine } from "./scope";
+import { scopeKeyAtLine } from "./scope";
 import { symbolNameTokenIndices, ensureSitesByLine } from "./utils";
 import {
   effectiveScopeKeyForSchema,
@@ -47,10 +47,7 @@ function scopeKeyForLine(
   parsed: ParsedLine[],
   schema: HaproxySchema,
 ): string | null {
-  if (scopeKeyByLine) {
-    return scopeKeyByLine[lineNo] ?? null;
-  }
-  return buildScopeKeyByLine(parsed, schema)[lineNo] ?? null;
+  return scopeKeyAtLine(parsed, lineNo, schema, scopeKeyByLine);
 }
 
 function resolveSectionHeaderSymbol(
