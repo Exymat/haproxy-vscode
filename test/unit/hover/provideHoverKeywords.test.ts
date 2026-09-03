@@ -116,7 +116,10 @@ describe("provideHover keyword docs", () => {
       hapee.schema,
     );
     expect(hapeeHover).not.toBeNull();
-    const hapeeText = hoverText(hapeeHover!);
+    if (hapeeHover === null) {
+      throw new Error("expected HAPEE stick-table ip hover");
+    }
+    const hapeeText = hoverText(hapeeHover);
     expect(hapeeText.toLowerCase()).toContain("ipv4");
     expect(hapeeText).not.toContain("-m ip");
   });
