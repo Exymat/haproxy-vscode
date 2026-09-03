@@ -655,7 +655,7 @@
     ],
     "acl_flags": [
       {
-        "description": "force end of flags. Useful when a string looks like one of the flags. acl valid-ua hdr(user-agent) -f exact-ua.lst -i -f generic-ua.lst test",
+        "description": "force end of flags. Useful when a string looks like one of the flags.",
         "docsUrl": "",
         "examples": [],
         "name": "--",
@@ -787,7 +787,7 @@
         "signature": "-m dir"
       },
       {
-        "description": "domain match : check that a dot-delimited portion of the contents exactly match one of the provided string patterns. This may be used with binary or string samples. acl jsess_present req.cook(JSESSIONID) -m found acl script_tag req.payload(0,500) -m reg -i <script> acl script_tag req.payload(0,500),lower -m reg <script> acl short_form  hdr_beg(host)        www. acl alternate1  hdr_beg(host) -m beg www. acl alternate2  hdr_dom(host) -m beg www. acl alternate3  hdr(host)     -m beg www. +-------------------------------------------------+ |                Input sample type                | +----------------------+---------+---------+---------+---------+---------+ |     pattern type     | boolean | integer |   ip    | string  | binary  | +----------------------+---------+---------+---------+---------+---------+ | none (presence only) |  found  |  found  |  found  |  found  |  found  | +----------------------+---------+---------+---------+---------+---------+ | none (boolean value) |>  bool <|   bool  |         |   bool  |         | +----------------------+---------+---------+---------+---------+---------+ | integer (value)      |   int   |>  int  <|   int   |   int   |         | +----------------------+---------+---------+---------+---------+---------+ | integer (length)     |   len   |   len   |   len   |   len   |   len   | +----------------------+---------+---------+---------+---------+---------+ | IP address           |         |         |>   ip  <|    ip   |    ip   | +----------------------+---------+---------+---------+---------+---------+ | exact string         |   str   |   str   |   str   |>  str  <|   str   | +----------------------+---------+---------+---------+---------+---------+ | prefix               |   beg   |   beg   |   beg   |   beg   |   beg   | +----------------------+---------+---------+---------+---------+---------+ | suffix               |   end   |   end   |   end   |   end   |   end   | +----------------------+---------+---------+---------+---------+---------+ | substring            |   sub   |   sub   |   sub   |   sub   |   sub   | +----------------------+---------+---------+---------+---------+---------+ | subdir               |   dir   |   dir   |   dir   |   dir   |   dir   | +----------------------+---------+---------+---------+---------+---------+ | domain               |   dom   |   dom   |   dom   |   dom   |   dom   | +----------------------+---------+---------+---------+---------+---------+ | regex                |   reg   |   reg   |   reg   |   reg   |   reg   | +----------------------+---------+---------+---------+---------+---------+ | hex block            |         |         |         |   bin   |   bin   | +----------------------+---------+---------+---------+---------+---------+",
+        "description": "domain match : check that a dot-delimited portion of the contents exactly match one of the provided string patterns. This may be used with binary or string samples.",
         "docsUrl": "",
         "examples": [],
         "name": "dom",
@@ -1015,7 +1015,7 @@
     ],
     "acl_string_match_methods": [
       {
-        "description": "the patterns are compared with the beginning of",
+        "description": "the patterns are compared with the beginning of the extracted string, and the ACL matches if any of them matches.",
         "docsUrl": "",
         "examples": [],
         "name": "beg",
@@ -1023,7 +1023,7 @@
         "signature": "-m beg"
       },
       {
-        "description": "the patterns are looked up anywhere inside the",
+        "description": "the patterns are looked up anywhere inside the extracted string, delimited with slashes (\"/\"), the beginning or the end of the string. The ACL matches if any of them matches. As such, the string \"/images/png/logo/32x32.png\", would match \"/images\", \"/images/png\", \"images/png\", \"/png/logo\", \"logo/32x32.png\" or \"32x32.png\" but not \"png\" nor \"32x32\".",
         "docsUrl": "",
         "examples": [],
         "name": "dir",
@@ -1031,7 +1031,7 @@
         "signature": "-m dir"
       },
       {
-        "description": "the patterns are looked up anywhere inside the",
+        "description": "the patterns are looked up anywhere inside the extracted string, delimited with dots (\".\"), colons (\":\"), slashes (\"/\"), question marks (\"?\"), the beginning or the end of the string. This is made to be used with URLs. Leading and trailing delimiters in the pattern are ignored. The ACL matches if any of them matches. As such, in the example string \"http://www1.dc-eu.example.com:80/blah\", the patterns \"http\", \"www1\", \".www1\", \"dc-eu\", \"example\", \"com\", \"80\", \"dc-eu.example\", \"blah\", \":www1:\", \"dc-eu.example:80\" would match, but not \"eu\" nor \"dc\". Using it to match domain suffixes for filtering or routing is generally not a good idea, as the routing could easily be fooled by prepending the matching prefix in front of another domain for example.",
         "docsUrl": "",
         "examples": [],
         "name": "dom",
@@ -1039,7 +1039,7 @@
         "signature": "-m dom"
       },
       {
-        "description": "the patterns are compared with the end of the",
+        "description": "the patterns are compared with the end of the extracted string, and the ACL matches if any of them matches.",
         "docsUrl": "",
         "examples": [],
         "name": "end",
@@ -1047,7 +1047,7 @@
         "signature": "-m end"
       },
       {
-        "description": "the extracted string must exactly match the",
+        "description": "the extracted string must exactly match the patterns;",
         "docsUrl": "",
         "examples": [],
         "name": "str",
@@ -1055,7 +1055,7 @@
         "signature": "-m str"
       },
       {
-        "description": "the patterns are looked up inside the",
+        "description": "the patterns are looked up inside the extracted string, and the ACL matches if any of them is found inside;",
         "docsUrl": "",
         "examples": [],
         "name": "sub",

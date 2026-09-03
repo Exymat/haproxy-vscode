@@ -10,6 +10,7 @@ import {
   statementRuleKinds,
   semanticStringMap,
   semanticStringList,
+  aclRefGroupNames,
 } from "../../../src/schema/semantic";
 import { validationStringMap, validationStringList } from "../../../src/schema/validation";
 import {
@@ -589,6 +590,22 @@ describe("schema helpers", () => {
     expect(schemaSampleCasts(schema)[0][0]).toBe(true);
     expect(symbolStringList(schema, "runtime_modes")).toContain("http");
     expect(semanticStringList(schema, "action_groups")).toContain("http_request_actions");
+    expect(aclRefGroupNames(schema)).toEqual([
+      "acl_flags",
+      "acl_match_methods",
+      "acl_int_operators",
+      "acl_string_match_methods",
+      "acl_predefined",
+    ]);
+    const emptyAclRefs = structuredClone(schema);
+    emptyAclRefs.semantic_groups = { ...emptyAclRefs.semantic_groups, acl_ref_groups: [] };
+    expect(aclRefGroupNames(emptyAclRefs)).toEqual([
+      "acl_flags",
+      "acl_match_methods",
+      "acl_int_operators",
+      "acl_string_match_methods",
+      "acl_predefined",
+    ]);
     expect(actionGroupForCompletionKind(schema, "http-request")).toBe("http_request_actions");
     expect(validationStringList(schema, "log_address_skip")).toContain("stdout");
   });

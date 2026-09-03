@@ -95,6 +95,50 @@ describe("provideHover keyword docs", () => {
         "3.4",
       ),
     ).toContain("-m ip");
+    const domHover = hoverMarkdown(
+      "frontend web\n    acl test hdr(host) -m dom example.com",
+      1,
+      "    acl test hdr(host) -m dom".indexOf(" dom") + 1,
+      "3.4",
+    );
+    expect(domHover).toContain("domain match");
+    expect(domHover).not.toContain("jsess_present");
+    expect(domHover).not.toContain("Input sample type");
+    expect(
+      hoverMarkdown(
+        "frontend web\n    acl test hdr(host) -- example.com",
+        1,
+        "    acl test hdr(host) --".indexOf("--"),
+        "3.4",
+      ),
+    ).not.toContain("valid-ua");
+  });
+
+  it("documents predefined ACLs and integer operators in conditions", () => {
+    const httpHover = hoverMarkdown(
+      "frontend web\n    use_backend static if HTTP",
+      1,
+      "    use_backend static if HTTP".indexOf("HTTP"),
+      "3.4",
+    );
+    expect(httpHover).toContain("req.proto_http");
+    expect(httpHover).not.toContain("Switch to a specific backend");
+    expect(
+      hoverMarkdown(
+        "frontend web\n    http-request deny unless HTTP",
+        1,
+        "    http-request deny unless HTTP".indexOf("HTTP"),
+        "3.4",
+      ),
+    ).toContain("req.proto_http");
+    expect(
+      hoverMarkdown(
+        "frontend web\n    http-request deny if { status ge 500 }",
+        1,
+        "    http-request deny if { status ge 500 }".indexOf(" ge") + 1,
+        "3.4",
+      ),
+    ).toContain("greater than or equal");
   });
 
   it("documents stick-table key types instead of ACL -m ip", () => {

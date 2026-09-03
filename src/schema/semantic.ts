@@ -51,8 +51,17 @@ export function actionCompletionKindSet(schema: HaproxySchema): Set<string> {
   return new Set(Object.keys(semanticStringMap(schema, "completion_kind_to_action_group")));
 }
 
+const DEFAULT_ACL_REF_GROUPS = [
+  "acl_flags",
+  "acl_match_methods",
+  "acl_int_operators",
+  "acl_string_match_methods",
+  "acl_predefined",
+];
+
 export function aclRefGroupNames(schema: HaproxySchema): string[] {
-  return semanticStringList(schema, "acl_ref_groups");
+  const names = semanticStringList(schema, "acl_ref_groups");
+  return names.length > 0 ? names : DEFAULT_ACL_REF_GROUPS;
 }
 
 export function statementRuleKinds(schema: HaproxySchema): Set<string> {

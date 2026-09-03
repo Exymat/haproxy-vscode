@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 
 import {
   argumentPosition,
+  conditionalStartIndex,
   documentedEnumValueNames,
   findArgumentValue,
   getKeywordFromSchema,
@@ -10,8 +11,7 @@ import {
 import { findKeywordByPrefix } from "../../language/languageData";
 import { ResolvedLanguageKeyword, resolveLanguageKeyword } from "../../language/keywordVariant";
 import { LineSemanticContext } from "../../parser/lineSemanticContext";
-import { findGroupItem } from "../helpers";
-import { aclRefGroupApplies } from "./aclRefHover";
+import { aclRefGroupApplies, findGroupItem } from "../helpers";
 import {
   addContextExtra,
   addSectionExtra,
@@ -28,6 +28,9 @@ function tryArgumentValueHover(hc: HoverContext): vscode.Hover | null {
   const directive = semantic.directive;
 
   if (!directive.matched || ctx.tokenIndex <= directive.end) {
+    return null;
+  }
+  if (isConditionToken(hc)) {
     return null;
   }
 
@@ -62,11 +65,19 @@ function argumentParamAt(
   return args[Math.min(pos, args.length - 1)];
 }
 
+function isConditionToken(hc: HoverContext): boolean {
+  const start = conditionalStartIndex(hc.ctx.line, hc.semantic.directive.end);
+  return hc.ctx.tokenIndex > start;
+}
+
 function tryMatchedDirectiveHover(hc: HoverContext): vscode.Hover | null {
   const { ctx, semantic } = hc;
   const directive = semantic.directive;
   const kw = directive.matched ? semantic.resolvedLanguageKeyword : undefined;
   if (!kw) {
+    return null;
+  }
+  if (isConditionToken(hc)) {
     return null;
   }
   if (ctx.tokenIndex > directive.end) {
@@ -88,6 +99,9 @@ function tryPrefixDirectiveHover(hc: HoverContext): vscode.Hover | null {
     .join(" ");
   const kw = resolveLanguageKeyword(findKeywordByPrefix(data, combined), ctx.line.section);
   if (!kw) {
+    return null;
+  }
+  if (isConditionToken(hc)) {
     return null;
   }
   if (ctx.tokenIndex > directive.end) {

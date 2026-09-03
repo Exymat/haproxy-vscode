@@ -10,7 +10,7 @@ import {
   sampleExpressionGroupForKind,
 } from "../../schema/semantic";
 import { normalizeActionName } from "../../parser/tokenUtils";
-import { findGroupItem, sampleTokenCandidates } from "../helpers";
+import { aclRefGroupApplies, findGroupItem, sampleTokenCandidates } from "../helpers";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
 
@@ -74,7 +74,7 @@ function sampleGroupHover(
         break;
       }
     }
-    group ??= findGroupItem(data, candidate);
+    group ??= findGroupItem(data, candidate, (groupName) => aclRefGroupApplies(hc, groupName));
     if (group) {
       return new vscode.Hover(
         hoverMarkdown(

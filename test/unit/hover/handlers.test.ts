@@ -425,5 +425,35 @@ describe("hover handlers", () => {
       }
       expect(hoverText(noArgDescHover)).toContain("http_auth");
     });
+
+    it("does not document the directive for tokens after if/unless", () => {
+      const hover = tryDirectiveHover(
+        optionHoverContext("HTTP", {
+          kind: "directive-argument",
+          tokenIndex: 3,
+          line: {
+            line: 1,
+            section: "frontend",
+            tokens: [
+              { text: "use_backend", start: 4, end: 15 },
+              { text: "static", start: 16, end: 22 },
+              { text: "if", start: 23, end: 25 },
+              { text: "HTTP", start: 26, end: 30 },
+            ],
+            isSectionHeader: false,
+            anonymousDefaults: false,
+          },
+          token: { text: "HTTP", start: 26, end: 30 },
+          lineText: "    use_backend static if HTTP",
+        }),
+      );
+      expect(hover).not.toBeNull();
+      if (hover === null) {
+        throw new Error("expected hover");
+      }
+      const text = hoverText(hover);
+      expect(text).toContain("req.proto_http");
+      expect(text).not.toContain("Switch to a specific backend");
+    });
   });
 });

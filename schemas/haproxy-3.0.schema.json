@@ -74620,7 +74620,13 @@
       "acl_criteria",
       "sample_fetches"
     ],
-    "acl_ref_groups": [],
+    "acl_ref_groups": [
+      "acl_flags",
+      "acl_match_methods",
+      "acl_int_operators",
+      "acl_string_match_methods",
+      "acl_predefined"
+    ],
     "action_groups": [
       "http_after_response_actions",
       "http_request_actions",
