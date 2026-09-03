@@ -4301,6 +4301,54 @@
         }
       ]
     },
+    "be-unpublished": {
+      "argument_model": {
+        "max_args": 0,
+        "min_args": 0,
+        "slots": []
+      },
+      "arguments": [],
+      "contexts": [
+        "http",
+        "log",
+        "tcp"
+      ],
+      "line_option_semantics": [],
+      "name": "be-unpublished",
+      "sections": [
+        "backend",
+        "listen"
+      ],
+      "signatures": [
+        "be-unpublished"
+      ],
+      "sources": [
+        "doc"
+      ],
+      "variants": [
+        {
+          "argument_model": {
+            "max_args": 0,
+            "min_args": 0,
+            "slots": []
+          },
+          "arguments": [],
+          "chapter": "4.2",
+          "contexts": [
+            "http",
+            "log",
+            "tcp"
+          ],
+          "sections": [
+            "backend",
+            "listen"
+          ],
+          "signatures": [
+            "be-unpublished"
+          ]
+        }
+      ]
+    },
     "bind": {
       "argument_model": {
         "max_args": null,
@@ -6793,11 +6841,9 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [
-              "algo"
-            ],
+            "enum": [],
             "optional": false,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -6838,11 +6884,9 @@
             "min_args": 0,
             "slots": [
               {
-                "enum": [
-                  "algo"
-                ],
+                "enum": [],
                 "optional": false,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": true
               }
             ]
@@ -7289,11 +7333,9 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [
-              "algo"
-            ],
+            "enum": [],
             "optional": false,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -7334,11 +7376,9 @@
             "min_args": 0,
             "slots": [
               {
-                "enum": [
-                  "algo"
-                ],
+                "enum": [],
                 "optional": false,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": true
               }
             ]
@@ -7462,8 +7502,7 @@
           },
           {
             "enum": [
-              "indirect",
-              "insert"
+              "indirect"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -7471,8 +7510,7 @@
           },
           {
             "enum": [
-              "nocache",
-              "prefix"
+              "nocache"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -7480,7 +7518,6 @@
           },
           {
             "enum": [
-              "indirect",
               "postonly"
             ],
             "optional": true,
@@ -7489,7 +7526,6 @@
           },
           {
             "enum": [
-              "nocache",
               "preserve"
             ],
             "optional": true,
@@ -7683,8 +7719,7 @@
               },
               {
                 "enum": [
-                  "indirect",
-                  "insert"
+                  "indirect"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -7692,8 +7727,7 @@
               },
               {
                 "enum": [
-                  "nocache",
-                  "prefix"
+                  "nocache"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -7701,7 +7735,6 @@
               },
               {
                 "enum": [
-                  "indirect",
                   "postonly"
                 ],
                 "optional": true,
@@ -7710,7 +7743,6 @@
               },
               {
                 "enum": [
-                  "nocache",
                   "preserve"
                 ],
                 "optional": true,
@@ -14611,17 +14643,9 @@
         "min_args": 1,
         "slots": [
           {
-            "enum": [
-              "iso",
-              "local",
-              "raw",
-              "rfc3164",
-              "rfc5424",
-              "short",
-              "timed"
-            ],
+            "enum": [],
             "optional": false,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -14681,17 +14705,9 @@
             "min_args": 1,
             "slots": [
               {
-                "enum": [
-                  "iso",
-                  "local",
-                  "raw",
-                  "rfc3164",
-                  "rfc5424",
-                  "short",
-                  "timed"
-                ],
+                "enum": [],
                 "optional": false,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": false
               }
             ]
@@ -15997,12 +16013,9 @@
         "min_args": 3,
         "slots": [
           {
-            "enum": [
-              "consistent",
-              "map-based"
-            ],
+            "enum": [],
             "optional": false,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": false
           },
           {
@@ -16070,12 +16083,9 @@
             "min_args": 3,
             "slots": [
               {
-                "enum": [
-                  "consistent",
-                  "map-based"
-                ],
+                "enum": [],
                 "optional": false,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": false
               },
               {
@@ -16478,7 +16488,6 @@
         "slots": [
           {
             "enum": [
-              "comment",
               "default"
             ],
             "optional": true,
@@ -16487,7 +16496,6 @@
           },
           {
             "enum": [
-              "default",
               "port"
             ],
             "optional": true,
@@ -16516,7 +16524,14 @@
           },
           {
             "enum": [
-              "send-proxy",
+              "send-proxy"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [
               "via-socks4"
             ],
             "optional": true,
@@ -16525,16 +16540,6 @@
           },
           {
             "enum": [
-              "ssl",
-              "via-socks4"
-            ],
-            "optional": true,
-            "value_kind": "enum",
-            "variadic": false
-          },
-          {
-            "enum": [
-              "sni",
               "ssl"
             ],
             "optional": true,
@@ -16543,7 +16548,6 @@
           },
           {
             "enum": [
-              "alpn",
               "sni"
             ],
             "optional": true,
@@ -16877,7 +16881,6 @@
             "slots": [
               {
                 "enum": [
-                  "comment",
                   "default"
                 ],
                 "optional": true,
@@ -16886,7 +16889,6 @@
               },
               {
                 "enum": [
-                  "default",
                   "port"
                 ],
                 "optional": true,
@@ -16915,7 +16917,14 @@
               },
               {
                 "enum": [
-                  "send-proxy",
+                  "send-proxy"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [
                   "via-socks4"
                 ],
                 "optional": true,
@@ -16924,16 +16933,6 @@
               },
               {
                 "enum": [
-                  "ssl",
-                  "via-socks4"
-                ],
-                "optional": true,
-                "value_kind": "enum",
-                "variadic": false
-              },
-              {
-                "enum": [
-                  "sni",
                   "ssl"
                 ],
                 "optional": true,
@@ -16942,7 +16941,6 @@
               },
               {
                 "enum": [
-                  "alpn",
                   "sni"
                 ],
                 "optional": true,
@@ -17197,7 +17195,6 @@
         "slots": [
           {
             "enum": [
-              "comment",
               "min-recv"
             ],
             "optional": true,
@@ -17212,7 +17209,20 @@
           },
           {
             "enum": [
-              "comment",
+              "comment"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "generic",
+            "variadic": false
+          },
+          {
+            "enum": [
               "ok-status"
             ],
             "optional": true,
@@ -17227,23 +17237,7 @@
           },
           {
             "enum": [
-              "ok-status",
-              "tout-status"
-            ],
-            "optional": true,
-            "value_kind": "enum",
-            "variadic": false
-          },
-          {
-            "enum": [],
-            "optional": true,
-            "value_kind": "generic",
-            "variadic": false
-          },
-          {
-            "enum": [
-              "error-status",
-              "on-error"
+              "error-status"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -17600,7 +17594,6 @@
             "slots": [
               {
                 "enum": [
-                  "comment",
                   "min-recv"
                 ],
                 "optional": true,
@@ -17615,7 +17608,20 @@
               },
               {
                 "enum": [
-                  "comment",
+                  "comment"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "generic",
+                "variadic": false
+              },
+              {
+                "enum": [
                   "ok-status"
                 ],
                 "optional": true,
@@ -17630,23 +17636,7 @@
               },
               {
                 "enum": [
-                  "ok-status",
-                  "tout-status"
-                ],
-                "optional": true,
-                "value_kind": "enum",
-                "variadic": false
-              },
-              {
-                "enum": [],
-                "optional": true,
-                "value_kind": "generic",
-                "variadic": false
-              },
-              {
-                "enum": [
-                  "error-status",
-                  "on-error"
+                  "error-status"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -17851,7 +17841,6 @@
         "slots": [
           {
             "enum": [
-              "comment",
               "meth"
             ],
             "optional": true,
@@ -17881,7 +17870,6 @@
           },
           {
             "enum": [
-              "ver",
               "}"
             ],
             "optional": true,
@@ -17890,7 +17878,6 @@
           },
           {
             "enum": [
-              "hdr",
               "ver"
             ],
             "optional": true,
@@ -17905,7 +17892,6 @@
           },
           {
             "enum": [
-              "body-lf",
               "hdr"
             ],
             "optional": true,
@@ -18180,7 +18166,6 @@
             "slots": [
               {
                 "enum": [
-                  "comment",
                   "meth"
                 ],
                 "optional": true,
@@ -18210,7 +18195,6 @@
               },
               {
                 "enum": [
-                  "ver",
                   "}"
                 ],
                 "optional": true,
@@ -18219,7 +18203,6 @@
               },
               {
                 "enum": [
-                  "hdr",
                   "ver"
                 ],
                 "optional": true,
@@ -18234,7 +18217,6 @@
               },
               {
                 "enum": [
-                  "body-lf",
                   "hdr"
                 ],
                 "optional": true,
@@ -18976,8 +18958,7 @@
           },
           {
             "enum": [
-              "default-errorfiles",
-              "errorfile"
+              "default-errorfiles"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -18985,7 +18966,6 @@
           },
           {
             "enum": [
-              "errorfiles",
               "hdr"
             ],
             "optional": true,
@@ -18993,19 +18973,15 @@
             "variadic": false
           },
           {
-            "enum": [
-              "file"
-            ],
+            "enum": [],
             "optional": true,
-            "value_kind": "enum",
+            "value_kind": "name",
             "variadic": false
           },
           {
-            "enum": [
-              "string"
-            ],
+            "enum": [],
             "optional": true,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -19157,8 +19133,7 @@
               },
               {
                 "enum": [
-                  "default-errorfiles",
-                  "errorfile"
+                  "default-errorfiles"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -19166,7 +19141,6 @@
               },
               {
                 "enum": [
-                  "errorfiles",
                   "hdr"
                 ],
                 "optional": true,
@@ -19174,19 +19148,15 @@
                 "variadic": false
               },
               {
-                "enum": [
-                  "file"
-                ],
+                "enum": [],
                 "optional": true,
-                "value_kind": "enum",
+                "value_kind": "name",
                 "variadic": false
               },
               {
-                "enum": [
-                  "string"
-                ],
+                "enum": [],
                 "optional": true,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": true
               }
             ]
@@ -22017,15 +21987,7 @@
           },
           {
             "enum": [
-              "iso",
-              "local",
-              "priority",
-              "raw",
-              "rfc3164",
-              "rfc5424",
-              "sample",
-              "short",
-              "timed"
+              "sample"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -22675,15 +22637,7 @@
               },
               {
                 "enum": [
-                  "iso",
-                  "local",
-                  "priority",
-                  "raw",
-                  "rfc3164",
-                  "rfc5424",
-                  "sample",
-                  "short",
-                  "timed"
+                  "sample"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -38463,16 +38417,9 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [
-              "0rtt-rejected",
-              "conn-failure",
-              "empty-response",
-              "junk-response",
-              "none",
-              "response-timeout"
-            ],
+            "enum": [],
             "optional": true,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -38538,16 +38485,9 @@
             "min_args": 0,
             "slots": [
               {
-                "enum": [
-                  "0rtt-rejected",
-                  "conn-failure",
-                  "empty-response",
-                  "junk-response",
-                  "none",
-                  "response-timeout"
-                ],
+                "enum": [],
                 "optional": true,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": false
               }
             ]
@@ -44663,9 +44603,16 @@
         "min_args": 3,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "binary",
+              "integer",
+              "ip",
+              "ipv4",
+              "ipv6",
+              "string"
+            ],
             "optional": false,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -44704,7 +44651,232 @@
           }
         ]
       },
-      "arguments": [],
+      "arguments": [
+        {
+          "description": "This mandatory argument sets the key type to <type>, which usually is a single word but may also have its own arguments:",
+          "parameter": "<type>",
+          "values": [
+            {
+              "description": "This type should be avoided in favor of a more explicit one such as \"ipv4\" or \"ipv6\". Prior to version 3.2 it was the only way to configure IPv4. In 3.2, \"ip\" is an alias for \"ipv4\", and \"ipv4\" is preferred. In a future version, \"ip\" will instead correspond to \"ipv6\". It is only meant to ease the transition from pre-3.2 to post-3.2.",
+              "name": "ip"
+            },
+            {
+              "description": "A table declared with this type will only store IPv4 addresses. This form is very compact (about 50 bytes per entry) and allows very fast entry lookup and stores with almost no overhead. This is mainly used to store client source IP addresses.",
+              "name": "ipv4"
+            },
+            {
+              "description": "A table declared with \"type ipv6\" will only store IPv6 addresses. This form is very compact (about 60 bytes per entry) and allows very fast entry lookup and stores with almost no overhead. This is mainly used to store client source IP addresses.",
+              "name": "ipv6"
+            },
+            {
+              "description": "A table declared with \"type integer\" will store 32bit integers which can represent a client identifier found in a request for instance.",
+              "name": "integer"
+            },
+            {
+              "description": "A table declared with \"type string\" will store substrings of up to <len> characters. If the string provided by the pattern extractor is larger than <len>, it will be truncated before being stored. During matching, at most <len> characters will be compared between the string in the table and the extracted pattern. When not specified, the string is automatically limited to 32 characters. Increasing the length can have a non-negligible memory usage impact.",
+              "name": "string"
+            },
+            {
+              "description": "A table declared with \"type binary\" will store binary blocks of <len> bytes. If the block provided by the pattern extractor is larger than <len>, it will be truncated before being stored. If the block provided by the sample expression is shorter than <len>, it will be padded by 0. When not specified, the block is automatically limited to 32 bytes. Increasing the length can have a non-negligible memory usage impact.",
+              "name": "binary"
+            }
+          ]
+        },
+        {
+          "description": "This mandatory argument sets maximum number of entries that can fit in the table to <size>. This value directly impacts memory usage. Count approximately 50 bytes per entry in addition to the key size above, and optionally stored metrics, plus the size of a string if any. The size supports suffixes \"k\", \"m\", \"g\" for 2^10, 2^20 and 2^30 factors.",
+          "parameter": "size <size>",
+          "values": [
+            {
+              "description": "This mandatory argument sets maximum number of entries that can fit in the table to <size>. This value directly impacts memory usage. Count approximately 50 bytes per entry in addition to the key size above, and optionally stored metrics, plus the size of a string if any. The size supports suffixes \"k\", \"m\", \"g\" for 2^10, 2^20 and 2^30 factors.",
+              "name": "size"
+            }
+          ]
+        },
+        {
+          "description": "Defines the maximum duration of an entry in the table since it was last created, refreshed using 'track-sc' or matched using 'stick match' or 'stick on' rule. The expiration delay <delay> is defined using the standard time format, similarly as the various timeouts, defaulting to milliseconds. The maximum duration is slightly above 24 days. See section 2.5 for more information. If this delay is not specified, sessions won't automatically expire, but oldest entries will be removed upon creation once full. Be sure not to use the \"nopurge\" parameter if not expiration delay is specified. Note: 'table_*' converters performs lookups but won't update touch expire since they don't require 'track-sc'.",
+          "parameter": "expire <delay>",
+          "values": [
+            {
+              "description": "Defines the maximum duration of an entry in the table since it was last created, refreshed using 'track-sc' or matched using 'stick match' or 'stick on' rule. The expiration delay <delay> is defined using the standard time format, similarly as the various timeouts, defaulting to milliseconds. The maximum duration is slightly above 24 days. See section 2.5 for more information. If this delay is not specified, sessions won't automatically expire, but oldest entries will be removed upon creation once full. Be sure not to use the \"nopurge\" parameter if not expiration delay is specified. Note: 'table_*' converters performs lookups but won't update touch expire since they don't require 'track-sc'.",
+              "name": "expire"
+            }
+          ]
+        },
+        {
+          "description": "Specifies a factor to be applied to in/out bytes rate. Instead of counting each bytes, blocks of bytes are counted. Internally, rates are defined on 32-bits counters, limiting them to about 4 billion per period. By using this parameter, it is possible to have rates exceeding this 4G limit over the defined period. The factor must be greater than 0 and lower than or equal to 1024.",
+          "parameter": "brates-factor <factor>",
+          "values": [
+            {
+              "description": "Specifies a factor to be applied to in/out bytes rate. Instead of counting each bytes, blocks of bytes are counted. Internally, rates are defined on 32-bits counters, limiting them to about 4 billion per period. By using this parameter, it is possible to have rates exceeding this 4G limit over the defined period. The factor must be greater than 0 and lower than or equal to 1024.",
+              "name": "brates-factor"
+            }
+          ]
+        },
+        {
+          "description": "indicates that we refuse to purge older entries when the table is full. When not specified and the table is full when HAProxy wants to store an entry in it, it will flush a few of the oldest entries in order to release some space for the new ones. This is most often the desired behavior. In some specific cases, it will be desirable to refuse new entries instead of purging the older ones. That may be the case when the amount of data to store is far above the hardware limits and we prefer not to offer access to new clients than to reject the ones already connected. When using this parameter, be sure to properly set the \"expire\" parameter (see above).",
+          "parameter": "nopurge",
+          "values": [
+            {
+              "description": "indicates that we refuse to purge older entries when the table is full. When not specified and the table is full when HAProxy wants to store an entry in it, it will flush a few of the oldest entries in order to release some space for the new ones. This is most often the desired behavior. In some specific cases, it will be desirable to refuse new entries instead of purging the older ones. That may be the case when the amount of data to store is far above the hardware limits and we prefer not to offer access to new clients than to reject the ones already connected. When using this parameter, be sure to properly set the \"expire\" parameter (see above).",
+              "name": "nopurge"
+            }
+          ]
+        },
+        {
+          "description": "indicates that we don't intend to use the table to perform updates on it, but that we only plan on using the table to retrieve data from a remote peer which we are interested in. Indeed, the use of this keyword enables the retrieval of local-only values such as \"conn_cur\" that are not learned by default as they would conflict with local updates performed on the table by the local peer. Use of this option is only relevant for tables that are not involved in tracking rules or methods that perform update operations on the table, or put simpler: remote tables that are only used to retrieve information.",
+          "parameter": "recv-only",
+          "values": [
+            {
+              "description": "indicates that we don't intend to use the table to perform updates on it, but that we only plan on using the table to retrieve data from a remote peer which we are interested in. Indeed, the use of this keyword enables the retrieval of local-only values such as \"conn_cur\" that are not learned by default as they would conflict with local updates performed on the table by the local peer. Use of this option is only relevant for tables that are not involved in tracking rules or methods that perform update operations on the table, or put simpler: remote tables that are only used to retrieve information.",
+              "name": "recv-only"
+            }
+          ]
+        },
+        {
+          "description": "Entries that are created, updated or refreshed will be sent to the peers in section <peersect> for synchronization, and keys learned from peers in this section will also be inserted or updated in the table. Additionally, on startup, an attempt may be done to learn entries from an older instance of the process, designated as the \"local peer\" via this section.",
+          "parameter": "peers <peersect>",
+          "values": [
+            {
+              "description": "Entries that are created, updated or refreshed will be sent to the peers in section <peersect> for synchronization, and keys learned from peers in this section will also be inserted or updated in the table. Additionally, on startup, an attempt may be done to learn entries from an older instance of the process, designated as the \"local peer\" via this section.",
+              "name": "peers"
+            }
+          ]
+        },
+        {
+          "description": "Specifies how each server is identified for the purposes of the stick table. The valid values are \"name\" and \"addr\". If \"name\" is given, then <name> argument for the server (may be generated by a template). If \"addr\" is given, then the server is identified by its current network address, including the port. \"addr\" is especially useful if you are using service discovery to generate the addresses for servers with peered stick-tables and want to consistently use the same host across peers for a stickiness token.",
+          "parameter": "srvkey <srvkey>",
+          "values": [
+            {
+              "description": "Specifies how each server is identified for the purposes of the stick table. The valid values are \"name\" and \"addr\". If \"name\" is given, then <name> argument for the server (may be generated by a template). If \"addr\" is given, then the server is identified by its current network address, including the port. \"addr\" is especially useful if you are using service discovery to generate the addresses for servers with peered stick-tables and want to consistently use the same host across peers for a stickiness token.",
+              "name": "srvkey"
+            }
+          ]
+        },
+        {
+          "description": "This is used to store additional information in the stick-table. This may be used by ACLs in order to control various criteria related to the activity of the client matching the stick-table. For each item specified here, the size of each entry will be inflated so that the additional data can fit. Several data types may be stored with an entry. Multiple data types may be specified after the \"store\" keyword, as a comma-separated list. Alternatively, it is possible to repeat the \"store\" keyword followed by one or several data types. Except for the \"server_id\" type which is automatically detected and enabled, all data types must be explicitly declared to be stored. If an ACL references a data type which is not stored, the ACL will simply not match. Some data types require an argument which must be passed just after the type between parenthesis. See below for the supported data types and their arguments.",
+          "parameter": "store <data_type>",
+          "values": [
+            {
+              "description": "This is used to store additional information in the stick-table. This may be used by ACLs in order to control various criteria related to the activity of the client matching the stick-table. For each item specified here, the size of each entry will be inflated so that the additional data can fit. Several data types may be stored with an entry. Multiple data types may be specified after the \"store\" keyword, as a comma-separated list. Alternatively, it is possible to repeat the \"store\" keyword followed by one or several data types. Except for the \"server_id\" type which is automatically detected and enabled, all data types must be explicitly declared to be stored. If an ACL references a data type which is not stored, the ACL will simply not match. Some data types require an argument which must be passed just after the type between parenthesis. See below for the supported data types and their arguments.",
+              "name": "store"
+            },
+            {
+              "description": "This is the client to server byte count. It is a positive 64-bit integer which counts the cumulative number of bytes received from clients which matched this entry. Headers are included in the count. This may be used to limit abuse of upload features on photo or video servers. Note that the values are measured when the data enter haproxy, thus the counts are not affected by compression.",
+              "name": "bytes_in_cnt"
+            },
+            {
+              "description": "This is a rate counter on bytes from the client to the server. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming bytes rate over that period, in bytes per period. It may be used to detect users which upload too much and too fast. Warning: with large uploads, it is possible that the amount of uploaded data will be counted once upon termination, thus causing spikes in the average transfer speed instead of having a smooth one. This may partially be smoothed with \"option contstats\" though this is not perfect.  Use of byte_in_cnt is recommended for better fairness.",
+              "name": "bytes_in_rate(<period>)"
+            },
+            {
+              "description": "This is the server to client byte count. It is a positive 64-bit integer which counts the cumulative number of bytes sent to clients which matched this entry. Headers are included in the count. This may be used to limit abuse of bots sucking the whole site. Note that the values are measured when the data enter haproxy, thus the counts are not affected by compression.",
+              "name": "bytes_out_cnt"
+            },
+            {
+              "description": "This is a rate counter on bytes from the server to the client. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average outgoing bytes rate over that period, in bytes per period. It may be used to detect users which download too much and too fast. Warning: with large transfers, it is possible that the amount of transferred data will be counted once upon termination, thus causing spikes in the average transfer speed instead of having a smooth one. This may partially be smoothed with \"option contstats\" though this is not perfect yet. Use of byte_out_cnt is recommended for better fairness.",
+              "name": "bytes_out_rate(<period>)"
+            },
+            {
+              "description": "This is the Connection Count. It is a positive 32-bit integer which counts the absolute number of connections received from clients which matched this entry. It does not mean the connections were accepted, just that they were received.",
+              "name": "conn_cnt"
+            },
+            {
+              "description": "This is the Current Connections count. It is a positive 32-bit integer which stores the concurrent connection count for the entry. It is incremented once an incoming connection matches the entry, and decremented once the connection leaves. That way it is possible to know at any time the exact number of concurrent connections for an entry. This type is not learned from other peers by default as it wouldn't represent anything given that it would ignore the local count. However, in combination with recv-only it can be used to learn the number of concurrent connections seen by peers.",
+              "name": "conn_cur"
+            },
+            {
+              "description": "This is a connection frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming connection rate over that period, in connections per period. The result is an integer which can be matched using ACLs. Whether connections are accepted or rejected has no effect on their measurement.",
+              "name": "conn_rate(<period>)"
+            },
+            {
+              "description": "This is the front glitches count. It is a positive 32-bit integer which counts the cumulative number of glitches reported on a front connection. Glitches correspond to either unusual or unexpected actions (protocol- wise) from the client that could indicate a badly defective client or possibly an attacker. As such, this counter can help in order to decide how to act with them in such case.",
+              "name": "glitch_cnt"
+            },
+            {
+              "description": "This is a frequency counter on glitches. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average front glitches rate over that period. It may be used to detect defective clients or potential attackers that perform uncommon or unexpected actions from a protocol point of view, provided that HAProxy flagged them them as such.",
+              "name": "glitch_rate(<period>)"
+            },
+            {
+              "description": "This is an array of <nb> General Purpose Counter elements. This is an array of positive 32-bit integers which may be used to count anything. Most of the time they will be used as a incremental counters on some entries, for instance to note that a limit is reached and trigger some actions. This array is limited to a maximum of 100 elements: gpc0 to gpc99, to ensure that the build of a peer update message can fit into the buffer. Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated. This data_type will exclude the usage of the legacy data_types 'gpc0' and 'gpc1' on the same table. Using the 'gpc' array data_type, all 'gpc0' and 'gpc1' related sample fetch functions and actions will apply to the two first elements of this array.",
+              "name": "gpc(<nb>)"
+            },
+            {
+              "description": "This is an array of increment rates of General Purpose Counters over a period. Those elements are positive 32-bit integers which may be used for anything. Just like <gpc>, the count events, but instead of keeping a cumulative number, they maintain the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL). This array is limited to a maximum of 100 elements: gpt(100) allowing the storage of gpc0 to gpc99, to ensure that the build of a peer update message can fit into the buffer.  The array cannot contain less than 1 element: use gpc(1) if you want to store only the counter gpc0.  Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated.  This data_type will exclude the usage of the legacy data_types 'gpc0_rate' and 'gpc1_rate' on the same table. Using the 'gpc_rate' array data_type, all 'gpc0' and 'gpc1' related fetches and actions will apply to the two first elements of this array.",
+              "name": "gpc_rate(<nb>,<period>)"
+            },
+            {
+              "description": "This is the first General Purpose Counter. It is a positive 32-bit integer integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+              "name": "gpc0"
+            },
+            {
+              "description": "This is the increment rate of the first General Purpose Counter over a period. It is a positive 32-bit integer integer which may be used for anything. Just like <gpc0>, it counts events, but instead of keeping a cumulative number, it maintains the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL).",
+              "name": "gpc0_rate(<period>)"
+            },
+            {
+              "description": "This is the second General Purpose Counter. It is a positive 32-bit integer integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+              "name": "gpc1"
+            },
+            {
+              "description": "This is the increment rate of the second General Purpose Counter over a period. It is a positive 32-bit integer integer which may be used for anything. Just like <gpc1>, it counts events, but instead of keeping a cumulative number, it maintains the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL).",
+              "name": "gpc1_rate(<period>)"
+            },
+            {
+              "description": "This is an array of <nb> General Purpose Tags elements. This is an array of positive 32-bit integers which may be used for anything. Most of the time they will be used to put a special tags on some entries, for instance to note that a specific behavior was detected and must be known for future matches. This array is limited to a maximum of 100 elements: gpt(100) allowing the storage of gpt0 to gpt99, to ensure that the build of a peer update message can fit into the buffer. The array cannot contain less than 1 element: use gpt(1) if you want to to store only the tag gpt0. Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated.  This data_type will exclude the usage of the legacy data_type 'gpt0' on the same table. Using the 'gpt' array data_type, all 'gpt0' related fetches and actions will apply to the first element of this array.",
+              "name": "gpt(<nb>)"
+            },
+            {
+              "description": "This is the first General Purpose Tag. It is a positive 32-bit integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+              "name": "gpt0"
+            },
+            {
+              "description": "This is the HTTP request Count. It is a positive 32-bit integer which counts the absolute number of HTTP requests received from clients which matched this entry. It does not matter whether they are valid requests or not. Note that this is different from sessions when keep-alive is used on the client side.",
+              "name": "http_req_cnt"
+            },
+            {
+              "description": "This is a request frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP request rate over that period, in requests per period. The result is an integer which can be matched using ACLs. It does not matter whether they are valid requests or not. Note that this is different from sessions when keep-alive is used on the client side.",
+              "name": "http_req_rate(<period>)"
+            },
+            {
+              "description": "This is the HTTP request Error Count. It is a positive 32-bit integer which counts the absolute number of HTTP requests errors induced by clients which matched this entry. Errors are counted on invalid and truncated requests, as well as on denied or tarpitted requests, and on failed authentications. If the server responds with 4xx, then the request is also counted as an error since it's an error triggered by the client (e.g. vulnerability scan).",
+              "name": "http_err_cnt"
+            },
+            {
+              "description": "This is an HTTP request frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP request error rate over that period, in requests per period (see http_err_cnt above for what is accounted as an error). The result is an integer which can be matched using ACLs.",
+              "name": "http_err_rate(<period>)"
+            },
+            {
+              "description": "This is the HTTP response Failure Count. It is a positive 32-bit integer which counts the absolute number of HTTP response failures induced by servers which matched this entry. Errors are counted on invalid and truncated responses, as well as any 5xx response other than 501 or 505. It aims at being used combined with path or URI to detect service failures.",
+              "name": "http_fail_cnt"
+            },
+            {
+              "description": "This is an HTTP response failure frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP response failure rate over that period, in requests per period (see http_fail_cnt above for what is accounted as a failure). The result is an integer which can be matched using ACLs.",
+              "name": "http_fail_rate(<period>)"
+            },
+            {
+              "description": "This is an integer which holds the numeric ID of the server a request was assigned to. It is used by the \"stick match\", \"stick store\", and \"stick on\" rules. It is automatically enabled when referenced. It is important to understand that stickiness based on learning information has some limitations, including the fact that all learned associations are lost upon restart unless peers are properly configured to transfer such information upon restart (recommended). In general it can be good as a complement to other stickiness mechanisms but not always as the sole mechanism.",
+              "name": "server_id"
+            },
+            {
+              "description": "This is the Session Count. It is a positive 32-bit integer which counts the absolute number of sessions received from clients which matched this entry. A session is a connection that was accepted by the layer 4 rules (\"tcp-request connection\").",
+              "name": "sess_cnt"
+            },
+            {
+              "description": "This is a session frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming session rate over that period, in sessions per period. The result is an integer which can be matched using ACLs.",
+              "name": "sess_rate(<period>)"
+            }
+          ]
+        },
+        {
+          "description": "Specifies the name of another stick table where peers updates will be written to in addition to the source table. <wtable> must be of the same type as the table being defined and must have the same key length, and source table cannot be used as a target table itself. Every time an entry update will be received on the source table through a peer, HAProxy will try to refresh related <wtable> entry. If the entry doesn't exist yet, it will be created, else its values will be updated as well as its timer. Note that only types that are not involved in arithmetic ops such as server_id, server_key and gpt will be written to <wtable> to prevent processed values from a remote table from interfering with arithmetic operations performed on the local target table. (ie: prevent shared cumulative counter from growing indefinitely) One common use of this option is to be able to use sticking rules (for server persistence) in a peers cluster setup, because matching keys will be learned from remote tables.",
+          "parameter": "write-to <wtable>",
+          "values": [
+            {
+              "description": "Specifies the name of another stick table where peers updates will be written to in addition to the source table. <wtable> must be of the same type as the table being defined and must have the same key length, and source table cannot be used as a target table itself. Every time an entry update will be received on the source table through a peer, HAProxy will try to refresh related <wtable> entry. If the entry doesn't exist yet, it will be created, else its values will be updated as well as its timer. Note that only types that are not involved in arithmetic ops such as server_id, server_key and gpt will be written to <wtable> to prevent processed values from a remote table from interfering with arithmetic operations performed on the local target table. (ie: prevent shared cumulative counter from growing indefinitely) One common use of this option is to be able to use sticking rules (for server persistence) in a peers cluster setup, because matching keys will be learned from remote tables.",
+              "name": "write-to"
+            }
+          ]
+        }
+      ],
       "contexts": [
         "http",
         "tcp"
@@ -44729,9 +44901,16 @@
             "min_args": 3,
             "slots": [
               {
-                "enum": [],
+                "enum": [
+                  "binary",
+                  "integer",
+                  "ip",
+                  "ipv4",
+                  "ipv6",
+                  "string"
+                ],
                 "optional": false,
-                "value_kind": "generic",
+                "value_kind": "enum",
                 "variadic": false
               },
               {
@@ -44770,7 +44949,232 @@
               }
             ]
           },
-          "arguments": [],
+          "arguments": [
+            {
+              "description": "This mandatory argument sets the key type to <type>, which usually is a single word but may also have its own arguments:",
+              "parameter": "<type>",
+              "values": [
+                {
+                  "description": "This type should be avoided in favor of a more explicit one such as \"ipv4\" or \"ipv6\". Prior to version 3.2 it was the only way to configure IPv4. In 3.2, \"ip\" is an alias for \"ipv4\", and \"ipv4\" is preferred. In a future version, \"ip\" will instead correspond to \"ipv6\". It is only meant to ease the transition from pre-3.2 to post-3.2.",
+                  "name": "ip"
+                },
+                {
+                  "description": "A table declared with this type will only store IPv4 addresses. This form is very compact (about 50 bytes per entry) and allows very fast entry lookup and stores with almost no overhead. This is mainly used to store client source IP addresses.",
+                  "name": "ipv4"
+                },
+                {
+                  "description": "A table declared with \"type ipv6\" will only store IPv6 addresses. This form is very compact (about 60 bytes per entry) and allows very fast entry lookup and stores with almost no overhead. This is mainly used to store client source IP addresses.",
+                  "name": "ipv6"
+                },
+                {
+                  "description": "A table declared with \"type integer\" will store 32bit integers which can represent a client identifier found in a request for instance.",
+                  "name": "integer"
+                },
+                {
+                  "description": "A table declared with \"type string\" will store substrings of up to <len> characters. If the string provided by the pattern extractor is larger than <len>, it will be truncated before being stored. During matching, at most <len> characters will be compared between the string in the table and the extracted pattern. When not specified, the string is automatically limited to 32 characters. Increasing the length can have a non-negligible memory usage impact.",
+                  "name": "string"
+                },
+                {
+                  "description": "A table declared with \"type binary\" will store binary blocks of <len> bytes. If the block provided by the pattern extractor is larger than <len>, it will be truncated before being stored. If the block provided by the sample expression is shorter than <len>, it will be padded by 0. When not specified, the block is automatically limited to 32 bytes. Increasing the length can have a non-negligible memory usage impact.",
+                  "name": "binary"
+                }
+              ]
+            },
+            {
+              "description": "This mandatory argument sets maximum number of entries that can fit in the table to <size>. This value directly impacts memory usage. Count approximately 50 bytes per entry in addition to the key size above, and optionally stored metrics, plus the size of a string if any. The size supports suffixes \"k\", \"m\", \"g\" for 2^10, 2^20 and 2^30 factors.",
+              "parameter": "size <size>",
+              "values": [
+                {
+                  "description": "This mandatory argument sets maximum number of entries that can fit in the table to <size>. This value directly impacts memory usage. Count approximately 50 bytes per entry in addition to the key size above, and optionally stored metrics, plus the size of a string if any. The size supports suffixes \"k\", \"m\", \"g\" for 2^10, 2^20 and 2^30 factors.",
+                  "name": "size"
+                }
+              ]
+            },
+            {
+              "description": "Defines the maximum duration of an entry in the table since it was last created, refreshed using 'track-sc' or matched using 'stick match' or 'stick on' rule. The expiration delay <delay> is defined using the standard time format, similarly as the various timeouts, defaulting to milliseconds. The maximum duration is slightly above 24 days. See section 2.5 for more information. If this delay is not specified, sessions won't automatically expire, but oldest entries will be removed upon creation once full. Be sure not to use the \"nopurge\" parameter if not expiration delay is specified. Note: 'table_*' converters performs lookups but won't update touch expire since they don't require 'track-sc'.",
+              "parameter": "expire <delay>",
+              "values": [
+                {
+                  "description": "Defines the maximum duration of an entry in the table since it was last created, refreshed using 'track-sc' or matched using 'stick match' or 'stick on' rule. The expiration delay <delay> is defined using the standard time format, similarly as the various timeouts, defaulting to milliseconds. The maximum duration is slightly above 24 days. See section 2.5 for more information. If this delay is not specified, sessions won't automatically expire, but oldest entries will be removed upon creation once full. Be sure not to use the \"nopurge\" parameter if not expiration delay is specified. Note: 'table_*' converters performs lookups but won't update touch expire since they don't require 'track-sc'.",
+                  "name": "expire"
+                }
+              ]
+            },
+            {
+              "description": "Specifies a factor to be applied to in/out bytes rate. Instead of counting each bytes, blocks of bytes are counted. Internally, rates are defined on 32-bits counters, limiting them to about 4 billion per period. By using this parameter, it is possible to have rates exceeding this 4G limit over the defined period. The factor must be greater than 0 and lower than or equal to 1024.",
+              "parameter": "brates-factor <factor>",
+              "values": [
+                {
+                  "description": "Specifies a factor to be applied to in/out bytes rate. Instead of counting each bytes, blocks of bytes are counted. Internally, rates are defined on 32-bits counters, limiting them to about 4 billion per period. By using this parameter, it is possible to have rates exceeding this 4G limit over the defined period. The factor must be greater than 0 and lower than or equal to 1024.",
+                  "name": "brates-factor"
+                }
+              ]
+            },
+            {
+              "description": "indicates that we refuse to purge older entries when the table is full. When not specified and the table is full when HAProxy wants to store an entry in it, it will flush a few of the oldest entries in order to release some space for the new ones. This is most often the desired behavior. In some specific cases, it will be desirable to refuse new entries instead of purging the older ones. That may be the case when the amount of data to store is far above the hardware limits and we prefer not to offer access to new clients than to reject the ones already connected. When using this parameter, be sure to properly set the \"expire\" parameter (see above).",
+              "parameter": "nopurge",
+              "values": [
+                {
+                  "description": "indicates that we refuse to purge older entries when the table is full. When not specified and the table is full when HAProxy wants to store an entry in it, it will flush a few of the oldest entries in order to release some space for the new ones. This is most often the desired behavior. In some specific cases, it will be desirable to refuse new entries instead of purging the older ones. That may be the case when the amount of data to store is far above the hardware limits and we prefer not to offer access to new clients than to reject the ones already connected. When using this parameter, be sure to properly set the \"expire\" parameter (see above).",
+                  "name": "nopurge"
+                }
+              ]
+            },
+            {
+              "description": "indicates that we don't intend to use the table to perform updates on it, but that we only plan on using the table to retrieve data from a remote peer which we are interested in. Indeed, the use of this keyword enables the retrieval of local-only values such as \"conn_cur\" that are not learned by default as they would conflict with local updates performed on the table by the local peer. Use of this option is only relevant for tables that are not involved in tracking rules or methods that perform update operations on the table, or put simpler: remote tables that are only used to retrieve information.",
+              "parameter": "recv-only",
+              "values": [
+                {
+                  "description": "indicates that we don't intend to use the table to perform updates on it, but that we only plan on using the table to retrieve data from a remote peer which we are interested in. Indeed, the use of this keyword enables the retrieval of local-only values such as \"conn_cur\" that are not learned by default as they would conflict with local updates performed on the table by the local peer. Use of this option is only relevant for tables that are not involved in tracking rules or methods that perform update operations on the table, or put simpler: remote tables that are only used to retrieve information.",
+                  "name": "recv-only"
+                }
+              ]
+            },
+            {
+              "description": "Entries that are created, updated or refreshed will be sent to the peers in section <peersect> for synchronization, and keys learned from peers in this section will also be inserted or updated in the table. Additionally, on startup, an attempt may be done to learn entries from an older instance of the process, designated as the \"local peer\" via this section.",
+              "parameter": "peers <peersect>",
+              "values": [
+                {
+                  "description": "Entries that are created, updated or refreshed will be sent to the peers in section <peersect> for synchronization, and keys learned from peers in this section will also be inserted or updated in the table. Additionally, on startup, an attempt may be done to learn entries from an older instance of the process, designated as the \"local peer\" via this section.",
+                  "name": "peers"
+                }
+              ]
+            },
+            {
+              "description": "Specifies how each server is identified for the purposes of the stick table. The valid values are \"name\" and \"addr\". If \"name\" is given, then <name> argument for the server (may be generated by a template). If \"addr\" is given, then the server is identified by its current network address, including the port. \"addr\" is especially useful if you are using service discovery to generate the addresses for servers with peered stick-tables and want to consistently use the same host across peers for a stickiness token.",
+              "parameter": "srvkey <srvkey>",
+              "values": [
+                {
+                  "description": "Specifies how each server is identified for the purposes of the stick table. The valid values are \"name\" and \"addr\". If \"name\" is given, then <name> argument for the server (may be generated by a template). If \"addr\" is given, then the server is identified by its current network address, including the port. \"addr\" is especially useful if you are using service discovery to generate the addresses for servers with peered stick-tables and want to consistently use the same host across peers for a stickiness token.",
+                  "name": "srvkey"
+                }
+              ]
+            },
+            {
+              "description": "This is used to store additional information in the stick-table. This may be used by ACLs in order to control various criteria related to the activity of the client matching the stick-table. For each item specified here, the size of each entry will be inflated so that the additional data can fit. Several data types may be stored with an entry. Multiple data types may be specified after the \"store\" keyword, as a comma-separated list. Alternatively, it is possible to repeat the \"store\" keyword followed by one or several data types. Except for the \"server_id\" type which is automatically detected and enabled, all data types must be explicitly declared to be stored. If an ACL references a data type which is not stored, the ACL will simply not match. Some data types require an argument which must be passed just after the type between parenthesis. See below for the supported data types and their arguments.",
+              "parameter": "store <data_type>",
+              "values": [
+                {
+                  "description": "This is used to store additional information in the stick-table. This may be used by ACLs in order to control various criteria related to the activity of the client matching the stick-table. For each item specified here, the size of each entry will be inflated so that the additional data can fit. Several data types may be stored with an entry. Multiple data types may be specified after the \"store\" keyword, as a comma-separated list. Alternatively, it is possible to repeat the \"store\" keyword followed by one or several data types. Except for the \"server_id\" type which is automatically detected and enabled, all data types must be explicitly declared to be stored. If an ACL references a data type which is not stored, the ACL will simply not match. Some data types require an argument which must be passed just after the type between parenthesis. See below for the supported data types and their arguments.",
+                  "name": "store"
+                },
+                {
+                  "description": "This is the client to server byte count. It is a positive 64-bit integer which counts the cumulative number of bytes received from clients which matched this entry. Headers are included in the count. This may be used to limit abuse of upload features on photo or video servers. Note that the values are measured when the data enter haproxy, thus the counts are not affected by compression.",
+                  "name": "bytes_in_cnt"
+                },
+                {
+                  "description": "This is a rate counter on bytes from the client to the server. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming bytes rate over that period, in bytes per period. It may be used to detect users which upload too much and too fast. Warning: with large uploads, it is possible that the amount of uploaded data will be counted once upon termination, thus causing spikes in the average transfer speed instead of having a smooth one. This may partially be smoothed with \"option contstats\" though this is not perfect.  Use of byte_in_cnt is recommended for better fairness.",
+                  "name": "bytes_in_rate(<period>)"
+                },
+                {
+                  "description": "This is the server to client byte count. It is a positive 64-bit integer which counts the cumulative number of bytes sent to clients which matched this entry. Headers are included in the count. This may be used to limit abuse of bots sucking the whole site. Note that the values are measured when the data enter haproxy, thus the counts are not affected by compression.",
+                  "name": "bytes_out_cnt"
+                },
+                {
+                  "description": "This is a rate counter on bytes from the server to the client. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average outgoing bytes rate over that period, in bytes per period. It may be used to detect users which download too much and too fast. Warning: with large transfers, it is possible that the amount of transferred data will be counted once upon termination, thus causing spikes in the average transfer speed instead of having a smooth one. This may partially be smoothed with \"option contstats\" though this is not perfect yet. Use of byte_out_cnt is recommended for better fairness.",
+                  "name": "bytes_out_rate(<period>)"
+                },
+                {
+                  "description": "This is the Connection Count. It is a positive 32-bit integer which counts the absolute number of connections received from clients which matched this entry. It does not mean the connections were accepted, just that they were received.",
+                  "name": "conn_cnt"
+                },
+                {
+                  "description": "This is the Current Connections count. It is a positive 32-bit integer which stores the concurrent connection count for the entry. It is incremented once an incoming connection matches the entry, and decremented once the connection leaves. That way it is possible to know at any time the exact number of concurrent connections for an entry. This type is not learned from other peers by default as it wouldn't represent anything given that it would ignore the local count. However, in combination with recv-only it can be used to learn the number of concurrent connections seen by peers.",
+                  "name": "conn_cur"
+                },
+                {
+                  "description": "This is a connection frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming connection rate over that period, in connections per period. The result is an integer which can be matched using ACLs. Whether connections are accepted or rejected has no effect on their measurement.",
+                  "name": "conn_rate(<period>)"
+                },
+                {
+                  "description": "This is the front glitches count. It is a positive 32-bit integer which counts the cumulative number of glitches reported on a front connection. Glitches correspond to either unusual or unexpected actions (protocol- wise) from the client that could indicate a badly defective client or possibly an attacker. As such, this counter can help in order to decide how to act with them in such case.",
+                  "name": "glitch_cnt"
+                },
+                {
+                  "description": "This is a frequency counter on glitches. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average front glitches rate over that period. It may be used to detect defective clients or potential attackers that perform uncommon or unexpected actions from a protocol point of view, provided that HAProxy flagged them them as such.",
+                  "name": "glitch_rate(<period>)"
+                },
+                {
+                  "description": "This is an array of <nb> General Purpose Counter elements. This is an array of positive 32-bit integers which may be used to count anything. Most of the time they will be used as a incremental counters on some entries, for instance to note that a limit is reached and trigger some actions. This array is limited to a maximum of 100 elements: gpc0 to gpc99, to ensure that the build of a peer update message can fit into the buffer. Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated. This data_type will exclude the usage of the legacy data_types 'gpc0' and 'gpc1' on the same table. Using the 'gpc' array data_type, all 'gpc0' and 'gpc1' related sample fetch functions and actions will apply to the two first elements of this array.",
+                  "name": "gpc(<nb>)"
+                },
+                {
+                  "description": "This is an array of increment rates of General Purpose Counters over a period. Those elements are positive 32-bit integers which may be used for anything. Just like <gpc>, the count events, but instead of keeping a cumulative number, they maintain the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL). This array is limited to a maximum of 100 elements: gpt(100) allowing the storage of gpc0 to gpc99, to ensure that the build of a peer update message can fit into the buffer.  The array cannot contain less than 1 element: use gpc(1) if you want to store only the counter gpc0.  Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated.  This data_type will exclude the usage of the legacy data_types 'gpc0_rate' and 'gpc1_rate' on the same table. Using the 'gpc_rate' array data_type, all 'gpc0' and 'gpc1' related fetches and actions will apply to the two first elements of this array.",
+                  "name": "gpc_rate(<nb>,<period>)"
+                },
+                {
+                  "description": "This is the first General Purpose Counter. It is a positive 32-bit integer integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+                  "name": "gpc0"
+                },
+                {
+                  "description": "This is the increment rate of the first General Purpose Counter over a period. It is a positive 32-bit integer integer which may be used for anything. Just like <gpc0>, it counts events, but instead of keeping a cumulative number, it maintains the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL).",
+                  "name": "gpc0_rate(<period>)"
+                },
+                {
+                  "description": "This is the second General Purpose Counter. It is a positive 32-bit integer integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+                  "name": "gpc1"
+                },
+                {
+                  "description": "This is the increment rate of the second General Purpose Counter over a period. It is a positive 32-bit integer integer which may be used for anything. Just like <gpc1>, it counts events, but instead of keeping a cumulative number, it maintains the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL).",
+                  "name": "gpc1_rate(<period>)"
+                },
+                {
+                  "description": "This is an array of <nb> General Purpose Tags elements. This is an array of positive 32-bit integers which may be used for anything. Most of the time they will be used to put a special tags on some entries, for instance to note that a specific behavior was detected and must be known for future matches. This array is limited to a maximum of 100 elements: gpt(100) allowing the storage of gpt0 to gpt99, to ensure that the build of a peer update message can fit into the buffer. The array cannot contain less than 1 element: use gpt(1) if you want to to store only the tag gpt0. Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated.  This data_type will exclude the usage of the legacy data_type 'gpt0' on the same table. Using the 'gpt' array data_type, all 'gpt0' related fetches and actions will apply to the first element of this array.",
+                  "name": "gpt(<nb>)"
+                },
+                {
+                  "description": "This is the first General Purpose Tag. It is a positive 32-bit integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+                  "name": "gpt0"
+                },
+                {
+                  "description": "This is the HTTP request Count. It is a positive 32-bit integer which counts the absolute number of HTTP requests received from clients which matched this entry. It does not matter whether they are valid requests or not. Note that this is different from sessions when keep-alive is used on the client side.",
+                  "name": "http_req_cnt"
+                },
+                {
+                  "description": "This is a request frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP request rate over that period, in requests per period. The result is an integer which can be matched using ACLs. It does not matter whether they are valid requests or not. Note that this is different from sessions when keep-alive is used on the client side.",
+                  "name": "http_req_rate(<period>)"
+                },
+                {
+                  "description": "This is the HTTP request Error Count. It is a positive 32-bit integer which counts the absolute number of HTTP requests errors induced by clients which matched this entry. Errors are counted on invalid and truncated requests, as well as on denied or tarpitted requests, and on failed authentications. If the server responds with 4xx, then the request is also counted as an error since it's an error triggered by the client (e.g. vulnerability scan).",
+                  "name": "http_err_cnt"
+                },
+                {
+                  "description": "This is an HTTP request frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP request error rate over that period, in requests per period (see http_err_cnt above for what is accounted as an error). The result is an integer which can be matched using ACLs.",
+                  "name": "http_err_rate(<period>)"
+                },
+                {
+                  "description": "This is the HTTP response Failure Count. It is a positive 32-bit integer which counts the absolute number of HTTP response failures induced by servers which matched this entry. Errors are counted on invalid and truncated responses, as well as any 5xx response other than 501 or 505. It aims at being used combined with path or URI to detect service failures.",
+                  "name": "http_fail_cnt"
+                },
+                {
+                  "description": "This is an HTTP response failure frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP response failure rate over that period, in requests per period (see http_fail_cnt above for what is accounted as a failure). The result is an integer which can be matched using ACLs.",
+                  "name": "http_fail_rate(<period>)"
+                },
+                {
+                  "description": "This is an integer which holds the numeric ID of the server a request was assigned to. It is used by the \"stick match\", \"stick store\", and \"stick on\" rules. It is automatically enabled when referenced. It is important to understand that stickiness based on learning information has some limitations, including the fact that all learned associations are lost upon restart unless peers are properly configured to transfer such information upon restart (recommended). In general it can be good as a complement to other stickiness mechanisms but not always as the sole mechanism.",
+                  "name": "server_id"
+                },
+                {
+                  "description": "This is the Session Count. It is a positive 32-bit integer which counts the absolute number of sessions received from clients which matched this entry. A session is a connection that was accepted by the layer 4 rules (\"tcp-request connection\").",
+                  "name": "sess_cnt"
+                },
+                {
+                  "description": "This is a session frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming session rate over that period, in sessions per period. The result is an integer which can be matched using ACLs.",
+                  "name": "sess_rate(<period>)"
+                }
+              ]
+            },
+            {
+              "description": "Specifies the name of another stick table where peers updates will be written to in addition to the source table. <wtable> must be of the same type as the table being defined and must have the same key length, and source table cannot be used as a target table itself. Every time an entry update will be received on the source table through a peer, HAProxy will try to refresh related <wtable> entry. If the entry doesn't exist yet, it will be created, else its values will be updated as well as its timer. Note that only types that are not involved in arithmetic ops such as server_id, server_key and gpt will be written to <wtable> to prevent processed values from a remote table from interfering with arithmetic operations performed on the local target table. (ie: prevent shared cumulative counter from growing indefinitely) One common use of this option is to be able to use sticking rules (for server persistence) in a peers cluster setup, because matching keys will be learned from remote tables.",
+              "parameter": "write-to <wtable>",
+              "values": [
+                {
+                  "description": "Specifies the name of another stick table where peers updates will be written to in addition to the source table. <wtable> must be of the same type as the table being defined and must have the same key length, and source table cannot be used as a target table itself. Every time an entry update will be received on the source table through a peer, HAProxy will try to refresh related <wtable> entry. If the entry doesn't exist yet, it will be created, else its values will be updated as well as its timer. Note that only types that are not involved in arithmetic ops such as server_id, server_key and gpt will be written to <wtable> to prevent processed values from a remote table from interfering with arithmetic operations performed on the local target table. (ie: prevent shared cumulative counter from growing indefinitely) One common use of this option is to be able to use sticking rules (for server persistence) in a peers cluster setup, because matching keys will be learned from remote tables.",
+                  "name": "write-to"
+                }
+              ]
+            }
+          ],
           "chapter": "4.2",
           "contexts": [
             "http",
@@ -44967,9 +45371,16 @@
         "min_args": 5,
         "slots": [
           {
-            "enum": [],
+            "enum": [
+              "binary",
+              "integer",
+              "ip",
+              "ipv4",
+              "ipv6",
+              "string"
+            ],
             "optional": false,
-            "value_kind": "generic",
+            "value_kind": "enum",
             "variadic": false
           },
           {
@@ -45063,7 +45474,232 @@
           }
         ]
       },
-      "arguments": [],
+      "arguments": [
+        {
+          "description": "This mandatory argument sets the key type to <type>, which usually is a single word but may also have its own arguments:",
+          "parameter": "<type>",
+          "values": [
+            {
+              "description": "This type should be avoided in favor of a more explicit one such as \"ipv4\" or \"ipv6\". Prior to version 3.2 it was the only way to configure IPv4. In 3.2, \"ip\" is an alias for \"ipv4\", and \"ipv4\" is preferred. In a future version, \"ip\" will instead correspond to \"ipv6\". It is only meant to ease the transition from pre-3.2 to post-3.2.",
+              "name": "ip"
+            },
+            {
+              "description": "A table declared with this type will only store IPv4 addresses. This form is very compact (about 50 bytes per entry) and allows very fast entry lookup and stores with almost no overhead. This is mainly used to store client source IP addresses.",
+              "name": "ipv4"
+            },
+            {
+              "description": "A table declared with \"type ipv6\" will only store IPv6 addresses. This form is very compact (about 60 bytes per entry) and allows very fast entry lookup and stores with almost no overhead. This is mainly used to store client source IP addresses.",
+              "name": "ipv6"
+            },
+            {
+              "description": "A table declared with \"type integer\" will store 32bit integers which can represent a client identifier found in a request for instance.",
+              "name": "integer"
+            },
+            {
+              "description": "A table declared with \"type string\" will store substrings of up to <len> characters. If the string provided by the pattern extractor is larger than <len>, it will be truncated before being stored. During matching, at most <len> characters will be compared between the string in the table and the extracted pattern. When not specified, the string is automatically limited to 32 characters. Increasing the length can have a non-negligible memory usage impact.",
+              "name": "string"
+            },
+            {
+              "description": "A table declared with \"type binary\" will store binary blocks of <len> bytes. If the block provided by the pattern extractor is larger than <len>, it will be truncated before being stored. If the block provided by the sample expression is shorter than <len>, it will be padded by 0. When not specified, the block is automatically limited to 32 bytes. Increasing the length can have a non-negligible memory usage impact.",
+              "name": "binary"
+            }
+          ]
+        },
+        {
+          "description": "This mandatory argument sets maximum number of entries that can fit in the table to <size>. This value directly impacts memory usage. Count approximately 50 bytes per entry in addition to the key size above, and optionally stored metrics, plus the size of a string if any. The size supports suffixes \"k\", \"m\", \"g\" for 2^10, 2^20 and 2^30 factors.",
+          "parameter": "size <size>",
+          "values": [
+            {
+              "description": "This mandatory argument sets maximum number of entries that can fit in the table to <size>. This value directly impacts memory usage. Count approximately 50 bytes per entry in addition to the key size above, and optionally stored metrics, plus the size of a string if any. The size supports suffixes \"k\", \"m\", \"g\" for 2^10, 2^20 and 2^30 factors.",
+              "name": "size"
+            }
+          ]
+        },
+        {
+          "description": "Defines the maximum duration of an entry in the table since it was last created, refreshed using 'track-sc' or matched using 'stick match' or 'stick on' rule. The expiration delay <delay> is defined using the standard time format, similarly as the various timeouts, defaulting to milliseconds. The maximum duration is slightly above 24 days. See section 2.5 for more information. If this delay is not specified, sessions won't automatically expire, but oldest entries will be removed upon creation once full. Be sure not to use the \"nopurge\" parameter if not expiration delay is specified. Note: 'table_*' converters performs lookups but won't update touch expire since they don't require 'track-sc'.",
+          "parameter": "expire <delay>",
+          "values": [
+            {
+              "description": "Defines the maximum duration of an entry in the table since it was last created, refreshed using 'track-sc' or matched using 'stick match' or 'stick on' rule. The expiration delay <delay> is defined using the standard time format, similarly as the various timeouts, defaulting to milliseconds. The maximum duration is slightly above 24 days. See section 2.5 for more information. If this delay is not specified, sessions won't automatically expire, but oldest entries will be removed upon creation once full. Be sure not to use the \"nopurge\" parameter if not expiration delay is specified. Note: 'table_*' converters performs lookups but won't update touch expire since they don't require 'track-sc'.",
+              "name": "expire"
+            }
+          ]
+        },
+        {
+          "description": "Specifies a factor to be applied to in/out bytes rate. Instead of counting each bytes, blocks of bytes are counted. Internally, rates are defined on 32-bits counters, limiting them to about 4 billion per period. By using this parameter, it is possible to have rates exceeding this 4G limit over the defined period. The factor must be greater than 0 and lower than or equal to 1024.",
+          "parameter": "brates-factor <factor>",
+          "values": [
+            {
+              "description": "Specifies a factor to be applied to in/out bytes rate. Instead of counting each bytes, blocks of bytes are counted. Internally, rates are defined on 32-bits counters, limiting them to about 4 billion per period. By using this parameter, it is possible to have rates exceeding this 4G limit over the defined period. The factor must be greater than 0 and lower than or equal to 1024.",
+              "name": "brates-factor"
+            }
+          ]
+        },
+        {
+          "description": "indicates that we refuse to purge older entries when the table is full. When not specified and the table is full when HAProxy wants to store an entry in it, it will flush a few of the oldest entries in order to release some space for the new ones. This is most often the desired behavior. In some specific cases, it will be desirable to refuse new entries instead of purging the older ones. That may be the case when the amount of data to store is far above the hardware limits and we prefer not to offer access to new clients than to reject the ones already connected. When using this parameter, be sure to properly set the \"expire\" parameter (see above).",
+          "parameter": "nopurge",
+          "values": [
+            {
+              "description": "indicates that we refuse to purge older entries when the table is full. When not specified and the table is full when HAProxy wants to store an entry in it, it will flush a few of the oldest entries in order to release some space for the new ones. This is most often the desired behavior. In some specific cases, it will be desirable to refuse new entries instead of purging the older ones. That may be the case when the amount of data to store is far above the hardware limits and we prefer not to offer access to new clients than to reject the ones already connected. When using this parameter, be sure to properly set the \"expire\" parameter (see above).",
+              "name": "nopurge"
+            }
+          ]
+        },
+        {
+          "description": "indicates that we don't intend to use the table to perform updates on it, but that we only plan on using the table to retrieve data from a remote peer which we are interested in. Indeed, the use of this keyword enables the retrieval of local-only values such as \"conn_cur\" that are not learned by default as they would conflict with local updates performed on the table by the local peer. Use of this option is only relevant for tables that are not involved in tracking rules or methods that perform update operations on the table, or put simpler: remote tables that are only used to retrieve information.",
+          "parameter": "recv-only",
+          "values": [
+            {
+              "description": "indicates that we don't intend to use the table to perform updates on it, but that we only plan on using the table to retrieve data from a remote peer which we are interested in. Indeed, the use of this keyword enables the retrieval of local-only values such as \"conn_cur\" that are not learned by default as they would conflict with local updates performed on the table by the local peer. Use of this option is only relevant for tables that are not involved in tracking rules or methods that perform update operations on the table, or put simpler: remote tables that are only used to retrieve information.",
+              "name": "recv-only"
+            }
+          ]
+        },
+        {
+          "description": "Entries that are created, updated or refreshed will be sent to the peers in section <peersect> for synchronization, and keys learned from peers in this section will also be inserted or updated in the table. Additionally, on startup, an attempt may be done to learn entries from an older instance of the process, designated as the \"local peer\" via this section.",
+          "parameter": "peers <peersect>",
+          "values": [
+            {
+              "description": "Entries that are created, updated or refreshed will be sent to the peers in section <peersect> for synchronization, and keys learned from peers in this section will also be inserted or updated in the table. Additionally, on startup, an attempt may be done to learn entries from an older instance of the process, designated as the \"local peer\" via this section.",
+              "name": "peers"
+            }
+          ]
+        },
+        {
+          "description": "Specifies how each server is identified for the purposes of the stick table. The valid values are \"name\" and \"addr\". If \"name\" is given, then <name> argument for the server (may be generated by a template). If \"addr\" is given, then the server is identified by its current network address, including the port. \"addr\" is especially useful if you are using service discovery to generate the addresses for servers with peered stick-tables and want to consistently use the same host across peers for a stickiness token.",
+          "parameter": "srvkey <srvkey>",
+          "values": [
+            {
+              "description": "Specifies how each server is identified for the purposes of the stick table. The valid values are \"name\" and \"addr\". If \"name\" is given, then <name> argument for the server (may be generated by a template). If \"addr\" is given, then the server is identified by its current network address, including the port. \"addr\" is especially useful if you are using service discovery to generate the addresses for servers with peered stick-tables and want to consistently use the same host across peers for a stickiness token.",
+              "name": "srvkey"
+            }
+          ]
+        },
+        {
+          "description": "This is used to store additional information in the stick-table. This may be used by ACLs in order to control various criteria related to the activity of the client matching the stick-table. For each item specified here, the size of each entry will be inflated so that the additional data can fit. Several data types may be stored with an entry. Multiple data types may be specified after the \"store\" keyword, as a comma-separated list. Alternatively, it is possible to repeat the \"store\" keyword followed by one or several data types. Except for the \"server_id\" type which is automatically detected and enabled, all data types must be explicitly declared to be stored. If an ACL references a data type which is not stored, the ACL will simply not match. Some data types require an argument which must be passed just after the type between parenthesis. See below for the supported data types and their arguments.",
+          "parameter": "store <data_type>",
+          "values": [
+            {
+              "description": "This is used to store additional information in the stick-table. This may be used by ACLs in order to control various criteria related to the activity of the client matching the stick-table. For each item specified here, the size of each entry will be inflated so that the additional data can fit. Several data types may be stored with an entry. Multiple data types may be specified after the \"store\" keyword, as a comma-separated list. Alternatively, it is possible to repeat the \"store\" keyword followed by one or several data types. Except for the \"server_id\" type which is automatically detected and enabled, all data types must be explicitly declared to be stored. If an ACL references a data type which is not stored, the ACL will simply not match. Some data types require an argument which must be passed just after the type between parenthesis. See below for the supported data types and their arguments.",
+              "name": "store"
+            },
+            {
+              "description": "This is the client to server byte count. It is a positive 64-bit integer which counts the cumulative number of bytes received from clients which matched this entry. Headers are included in the count. This may be used to limit abuse of upload features on photo or video servers. Note that the values are measured when the data enter haproxy, thus the counts are not affected by compression.",
+              "name": "bytes_in_cnt"
+            },
+            {
+              "description": "This is a rate counter on bytes from the client to the server. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming bytes rate over that period, in bytes per period. It may be used to detect users which upload too much and too fast. Warning: with large uploads, it is possible that the amount of uploaded data will be counted once upon termination, thus causing spikes in the average transfer speed instead of having a smooth one. This may partially be smoothed with \"option contstats\" though this is not perfect.  Use of byte_in_cnt is recommended for better fairness.",
+              "name": "bytes_in_rate(<period>)"
+            },
+            {
+              "description": "This is the server to client byte count. It is a positive 64-bit integer which counts the cumulative number of bytes sent to clients which matched this entry. Headers are included in the count. This may be used to limit abuse of bots sucking the whole site. Note that the values are measured when the data enter haproxy, thus the counts are not affected by compression.",
+              "name": "bytes_out_cnt"
+            },
+            {
+              "description": "This is a rate counter on bytes from the server to the client. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average outgoing bytes rate over that period, in bytes per period. It may be used to detect users which download too much and too fast. Warning: with large transfers, it is possible that the amount of transferred data will be counted once upon termination, thus causing spikes in the average transfer speed instead of having a smooth one. This may partially be smoothed with \"option contstats\" though this is not perfect yet. Use of byte_out_cnt is recommended for better fairness.",
+              "name": "bytes_out_rate(<period>)"
+            },
+            {
+              "description": "This is the Connection Count. It is a positive 32-bit integer which counts the absolute number of connections received from clients which matched this entry. It does not mean the connections were accepted, just that they were received.",
+              "name": "conn_cnt"
+            },
+            {
+              "description": "This is the Current Connections count. It is a positive 32-bit integer which stores the concurrent connection count for the entry. It is incremented once an incoming connection matches the entry, and decremented once the connection leaves. That way it is possible to know at any time the exact number of concurrent connections for an entry. This type is not learned from other peers by default as it wouldn't represent anything given that it would ignore the local count. However, in combination with recv-only it can be used to learn the number of concurrent connections seen by peers.",
+              "name": "conn_cur"
+            },
+            {
+              "description": "This is a connection frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming connection rate over that period, in connections per period. The result is an integer which can be matched using ACLs. Whether connections are accepted or rejected has no effect on their measurement.",
+              "name": "conn_rate(<period>)"
+            },
+            {
+              "description": "This is the front glitches count. It is a positive 32-bit integer which counts the cumulative number of glitches reported on a front connection. Glitches correspond to either unusual or unexpected actions (protocol- wise) from the client that could indicate a badly defective client or possibly an attacker. As such, this counter can help in order to decide how to act with them in such case.",
+              "name": "glitch_cnt"
+            },
+            {
+              "description": "This is a frequency counter on glitches. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average front glitches rate over that period. It may be used to detect defective clients or potential attackers that perform uncommon or unexpected actions from a protocol point of view, provided that HAProxy flagged them them as such.",
+              "name": "glitch_rate(<period>)"
+            },
+            {
+              "description": "This is an array of <nb> General Purpose Counter elements. This is an array of positive 32-bit integers which may be used to count anything. Most of the time they will be used as a incremental counters on some entries, for instance to note that a limit is reached and trigger some actions. This array is limited to a maximum of 100 elements: gpc0 to gpc99, to ensure that the build of a peer update message can fit into the buffer. Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated. This data_type will exclude the usage of the legacy data_types 'gpc0' and 'gpc1' on the same table. Using the 'gpc' array data_type, all 'gpc0' and 'gpc1' related sample fetch functions and actions will apply to the two first elements of this array.",
+              "name": "gpc(<nb>)"
+            },
+            {
+              "description": "This is an array of increment rates of General Purpose Counters over a period. Those elements are positive 32-bit integers which may be used for anything. Just like <gpc>, the count events, but instead of keeping a cumulative number, they maintain the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL). This array is limited to a maximum of 100 elements: gpt(100) allowing the storage of gpc0 to gpc99, to ensure that the build of a peer update message can fit into the buffer.  The array cannot contain less than 1 element: use gpc(1) if you want to store only the counter gpc0.  Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated.  This data_type will exclude the usage of the legacy data_types 'gpc0_rate' and 'gpc1_rate' on the same table. Using the 'gpc_rate' array data_type, all 'gpc0' and 'gpc1' related fetches and actions will apply to the two first elements of this array.",
+              "name": "gpc_rate(<nb>,<period>)"
+            },
+            {
+              "description": "This is the first General Purpose Counter. It is a positive 32-bit integer integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+              "name": "gpc0"
+            },
+            {
+              "description": "This is the increment rate of the first General Purpose Counter over a period. It is a positive 32-bit integer integer which may be used for anything. Just like <gpc0>, it counts events, but instead of keeping a cumulative number, it maintains the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL).",
+              "name": "gpc0_rate(<period>)"
+            },
+            {
+              "description": "This is the second General Purpose Counter. It is a positive 32-bit integer integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+              "name": "gpc1"
+            },
+            {
+              "description": "This is the increment rate of the second General Purpose Counter over a period. It is a positive 32-bit integer integer which may be used for anything. Just like <gpc1>, it counts events, but instead of keeping a cumulative number, it maintains the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL).",
+              "name": "gpc1_rate(<period>)"
+            },
+            {
+              "description": "This is an array of <nb> General Purpose Tags elements. This is an array of positive 32-bit integers which may be used for anything. Most of the time they will be used to put a special tags on some entries, for instance to note that a specific behavior was detected and must be known for future matches. This array is limited to a maximum of 100 elements: gpt(100) allowing the storage of gpt0 to gpt99, to ensure that the build of a peer update message can fit into the buffer. The array cannot contain less than 1 element: use gpt(1) if you want to to store only the tag gpt0. Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated.  This data_type will exclude the usage of the legacy data_type 'gpt0' on the same table. Using the 'gpt' array data_type, all 'gpt0' related fetches and actions will apply to the first element of this array.",
+              "name": "gpt(<nb>)"
+            },
+            {
+              "description": "This is the first General Purpose Tag. It is a positive 32-bit integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+              "name": "gpt0"
+            },
+            {
+              "description": "This is the HTTP request Count. It is a positive 32-bit integer which counts the absolute number of HTTP requests received from clients which matched this entry. It does not matter whether they are valid requests or not. Note that this is different from sessions when keep-alive is used on the client side.",
+              "name": "http_req_cnt"
+            },
+            {
+              "description": "This is a request frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP request rate over that period, in requests per period. The result is an integer which can be matched using ACLs. It does not matter whether they are valid requests or not. Note that this is different from sessions when keep-alive is used on the client side.",
+              "name": "http_req_rate(<period>)"
+            },
+            {
+              "description": "This is the HTTP request Error Count. It is a positive 32-bit integer which counts the absolute number of HTTP requests errors induced by clients which matched this entry. Errors are counted on invalid and truncated requests, as well as on denied or tarpitted requests, and on failed authentications. If the server responds with 4xx, then the request is also counted as an error since it's an error triggered by the client (e.g. vulnerability scan).",
+              "name": "http_err_cnt"
+            },
+            {
+              "description": "This is an HTTP request frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP request error rate over that period, in requests per period (see http_err_cnt above for what is accounted as an error). The result is an integer which can be matched using ACLs.",
+              "name": "http_err_rate(<period>)"
+            },
+            {
+              "description": "This is the HTTP response Failure Count. It is a positive 32-bit integer which counts the absolute number of HTTP response failures induced by servers which matched this entry. Errors are counted on invalid and truncated responses, as well as any 5xx response other than 501 or 505. It aims at being used combined with path or URI to detect service failures.",
+              "name": "http_fail_cnt"
+            },
+            {
+              "description": "This is an HTTP response failure frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP response failure rate over that period, in requests per period (see http_fail_cnt above for what is accounted as a failure). The result is an integer which can be matched using ACLs.",
+              "name": "http_fail_rate(<period>)"
+            },
+            {
+              "description": "This is an integer which holds the numeric ID of the server a request was assigned to. It is used by the \"stick match\", \"stick store\", and \"stick on\" rules. It is automatically enabled when referenced. It is important to understand that stickiness based on learning information has some limitations, including the fact that all learned associations are lost upon restart unless peers are properly configured to transfer such information upon restart (recommended). In general it can be good as a complement to other stickiness mechanisms but not always as the sole mechanism.",
+              "name": "server_id"
+            },
+            {
+              "description": "This is the Session Count. It is a positive 32-bit integer which counts the absolute number of sessions received from clients which matched this entry. A session is a connection that was accepted by the layer 4 rules (\"tcp-request connection\").",
+              "name": "sess_cnt"
+            },
+            {
+              "description": "This is a session frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming session rate over that period, in sessions per period. The result is an integer which can be matched using ACLs.",
+              "name": "sess_rate(<period>)"
+            }
+          ]
+        },
+        {
+          "description": "Specifies the name of another stick table where peers updates will be written to in addition to the source table. <wtable> must be of the same type as the table being defined and must have the same key length, and source table cannot be used as a target table itself. Every time an entry update will be received on the source table through a peer, HAProxy will try to refresh related <wtable> entry. If the entry doesn't exist yet, it will be created, else its values will be updated as well as its timer. Note that only types that are not involved in arithmetic ops such as server_id, server_key and gpt will be written to <wtable> to prevent processed values from a remote table from interfering with arithmetic operations performed on the local target table. (ie: prevent shared cumulative counter from growing indefinitely) One common use of this option is to be able to use sticking rules (for server persistence) in a peers cluster setup, because matching keys will be learned from remote tables.",
+          "parameter": "write-to <wtable>",
+          "values": [
+            {
+              "description": "Specifies the name of another stick table where peers updates will be written to in addition to the source table. <wtable> must be of the same type as the table being defined and must have the same key length, and source table cannot be used as a target table itself. Every time an entry update will be received on the source table through a peer, HAProxy will try to refresh related <wtable> entry. If the entry doesn't exist yet, it will be created, else its values will be updated as well as its timer. Note that only types that are not involved in arithmetic ops such as server_id, server_key and gpt will be written to <wtable> to prevent processed values from a remote table from interfering with arithmetic operations performed on the local target table. (ie: prevent shared cumulative counter from growing indefinitely) One common use of this option is to be able to use sticking rules (for server persistence) in a peers cluster setup, because matching keys will be learned from remote tables.",
+              "name": "write-to"
+            }
+          ]
+        }
+      ],
       "contexts": [],
       "line_option_semantics": [],
       "name": "table",
@@ -45083,9 +45719,16 @@
             "min_args": 5,
             "slots": [
               {
-                "enum": [],
+                "enum": [
+                  "binary",
+                  "integer",
+                  "ip",
+                  "ipv4",
+                  "ipv6",
+                  "string"
+                ],
                 "optional": false,
-                "value_kind": "generic",
+                "value_kind": "enum",
                 "variadic": false
               },
               {
@@ -45179,7 +45822,232 @@
               }
             ]
           },
-          "arguments": [],
+          "arguments": [
+            {
+              "description": "This mandatory argument sets the key type to <type>, which usually is a single word but may also have its own arguments:",
+              "parameter": "<type>",
+              "values": [
+                {
+                  "description": "This type should be avoided in favor of a more explicit one such as \"ipv4\" or \"ipv6\". Prior to version 3.2 it was the only way to configure IPv4. In 3.2, \"ip\" is an alias for \"ipv4\", and \"ipv4\" is preferred. In a future version, \"ip\" will instead correspond to \"ipv6\". It is only meant to ease the transition from pre-3.2 to post-3.2.",
+                  "name": "ip"
+                },
+                {
+                  "description": "A table declared with this type will only store IPv4 addresses. This form is very compact (about 50 bytes per entry) and allows very fast entry lookup and stores with almost no overhead. This is mainly used to store client source IP addresses.",
+                  "name": "ipv4"
+                },
+                {
+                  "description": "A table declared with \"type ipv6\" will only store IPv6 addresses. This form is very compact (about 60 bytes per entry) and allows very fast entry lookup and stores with almost no overhead. This is mainly used to store client source IP addresses.",
+                  "name": "ipv6"
+                },
+                {
+                  "description": "A table declared with \"type integer\" will store 32bit integers which can represent a client identifier found in a request for instance.",
+                  "name": "integer"
+                },
+                {
+                  "description": "A table declared with \"type string\" will store substrings of up to <len> characters. If the string provided by the pattern extractor is larger than <len>, it will be truncated before being stored. During matching, at most <len> characters will be compared between the string in the table and the extracted pattern. When not specified, the string is automatically limited to 32 characters. Increasing the length can have a non-negligible memory usage impact.",
+                  "name": "string"
+                },
+                {
+                  "description": "A table declared with \"type binary\" will store binary blocks of <len> bytes. If the block provided by the pattern extractor is larger than <len>, it will be truncated before being stored. If the block provided by the sample expression is shorter than <len>, it will be padded by 0. When not specified, the block is automatically limited to 32 bytes. Increasing the length can have a non-negligible memory usage impact.",
+                  "name": "binary"
+                }
+              ]
+            },
+            {
+              "description": "This mandatory argument sets maximum number of entries that can fit in the table to <size>. This value directly impacts memory usage. Count approximately 50 bytes per entry in addition to the key size above, and optionally stored metrics, plus the size of a string if any. The size supports suffixes \"k\", \"m\", \"g\" for 2^10, 2^20 and 2^30 factors.",
+              "parameter": "size <size>",
+              "values": [
+                {
+                  "description": "This mandatory argument sets maximum number of entries that can fit in the table to <size>. This value directly impacts memory usage. Count approximately 50 bytes per entry in addition to the key size above, and optionally stored metrics, plus the size of a string if any. The size supports suffixes \"k\", \"m\", \"g\" for 2^10, 2^20 and 2^30 factors.",
+                  "name": "size"
+                }
+              ]
+            },
+            {
+              "description": "Defines the maximum duration of an entry in the table since it was last created, refreshed using 'track-sc' or matched using 'stick match' or 'stick on' rule. The expiration delay <delay> is defined using the standard time format, similarly as the various timeouts, defaulting to milliseconds. The maximum duration is slightly above 24 days. See section 2.5 for more information. If this delay is not specified, sessions won't automatically expire, but oldest entries will be removed upon creation once full. Be sure not to use the \"nopurge\" parameter if not expiration delay is specified. Note: 'table_*' converters performs lookups but won't update touch expire since they don't require 'track-sc'.",
+              "parameter": "expire <delay>",
+              "values": [
+                {
+                  "description": "Defines the maximum duration of an entry in the table since it was last created, refreshed using 'track-sc' or matched using 'stick match' or 'stick on' rule. The expiration delay <delay> is defined using the standard time format, similarly as the various timeouts, defaulting to milliseconds. The maximum duration is slightly above 24 days. See section 2.5 for more information. If this delay is not specified, sessions won't automatically expire, but oldest entries will be removed upon creation once full. Be sure not to use the \"nopurge\" parameter if not expiration delay is specified. Note: 'table_*' converters performs lookups but won't update touch expire since they don't require 'track-sc'.",
+                  "name": "expire"
+                }
+              ]
+            },
+            {
+              "description": "Specifies a factor to be applied to in/out bytes rate. Instead of counting each bytes, blocks of bytes are counted. Internally, rates are defined on 32-bits counters, limiting them to about 4 billion per period. By using this parameter, it is possible to have rates exceeding this 4G limit over the defined period. The factor must be greater than 0 and lower than or equal to 1024.",
+              "parameter": "brates-factor <factor>",
+              "values": [
+                {
+                  "description": "Specifies a factor to be applied to in/out bytes rate. Instead of counting each bytes, blocks of bytes are counted. Internally, rates are defined on 32-bits counters, limiting them to about 4 billion per period. By using this parameter, it is possible to have rates exceeding this 4G limit over the defined period. The factor must be greater than 0 and lower than or equal to 1024.",
+                  "name": "brates-factor"
+                }
+              ]
+            },
+            {
+              "description": "indicates that we refuse to purge older entries when the table is full. When not specified and the table is full when HAProxy wants to store an entry in it, it will flush a few of the oldest entries in order to release some space for the new ones. This is most often the desired behavior. In some specific cases, it will be desirable to refuse new entries instead of purging the older ones. That may be the case when the amount of data to store is far above the hardware limits and we prefer not to offer access to new clients than to reject the ones already connected. When using this parameter, be sure to properly set the \"expire\" parameter (see above).",
+              "parameter": "nopurge",
+              "values": [
+                {
+                  "description": "indicates that we refuse to purge older entries when the table is full. When not specified and the table is full when HAProxy wants to store an entry in it, it will flush a few of the oldest entries in order to release some space for the new ones. This is most often the desired behavior. In some specific cases, it will be desirable to refuse new entries instead of purging the older ones. That may be the case when the amount of data to store is far above the hardware limits and we prefer not to offer access to new clients than to reject the ones already connected. When using this parameter, be sure to properly set the \"expire\" parameter (see above).",
+                  "name": "nopurge"
+                }
+              ]
+            },
+            {
+              "description": "indicates that we don't intend to use the table to perform updates on it, but that we only plan on using the table to retrieve data from a remote peer which we are interested in. Indeed, the use of this keyword enables the retrieval of local-only values such as \"conn_cur\" that are not learned by default as they would conflict with local updates performed on the table by the local peer. Use of this option is only relevant for tables that are not involved in tracking rules or methods that perform update operations on the table, or put simpler: remote tables that are only used to retrieve information.",
+              "parameter": "recv-only",
+              "values": [
+                {
+                  "description": "indicates that we don't intend to use the table to perform updates on it, but that we only plan on using the table to retrieve data from a remote peer which we are interested in. Indeed, the use of this keyword enables the retrieval of local-only values such as \"conn_cur\" that are not learned by default as they would conflict with local updates performed on the table by the local peer. Use of this option is only relevant for tables that are not involved in tracking rules or methods that perform update operations on the table, or put simpler: remote tables that are only used to retrieve information.",
+                  "name": "recv-only"
+                }
+              ]
+            },
+            {
+              "description": "Entries that are created, updated or refreshed will be sent to the peers in section <peersect> for synchronization, and keys learned from peers in this section will also be inserted or updated in the table. Additionally, on startup, an attempt may be done to learn entries from an older instance of the process, designated as the \"local peer\" via this section.",
+              "parameter": "peers <peersect>",
+              "values": [
+                {
+                  "description": "Entries that are created, updated or refreshed will be sent to the peers in section <peersect> for synchronization, and keys learned from peers in this section will also be inserted or updated in the table. Additionally, on startup, an attempt may be done to learn entries from an older instance of the process, designated as the \"local peer\" via this section.",
+                  "name": "peers"
+                }
+              ]
+            },
+            {
+              "description": "Specifies how each server is identified for the purposes of the stick table. The valid values are \"name\" and \"addr\". If \"name\" is given, then <name> argument for the server (may be generated by a template). If \"addr\" is given, then the server is identified by its current network address, including the port. \"addr\" is especially useful if you are using service discovery to generate the addresses for servers with peered stick-tables and want to consistently use the same host across peers for a stickiness token.",
+              "parameter": "srvkey <srvkey>",
+              "values": [
+                {
+                  "description": "Specifies how each server is identified for the purposes of the stick table. The valid values are \"name\" and \"addr\". If \"name\" is given, then <name> argument for the server (may be generated by a template). If \"addr\" is given, then the server is identified by its current network address, including the port. \"addr\" is especially useful if you are using service discovery to generate the addresses for servers with peered stick-tables and want to consistently use the same host across peers for a stickiness token.",
+                  "name": "srvkey"
+                }
+              ]
+            },
+            {
+              "description": "This is used to store additional information in the stick-table. This may be used by ACLs in order to control various criteria related to the activity of the client matching the stick-table. For each item specified here, the size of each entry will be inflated so that the additional data can fit. Several data types may be stored with an entry. Multiple data types may be specified after the \"store\" keyword, as a comma-separated list. Alternatively, it is possible to repeat the \"store\" keyword followed by one or several data types. Except for the \"server_id\" type which is automatically detected and enabled, all data types must be explicitly declared to be stored. If an ACL references a data type which is not stored, the ACL will simply not match. Some data types require an argument which must be passed just after the type between parenthesis. See below for the supported data types and their arguments.",
+              "parameter": "store <data_type>",
+              "values": [
+                {
+                  "description": "This is used to store additional information in the stick-table. This may be used by ACLs in order to control various criteria related to the activity of the client matching the stick-table. For each item specified here, the size of each entry will be inflated so that the additional data can fit. Several data types may be stored with an entry. Multiple data types may be specified after the \"store\" keyword, as a comma-separated list. Alternatively, it is possible to repeat the \"store\" keyword followed by one or several data types. Except for the \"server_id\" type which is automatically detected and enabled, all data types must be explicitly declared to be stored. If an ACL references a data type which is not stored, the ACL will simply not match. Some data types require an argument which must be passed just after the type between parenthesis. See below for the supported data types and their arguments.",
+                  "name": "store"
+                },
+                {
+                  "description": "This is the client to server byte count. It is a positive 64-bit integer which counts the cumulative number of bytes received from clients which matched this entry. Headers are included in the count. This may be used to limit abuse of upload features on photo or video servers. Note that the values are measured when the data enter haproxy, thus the counts are not affected by compression.",
+                  "name": "bytes_in_cnt"
+                },
+                {
+                  "description": "This is a rate counter on bytes from the client to the server. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming bytes rate over that period, in bytes per period. It may be used to detect users which upload too much and too fast. Warning: with large uploads, it is possible that the amount of uploaded data will be counted once upon termination, thus causing spikes in the average transfer speed instead of having a smooth one. This may partially be smoothed with \"option contstats\" though this is not perfect.  Use of byte_in_cnt is recommended for better fairness.",
+                  "name": "bytes_in_rate(<period>)"
+                },
+                {
+                  "description": "This is the server to client byte count. It is a positive 64-bit integer which counts the cumulative number of bytes sent to clients which matched this entry. Headers are included in the count. This may be used to limit abuse of bots sucking the whole site. Note that the values are measured when the data enter haproxy, thus the counts are not affected by compression.",
+                  "name": "bytes_out_cnt"
+                },
+                {
+                  "description": "This is a rate counter on bytes from the server to the client. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average outgoing bytes rate over that period, in bytes per period. It may be used to detect users which download too much and too fast. Warning: with large transfers, it is possible that the amount of transferred data will be counted once upon termination, thus causing spikes in the average transfer speed instead of having a smooth one. This may partially be smoothed with \"option contstats\" though this is not perfect yet. Use of byte_out_cnt is recommended for better fairness.",
+                  "name": "bytes_out_rate(<period>)"
+                },
+                {
+                  "description": "This is the Connection Count. It is a positive 32-bit integer which counts the absolute number of connections received from clients which matched this entry. It does not mean the connections were accepted, just that they were received.",
+                  "name": "conn_cnt"
+                },
+                {
+                  "description": "This is the Current Connections count. It is a positive 32-bit integer which stores the concurrent connection count for the entry. It is incremented once an incoming connection matches the entry, and decremented once the connection leaves. That way it is possible to know at any time the exact number of concurrent connections for an entry. This type is not learned from other peers by default as it wouldn't represent anything given that it would ignore the local count. However, in combination with recv-only it can be used to learn the number of concurrent connections seen by peers.",
+                  "name": "conn_cur"
+                },
+                {
+                  "description": "This is a connection frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming connection rate over that period, in connections per period. The result is an integer which can be matched using ACLs. Whether connections are accepted or rejected has no effect on their measurement.",
+                  "name": "conn_rate(<period>)"
+                },
+                {
+                  "description": "This is the front glitches count. It is a positive 32-bit integer which counts the cumulative number of glitches reported on a front connection. Glitches correspond to either unusual or unexpected actions (protocol- wise) from the client that could indicate a badly defective client or possibly an attacker. As such, this counter can help in order to decide how to act with them in such case.",
+                  "name": "glitch_cnt"
+                },
+                {
+                  "description": "This is a frequency counter on glitches. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average front glitches rate over that period. It may be used to detect defective clients or potential attackers that perform uncommon or unexpected actions from a protocol point of view, provided that HAProxy flagged them them as such.",
+                  "name": "glitch_rate(<period>)"
+                },
+                {
+                  "description": "This is an array of <nb> General Purpose Counter elements. This is an array of positive 32-bit integers which may be used to count anything. Most of the time they will be used as a incremental counters on some entries, for instance to note that a limit is reached and trigger some actions. This array is limited to a maximum of 100 elements: gpc0 to gpc99, to ensure that the build of a peer update message can fit into the buffer. Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated. This data_type will exclude the usage of the legacy data_types 'gpc0' and 'gpc1' on the same table. Using the 'gpc' array data_type, all 'gpc0' and 'gpc1' related sample fetch functions and actions will apply to the two first elements of this array.",
+                  "name": "gpc(<nb>)"
+                },
+                {
+                  "description": "This is an array of increment rates of General Purpose Counters over a period. Those elements are positive 32-bit integers which may be used for anything. Just like <gpc>, the count events, but instead of keeping a cumulative number, they maintain the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL). This array is limited to a maximum of 100 elements: gpt(100) allowing the storage of gpc0 to gpc99, to ensure that the build of a peer update message can fit into the buffer.  The array cannot contain less than 1 element: use gpc(1) if you want to store only the counter gpc0.  Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated.  This data_type will exclude the usage of the legacy data_types 'gpc0_rate' and 'gpc1_rate' on the same table. Using the 'gpc_rate' array data_type, all 'gpc0' and 'gpc1' related fetches and actions will apply to the two first elements of this array.",
+                  "name": "gpc_rate(<nb>,<period>)"
+                },
+                {
+                  "description": "This is the first General Purpose Counter. It is a positive 32-bit integer integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+                  "name": "gpc0"
+                },
+                {
+                  "description": "This is the increment rate of the first General Purpose Counter over a period. It is a positive 32-bit integer integer which may be used for anything. Just like <gpc0>, it counts events, but instead of keeping a cumulative number, it maintains the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL).",
+                  "name": "gpc0_rate(<period>)"
+                },
+                {
+                  "description": "This is the second General Purpose Counter. It is a positive 32-bit integer integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+                  "name": "gpc1"
+                },
+                {
+                  "description": "This is the increment rate of the second General Purpose Counter over a period. It is a positive 32-bit integer integer which may be used for anything. Just like <gpc1>, it counts events, but instead of keeping a cumulative number, it maintains the rate at which the counter is incremented. Most of the time it will be used to measure the frequency of occurrence of certain events (e.g. requests to a specific URL).",
+                  "name": "gpc1_rate(<period>)"
+                },
+                {
+                  "description": "This is an array of <nb> General Purpose Tags elements. This is an array of positive 32-bit integers which may be used for anything. Most of the time they will be used to put a special tags on some entries, for instance to note that a specific behavior was detected and must be known for future matches. This array is limited to a maximum of 100 elements: gpt(100) allowing the storage of gpt0 to gpt99, to ensure that the build of a peer update message can fit into the buffer. The array cannot contain less than 1 element: use gpt(1) if you want to to store only the tag gpt0. Users should take in consideration that a large amount of counters will increase the data size and the traffic load using peers protocol since all data/counters are pushed each time any of them is updated.  This data_type will exclude the usage of the legacy data_type 'gpt0' on the same table. Using the 'gpt' array data_type, all 'gpt0' related fetches and actions will apply to the first element of this array.",
+                  "name": "gpt(<nb>)"
+                },
+                {
+                  "description": "This is the first General Purpose Tag. It is a positive 32-bit integer which may be used for anything. Most of the time it will be used to put a special tag on some entries, for instance to note that a specific behavior was detected and must be known for future matches.",
+                  "name": "gpt0"
+                },
+                {
+                  "description": "This is the HTTP request Count. It is a positive 32-bit integer which counts the absolute number of HTTP requests received from clients which matched this entry. It does not matter whether they are valid requests or not. Note that this is different from sessions when keep-alive is used on the client side.",
+                  "name": "http_req_cnt"
+                },
+                {
+                  "description": "This is a request frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP request rate over that period, in requests per period. The result is an integer which can be matched using ACLs. It does not matter whether they are valid requests or not. Note that this is different from sessions when keep-alive is used on the client side.",
+                  "name": "http_req_rate(<period>)"
+                },
+                {
+                  "description": "This is the HTTP request Error Count. It is a positive 32-bit integer which counts the absolute number of HTTP requests errors induced by clients which matched this entry. Errors are counted on invalid and truncated requests, as well as on denied or tarpitted requests, and on failed authentications. If the server responds with 4xx, then the request is also counted as an error since it's an error triggered by the client (e.g. vulnerability scan).",
+                  "name": "http_err_cnt"
+                },
+                {
+                  "description": "This is an HTTP request frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP request error rate over that period, in requests per period (see http_err_cnt above for what is accounted as an error). The result is an integer which can be matched using ACLs.",
+                  "name": "http_err_rate(<period>)"
+                },
+                {
+                  "description": "This is the HTTP response Failure Count. It is a positive 32-bit integer which counts the absolute number of HTTP response failures induced by servers which matched this entry. Errors are counted on invalid and truncated responses, as well as any 5xx response other than 501 or 505. It aims at being used combined with path or URI to detect service failures.",
+                  "name": "http_fail_cnt"
+                },
+                {
+                  "description": "This is an HTTP response failure frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average HTTP response failure rate over that period, in requests per period (see http_fail_cnt above for what is accounted as a failure). The result is an integer which can be matched using ACLs.",
+                  "name": "http_fail_rate(<period>)"
+                },
+                {
+                  "description": "This is an integer which holds the numeric ID of the server a request was assigned to. It is used by the \"stick match\", \"stick store\", and \"stick on\" rules. It is automatically enabled when referenced. It is important to understand that stickiness based on learning information has some limitations, including the fact that all learned associations are lost upon restart unless peers are properly configured to transfer such information upon restart (recommended). In general it can be good as a complement to other stickiness mechanisms but not always as the sole mechanism.",
+                  "name": "server_id"
+                },
+                {
+                  "description": "This is the Session Count. It is a positive 32-bit integer which counts the absolute number of sessions received from clients which matched this entry. A session is a connection that was accepted by the layer 4 rules (\"tcp-request connection\").",
+                  "name": "sess_cnt"
+                },
+                {
+                  "description": "This is a session frequency counter. It takes an integer parameter <period> which indicates in milliseconds the length of the period over which the average is measured. It reports the average incoming session rate over that period, in sessions per period. The result is an integer which can be matched using ACLs.",
+                  "name": "sess_rate(<period>)"
+                }
+              ]
+            },
+            {
+              "description": "Specifies the name of another stick table where peers updates will be written to in addition to the source table. <wtable> must be of the same type as the table being defined and must have the same key length, and source table cannot be used as a target table itself. Every time an entry update will be received on the source table through a peer, HAProxy will try to refresh related <wtable> entry. If the entry doesn't exist yet, it will be created, else its values will be updated as well as its timer. Note that only types that are not involved in arithmetic ops such as server_id, server_key and gpt will be written to <wtable> to prevent processed values from a remote table from interfering with arithmetic operations performed on the local target table. (ie: prevent shared cumulative counter from growing indefinitely) One common use of this option is to be able to use sticking rules (for server persistence) in a peers cluster setup, because matching keys will be learned from remote tables.",
+              "parameter": "write-to <wtable>",
+              "values": [
+                {
+                  "description": "Specifies the name of another stick table where peers updates will be written to in addition to the source table. <wtable> must be of the same type as the table being defined and must have the same key length, and source table cannot be used as a target table itself. Every time an entry update will be received on the source table through a peer, HAProxy will try to refresh related <wtable> entry. If the entry doesn't exist yet, it will be created, else its values will be updated as well as its timer. Note that only types that are not involved in arithmetic ops such as server_id, server_key and gpt will be written to <wtable> to prevent processed values from a remote table from interfering with arithmetic operations performed on the local target table. (ie: prevent shared cumulative counter from growing indefinitely) One common use of this option is to be able to use sticking rules (for server persistence) in a peers cluster setup, because matching keys will be learned from remote tables.",
+                  "name": "write-to"
+                }
+              ]
+            }
+          ],
           "chapter": "11.2",
           "contexts": [],
           "sections": [
@@ -45313,7 +46181,6 @@
         "slots": [
           {
             "enum": [
-              "comment",
               "default"
             ],
             "optional": true,
@@ -45322,7 +46189,6 @@
           },
           {
             "enum": [
-              "default",
               "port"
             ],
             "optional": true,
@@ -45351,7 +46217,14 @@
           },
           {
             "enum": [
-              "send-proxy",
+              "send-proxy"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [
               "via-socks4"
             ],
             "optional": true,
@@ -45360,16 +46233,6 @@
           },
           {
             "enum": [
-              "ssl",
-              "via-socks4"
-            ],
-            "optional": true,
-            "value_kind": "enum",
-            "variadic": false
-          },
-          {
-            "enum": [
-              "sni",
               "ssl"
             ],
             "optional": true,
@@ -45378,7 +46241,6 @@
           },
           {
             "enum": [
-              "alpn",
               "sni"
             ],
             "optional": true,
@@ -45713,7 +46575,6 @@
             "slots": [
               {
                 "enum": [
-                  "comment",
                   "default"
                 ],
                 "optional": true,
@@ -45722,7 +46583,6 @@
               },
               {
                 "enum": [
-                  "default",
                   "port"
                 ],
                 "optional": true,
@@ -45751,7 +46611,14 @@
               },
               {
                 "enum": [
-                  "send-proxy",
+                  "send-proxy"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [
                   "via-socks4"
                 ],
                 "optional": true,
@@ -45760,16 +46627,6 @@
               },
               {
                 "enum": [
-                  "ssl",
-                  "via-socks4"
-                ],
-                "optional": true,
-                "value_kind": "enum",
-                "variadic": false
-              },
-              {
-                "enum": [
-                  "sni",
                   "ssl"
                 ],
                 "optional": true,
@@ -45778,7 +46635,6 @@
               },
               {
                 "enum": [
-                  "alpn",
                   "sni"
                 ],
                 "optional": true,
@@ -45969,7 +46825,6 @@
         "slots": [
           {
             "enum": [
-              "comment",
               "min-recv"
             ],
             "optional": true,
@@ -45984,7 +46839,20 @@
           },
           {
             "enum": [
-              "comment",
+              "comment"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "generic",
+            "variadic": false
+          },
+          {
+            "enum": [
               "ok-status"
             ],
             "optional": true,
@@ -45999,23 +46867,7 @@
           },
           {
             "enum": [
-              "ok-status",
-              "tout-status"
-            ],
-            "optional": true,
-            "value_kind": "enum",
-            "variadic": false
-          },
-          {
-            "enum": [],
-            "optional": true,
-            "value_kind": "generic",
-            "variadic": false
-          },
-          {
-            "enum": [
-              "error-status",
-              "on-error"
+              "error-status"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -46363,7 +47215,6 @@
             "slots": [
               {
                 "enum": [
-                  "comment",
                   "min-recv"
                 ],
                 "optional": true,
@@ -46378,7 +47229,20 @@
               },
               {
                 "enum": [
-                  "comment",
+                  "comment"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "generic",
+                "variadic": false
+              },
+              {
+                "enum": [
                   "ok-status"
                 ],
                 "optional": true,
@@ -46393,23 +47257,7 @@
               },
               {
                 "enum": [
-                  "ok-status",
-                  "tout-status"
-                ],
-                "optional": true,
-                "value_kind": "enum",
-                "variadic": false
-              },
-              {
-                "enum": [],
-                "optional": true,
-                "value_kind": "generic",
-                "variadic": false
-              },
-              {
-                "enum": [
-                  "error-status",
-                  "on-error"
+                  "error-status"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -57619,6 +58467,58 @@
         }
       ]
     },
+    "tune.ssl.keyupdate-rate-limit": {
+      "argument_model": {
+        "max_args": 1,
+        "min_args": 1,
+        "slots": [
+          {
+            "enum": [],
+            "optional": false,
+            "value_kind": "generic",
+            "variadic": false
+          }
+        ]
+      },
+      "arguments": [],
+      "contexts": [],
+      "line_option_semantics": [],
+      "name": "tune.ssl.keyupdate-rate-limit",
+      "sections": [
+        "global"
+      ],
+      "signatures": [
+        "tune.ssl.keyupdate-rate-limit <limit>"
+      ],
+      "sources": [
+        "doc"
+      ],
+      "variants": [
+        {
+          "argument_model": {
+            "max_args": 1,
+            "min_args": 1,
+            "slots": [
+              {
+                "enum": [],
+                "optional": false,
+                "value_kind": "generic",
+                "variadic": false
+              }
+            ]
+          },
+          "arguments": [],
+          "chapter": "3.2",
+          "contexts": [],
+          "sections": [
+            "global"
+          ],
+          "signatures": [
+            "tune.ssl.keyupdate-rate-limit <limit>"
+          ]
+        }
+      ]
+    },
     "tune.ssl.lifetime": {
       "argument_model": {
         "max_args": 1,
@@ -61213,7 +62113,7 @@
       "chapter": "7.3.1",
       "contexts": [],
       "deprecated": false,
-      "description": "Extracts some bytes from an input binary sample. The result is a binary sample starting at an offset (in bytes) of the original sample and optionally truncated at the given length. <offset> and <length> can be numeric values or variable names. The converter returns an empty sample if either <offset> or <length> is invalid. Invalid <offset> means a negative value or a value >= length of the input sample. Invalid <length> means a negative value or, in some cases, a value bigger than the length of the input sample.",
+      "description": "Extracts some bytes from an input binary sample. The result is a binary sample starting at an offset (in bytes) of the original sample and optionally truncated at the given length. <offset> and <length> can be numeric values or variable names. The converter returns an empty sample if either <offset> or <length> is invalid. Invalid <offset> means a negative value or a value >= length of the input sample. Invalid <length> means a negative value.",
       "in_type": "bin",
       "max_args": 2,
       "min_args": null,
@@ -71377,7 +72277,7 @@
         false
       ],
       "deprecated": false,
-      "description": "Returns a string containing the values of the Application-Layer Protocol Negotiation (ALPN) TLS extension (RFC7301), sent by the client within the SSL ClientHello message. Note that this only applies to raw contents found in the request buffer and not to the contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is useful in ACL to make a routing decision based upon the ALPN preferences of a TLS client, like in the example below. See also \"ssl_fc_alpn\".",
+      "description": "Returns a string containing the values of the Application-Layer Protocol Negotiation (ALPN) TLS extension (RFC7301), sent by the client within the SSL ClientHello message. Note that this only applies to raw contents found in the request buffer and not to the contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is useful in ACL to make a routing decision based upon the ALPN preferences of a TLS client, like in the example below. See also \"ssl_fc_alpn\". This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -71449,7 +72349,7 @@
         false
       ],
       "deprecated": false,
-      "description": "Returns a boolean identifying if client sent the Supported Elliptic Curves Extension as defined in RFC4492, section 5.1. within the SSL ClientHello message. This can be used to present ECC compatible clients with EC certificate and to use RSA for all others, on the same IP address. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option.",
+      "description": "Returns a boolean identifying if client sent the Supported Elliptic Curves Extension as defined in RFC4492, section 5.1. within the SSL ClientHello message. This can be used to present ECC compatible clients with EC certificate and to use RSA for all others, on the same IP address. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -71485,7 +72385,7 @@
         false
       ],
       "deprecated": false,
-      "description": "Returns an integer value containing the type of the SSL hello message found in the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is mostly used in ACL to detect presence of an SSL hello message that is supposed to contain an SSL session ID usable for stickiness.",
+      "description": "Returns an integer value containing the type of the SSL hello message found in the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is mostly used in ACL to detect presence of an SSL hello message that is supposed to contain an SSL session ID usable for stickiness. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -71593,7 +72493,7 @@
         false
       ],
       "deprecated": false,
-      "description": "Returns a string containing the value of the Server Name TLS extension sent by a client in a TLS stream passing through the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This will only work for actual implicit TLS based protocols like HTTPS (443), IMAPS (993), SMTPS (465), however it will not work for explicit TLS based protocols, like SMTP (25/587) or IMAP (143). SNI normally contains the name of the host the client tries to connect to (for recent browsers). SNI is useful for allowing or denying access to certain hosts when SSL/TLS is used by the client. This test was designed to be used with TCP request content inspection. If content switching is needed, it is recommended to first wait for a complete client hello (type 1), like in the example below. See also \"ssl_fc_sni\".",
+      "description": "Returns a string containing the value of the Server Name TLS extension sent by a client in a TLS stream passing through the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This will only work for actual implicit TLS based protocols like HTTPS (443), IMAPS (993), SMTPS (465), however it will not work for explicit TLS based protocols, like SMTP (25/587) or IMAP (143). SNI normally contains the name of the host the client tries to connect to (for recent browsers). This test was designed to be used with TCP request content inspection. If content switching is needed, it is recommended to first wait for a complete client hello (type 1), like in the example below. See also \"ssl_fc_sni\". Beware that, for the reasons detailed below (HelloRetryRequest, Renegotiation, Encrypted Client Hello), the value returned by this fetch is not reliable enough to be used alone for allowing or denying access to certain hosts.\n\nThis fetch only parses the first ClientHello message found in the request buffer. If the client sends several ClientHello messages within the same TCP stream, for instance because the server requested a HelloRetryRequest (HRR) as part of TLS 1.3, or because the client initiates a TLS renegotiation (which sends a new ClientHello later in the same TCP stream, possibly carrying a different SNI), only the SNI carried by that very first ClientHello will be returned, the content of any subsequent ClientHello will be ignored.\n\nWhen Encrypted Client Hello (ECH) is used, the ClientHello seen on the wire is only the \"Outer\" ClientHello, which embeds the real, encrypted \"Inner\" ClientHello. The SNI extracted by this fetch in that case is the one from the Outer ClientHello, which is a decoy SNI and not the actual host the client intends to reach. This fetch is currently not able to decrypt nor analyze the Inner ClientHello, so it must not be relied upon to make routing or access control decisions when ECH is in use.",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -71629,7 +72529,7 @@
         false
       ],
       "deprecated": false,
-      "description": "Returns 0 if the client didn't send a SessionTicket TLS Extension (RFC5077) Returns 1 if the client sent SessionTicket TLS Extension Returns 2 if the client also sent non-zero length TLS SessionTicket Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This can for example be used to detect whether the client sent a SessionTicket or not and stick it accordingly, if no SessionTicket then stick on SessionID or don't stick as there's no server side state is there when SessionTickets are in use.",
+      "description": "Returns 0 if the client didn't send a SessionTicket TLS Extension (RFC5077) Returns 1 if the client sent SessionTicket TLS Extension Returns 2 if the client also sent non-zero length TLS SessionTicket Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This can for example be used to detect whether the client sent a SessionTicket or not and stick it accordingly, if no SessionTicket then stick on SessionID or don't stick as there's no server side state is there when SessionTickets are in use. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -71701,7 +72601,7 @@
         false
       ],
       "deprecated": false,
-      "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL.",
+      "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -71989,7 +72889,7 @@
         false
       ],
       "deprecated": true,
-      "description": "Returns an integer value containing the type of the SSL hello message found in the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is mostly used in ACL to detect presence of an SSL hello message that is supposed to contain an SSL session ID usable for stickiness.",
+      "description": "Returns an integer value containing the type of the SSL hello message found in the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is mostly used in ACL to detect presence of an SSL hello message that is supposed to contain an SSL session ID usable for stickiness. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -72025,7 +72925,7 @@
         false
       ],
       "deprecated": true,
-      "description": "Returns a string containing the value of the Server Name TLS extension sent by a client in a TLS stream passing through the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This will only work for actual implicit TLS based protocols like HTTPS (443), IMAPS (993), SMTPS (465), however it will not work for explicit TLS based protocols, like SMTP (25/587) or IMAP (143). SNI normally contains the name of the host the client tries to connect to (for recent browsers). SNI is useful for allowing or denying access to certain hosts when SSL/TLS is used by the client. This test was designed to be used with TCP request content inspection. If content switching is needed, it is recommended to first wait for a complete client hello (type 1), like in the example below. See also \"ssl_fc_sni\".",
+      "description": "Returns a string containing the value of the Server Name TLS extension sent by a client in a TLS stream passing through the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This will only work for actual implicit TLS based protocols like HTTPS (443), IMAPS (993), SMTPS (465), however it will not work for explicit TLS based protocols, like SMTP (25/587) or IMAP (143). SNI normally contains the name of the host the client tries to connect to (for recent browsers). This test was designed to be used with TCP request content inspection. If content switching is needed, it is recommended to first wait for a complete client hello (type 1), like in the example below. See also \"ssl_fc_sni\". Beware that, for the reasons detailed below (HelloRetryRequest, Renegotiation, Encrypted Client Hello), the value returned by this fetch is not reliable enough to be used alone for allowing or denying access to certain hosts.\n\nThis fetch only parses the first ClientHello message found in the request buffer. If the client sends several ClientHello messages within the same TCP stream, for instance because the server requested a HelloRetryRequest (HRR) as part of TLS 1.3, or because the client initiates a TLS renegotiation (which sends a new ClientHello later in the same TCP stream, possibly carrying a different SNI), only the SNI carried by that very first ClientHello will be returned, the content of any subsequent ClientHello will be ignored.\n\nWhen Encrypted Client Hello (ECH) is used, the ClientHello seen on the wire is only the \"Outer\" ClientHello, which embeds the real, encrypted \"Inner\" ClientHello. The SNI extracted by this fetch in that case is the one from the Outer ClientHello, which is a decoy SNI and not the actual host the client intends to reach. This fetch is currently not able to decrypt nor analyze the Inner ClientHello, so it must not be relied upon to make routing or access control decisions when ECH is in use.",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -72061,7 +72961,7 @@
         false
       ],
       "deprecated": true,
-      "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL.",
+      "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -81119,7 +82019,7 @@
         false
       ],
       "deprecated": false,
-      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the client when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_c_i_dn(OU,2)\" the second organization unit, and \"ssl_c_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_c_i_dn(,0,rfc2253)",
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the client when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_c_i_dn(OU,2)\" the second organization unit, and \"ssl_c_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_c_i_dn(,0,rfc2253) If the requested entry's ASN.1 value (or, when no <entry> is specified, any entry in the DN) contains an embedded NUL byte followed by other data, it is considered malformed and no data is returned.",
       "in_type": "",
       "max_args": 3,
       "min_args": null,
@@ -81267,7 +82167,7 @@
         false
       ],
       "deprecated": false,
-      "description": "When the incoming connection was made over an SSL/TLS transport layer, and is successfully validated with the configured ca-file, returns the full distinguished name of the root CA of the certificate presented by the client when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_c_r_dn(OU,2)\" the second organization unit, and \"ssl_c_r_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_c_r_dn(,0,rfc2253)",
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, and is successfully validated with the configured ca-file, returns the full distinguished name of the root CA of the certificate presented by the client when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_c_r_dn(OU,2)\" the second organization unit, and \"ssl_c_r_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_c_r_dn(,0,rfc2253) If the requested entry's ASN.1 value (or, when no <entry> is specified, any entry in the DN) contains an embedded NUL byte followed by other data, it is considered malformed and no data is returned.",
       "in_type": "",
       "max_args": 3,
       "min_args": null,
@@ -81307,7 +82207,7 @@
         false
       ],
       "deprecated": false,
-      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the client when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_c_s_dn(OU,2)\" the second organization unit, and \"ssl_c_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_c_s_dn(,0,rfc2253)",
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the client when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_c_s_dn(OU,2)\" the second organization unit, and \"ssl_c_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_c_s_dn(,0,rfc2253) If the requested entry's ASN.1 value (or, when no <entry> is specified, any entry in the DN) contains an embedded NUL byte followed by other data, it is considered malformed and no data is returned.",
       "in_type": "",
       "max_args": 3,
       "min_args": null,
@@ -81635,7 +82535,7 @@
         false
       ],
       "deprecated": false,
-      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the frontend when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_f_i_dn(OU,2)\" the second organization unit, and \"ssl_f_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_f_i_dn(,0,rfc2253)",
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the frontend when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_f_i_dn(OU,2)\" the second organization unit, and \"ssl_f_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_f_i_dn(,0,rfc2253) If the requested entry's ASN.1 value (or, when no <entry> is specified, any entry in the DN) contains an embedded NUL byte followed by other data, it is considered malformed and no data is returned.",
       "in_type": "",
       "max_args": 3,
       "min_args": null,
@@ -81783,7 +82683,7 @@
         false
       ],
       "deprecated": false,
-      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the frontend when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_f_s_dn(OU,2)\" the second organization unit, and \"ssl_f_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_f_s_dn(,0,rfc2253)",
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the frontend when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_f_s_dn(OU,2)\" the second organization unit, and \"ssl_f_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_f_s_dn(,0,rfc2253) If the requested entry's ASN.1 value (or, when no <entry> is specified, any entry in the DN) contains an embedded NUL byte followed by other data, it is considered malformed and no data is returned.",
       "in_type": "",
       "max_args": 3,
       "min_args": null,
@@ -83457,7 +84357,7 @@
         false
       ],
       "deprecated": false,
-      "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the server when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_s_i_dn(OU,2)\" the second organization unit, and \"ssl_s_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_s_i_dn(,0,rfc2253)",
+      "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the server when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_s_i_dn(OU,2)\" the second organization unit, and \"ssl_s_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_s_i_dn(,0,rfc2253) If the requested entry's ASN.1 value (or, when no <entry> is specified, any entry in the DN) contains an embedded NUL byte followed by other data, it is considered malformed and no data is returned.",
       "in_type": "",
       "max_args": 3,
       "min_args": null,
@@ -83605,7 +84505,7 @@
         false
       ],
       "deprecated": false,
-      "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the server when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_s_s_dn(OU,2)\" the second organization unit, and \"ssl_s_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_s_s_dn(,0,rfc2253)",
+      "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the server when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_s_s_dn(OU,2)\" the second organization unit, and \"ssl_s_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_s_s_dn(,0,rfc2253) If the requested entry's ASN.1 value (or, when no <entry> is specified, any entry in the DN) contains an embedded NUL byte followed by other data, it is considered malformed and no data is returned.",
       "in_type": "",
       "max_args": 3,
       "min_args": null,
@@ -84831,6 +85731,7 @@
         "acl",
         "balance",
         "balance url_param",
+        "be-unpublished",
         "compression algo",
         "compression algo-req",
         "compression algo-res",
@@ -85791,6 +86692,7 @@
         "tune.ssl.force-private-cache",
         "tune.ssl.hard-maxrecord",
         "tune.ssl.keylog",
+        "tune.ssl.keyupdate-rate-limit",
         "tune.ssl.lifetime",
         "tune.ssl.maxrecord",
         "tune.ssl.ocsp-update.maxdelay",
@@ -85856,6 +86758,7 @@
         "backlog",
         "balance",
         "balance url_param",
+        "be-unpublished",
         "bind",
         "capture cookie",
         "capture request header",

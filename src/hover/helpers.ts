@@ -5,8 +5,12 @@ import { findIndexedGroupItem } from "../language/languageDataIndexes";
 export function findGroupItem(
   data: HaproxyLanguageData,
   name: string,
+  groupAllowed?: (groupName: string) => boolean,
 ): LanguageGroupItem | undefined {
   for (const groupName of Object.keys(data.groups)) {
+    if (groupAllowed && !groupAllowed(groupName)) {
+      continue;
+    }
     const hit = findIndexedGroupItem(data, groupName, name);
     if (hit) {
       return hit;

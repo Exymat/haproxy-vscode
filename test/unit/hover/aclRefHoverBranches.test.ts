@@ -40,6 +40,36 @@ describe("ACL reference hover branch behavior", () => {
     ).not.toBeNull();
   });
 
+  it("skips ACL match-method groups unless the previous token is -m", () => {
+    const aclSchema = structuredClone(bundle.schema);
+    aclSchema.semantic_groups = {
+      ...aclSchema.semantic_groups,
+      acl_ref_groups: ["acl_match_methods", "acl_int_operators"],
+    };
+    const aclDoc = createDocument("frontend web\n    acl paths path EQ /etc/paths");
+    const aclPosition = new vscode.Position(1, "    acl paths path ".length);
+    const aclSemantic = getLineSemanticContext(aclDoc, aclPosition, aclSchema, bundle.languageData);
+    if (!aclSemantic?.ctx.token) {
+      throw new Error("expected acl operator token");
+    }
+    const aclCtx = aclSemantic.ctx as DocumentContextWithToken;
+
+    expect(
+      tryAclRefHover({
+        document: aclDoc,
+        position: aclPosition,
+        data: bundle.languageData,
+        schema: aclSchema,
+        semantic: aclSemantic,
+        ctx: aclCtx,
+        range: new vscode.Range(1, aclCtx.token.start, 1, aclCtx.token.end),
+        cursorOffset: aclPosition.character - aclCtx.token.start,
+        tokenLower: aclCtx.token.text.toLowerCase(),
+        analyzed: aclSemantic.analyzed,
+      }),
+    ).not.toBeNull();
+  });
+
   it("uses exact-case ACL flag hovers without lowercase fallback", () => {
     const aclSchema = structuredClone(bundle.schema);
     aclSchema.semantic_groups = {

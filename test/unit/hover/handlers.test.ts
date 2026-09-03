@@ -402,17 +402,28 @@ describe("hover handlers", () => {
 
     it("covers directive hover argument fallback behavior", () => {
       const noArgDescHover = tryDirectiveHover(
-        optionHoverContext("http", {
+        optionHoverContext("http_auth", {
           kind: "directive-argument",
-          tokenIndex: 2,
-          token: { text: "http", start: 9, end: 13 },
+          tokenIndex: 1,
+          line: {
+            line: 1,
+            section: "defaults",
+            tokens: [
+              { text: "notakeyword", start: 4, end: 15 },
+              { text: "http_auth", start: 16, end: 25 },
+            ],
+            isSectionHeader: false,
+            anonymousDefaults: false,
+          },
+          token: { text: "http_auth", start: 16, end: 25 },
+          lineText: "    notakeyword http_auth",
         }),
       );
       expect(noArgDescHover).not.toBeNull();
       if (noArgDescHover === null) {
         throw new Error("expected hover");
       }
-      expect(hoverText(noArgDescHover)).toContain("HTTP");
+      expect(hoverText(noArgDescHover)).toContain("http_auth");
     });
   });
 });

@@ -4,6 +4,7 @@ import * as documentContext from "../../../src/parser/documentContext";
 import { provideHover } from "../../../src/hover";
 import { createDocument } from "../../helpers/document";
 import { bundles, hoverMarkdown, hoverText } from "./helpers";
+import { loadHapeeBundle } from "../../helpers/schema";
 
 describe("provideHover keyword docs", () => {
   afterEach(() => {
@@ -86,6 +87,38 @@ describe("provideHover keyword docs", () => {
         "3.4",
       ).toLowerCase(),
     ).toContain("found");
+    expect(
+      hoverMarkdown(
+        "frontend web\n    acl test src -m ip 10.0.0.0/8",
+        1,
+        "    acl test src -m ip".indexOf(" ip") + 1,
+        "3.4",
+      ),
+    ).toContain("-m ip");
+  });
+
+  it("documents stick-table key types instead of ACL -m ip", () => {
+    const stickTableIp = "backend app\n    stick-table type ip size 1m expire 60m";
+    const ipCol = "    stick-table type ip".indexOf(" ip") + 1;
+    const community = hoverMarkdown(stickTableIp, 1, ipCol, "3.0");
+    expect(community.toLowerCase()).toContain("ipv4");
+    expect(community).not.toContain("-m ip");
+    const modern = hoverMarkdown(stickTableIp, 1, ipCol, "3.4");
+    expect(modern.toLowerCase()).toContain("avoided");
+    expect(modern.toLowerCase()).toContain("ipv4");
+    expect(modern).not.toContain("-m ip");
+    const hapee = loadHapeeBundle("3.2");
+    const hapeeDoc = createDocument(stickTableIp);
+    const hapeeHover = provideHover(
+      hapeeDoc,
+      { line: 1, character: ipCol } as never,
+      hapee.languageData,
+      hapee.schema,
+    );
+    expect(hapeeHover).not.toBeNull();
+    const hapeeText = hoverText(hapeeHover!);
+    expect(hapeeText.toLowerCase()).toContain("ipv4");
+    expect(hapeeText).not.toContain("-m ip");
   });
 
   it("documents directives, arguments, and section-specific bind forms", () => {

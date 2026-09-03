@@ -671,7 +671,7 @@
     ],
     "acl_flags": [
       {
-        "description": "force end of flags. Useful when a string looks like one of the flags.",
+        "description": "force end of flags. Useful when a string looks like one of the flags. acl valid-ua hdr(user-agent) -f exact-ua.lst -i -f generic-ua.lst test",
         "docsUrl": "",
         "examples": [],
         "name": "--",
@@ -771,7 +771,7 @@
     ],
     "acl_match_methods": [
       {
-        "description": "prefix match : check that the contents begin like the provided",
+        "description": "prefix match : check that the contents begin like the provided string patterns. This may be used with binary or string samples.",
         "docsUrl": "",
         "examples": [],
         "name": "beg",
@@ -779,7 +779,7 @@
         "signature": "-m beg"
       },
       {
-        "description": "match the contents against a hexadecimal string representing a",
+        "description": "match the contents against a hexadecimal string representing a binary sequence. This may be used with binary or string samples.",
         "docsUrl": "",
         "examples": [],
         "name": "bin",
@@ -787,7 +787,7 @@
         "signature": "-m bin"
       },
       {
-        "description": "check the value as a boolean. It can only be applied to fetches",
+        "description": "check the value as a boolean. It can only be applied to fetches which return a boolean or integer value, and takes no pattern. Value zero or false does not match, all other values do match.",
         "docsUrl": "",
         "examples": [],
         "name": "bool",
@@ -795,7 +795,7 @@
         "signature": "-m bool"
       },
       {
-        "description": "subdir match : check that a slash-delimited portion of the",
+        "description": "subdir match : check that a slash-delimited portion of the contents exactly matches one of the provided string patterns. This may be used with binary or string samples.",
         "docsUrl": "",
         "examples": [],
         "name": "dir",
@@ -803,7 +803,7 @@
         "signature": "-m dir"
       },
       {
-        "description": "domain match : check that a dot-delimited portion of the contents",
+        "description": "domain match : check that a dot-delimited portion of the contents exactly match one of the provided string patterns. This may be used with binary or string samples. acl jsess_present req.cook(JSESSIONID) -m found acl script_tag req.payload(0,500) -m reg -i <script> acl script_tag req.payload(0,500),lower -m reg <script> acl short_form  hdr_beg(host)        www. acl alternate1  hdr_beg(host) -m beg www. acl alternate2  hdr_dom(host) -m beg www. acl alternate3  hdr(host)     -m beg www. +-------------------------------------------------+ |                Input sample type                | +----------------------+---------+---------+---------+---------+---------+ |     pattern type     | boolean | integer |   ip    | string  | binary  | +----------------------+---------+---------+---------+---------+---------+ | none (presence only) |  found  |  found  |  found  |  found  |  found  | +----------------------+---------+---------+---------+---------+---------+ | none (boolean value) |>  bool <|   bool  |         |   bool  |         | +----------------------+---------+---------+---------+---------+---------+ | integer (value)      |   int   |>  int  <|   int   |   int   |         | +----------------------+---------+---------+---------+---------+---------+ | integer (length)     |   len   |   len   |   len   |   len   |   len   | +----------------------+---------+---------+---------+---------+---------+ | IP address           |         |         |>   ip  <|    ip   |    ip   | +----------------------+---------+---------+---------+---------+---------+ | exact string         |   str   |   str   |   str   |>  str  <|   str   | +----------------------+---------+---------+---------+---------+---------+ | prefix               |   beg   |   beg   |   beg   |   beg   |   beg   | +----------------------+---------+---------+---------+---------+---------+ | suffix               |   end   |   end   |   end   |   end   |   end   | +----------------------+---------+---------+---------+---------+---------+ | substring            |   sub   |   sub   |   sub   |   sub   |   sub   | +----------------------+---------+---------+---------+---------+---------+ | subdir               |   dir   |   dir   |   dir   |   dir   |   dir   | +----------------------+---------+---------+---------+---------+---------+ | domain               |   dom   |   dom   |   dom   |   dom   |   dom   | +----------------------+---------+---------+---------+---------+---------+ | regex                |   reg   |   reg   |   reg   |   reg   |   reg   | +----------------------+---------+---------+---------+---------+---------+ | hex block            |         |         |         |   bin   |   bin   | +----------------------+---------+---------+---------+---------+---------+",
         "docsUrl": "",
         "examples": [],
         "name": "dom",
@@ -811,7 +811,7 @@
         "signature": "-m dom"
       },
       {
-        "description": "suffix match : check that the contents end like the provided",
+        "description": "suffix match : check that the contents end like the provided string patterns. This may be used with binary or string samples.",
         "docsUrl": "",
         "examples": [],
         "name": "end",
@@ -819,7 +819,7 @@
         "signature": "-m end"
       },
       {
-        "description": "only check if the requested sample could be found in the stream,",
+        "description": "only check if the requested sample could be found in the stream, but do not compare it against any pattern. It is recommended not to pass any pattern to avoid confusion. This matching method is particularly useful to detect presence of certain contents such as headers, cookies, etc... even if they are empty and without comparing them to anything nor counting them.",
         "docsUrl": "",
         "examples": [],
         "name": "found",
@@ -827,7 +827,7 @@
         "signature": "-m found"
       },
       {
-        "description": "match the value as an integer. It can be used with integer and",
+        "description": "match the value as an integer. It can be used with integer and boolean samples. Boolean false is integer 0, true is integer 1.",
         "docsUrl": "",
         "examples": [],
         "name": "int",
@@ -835,7 +835,7 @@
         "signature": "-m int"
       },
       {
-        "description": "match the value as an IPv4 or IPv6 address. It is compatible",
+        "description": "match the value as an IPv4 or IPv6 address. It is compatible with IP address samples only, so it is implied and never needed.",
         "docsUrl": "",
         "examples": [],
         "name": "ip",
@@ -843,7 +843,7 @@
         "signature": "-m ip"
       },
       {
-        "description": "match the sample's length as an integer. This may be used with",
+        "description": "match the sample's length as an integer. This may be used with binary or string samples.",
         "docsUrl": "",
         "examples": [],
         "name": "len",
@@ -851,7 +851,7 @@
         "signature": "-m len"
       },
       {
-        "description": "regex match : match the contents against a list of regular",
+        "description": "regex match : match the contents against a list of regular expressions. This may be used with binary or string samples.",
         "docsUrl": "",
         "examples": [],
         "name": "reg",
@@ -859,7 +859,7 @@
         "signature": "-m reg"
       },
       {
-        "description": "exact match : match the contents against a string. This may be",
+        "description": "exact match : match the contents against a string. This may be used with binary or string samples.",
         "docsUrl": "",
         "examples": [],
         "name": "str",
@@ -867,7 +867,7 @@
         "signature": "-m str"
       },
       {
-        "description": "substring match : check that the contents contain at least one of",
+        "description": "substring match : check that the contents contain at least one of the provided string patterns. This may be used with binary or string samples.",
         "docsUrl": "",
         "examples": [],
         "name": "sub",

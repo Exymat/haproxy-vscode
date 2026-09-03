@@ -11,6 +11,7 @@ import { findKeywordByPrefix } from "../../language/languageData";
 import { ResolvedLanguageKeyword, resolveLanguageKeyword } from "../../language/keywordVariant";
 import { LineSemanticContext } from "../../parser/lineSemanticContext";
 import { findGroupItem } from "../helpers";
+import { aclRefGroupApplies } from "./aclRefHover";
 import {
   addContextExtra,
   addSectionExtra,
@@ -101,7 +102,9 @@ function tryPrefixDirectiveHover(hc: HoverContext): vscode.Hover | null {
 
 function tryGroupItemHover(hc: HoverContext): vscode.Hover | null {
   const { ctx, data, range } = hc;
-  const group = findGroupItem(data, ctx.token.text);
+  const group = findGroupItem(data, ctx.token.text, (groupName) =>
+    aclRefGroupApplies(hc, groupName),
+  );
   if (!group) {
     return null;
   }

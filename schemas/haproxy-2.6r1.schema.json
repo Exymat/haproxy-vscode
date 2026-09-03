@@ -6300,11 +6300,9 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [
-              "algo"
-            ],
+            "enum": [],
             "optional": false,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -6394,11 +6392,9 @@
             "min_args": 0,
             "slots": [
               {
-                "enum": [
-                  "algo"
-                ],
+                "enum": [],
                 "optional": false,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": true
               }
             ]
@@ -6541,11 +6537,9 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [
-              "algo"
-            ],
+            "enum": [],
             "optional": false,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -6635,11 +6629,9 @@
             "min_args": 0,
             "slots": [
               {
-                "enum": [
-                  "algo"
-                ],
+                "enum": [],
                 "optional": false,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": true
               }
             ]
@@ -6772,8 +6764,7 @@
           },
           {
             "enum": [
-              "indirect",
-              "insert"
+              "indirect"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -6781,8 +6772,7 @@
           },
           {
             "enum": [
-              "nocache",
-              "prefix"
+              "nocache"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -6790,7 +6780,6 @@
           },
           {
             "enum": [
-              "indirect",
               "postonly"
             ],
             "optional": true,
@@ -6799,7 +6788,6 @@
           },
           {
             "enum": [
-              "nocache",
               "preserve"
             ],
             "optional": true,
@@ -6994,8 +6982,7 @@
               },
               {
                 "enum": [
-                  "indirect",
-                  "insert"
+                  "indirect"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -7003,8 +6990,7 @@
               },
               {
                 "enum": [
-                  "nocache",
-                  "prefix"
+                  "nocache"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -7012,7 +6998,6 @@
               },
               {
                 "enum": [
-                  "indirect",
                   "postonly"
                 ],
                 "optional": true,
@@ -7021,7 +7006,6 @@
               },
               {
                 "enum": [
-                  "nocache",
                   "preserve"
                 ],
                 "optional": true,
@@ -14496,17 +14480,9 @@
         "min_args": 1,
         "slots": [
           {
-            "enum": [
-              "iso",
-              "local",
-              "raw",
-              "rfc3164",
-              "rfc5424",
-              "short",
-              "timed"
-            ],
+            "enum": [],
             "optional": false,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -14566,17 +14542,9 @@
             "min_args": 1,
             "slots": [
               {
-                "enum": [
-                  "iso",
-                  "local",
-                  "raw",
-                  "rfc3164",
-                  "rfc5424",
-                  "short",
-                  "timed"
-                ],
+                "enum": [],
                 "optional": false,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": false
               }
             ]
@@ -15764,12 +15732,9 @@
         "min_args": 3,
         "slots": [
           {
-            "enum": [
-              "consistent",
-              "map-based"
-            ],
+            "enum": [],
             "optional": false,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": false
           },
           {
@@ -15834,12 +15799,9 @@
             "min_args": 3,
             "slots": [
               {
-                "enum": [
-                  "consistent",
-                  "map-based"
-                ],
+                "enum": [],
                 "optional": false,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": false
               },
               {
@@ -16761,7 +16723,6 @@
         "slots": [
           {
             "enum": [
-              "comment",
               "min-recv"
             ],
             "optional": true,
@@ -16776,7 +16737,20 @@
           },
           {
             "enum": [
-              "comment",
+              "comment"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "generic",
+            "variadic": false
+          },
+          {
+            "enum": [
               "ok-status"
             ],
             "optional": true,
@@ -16791,23 +16765,7 @@
           },
           {
             "enum": [
-              "ok-status",
-              "tout-status"
-            ],
-            "optional": true,
-            "value_kind": "enum",
-            "variadic": false
-          },
-          {
-            "enum": [],
-            "optional": true,
-            "value_kind": "generic",
-            "variadic": false
-          },
-          {
-            "enum": [
-              "error-status",
-              "on-error"
+              "error-status"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -17013,7 +16971,6 @@
             "slots": [
               {
                 "enum": [
-                  "comment",
                   "min-recv"
                 ],
                 "optional": true,
@@ -17028,7 +16985,20 @@
               },
               {
                 "enum": [
-                  "comment",
+                  "comment"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "generic",
+                "variadic": false
+              },
+              {
+                "enum": [
                   "ok-status"
                 ],
                 "optional": true,
@@ -17043,23 +17013,7 @@
               },
               {
                 "enum": [
-                  "ok-status",
-                  "tout-status"
-                ],
-                "optional": true,
-                "value_kind": "enum",
-                "variadic": false
-              },
-              {
-                "enum": [],
-                "optional": true,
-                "value_kind": "generic",
-                "variadic": false
-              },
-              {
-                "enum": [
-                  "error-status",
-                  "on-error"
+                  "error-status"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -17430,7 +17384,6 @@
         "slots": [
           {
             "enum": [
-              "comment",
               "meth"
             ],
             "optional": true,
@@ -17460,7 +17413,6 @@
           },
           {
             "enum": [
-              "ver",
               "}"
             ],
             "optional": true,
@@ -17469,7 +17421,6 @@
           },
           {
             "enum": [
-              "hdr",
               "ver"
             ],
             "optional": true,
@@ -17484,7 +17435,6 @@
           },
           {
             "enum": [
-              "body-lf",
               "hdr"
             ],
             "optional": true,
@@ -17640,7 +17590,6 @@
             "slots": [
               {
                 "enum": [
-                  "comment",
                   "meth"
                 ],
                 "optional": true,
@@ -17670,7 +17619,6 @@
               },
               {
                 "enum": [
-                  "ver",
                   "}"
                 ],
                 "optional": true,
@@ -17679,7 +17627,6 @@
               },
               {
                 "enum": [
-                  "hdr",
                   "ver"
                 ],
                 "optional": true,
@@ -17694,7 +17641,6 @@
               },
               {
                 "enum": [
-                  "body-lf",
                   "hdr"
                 ],
                 "optional": true,
@@ -18403,8 +18349,7 @@
           },
           {
             "enum": [
-              "default-errorfiles",
-              "errorfile"
+              "default-errorfiles"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -18412,7 +18357,6 @@
           },
           {
             "enum": [
-              "errorfiles",
               "hdr"
             ],
             "optional": true,
@@ -18420,19 +18364,15 @@
             "variadic": false
           },
           {
-            "enum": [
-              "file"
-            ],
+            "enum": [],
             "optional": true,
-            "value_kind": "enum",
+            "value_kind": "name",
             "variadic": false
           },
           {
-            "enum": [
-              "string"
-            ],
+            "enum": [],
             "optional": true,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": true
           }
         ]
@@ -18583,8 +18523,7 @@
               },
               {
                 "enum": [
-                  "default-errorfiles",
-                  "errorfile"
+                  "default-errorfiles"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -18592,7 +18531,6 @@
               },
               {
                 "enum": [
-                  "errorfiles",
                   "hdr"
                 ],
                 "optional": true,
@@ -18600,19 +18538,15 @@
                 "variadic": false
               },
               {
-                "enum": [
-                  "file"
-                ],
+                "enum": [],
                 "optional": true,
-                "value_kind": "enum",
+                "value_kind": "name",
                 "variadic": false
               },
               {
-                "enum": [
-                  "string"
-                ],
+                "enum": [],
                 "optional": true,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": true
               }
             ]
@@ -20633,15 +20567,7 @@
           },
           {
             "enum": [
-              "iso",
-              "local",
-              "priority",
-              "raw",
-              "rfc3164",
-              "rfc5424",
-              "sample",
-              "short",
-              "timed"
+              "sample"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -21646,15 +21572,7 @@
               },
               {
                 "enum": [
-                  "iso",
-                  "local",
-                  "priority",
-                  "raw",
-                  "rfc3164",
-                  "rfc5424",
-                  "sample",
-                  "short",
-                  "timed"
+                  "sample"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -37555,17 +37473,9 @@
         "min_args": 0,
         "slots": [
           {
-            "enum": [
-              "0rtt-rejected",
-              "all-retryable-errors",
-              "conn-failure",
-              "empty-response",
-              "junk-response",
-              "none",
-              "response-timeout"
-            ],
+            "enum": [],
             "optional": true,
-            "value_kind": "enum",
+            "value_kind": "generic",
             "variadic": false
           }
         ]
@@ -37632,17 +37542,9 @@
             "min_args": 0,
             "slots": [
               {
-                "enum": [
-                  "0rtt-rejected",
-                  "all-retryable-errors",
-                  "conn-failure",
-                  "empty-response",
-                  "junk-response",
-                  "none",
-                  "response-timeout"
-                ],
+                "enum": [],
                 "optional": true,
-                "value_kind": "enum",
+                "value_kind": "generic",
                 "variadic": false
               }
             ]
@@ -44774,7 +44676,6 @@
           },
           {
             "enum": [
-              "ipv6",
               "size"
             ],
             "optional": false,
@@ -44789,8 +44690,7 @@
           },
           {
             "enum": [
-              "expire",
-              "string"
+              "expire"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -44963,7 +44863,6 @@
               },
               {
                 "enum": [
-                  "ipv6",
                   "size"
                 ],
                 "optional": false,
@@ -44978,8 +44877,7 @@
               },
               {
                 "enum": [
-                  "expire",
-                  "string"
+                  "expire"
                 ],
                 "optional": true,
                 "value_kind": "enum",
@@ -46912,7 +46810,6 @@
         "slots": [
           {
             "enum": [
-              "comment",
               "default"
             ],
             "optional": true,
@@ -46921,7 +46818,6 @@
           },
           {
             "enum": [
-              "default",
               "port"
             ],
             "optional": true,
@@ -46950,7 +46846,14 @@
           },
           {
             "enum": [
-              "send-proxy",
+              "send-proxy"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [
               "via-socks4"
             ],
             "optional": true,
@@ -46959,16 +46862,6 @@
           },
           {
             "enum": [
-              "ssl",
-              "via-socks4"
-            ],
-            "optional": true,
-            "value_kind": "enum",
-            "variadic": false
-          },
-          {
-            "enum": [
-              "sni",
               "ssl"
             ],
             "optional": true,
@@ -46977,7 +46870,6 @@
           },
           {
             "enum": [
-              "alpn",
               "sni"
             ],
             "optional": true,
@@ -47168,7 +47060,6 @@
             "slots": [
               {
                 "enum": [
-                  "comment",
                   "default"
                 ],
                 "optional": true,
@@ -47177,7 +47068,6 @@
               },
               {
                 "enum": [
-                  "default",
                   "port"
                 ],
                 "optional": true,
@@ -47206,7 +47096,14 @@
               },
               {
                 "enum": [
-                  "send-proxy",
+                  "send-proxy"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [
                   "via-socks4"
                 ],
                 "optional": true,
@@ -47215,16 +47112,6 @@
               },
               {
                 "enum": [
-                  "ssl",
-                  "via-socks4"
-                ],
-                "optional": true,
-                "value_kind": "enum",
-                "variadic": false
-              },
-              {
-                "enum": [
-                  "sni",
                   "ssl"
                 ],
                 "optional": true,
@@ -47233,7 +47120,6 @@
               },
               {
                 "enum": [
-                  "alpn",
                   "sni"
                 ],
                 "optional": true,
@@ -47581,7 +47467,6 @@
         "slots": [
           {
             "enum": [
-              "comment",
               "min-recv"
             ],
             "optional": true,
@@ -47596,7 +47481,20 @@
           },
           {
             "enum": [
-              "comment",
+              "comment"
+            ],
+            "optional": true,
+            "value_kind": "enum",
+            "variadic": false
+          },
+          {
+            "enum": [],
+            "optional": true,
+            "value_kind": "generic",
+            "variadic": false
+          },
+          {
+            "enum": [
               "ok-status"
             ],
             "optional": true,
@@ -47611,23 +47509,7 @@
           },
           {
             "enum": [
-              "ok-status",
-              "tout-status"
-            ],
-            "optional": true,
-            "value_kind": "enum",
-            "variadic": false
-          },
-          {
-            "enum": [],
-            "optional": true,
-            "value_kind": "generic",
-            "variadic": false
-          },
-          {
-            "enum": [
-              "error-status",
-              "on-error"
+              "error-status"
             ],
             "optional": true,
             "value_kind": "enum",
@@ -47823,7 +47705,6 @@
             "slots": [
               {
                 "enum": [
-                  "comment",
                   "min-recv"
                 ],
                 "optional": true,
@@ -47838,7 +47719,20 @@
               },
               {
                 "enum": [
-                  "comment",
+                  "comment"
+                ],
+                "optional": true,
+                "value_kind": "enum",
+                "variadic": false
+              },
+              {
+                "enum": [],
+                "optional": true,
+                "value_kind": "generic",
+                "variadic": false
+              },
+              {
+                "enum": [
                   "ok-status"
                 ],
                 "optional": true,
@@ -47853,23 +47747,7 @@
               },
               {
                 "enum": [
-                  "ok-status",
-                  "tout-status"
-                ],
-                "optional": true,
-                "value_kind": "enum",
-                "variadic": false
-              },
-              {
-                "enum": [],
-                "optional": true,
-                "value_kind": "generic",
-                "variadic": false
-              },
-              {
-                "enum": [
-                  "error-status",
-                  "on-error"
+                  "error-status"
                 ],
                 "optional": true,
                 "value_kind": "enum",
