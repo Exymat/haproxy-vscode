@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.20.2
+
+- **ACL flag and match-method hovers** — hovering ACL flags (`-i`, `-f`, `-m`, and similar) and match methods after `-m` (`beg`, `dir`, `dom`, `ip`, `reg`, and similar) shows the matching schema docs instead of a generic keyword hover. Bundled schemas and language data for 2.6–3.4 (community and HAPEE) include clearer ACL flag and match-method descriptions.
+
 ## 0.20.1
 
 - **Faster edits on large configs** — parse, analysis, diagnostics, and symbol indexing share one per-document session instead of four separate caches. Scope lookup for a line no longer scans the whole file.

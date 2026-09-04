@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, rename, cross-file navigation, and workspace symbol graph — community LTS 2.6-3.4 and HAProxy Enterprise (HAPEE) 2.6r1-3.2r1.",
-  "version": "0.20.1",
+  "version": "0.20.2",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
