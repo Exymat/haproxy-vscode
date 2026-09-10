@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { bench, beforeEach, describe } from "vitest";
+import { beforeEach, describe, test } from "vitest";
 
 import { loadLanguageData, loadSchema, loadSchemaBundle } from "../helpers/schema";
 import { clearBenchSchemaCache, extensionRoot, loadSchemaFileWarm } from "./helpers";
@@ -13,40 +13,40 @@ describe("startup", () => {
     clearBenchSchemaCache();
   });
 
-  bench("loadSchema cold", () => {
-    loadSchema(version);
+  test("loadSchema cold", async ({ bench }) => {
+    await bench("loadSchema cold", () => {
+      loadSchema(version);
+    }).run();
   });
 
-  bench("loadLanguageData cold", () => {
-    loadLanguageData(version);
+  test("loadLanguageData cold", async ({ bench }) => {
+    await bench("loadLanguageData cold", () => {
+      loadLanguageData(version);
+    }).run();
   });
 
-  bench("loadSchemaBundle cold", () => {
-    loadSchemaBundle(version);
+  test("loadSchemaBundle cold", async ({ bench }) => {
+    await bench("loadSchemaBundle cold", () => {
+      loadSchemaBundle(version);
+    }).run();
   });
 
-  bench(
-    "loadSchema warm (cached parse)",
-    () => {
+  test("loadSchema warm (cached parse)", async ({ bench }) => {
+    await bench("loadSchema warm (cached parse)", () => {
       loadSchemaFileWarm(`schema-${version}`, schemaPath);
-    },
-    { warmupIterations: 5 },
-  );
+    }).run({ warmupIterations: 5 });
+  });
 
-  bench(
-    "loadLanguageData warm (cached parse)",
-    () => {
+  test("loadLanguageData warm (cached parse)", async ({ bench }) => {
+    await bench("loadLanguageData warm (cached parse)", () => {
       loadSchemaFileWarm(`language-${version}`, languagePath);
-    },
-    { warmupIterations: 5 },
-  );
+    }).run({ warmupIterations: 5 });
+  });
 
-  bench(
-    "loadSchemaBundle warm (cached parse)",
-    () => {
+  test("loadSchemaBundle warm (cached parse)", async ({ bench }) => {
+    await bench("loadSchemaBundle warm (cached parse)", () => {
       loadSchemaFileWarm(`schema-${version}`, schemaPath);
       loadSchemaFileWarm(`language-${version}`, languagePath);
-    },
-    { warmupIterations: 5 },
-  );
+    }).run({ warmupIterations: 5 });
+  });
 });

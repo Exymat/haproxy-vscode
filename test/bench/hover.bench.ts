@@ -1,4 +1,4 @@
-import { bench, describe } from "vitest";
+import { describe, test } from "vitest";
 
 import { getParsedDocument } from "../../src/parser/parseCache";
 import { provideHover } from "../../src/hover";
@@ -103,17 +103,17 @@ describe("hover", () => {
   }
 
   for (const testCase of hoverCases) {
-    bench(`hover cold: ${testCase.name}`, () => {
-      const doc = createDocument(testCase.content);
-      runHover(testCase, doc);
+    test(`hover cold: ${testCase.name}`, async ({ bench }) => {
+      await bench(`hover cold: ${testCase.name}`, () => {
+        const doc = createDocument(testCase.content);
+        runHover(testCase, doc);
+      }).run();
     });
 
-    bench(
-      `hover warm: ${testCase.name}`,
-      () => {
+    test(`hover warm: ${testCase.name}`, async ({ bench }) => {
+      await bench(`hover warm: ${testCase.name}`, () => {
         runHoverMany(testCase, warmDoc(testCase), warmHoverBatchSize);
-      },
-      { time: 1000, warmupIterations: 3 },
-    );
+      }).run({ time: 1000, warmupIterations: 3 });
+    });
   }
 });

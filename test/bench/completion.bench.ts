@@ -1,4 +1,4 @@
-import { bench, describe } from "vitest";
+import { describe, test } from "vitest";
 
 import { provideCompletionItems } from "../../src/completion";
 import { loadSchemaBundle } from "../helpers/schema";
@@ -58,9 +58,9 @@ const completionCases: CompletionCase[] = [
 describe("completion", () => {
   for (const testCase of completionCases) {
     const isLarge = testCase.content === largeContent;
-    bench(
-      `completion: ${testCase.name}`,
-      async () => {
+
+    test(`completion: ${testCase.name}`, async ({ bench }) => {
+      await bench(`completion: ${testCase.name}`, async () => {
         const doc = createDocument(testCase.content);
         await provideCompletionItems(
           doc,
@@ -68,14 +68,12 @@ describe("completion", () => {
           bundle.languageData,
           bundle.schema,
         );
-      },
-      isLarge ? { warmupIterations: 1 } : {},
-    );
+      }).run(isLarge ? { warmupIterations: 1 } : undefined);
+    });
   }
 
-  bench(
-    "completion warm: defaults directives",
-    async () => {
+  test("completion warm: defaults directives", async ({ bench }) => {
+    await bench("completion warm: defaults directives", async () => {
       const doc = createDocument("defaults\n    ");
       for (let i = 0; i < 20; i += 1) {
         await provideCompletionItems(
@@ -85,13 +83,11 @@ describe("completion", () => {
           bundle.schema,
         );
       }
-    },
-    { time: 500, warmupIterations: 3 },
-  );
+    }).run({ time: 500, warmupIterations: 3 });
+  });
 
-  bench(
-    "completion warm: log-format alias prefix",
-    async () => {
+  test("completion warm: log-format alias prefix", async ({ bench }) => {
+    await bench("completion warm: log-format alias prefix", async () => {
       const doc = createDocument('defaults\n    log-format "%c');
       for (let i = 0; i < 20; i += 1) {
         await provideCompletionItems(
@@ -101,7 +97,6 @@ describe("completion", () => {
           bundle.schema,
         );
       }
-    },
-    { time: 500, warmupIterations: 3 },
-  );
+    }).run({ time: 500, warmupIterations: 3 });
+  });
 });

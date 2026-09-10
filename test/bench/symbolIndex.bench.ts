@@ -1,4 +1,4 @@
-import { bench, describe } from "vitest";
+import { describe, test } from "vitest";
 
 import { getParsedDocument } from "../../src/parser/parseCache";
 import { parseDocument } from "../helpers/parse";
@@ -17,22 +17,21 @@ const largeDefaultBackendCharacter = largeContent
 const benignEditLine = findLineContaining(largeContent, "maxconn 200000");
 
 describe("symbolIndex", () => {
-  bench("buildSymbolIndex cold: large-valid.cfg", () => {
-    const parsed = parseDocument(createDocument(largeContent));
-    buildSymbolIndex(parsed, bundle.schema);
+  test("buildSymbolIndex cold: large-valid.cfg", async ({ bench }) => {
+    await bench("buildSymbolIndex cold: large-valid.cfg", () => {
+      const parsed = parseDocument(createDocument(largeContent));
+      buildSymbolIndex(parsed, bundle.schema);
+    }).run();
   });
 
-  bench(
-    "getSymbolIndex warm lookup: large-valid.cfg",
-    () => {
+  test("getSymbolIndex warm lookup: large-valid.cfg", async ({ bench }) => {
+    await bench("getSymbolIndex warm lookup: large-valid.cfg", () => {
       getSymbolIndex(largeDoc, bundle.schema, BENCH_LARGE_MAX_LINES);
-    },
-    { warmupIterations: 2 },
-  );
+    }).run({ warmupIterations: 2 });
+  });
 
-  bench(
-    "findSiteAtPosition warm: large-valid.cfg",
-    () => {
+  test("findSiteAtPosition warm: large-valid.cfg", async ({ bench }) => {
+    await bench("findSiteAtPosition warm: large-valid.cfg", () => {
       const index = getSymbolIndex(largeDoc, bundle.schema, BENCH_LARGE_MAX_LINES);
       if (index) {
         findSiteAtPosition(index, {
@@ -40,20 +39,21 @@ describe("symbolIndex", () => {
           character: largeDefaultBackendCharacter,
         } as never);
       }
-    },
-    { warmupIterations: 2 },
-  );
+    }).run({ warmupIterations: 2 });
+  });
 
-  bench("incremental reuse: single-line edit", () => {
-    getParsedDocument(largeDoc);
-    getSymbolIndex(largeDoc, bundle.schema, BENCH_LARGE_MAX_LINES);
-    const lines = largeContent.split(/\r?\n/);
-    const original = lines[benignEditLine];
-    const toggled = original.endsWith(" ") ? original.trimEnd() : `${original} `;
-    lines[benignEditLine] = toggled;
-    updateDocument(largeDoc, lines.join("\n"));
-    getSymbolIndex(largeDoc, bundle.schema, BENCH_LARGE_MAX_LINES);
-    lines[benignEditLine] = original;
-    updateDocument(largeDoc, lines.join("\n"));
+  test("incremental reuse: single-line edit", async ({ bench }) => {
+    await bench("incremental reuse: single-line edit", () => {
+      getParsedDocument(largeDoc);
+      getSymbolIndex(largeDoc, bundle.schema, BENCH_LARGE_MAX_LINES);
+      const lines = largeContent.split(/\r?\n/);
+      const original = lines[benignEditLine];
+      const toggled = original.endsWith(" ") ? original.trimEnd() : `${original} `;
+      lines[benignEditLine] = toggled;
+      updateDocument(largeDoc, lines.join("\n"));
+      getSymbolIndex(largeDoc, bundle.schema, BENCH_LARGE_MAX_LINES);
+      lines[benignEditLine] = original;
+      updateDocument(largeDoc, lines.join("\n"));
+    }).run();
   });
 });

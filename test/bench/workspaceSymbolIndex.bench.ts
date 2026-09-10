@@ -1,4 +1,4 @@
-import { bench, describe } from "vitest";
+import { describe, test } from "vitest";
 import type { WorkspaceFolder } from "vscode";
 
 import {
@@ -111,9 +111,8 @@ for (let i = 0; i < discoveryCfgFileCount; i += 1) {
 }
 
 describe("workspaceSymbolIndex", () => {
-  bench(
-    "discover workspace cfg files: 1000 matched cfg URIs",
-    async () => {
+  test("discover workspace cfg files: 1000 matched cfg URIs", async ({ bench }) => {
+    await bench("discover workspace cfg files: 1000 matched cfg URIs", async () => {
       const discoveredUris = await getDiscoveredUris(
         discoverySettings,
         discoveryWorkspaceFolder,
@@ -125,45 +124,44 @@ describe("workspaceSymbolIndex", () => {
           `Expected ${discoveryCfgFileCount} discovered cfg URIs, got ${discoveredUris.length}`,
         );
       }
-    },
-    { time: 500, warmupIterations: 2 },
-  );
-
-  bench("build workspace graph: 200 split cfg files (warm documents)", () => {
-    buildWorkspaceSymbolIndexFromOpenDocuments(splitDocs, bundle.schema, 4000);
+    }).run({ time: 500, warmupIterations: 2 });
   });
 
-  bench(
-    "build workspace graph: 1000 split cfg files (warm documents)",
-    () => {
-      buildWorkspaceSymbolIndexFromOpenDocuments(manyCfgDocs, bundle.schema, 4000);
-    },
-    { time: 500, warmupIterations: 2 },
-  );
+  test("build workspace graph: 200 split cfg files (warm documents)", async ({ bench }) => {
+    await bench("build workspace graph: 200 split cfg files (warm documents)", () => {
+      buildWorkspaceSymbolIndexFromOpenDocuments(splitDocs, bundle.schema, 4000);
+    }).run();
+  });
 
-  bench(
-    "build workspace graph: 1000 split cfg files (fresh documents)",
-    () => {
+  test("build workspace graph: 1000 split cfg files (warm documents)", async ({ bench }) => {
+    await bench("build workspace graph: 1000 split cfg files (warm documents)", () => {
+      buildWorkspaceSymbolIndexFromOpenDocuments(manyCfgDocs, bundle.schema, 4000);
+    }).run({ time: 500, warmupIterations: 2 });
+  });
+
+  test("build workspace graph: 1000 split cfg files (fresh documents)", async ({ bench }) => {
+    await bench("build workspace graph: 1000 split cfg files (fresh documents)", () => {
       buildWorkspaceSymbolIndexFromOpenDocuments(
         createWorkspaceDocs(manyCfgFileCount, haproxySplitContent),
         bundle.schema,
         4000,
       );
-    },
-    { time: 500, warmupIterations: 2 },
-  );
+    }).run({ time: 500, warmupIterations: 2 });
+  });
 
-  bench(
-    "build workspace graph: 1000 mixed cfg files (500 indexed, 500 skipped, warm documents)",
-    () => {
-      buildWorkspaceSymbolIndexFromOpenDocuments(mixedCfgDocs, bundle.schema, 4000);
-    },
-    { time: 500, warmupIterations: 2 },
-  );
+  test("build workspace graph: 1000 mixed cfg files (500 indexed, 500 skipped, warm documents)", async ({
+    bench,
+  }) => {
+    await bench(
+      "build workspace graph: 1000 mixed cfg files (500 indexed, 500 skipped, warm documents)",
+      () => {
+        buildWorkspaceSymbolIndexFromOpenDocuments(mixedCfgDocs, bundle.schema, 4000);
+      },
+    ).run({ time: 500, warmupIterations: 2 });
+  });
 
-  bench(
-    "load disk entry: read+index large cfg under byte cap",
-    async () => {
+  test("load disk entry: read+index large cfg under byte cap", async ({ bench }) => {
+    await bench("load disk entry: read+index large cfg under byte cap", async () => {
       await loadDiskEntry(
         Uri.file(diskLargeCfgPath) as never,
         bundle.schema,
@@ -171,13 +169,11 @@ describe("workspaceSymbolIndex", () => {
         undefined,
         diskReadLimits,
       );
-    },
-    { time: 500, warmupIterations: 1 },
-  );
+    }).run({ time: 500, warmupIterations: 1 });
+  });
 
-  bench(
-    "load disk entry: skip oversized cfg by stat before read",
-    async () => {
+  test("load disk entry: skip oversized cfg by stat before read", async ({ bench }) => {
+    await bench("load disk entry: skip oversized cfg by stat before read", async () => {
       await loadDiskEntry(
         Uri.file(diskOversizedCfgPath) as never,
         bundle.schema,
@@ -185,13 +181,14 @@ describe("workspaceSymbolIndex", () => {
         undefined,
         diskSkipLimits,
       );
-    },
-    { time: 500, warmupIterations: 2 },
-  );
+    }).run({ time: 500, warmupIterations: 2 });
+  });
 
-  bench("fingerprint 200 workspace documents", () => {
-    for (const doc of splitDocs) {
-      fingerprintText(doc.getText());
-    }
+  test("fingerprint 200 workspace documents", async ({ bench }) => {
+    await bench("fingerprint 200 workspace documents", () => {
+      for (const doc of splitDocs) {
+        fingerprintText(doc.getText());
+      }
+    }).run();
   });
 });

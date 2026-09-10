@@ -91,6 +91,12 @@ export default defineConfig(
     },
   },
   {
+    files: ["test/bench/**/*.bench.ts"],
+    rules: {
+      "vitest/expect-expect": "off",
+    },
+  },
+  {
     files: ["test/integration/**/*.ts"],
     rules: {
       "vitest/expect-expect": [

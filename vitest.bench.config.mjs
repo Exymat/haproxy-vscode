@@ -6,6 +6,9 @@ export default defineConfig({
     environment: "node",
     globals: true,
     include: ["test/bench/**/*.bench.ts"],
+    // Benchmarks are not unit tests; disable the default 5s timeout.
+    testTimeout: 0,
+    hookTimeout: 60_000,
     benchmark: {
       include: ["test/bench/**/*.bench.ts"],
     },

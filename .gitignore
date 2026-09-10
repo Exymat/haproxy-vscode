@@ -25,6 +25,7 @@ syntaxes/haproxy-active.tmLanguage.json
 schemas/*.tmLanguage.json
 schemas/tmlanguage.schema.json
 coverage/
+.vitest/
 .vscode-test/
 .nvmrc
 scripts/reports/*

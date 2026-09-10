@@ -1,4 +1,4 @@
-import { beforeAll, bench, describe } from "vitest";
+import { beforeAll, describe, test } from "vitest";
 
 import { initTextMate, tokenizeDocument } from "../helpers/highlight";
 import { fixtureLineCount, fixturesForScenario, readFixture } from "./helpers";
@@ -12,12 +12,10 @@ describe("tokenization", () => {
     const content = readFixture(fixture.file, fixture.from);
     const lineCount = fixtureLineCount(fixture);
 
-    bench(
-      `tokenize ${fixture.name} (${lineCount} lines)`,
-      async () => {
+    test(`tokenize ${fixture.name} (${lineCount} lines)`, async ({ bench }) => {
+      await bench(`tokenize ${fixture.name} (${lineCount} lines)`, async () => {
         await tokenizeDocument(content);
-      },
-      { warmupIterations: 2 },
-    );
+      }).run({ warmupIterations: 2 });
+    });
   }
 });

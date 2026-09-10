@@ -23,22 +23,49 @@ function loadJson(path) {
   return JSON.parse(readFileSync(path, "utf-8"));
 }
 
+function sampleCount(stats) {
+  return stats.sampleCount ?? stats.samplesCount ?? stats.samples?.length ?? 0;
+}
+
+function toBenchResult(name, stats) {
+  const count = sampleCount(stats);
+  if (count === 0) {
+    return null;
+  }
+  return {
+    name,
+    mean: stats.mean ?? 0,
+    median: stats.median ?? stats.p50 ?? 0,
+    p75: stats.p75 ?? stats.median ?? stats.p50 ?? 0,
+    p995: stats.p995 ?? stats.p99 ?? stats.mean ?? 0,
+    sampleCount: count,
+  };
+}
+
 function collectBenchmarks(report) {
   const results = [];
+  for (const file of report.testResults ?? []) {
+    for (const assertion of file.assertionResults ?? []) {
+      for (const group of assertion.benchmarks ?? []) {
+        for (const task of group.tasks ?? []) {
+          const result = toBenchResult(task.name, task.latency ?? {});
+          if (result) {
+            results.push(result);
+          }
+        }
+      }
+    }
+  }
+  if (results.length > 0) {
+    return results;
+  }
   for (const file of report.files ?? []) {
     for (const group of file.groups ?? []) {
       for (const bench of group.benchmarks ?? []) {
-        if (bench.sampleCount === undefined || bench.sampleCount === 0) {
-          continue;
+        const result = toBenchResult(bench.name, bench);
+        if (result) {
+          results.push(result);
         }
-        results.push({
-          name: bench.name,
-          mean: bench.mean ?? 0,
-          median: bench.median ?? 0,
-          p75: bench.p75 ?? bench.median ?? 0,
-          p995: bench.p995 ?? bench.p99 ?? bench.mean ?? 0,
-          sampleCount: bench.sampleCount,
-        });
       }
     }
   }
