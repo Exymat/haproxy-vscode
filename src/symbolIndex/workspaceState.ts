@@ -11,10 +11,11 @@ import {
   WorkspaceIndexChangeEvent,
   WorkspaceSymbolIndex,
 } from "./workspaceTypes";
-import { workspaceUriKey } from "./workspaceUri";
+import { workspaceUriKey as workspaceUriKeyImpl } from "../core/uriKey";
 
 const workspaceFolderForUri = workspaceFolderForUriImpl;
 const workspaceFolderKey = workspaceFolderKeyImpl;
+const workspaceUriKey = workspaceUriKeyImpl;
 
 let activeWorkspaceIndexes = new Map<string, WorkspaceSymbolIndex>();
 let activeGeneration = 0;

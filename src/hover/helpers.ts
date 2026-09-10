@@ -1,7 +1,17 @@
 /** Shared helpers for resolving hover group items and sample-token candidates. */
 import { HaproxyLanguageData, LanguageGroupItem } from "../language/languageData";
-import { findIndexedGroupItem } from "../language/languageDataIndexes";
+import { languageDataIndexFns } from "../language/languageDataIndexes";
 import { HoverContext } from "./types";
+
+const indexFns = languageDataIndexFns;
+
+function findIndexedGroupItem(
+  data: HaproxyLanguageData,
+  groupName: string,
+  name: string,
+): LanguageGroupItem | undefined {
+  return indexFns.findIndexedGroupItem(data, groupName, name);
+}
 
 function previousTokenText(hc: HoverContext): string {
   return hc.ctx.line.tokens[hc.ctx.tokenIndex - 1]?.text.toLowerCase() ?? "";

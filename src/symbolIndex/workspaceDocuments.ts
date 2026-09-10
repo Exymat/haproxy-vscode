@@ -2,9 +2,12 @@
 import * as vscode from "vscode";
 
 import { fingerprintText } from "../core/contentFingerprint";
-import { normalizeUriKey as normalizeUriKeyImpl } from "../core/uriKey";
+import {
+  normalizeUriKey as normalizeUriKeyImpl,
+  workspaceUriKey as workspaceUriKeyImpl,
+} from "../core/uriKey";
 import { isHaproxyLanguageId } from "../extension/grammar";
-import { getParsedDocumentEntry as getParsedDocumentEntryImpl } from "../parser/parseCache";
+import { parseCacheFns } from "../parser/parseCache";
 import { parseDocumentLines, ParsedLine, tokenizeLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 import { sectionHeaderSet } from "../schema/layout";
@@ -21,11 +24,11 @@ import {
   WorkspaceSymbolIndex,
   WorkspaceSymbolSite,
 } from "./workspaceTypes";
-import { workspaceUriKey } from "./workspaceUri";
 
 const normalizeUriKey = normalizeUriKeyImpl;
-const getParsedDocumentEntry = getParsedDocumentEntryImpl;
+const parseCache = parseCacheFns;
 const workspace = vscode.workspace;
+const workspaceUriKey = workspaceUriKeyImpl;
 
 export interface WorkspaceEntryLoadResult {
   entry: WorkspaceDocumentSymbols | null;
@@ -218,7 +221,9 @@ export function createOpenDocumentEntry(
   if (document.lineCount > maxLines) {
     return skipEntry("too-many-lines");
   }
-  const parse = getParsedDocumentEntry(document, { sectionHeaders: sectionHeaderSet(schema) });
+  const parse = parseCache.getParsedDocumentEntry(document, {
+    sectionHeaders: sectionHeaderSet(schema),
+  });
   const lines = parse.lineTexts;
   const parsed = parse.parsed;
   if (lineExceedsMaxBytes(lines, limits.maxLineBytes)) {

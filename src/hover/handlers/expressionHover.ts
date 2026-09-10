@@ -2,7 +2,7 @@
 import * as vscode from "vscode";
 
 import { LanguageGroupItem } from "../../language/languageData";
-import { findIndexedGroupItem } from "../../language/languageDataIndexes";
+import { languageDataIndexFns } from "../../language/languageDataIndexes";
 import {
   actionGroupForCompletionKind,
   actionGroupNames,
@@ -19,6 +19,15 @@ import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
 
 const aclRefGroupApplies = aclRefGroupAppliesImpl;
+const indexFns = languageDataIndexFns;
+
+function findIndexedGroupItem(
+  data: HoverContext["data"],
+  groupName: string,
+  name: string,
+): LanguageGroupItem | undefined {
+  return indexFns.findIndexedGroupItem(data, groupName, name);
+}
 
 function isInExpressionGroups(data: HoverContext["data"], candidate: string): boolean {
   for (const groupName of ["sample_fetches", "sample_converters", "acl_criteria"]) {

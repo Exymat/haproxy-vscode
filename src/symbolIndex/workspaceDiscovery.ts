@@ -2,9 +2,10 @@
 import * as vscode from "vscode";
 
 import { FolderRef, WorkspaceRebuildOptions, WorkspaceSymbolSettings } from "./workspaceTypes";
-import { workspaceUriKey } from "./workspaceUri";
+import { workspaceUriKey as workspaceUriKeyImpl } from "../core/uriKey";
 
 const workspace = vscode.workspace;
+const workspaceUriKey = workspaceUriKeyImpl;
 
 export const GLOBAL_WORKSPACE_FOLDER_KEY = "<global>";
 

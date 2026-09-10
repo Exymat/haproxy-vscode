@@ -20,7 +20,7 @@ import {
   isInactiveConditionalBranch,
 } from "../parser/conditionalDirectives";
 import { DocumentAnalysis } from "../parser/documentAnalysis";
-import { getParsedDocumentEntry } from "../parser/parseCache";
+import { parseCacheFns } from "../parser/parseCache";
 import {
   ParsedDocumentEntry,
   parseOptionsKey as parseOptionsKeyImpl,
@@ -42,6 +42,7 @@ import { SymbolIndex } from "../symbolIndex/types";
 const normalizeUriKey = normalizeUriKeyImpl;
 const getLiveSession = getLiveSessionImpl;
 const parseOptionsKey = parseOptionsKeyImpl;
+const parseCache = parseCacheFns;
 
 const schemaParseOptionsCache = new WeakMap<HaproxySchema, ParseOptions>();
 
@@ -100,7 +101,7 @@ function requireLiveRecord(
   document: vscode.TextDocument,
   schema: HaproxySchema,
 ): DocumentSessionRecord {
-  const parse = getParsedDocumentEntry(document, schemaParseOptions(schema));
+  const parse = parseCache.getParsedDocumentEntry(document, schemaParseOptions(schema));
   return liveRecordForParse(document, schema, parse);
 }
 

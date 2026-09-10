@@ -24,10 +24,11 @@ import {
   WorkspaceSymbolIndex,
   WorkspaceSymbolSettings,
 } from "./workspaceTypes";
-import { workspaceUriKey } from "./workspaceUri";
+import { workspaceUriKey as workspaceUriKeyImpl } from "../core/uriKey";
 
 const FOREIGN_CFG_DISCOVERY_EXTRA = 100;
 const DISK_ENTRY_LOAD_CONCURRENCY = 8;
+const workspaceUriKey = workspaceUriKeyImpl;
 
 function recordSkipReason(
   skipReasons: Partial<Record<WorkspaceEntrySkipReason, number>>,

@@ -106,7 +106,7 @@ export function keywordsForSection(
   return indexedKeywordsForSection(data, section);
 }
 
-export function findIndexedGroupItem(
+function findIndexedGroupItemImpl(
   data: HaproxyLanguageData,
   groupName: string,
   name: string,
@@ -117,6 +117,19 @@ export function findIndexedGroupItem(
     return exact;
   }
   return indexes.groupItemsByLowerName.get(groupName)?.get(name.toLowerCase());
+}
+
+/** Mutable lookup so tests can spy without hitting Vite ESM export getters in hot loops. */
+export const languageDataIndexFns = {
+  findIndexedGroupItem: findIndexedGroupItemImpl,
+};
+
+export function findIndexedGroupItem(
+  data: HaproxyLanguageData,
+  groupName: string,
+  name: string,
+): LanguageGroupItem | undefined {
+  return languageDataIndexFns.findIndexedGroupItem(data, groupName, name);
 }
 
 export function indexedKeywordsForSection(

@@ -7,7 +7,7 @@ import {
 } from "../../../src/parser/documentContext";
 import { getDocumentAnalysis } from "../../../src/parser/documentAnalysis";
 import { DiagnosticContext } from "../../../src/diagnostics/diagnosticContext";
-import * as parseCache from "../../../src/parser/parseCache";
+import { parseCacheFns } from "../../../src/parser/parseCache";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";
@@ -26,7 +26,7 @@ describe("documentContext", () => {
 
   it("returns null when parsed line is missing", () => {
     const doc = createDocument("global");
-    vi.spyOn(parseCache, "getParsedDocumentEntry").mockReturnValue({
+    vi.spyOn(parseCacheFns, "getParsedDocumentEntry").mockReturnValue({
       version: doc.version,
       lineTexts: [],
       parsed: [],

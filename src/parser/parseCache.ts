@@ -72,7 +72,7 @@ function storeParseRecord(
   return record;
 }
 
-export function getParsedDocumentEntry(
+function getParsedDocumentEntryImpl(
   document: vscode.TextDocument,
   options?: ParseOptions,
 ): ParsedDocumentEntry {
@@ -98,11 +98,23 @@ export function getParsedDocumentEntry(
   return storeParseRecord(document, optionsKey, parse, liveHit).parse;
 }
 
+/** Mutable lookup so tests can spy without hitting Vite ESM export getters in hot loops. */
+export const parseCacheFns = {
+  getParsedDocumentEntry: getParsedDocumentEntryImpl,
+};
+
+export function getParsedDocumentEntry(
+  document: vscode.TextDocument,
+  options?: ParseOptions,
+): ParsedDocumentEntry {
+  return parseCacheFns.getParsedDocumentEntry(document, options);
+}
+
 export function getParsedDocument(
   document: vscode.TextDocument,
   options?: ParseOptions,
 ): ParsedLine[] {
-  return getParsedDocumentEntry(document, options).parsed;
+  return parseCacheFns.getParsedDocumentEntry(document, options).parsed;
 }
 
 export function hasUriParseCache(document: vscode.TextDocument): boolean {

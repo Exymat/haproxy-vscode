@@ -1,9 +1,9 @@
 import { parseDocument } from "../../helpers/parse";
-import * as parseCache from "../../../src/parser/parseCache";
 import {
   finalizeParseCacheForClosedDocument,
   getParsedDocument,
   getParsedDocumentEntry,
+  parseCacheFns,
 } from "../../../src/parser/parseCache";
 import type { HaproxySchema, StatementRule } from "../../../src/schema/types";
 import {
@@ -353,7 +353,7 @@ describe("symbolIndex build", () => {
     const first = getSymbolIndex(document, schema, 4000);
     updateDocument(document, "global\n    maxconn 8192");
     const realEntry = getParsedDocumentEntry(document, parseOptions);
-    vi.spyOn(parseCache, "getParsedDocumentEntry").mockReturnValueOnce({
+    vi.spyOn(parseCacheFns, "getParsedDocumentEntry").mockReturnValueOnce({
       ...realEntry,
       reuse: { ...realEntry.reuse, previousVersion: null },
     });

@@ -6,9 +6,15 @@ import {
   logFormatFlagAtOffset,
   logFormatItemAtOffset,
 } from "../../language/logFormat";
-import { findIndexedGroupItem } from "../../language/languageDataIndexes";
+import { languageDataIndexFns } from "../../language/languageDataIndexes";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
+
+const indexFns = languageDataIndexFns;
+
+function findIndexedGroupItem(data: HoverContext["data"], groupName: string, name: string) {
+  return indexFns.findIndexedGroupItem(data, groupName, name);
+}
 
 export function tryLogFormatHover(hc: HoverContext): vscode.Hover | null {
   const { document, position, data, schema, ctx } = hc;

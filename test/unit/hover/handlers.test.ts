@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import * as directiveUtils from "../../../src/language/directiveUtils";
-import * as languageDataIndexes from "../../../src/language/languageDataIndexes";
+import { languageDataIndexFns } from "../../../src/language/languageDataIndexes";
 import { tryActionHover } from "../../../src/hover/handlers/actionHover";
 import { tryDirectiveHover } from "../../../src/hover/handlers/directiveHover";
 import { tryExpressionHover } from "../../../src/hover/handlers/expressionHover";
@@ -279,8 +279,8 @@ describe("hover handlers", () => {
     });
 
     it("tryExpressionHover does not treat ambiguous action tokens as sample fetches", () => {
-      const origFindIndexedGroupItem = languageDataIndexes.findIndexedGroupItem;
-      vi.spyOn(languageDataIndexes, "findIndexedGroupItem").mockImplementation(
+      const origFindIndexedGroupItem = languageDataIndexFns.findIndexedGroupItem;
+      vi.spyOn(languageDataIndexFns, "findIndexedGroupItem").mockImplementation(
         (data, group, name) => {
           const lower = name.toLowerCase();
           if (
@@ -327,9 +327,9 @@ describe("hover handlers", () => {
       }
       expect(hoverText(aliasHover)).toContain("%ci");
 
-      const origFindIndexedGroupItem = languageDataIndexes.findIndexedGroupItem;
+      const origFindIndexedGroupItem = languageDataIndexFns.findIndexedGroupItem;
       const aliasSpy = vi
-        .spyOn(languageDataIndexes, "findIndexedGroupItem")
+        .spyOn(languageDataIndexFns, "findIndexedGroupItem")
         .mockImplementation((data, group, name) => {
           if (group === "logformat_aliases") {
             return undefined;
@@ -386,7 +386,7 @@ describe("hover handlers", () => {
       );
       expect(minusFlagHover).not.toBeNull();
 
-      vi.spyOn(languageDataIndexes, "findIndexedGroupItem").mockImplementation(
+      vi.spyOn(languageDataIndexFns, "findIndexedGroupItem").mockImplementation(
         (data, group, name) => {
           if (group === "logformat_flags") {
             return undefined;

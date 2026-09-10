@@ -33,10 +33,10 @@
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg \\(",
-      "maxMs": 250,
-      "baselineMs": 130.486,
+      "maxMs": 40,
+      "baselineMs": 28.139,
       "statisticalMarginMs": 1.3132,
-      "rawMaxMs": 130.486
+      "rawMaxMs": 28.139
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg \\(",
@@ -47,17 +47,17 @@
     },
     {
       "namePattern": "^diagnostics edit: large-valid\\.cfg \\(",
-      "maxMs": 120,
-      "baselineMs": 97.525,
+      "maxMs": 40,
+      "baselineMs": 26.727,
       "statisticalMarginMs": 8.6891,
-      "rawMaxMs": 97.525
+      "rawMaxMs": 26.727
     },
     {
       "namePattern": "^diagnostics cold: large-valid\\.cfg unusedSymbols",
-      "maxMs": 250,
-      "baselineMs": 32.549,
+      "maxMs": 40,
+      "baselineMs": 28.549,
       "statisticalMarginMs": 0.8129,
-      "rawMaxMs": 32.549
+      "rawMaxMs": 28.549
     },
     {
       "namePattern": "^diagnostics warm: large-valid\\.cfg unusedSymbols",
@@ -68,17 +68,17 @@
     },
     {
       "namePattern": "^diagnostics edit: large-valid\\.cfg unusedSymbols",
-      "maxMs": 60,
+      "maxMs": 40,
       "baselineMs": 33.042,
       "statisticalMarginMs": 1.1644,
       "rawMaxMs": 33.042
     },
     {
       "namePattern": "^diagnostics cold: large-mixed\\.cfg \\(",
-      "maxMs": 250,
-      "baselineMs": 144.304,
+      "maxMs": 35,
+      "baselineMs": 27.972,
       "statisticalMarginMs": 2.9259,
-      "rawMaxMs": 144.304
+      "rawMaxMs": 27.972
     },
     {
       "namePattern": "^diagnostics warm: large-mixed\\.cfg \\(",
@@ -89,17 +89,17 @@
     },
     {
       "namePattern": "^diagnostics edit: large-mixed\\.cfg \\(",
-      "maxMs": 120,
+      "maxMs": 35,
       "baselineMs": 29.736,
       "statisticalMarginMs": 1.1688,
       "rawMaxMs": 29.736
     },
     {
       "namePattern": "^diagnostics cold: large-mixed\\.cfg unusedSymbols",
-      "maxMs": 250,
-      "baselineMs": 38.752,
+      "maxMs": 40,
+      "baselineMs": 31.528,
       "statisticalMarginMs": 0.9222,
-      "rawMaxMs": 38.752
+      "rawMaxMs": 31.528
     },
     {
       "namePattern": "^diagnostics warm: large-mixed\\.cfg unusedSymbols",
@@ -229,7 +229,7 @@
     },
     {
       "namePattern": "^incremental reuse: single-line edit",
-      "maxMs": 70,
+      "maxMs": 50,
       "baselineMs": 40.849,
       "statisticalMarginMs": 1.3621,
       "rawMaxMs": 40.849
