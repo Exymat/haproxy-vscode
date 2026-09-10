@@ -2,11 +2,11 @@
 import * as vscode from "vscode";
 
 import { fingerprintText } from "../core/contentFingerprint";
-import { normalizeUriKey } from "../core/uriKey";
+import { normalizeUriKey as normalizeUriKeyImpl } from "../core/uriKey";
 import {
   DocumentSessionRecord,
   documentSessionGeneration,
-  getLiveSession,
+  getLiveSession as getLiveSessionImpl,
   setLiveSession,
   getUriSession,
   hasUriSession,
@@ -18,10 +18,14 @@ import { ParseOptions, ParsedLine } from "./index";
 import {
   parseDocumentFresh,
   parseDocumentIncremental,
-  parseOptionsKey,
+  parseOptionsKey as parseOptionsKeyImpl,
   restoredParseReuse,
   ParsedDocumentEntry,
 } from "./parseIncremental";
+
+const normalizeUriKey = normalizeUriKeyImpl;
+const getLiveSession = getLiveSessionImpl;
+const parseOptionsKey = parseOptionsKeyImpl;
 
 export type { ParsedDocumentEntry, ParsedDocumentReuse } from "./parseIncremental";
 export { parseOptionsKey } from "./parseIncremental";

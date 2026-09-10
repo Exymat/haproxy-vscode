@@ -1,6 +1,6 @@
 /** Collects configured reference-pattern and filter self-references from lines. */
 import { ParsedLine } from "../../parser";
-import { findReferencePatternMatches } from "../../parser/referencePatternMatching";
+import { findReferencePatternMatches as findReferencePatternMatchesImpl } from "../../parser/referencePatternMatching";
 import { ReferencePattern } from "../../schema/types";
 import { isSymbolKind } from "../../core/editorKinds";
 
@@ -8,7 +8,10 @@ import { FetchReferenceRule } from "../context";
 import { pushReference } from "../referenceHelpers";
 import { SymbolSite } from "../types";
 
-import { collectSampleFetchReferences } from "./sampleFetch";
+import { collectSampleFetchReferences as collectSampleFetchReferencesImpl } from "./sampleFetch";
+
+const findReferencePatternMatches = findReferencePatternMatchesImpl;
+const collectSampleFetchReferences = collectSampleFetchReferencesImpl;
 
 export function collectFilterSelfReference(
   line: ParsedLine,

@@ -7,6 +7,8 @@ import * as vscode from "vscode";
 export type HaproxyVersion = string;
 export type HaproxyEdition = "community" | "hapee";
 
+const workspace = vscode.workspace;
+
 const CONFIG_SECTION = "haproxy";
 const CONFIG_VERSION = "version";
 const CONFIG_EDITION = "edition";
@@ -94,11 +96,11 @@ function readConfiguredVersion(config: vscode.WorkspaceConfiguration): HaproxyVe
 }
 
 export function getConfiguredVersion(): HaproxyVersion {
-  return readConfiguredVersion(vscode.workspace.getConfiguration(CONFIG_SECTION));
+  return readConfiguredVersion(workspace.getConfiguration(CONFIG_SECTION));
 }
 
 export function getConfiguredVersionForUri(resource?: vscode.Uri): HaproxyVersion {
-  return readConfiguredVersion(vscode.workspace.getConfiguration(CONFIG_SECTION, resource));
+  return readConfiguredVersion(workspace.getConfiguration(CONFIG_SECTION, resource));
 }
 
 function isHaproxyEdition(raw: string | undefined): raw is HaproxyEdition {
@@ -114,19 +116,19 @@ function readConfiguredEdition(config: vscode.WorkspaceConfiguration): HaproxyEd
 }
 
 export function getConfiguredEdition(): HaproxyEdition {
-  return readConfiguredEdition(vscode.workspace.getConfiguration(CONFIG_SECTION));
+  return readConfiguredEdition(workspace.getConfiguration(CONFIG_SECTION));
 }
 
 export function getConfiguredEditionForUri(resource?: vscode.Uri): HaproxyEdition {
-  return readConfiguredEdition(vscode.workspace.getConfiguration(CONFIG_SECTION, resource));
+  return readConfiguredEdition(workspace.getConfiguration(CONFIG_SECTION, resource));
 }
 
 function configurationTarget(resource?: vscode.Uri): vscode.ConfigurationTarget {
-  const folder = resource ? vscode.workspace.getWorkspaceFolder(resource) : undefined;
+  const folder = resource ? workspace.getWorkspaceFolder(resource) : undefined;
   if (folder) {
     return vscode.ConfigurationTarget.WorkspaceFolder;
   }
-  return vscode.workspace.workspaceFolders?.length
+  return workspace.workspaceFolders?.length
     ? vscode.ConfigurationTarget.Workspace
     : vscode.ConfigurationTarget.Global;
 }
@@ -135,7 +137,7 @@ export async function setConfiguredVersion(
   version: HaproxyVersion,
   resource?: vscode.Uri,
 ): Promise<void> {
-  const config = vscode.workspace.getConfiguration(CONFIG_SECTION, resource);
+  const config = workspace.getConfiguration(CONFIG_SECTION, resource);
   await config.update(CONFIG_VERSION, version, configurationTarget(resource));
 }
 
@@ -143,7 +145,7 @@ export async function setConfiguredEdition(
   edition: HaproxyEdition,
   resource?: vscode.Uri,
 ): Promise<void> {
-  const config = vscode.workspace.getConfiguration(CONFIG_SECTION, resource);
+  const config = workspace.getConfiguration(CONFIG_SECTION, resource);
   await config.update(CONFIG_EDITION, edition, configurationTarget(resource));
 }
 
@@ -207,7 +209,7 @@ function collectVersionConfigurationChange(
   const affectedFolderUris: (string | undefined)[] = [];
   const seenFolderUris = new Set<string | undefined>();
 
-  for (const folder of vscode.workspace.workspaceFolders ?? []) {
+  for (const folder of workspace.workspaceFolders ?? []) {
     if (
       event.affectsConfiguration(versionSection, folder.uri) ||
       event.affectsConfiguration(editionSection, folder.uri)
@@ -235,7 +237,7 @@ export function onVersionConfigurationChanged(
   let pendingVersions = new Set<HaproxyVersion>();
   let pendingFolderUris = new Set<string | undefined>();
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const subscription = vscode.workspace.onDidChangeConfiguration((event) => {
+  const subscription = workspace.onDidChangeConfiguration((event) => {
     const change = collectVersionConfigurationChange(event);
     if (change) {
       change.versions.forEach((version) => pendingVersions.add(version));

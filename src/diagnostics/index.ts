@@ -3,6 +3,7 @@
 import * as vscode from "vscode";
 
 import { persistDocumentSession } from "../document/sessionStore";
+import { getSymbolIndex as getSymbolIndexImpl } from "../document/session";
 import { getDocumentAnalysis } from "../parser/documentAnalysis";
 import { runLineDiagnosticPipeline } from "./diagnosticPipeline";
 import { DiagnosticContext } from "./diagnosticContext";
@@ -11,18 +12,17 @@ import { HaproxySchema } from "../schema/types";
 import { UriLruCache } from "../core/uriLruCache";
 import { fingerprintText } from "../core/contentFingerprint";
 import { normalizeUriKey } from "../core/uriKey";
-import {
-  getSymbolIndex,
-  getWorkspaceSymbolIndex,
-  symbolIndexForWorkspaceDiagnostics,
-  workspaceUriKey,
-} from "../symbolIndex";
+import { symbolIndexForWorkspaceDiagnostics, workspaceUriKey } from "../symbolIndex";
+import { getWorkspaceSymbolIndex as getWorkspaceSymbolIndexImpl } from "../symbolIndex/workspaceState";
 import { entryPointWithoutBindDiagnostics } from "./entryPointDiagnostics";
 import { missingReferenceDiagnostics } from "./missingReferenceDiagnostics";
 import { unusedSymbolDiagnostics } from "./unusedSymbolDiagnostics";
 import { duplicateSectionDiagnostics } from "./duplicateSymbolDiagnostics";
 import type { SymbolIndex, WorkspaceSymbolIndex } from "../symbolIndex";
 import { applyDiagnosticSuppressions } from "./diagnosticSuppressions";
+
+const getSymbolIndex = getSymbolIndexImpl;
+const getWorkspaceSymbolIndex = getWorkspaceSymbolIndexImpl;
 
 interface DiagnosticsCacheKey {
   schema: HaproxySchema;

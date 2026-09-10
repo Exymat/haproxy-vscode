@@ -27,7 +27,7 @@ import { tokenIndexAtPosition, isLikelyValue } from "../parser/tokenUtils";
 
 import { aclReferenceAt } from "./aclReferences";
 import { scopeKeyAtLine } from "./scope";
-import { symbolNameTokenIndices, ensureSitesByLine } from "./utils";
+import { symbolNameTokenIndices, ensureSitesByLine as ensureSitesByLineImpl } from "./utils";
 import {
   effectiveScopeKeyForSchema,
   proxyCapabilitiesForReference,
@@ -40,6 +40,8 @@ import {
   SymbolKind,
   SymbolSite,
 } from "./types";
+
+const ensureSitesByLine = ensureSitesByLineImpl;
 
 function scopeKeyForLine(
   lineNo: number,

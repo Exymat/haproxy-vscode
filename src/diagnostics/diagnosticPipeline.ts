@@ -17,8 +17,10 @@ import {
 import { aclNameDiagnostics, sectionHeaderDiagnostics } from "./sectionDiagnostics";
 import { statementDiagnostics } from "./statementDiagnostics";
 import { ParsedLine } from "../parser";
-import { isInactiveConditionalBranch } from "../parser/conditionalDirectives";
+import { isInactiveConditionalBranch as isInactiveConditionalBranchImpl } from "../parser/conditionalDirectives";
 import { macroTokenSet } from "../schema/tokens";
+
+const isInactiveConditionalBranch = isInactiveConditionalBranchImpl;
 
 type LineDiagnosticPhase = (
   ctx: DiagnosticContext,

@@ -10,9 +10,15 @@ import {
   sampleExpressionGroupForKind,
 } from "../../schema/semantic";
 import { normalizeActionName } from "../../parser/tokenUtils";
-import { aclRefGroupApplies, findGroupItem, sampleTokenCandidates } from "../helpers";
+import {
+  aclRefGroupApplies as aclRefGroupAppliesImpl,
+  findGroupItem,
+  sampleTokenCandidates,
+} from "../helpers";
 import { hoverMarkdown } from "../markdown";
 import { HoverContext } from "../types";
+
+const aclRefGroupApplies = aclRefGroupAppliesImpl;
 
 function isInExpressionGroups(data: HoverContext["data"], candidate: string): boolean {
   for (const groupName of ["sample_fetches", "sample_converters", "acl_criteria"]) {

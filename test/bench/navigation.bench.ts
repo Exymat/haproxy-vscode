@@ -142,13 +142,13 @@ describe("navigation", () => {
   test("document symbols: sample.cfg", async ({ bench }) => {
     await bench("document symbols: sample.cfg", () => {
       const doc = createDocument(readFixture("sample.cfg", "integration"));
-      provideDocumentSymbols(doc);
+      provideDocumentSymbols(doc, bundle.schema);
     }).run();
   });
 
   test("document symbols: large-valid.cfg", async ({ bench }) => {
     await bench("document symbols: large-valid.cfg", () => {
-      provideDocumentSymbols(largeDoc);
+      provideDocumentSymbols(largeDoc, bundle.schema);
     }).run();
   });
 

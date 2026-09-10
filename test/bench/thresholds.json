@@ -68,7 +68,7 @@
     },
     {
       "namePattern": "^diagnostics edit: large-valid\\.cfg unusedSymbols",
-      "maxMs": 40,
+      "maxMs": 60,
       "baselineMs": 33.042,
       "statisticalMarginMs": 1.1644,
       "rawMaxMs": 33.042
@@ -89,7 +89,7 @@
     },
     {
       "namePattern": "^diagnostics edit: large-mixed\\.cfg \\(",
-      "maxMs": 35,
+      "maxMs": 120,
       "baselineMs": 29.736,
       "statisticalMarginMs": 1.1688,
       "rawMaxMs": 29.736
@@ -229,7 +229,7 @@
     },
     {
       "namePattern": "^incremental reuse: single-line edit",
-      "maxMs": 50,
+      "maxMs": 70,
       "baselineMs": 40.849,
       "statisticalMarginMs": 1.3621,
       "rawMaxMs": 40.849

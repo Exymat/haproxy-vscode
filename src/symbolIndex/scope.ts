@@ -1,9 +1,11 @@
 /** Computes per-line proxy scope keys from section headers. */
 import { ParsedLine } from "../parser";
-import { isTopLevelSectionHeader } from "../language/sectionUtils";
+import { isTopLevelSectionHeader as isTopLevelSectionHeaderImpl } from "../language/sectionUtils";
 import { HaproxySchema } from "../schema/types";
 
 import { proxyScopeKey, proxySectionSet } from "./types";
+
+const isTopLevelSectionHeader = isTopLevelSectionHeaderImpl;
 
 export function buildScopeKeyByLine(
   parsed: ParsedLine[],

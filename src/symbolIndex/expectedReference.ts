@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 
 import { getParsedDocument } from "../parser/parseCache";
 import { ParsedLine } from "../parser";
-import { findReferencePatternMatches } from "../parser/referencePatternMatching";
+import { findReferencePatternMatches as findReferencePatternMatchesImpl } from "../parser/referencePatternMatching";
 import { ReferencePattern } from "../schema/types";
 import { ParsedToken } from "../parser";
 import { isTopLevelSectionHeader, parseSectionHeader } from "../language/sectionUtils";
@@ -29,6 +29,8 @@ import {
   SymbolKind,
 } from "./types";
 import { resolveSymbolAtPosition } from "./resolve";
+
+const findReferencePatternMatches = findReferencePatternMatchesImpl;
 
 export interface ExpectedSymbolReference {
   kind: SymbolKind;

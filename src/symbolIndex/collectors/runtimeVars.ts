@@ -1,14 +1,19 @@
 /** Collects HAProxy runtime-variable definition and reference sites. */
 import {
-  findRuntimeVariableHits,
-  isRuntimeVariableName,
-  isUnparenthesizedRuntimeVariableKeyword,
-  tokenMayContainRuntimeVariables,
+  findRuntimeVariableHits as findRuntimeVariableHitsImpl,
+  isRuntimeVariableName as isRuntimeVariableNameImpl,
+  isUnparenthesizedRuntimeVariableKeyword as isUnparenthesizedRuntimeVariableKeywordImpl,
+  tokenMayContainRuntimeVariables as tokenMayContainRuntimeVariablesImpl,
 } from "../../core/runtimeVariables";
 import { ParsedLine } from "../../parser";
 
 import { SymbolKind, SymbolSite } from "../types";
 import { addSite } from "../utils";
+
+const findRuntimeVariableHits = findRuntimeVariableHitsImpl;
+const isRuntimeVariableName = isRuntimeVariableNameImpl;
+const isUnparenthesizedRuntimeVariableKeyword = isUnparenthesizedRuntimeVariableKeywordImpl;
+const tokenMayContainRuntimeVariables = tokenMayContainRuntimeVariablesImpl;
 
 function pushHit(
   scopedKinds: Set<SymbolKind>,

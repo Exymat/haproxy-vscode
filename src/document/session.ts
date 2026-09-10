@@ -2,12 +2,12 @@
 import * as vscode from "vscode";
 
 import { fingerprintText } from "../core/contentFingerprint";
-import { normalizeUriKey } from "../core/uriKey";
+import { normalizeUriKey as normalizeUriKeyImpl } from "../core/uriKey";
 import {
   DocumentSessionRecord,
   DocumentSessionSymbols,
   documentSessionGeneration,
-  getLiveSession,
+  getLiveSession as getLiveSessionImpl,
   liveSessionsForDocument,
   setLiveSession,
   uriSessionHasSymbols,
@@ -21,7 +21,10 @@ import {
 } from "../parser/conditionalDirectives";
 import { DocumentAnalysis } from "../parser/documentAnalysis";
 import { getParsedDocumentEntry } from "../parser/parseCache";
-import { ParsedDocumentEntry, parseOptionsKey } from "../parser/parseIncremental";
+import {
+  ParsedDocumentEntry,
+  parseOptionsKey as parseOptionsKeyImpl,
+} from "../parser/parseIncremental";
 import { ParsedLine, type ParseOptions } from "../parser";
 import { runtimeModeForDocument, RuntimeModeCacheEntry } from "../parser/sectionMode";
 import { isTopLevelSectionHeader } from "../language/sectionUtils";
@@ -35,6 +38,10 @@ import {
 } from "../symbolIndex/build";
 import { createSymbolBuildContext } from "../symbolIndex/context";
 import { SymbolIndex } from "../symbolIndex/types";
+
+const normalizeUriKey = normalizeUriKeyImpl;
+const getLiveSession = getLiveSessionImpl;
+const parseOptionsKey = parseOptionsKeyImpl;
 
 const schemaParseOptionsCache = new WeakMap<HaproxySchema, ParseOptions>();
 

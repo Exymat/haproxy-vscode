@@ -1,15 +1,15 @@
 /** Builds and patches per-document symbol indexes from parsed lines. */
 import {
-  conditionalBranchInfoForDocument,
-  isInactiveConditionalBranch,
+  conditionalBranchInfoForDocument as conditionalBranchInfoForDocumentImpl,
+  isInactiveConditionalBranch as isInactiveConditionalBranchImpl,
 } from "../parser/conditionalDirectives";
 import { ParsedLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 
 import { aclReferenceAt } from "./aclReferences";
 import { createSymbolBuildContext, SymbolBuildContext } from "./context";
-import { collectLineSitesInto } from "./lineSites";
-import { buildScopeKeyByLine, updateScopeKeyForLine } from "./scope";
+import { collectLineSitesInto as collectLineSitesIntoImpl } from "./lineSites";
+import { buildScopeKeyByLine, updateScopeKeyForLine as updateScopeKeyForLineImpl } from "./scope";
 import {
   proxyCapabilitiesOverlap,
   proxySectionSet,
@@ -17,7 +17,18 @@ import {
   SymbolIndex,
   SymbolSite,
 } from "./types";
-import { addSite, buildReferencesByKey, buildSitesByLine, ensureSitesByLine } from "./utils";
+import {
+  addSite,
+  buildReferencesByKey,
+  buildSitesByLine,
+  ensureSitesByLine as ensureSitesByLineImpl,
+} from "./utils";
+
+const conditionalBranchInfoForDocument = conditionalBranchInfoForDocumentImpl;
+const isInactiveConditionalBranch = isInactiveConditionalBranchImpl;
+const collectLineSitesInto = collectLineSitesIntoImpl;
+const updateScopeKeyForLine = updateScopeKeyForLineImpl;
+const ensureSitesByLine = ensureSitesByLineImpl;
 
 export interface SymbolIndexBuildOptions {
   /** When false, returns empty fingerprint slots without per-line hashing. */

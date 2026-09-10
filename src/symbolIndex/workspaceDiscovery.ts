@@ -4,6 +4,8 @@ import * as vscode from "vscode";
 import { FolderRef, WorkspaceRebuildOptions, WorkspaceSymbolSettings } from "./workspaceTypes";
 import { workspaceUriKey } from "./workspaceUri";
 
+const workspace = vscode.workspace;
+
 export const GLOBAL_WORKSPACE_FOLDER_KEY = "<global>";
 
 interface DiscoveryCacheEntry {
@@ -23,11 +25,11 @@ export function workspaceFolderKey(folder: vscode.WorkspaceFolder | undefined): 
 }
 
 export function workspaceFolderForUri(uri: vscode.Uri): vscode.WorkspaceFolder | undefined {
-  return vscode.workspace.getWorkspaceFolder?.(uri);
+  return workspace.getWorkspaceFolder?.(uri);
 }
 
 function configuredWorkspaceFolders(): FolderRef[] {
-  const folders = vscode.workspace.workspaceFolders;
+  const folders = workspace.workspaceFolders;
   if (!folders || folders.length === 0) {
     return [];
   }
@@ -157,9 +159,9 @@ async function findWorkspaceFiles(
   maxResults: number | undefined,
 ): Promise<vscode.Uri[]> {
   if (maxResults === undefined) {
-    return vscode.workspace.findFiles(include, exclude);
+    return workspace.findFiles(include, exclude);
   }
-  return vscode.workspace.findFiles(include, exclude, maxResults);
+  return workspace.findFiles(include, exclude, maxResults);
 }
 
 function escapeRegExp(value: string): string {

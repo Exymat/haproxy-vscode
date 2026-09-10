@@ -3,8 +3,8 @@ import * as vscode from "vscode";
 
 import {
   GLOBAL_WORKSPACE_FOLDER_KEY,
-  workspaceFolderForUri,
-  workspaceFolderKey,
+  workspaceFolderForUri as workspaceFolderForUriImpl,
+  workspaceFolderKey as workspaceFolderKeyImpl,
 } from "./workspaceDiscovery";
 import {
   WorkspaceDocumentSymbols,
@@ -12,6 +12,9 @@ import {
   WorkspaceSymbolIndex,
 } from "./workspaceTypes";
 import { workspaceUriKey } from "./workspaceUri";
+
+const workspaceFolderForUri = workspaceFolderForUriImpl;
+const workspaceFolderKey = workspaceFolderKeyImpl;
 
 let activeWorkspaceIndexes = new Map<string, WorkspaceSymbolIndex>();
 let activeGeneration = 0;

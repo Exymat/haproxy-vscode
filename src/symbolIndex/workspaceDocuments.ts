@@ -2,9 +2,9 @@
 import * as vscode from "vscode";
 
 import { fingerprintText } from "../core/contentFingerprint";
-import { normalizeUriKey } from "../core/uriKey";
+import { normalizeUriKey as normalizeUriKeyImpl } from "../core/uriKey";
 import { isHaproxyLanguageId } from "../extension/grammar";
-import { getParsedDocumentEntry } from "../parser/parseCache";
+import { getParsedDocumentEntry as getParsedDocumentEntryImpl } from "../parser/parseCache";
 import { parseDocumentLines, ParsedLine, tokenizeLine } from "../parser";
 import { HaproxySchema } from "../schema/types";
 import { sectionHeaderSet } from "../schema/layout";
@@ -22,6 +22,10 @@ import {
   WorkspaceSymbolSite,
 } from "./workspaceTypes";
 import { workspaceUriKey } from "./workspaceUri";
+
+const normalizeUriKey = normalizeUriKeyImpl;
+const getParsedDocumentEntry = getParsedDocumentEntryImpl;
+const workspace = vscode.workspace;
 
 export interface WorkspaceEntryLoadResult {
   entry: WorkspaceDocumentSymbols | null;
@@ -161,7 +165,7 @@ function diskStatKey(stat: vscode.FileStat): string {
 
 function openDocumentForUri(uri: vscode.Uri): vscode.TextDocument | undefined {
   const key = normalizeUriKey(uri);
-  return vscode.workspace.textDocuments.find((document) => normalizeUriKey(document.uri) === key);
+  return workspace.textDocuments.find((document) => normalizeUriKey(document.uri) === key);
 }
 
 export function looksLikeHaproxyConfig(
@@ -325,7 +329,7 @@ export async function loadDiskEntry(
   }
 
   try {
-    const stat = await vscode.workspace.fs.stat(uri);
+    const stat = await workspace.fs.stat(uri);
     const statKey = diskStatKey(stat);
     if (exceedsLimit(stat.size, limits.maxFileBytes)) {
       return skipEntry("file-too-large");
@@ -339,7 +343,7 @@ export async function loadDiskEntry(
       return { entry: cached };
     }
 
-    const bytes = await vscode.workspace.fs.readFile(uri);
+    const bytes = await workspace.fs.readFile(uri);
     const text = new TextDecoder("utf-8").decode(bytes);
     const byteLength = bytes.byteLength;
     const lines = text.split(/\r?\n/);

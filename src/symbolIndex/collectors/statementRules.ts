@@ -2,17 +2,31 @@
 import { ParsedLine } from "../../parser";
 import { isEnvironmentVariableName } from "../../core/environmentVariables";
 import { HaproxySchema } from "../../schema/types";
-import { ruleMatchesLine, candidateRules } from "../../schema/statementLayout";
+import {
+  candidateRules as candidateRulesImpl,
+  ruleMatchesLine as ruleMatchesLineImpl,
+} from "../../schema/statementLayout";
 import { isLikelyValue } from "../../parser/tokenUtils";
 
-import { collectAclReferences } from "../aclReferences";
+import { collectAclReferences as collectAclReferencesImpl } from "../aclReferences";
 import { SymbolBuildContext } from "../context";
 import { effectiveScopeKey, proxyCapabilitiesForReference, SymbolKind, SymbolSite } from "../types";
 import { addSite, symbolNameTokenIndices } from "../utils";
 
-import { collectConfiguredReferences, collectFilterSelfReference } from "./configuredRefs";
-import { collectEnvironmentVariableSites } from "./environmentVars";
-import { collectRuntimeVariableSites } from "./runtimeVars";
+import {
+  collectConfiguredReferences as collectConfiguredReferencesImpl,
+  collectFilterSelfReference as collectFilterSelfReferenceImpl,
+} from "./configuredRefs";
+import { collectEnvironmentVariableSites as collectEnvironmentVariableSitesImpl } from "./environmentVars";
+import { collectRuntimeVariableSites as collectRuntimeVariableSitesImpl } from "./runtimeVars";
+
+const candidateRules = candidateRulesImpl;
+const ruleMatchesLine = ruleMatchesLineImpl;
+const collectAclReferences = collectAclReferencesImpl;
+const collectConfiguredReferences = collectConfiguredReferencesImpl;
+const collectFilterSelfReference = collectFilterSelfReferenceImpl;
+const collectEnvironmentVariableSites = collectEnvironmentVariableSitesImpl;
+const collectRuntimeVariableSites = collectRuntimeVariableSitesImpl;
 
 function siteFromToken(
   kind: SymbolKind,

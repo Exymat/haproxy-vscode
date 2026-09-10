@@ -2,7 +2,9 @@
 import * as vscode from "vscode";
 
 import { ParsedLine } from "./index";
-import { isTopLevelSectionHeader } from "../language/sectionUtils";
+import { isTopLevelSectionHeader as isTopLevelSectionHeaderImpl } from "../language/sectionUtils";
+
+const isTopLevelSectionHeader = isTopLevelSectionHeaderImpl;
 
 export interface SectionSymbolInfo {
   name: string;
