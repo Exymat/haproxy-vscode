@@ -1,11 +1,31 @@
 import { describe, test } from "vitest";
 
-import { getParsedDocument } from "../../src/parser/parseCache";
-import { parseDocument } from "../helpers/parse";
-import { buildSymbolIndex, findSiteAtPosition, getSymbolIndex } from "../../src/symbolIndex";
+import { getParsedDocument as getParsedDocumentImpl } from "../../src/parser/parseCache";
+import { parseDocument as parseDocumentImpl } from "../helpers/parse";
+import {
+  buildSymbolIndex as buildSymbolIndexImpl,
+  findSiteAtPosition as findSiteAtPositionImpl,
+  getSymbolIndex as getSymbolIndexImpl,
+} from "../../src/symbolIndex";
 import { loadSchemaBundle } from "../helpers/schema";
-import { createDocument, updateDocument } from "../helpers/document";
-import { BENCH_LARGE_MAX_LINES, findLineContaining, readFixture } from "./helpers";
+import {
+  createDocument as createDocumentImpl,
+  updateDocument as updateDocumentImpl,
+} from "../helpers/document";
+import {
+  BENCH_LARGE_MAX_LINES as BENCH_LARGE_MAX_LINES_IMPL,
+  findLineContaining,
+  readFixture,
+} from "./helpers";
+
+const getParsedDocument = getParsedDocumentImpl;
+const parseDocument = parseDocumentImpl;
+const buildSymbolIndex = buildSymbolIndexImpl;
+const findSiteAtPosition = findSiteAtPositionImpl;
+const getSymbolIndex = getSymbolIndexImpl;
+const createDocument = createDocumentImpl;
+const updateDocument = updateDocumentImpl;
+const BENCH_LARGE_MAX_LINES = BENCH_LARGE_MAX_LINES_IMPL;
 
 const bundle = loadSchemaBundle("3.2");
 const largeContent = readFixture("large-valid.cfg", "bench");

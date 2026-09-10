@@ -1,9 +1,12 @@
 import { describe, test } from "vitest";
 
-import { provideCompletionItems } from "../../src/completion";
+import { provideCompletionItems as provideCompletionItemsImpl } from "../../src/completion";
 import { loadSchemaBundle } from "../helpers/schema";
-import { createDocument } from "../helpers/document";
+import { createDocument as createDocumentImpl } from "../helpers/document";
 import { findLineContaining, readFixture } from "./helpers";
+
+const provideCompletionItems = provideCompletionItemsImpl;
+const createDocument = createDocumentImpl;
 
 const bundle = loadSchemaBundle("3.2");
 const largeContent = readFixture("large-valid.cfg", "bench");

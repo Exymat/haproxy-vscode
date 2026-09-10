@@ -1,8 +1,10 @@
 import { describe, test } from "vitest";
 
-import { formatConfig } from "../../src/formatting";
+import { formatConfig as formatConfigImpl } from "../../src/formatting";
 import { formatOptionsWithSchema } from "../helpers/formatOptions";
 import { fixtureLineCount, fixturesForScenario, readFixture } from "./helpers";
+
+const formatConfig = formatConfigImpl;
 
 const formatOptions = formatOptionsWithSchema("3.2");
 

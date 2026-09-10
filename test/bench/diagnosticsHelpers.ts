@@ -1,10 +1,20 @@
-import { computeDiagnostics } from "../../src/diagnostics";
+import { computeDiagnostics as computeDiagnosticsImpl } from "../../src/diagnostics";
 import type { HaproxyLanguageData } from "../../src/language/languageData";
-import { getParsedDocument } from "../../src/parser/parseCache";
+import { getParsedDocument as getParsedDocumentImpl } from "../../src/parser/parseCache";
 import type { HaproxySchema } from "../../src/schema/types";
-import { createDocument, type MockTextDocument, updateDocument } from "../helpers/document";
+import {
+  createDocument as createDocumentImpl,
+  type MockTextDocument,
+  updateDocument as updateDocumentImpl,
+} from "../helpers/document";
 
-import { createEditedDocument } from "./helpers";
+import { createEditedDocument as createEditedDocumentImpl } from "./helpers";
+
+const computeDiagnostics = computeDiagnosticsImpl;
+const getParsedDocument = getParsedDocumentImpl;
+const createDocument = createDocumentImpl;
+const updateDocument = updateDocumentImpl;
+const createEditedDocument = createEditedDocumentImpl;
 
 export interface DiagnosticsBundle {
   schema: HaproxySchema;

@@ -6,9 +6,10 @@ export default defineConfig({
     environment: "node",
     globals: true,
     include: ["test/bench/**/*.bench.ts"],
-    // Benchmarks are not unit tests; disable the default 5s timeout.
-    testTimeout: 0,
-    hookTimeout: 60_000,
+    // Vitest 5 bench projects clamp timeouts below 60s up to 60s, so `0` becomes
+    // 60s and fails large tokenize runs (~90–120s on CI).
+    testTimeout: 300_000,
+    hookTimeout: 120_000,
     benchmark: {
       include: ["test/bench/**/*.bench.ts"],
     },

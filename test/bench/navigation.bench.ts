@@ -1,12 +1,28 @@
 import { describe, test } from "vitest";
 
-import { provideDocumentSymbols } from "../../src/navigation/documentSymbols";
-import { missingReferenceDiagnostics } from "../../src/diagnostics/missingReferenceDiagnostics";
-import { provideDefinition, provideReferences } from "../../src/navigation";
-import { getSymbolIndex } from "../../src/symbolIndex";
+import { provideDocumentSymbols as provideDocumentSymbolsImpl } from "../../src/navigation/documentSymbols";
+import { missingReferenceDiagnostics as missingReferenceDiagnosticsImpl } from "../../src/diagnostics/missingReferenceDiagnostics";
+import {
+  provideDefinition as provideDefinitionImpl,
+  provideReferences as provideReferencesImpl,
+} from "../../src/navigation";
+import { getSymbolIndex as getSymbolIndexImpl } from "../../src/symbolIndex";
 import { loadSchemaBundle } from "../helpers/schema";
-import { createDocument } from "../helpers/document";
-import { BENCH_LARGE_MAX_LINES, findLineContaining, readFixture } from "./helpers";
+import { createDocument as createDocumentImpl } from "../helpers/document";
+import {
+  BENCH_LARGE_MAX_LINES as BENCH_LARGE_MAX_LINES_IMPL,
+  findLineContaining,
+  readFixture as readFixtureImpl,
+} from "./helpers";
+
+const provideDocumentSymbols = provideDocumentSymbolsImpl;
+const missingReferenceDiagnostics = missingReferenceDiagnosticsImpl;
+const provideDefinition = provideDefinitionImpl;
+const provideReferences = provideReferencesImpl;
+const getSymbolIndex = getSymbolIndexImpl;
+const createDocument = createDocumentImpl;
+const readFixture = readFixtureImpl;
+const BENCH_LARGE_MAX_LINES = BENCH_LARGE_MAX_LINES_IMPL;
 
 const bundle = loadSchemaBundle("3.2");
 const largeContent = readFixture("large-valid.cfg", "bench");

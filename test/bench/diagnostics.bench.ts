@@ -1,13 +1,13 @@
 import { describe, test } from "vitest";
 
 import { loadSchemaBundle } from "../helpers/schema";
-import { createDocument } from "../helpers/document";
-import { getParsedDocument } from "../../src/parser/parseCache";
+import { createDocument as createDocumentImpl } from "../helpers/document";
+import { getParsedDocument as getParsedDocumentImpl } from "../../src/parser/parseCache";
 import {
-  createDiagnosticsEditRunner,
-  runDiagnosticsAfterEditBaseline,
-  runDiagnosticsCold,
-  runDiagnosticsWarm,
+  createDiagnosticsEditRunner as createDiagnosticsEditRunnerImpl,
+  runDiagnosticsAfterEditBaseline as runDiagnosticsAfterEditBaselineImpl,
+  runDiagnosticsCold as runDiagnosticsColdImpl,
+  runDiagnosticsWarm as runDiagnosticsWarmImpl,
 } from "./diagnosticsHelpers";
 import {
   BENCH_LARGE_MAX_LINES,
@@ -16,6 +16,13 @@ import {
   fixturesForScenario,
   readFixture,
 } from "./helpers";
+
+const createDocument = createDocumentImpl;
+const getParsedDocument = getParsedDocumentImpl;
+const createDiagnosticsEditRunner = createDiagnosticsEditRunnerImpl;
+const runDiagnosticsAfterEditBaseline = runDiagnosticsAfterEditBaselineImpl;
+const runDiagnosticsCold = runDiagnosticsColdImpl;
+const runDiagnosticsWarm = runDiagnosticsWarmImpl;
 
 const bundle = loadSchemaBundle("3.4");
 

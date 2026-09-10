@@ -2,22 +2,30 @@ import { describe, test } from "vitest";
 import type { WorkspaceFolder } from "vscode";
 
 import {
-  buildWorkspaceSymbolIndexFromOpenDocuments,
-  fingerprintText,
+  buildWorkspaceSymbolIndexFromOpenDocuments as buildWorkspaceSymbolIndexFromOpenDocumentsImpl,
+  fingerprintText as fingerprintTextImpl,
   type WorkspaceSymbolSettings,
 } from "../../src/symbolIndex";
-import { getDiscoveredUris } from "../../src/symbolIndex/workspaceDiscovery";
-import { loadDiskEntry } from "../../src/symbolIndex/workspaceDocuments";
+import { getDiscoveredUris as getDiscoveredUrisImpl } from "../../src/symbolIndex/workspaceDiscovery";
+import { loadDiskEntry as loadDiskEntryImpl } from "../../src/symbolIndex/workspaceDocuments";
 import {
   resetVscodeMock,
   setMockWorkspaceFile,
   setMockWorkspaceFileStat,
   setMockWorkspaceFolders,
-  Uri,
+  Uri as UriImpl,
 } from "../__mocks__/vscode";
-import { createDocument } from "../helpers/document";
+import { createDocument as createDocumentImpl } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
-import { BENCH_LARGE_MAX_LINES, readFixture } from "./helpers";
+import { BENCH_LARGE_MAX_LINES as BENCH_LARGE_MAX_LINES_IMPL, readFixture } from "./helpers";
+
+const buildWorkspaceSymbolIndexFromOpenDocuments = buildWorkspaceSymbolIndexFromOpenDocumentsImpl;
+const fingerprintText = fingerprintTextImpl;
+const getDiscoveredUris = getDiscoveredUrisImpl;
+const loadDiskEntry = loadDiskEntryImpl;
+const Uri = UriImpl;
+const createDocument = createDocumentImpl;
+const BENCH_LARGE_MAX_LINES = BENCH_LARGE_MAX_LINES_IMPL;
 
 const bundle = loadSchemaBundle("3.2");
 const manyCfgFileCount = 1000;

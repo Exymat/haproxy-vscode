@@ -1,8 +1,21 @@
 import { join } from "node:path";
 import { beforeEach, describe, test } from "vitest";
 
-import { loadLanguageData, loadSchema, loadSchemaBundle } from "../helpers/schema";
-import { clearBenchSchemaCache, extensionRoot, loadSchemaFileWarm } from "./helpers";
+import {
+  loadLanguageData as loadLanguageDataImpl,
+  loadSchema as loadSchemaImpl,
+  loadSchemaBundle as loadSchemaBundleImpl,
+} from "../helpers/schema";
+import {
+  clearBenchSchemaCache,
+  extensionRoot,
+  loadSchemaFileWarm as loadSchemaFileWarmImpl,
+} from "./helpers";
+
+const loadSchema = loadSchemaImpl;
+const loadLanguageData = loadLanguageDataImpl;
+const loadSchemaBundle = loadSchemaBundleImpl;
+const loadSchemaFileWarm = loadSchemaFileWarmImpl;
 
 const version = "3.2" as const;
 const schemaPath = join(extensionRoot, "schemas", `haproxy-${version}.schema.json`);

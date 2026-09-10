@@ -1,10 +1,15 @@
 import { describe, test } from "vitest";
 
-import { getParsedDocument } from "../../src/parser/parseCache";
-import { provideHover } from "../../src/hover";
+import { getParsedDocument as getParsedDocumentImpl } from "../../src/parser/parseCache";
+import { provideHover as provideHoverImpl } from "../../src/hover";
 import { loadSchemaBundle } from "../helpers/schema";
-import { createDocument } from "../helpers/document";
-import { Position } from "../__mocks__/vscode";
+import { createDocument as createDocumentImpl } from "../helpers/document";
+import { Position as PositionImpl } from "../__mocks__/vscode";
+
+const getParsedDocument = getParsedDocumentImpl;
+const provideHover = provideHoverImpl;
+const createDocument = createDocumentImpl;
+const Position = PositionImpl;
 
 const bundle = loadSchemaBundle("3.2");
 

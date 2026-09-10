@@ -1,5 +1,12 @@
 /** Formats HAProxy configuration text according to indent and section layout options. */
-import { commentStartIndex, ParsedToken, tokenizeLine } from "../parser";
+import {
+  commentStartIndex as commentStartIndexImpl,
+  ParsedToken,
+  tokenizeLine as tokenizeLineImpl,
+} from "../parser";
+
+const commentStartIndex = commentStartIndexImpl;
+const tokenizeLine = tokenizeLineImpl;
 
 /**
  * Layout rules follow HAProxy configuration.txt sections 2.1 and 2.2

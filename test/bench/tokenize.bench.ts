@@ -1,7 +1,9 @@
 import { beforeAll, describe, test } from "vitest";
 
-import { initTextMate, tokenizeDocument } from "../helpers/highlight";
+import { initTextMate, tokenizeDocument as tokenizeDocumentImpl } from "../helpers/highlight";
 import { fixtureLineCount, fixturesForScenario, readFixture } from "./helpers";
+
+const tokenizeDocument = tokenizeDocumentImpl;
 
 describe("tokenization", () => {
   beforeAll(async () => {

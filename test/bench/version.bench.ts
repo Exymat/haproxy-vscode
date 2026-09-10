@@ -1,7 +1,9 @@
 import { beforeEach, describe, test } from "vitest";
 
-import { loadSchemaBundle } from "../helpers/schema";
+import { loadSchemaBundle as loadSchemaBundleImpl } from "../helpers/schema";
 import { BENCH_VERSIONS, clearBenchSchemaCache } from "./helpers";
+
+const loadSchemaBundle = loadSchemaBundleImpl;
 
 describe("version matrix", () => {
   beforeEach(() => {
