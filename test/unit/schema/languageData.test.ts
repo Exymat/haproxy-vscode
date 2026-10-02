@@ -85,16 +85,22 @@ describe("loadLanguageData", () => {
 });
 
 describe("sample group names", () => {
-  it.each([...SUPPORTED_VERSIONS, ...HAPEE_SCHEMA_VERSIONS.map((version) => `${version}r1`)])(
-    "%s language sample fetches and converters are registered in the schema",
-    (version) => {
+  it("keeps language sample fetches and converters inside the schema", () => {
+    const versions = [
+      ...SUPPORTED_VERSIONS,
+      ...HAPEE_SCHEMA_VERSIONS.map((version) => `${version}r1`),
+    ];
+    for (const version of versions) {
       const { schema, languageData } = loadSchemaBundle(version);
       for (const group of ["sample_fetches", "sample_converters"] as const) {
         const names = languageData.groups[group].map((item) => item.name);
-        expect(names.filter((name) => !(name in schema[group]))).toEqual([]);
+        const unknown = names
+          .filter((name) => !(name in schema[group]))
+          .map((name) => `${version} ${group} ${name}`);
+        expect(unknown).toEqual([]);
       }
-    },
-  );
+    }
+  });
 });
 
 describe("findKeywordByPrefix", () => {
