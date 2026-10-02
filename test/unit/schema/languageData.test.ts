@@ -8,7 +8,12 @@ import {
 } from "../../../src/language/languageData";
 import { resetMockVscode } from "../../helpers/vscode";
 import { mockExtensionContext } from "../../helpers/extensionContext";
-import { loadLanguageData as loadFixtureLanguageData } from "../../helpers/schema";
+import {
+  HAPEE_SCHEMA_VERSIONS,
+  loadLanguageData as loadFixtureLanguageData,
+  loadSchemaBundle,
+  SUPPORTED_VERSIONS,
+} from "../../helpers/schema";
 import { createTempSchemaFixture } from "../../helpers/tempSchema";
 
 describe("loadLanguageData", () => {
@@ -77,6 +82,19 @@ describe("loadLanguageData", () => {
       fixture.cleanup();
     }
   });
+});
+
+describe("sample group names", () => {
+  it.each([...SUPPORTED_VERSIONS, ...HAPEE_SCHEMA_VERSIONS.map((version) => `${version}r1`)])(
+    "%s language sample fetches and converters are registered in the schema",
+    (version) => {
+      const { schema, languageData } = loadSchemaBundle(version);
+      for (const group of ["sample_fetches", "sample_converters"] as const) {
+        const names = languageData.groups[group].map((item) => item.name);
+        expect(names.filter((name) => !(name in schema[group]))).toEqual([]);
+      }
+    },
+  );
 });
 
 describe("findKeywordByPrefix", () => {

@@ -341,7 +341,7 @@
         "signature": "payload_lv(<offset1>,<length>[,<offset2>]) (deprecated)"
       },
       {
-        "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL.",
+        "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.2-req.ssl_ver",
         "examples": [],
         "name": "req.ssl_ver",
@@ -365,7 +365,7 @@
         "signature": ""
       },
       {
-        "description": "Returns a string containing the value of the Server Name TLS extension sent by a client in a TLS stream passing through the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This will only work for actual implicit TLS based protocols like HTTPS (443), IMAPS (993), SMTPS (465), however it will not work for explicit TLS based protocols, like SMTP (25/587) or IMAP (143). SNI normally contains the name of the host the client tries to connect to (for recent browsers). SNI is useful for allowing or denying access to certain hosts when SSL/TLS is used by the client. This test was designed to be used with TCP request content inspection. If content switching is needed, it is recommended to first wait for a complete client hello (type 1), like in the example below. See also \"ssl_fc_sni\".",
+        "description": "Returns a string containing the value of the Server Name TLS extension sent by a client in a TLS stream passing through the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This will only work for actual implicit TLS based protocols like HTTPS (443), IMAPS (993), SMTPS (465), however it will not work for explicit TLS based protocols, like SMTP (25/587) or IMAP (143). SNI normally contains the name of the host the client tries to connect to (for recent browsers). This test was designed to be used with TCP request content inspection. If content switching is needed, it is recommended to first wait for a complete client hello (type 1), like in the example below. See also \"ssl_fc_sni\". Beware that, for the reasons detailed below (HelloRetryRequest, Renegotiation, Encrypted Client Hello), the value returned by this fetch is not reliable enough to be used alone for allowing or denying access to certain hosts.\n\nThis fetch only parses the first ClientHello message found in the request buffer. If the client sends several ClientHello messages within the same TCP stream, for instance because the server requested a HelloRetryRequest (HRR) as part of TLS 1.3, or because the client initiates a TLS renegotiation (which sends a new ClientHello later in the same TCP stream, possibly carrying a different SNI), only the SNI carried by that very first ClientHello will be returned, the content of any subsequent ClientHello will be ignored.\n\nWhen Encrypted Client Hello (ECH) is used, the ClientHello seen on the wire is only the \"Outer\" ClientHello, which embeds the real, encrypted \"Inner\" ClientHello. The SNI extracted by this fetch in that case is the one from the Outer ClientHello, which is a decoy SNI and not the actual host the client intends to reach. This fetch is currently not able to decrypt nor analyze the Inner ClientHello, so it must not be relied upon to make routing or access control decisions when ECH is in use.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.2-req_ssl_sni",
         "examples": [],
         "name": "req_ssl_sni",
@@ -373,7 +373,7 @@
         "signature": "req_ssl_sni (deprecated)"
       },
       {
-        "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL.",
+        "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.2-req_ssl_ver",
         "examples": [],
         "name": "req_ssl_ver",
@@ -4920,6 +4920,14 @@
         "signature": "base32"
       },
       {
+        "description": "This returns the concatenation of the base32 fetch above and the src fetch below. The resulting type is of type binary, with a size of 8 or 20 bytes depending on the source address family. This can be used to track per-IP, per-URL counters.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#base32%2Bsrc",
+        "examples": [],
+        "name": "base32+src",
+        "rulesets": [],
+        "signature": "base32+src"
+      },
+      {
         "description": "This returns the concatenation of the first Host header and the path part of the request with the query-string, which starts at the first slash. Using this instead of \"base\" allows one to properly identify the target resource, for statistics or caching use cases. See also \"path\", \"pathq\" and \"base\".",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#baseq",
         "examples": [],
@@ -6109,7 +6117,7 @@
         "signature": "req.rdp_cookie_cnt([name])"
       },
       {
-        "description": "Returns a string containing the values of the Application-Layer Protocol Negotiation (ALPN) TLS extension (RFC7301), sent by the client within the SSL ClientHello message. Note that this only applies to raw contents found in the request buffer and not to the contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is useful in ACL to make a routing decision based upon the ALPN preferences of a TLS client, like in the example below. See also \"ssl_fc_alpn\".",
+        "description": "Returns a string containing the values of the Application-Layer Protocol Negotiation (ALPN) TLS extension (RFC7301), sent by the client within the SSL ClientHello message. Note that this only applies to raw contents found in the request buffer and not to the contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is useful in ACL to make a routing decision based upon the ALPN preferences of a TLS client, like in the example below. See also \"ssl_fc_alpn\". This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#req.ssl_alpn",
         "examples": [
           {
@@ -6122,7 +6130,7 @@
         "signature": "req.ssl_alpn"
       },
       {
-        "description": "Returns a boolean identifying if client sent the Supported Elliptic Curves Extension as defined in RFC4492, section 5.1. within the SSL ClientHello message. This can be used to present ECC compatible clients with EC certificate and to use RSA for all others, on the same IP address. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option.",
+        "description": "Returns a boolean identifying if client sent the Supported Elliptic Curves Extension as defined in RFC4492, section 5.1. within the SSL ClientHello message. This can be used to present ECC compatible clients with EC certificate and to use RSA for all others, on the same IP address. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#req.ssl_ec_ext",
         "examples": [],
         "name": "req.ssl_ec_ext",
@@ -6130,7 +6138,7 @@
         "signature": "req.ssl_ec_ext"
       },
       {
-        "description": "Returns an integer value containing the type of the SSL hello message found in the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is mostly used in ACL to detect presence of an SSL hello message that is supposed to contain an SSL session ID usable for stickiness.",
+        "description": "Returns an integer value containing the type of the SSL hello message found in the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is mostly used in ACL to detect presence of an SSL hello message that is supposed to contain an SSL session ID usable for stickiness. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#req.ssl_hello_type",
         "examples": [],
         "name": "req.ssl_hello_type",
@@ -6138,7 +6146,7 @@
         "signature": "req.ssl_hello_type"
       },
       {
-        "description": "Returns a string containing the value of the Server Name TLS extension sent by a client in a TLS stream passing through the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This will only work for actual implicit TLS based protocols like HTTPS (443), IMAPS (993), SMTPS (465), however it will not work for explicit TLS based protocols, like SMTP (25/587) or IMAP (143). SNI normally contains the name of the host the client tries to connect to (for recent browsers). SNI is useful for allowing or denying access to certain hosts when SSL/TLS is used by the client. This test was designed to be used with TCP request content inspection. If content switching is needed, it is recommended to first wait for a complete client hello (type 1), like in the example below. See also \"ssl_fc_sni\".",
+        "description": "Returns a string containing the value of the Server Name TLS extension sent by a client in a TLS stream passing through the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This will only work for actual implicit TLS based protocols like HTTPS (443), IMAPS (993), SMTPS (465), however it will not work for explicit TLS based protocols, like SMTP (25/587) or IMAP (143). SNI normally contains the name of the host the client tries to connect to (for recent browsers). This test was designed to be used with TCP request content inspection. If content switching is needed, it is recommended to first wait for a complete client hello (type 1), like in the example below. See also \"ssl_fc_sni\". Beware that, for the reasons detailed below (HelloRetryRequest, Renegotiation, Encrypted Client Hello), the value returned by this fetch is not reliable enough to be used alone for allowing or denying access to certain hosts.\n\nThis fetch only parses the first ClientHello message found in the request buffer. If the client sends several ClientHello messages within the same TCP stream, for instance because the server requested a HelloRetryRequest (HRR) as part of TLS 1.3, or because the client initiates a TLS renegotiation (which sends a new ClientHello later in the same TCP stream, possibly carrying a different SNI), only the SNI carried by that very first ClientHello will be returned, the content of any subsequent ClientHello will be ignored.\n\nWhen Encrypted Client Hello (ECH) is used, the ClientHello seen on the wire is only the \"Outer\" ClientHello, which embeds the real, encrypted \"Inner\" ClientHello. The SNI extracted by this fetch in that case is the one from the Outer ClientHello, which is a decoy SNI and not the actual host the client intends to reach. This fetch is currently not able to decrypt nor analyze the Inner ClientHello, so it must not be relied upon to make routing or access control decisions when ECH is in use.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#req.ssl_sni",
         "examples": [
           {
@@ -6151,7 +6159,7 @@
         "signature": "req.ssl_sni"
       },
       {
-        "description": "Returns 0 if the client didn't send a SessionTicket TLS Extension (RFC5077) Returns 1 if the client sent SessionTicket TLS Extension Returns 2 if the client also sent non-zero length TLS SessionTicket Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This can for example be used to detect whether the client sent a SessionTicket or not and stick it accordingly, if no SessionTicket then stick on SessionID or don't stick as there's no server side state is there when SessionTickets are in use.",
+        "description": "Returns 0 if the client didn't send a SessionTicket TLS Extension (RFC5077) Returns 1 if the client sent SessionTicket TLS Extension Returns 2 if the client also sent non-zero length TLS SessionTicket Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This can for example be used to detect whether the client sent a SessionTicket or not and stick it accordingly, if no SessionTicket then stick on SessionID or don't stick as there's no server side state is there when SessionTickets are in use. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#req.ssl_st_ext",
         "examples": [],
         "name": "req.ssl_st_ext",
@@ -6159,7 +6167,7 @@
         "signature": "req.ssl_st_ext"
       },
       {
-        "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL.",
+        "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#req.ssl_ver",
         "examples": [],
         "name": "req.ssl_ver",
@@ -6196,7 +6204,7 @@
         "signature": "req_proto_http (deprecated)"
       },
       {
-        "description": "Returns an integer value containing the type of the SSL hello message found in the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is mostly used in ACL to detect presence of an SSL hello message that is supposed to contain an SSL session ID usable for stickiness.",
+        "description": "Returns an integer value containing the type of the SSL hello message found in the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This is mostly used in ACL to detect presence of an SSL hello message that is supposed to contain an SSL session ID usable for stickiness. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#req_ssl_hello_type",
         "examples": [],
         "name": "req_ssl_hello_type",
@@ -6204,7 +6212,7 @@
         "signature": "req_ssl_hello_type (deprecated)"
       },
       {
-        "description": "Returns a string containing the value of the Server Name TLS extension sent by a client in a TLS stream passing through the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This will only work for actual implicit TLS based protocols like HTTPS (443), IMAPS (993), SMTPS (465), however it will not work for explicit TLS based protocols, like SMTP (25/587) or IMAP (143). SNI normally contains the name of the host the client tries to connect to (for recent browsers). SNI is useful for allowing or denying access to certain hosts when SSL/TLS is used by the client. This test was designed to be used with TCP request content inspection. If content switching is needed, it is recommended to first wait for a complete client hello (type 1), like in the example below. See also \"ssl_fc_sni\".",
+        "description": "Returns a string containing the value of the Server Name TLS extension sent by a client in a TLS stream passing through the request buffer if the buffer contains data that parse as a complete SSL (v3 or superior) client hello message. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. This will only work for actual implicit TLS based protocols like HTTPS (443), IMAPS (993), SMTPS (465), however it will not work for explicit TLS based protocols, like SMTP (25/587) or IMAP (143). SNI normally contains the name of the host the client tries to connect to (for recent browsers). This test was designed to be used with TCP request content inspection. If content switching is needed, it is recommended to first wait for a complete client hello (type 1), like in the example below. See also \"ssl_fc_sni\". Beware that, for the reasons detailed below (HelloRetryRequest, Renegotiation, Encrypted Client Hello), the value returned by this fetch is not reliable enough to be used alone for allowing or denying access to certain hosts.\n\nThis fetch only parses the first ClientHello message found in the request buffer. If the client sends several ClientHello messages within the same TCP stream, for instance because the server requested a HelloRetryRequest (HRR) as part of TLS 1.3, or because the client initiates a TLS renegotiation (which sends a new ClientHello later in the same TCP stream, possibly carrying a different SNI), only the SNI carried by that very first ClientHello will be returned, the content of any subsequent ClientHello will be ignored.\n\nWhen Encrypted Client Hello (ECH) is used, the ClientHello seen on the wire is only the \"Outer\" ClientHello, which embeds the real, encrypted \"Inner\" ClientHello. The SNI extracted by this fetch in that case is the one from the Outer ClientHello, which is a decoy SNI and not the actual host the client intends to reach. This fetch is currently not able to decrypt nor analyze the Inner ClientHello, so it must not be relied upon to make routing or access control decisions when ECH is in use.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#req_ssl_sni",
         "examples": [
           {
@@ -6217,7 +6225,7 @@
         "signature": "req_ssl_sni (deprecated)"
       },
       {
-        "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL.",
+        "description": "Returns an integer value containing the version of the SSL/TLS protocol of a stream present in the request buffer. Both SSLv2 hello messages and SSLv3 messages are supported. TLSv1 is announced as SSL version 3.1. The value is composed of the major version multiplied by 65536, added to the minor version. Note that this only applies to raw contents found in the request buffer and not to contents deciphered via an SSL data layer, so this will not work with \"bind\" lines having the \"ssl\" option. The ACL version of the test matches against a decimal notation in the form MAJOR.MINOR (e.g. 3.1). This fetch is mostly used in ACL. This fetch only analyzes the first ClientHello message found in the request buffer, see the \"req.ssl_sni\" keyword documentation for more details about the implications of this limitation (HelloRetryRequest, Renegotiation, Encrypted Client Hello).",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#req_ssl_ver",
         "examples": [],
         "name": "req_ssl_ver",
@@ -7866,6 +7874,14 @@
         "signature": "url32"
       },
       {
+        "description": "This returns the concatenation of the \"url32\" fetch and the \"src\" fetch. The resulting type is of type binary, with a size of 8 or 20 bytes depending on the source address family. This can be used to track per-IP, per-URL counters.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#url32%2Bsrc",
+        "examples": [],
+        "name": "url32+src",
+        "rulesets": [],
+        "signature": "url32+src"
+      },
+      {
         "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#url_ip",
         "examples": [],
@@ -8537,7 +8553,7 @@
       },
       {
         "description": "Select what should happen when enough consecutive errors are detected. Currently, four modes are available: - fastinter: force fastinter - fail-check: simulate a failed check, also forces fastinter (default) - sudden-death: simulate a pre-fatal failed health check, one more failed check will mark a server down, forces fastinter - mark-down: mark the server immediately down and force fastinter",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-on-error",
+        "docsUrl": "https://customer-docs.haproxy.com/bot-management/captcha-modules/",
         "examples": [],
         "name": "on-error",
         "rulesets": [],
@@ -8845,7 +8861,7 @@
       },
       {
         "description": "This option enables ability to set the current state of the server by tracking another one. It is possible to track a server which itself tracks another server, provided that at the end of the chain, a server has health checks enabled. If <backend> is omitted the current one is used. If disable-on-404 is used, it has to be enabled on both proxies.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-track",
+        "docsUrl": "https://customer-docs.haproxy.com/bot-management/bot-management-module/",
         "examples": [],
         "name": "track",
         "rulesets": [],
@@ -22179,7 +22195,7 @@
     },
     "process-vary": {
       "arguments": [],
-      "description": "Enable or disable the processing of the Vary header. When disabled, a response containing such a header will never be cached. When enabled, we need to calculate a preliminary hash for a subset of request headers on all the incoming requests (which might come with a cpu cost) which will be used to build a secondary key for a given request (see RFC 7234#4.1). The default value is off (disabled).",
+      "description": "Enable or disable the processing of the Vary header. When disabled, a response containing such a header will never be cached. When enabled, we need to calculate a preliminary hash for a subset of request headers on all the incoming requests (which might come with a cpu cost) which will be used to build a secondary key for a given request (see RFC 7234#4.1). The secondary key is built out of the contents of the 'accept-encoding', 'referer' and 'origin' headers for now. Note that the 'origin' and 'referer' headers are single-valued per the RFC, so a request carrying more than one occurrence of either should be considered malformed. For such requests no secondary key is built and the response is never delivered from the cache so that we can let the server decide how to handle the situation. The default value is off (disabled).",
       "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#6.2.1-process-vary",
       "examples": [],
       "name": "process-vary",
@@ -22194,7 +22210,7 @@
           "arguments": [],
           "chapter": "6.2.1",
           "contexts": [],
-          "description": "Enable or disable the processing of the Vary header. When disabled, a response containing such a header will never be cached. When enabled, we need to calculate a preliminary hash for a subset of request headers on all the incoming requests (which might come with a cpu cost) which will be used to build a secondary key for a given request (see RFC 7234#4.1). The default value is off (disabled).",
+          "description": "Enable or disable the processing of the Vary header. When disabled, a response containing such a header will never be cached. When enabled, we need to calculate a preliminary hash for a subset of request headers on all the incoming requests (which might come with a cpu cost) which will be used to build a secondary key for a given request (see RFC 7234#4.1). The secondary key is built out of the contents of the 'accept-encoding', 'referer' and 'origin' headers for now. Note that the 'origin' and 'referer' headers are single-valued per the RFC, so a request carrying more than one occurrence of either should be considered malformed. For such requests no secondary key is built and the response is never delivered from the cache so that we can let the server decide how to handle the situation. The default value is off (disabled).",
           "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#6.2.1-process-vary",
           "examples": [],
           "sections": [
@@ -24366,7 +24382,7 @@
     },
     "stats admin": {
       "arguments": [],
-      "description": "Enable statistics admin level if/unless a condition is matched\n\nThis statement enables the statistics admin level if/unless a condition is matched.\n\nThe admin level allows to enable/disable servers from the web interface. By default, statistics page is read-only for security reasons.\n\nCurrently, the POST request is limited to the buffer size minus the reserved buffer space, which means that if the list of servers is too long, the request won't be processed. It is recommended to alter few servers at a time.",
+      "description": "Enable statistics admin level if/unless a condition is matched\n\nThis statement enables the statistics admin level if/unless a condition is matched.\n\nThe admin level allows to enable/disable servers from the web interface. By default, statistics page is read-only for security reasons. If \"stats scope\" directives are set in the section, then only proxies designated by these directives will accept state changes; access to other ones will be denied.\n\nCurrently, the POST request is limited to the buffer size minus the reserved buffer space, which means that if the list of servers is too long, the request won't be processed. It is recommended to alter few servers at a time.\n\nThose admin POST requests are prone to CSRF attacks. This is partially mitigated by checking that the Origin (or Referer if no Origin is present) matches the Host header, but this is not enough to totally prevent the attack. There is no way to be completely protected from those. It is recommended to avoid exposing it on a public interface, and to restrict who can access it.",
       "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-stats%20admin",
       "examples": [
         {
@@ -24396,7 +24412,7 @@
           "arguments": [],
           "chapter": "4.2",
           "contexts": [],
-          "description": "Enable statistics admin level if/unless a condition is matched\n\nThis statement enables the statistics admin level if/unless a condition is matched.\n\nThe admin level allows to enable/disable servers from the web interface. By default, statistics page is read-only for security reasons.\n\nCurrently, the POST request is limited to the buffer size minus the reserved buffer space, which means that if the list of servers is too long, the request won't be processed. It is recommended to alter few servers at a time.",
+          "description": "Enable statistics admin level if/unless a condition is matched\n\nThis statement enables the statistics admin level if/unless a condition is matched.\n\nThe admin level allows to enable/disable servers from the web interface. By default, statistics page is read-only for security reasons. If \"stats scope\" directives are set in the section, then only proxies designated by these directives will accept state changes; access to other ones will be denied.\n\nCurrently, the POST request is limited to the buffer size minus the reserved buffer space, which means that if the list of servers is too long, the request won't be processed. It is recommended to alter few servers at a time.\n\nThose admin POST requests are prone to CSRF attacks. This is partially mitigated by checking that the Origin (or Referer if no Origin is present) matches the Host header, but this is not enough to totally prevent the attack. There is no way to be completely protected from those. It is recommended to avoid exposing it on a public interface, and to restrict who can access it.",
           "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-stats%20admin",
           "examples": [
             {
@@ -24793,7 +24809,7 @@
           "values": []
         }
       ],
-      "description": "Enable statistics and limit access scope\n\nWhen this statement is specified, only the sections enumerated with this statement will appear in the report. All other ones will be hidden. This statement may appear as many times as needed if multiple sections need to be reported. Please note that the name checking is performed as simple string comparisons, and that it is never checked that a give section name really exists.\n\nThough this statement alone is enough to enable statistics reporting, it is recommended to set all other settings in order to avoid relying on default unobvious parameters.",
+      "description": "Enable statistics and limit access scope\n\nWhen this statement is specified, only the sections enumerated with this statement will appear in the report. All other ones will be hidden, and attempts to change their state in admin mode will be rejected. This statement may appear as many times as needed if multiple sections need to be reported. Please note that the name checking is performed as simple string comparisons, and that it is never checked that a give section name really exists.\n\nThough this statement alone is enough to enable statistics reporting, it is recommended to set all other settings in order to avoid relying on default unobvious parameters.",
       "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-stats%20scope",
       "examples": [
         {
@@ -24822,7 +24838,7 @@
           ],
           "chapter": "4.2",
           "contexts": [],
-          "description": "Enable statistics and limit access scope\n\nWhen this statement is specified, only the sections enumerated with this statement will appear in the report. All other ones will be hidden. This statement may appear as many times as needed if multiple sections need to be reported. Please note that the name checking is performed as simple string comparisons, and that it is never checked that a give section name really exists.\n\nThough this statement alone is enough to enable statistics reporting, it is recommended to set all other settings in order to avoid relying on default unobvious parameters.",
+          "description": "Enable statistics and limit access scope\n\nWhen this statement is specified, only the sections enumerated with this statement will appear in the report. All other ones will be hidden, and attempts to change their state in admin mode will be rejected. This statement may appear as many times as needed if multiple sections need to be reported. Please note that the name checking is performed as simple string comparisons, and that it is never checked that a give section name really exists.\n\nThough this statement alone is enough to enable statistics reporting, it is recommended to set all other settings in order to avoid relying on default unobvious parameters.",
           "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-stats%20scope",
           "examples": [
             {

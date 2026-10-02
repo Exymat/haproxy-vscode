@@ -7444,6 +7444,14 @@
         "signature": "base32"
       },
       {
+        "description": "This returns the concatenation of the base32 fetch above and the src fetch below. The resulting type is of type binary, with a size of 8 or 20 bytes depending on the source address family. This can be used to track per-IP, per-URL counters.",
+        "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#base32%2Bsrc",
+        "examples": [],
+        "name": "base32+src",
+        "rulesets": [],
+        "signature": "base32+src"
+      },
+      {
         "description": "This returns the concatenation of the first Host header and the path part of the request with the query-string, which starts at the first slash. Using this instead of \"base\" allows one to properly identify the target resource, for statistics or caching use cases. See also \"path\", \"pathq\" and \"base\".",
         "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#baseq",
         "examples": [],
@@ -11971,6 +11979,14 @@
         "signature": "url32"
       },
       {
+        "description": "This returns the concatenation of the \"url32\" fetch and the \"src\" fetch. The resulting type is of type binary, with a size of 8 or 20 bytes depending on the source address family. This can be used to track per-IP, per-URL counters.",
+        "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#url32%2Bsrc",
+        "examples": [],
+        "name": "url32+src",
+        "rulesets": [],
+        "signature": "url32+src"
+      },
+      {
         "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
         "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#url_ip",
         "examples": [],
@@ -12716,7 +12732,7 @@
       },
       {
         "description": "Select what should happen when enough consecutive errors are detected. Currently, four modes are available: - fastinter: force fastinter - fail-check: simulate a failed check, also forces fastinter (default) - sudden-death: simulate a pre-fatal failed health check, one more failed check will mark a server down, forces fastinter - mark-down: mark the server immediately down and force fastinter",
-        "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#5.2-on-error",
+        "docsUrl": "https://customer-docs.haproxy.com/bot-management/captcha-modules/",
         "examples": [],
         "name": "on-error",
         "rulesets": [],
@@ -13058,7 +13074,7 @@
       },
       {
         "description": "This option enables ability to set the current state of the server by tracking another one. It is possible to track a server which itself tracks another server, provided that at the end of the chain, a server has health checks enabled. If <backend> is omitted the current one is used. If disable-on-404 is used, it has to be enabled on both proxies.",
-        "docsUrl": "https://docs.haproxy.org/3.4/configuration.html#5.2-track",
+        "docsUrl": "https://customer-docs.haproxy.com/bot-management/bot-management-module/",
         "examples": [
           {
             "code": "backend A\nserver a1 1.1.1.1:80 track B/b1\nserver a2 1.1.1.2:80 track B/b1\n\nbackend B\nserver b1 2.2.2.2:80 check",

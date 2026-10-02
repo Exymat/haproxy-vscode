@@ -2,6 +2,13 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.20.3
+
+- **Refreshed bundled docs** — hover text for `req.ssl_*` fetches includes the ClientHello and Encrypted Client Hello limits, `ssl_*_dn` fetches note embedded NUL bytes, and the `bytes` converter description matches the current manual. Community and HAPEE schemas for 2.6–3.4 pick up the same wording.
+- **`base32+src` and `url32+src`** — these sample fetches are recognized in the community schemas for 2.6–3.4, so completion and diagnostics accept them.
+- **Filter highlighting in rules** — HAProxy 3.4 highlights `filter` names such as `compression`, `comp-req`, and `comp-res` inside rule actions.
+- **HAPEE converter hover** — a `bytes()` example line is no longer treated as a sample converter in 3.0r1 and 3.2r1.
+
 ## 0.20.2
 
 - **ACL flag and match-method hovers** — hovering ACL flags (`-i`, `-f`, `-m`, and similar) and match methods after `-m` (`beg`, `dir`, `dom`, `ip`, `reg`, and similar) shows the matching schema docs instead of a generic keyword hover. Bundled schemas and language data for 2.6–3.4 (community and HAPEE) include clearer ACL flag and match-method descriptions.
