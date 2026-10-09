@@ -24,6 +24,22 @@ describe("range formatter", () => {
     expect(formatted).toBe("    bind             :80\n    mode             http");
   });
 
+  it("normalizes CRLF line endings to LF in a range by default", () => {
+    const input = "frontend web\r\n    bind             :80\r\n    mode             http";
+    const formatted = formatConfigRange(input, { startLine: 1, endLine: 2 }, formatOptions);
+    expect(formatted).toBe("    bind             :80\n    mode             http");
+  });
+
+  it("preserves CRLF in a range when lineEnding is preserve", () => {
+    const input = "frontend web\r\n    bind             :80\r\n    mode             http";
+    const formatted = formatConfigRange(
+      input,
+      { startLine: 1, endLine: 2 },
+      { ...formatOptions, lineEnding: "preserve" },
+    );
+    expect(formatted).toBe("    bind             :80\r\n    mode             http");
+  });
+
   it("returns empty string for inverted ranges", () => {
     const input = "frontend web\n    bind :80";
     expect(formatConfigRange(input, { startLine: 1, endLine: 0 }, formatOptions)).toBe("");

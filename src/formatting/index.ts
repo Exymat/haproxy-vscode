@@ -13,11 +13,16 @@ const tokenizeLine = tokenizeLineImpl;
  * (Configuration file format, Quoting and escaping). Those rules are
  * identical across supported versions 2.6, 2.8, 3.0, 3.2, and 3.4.
  */
+/** How Format Document / Format Selection should handle line endings. */
+export type FormatLineEnding = "lf" | "crlf" | "preserve";
+
 export interface FormatOptions {
   indentStyle: "spaces" | "tab";
   /** Doc recommends 2-4 spaces when not using tabs. */
   indentSize: number;
   insertBlankLineBetweenSections: boolean;
+  /** Default `lf` — HAProxy configs are deployed on Linux. */
+  lineEnding: FormatLineEnding;
   sectionHeaders: ReadonlySet<string>;
 }
 
@@ -25,7 +30,22 @@ export const DEFAULT_FORMAT_OPTIONS: Omit<FormatOptions, "sectionHeaders"> = {
   indentStyle: "spaces",
   indentSize: 4,
   insertBlankLineBetweenSections: true,
+  lineEnding: "lf",
 };
+
+export function isFormatLineEnding(value: string): value is FormatLineEnding {
+  return value === "lf" || value === "crlf" || value === "preserve";
+}
+
+function resolveLineEnding(text: string, mode: FormatLineEnding): "\n" | "\r\n" {
+  if (mode === "lf") {
+    return "\n";
+  }
+  if (mode === "crlf") {
+    return "\r\n";
+  }
+  return text.includes("\r\n") ? "\r\n" : "\n";
+}
 
 export interface SplitLine {
   code: string;
@@ -80,10 +100,6 @@ function appendComment(line: string, commentSuffix: string | null): string {
     return line;
   }
   return `${line} ${commentSuffix}`;
-}
-
-function detectLineEnding(text: string): "\n" | "\r\n" {
-  return text.includes("\r\n") ? "\r\n" : "\n";
 }
 
 function lastNonEmptyLine(lines: string[]): string | undefined {
@@ -178,7 +194,7 @@ function formatLines(
 }
 
 export function formatConfig(text: string, options: FormatOptions): string {
-  const lineEnding = detectLineEnding(text);
+  const lineEnding = resolveLineEnding(text, options.lineEnding);
   const hasTrailingNewline = text.endsWith("\n") || text.endsWith("\r\n");
   const inputLines = text.split(/\r?\n/);
   if (hasTrailingNewline && inputLines.length > 0 && inputLines[inputLines.length - 1] === "") {
@@ -198,7 +214,7 @@ export function formatConfigRange(
   range: FormatLineRange,
   options: FormatOptions,
 ): string {
-  const lineEnding = detectLineEnding(text);
+  const lineEnding = resolveLineEnding(text, options.lineEnding);
   const inputLines = text.split(/\r?\n/);
   const boundedRange = {
     startLine: Math.max(0, Math.min(range.startLine, inputLines.length - 1)),

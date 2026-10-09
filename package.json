@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, rename, cross-file navigation, and workspace symbol graph — community LTS 2.6-3.4 and HAProxy Enterprise (HAPEE) 2.6r1-3.2r1.",
-  "version": "0.20.3",
+  "version": "0.20.4",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
@@ -246,6 +246,21 @@
           "type": "boolean",
           "default": true,
           "description": "Insert a blank line before each new section header."
+        },
+        "haproxy.format.lineEnding": {
+          "type": "string",
+          "enum": [
+            "lf",
+            "crlf",
+            "preserve"
+          ],
+          "enumDescriptions": [
+            "Always rewrite line endings to LF (Unix). Recommended — HAProxy runs on Linux.",
+            "Always rewrite line endings to CRLF (Windows).",
+            "Leave existing line endings unchanged (disabled)."
+          ],
+          "default": "lf",
+          "markdownDescription": "Line endings written by **Format Document** / **Format Selection**.\n\nDefault **lf** matches Linux deployments. Choose **preserve** to keep CRLF or LF as-is."
         }
       }
     },
@@ -401,43 +416,53 @@
   "configurationDefaults": {
     "[haproxy]": {
       "editor.maxTokenizationLineLength": 20000,
-      "editor.semanticHighlighting.enabled": true
+      "editor.semanticHighlighting.enabled": true,
+      "files.eol": "\n"
     },
     "[haproxy-2.6]": {
       "editor.maxTokenizationLineLength": 20000,
-      "editor.semanticHighlighting.enabled": true
+      "editor.semanticHighlighting.enabled": true,
+      "files.eol": "\n"
     },
     "[haproxy-2.8]": {
       "editor.maxTokenizationLineLength": 20000,
-      "editor.semanticHighlighting.enabled": true
+      "editor.semanticHighlighting.enabled": true,
+      "files.eol": "\n"
     },
     "[haproxy-3.0]": {
       "editor.maxTokenizationLineLength": 20000,
-      "editor.semanticHighlighting.enabled": true
+      "editor.semanticHighlighting.enabled": true,
+      "files.eol": "\n"
     },
     "[haproxy-3.2]": {
       "editor.maxTokenizationLineLength": 20000,
-      "editor.semanticHighlighting.enabled": true
+      "editor.semanticHighlighting.enabled": true,
+      "files.eol": "\n"
     },
     "[haproxy-3.4]": {
       "editor.maxTokenizationLineLength": 20000,
-      "editor.semanticHighlighting.enabled": true
+      "editor.semanticHighlighting.enabled": true,
+      "files.eol": "\n"
     },
     "[haproxy-2.6r1]": {
       "editor.maxTokenizationLineLength": 20000,
-      "editor.semanticHighlighting.enabled": true
+      "editor.semanticHighlighting.enabled": true,
+      "files.eol": "\n"
     },
     "[haproxy-2.8r1]": {
       "editor.maxTokenizationLineLength": 20000,
-      "editor.semanticHighlighting.enabled": true
+      "editor.semanticHighlighting.enabled": true,
+      "files.eol": "\n"
     },
     "[haproxy-3.0r1]": {
       "editor.maxTokenizationLineLength": 20000,
-      "editor.semanticHighlighting.enabled": true
+      "editor.semanticHighlighting.enabled": true,
+      "files.eol": "\n"
     },
     "[haproxy-3.2r1]": {
       "editor.maxTokenizationLineLength": 20000,
-      "editor.semanticHighlighting.enabled": true
+      "editor.semanticHighlighting.enabled": true,
+      "files.eol": "\n"
     }
   },
   "scripts": {

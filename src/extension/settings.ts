@@ -1,7 +1,7 @@
 /** Reads and watches HAProxy extension configuration from VS Code settings. */
 import * as vscode from "vscode";
 
-import { FormatOptions } from "../formatting";
+import { FormatLineEnding, FormatOptions, isFormatLineEnding } from "../formatting";
 import {
   FormatIndent,
   formatIndentToOptions,
@@ -43,6 +43,7 @@ export interface HaproxyExtensionSettings {
   formatEnabled: boolean;
   formatIndent: FormatIndent;
   formatInsertBlankLineBetweenSections: boolean;
+  formatLineEnding: FormatLineEnding;
   deprecatedWarnings: boolean;
   unusedSymbols: boolean;
   missingReferences: boolean;
@@ -69,6 +70,11 @@ function readFormatIndent(config: vscode.WorkspaceConfiguration): FormatIndent {
   );
 }
 
+function readFormatLineEnding(config: vscode.WorkspaceConfiguration): FormatLineEnding {
+  const value = config.get<string>("format.lineEnding", "lf");
+  return isFormatLineEnding(value) ? value : "lf";
+}
+
 export function getExtensionSettings(): HaproxyExtensionSettings {
   const config = vscode.workspace.getConfiguration(SECTION);
   return {
@@ -86,6 +92,7 @@ export function getExtensionSettings(): HaproxyExtensionSettings {
       "format.insertBlankLineBetweenSections",
       true,
     ),
+    formatLineEnding: readFormatLineEnding(config),
     deprecatedWarnings: config.get<boolean>("diagnostics.deprecatedWarnings", true),
     unusedSymbols: config.get<boolean>("diagnostics.unusedSymbols", true),
     missingReferences: config.get<boolean>("diagnostics.missingReferences", true),
@@ -134,6 +141,7 @@ export function getFormatOptions(
   return {
     ...formatIndentToOptions(settings.formatIndent),
     insertBlankLineBetweenSections: settings.formatInsertBlankLineBetweenSections,
+    lineEnding: settings.formatLineEnding,
   };
 }
 

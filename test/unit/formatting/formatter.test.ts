@@ -62,7 +62,12 @@ describe("formatter", () => {
     {
       name: "tab indent style",
       input: "global\n    maxconn 100",
-      options: { indentStyle: "tab" as const, indentSize: 4, insertBlankLineBetweenSections: true },
+      options: {
+        indentStyle: "tab" as const,
+        indentSize: 4,
+        insertBlankLineBetweenSections: true,
+        lineEnding: "lf" as const,
+      },
       expected: "global\n\tmaxconn 100",
     },
     {
@@ -72,6 +77,7 @@ describe("formatter", () => {
         indentStyle: "spaces" as const,
         indentSize: 4,
         insertBlankLineBetweenSections: false,
+        lineEnding: "lf" as const,
       },
       expected: "global\n    daemon\ndefaults\n    mode http",
     },
@@ -81,9 +87,27 @@ describe("formatter", () => {
       expected: "global\n    daemon\n",
     },
     {
-      name: "preserves CRLF line endings",
+      name: "normalizes CRLF line endings to LF by default",
       input: "global\r\n    daemon\r\n",
+      expected: "global\n    daemon\n",
+    },
+    {
+      name: "rewrites LF to CRLF when lineEnding is crlf",
+      input: "global\n    daemon\n",
+      options: { lineEnding: "crlf" as const },
       expected: "global\r\n    daemon\r\n",
+    },
+    {
+      name: "preserves CRLF when lineEnding is preserve",
+      input: "global\r\n    daemon\r\n",
+      options: { lineEnding: "preserve" as const },
+      expected: "global\r\n    daemon\r\n",
+    },
+    {
+      name: "preserves LF when lineEnding is preserve",
+      input: "global\n    daemon\n",
+      options: { lineEnding: "preserve" as const },
+      expected: "global\n    daemon\n",
     },
     {
       name: "hash inside quotes is not a comment",
@@ -117,6 +141,7 @@ describe("formatter", () => {
         indentStyle: "spaces" as const,
         indentSize: 2,
         insertBlankLineBetweenSections: true,
+        lineEnding: "lf" as const,
       },
       expected: "frontend web\n  bind :443",
     },

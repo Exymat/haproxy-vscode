@@ -2,6 +2,10 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.20.4
+
+- **Format line endings** — new `haproxy.format.lineEnding` setting (`lf` / `crlf` / `preserve`, default `lf`). Format Document and Format Selection rewrite endings accordingly; language defaults also set `files.eol` to LF for HAProxy configs.
+
 ## 0.20.3
 
 - **Refreshed bundled docs** — hover text for `req.ssl_*` fetches includes the ClientHello and Encrypted Client Hello limits, `ssl_*_dn` fetches note embedded NUL bytes, and the `bytes` converter description matches the current manual. Community and HAPEE schemas for 2.6–3.4 pick up the same wording.

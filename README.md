@@ -108,9 +108,10 @@ Run **Format Document** (or enable format-on-save) to normalize layout according
 - Comments and quoted strings are preserved; inline `#` comments stay on the same line.
 - Optional blank lines are inserted before each new section header.
 - Multiple blank lines between sections collapse to one; trailing blank lines at end of file are removed.
+- Line endings default to LF (Unix); configurable as LF, CRLF, or preserve existing — see **Settings** below.
 - **Format Selection** preserves intra-line spacing in the selected range for minimal diffs while still normalizing section indent.
 
-Indent style (4 spaces, 2 spaces, or tab) and blank-line behavior are configurable — see **Settings** below.
+Indent style (4 spaces, 2 spaces, or tab), blank-line behavior, and line endings are configurable — see **Settings** below.
 
 ![Format Document normalizing section layout and blank lines](docs/images/format-document.gif)
 
@@ -233,6 +234,7 @@ Completion, diagnostics, hover, and highlighting update as soon as the setting c
 | `haproxy.format.enabled`                        | `true`          | Enable **Format Document** for HAProxy configs                                                                                                                                                                    |
 | `haproxy.format.indent`                         | `spaces-4`      | Indentation inside sections: `spaces-4`, `spaces-2`, or `tab`                                                                                                                                                     |
 | `haproxy.format.insertBlankLineBetweenSections` | `true`          | Insert a blank line before each new section header when formatting                                                                                                                                                |
+| `haproxy.format.lineEnding`                     | `lf`            | Line endings on format: `lf` (Unix, default), `crlf` (Windows), or `preserve` (leave unchanged)                                                                                                                   |
 
 The extension also raises `editor.maxTokenizationLineLength` for HAProxy files so long `server` / `bind` lines tokenize correctly.
 

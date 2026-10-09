@@ -23,6 +23,7 @@ describe("settings", () => {
       formatEnabled: true,
       formatIndent: "spaces-4",
       formatInsertBlankLineBetweenSections: true,
+      formatLineEnding: "lf",
       deprecatedWarnings: true,
       unusedSymbols: true,
       missingReferences: true,
@@ -117,11 +118,21 @@ describe("settings", () => {
   it("builds format options from settings", () => {
     setMockConfig("haproxy", "format.indent", "spaces-2");
     setMockConfig("haproxy", "format.insertBlankLineBetweenSections", false);
+    setMockConfig("haproxy", "format.lineEnding", "crlf");
     expect(getFormatOptions()).toEqual({
       indentStyle: "spaces",
       indentSize: 2,
       insertBlankLineBetweenSections: false,
+      lineEnding: "crlf",
     });
+  });
+
+  it("defaults format.lineEnding to lf and rejects invalid values", () => {
+    expect(getExtensionSettings().formatLineEnding).toBe("lf");
+    setMockConfig("haproxy", "format.lineEnding", "preserve");
+    expect(getExtensionSettings().formatLineEnding).toBe("preserve");
+    setMockConfig("haproxy", "format.lineEnding", "not-valid");
+    expect(getExtensionSettings().formatLineEnding).toBe("lf");
   });
 
   it("notifies onSettingsChanged when haproxy config changes", () => {
