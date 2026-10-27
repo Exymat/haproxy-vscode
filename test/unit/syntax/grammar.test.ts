@@ -33,7 +33,7 @@ describe("grammar paths and language ids", () => {
       path.join(root, "syntaxes", "haproxy-3.2r1.tmLanguage.json"),
     );
     expect(grammarPathForVersion(root, "3.4", "hapee")).toBe(
-      path.join(root, "syntaxes", "haproxy-3.4.tmLanguage.json"),
+      path.join(root, "syntaxes", "haproxy-3.4r1.tmLanguage.json"),
     );
   });
 
@@ -46,15 +46,16 @@ describe("grammar paths and language ids", () => {
       expect(versionForLanguageId(`haproxy-${version}`)).toBe(version);
     }
     expect(languageIdForVersion("3.2", "hapee")).toBe("haproxy-3.2r1");
+    expect(languageIdForVersion("3.4", "hapee")).toBe("haproxy-3.4r1");
     expect(versionForLanguageId("haproxy-3.2r1")).toBe("3.2");
-    expect(versionForLanguageId("haproxy-3.4r1")).toBeUndefined();
+    expect(versionForLanguageId("haproxy-3.4r1")).toBe("3.4");
   });
 
   it("recognizes base and version-specific haproxy language ids", () => {
     expect(isHaproxyLanguageId("haproxy")).toBe(true);
     expect(isHaproxyLanguageId("haproxy-3.4")).toBe(true);
     expect(isHaproxyLanguageId("haproxy-3.2r1")).toBe(true);
-    expect(isHaproxyLanguageId("haproxy-3.4r1")).toBe(false);
+    expect(isHaproxyLanguageId("haproxy-3.4r1")).toBe(true);
     expect(isHaproxyLanguageId("plaintext")).toBe(false);
     expect(versionForLanguageId("haproxy")).toBeUndefined();
     expect(versionForLanguageId("haproxy-9.9")).toBeUndefined();

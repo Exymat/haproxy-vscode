@@ -7,12 +7,13 @@ import { hapeeSchemaAvailable, schemaArtifactId } from "../../../src/extension/v
 import { loadHapeeBundle, loadSchemaBundle } from "../../helpers/schema";
 
 describe("hapee schema artifacts", () => {
-  it("maps HAPEE LTS versions to r1 artifacts and ignores 3.4", () => {
+  it("maps every supported LTS to an r1 HAPEE artifact", () => {
     expect(hapeeSchemaAvailable("3.2")).toBe(true);
-    expect(hapeeSchemaAvailable("3.4")).toBe(false);
+    expect(hapeeSchemaAvailable("3.4")).toBe(true);
     expect(schemaArtifactId("3.2", "hapee")).toBe("3.2r1");
-    expect(schemaArtifactId("3.4", "hapee")).toBe("3.4");
+    expect(schemaArtifactId("3.4", "hapee")).toBe("3.4r1");
     expect(schemaArtifactId("3.2", "community")).toBe("3.2");
+    expect(schemaArtifactId("3.4", "community")).toBe("3.4");
   });
 
   it("ships a full 3.2r1 schema with HAPEE-only keywords", () => {
@@ -28,7 +29,7 @@ describe("hapee schema artifacts", () => {
     expect(existsSync(schemaPath)).toBe(true);
   });
 
-  it.each(["2.6", "2.8", "3.0", "3.2"] as const)(
+  it.each(["2.6", "2.8", "3.0", "3.2", "3.4"] as const)(
     "keeps the complete %s community schema as an Enterprise subset",
     (version) => {
       const community = loadSchemaBundle(version).schema;
@@ -106,7 +107,7 @@ describe("hapee schema artifacts", () => {
   });
 
   it("ships HAPEE TextMate grammars next to the r1 schemas", () => {
-    for (const version of ["2.6", "2.8", "3.0", "3.2"] as const) {
+    for (const version of ["2.6", "2.8", "3.0", "3.2", "3.4"] as const) {
       const grammarPath = join(
         __dirname,
         "..",
@@ -122,14 +123,16 @@ describe("hapee schema artifacts", () => {
       expect(grammarText).toContain("module\\\\-load");
     }
 
-    const grammar = readFileSync(
-      join(__dirname, "..", "..", "..", "syntaxes", "haproxy-3.2r1.tmLanguage.json"),
-      "utf8",
-    );
-    expect(grammar).toContain("module\\\\-load");
-    expect(grammar).toContain("oidc\\\\-sso");
-    expect(grammar).toContain("saml\\\\-sso");
-    expect(grammar).toContain("rhi\\\\-announce");
+    for (const version of ["3.2", "3.4"] as const) {
+      const grammar = readFileSync(
+        join(__dirname, "..", "..", "..", "syntaxes", `haproxy-${version}r1.tmLanguage.json`),
+        "utf8",
+      );
+      expect(grammar).toContain("module\\\\-load");
+      expect(grammar).toContain("oidc\\\\-sso");
+      expect(grammar).toContain("saml\\\\-sso");
+      expect(grammar).toContain("rhi\\\\-announce");
+    }
 
     const grammar30 = readFileSync(
       join(__dirname, "..", "..", "..", "syntaxes", "haproxy-3.0r1.tmLanguage.json"),

@@ -20,7 +20,7 @@ const INTEGRATION_DIAGNOSTICS_DEBOUNCE_MS = 100;
 const INTEGRATION_WORKSPACE_DEBOUNCE_MS = 100;
 
 function languageIdForVersion(version: string, edition = getConfiguredHaproxyEdition()): string {
-  const artifact = edition === "hapee" && version !== "3.4" ? `${version}r1` : version;
+  const artifact = edition === "hapee" ? `${version}r1` : version;
   return `haproxy-${artifact}`;
 }
 

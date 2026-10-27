@@ -78,11 +78,10 @@ describe("outputChannel", () => {
     expect(lines.some((line) => line.includes("HAProxy version 3.2 HAPEE"))).toBe(true);
   });
 
-  it("logs the effective community edition when HAPEE is unavailable", () => {
+  it("logs HAPEE edition when 3.4 HAPEE is selected", () => {
     setMockConfig("haproxy", "edition", "hapee");
     logConfiguredVersion("3.4", "document-open");
-    expect(lines.some((line) => line.includes("HAProxy version 3.4 HAPEE"))).toBe(false);
-    expect(lines.some((line) => line.includes("HAProxy version 3.4"))).toBe(true);
+    expect(lines.some((line) => line.includes("HAProxy version 3.4 HAPEE"))).toBe(true);
   });
 
   it("logs configured version once per folder on document open", () => {

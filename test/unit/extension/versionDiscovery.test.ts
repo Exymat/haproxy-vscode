@@ -76,6 +76,6 @@ describe("version discovery fallback", () => {
     }));
     const version = await import("../../../src/extension/version");
     expect(version.SUPPORTED_HAPROXY_VERSIONS).toEqual(["2.6", "2.8", "3.0", "3.2", "3.4"]);
-    expect(version.HAPEE_SCHEMA_VERSIONS).toEqual(["2.6", "2.8", "3.0", "3.2"]);
+    expect(version.HAPEE_SCHEMA_VERSIONS).toEqual(["2.6", "2.8", "3.0", "3.2", "3.4"]);
   });
 });

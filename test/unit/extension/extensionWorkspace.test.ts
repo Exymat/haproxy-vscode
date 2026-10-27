@@ -661,6 +661,7 @@ describe("extension workspace symbol integration", () => {
     setMockWorkspaceFolders([repo]);
     setMockWorkspaceFile("file:///repo/haproxy.cfg", "backend api");
     setMockWorkspaceFile("file:///repo/confd/backends.cfg", "backend other");
+    mockTextDocuments.push(createDocument("backend api", "file:///repo/haproxy.cfg") as MockDoc);
 
     const watchers: Array<{ dispose: ReturnType<typeof vi.fn> }> = [];
     const watcherSpy = vi.spyOn(workspace, "createFileSystemWatcher").mockImplementation(() => {

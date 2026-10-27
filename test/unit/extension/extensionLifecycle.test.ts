@@ -5,12 +5,15 @@ import * as grammar from "../../../src/extension/grammar";
 import { getExtensionSettings } from "../../../src/extension/settings";
 import * as documentCache from "../../../src/parser/documentCache";
 import {
+  languages,
   mockTextDocuments,
   resetMockVscode,
   setMockConfigForUri,
   setMockWorkspaceFolders,
+  triggerMockCloseTextDocument,
   triggerMockFolderConfigurationChange,
   triggerMockOpenTextDocument,
+  triggerMockTextDocumentChange,
 } from "../../helpers/vscode";
 import { mockExtensionContext } from "../../helpers/extensionContext";
 import { loadSchemaBundle } from "../../helpers/schema";
@@ -82,7 +85,7 @@ describe("extension lifecycle", () => {
     expect(uri?.toString()).toBe("file:///folder-a");
   });
 
-  it("indexes all workspace folders on activation when no HAProxy documents are open", async () => {
+  it("does not index the workspace on activation when no HAProxy document is open", async () => {
     setMockWorkspaceFolders([workspaceFolder("file:///folder-a")]);
     const scheduleRebuildWithReadyBundle = vi.fn();
     const diagnostics = {
@@ -123,11 +126,19 @@ describe("extension lifecycle", () => {
     });
 
     await vi.runAllTimersAsync();
-    expect(scheduleRebuildWithReadyBundle).toHaveBeenCalledWith("full");
+    expect(scheduleRebuildWithReadyBundle).not.toHaveBeenCalled();
   });
 
   it("skips workspace indexing on activation when the schema bundle is unavailable", async () => {
     setMockWorkspaceFolders([workspaceFolder("file:///folder-a")]);
+    mockTextDocuments.push({
+      uri: { toString: () => "file:///folder-a/haproxy.cfg", scheme: "file" },
+      languageId: "haproxy",
+      version: 1,
+      lineCount: 1,
+      lineAt: () => ({ text: "global" }),
+      getText: () => "global",
+    } as never);
     const scheduleRebuildWithReadyBundle = vi.fn();
     const diagnostics = {
       scheduler: {
@@ -168,6 +179,58 @@ describe("extension lifecycle", () => {
 
     await vi.runAllTimersAsync();
     expect(scheduleRebuildWithReadyBundle).not.toHaveBeenCalled();
+  });
+
+  it("indexes the workspace on activation when a HAProxy document is already open", async () => {
+    setMockWorkspaceFolders([workspaceFolder("file:///folder-a")]);
+    mockTextDocuments.push({
+      uri: { toString: () => "file:///folder-a/haproxy.cfg", scheme: "file" },
+      languageId: "haproxy",
+      version: 1,
+      lineCount: 1,
+      lineAt: () => ({ text: "global" }),
+      getText: () => "global",
+    } as never);
+    const scheduleRebuildWithReadyBundle = vi.fn();
+    const diagnostics = {
+      scheduler: {
+        schedule: vi.fn(),
+        runNow: vi.fn(),
+        disposeDocument: vi.fn(),
+        clearPending: vi.fn(),
+      },
+      refreshAllDocuments: vi.fn(),
+      refreshDocumentsInWorkspaceFolders: vi.fn(),
+      dispose: vi.fn(),
+    };
+
+    registerExtensionLifecycle({
+      context: mockExtensionContext() as never,
+      extensionVersion: "test",
+      getSettings: getExtensionSettings,
+      refreshSettings: vi.fn(),
+      diagnostics,
+      bundle: {
+        ensureBundleResilient: vi.fn(() => Promise.resolve(bundle)),
+        safeEnsureBundle: vi.fn(() => Promise.resolve(bundle)),
+        resolveWorkspaceSchema: vi.fn(() => Promise.resolve(bundle.schema)),
+        invalidate: vi.fn(),
+        reportBundleError: vi.fn(),
+        resetErrorReporting: vi.fn(),
+        dispose: vi.fn(),
+      },
+      workspaceSymbols: {
+        settings: () => defaultWorkspaceSymbolSettings(),
+        scheduleForUri: vi.fn(),
+        schedule: vi.fn(() => Promise.resolve()),
+        scheduleRebuildWithReadyBundle,
+        configureWatchers: vi.fn(),
+        handleWorkspaceFoldersChanged: vi.fn(),
+      } as never,
+    });
+
+    await vi.runAllTimersAsync();
+    expect(scheduleRebuildWithReadyBundle).toHaveBeenCalledWith("full");
   });
 
   it("does not index on activation when there are no workspace folders or HAProxy documents", async () => {
@@ -264,5 +327,138 @@ describe("extension lifecycle", () => {
     mockTextDocuments.push(doc as never);
     triggerMockOpenTextDocument(doc as never);
     expect(diagnostics.scheduler.runNow).toHaveBeenCalledWith(doc);
+  });
+});
+
+describe("plaintext language promotion", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    resetMockVscode();
+    vi.mocked(languages.setTextDocumentLanguage).mockClear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  function registerLifecycle(): void {
+    registerExtensionLifecycle({
+      context: mockExtensionContext() as never,
+      extensionVersion: "test",
+      getSettings: getExtensionSettings,
+      refreshSettings: vi.fn(),
+      diagnostics: {
+        scheduler: {
+          schedule: vi.fn(),
+          runNow: vi.fn(),
+          disposeDocument: vi.fn(),
+          clearPending: vi.fn(),
+        },
+        refreshAllDocuments: vi.fn(),
+        refreshDocumentsInWorkspaceFolders: vi.fn(),
+        dispose: vi.fn(),
+      },
+      bundle: {
+        ensureBundleResilient: vi.fn(() => Promise.resolve(bundle)),
+        safeEnsureBundle: vi.fn(() => Promise.resolve(bundle)),
+        resolveWorkspaceSchema: vi.fn(() => Promise.resolve(bundle.schema)),
+        invalidate: vi.fn(),
+        reportBundleError: vi.fn(),
+        resetErrorReporting: vi.fn(),
+        dispose: vi.fn(),
+      },
+      workspaceSymbols: {
+        settings: () => defaultWorkspaceSymbolSettings(),
+        scheduleForUri: vi.fn(),
+        schedule: vi.fn(() => Promise.resolve()),
+        scheduleRebuildWithReadyBundle: vi.fn(),
+        configureWatchers: vi.fn(),
+        handleWorkspaceFoldersChanged: vi.fn(),
+      } as never,
+    });
+  }
+
+  function plaintextDocument(content: string, uri = "file:///sample.txt", scheme = "file") {
+    const lines = content.split("\n");
+    return {
+      uri: { scheme, toString: () => uri },
+      languageId: "plaintext",
+      version: 1,
+      get lineCount() {
+        return lines.length;
+      },
+      lineAt: (index: number) => ({ text: lines[index] ?? "" }),
+      getText: () => lines.join("\n"),
+      setContent(next: string) {
+        lines.splice(0, lines.length, ...next.split("\n"));
+      },
+    };
+  }
+
+  it("promotes plaintext when the first section is a frontend", async () => {
+    registerLifecycle();
+    const doc = plaintextDocument("# comment\nfrontend fe\n");
+
+    triggerMockOpenTextDocument(doc as never);
+    await Promise.resolve();
+
+    expect(languages.setTextDocumentLanguage).toHaveBeenCalledWith(doc, "haproxy");
+  });
+
+  it("promotes a plaintext document that was already open at activation", async () => {
+    const doc = plaintextDocument("backend api\n");
+    mockTextDocuments.push(doc as never);
+
+    registerLifecycle();
+    await Promise.resolve();
+
+    expect(languages.setTextDocumentLanguage).toHaveBeenCalledWith(doc, "haproxy");
+  });
+
+  it("leaves nginx-like plaintext and non-file documents alone", async () => {
+    registerLifecycle();
+    const nginx = plaintextDocument("server { listen 80; }\n");
+    const output = plaintextDocument("frontend fe\n", "output://log", "output");
+    const ini = plaintextDocument("frontend fe\n", "file:///app.ini");
+    ini.languageId = "ini";
+
+    triggerMockOpenTextDocument(nginx as never);
+    triggerMockOpenTextDocument(output as never);
+    triggerMockOpenTextDocument(ini as never);
+    await Promise.resolve();
+
+    expect(languages.setTextDocumentLanguage).not.toHaveBeenCalled();
+  });
+
+  it("promotes a plaintext edit only after the witness line appears", async () => {
+    registerLifecycle();
+    const doc = plaintextDocument("global\n");
+
+    triggerMockTextDocumentChange(doc as never);
+    expect(languages.setTextDocumentLanguage).not.toHaveBeenCalled();
+
+    doc.setContent("global\n    maxconn 2000\n");
+    triggerMockTextDocumentChange(doc as never);
+    await Promise.resolve();
+
+    expect(languages.setTextDocumentLanguage).toHaveBeenCalledWith(doc, "haproxy");
+  });
+
+  it("does not promote again after the user switches the document back to plaintext", async () => {
+    registerLifecycle();
+    const doc = plaintextDocument("frontend web\n", "file:///web.cfg");
+
+    triggerMockOpenTextDocument(doc as never);
+    await Promise.resolve();
+    expect(languages.setTextDocumentLanguage).toHaveBeenCalledWith(doc, "haproxy");
+    vi.mocked(languages.setTextDocumentLanguage).mockClear();
+
+    triggerMockCloseTextDocument(doc as never);
+    doc.languageId = "plaintext";
+    triggerMockOpenTextDocument(doc as never);
+    await Promise.resolve();
+
+    expect(languages.setTextDocumentLanguage).not.toHaveBeenCalled();
   });
 });

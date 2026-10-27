@@ -6,7 +6,7 @@ import type { HaproxySchema } from "../../src/schema/types";
 
 export const SUPPORTED_VERSIONS = ["2.6", "2.8", "3.0", "3.2", "3.4"] as const;
 export type SupportedVersion = (typeof SUPPORTED_VERSIONS)[number];
-export const HAPEE_SCHEMA_VERSIONS = ["2.6", "2.8", "3.0", "3.2"] as const;
+export const HAPEE_SCHEMA_VERSIONS = ["2.6", "2.8", "3.0", "3.2", "3.4"] as const;
 export type HapeeSchemaVersion = (typeof HAPEE_SCHEMA_VERSIONS)[number];
 
 const extensionRoot = join(__dirname, "..", "..");

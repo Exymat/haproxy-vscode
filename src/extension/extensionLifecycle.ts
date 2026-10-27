@@ -12,6 +12,14 @@ import {
   syncAllOpenDocumentGrammarLanguages,
   syncDocumentGrammarLanguage,
 } from "./grammar";
+import {
+  beginTextDocumentOpen,
+  considerPlaintextEdit,
+  noteTextDocumentClosed,
+  promoteOpenPlaintextDocuments,
+  promotePlaintextDocument,
+  resetLanguagePromotionState,
+} from "./languagePromotion";
 import { logConfiguredVersion, logSupportSnapshot } from "./outputChannel";
 import { HaproxyExtensionSettings, onSettingsChanged } from "./settings";
 import { resolveWorkspaceRebuildScopeOnOpen } from "../symbolIndex";
@@ -36,6 +44,7 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
   const { context, extensionVersion, refreshSettings, bundle, diagnostics, workspaceSymbols } =
     options;
   const { scheduler } = diagnostics;
+  resetLanguagePromotionState();
 
   const logSupportSnapshotIfReady = (bundleVersion: HaproxyVersion): void => {
     logSupportSnapshot({
@@ -71,33 +80,47 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
     diagnostics.refreshDocumentsInWorkspaceFolders(change.affectedFolderUris);
   };
 
+  const handleHaproxyDocumentOpened = (document: vscode.TextDocument): void => {
+    logConfiguredVersion(getConfiguredVersionForUri(document.uri), "document-open", document.uri);
+    void syncDocumentGrammarLanguage(document);
+    const scope = resolveWorkspaceRebuildScopeOnOpen(document);
+    if (scope !== "none") {
+      void workspaceSymbols.schedule(scope, document);
+    }
+    if (hasWarmUriDocumentCache(document)) {
+      scheduler.runNow(document);
+      return;
+    }
+    scheduler.schedule(document);
+  };
+
+  const onTextDocumentOpened = async (document: vscode.TextDocument): Promise<void> => {
+    const disposition = beginTextDocumentOpen(document);
+    if (disposition === "haproxy") {
+      handleHaproxyDocumentOpened(document);
+      return;
+    }
+    if (disposition === "promote") {
+      const promoted = await promotePlaintextDocument(document);
+      if (!promoted) {
+        scheduler.schedule(document);
+      }
+      return;
+    }
+    scheduler.schedule(document);
+  };
+
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((document) => {
-      if (isHaproxyLanguageId(document.languageId)) {
-        logConfiguredVersion(
-          getConfiguredVersionForUri(document.uri),
-          "document-open",
-          document.uri,
-        );
-        void syncDocumentGrammarLanguage(document);
-        const scope = resolveWorkspaceRebuildScopeOnOpen(document);
-        if (scope !== "none") {
-          void workspaceSymbols.schedule(scope, document);
-        }
-        if (hasWarmUriDocumentCache(document)) {
-          scheduler.runNow(document);
-        } else {
-          scheduler.schedule(document);
-        }
-        return;
-      }
-      scheduler.schedule(document);
+      void onTextDocumentOpened(document);
     }),
     vscode.workspace.onDidChangeTextDocument((event) => {
       scheduler.schedule(event.document);
       if (isHaproxyLanguageId(event.document.languageId)) {
         void workspaceSymbols.schedule("incremental", event.document);
+        return;
       }
+      considerPlaintextEdit(event.document);
     }),
     vscode.workspace.onDidSaveTextDocument((document) => {
       scheduler.schedule(document);
@@ -106,6 +129,7 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
       }
     }),
     vscode.workspace.onDidCloseTextDocument((document) => {
+      noteTextDocumentClosed(document);
       finalizeParseCacheForClosedDocument(document);
       finalizeDiagnosticsCacheForClosedDocument(document);
       scheduler.disposeDocument(document);
@@ -130,15 +154,6 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
         isHaproxyLanguageId(document.languageId),
       );
       if (openHaproxyDocs.length === 0) {
-        if (!vscode.workspace.workspaceFolders?.length) {
-          return;
-        }
-        const loadedBundle = await bundle.safeEnsureBundle();
-        if (!loadedBundle) {
-          return;
-        }
-        logSupportSnapshotIfReady(loadedBundle.version);
-        workspaceSymbols.scheduleRebuildWithReadyBundle("full");
         return;
       }
       for (const document of openHaproxyDocs) {
@@ -153,4 +168,6 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
     })();
     diagnostics.refreshAllDocuments();
   });
+
+  promoteOpenPlaintextDocuments();
 }

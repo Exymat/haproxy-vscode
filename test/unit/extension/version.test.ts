@@ -51,15 +51,18 @@ describe("version", () => {
   it("discovers OSS schema versions and ignores HAPEE r1 filenames", () => {
     expect(SUPPORTED_HAPROXY_VERSIONS).toEqual(["2.6", "2.8", "3.0", "3.2", "3.4"]);
     expect(SUPPORTED_HAPROXY_VERSIONS.every((version) => /^\d+\.\d+$/.test(version))).toBe(true);
-    expect(HAPEE_SCHEMA_VERSIONS).toEqual(["2.6", "2.8", "3.0", "3.2"]);
+    expect(HAPEE_SCHEMA_VERSIONS).toEqual(["2.6", "2.8", "3.0", "3.2", "3.4"]);
   });
 
-  it("falls back HAPEE 3.4 to community because no r1 schema exists", () => {
-    expect(effectiveEditionForVersion("3.4", "hapee")).toBe("community");
+  it("maps HAPEE edition selections onto r1 artifacts", () => {
+    expect(effectiveEditionForVersion("3.4", "hapee")).toBe("hapee");
     expect(effectiveEditionForVersion("3.2", "hapee")).toBe("hapee");
     expect(effectiveEditionForVersion("3.2", "community")).toBe("community");
     expect(schemaArtifactId("3.2", "hapee")).toBe("3.2r1");
-    expect(schemaArtifactId("3.4", "hapee")).toBe("3.4");
+    expect(schemaArtifactId("3.4", "hapee")).toBe("3.4r1");
+    expect(schemaArtifactId("3.4", "community")).toBe("3.4");
+    expect(effectiveEditionForVersion("9.9", "hapee")).toBe("community");
+    expect(schemaArtifactId("9.9", "hapee")).toBe("9.9");
   });
 
   it("notifies onVersionConfigurationChanged when edition changes", async () => {

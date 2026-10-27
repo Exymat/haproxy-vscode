@@ -93,17 +93,15 @@ describe("extensionBundle", () => {
     expect("module-load" in fixture.schema.keywords).toBe(false);
   });
 
-  it("keeps the community schema when HAPEE is selected for 3.4", async () => {
+  it("loads the 3.4r1 schema when HAPEE is selected for 3.4", async () => {
     const schemaSpy = vi.spyOn(schema, "loadSchemaAsync").mockResolvedValue(fixture34.schema);
     vi.spyOn(languageData, "loadLanguageDataAsync").mockResolvedValue(fixture34.languageData);
     const { ensureBundle } = createBundleLoader(mockExtensionContext() as never);
 
     const bundle = await ensureBundle("3.4", "hapee");
 
-    expect(bundle.edition).toBe("community");
-    expect(bundle.schema).toBe(fixture34.schema);
-    expect(schemaSpy).toHaveBeenCalledWith(expect.anything(), "3.4");
-    expect(schemaSpy).not.toHaveBeenCalledWith(expect.anything(), "3.4r1");
+    expect(bundle.edition).toBe("hapee");
+    expect(schemaSpy).toHaveBeenCalledWith(expect.anything(), "3.4r1");
   });
 
   it("fails loudly when a selected HAPEE schema file is missing", async () => {

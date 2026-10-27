@@ -2,6 +2,11 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.21.0
+
+- **HAProxy Enterprise 3.4r1** — choose **3.4 HAPEE** from the version status bar (or set `haproxy.version` to `3.4` and `haproxy.edition` to `hapee`) to load the Enterprise schema, language data, and TextMate grammar (`haproxy-3.4r1`). It keeps the community 3.4 keyword set, adds Enterprise keywords from the 3.4r1 manual, and includes the same optional modules as 3.2r1 (WAF, response-body injection, UDP, SAML, Captcha, Bot Management, OIDC, and RHI).
+- **Content-based language detection** — the editor language follows the file contents. A column-0 `frontend` or `backend` line, or a hyphenated section such as `http-errors`, selects HAProxy on its own (including when that line is the first line of the file). `global`, `defaults`, `listen`, `peers`, and the other short section names select HAProxy only after a following HAProxy directive (`daemon`, `maxconn`, `mode http`, `bind`, `peer`, and similar). Blank lines, `#` comments, and `.if` / `.diag` preambles before the first section are ignored. A `.cfg` file that never opens with a section header stays plain text, including directive-only fragments and nginx-style files. Switching a detected file back to Plain Text keeps that choice for the open editor. Workspace symbol discovery is unchanged and still uses `haproxy.workspaceSymbols.include`. To treat every `.cfg` file as HAProxy, set `"*.cfg": "haproxy"` in `files.associations`.
+
 ## 0.20.4
 
 - **Format line endings** — new `haproxy.format.lineEnding` setting (`lf` / `crlf` / `preserve`, default `lf`). Format Document and Format Selection rewrite endings accordingly; language defaults also set `files.eol` to LF for HAProxy configs.

@@ -347,6 +347,7 @@ const textDocumentChangeListeners: Array<
   (event: { document: (typeof mockTextDocuments)[0] }) => void
 > = [];
 const openTextDocumentListeners: Array<(doc: (typeof mockTextDocuments)[0]) => void> = [];
+const closeTextDocumentListeners: Array<(doc: (typeof mockTextDocuments)[0]) => void> = [];
 const mockWorkspaceFiles = new Map<string, string>();
 const mockWorkspaceFileStats = new Map<string, { mtime: number; size: number }>();
 const mockWorkspaceReadFailures = new Set<string>();
@@ -375,6 +376,7 @@ export function resetVscodeMock(): void {
   activeEditorListeners.length = 0;
   textDocumentChangeListeners.length = 0;
   openTextDocumentListeners.length = 0;
+  closeTextDocumentListeners.length = 0;
   mockTextDocuments = [];
   mockActiveTextEditor = undefined;
   mockWorkspaceFolders = undefined;
@@ -589,6 +591,21 @@ export function triggerMockTextDocumentChange(
 ): void {
   for (const listener of textDocumentChangeListeners) {
     listener({ document: doc });
+  }
+}
+
+export function triggerMockCloseTextDocument(
+  doc: (typeof mockTextDocuments)[0] = mockTextDocuments[0] ?? {
+    uri: { toString: () => "file:///test.cfg" },
+    languageId: "haproxy",
+    version: 1,
+    lineCount: 1,
+    lineAt: () => ({ text: "" }),
+    getText: () => "",
+  },
+): void {
+  for (const listener of closeTextDocumentListeners) {
+    listener(doc);
   }
 }
 
@@ -819,7 +836,8 @@ export const workspace = {
   onDidSaveTextDocument(_listener: (doc: (typeof mockTextDocuments)[0]) => void) {
     return { dispose: () => {} };
   },
-  onDidCloseTextDocument(_listener: (doc: (typeof mockTextDocuments)[0]) => void) {
+  onDidCloseTextDocument(listener: (doc: (typeof mockTextDocuments)[0]) => void) {
+    closeTextDocumentListeners.push(listener);
     return { dispose: () => {} };
   },
 };
@@ -863,6 +881,12 @@ export const languages = {
         writable: true,
         configurable: true,
       });
+      for (const listener of closeTextDocumentListeners) {
+        listener(document as (typeof mockTextDocuments)[0]);
+      }
+      for (const listener of openTextDocumentListeners) {
+        listener(document as (typeof mockTextDocuments)[0]);
+      }
       return Promise.resolve();
     },
   ),
