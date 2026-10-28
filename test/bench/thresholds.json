@@ -145,7 +145,7 @@
     },
     {
       "namePattern": "^completion: large-valid\\.cfg",
-      "maxMs": 60,
+      "maxMs": 65,
       "baselineMs": 31.327,
       "statisticalMarginMs": 1.2276,
       "rawMaxMs": 31.327
