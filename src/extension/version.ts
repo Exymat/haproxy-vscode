@@ -99,8 +99,32 @@ export function getConfiguredVersion(): HaproxyVersion {
   return readConfiguredVersion(workspace.getConfiguration(CONFIG_SECTION));
 }
 
+/** Resolve explicit versioned file associations before extension defaults. */
+function associatedProfile(
+  resource?: vscode.Uri,
+): { version: string; edition: HaproxyEdition } | undefined {
+  if (!resource) return undefined;
+  const associations = workspace
+    .getConfiguration("files", resource)
+    .get<Record<string, string>>("associations", {});
+  const document = workspace.textDocuments.find(
+    (item) => item.uri.toString() === resource.toString(),
+  );
+  if (!document) return undefined;
+  let language: string | undefined;
+  for (const [pattern, value] of Object.entries(associations)) {
+    if (vscode.languages.match({ pattern }, document) > 0) language = value;
+  }
+  const match = /^haproxy-(\d+\.\d+)(r1)?$/.exec(language ?? "");
+  if (!match || !SUPPORTED_HAPROXY_VERSIONS.includes(match[1])) return undefined;
+  if (match[2] && !HAPEE_SCHEMA_VERSIONS.includes(match[1])) return undefined;
+  return { version: match[1], edition: match[2] ? "hapee" : "community" };
+}
 export function getConfiguredVersionForUri(resource?: vscode.Uri): HaproxyVersion {
-  return readConfiguredVersion(workspace.getConfiguration(CONFIG_SECTION, resource));
+  return (
+    associatedProfile(resource)?.version ??
+    readConfiguredVersion(workspace.getConfiguration(CONFIG_SECTION, resource))
+  );
 }
 
 function isHaproxyEdition(raw: string | undefined): raw is HaproxyEdition {
@@ -120,7 +144,10 @@ export function getConfiguredEdition(): HaproxyEdition {
 }
 
 export function getConfiguredEditionForUri(resource?: vscode.Uri): HaproxyEdition {
-  return readConfiguredEdition(workspace.getConfiguration(CONFIG_SECTION, resource));
+  return (
+    associatedProfile(resource)?.edition ??
+    readConfiguredEdition(workspace.getConfiguration(CONFIG_SECTION, resource))
+  );
 }
 
 function configurationTarget(resource?: vscode.Uri): vscode.ConfigurationTarget {

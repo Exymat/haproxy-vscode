@@ -55,7 +55,8 @@
     "onLanguage:haproxy-3.0r1",
     "onLanguage:haproxy-3.2r1",
     "onLanguage:haproxy-3.4r1",
-    "onLanguage:plaintext"
+    "onLanguage:plaintext",
+    "onStartupFinished"
   ],
   "engines": {
     "node": ">=24",
