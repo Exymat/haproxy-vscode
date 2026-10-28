@@ -48,6 +48,16 @@ describe("plaintext language promotion", () => {
     resetLanguagePromotionState();
   });
 
+  it("detects HAProxy configs initially opened as Properties", async () => {
+    const doc = textDocument("global\n  daemon\n", {
+      languageId: "properties",
+      uri: "file:///sample.cfg",
+    });
+    expect(beginTextDocumentOpen(doc as never)).toBe("promote");
+    expect(await promotePlaintextDocument(doc as never)).toBe(true);
+    expect(languages.setTextDocumentLanguage).toHaveBeenCalledWith(doc, "haproxy");
+  });
+
   it("promotes a plaintext file and an untitled document", async () => {
     const file = textDocument("frontend fe\n");
     const untitled = textDocument("backend api\n", {

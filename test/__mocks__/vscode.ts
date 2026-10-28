@@ -874,6 +874,7 @@ export const window = {
 };
 
 export const languages = {
+  match: (_selector: unknown, _document: unknown): number => 0,
   setTextDocumentLanguage: vi.fn(
     (document: { languageId: string }, languageId: string): Promise<void> => {
       Object.defineProperty(document, "languageId", {

@@ -86,7 +86,7 @@ export function beginTextDocumentOpen(document: vscode.TextDocument): OpenDispos
   }
   observedLanguage.set(key, document.languageId);
   if (
-    document.languageId === "plaintext" &&
+    (document.languageId === "plaintext" || document.languageId === "properties") &&
     isScannableDocument(document) &&
     !suppressedUris.has(key)
   ) {
@@ -115,7 +115,11 @@ async function applyHaproxyLanguage(document: vscode.TextDocument, key: string):
 /** Sets the HAProxy language when a plaintext document matches section grammar. */
 export async function promotePlaintextDocument(document: vscode.TextDocument): Promise<boolean> {
   const key = document.uri.toString();
-  if (promoting.has(key) || suppressedUris.has(key) || document.languageId !== "plaintext") {
+  if (
+    promoting.has(key) ||
+    suppressedUris.has(key) ||
+    (document.languageId !== "plaintext" && document.languageId !== "properties")
+  ) {
     return false;
   }
   if (!isScannableDocument(document) || !detectHaproxyConfig(documentLines(document))) {
@@ -125,7 +129,10 @@ export async function promotePlaintextDocument(document: vscode.TextDocument): P
 }
 
 export function considerPlaintextEdit(document: vscode.TextDocument): void {
-  if (document.languageId !== "plaintext" || !isScannableDocument(document)) {
+  if (
+    (document.languageId !== "plaintext" && document.languageId !== "properties") ||
+    !isScannableDocument(document)
+  ) {
     return;
   }
   if (suppressedUris.has(document.uri.toString())) {

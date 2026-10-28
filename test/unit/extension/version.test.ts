@@ -1,7 +1,9 @@
+import { languages, mockTextDocuments, Uri } from "../../helpers/vscode";
 import {
   DEFAULT_HAPROXY_VERSION,
   effectiveEditionForVersion,
   getConfiguredEdition,
+  getConfiguredEditionForUri,
   getConfiguredVersion,
   getConfiguredVersionForUri,
   HAPEE_SCHEMA_VERSIONS,
@@ -22,6 +24,27 @@ import {
 } from "../../helpers/vscode";
 
 describe("version", () => {
+  it("resolves matching explicit versioned file associations", () => {
+    const uri = Uri.parse("file:///test.cfg") as unknown as import("vscode").Uri;
+    mockTextDocuments.push({ uri, languageId: "haproxy", getText: () => "" } as never);
+    const matcher = vi.spyOn(languages, "match").mockReturnValue(10);
+    for (const [language, version, edition] of [
+      ["haproxy-2.8r1", "2.8", "hapee"],
+      ["haproxy-3.0", "3.0", "community"],
+      ["haproxy-9.9", "3.2", "community"],
+      ["plaintext", "3.2", "community"],
+    ]) {
+      setMockConfig("files", "associations", { "*.cfg": language });
+      expect(getConfiguredVersionForUri(uri)).toBe(version);
+      expect(getConfiguredEditionForUri(uri)).toBe(edition);
+    }
+    setMockConfig("files", "associations", { "*.cfg": "haproxy-2.8r1" });
+    vi.spyOn(HAPEE_SCHEMA_VERSIONS, "includes").mockReturnValueOnce(false);
+    expect(getConfiguredVersionForUri(uri)).toBe("3.2");
+    matcher.mockReturnValue(0);
+    expect(getConfiguredVersionForUri(uri)).toBe("3.2");
+  });
+
   beforeEach(() => {
     resetMockVscode();
     vi.restoreAllMocks();
