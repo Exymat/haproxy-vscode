@@ -49,6 +49,35 @@ function symbolHintDiags(content: string): vscode.Diagnostic[] {
 }
 
 describe("unusedSymbolDiagnostics", () => {
+  it.each(["2.6", "2.8", "3.0", "3.2", "3.4", "2.6r1", "2.8r1", "3.0r1", "3.2r1", "3.4r1"])(
+    "links MCC_DMZ with schema %s",
+    (version) => {
+      const doc = createDocument(`frontend MCC
+  bind *:80
+  default_backend MCC_DMZ
+
+backend MCC_DMZ
+  server srv 1192.168.1.1:80`);
+      const diagnostics = computeDiagnostics(doc, loadSchema(version), {
+        unusedSymbols: true,
+        maxSymbolLines: 4000,
+      });
+      expect(
+        diagnostics.filter((diag) => formatDiagnosticCode(diag.code).startsWith("unused-")),
+      ).toHaveLength(0);
+    },
+  );
+  it.each(["api", "123-api", "api.example.com"])(
+    "counts default_backend references to %s",
+    (name) => {
+      expect(
+        unusedDiags(`frontend web
+    default_backend ${name}
+backend ${name}
+    server s1 127.0.0.1:80`),
+      ).toHaveLength(0);
+    },
+  );
   it("reports unused ACL when never referenced", () => {
     const diags = unusedDiags("frontend web\n    acl blocked path_beg /admin\n    bind :80");
     expect(diags).toHaveLength(1);

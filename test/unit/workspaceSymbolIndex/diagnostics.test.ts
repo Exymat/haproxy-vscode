@@ -186,6 +186,26 @@ describe("workspace symbol index diagnostics", () => {
     ).toHaveLength(1);
   });
 
+  it("counts default_backend from a closed haproxy.d frontend file", async () => {
+    const frontendContent = "frontend MCC\n  bind *:80\n  default_backend MCC_DMZ";
+    const backendContent = "backend MCC_DMZ\n  server srv 1192.168.1.1:80";
+    setMockWorkspaceFile("file:///cluster_MCC/haproxy.d/frontends/MCC_DMZ_FE.cfg", frontendContent);
+    setMockWorkspaceFile("file:///cluster_MCC/haproxy.d/backends/MCC_DMZ_BE.cfg", backendContent);
+    const backend = createDocument(
+      backendContent,
+      "file:///cluster_MCC/haproxy.d/backends/MCC_DMZ_BE.cfg",
+    );
+    mockTextDocuments.push(backend as never);
+    await buildWorkspace();
+    const diagnostics = computeDiagnostics(backend, schema, {
+      unusedSymbols: true,
+      missingReferences: true,
+      maxSymbolLines: 4000,
+    });
+    expect(
+      diagnostics.filter((diag) => formatDiagnosticCode(diag.code) === "unused-section"),
+    ).toHaveLength(0);
+  });
   it("suppresses missing and unused diagnostics using workspace references", async () => {
     const frontendContent = "frontend web\n    use_backend api";
     const backendContent = "backend api\n    server s1 127.0.0.1:80";

@@ -57,6 +57,9 @@ function isValidSymbolNameToken(kind: SymbolKind, tokenText: string): boolean {
   if (kind === "environment-variable") {
     return isEnvironmentVariableName(tokenText);
   }
+  if (kind === "proxy-section" && /^[0-9][A-Za-z0-9_.-]*$/.test(tokenText)) {
+    return true;
+  }
   return !isLikelyValue(tokenText);
 }
 
