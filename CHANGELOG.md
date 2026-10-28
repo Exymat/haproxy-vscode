@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.21.2
+
+- **Properties files** — content-based language detection now covers documents opened as Properties, not only Plain Text. A `.cfg` file that VS Code classifies as Properties is switched to HAProxy when it matches the same section grammar as in 0.21.0, including files already open when the editor finishes starting.
+- **Version from file associations** — an explicit `files.associations` entry for a bundled language id (`haproxy-3.2`, `haproxy-3.2r1`, and the other shipped ids) selects that community or HAPEE release for the matching file, ahead of `haproxy.version` and `haproxy.edition`. An association that is not a supported release keeps the configured version.
+- **Digit-leading proxy names** — `use_backend` and `default_backend` names that start with a digit (for example `default_backend 123-api`) are indexed as backend references. Those backends are no longer reported unused, and the reference is no longer missing, in the current file and across the workspace graph.
+
 ## 0.21.0
 
 - **HAProxy Enterprise 3.4r1** — choose **3.4 HAPEE** from the version status bar (or set `haproxy.version` to `3.4` and `haproxy.edition` to `hapee`) to load the Enterprise schema, language data, and TextMate grammar (`haproxy-3.4r1`). It keeps the community 3.4 keyword set, adds Enterprise keywords from the 3.4r1 manual, and includes the same optional modules as 3.2r1 (WAF, response-body injection, UDP, SAML, Captcha, Bot Management, OIDC, and RHI).
