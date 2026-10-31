@@ -340,6 +340,7 @@ describe("unknownNestedDiagnostics", () => {
     const schema = structuredClone(bundle.schema);
     schema.semantic_groups = {
       ...schema.semantic_groups,
+      // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
       use_service: { rule_kinds: ["http-request"], action: 1, service_group: "services" },
     };
     const doc = createDocument(

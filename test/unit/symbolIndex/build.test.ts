@@ -565,8 +565,7 @@ describe("symbolIndex build", () => {
     const rule = schema.statement_rules?.find((entry) => entry.keyword === "quic-initial");
     expect(rule?.kind).toBe("quic-initial");
     expect(rule?.group).toBe("quic_initial_actions");
-    const completionMap = schema.semantic_groups?.completion_kind_to_action_group as
-      Record<string, string> | undefined;
+    const completionMap = schema.semantic_groups?.completion_kind_to_action_group;
     expect(completionMap?.["quic-initial"]).toBe("quic_initial_actions");
   });
 

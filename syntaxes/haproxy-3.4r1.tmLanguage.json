@@ -471,7 +471,7 @@
           }
         },
         {
-          "match": "\\b(filter)\\s+((?:compression|opentracing|bwlim\\-out|bwlim\\-in|comp\\-req|comp\\-res|fcgi\\-app|cache|trace|spoe))\\b",
+          "match": "\\b(filter)\\s+((?:compression|opentracing|decomp\\-req|decomp\\-res|bwlim\\-out|bwlim\\-in|comp\\-req|comp\\-res|fcgi\\-app|cache|trace|spoe))\\b",
           "captures": {
             "1": {
               "name": "keyword.other.directive.haproxy"

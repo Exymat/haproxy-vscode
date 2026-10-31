@@ -1,17 +1,29 @@
+import type { SchemaSemanticGroups, KeysOfType, RecordKeys } from "./metadata.generated";
 /** Accessors for semantic groups used by completion and validation. */
 import { recordValue, stringArrayValue, stringMapValue } from "./contractHelpers";
 import type { HaproxySchema } from "./types";
 
-export function semanticStringList(schema: HaproxySchema, key: string): string[] {
+export function semanticStringList(
+  schema: HaproxySchema,
+  key: KeysOfType<SchemaSemanticGroups, string[]>,
+): string[] {
   return stringArrayValue(schema.semantic_groups[key], `semantic_groups.${key}`);
 }
 
-export function semanticStringMap(schema: HaproxySchema, key: string): Record<string, string> {
+export function semanticStringMap(
+  schema: HaproxySchema,
+  key: KeysOfType<SchemaSemanticGroups, Record<string, string>>,
+): Record<string, string> {
   return stringMapValue(schema.semantic_groups, key, "semantic_groups");
 }
 
-export function semanticRecord(schema: HaproxySchema, key: string): Record<string, unknown> {
-  return recordValue(schema.semantic_groups, key, "semantic_groups");
+export function semanticRecord<K extends RecordKeys<SchemaSemanticGroups>>(
+  schema: HaproxySchema,
+  key: K,
+): NonNullable<SchemaSemanticGroups[K]> {
+  return recordValue(schema.semantic_groups, key, "semantic_groups") as NonNullable<
+    SchemaSemanticGroups[K]
+  >;
 }
 
 export function actionGroupNames(schema: HaproxySchema): string[] {

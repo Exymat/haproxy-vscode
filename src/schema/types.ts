@@ -1,15 +1,16 @@
 /** TypeScript types describing the HAProxy schema JSON shape. */
 import type { CompletionKind, SymbolKind } from "../core/editorKinds";
+import type {
+  SchemaSymbols,
+  SchemaSemanticGroups,
+  SchemaValidationRules,
+} from "./metadata.generated";
+import type { ArgumentSlot } from "./metadata.generated";
+export type { ArgumentSlot } from "./metadata.generated";
+
 export interface SchemaSection {
   name: string;
   keywords: string[];
-}
-
-export interface ArgumentSlot {
-  optional?: boolean;
-  variadic?: boolean;
-  enum?: string[];
-  value_kind?: string;
 }
 
 export interface ArgumentModel {
@@ -144,9 +145,9 @@ export interface HaproxySchema {
   address_policies: Record<string, SchemaAddressPolicy>;
   sample_types: string[];
   sample_casts: boolean[][];
-  symbols: Record<string, unknown>;
-  semantic_groups: Record<string, unknown>;
-  validation_rules: Record<string, unknown>;
+  symbols: SchemaSymbols;
+  semantic_groups: SchemaSemanticGroups;
+  validation_rules: SchemaValidationRules;
   keyword_groups: Record<string, string[]>;
   keyword_group_contexts?: Record<string, Record<string, string[]>>;
   statement_rules: StatementRule[];

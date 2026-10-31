@@ -1,14 +1,21 @@
+import type { SchemaSymbols, KeysOfType, RecordKeys } from "./metadata.generated";
 /** Accessors for schema symbol lists and sets such as sections and ACL operators. */
 import { recordValue, stringArrayValue, stringMapValue } from "./contractHelpers";
 import { symbolStringSetCache } from "./cache";
 import type { HaproxySchema } from "./types";
 import { isSymbolKind, SymbolKind } from "../core/editorKinds";
 
-export function symbolStringList(schema: HaproxySchema, key: string): string[] {
+export function symbolStringList(
+  schema: HaproxySchema,
+  key: KeysOfType<SchemaSymbols, string[]>,
+): string[] {
   return stringArrayValue(schema.symbols[key], `symbols.${key}`);
 }
 
-export function symbolStringSet(schema: HaproxySchema, key: string): Set<string> {
+export function symbolStringSet(
+  schema: HaproxySchema,
+  key: KeysOfType<SchemaSymbols, string[]>,
+): Set<string> {
   let perSchema = symbolStringSetCache.get(schema);
   if (!perSchema) {
     perSchema = new Map();
@@ -35,11 +42,17 @@ export function bindDetectKeywordSet(schema: HaproxySchema): Set<string> {
   return symbolStringSet(schema, "bind_detect_keywords");
 }
 
-export function symbolStringMap(schema: HaproxySchema, key: string): Record<string, string> {
+export function symbolStringMap(
+  schema: HaproxySchema,
+  key: KeysOfType<SchemaSymbols, Record<string, string>>,
+): Record<string, string> {
   return stringMapValue(schema.symbols, key, "symbols");
 }
 
-export function symbolKindList(schema: HaproxySchema, key: string): SymbolKind[] {
+export function symbolKindList(
+  schema: HaproxySchema,
+  key: KeysOfType<SchemaSymbols, string[]>,
+): SymbolKind[] {
   return symbolStringList(schema, key).map((kind) => {
     if (!isSymbolKind(kind)) {
       throw new Error(`symbols.${key} contains unknown symbol kind '${kind}'`);
@@ -48,11 +61,17 @@ export function symbolKindList(schema: HaproxySchema, key: string): SymbolKind[]
   });
 }
 
-export function symbolKindSet(schema: HaproxySchema, key: string): Set<SymbolKind> {
+export function symbolKindSet(
+  schema: HaproxySchema,
+  key: KeysOfType<SchemaSymbols, string[]>,
+): Set<SymbolKind> {
   return new Set(symbolKindList(schema, key));
 }
 
-export function symbolKindMap(schema: HaproxySchema, key: string): Record<string, SymbolKind> {
+export function symbolKindMap(
+  schema: HaproxySchema,
+  key: KeysOfType<SchemaSymbols, Record<string, string>>,
+): Record<string, SymbolKind> {
   const result: Record<string, SymbolKind> = {};
   for (const [name, kind] of Object.entries(symbolStringMap(schema, key))) {
     if (!isSymbolKind(kind)) {
@@ -63,6 +82,9 @@ export function symbolKindMap(schema: HaproxySchema, key: string): Record<string
   return result;
 }
 
-export function symbolRecord(schema: HaproxySchema, key: string): Record<string, unknown> {
-  return recordValue(schema.symbols, key, "symbols");
+export function symbolRecord<K extends RecordKeys<SchemaSymbols>>(
+  schema: HaproxySchema,
+  key: K,
+): NonNullable<SchemaSymbols[K]> {
+  return recordValue(schema.symbols, key, "symbols") as NonNullable<SchemaSymbols[K]>;
 }

@@ -14,6 +14,7 @@ import {
   metadataContractError,
   stringArrayValue,
 } from "./contractHelpers";
+import { ARGUMENT_VALUE_KINDS } from "./metadata.generated";
 import type { HaproxySchema } from "./types";
 
 function assertAddressPoliciesContract(value: unknown): void {
@@ -130,7 +131,54 @@ function assertSampleFunctionMapContract(value: unknown, path: string): void {
   }
 }
 
-function assertSchemaContract(data: HaproxySchema): void {
+function assertArgumentModelContract(value: unknown, path: string): void {
+  if (value === undefined || value === null) {
+    return;
+  }
+  const model = assertRecordShape(value, path);
+  if (typeof model.min_args !== "number") {
+    throw metadataContractError(`${path}.min_args`);
+  }
+  assertOptionalNumberValue(model.max_args, `${path}.max_args`);
+  if (!Array.isArray(model.slots)) {
+    throw metadataContractError(`${path}.slots`);
+  }
+  model.slots.forEach((value, index) => {
+    const slotPath = `${path}.slots.${index}`;
+    const slot = assertRecordShape(value, slotPath);
+    assertOptionalBooleanValue(slot.optional, `${slotPath}.optional`);
+    assertOptionalBooleanValue(slot.variadic, `${slotPath}.variadic`);
+    assertOptionalStringArrayValue(slot.enum, `${slotPath}.enum`);
+    if (
+      slot.value_kind !== undefined &&
+      !ARGUMENT_VALUE_KINDS.some((kind) => kind === slot.value_kind)
+    ) {
+      throw metadataContractError(`${slotPath}.value_kind`);
+    }
+  });
+}
+
+function assertKeywordArgumentModels(value: unknown): void {
+  const keywords = assertRecordShape(value, "keywords");
+  for (const [name, value] of Object.entries(keywords)) {
+    const path = `keywords.${name}`;
+    const keyword = assertRecordShape(value, path);
+    assertArgumentModelContract(keyword.argument_model, `${path}.argument_model`);
+    if (keyword.variants !== undefined) {
+      if (!Array.isArray(keyword.variants)) {
+        throw metadataContractError(`${path}.variants`);
+      }
+      keyword.variants.forEach((value, index) => {
+        const variantPath = `${path}.variants.${index}`;
+        const variant = assertRecordShape(value, variantPath);
+        assertArgumentModelContract(variant.argument_model, `${variantPath}.argument_model`);
+      });
+    }
+  }
+}
+
+function assertSchemaContract(value: unknown): asserts value is HaproxySchema {
+  const data = assertRecordShape(value, "schema");
   if (!data.version || typeof data.version !== "string") {
     throw new Error("HAProxy schema is missing a version string");
   }
@@ -140,6 +188,7 @@ function assertSchemaContract(data: HaproxySchema): void {
   if (!isRecord(data.keywords)) {
     throw new Error("HAProxy schema is missing keywords");
   }
+  assertKeywordArgumentModels(data.keywords);
   assertStatementRulesContract(data.statement_rules);
   if (!isRecord(data.address_policies)) {
     throw new Error("HAProxy schema is missing address_policies");
@@ -179,25 +228,25 @@ function assertSchemaContract(data: HaproxySchema): void {
   assertLineLayoutContract(data.line_layout);
 }
 
-export function normalizeSchemaData(data: HaproxySchema): HaproxySchema {
-  const raw = data as unknown as Record<string, unknown>;
+export function normalizeSchemaData(data: unknown): HaproxySchema {
+  const raw = assertRecordShape(data, "schema");
   if (raw.statement_rules === undefined) {
-    data.statement_rules = [];
+    raw.statement_rules = [];
   }
   if (raw.reference_patterns === undefined) {
-    data.reference_patterns = [];
+    raw.reference_patterns = [];
   }
   if (raw.sample_fetches === undefined) {
-    data.sample_fetches = {};
+    raw.sample_fetches = {};
   }
   if (raw.sample_converters === undefined) {
-    data.sample_converters = {};
+    raw.sample_converters = {};
   }
   if (raw.keyword_group_contexts === undefined) {
-    data.keyword_group_contexts = {};
+    raw.keyword_group_contexts = {};
   }
   if (raw.line_layout === undefined) {
-    data.line_layout = {};
+    raw.line_layout = {};
   }
   assertSchemaContract(data);
   return data;

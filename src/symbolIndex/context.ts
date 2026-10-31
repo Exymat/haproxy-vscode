@@ -40,7 +40,7 @@ export function fetchReferenceRules(schema: HaproxySchema): Record<string, Fetch
     if (!value || typeof value !== "object" || Array.isArray(value)) {
       continue;
     }
-    const rule = value as Record<string, unknown>;
+    const rule = value;
     if (typeof rule.reference_kind === "string" && isSymbolKind(rule.reference_kind)) {
       result[name] = {
         reference_kind: rule.reference_kind,

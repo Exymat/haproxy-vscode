@@ -363,10 +363,7 @@ function matchesNestedKeywordSkipPattern(
   schema: HaproxySchema,
   tokens: ParsedLine["tokens"],
 ): boolean {
-  const patterns = validationObjectArray<{ match_tokens?: string[] }>(
-    schema,
-    "nested_keyword_skip_patterns",
-  );
+  const patterns = validationObjectArray(schema, "nested_keyword_skip_patterns");
   for (const pattern of patterns) {
     const matchTokens = pattern.match_tokens ?? [];
     if (

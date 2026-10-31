@@ -624,12 +624,15 @@ describe("schema helpers", () => {
     bare.address_policies = {};
     bare.sample_types = [];
     bare.sample_casts = [];
+    // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
     bare.symbols = { malformed_list: ["ok", 1], malformed_map: { ok: "yes", bad: 1 } };
     bare.semantic_groups = {
+      // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
       malformed_list: ["ok", 1],
       malformed_map: { ok: "yes", bad: 1 },
     };
     bare.validation_rules = {
+      // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
       malformed_list: ["ok", 1],
       malformed_map: { ok: "yes", bad: 1 },
     };
@@ -637,16 +640,27 @@ describe("schema helpers", () => {
     expect(() => schemaAddressPolicies(bare)).toThrow(/address_policies/);
     expect(() => schemaSampleTypes(bare)).toThrow(/sample_types/);
     expect(() => schemaSampleCasts(bare)).toThrow(/sample_casts/);
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => symbolStringList(bare, "missing")).toThrow(/symbols\.missing/);
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => symbolStringList(bare, "malformed_list")).toThrow(/malformed_list/);
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => symbolStringMap(bare, "malformed_map")).toThrow(/malformed_map/);
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => semanticStringList(bare, "missing")).toThrow(/semantic_groups\.missing/);
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => semanticStringList(bare, "malformed_list")).toThrow(/malformed_list/);
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => semanticStringMap(bare, "missing")).toThrow(/semantic_groups\.missing/);
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => semanticStringMap(bare, "malformed_map")).toThrow(/malformed_map/);
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => validationStringList(bare, "missing")).toThrow(/validation_rules\.missing/);
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => validationStringList(bare, "malformed_list")).toThrow(/malformed_list/);
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => validationStringMap(bare, "missing")).toThrow(/validation_rules\.missing/);
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => validationStringMap(bare, "malformed_map")).toThrow(/malformed_map/);
     expect(keywordGroupSet(bare, "missing")).toEqual(new Set());
   });

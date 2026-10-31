@@ -45,9 +45,13 @@ describe("editor kind unions", () => {
 
   it("rejects unknown symbol kinds at schema metadata boundaries", () => {
     const schema = structuredClone(loadSchema("3.4"));
+    // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
     schema.symbols.invalid_kind_list = ["not-a-symbol-kind"];
+    // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
     schema.symbols.invalid_kind_map = { section: "not-a-symbol-kind" };
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => symbolKindList(schema, "invalid_kind_list")).toThrow("unknown symbol kind");
+    // @ts-expect-error Deliberately invalid metadata key tests runtime protection.
     expect(() => symbolKindMap(schema, "invalid_kind_map")).toThrow("unknown symbol kind");
   });
 });

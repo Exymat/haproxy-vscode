@@ -10,7 +10,7 @@ const statementRuleKeywordCache = new WeakMap<HaproxySchema, Set<string>>();
 function cachedValidationSet(
   schema: HaproxySchema,
   cache: WeakMap<HaproxySchema, Set<string>>,
-  key: string,
+  key: Parameters<typeof validationStringList>[1],
 ): Set<string> {
   let cached = cache.get(schema);
   if (!cached) {

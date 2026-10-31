@@ -85,17 +85,13 @@ export function assertBooleanMatrixValue(value: unknown, path: string): void {
   });
 }
 
-export function recordValue(
-  data: Record<string, unknown>,
-  key: string,
-  namespace: string,
-): Record<string, unknown> {
-  const value = data[key];
+export function recordValue(data: object, key: string, namespace: string): Record<string, unknown> {
+  const value = (data as Record<string, unknown>)[key];
   return assertRecordShape(value, `${namespace}.${key}`);
 }
 
 export function stringMapValue(
-  data: Record<string, unknown>,
+  data: object,
   key: string,
   namespace: string,
 ): Record<string, string> {

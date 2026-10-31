@@ -23,7 +23,7 @@ function useServiceRule(schema: CompletionContext["schema"]): {
     );
   }
   return {
-    ruleKinds: rule.rule_kinds as string[],
+    ruleKinds: rule.rule_kinds,
     action: rule.action,
     serviceGroup: rule.service_group,
   };

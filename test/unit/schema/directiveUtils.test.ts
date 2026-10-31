@@ -12,6 +12,7 @@ import {
   isEnumPerParameter,
   resolveDirective,
 } from "../../../src/language/directiveUtils";
+import type { SchemaKeyword } from "../../../src/schema/types";
 import { parseDocument } from "../../helpers/parse";
 import { createDocument } from "../../helpers/document";
 import { loadSchemaBundle } from "../../helpers/schema";
@@ -186,7 +187,7 @@ describe("directiveUtils", () => {
   });
 
   it("completionValuesForPosition uses packed-value fallback after address tokens", () => {
-    const schemaKw = {
+    const schemaKw: SchemaKeyword = {
       name: "testpacked",
       sections: ["defaults"],
       signatures: [],
@@ -208,7 +209,7 @@ describe("directiveUtils", () => {
   });
 
   it("completionValuesForPosition skips packed fallback for non-generic slots", () => {
-    const schemaKw = {
+    const schemaKw: SchemaKeyword = {
       name: "testpacked",
       sections: ["defaults"],
       signatures: [],
@@ -227,7 +228,7 @@ describe("directiveUtils", () => {
   });
 
   it("completionValuesForPosition skips packed fallback when previous token is not an address", () => {
-    const schemaKw = {
+    const schemaKw: SchemaKeyword = {
       name: "testpacked",
       sections: ["defaults"],
       signatures: [],
@@ -250,7 +251,7 @@ describe("directiveUtils", () => {
   });
 
   it("completionValuesForPosition packed fallback stops before required slots", () => {
-    const schemaKw = {
+    const schemaKw: SchemaKeyword = {
       name: "testpacked",
       sections: ["defaults"],
       signatures: [],
@@ -274,7 +275,7 @@ describe("directiveUtils", () => {
   });
 
   it("completionValuesForPosition packed fallback returns empty when no later enums exist", () => {
-    const schemaKw = {
+    const schemaKw: SchemaKeyword = {
       name: "testpacked",
       sections: ["defaults"],
       signatures: [],
@@ -301,7 +302,7 @@ describe("directiveUtils", () => {
     const line = lineAt("defaults\n    testpacked", 1);
     expect(completionValuesForPosition(undefined, undefined, 0, line, 0, "testpacked")).toEqual([]);
 
-    const schemaKw = {
+    const schemaKw: SchemaKeyword = {
       name: "testpacked",
       sections: ["defaults"],
       signatures: [],

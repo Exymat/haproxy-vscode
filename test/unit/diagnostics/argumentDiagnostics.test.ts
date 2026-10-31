@@ -356,12 +356,15 @@ describe("argumentDiagnostics", () => {
       special_argument_rules: {
         "option mysql-check": {
           first_values: "malformed",
+          // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
           modes: "malformed",
         },
         "http-send-name-header": {
+          // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
           forbidden_first_arg_by_min_version: "malformed",
         },
         cookie: {
+          // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
           modes: "malformed",
         },
       },
@@ -588,6 +591,7 @@ describe("argumentDiagnostics", () => {
     schema.validation_rules = {
       ...schema.validation_rules,
       special_argument_rules: {
+        // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
         "option mysql-check": "not-an-object",
       },
     };

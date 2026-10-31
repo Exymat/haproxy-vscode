@@ -79,6 +79,7 @@ describe("completion core", () => {
 
   it("requires use-service metadata", async () => {
     const schema = structuredClone(bundle.schema);
+    // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
     schema.semantic_groups = { ...schema.semantic_groups, use_service: [] };
     const doc = createDocument("frontend web\n    http-request use-service ");
     await expect(
@@ -93,6 +94,7 @@ describe("completion core", () => {
     const malformed = structuredClone(bundle.schema);
     malformed.semantic_groups = {
       ...malformed.semantic_groups,
+      // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
       use_service: { rule_kinds: ["http-request"], action: 1, service_group: "services" },
     };
     await expect(
@@ -106,6 +108,7 @@ describe("completion core", () => {
 
     malformed.semantic_groups = {
       ...malformed.semantic_groups,
+      // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
       use_service: { rule_kinds: "http-request", action: "use-service", service_group: "services" },
     };
     await expect(

@@ -24,7 +24,7 @@ export function loadSchema(
   const schemaPath = path.join(context.extensionPath, "schemas", `haproxy-${version}.schema.json`);
   try {
     const raw = fs.readFileSync(schemaPath, "utf-8");
-    const data = normalizeSchemaData(JSON.parse(raw) as HaproxySchema);
+    const data = normalizeSchemaData(JSON.parse(raw) as unknown);
     schemaCache.set(version, data);
     return data;
   } catch (error) {
@@ -46,7 +46,7 @@ export async function loadSchemaAsync(
   const schemaPath = path.join(context.extensionPath, "schemas", `haproxy-${version}.schema.json`);
   try {
     const raw = await fs.promises.readFile(schemaPath, "utf-8");
-    const data = normalizeSchemaData(JSON.parse(raw) as HaproxySchema);
+    const data = normalizeSchemaData(JSON.parse(raw) as unknown);
     schemaCache.set(version, data);
     return data;
   } catch (error) {

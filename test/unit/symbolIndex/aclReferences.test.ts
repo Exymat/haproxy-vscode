@@ -129,9 +129,7 @@ describe("symbolIndex acl references", () => {
 
   it("covers defensive symbol-index helpers directly", () => {
     const line = parseDocument(doc("frontend web\n    http-request deny if acl1"))[1];
-    const aclOperators = new Set<string>(
-      (schema.symbols?.acl_condition_operators as string[] | undefined) ?? [],
-    );
+    const aclOperators = new Set<string>(schema.symbols?.acl_condition_operators ?? []);
     const fetchNames = sampleExpressionNameSets(schema).fetchNames;
     const aclCriteria = keywordGroupSet(schema, "acl_criteria");
     expect(aclReferenceAt(schema, line, 99, aclOperators, fetchNames, aclCriteria)).toBeNull();
@@ -292,6 +290,7 @@ describe("symbolIndex acl references", () => {
     const malformedFetchSchema = structuredClone(schema);
     malformedFetchSchema.symbols = {
       ...malformedFetchSchema.symbols,
+      // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
       sample_fetch_references: { http_auth: [], http_auth_group: { argument_index: 0 } },
     };
     expect(
@@ -319,6 +318,7 @@ describe("symbolIndex acl references", () => {
     const malformedSelfRefSchema = structuredClone(schema);
     malformedSelfRefSchema.symbols = {
       ...malformedSelfRefSchema.symbols,
+      // @ts-expect-error Deliberately malformed metadata exercises runtime validation.
       self_reference_keywords: { filter: { reference_kind: 1, token_index: 1 } },
     };
     malformedSelfRefSchema.statement_rules = [];

@@ -2,6 +2,16 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.22.0
+
+- **HAPEE hover text** — Enterprise hovers for 2.6r1–3.4r1 keep each keyword’s or sample’s own description. They no longer include the HTML manual’s section menu (`This keyword is available in sections`, `Usable in :`) or the following item’s text. Hovering `http-request del-header` stays on `del-header`, and hovering `tcp-request connection accept` stays on `accept`.
+- **Sample names are not directives** — HAPEE 2.6r1 and 2.8r1 no longer treat sample fetches and converters (`base64`, `sha1`, `length`, and similar) or manual headings (`section 6`, `section 10`) as configuration keywords. Those names stay available as samples, and they are not highlighted, completed, or diagnosed as directives. A separator line is no longer a sample converter.
+- **Example tokens are not converters** — HAPEE 3.0r1 and 3.2r1 no longer treat documentation examples as sample converters (`map_match`, `map_match_output`, `ip`, `int`, `str`, `|`, and `2.22.246.0/23`).
+- **`http-request set-retries`** — HAPEE 3.0r1 highlights and documents `set-retries` as an `http-request` action.
+- **`dns-accept-family`** — HAPEE 3.0r1 highlights the argument after `dns-accept-family`.
+- **`filter decomp-req` and `filter decomp-res`** — HAPEE 3.4r1 recognizes these decompression filters for highlighting, completion, and diagnostics.
+- **`fcgi-app` and `docroot`** — HAPEE 2.6r1 and 2.8r1 highlight the value after `fcgi-app` and `docroot`. 2.8r1 also highlights the value after `shards`.
+
 ## 0.21.2
 
 - **Properties files** — content-based language detection now covers documents opened as Properties, not only Plain Text. A `.cfg` file that VS Code classifies as Properties is switched to HAProxy when it matches the same section grammar as in 0.21.0, including files already open when the editor finishes starting.

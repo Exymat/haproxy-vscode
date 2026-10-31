@@ -1,3 +1,4 @@
+import type { SchemaValidationRules, KeysOfType, RecordKeys } from "./metadata.generated";
 /** Accessors for schema validation-rule metadata. */
 import {
   assertRecordShape,
@@ -9,35 +10,51 @@ import {
 } from "./contractHelpers";
 import type { HaproxySchema } from "./types";
 
-export function validationStringList(schema: HaproxySchema, key: string): string[] {
+export function validationStringList(
+  schema: HaproxySchema,
+  key: KeysOfType<SchemaValidationRules, string[]>,
+): string[] {
   return stringArrayValue(schema.validation_rules[key], `validation_rules.${key}`);
 }
 
-export function validationStringMap(schema: HaproxySchema, key: string): Record<string, string> {
+export function validationStringMap(
+  schema: HaproxySchema,
+  key: KeysOfType<SchemaValidationRules, Record<string, string>>,
+): Record<string, string> {
   return stringMapValue(schema.validation_rules, key, "validation_rules");
 }
 
-export function validationStringValue(schema: HaproxySchema, key: string): string {
+export function validationStringValue(
+  schema: HaproxySchema,
+  key: KeysOfType<SchemaValidationRules, string>,
+): string {
   const value = schema.validation_rules[key];
   assertStringValue(value, `validation_rules.${key}`);
   return value;
 }
 
-export function validationObjectArray<T extends Record<string, unknown>>(
+export function validationObjectArray(
   schema: HaproxySchema,
-  key: string,
-): T[] {
+  key: KeysOfType<SchemaValidationRules, Array<object>>,
+): NonNullable<SchemaValidationRules[typeof key]> {
   const value = schema.validation_rules[key];
   if (!Array.isArray(value)) {
     throw metadataContractError(`validation_rules.${key}`);
   }
-  return value.map(
-    (item, index) => assertRecordShape(item, `validation_rules.${key}.${index}`) as T,
-  );
+  return value.map((item, index) => {
+    const path = `validation_rules.${key}.${index}`;
+    const record = assertRecordShape(item, path);
+    return { match_tokens: stringArrayValue(record.match_tokens, `${path}.match_tokens`) };
+  });
 }
 
-export function validationRecord(schema: HaproxySchema, key: string): Record<string, unknown> {
-  return recordValue(schema.validation_rules, key, "validation_rules");
+export function validationRecord<K extends RecordKeys<SchemaValidationRules>>(
+  schema: HaproxySchema,
+  key: K,
+): NonNullable<SchemaValidationRules[K]> {
+  return recordValue(schema.validation_rules, key, "validation_rules") as NonNullable<
+    SchemaValidationRules[K]
+  >;
 }
 
 export function addressDirectivePolicyKey(schema: HaproxySchema, keyword: string): string | null {
