@@ -58316,7 +58316,7 @@
       "chapter": "7.3.1",
       "contexts": [],
       "deprecated": false,
-      "description": "Converts a hex string containing two hex digits per input byte to an\ninteger. If the input value cannot be converted, then zero is returned.",
+      "description": "Converts a hex string containing two hex digits per input byte to an\ninteger. If the input value contains a character which is not a\nhexadecimal digit, the converter fails and returns nothing, which makes it\npossible to differentiate an invalid input from a valid zero.",
       "in_type": "sint",
       "max_args": null,
       "min_args": null,
@@ -79600,7 +79600,7 @@
         false
       ],
       "deprecated": false,
-      "description": "This extracts the IP address from the request's URL when the host part is\npresented as an IP address. Its use is very limited. For instance, a\nmonitoring system might use this field as an alternative for the source IP in\norder to test what path a given source address would follow, or to force an\nentry in a table for a given source address. It may be used in combination\nwith 'http-request set-dst' to emulate the older 'option http_proxy'.",
+      "description": "This extracts the IP address from the request's URL when the host part is\npresented as an IP address. The fetch fails when the host part is a name,\nas no resolution is performed. Its use is very limited. For instance, a\nmonitoring system might use this field as an alternative for the source IP in\norder to test what path a given source address would follow, or to force an\nentry in a table for a given source address. It may be used in combination\nwith 'http-request set-dst' to emulate the older 'option http_proxy'.",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -79676,7 +79676,7 @@
         false
       ],
       "deprecated": false,
-      "description": "This extracts the port part from the request's URL. Note that if the port is\nnot specified in the request, port 80 is assumed..",
+      "description": "This extracts the port part from the request's URL. Note that if the port is\nnot specified in the request, port 80 is assumed. As for \" url_ip \", this only\nworks when the authority of the URL is presented as an address, the fetch\nfails when it is a host name since no resolution is performed here.",
       "in_type": "",
       "max_args": 0,
       "min_args": null,

@@ -5802,7 +5802,7 @@
         "signature": "hex"
       },
       {
-        "description": "Converts a hex string containing two hex digits per input byte to an\ninteger. If the input value cannot be converted, then zero is returned.",
+        "description": "Converts a hex string containing two hex digits per input byte to an\ninteger. If the input value contains a character which is not a\nhexadecimal digit, the converter fails and returns nothing, which makes it\npossible to differentiate an invalid input from a valid zero.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/3-2r1#hex2i",
         "examples": [],
         "name": "hex2i",
@@ -10823,7 +10823,7 @@
         "signature": "ssl_bc_client_traffic_secret_0"
       },
       {
-        "description": "Returns the name of the curve used in the key agreement when the outgoing\nconnection was made over an SSL/TLS transport layer. This requires\nOpenSSL >= 3.0.0 or AWS-LC >= 1.57.0.",
+        "description": "Returns the name of the curve used in the key agreement when the outgoing\nconnection was made over an SSL/TLS transport layer.\n\nThe output format depends on the HAProxy and SSL library versions. The name\nmay use NIST notation (e.g. \"P-256\"), OpenSSL notation (e.g. \"prime256v1\"),\nor another library-specific format. Spelling and case may also vary.\n\nCompatibility: OpenSSL >= 3.0.0, AWS-LC >= 3.0.0 (API >= 30).",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/3-2r1#ssl_bc_curve",
         "examples": [],
         "name": "ssl_bc_curve",
@@ -11291,7 +11291,7 @@
         "signature": "ssl_fc_client_traffic_secret_0"
       },
       {
-        "description": "Returns the name of the curve used in the key agreement when the incoming\nconnection was made over an SSL/TLS transport layer. This requires\nOpenSSL >= 3.0.0.",
+        "description": "Returns the name of the curve used in the key agreement when the incoming\nconnection was made over an SSL/TLS transport layer.\n\nThe output format depends on the HAProxy and SSL library versions. The name\nmay use NIST notation (e.g. \"P-256\"), OpenSSL notation (e.g. \"prime256v1\"),\nor another library-specific format. Spelling and case may also vary.\n\nCompatibility: OpenSSL >= 3.0.0, AWS-LC >= 3.0.0 (API >= 30).",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/3-2r1#ssl_fc_curve",
         "examples": [],
         "name": "ssl_fc_curve",
@@ -11764,7 +11764,7 @@
         "signature": "url32+src"
       },
       {
-        "description": "This extracts the IP address from the request's URL when the host part is\npresented as an IP address. Its use is very limited. For instance, a\nmonitoring system might use this field as an alternative for the source IP in\norder to test what path a given source address would follow, or to force an\nentry in a table for a given source address. It may be used in combination\nwith 'http-request set-dst' to emulate the older 'option http_proxy'.",
+        "description": "This extracts the IP address from the request's URL when the host part is\npresented as an IP address. The fetch fails when the host part is a name,\nas no resolution is performed. Its use is very limited. For instance, a\nmonitoring system might use this field as an alternative for the source IP in\norder to test what path a given source address would follow, or to force an\nentry in a table for a given source address. It may be used in combination\nwith 'http-request set-dst' to emulate the older 'option http_proxy'.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/3-2r1#url_ip",
         "examples": [],
         "name": "url_ip",
@@ -11785,7 +11785,7 @@
         "signature": "url_param([<name>[, <delim>[, i]]])"
       },
       {
-        "description": "This extracts the port part from the request's URL. Note that if the port is\nnot specified in the request, port 80 is assumed..",
+        "description": "This extracts the port part from the request's URL. Note that if the port is\nnot specified in the request, port 80 is assumed. As for \" url_ip \", this only\nworks when the authority of the URL is presented as an address, the fetch\nfails when it is a host name since no resolution is performed here.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/3-2r1#url_port",
         "examples": [],
         "name": "url_port",
@@ -28405,7 +28405,7 @@
     },
     "no option start-on-reload": {
       "arguments": [],
-      "description": "Start (or not) a new instance of the program upon a reload of the master.\nThe default is to start a new instance. This option may only be used in a\nprogram section. HAPEE-LB 3.2r1 (1.0.0-378.1201) \u2013 Configuration Manual",
+      "description": "Start (or not) a new instance of the program upon a reload of the master.\nThe default is to start a new instance. This option may only be used in a\nprogram section. HAPEE-LB 3.2r1 (1.0.0-378.1259) \u2013 Configuration Manual",
       "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/3-2r1#12.9-no%20option%20start-on-reload",
       "examples": [],
       "name": "no option start-on-reload",
@@ -28420,7 +28420,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Start (or not) a new instance of the program upon a reload of the master.\nThe default is to start a new instance. This option may only be used in a\nprogram section. HAPEE-LB 3.2r1 (1.0.0-378.1201) \u2013 Configuration Manual",
+          "description": "Start (or not) a new instance of the program upon a reload of the master.\nThe default is to start a new instance. This option may only be used in a\nprogram section. HAPEE-LB 3.2r1 (1.0.0-378.1259) \u2013 Configuration Manual",
           "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/3-2r1#12.9-no%20option%20start-on-reload",
           "examples": [],
           "sections": [
@@ -32504,7 +32504,7 @@
     },
     "option start-on-reload": {
       "arguments": [],
-      "description": "Start (or not) a new instance of the program upon a reload of the master.\nThe default is to start a new instance. This option may only be used in a\nprogram section. HAPEE-LB 3.2r1 (1.0.0-378.1201) \u2013 Configuration Manual",
+      "description": "Start (or not) a new instance of the program upon a reload of the master.\nThe default is to start a new instance. This option may only be used in a\nprogram section. HAPEE-LB 3.2r1 (1.0.0-378.1259) \u2013 Configuration Manual",
       "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/3-2r1#12.9-option%20start-on-reload",
       "examples": [],
       "name": "option start-on-reload",
@@ -32519,7 +32519,7 @@
           "arguments": [],
           "chapter": "12.9",
           "contexts": [],
-          "description": "Start (or not) a new instance of the program upon a reload of the master.\nThe default is to start a new instance. This option may only be used in a\nprogram section. HAPEE-LB 3.2r1 (1.0.0-378.1201) \u2013 Configuration Manual",
+          "description": "Start (or not) a new instance of the program upon a reload of the master.\nThe default is to start a new instance. This option may only be used in a\nprogram section. HAPEE-LB 3.2r1 (1.0.0-378.1259) \u2013 Configuration Manual",
           "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/3-2r1#12.9-option%20start-on-reload",
           "examples": [],
           "sections": [
