@@ -59,29 +59,99 @@ describe("semanticTokens", () => {
     });
     expect(provideSemanticTokens(doc, schema, 4000).data.length).toBe(0);
   });
+
+  it("skips empty spans and sites that overlap an earlier token", () => {
+    const doc = createDocument("frontend web\n    acl allowed path /");
+    vi.spyOn(symbolIndexModule, "getSymbolIndex").mockReturnValueOnce({
+      definitions: new Map([
+        [
+          "acl:allowed",
+          [
+            {
+              kind: "acl",
+              name: "allowed",
+              line: 1,
+              start: 8,
+              end: 15,
+              scopeKey: null,
+              role: "definition",
+            },
+          ],
+        ],
+      ]),
+      references: [
+        {
+          kind: "acl",
+          name: "empty",
+          line: 1,
+          start: 4,
+          end: 4,
+          scopeKey: null,
+          role: "reference",
+        },
+        {
+          kind: "acl",
+          name: "overlap",
+          line: 1,
+          start: 10,
+          end: 14,
+          scopeKey: null,
+          role: "reference",
+        },
+        {
+          kind: "acl",
+          name: "next",
+          line: 1,
+          start: 16,
+          end: 20,
+          scopeKey: null,
+          role: "reference",
+        },
+      ],
+      referencesByKey: new Map(),
+      scopeKeyByLine: [],
+      scopedSymbolKinds: new Set(),
+      sitesByLine: [],
+      unresolvedReferences: [],
+    });
+
+    expect([...provideSemanticTokens(doc, schema, 4000).data]).toEqual([
+      1, 8, 7, 2, 1, 0, 8, 4, 2, 0,
+    ]);
+  });
 });
 
 it("marks parsed declarations and references with semantic roles", () => {
-  const doc = createDocument('frontend web\n    acl allowed path /\n    http-request deny unless allowed\nbackend api\n    server s1 127.0.0.1:80');
+  const doc = createDocument(
+    "frontend web\n    acl allowed path /\n    http-request deny unless allowed\nbackend api\n    server s1 127.0.0.1:80",
+  );
   const data = provideSemanticTokens(doc, schema, 4000).data;
   let line = 0;
   let start = 0;
-  const sites: {text: string; type: number; declaration: boolean}[] = [];
+  const sites: { text: string; type: number; declaration: boolean }[] = [];
   for (let i = 0; i < data.length; i += 5) {
     start = data[i] === 0 ? start + data[i + 1] : data[i + 1];
     line += data[i];
-    sites.push({text: doc.lineAt(line).text.slice(start, start + data[i + 2]), type: data[i + 3], declaration: data[i + 4] === 1});
+    sites.push({
+      text: doc.lineAt(line).text.slice(start, start + data[i + 2]),
+      type: data[i + 3],
+      declaration: data[i + 4] === 1,
+    });
   }
-  expect(sites).toEqual(expect.arrayContaining([
-    {text: "web", type: 1, declaration: true},
-    {text: "allowed", type: 2, declaration: true},
-    {text: "allowed", type: 2, declaration: false},
-    {text: "s1", type: 2, declaration: true},
-  ]));
+  expect(sites).toEqual(
+    expect.arrayContaining([
+      { text: "web", type: 1, declaration: true },
+      { text: "allowed", type: 2, declaration: true },
+      { text: "allowed", type: 2, declaration: false },
+      { text: "s1", type: 2, declaration: true },
+    ]),
+  );
 });
 
 it("highlights parsed variable declarations and reads", () => {
-  const doc = createDocument('frontend web\n    http-request set-var(txn.label) str(test)\n    http-request set-header X-Label %[var(txn.label)]');
+  const doc = createDocument(
+    "frontend web\n    http-request set-var(txn.label) str(test)\n    http-request set-header X-Label %[var(txn.label)]",
+  );
   const data = provideSemanticTokens(doc, schema, 4000).data;
   const variables = [];
   for (let i = 0; i < data.length; i += 5) if (data[i + 3] === 3) variables.push(data[i + 4]);

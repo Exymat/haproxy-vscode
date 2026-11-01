@@ -6,9 +6,10 @@ import { getSymbolIndex } from "../symbolIndex";
 
 export const BACKEND_REFERENCE_TOKEN_TYPE = "backendReference";
 
-export const backendReferenceLegend = new vscode.SemanticTokensLegend([
-  BACKEND_REFERENCE_TOKEN_TYPE, "type", "property", "variable",
-], ["declaration"]);
+export const backendReferenceLegend = new vscode.SemanticTokensLegend(
+  [BACKEND_REFERENCE_TOKEN_TYPE, "type", "property", "variable"],
+  ["declaration"],
+);
 
 const BACKEND_REFERENCE_KEYWORDS = new Set(["use_backend", "default_backend"]);
 
@@ -42,17 +43,25 @@ export function provideSemanticTokens(
   let previousLine = -1;
   let previousEnd = -1;
   for (const site of sites) {
-    if (site.end <= site.start || (site.line === previousLine && site.start < previousEnd)) continue;
+    if (site.end <= site.start || (site.line === previousLine && site.start < previousEnd))
+      continue;
     let tokenType: number;
     if (site.kind === "proxy-section") {
-      if (site.role === "reference" && !isBackendReferenceLine(document.lineAt(site.line).text)) continue;
+      if (site.role === "reference" && !isBackendReferenceLine(document.lineAt(site.line).text))
+        continue;
       tokenType = site.role === "reference" ? 0 : 1;
     } else if (site.kind === "acl" || site.kind === "server" || site.kind === "server-template") {
       tokenType = 2;
     } else if (site.kind === "variable" || site.kind === "environment-variable") {
       tokenType = 3;
     } else continue;
-    builder.push(site.line, site.start, site.end - site.start, tokenType, site.role === "definition" ? 1 : 0);
+    builder.push(
+      site.line,
+      site.start,
+      site.end - site.start,
+      tokenType,
+      site.role === "definition" ? 1 : 0,
+    );
     previousLine = site.line;
     previousEnd = site.end;
   }
