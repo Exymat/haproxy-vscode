@@ -1356,6 +1356,7 @@
       "field",
       "fix_is_valid",
       "fix_tag_value",
+      "has_ctl",
       "hex",
       "hex2i",
       "hmac",
@@ -53648,6 +53649,7 @@
         "tune.zlib.memlevel <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -53700,6 +53702,7 @@
         "tune.zlib.windowsize <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -56687,6 +56690,21 @@
       "out_type": "bin",
       "signature": "fix_tag_value(tag)"
     },
+    "has_ctl": {
+      "args": [
+        "string"
+      ],
+      "chapter": "7.3.1",
+      "contexts": [],
+      "deprecated": false,
+      "description": "Checks the input binary sample for control characters as defined by the mask argument. The mask is a 33-bit number (either decimal or hexadecimal prefixed by \"0x\"), which has one bit set for each character to be detected in the 0x00 to 0x1F range, and bit 32 set to match the DEL character (0x7F). When no mask is specified, the converter will use value 0x1FFFFFDFF, matching all control characters except TAB (0x09), which is commonly used in HTTP headers. The special mask \"any\" corresponds to 0x1FFFFFFFF which will match all control characters, TAB included. The special mask \"http\" corresponds to 0x2401 and will only cause the control characterss forbidden in HTTP header values to be matched, which are CR (0x0D), LF (0x0A) and NUL (0x00).",
+      "in_type": "bool",
+      "max_args": 1,
+      "min_args": null,
+      "name": "has_ctl",
+      "out_type": "bin",
+      "signature": "has_ctl([mask])"
+    },
     "hex": {
       "args": [],
       "chapter": "7.3.1",
@@ -56705,7 +56723,7 @@
       "chapter": "7.3.1",
       "contexts": [],
       "deprecated": false,
-      "description": "Converts a hex string containing two hex digits per input byte to an integer. If the input value cannot be converted, then zero is returned.",
+      "description": "Converts a hex string containing two hex digits per input byte to an integer. If the input value contains a character which is not a hexadecimal digit, the converter fails and returns nothing, which makes it possible to differentiate an invalid input from a valid zero.",
       "in_type": "sint",
       "max_args": null,
       "min_args": null,
@@ -78660,7 +78678,7 @@
         false
       ],
       "deprecated": false,
-      "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
+      "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. The fetch fails when the host part is a name, as no resolution is performed. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -78736,7 +78754,7 @@
         false
       ],
       "deprecated": false,
-      "description": "This extracts the port part from the request's URL. Note that if the port is not specified in the request, port 80 is assumed..",
+      "description": "This extracts the port part from the request's URL. Note that if the port is not specified in the request, port 80 is assumed. As for \"url_ip\", this only works when the authority of the URL is presented as an address, the fetch fails when it is a host name since no resolution is performed here.",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -81185,7 +81203,8 @@
       "X",
       "bin",
       "cbor",
-      "json"
+      "json",
+      "utf8"
     ],
     "macros": [
       ".if",

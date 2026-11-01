@@ -192,13 +192,14 @@ describe("symbol reference completion", () => {
     expect(labels).not.toContain("test");
   });
 
-  it("still suggests filter-sequence phase enums before filter names", async () => {
+  it("does not suggest phase enums for the reverted filter-sequence directive", async () => {
     const labels = await completionLabels(
       "frontend web\n    filter comp-req\n    filter-sequence ",
       2,
       "    filter-sequence ".length,
     );
-    expect(labels).toEqual(expect.arrayContaining(["request", "response"]));
+    expect(labels).not.toContain("request");
+    expect(labels).not.toContain("response");
     expect(labels).not.toContain("comp-req");
   });
 

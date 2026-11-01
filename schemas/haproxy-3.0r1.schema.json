@@ -54889,6 +54889,7 @@
         "tune.zlib.memlevel <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -54941,6 +54942,7 @@
         "tune.zlib.windowsize <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -82081,7 +82083,8 @@
       "X",
       "bin",
       "cbor",
-      "json"
+      "json",
+      "utf8"
     ],
     "macros": [
       ".if",

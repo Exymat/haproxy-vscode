@@ -51,7 +51,13 @@ describe("integration-promoted navigation coverage", () => {
   });
 
   it("renames split filter-sequence references at source level", () => {
-    const content = readFileSync(join(fixturesDir, "symbol-graph.cfg"), "utf-8");
+    // Keep generic split-reference coverage separate from the current-release fixture.
+    const content = [
+      "frontend web",
+      "    filter comp-req",
+      "    filter comp-res",
+      "    filter-sequence request comp-req,comp-res",
+    ].join("\n");
     const doc = createDocument(content);
     const edit = provideRenameEdits(
       doc,

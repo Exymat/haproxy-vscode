@@ -1439,6 +1439,7 @@
       "field",
       "fix_is_valid",
       "fix_tag_value",
+      "has_ctl",
       "hex",
       "hex2i",
       "hmac",
@@ -4325,6 +4326,7 @@
         "be-unpublished"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -14018,87 +14020,6 @@
         }
       ]
     },
-    "filter-sequence": {
-      "argument_model": {
-        "max_args": 2,
-        "min_args": 2,
-        "slots": [
-          {
-            "enum": [
-              "request",
-              "response"
-            ],
-            "optional": false,
-            "value_kind": "enum",
-            "variadic": false
-          },
-          {
-            "enum": [],
-            "optional": false,
-            "value_kind": "generic",
-            "variadic": false
-          }
-        ]
-      },
-      "arguments": [],
-      "contexts": [
-        "http",
-        "tcp"
-      ],
-      "line_option_semantics": [],
-      "name": "filter-sequence",
-      "sections": [
-        "backend",
-        "frontend",
-        "listen"
-      ],
-      "signatures": [
-        "filter-sequence { request | response } <filter_list>"
-      ],
-      "sources": [
-        "dkall",
-        "doc"
-      ],
-      "variants": [
-        {
-          "argument_model": {
-            "max_args": 2,
-            "min_args": 2,
-            "slots": [
-              {
-                "enum": [
-                  "request",
-                  "response"
-                ],
-                "optional": false,
-                "value_kind": "enum",
-                "variadic": false
-              },
-              {
-                "enum": [],
-                "optional": false,
-                "value_kind": "generic",
-                "variadic": false
-              }
-            ]
-          },
-          "arguments": [],
-          "chapter": "4.2",
-          "contexts": [
-            "http",
-            "tcp"
-          ],
-          "sections": [
-            "backend",
-            "frontend",
-            "listen"
-          ],
-          "signatures": [
-            "filter-sequence { request | response } <filter_list>"
-          ]
-        }
-      ]
-    },
     "force-be-switch": {
       "argument_model": {
         "max_args": 2,
@@ -21047,6 +20968,45 @@
           ],
           "signatures": [
             "jwt [ off | on ]"
+          ]
+        }
+      ]
+    },
+    "jwt.allow_none_alg": {
+      "argument_model": {
+        "max_args": 0,
+        "min_args": 0,
+        "slots": []
+      },
+      "arguments": [],
+      "contexts": [],
+      "line_option_semantics": [],
+      "name": "jwt.allow_none_alg",
+      "sections": [
+        "global"
+      ],
+      "signatures": [
+        "jwt.allow_none_alg"
+      ],
+      "sources": [
+        "dkall",
+        "doc"
+      ],
+      "variants": [
+        {
+          "argument_model": {
+            "max_args": 0,
+            "min_args": 0,
+            "slots": []
+          },
+          "arguments": [],
+          "chapter": "3.1",
+          "contexts": [],
+          "sections": [
+            "global"
+          ],
+          "signatures": [
+            "jwt.allow_none_alg"
           ]
         }
       ]
@@ -58493,6 +58453,7 @@
         "tune.ssl.keyupdate-rate-limit <limit>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -62449,6 +62410,21 @@
       "out_type": "bin",
       "signature": "fix_tag_value(tag)"
     },
+    "has_ctl": {
+      "args": [
+        "string"
+      ],
+      "chapter": "7.3.1",
+      "contexts": [],
+      "deprecated": false,
+      "description": "Checks the input binary sample for control characters as defined by the mask argument. The mask is a 33-bit number (either decimal or hexadecimal prefixed by \"0x\"), which has one bit set for each character to be detected in the 0x00 to 0x1F range, and bit 32 set to match the DEL character (0x7F). When no mask is specified, the converter will use value 0x1FFFFFDFF, matching all control characters except TAB (0x09), which is commonly used in HTTP headers. The special mask \"any\" corresponds to 0x1FFFFFFFF which will match all control characters, TAB included. The special mask \"http\" corresponds to 0x2401 and will only cause the control characterss forbidden in HTTP header values to be matched, which are CR (0x0D), LF (0x0A) and NUL (0x00).",
+      "in_type": "bool",
+      "max_args": 1,
+      "min_args": null,
+      "name": "has_ctl",
+      "out_type": "bin",
+      "signature": "has_ctl([mask])"
+    },
     "hex": {
       "args": [],
       "chapter": "7.3.1",
@@ -62467,7 +62443,7 @@
       "chapter": "7.3.1",
       "contexts": [],
       "deprecated": false,
-      "description": "Converts a hex string containing two hex digits per input byte to an integer. If the input value cannot be converted, then zero is returned.",
+      "description": "Converts a hex string containing two hex digits per input byte to an integer. If the input value contains a character which is not a hexadecimal digit, the converter fails and returns nothing, which makes it possible to differentiate an invalid input from a valid zero.",
       "in_type": "sint",
       "max_args": null,
       "min_args": null,
@@ -62828,7 +62804,7 @@
       "chapter": "7.3.1",
       "contexts": [],
       "deprecated": false,
-      "description": "Performs a signature verification for the JSON Web Token (JWT) given in input by using the <alg> algorithm and the <key> parameter. For now, only JWS tokens using the Compact Serialization format can be processed (three dot-separated base64-url encoded strings). This converter only verifies the signature of the token and does not perform a full JWT validation as specified in section 7.2 of RFC7519. We do not ensure that the header and payload contents are fully valid JSONs once decoded for instance, and no checks are performed regarding their respective contents.\n\n- <alg> can be either a string or a variable name (See also \"set-var\") that holds the name of the algorithm used to verify.\n\nAlgorithms mentioned in section 3.1 of RFC7518 are managed:\n\n+--------------+---------------------------------------------------------+ | \"alg\" Param  | Digital Signature or MAC Algorithm                      | | Value        |                                                         | +--------------+---------------------------------------------------------+ | HS256        | HMAC using SHA-256                                      | | HS384        | HMAC using SHA-384                                      | | HS512        | HMAC using SHA-512                                      | | RS256        | RSASSA-PKCS1-v1_5 using SHA-256                         | | RS384        | RSASSA-PKCS1-v1_5 using SHA-384                         | | RS512        | RSASSA-PKCS1-v1_5 using SHA-512                         | | ES256        | ECDSA using P-256 and SHA-256                           | | ES384        | ECDSA using P-384 and SHA-384                           | | ES512        | ECDSA using P-521 and SHA-512                           | | PS256        | RSASSA-PSS using SHA-256 and MGF1 with SHA-256          | | PS384        | RSASSA-PSS using SHA-384 and MGF1 with SHA-384          | | PS512        | RSASSA-PSS using SHA-512 and MGF1 with SHA-512          | | none         | No digital signature or MAC performed                   | +--------------+---------------------------------------------------------+\n\n- <key> can be either a string or a variable name (See also \"set-var\") that holds a secret or a public key path.\n\nSecrets are only applicable when using HMAC algorithms.\n\nPublic keys must be in either the PKCS#1 format (for RSA keys, starting with BEGIN RSA PUBLIC KEY) or SPKI format (Subject Public Key Info, starting with BEGIN PUBLIC KEY). Public keys must be available during the configuration parsing and cannot be updated or loaded at runtime. See \"jwt_verify_cert\" converter for JWT token validation based on full-on PEM certificates.\n\nAll the public keys that might be used to verify JWTs must be known during init in order to be added into a dedicated cache so that no disk access is required during runtime.\n\nReturns 1 in case of verification success, 0 in case of verification failure and a strictly negative value for any other error. Because of all those non-null error return values, the result of this converter should never be converted to a boolean. See below for a full list of the possible return values.\n\nThe possible return values are the following :\n\n+----+----------------------------------------------------------------------+ | ID | message                                                              | +----+----------------------------------------------------------------------+ |  1 | \"Verification success\"                                               | |  0 | \"Verification failure\"                                               | | -1 | \"Unknown algorithm (not mentioned in RFC7518)\"                       | | -2 | \"Unmanaged algorithm\"                                                | | -3 | \"Invalid token\"                                                      | | -4 | \"Out of memory\"                                                      | | -5 | \"Unknown pubkey/certificate\"                                         | | -6 | \"Internal error\"                                                     | +----+----------------------------------------------------------------------+\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+      "description": "Performs a signature verification for the JSON Web Token (JWT) given in input by using the <alg> algorithm and the <key> parameter. For now, only JWS tokens using the Compact Serialization format can be processed (three dot-separated base64-url encoded strings). This converter only verifies the signature of the token and does not perform a full JWT validation as specified in section 7.2 of RFC7519. We do not ensure that the header and payload contents are fully valid JSONs once decoded for instance, and no checks are performed regarding their respective contents.\n\n- <alg> can be either a string or a variable name (See also \"set-var\") that holds the name of the algorithm used to verify.\n\nAlgorithms mentioned in section 3.1 of RFC7518 are managed:\n\n+--------------+---------------------------------------------------------+ | \"alg\" Param  | Digital Signature or MAC Algorithm                      | | Value        |                                                         | +--------------+---------------------------------------------------------+ | HS256        | HMAC using SHA-256                                      | | HS384        | HMAC using SHA-384                                      | | HS512        | HMAC using SHA-512                                      | | RS256        | RSASSA-PKCS1-v1_5 using SHA-256                         | | RS384        | RSASSA-PKCS1-v1_5 using SHA-384                         | | RS512        | RSASSA-PKCS1-v1_5 using SHA-512                         | | ES256        | ECDSA using P-256 and SHA-256                           | | ES384        | ECDSA using P-384 and SHA-384                           | | ES512        | ECDSA using P-521 and SHA-512                           | | PS256        | RSASSA-PSS using SHA-256 and MGF1 with SHA-256          | | PS384        | RSASSA-PSS using SHA-384 and MGF1 with SHA-384          | | PS512        | RSASSA-PSS using SHA-512 and MGF1 with SHA-512          | | none         | No digital signature or MAC performed (see note below)  | +--------------+---------------------------------------------------------+\n\nPlease note that the \"none\" algorithm is not allowed by default to follow the recommendations in RFC8725 section 3.2. Set global option 'jwt.allow_none_alg' to explicitely allow it.\n\n- <key> can be either a string or a variable name (See also \"set-var\") that holds a secret or a public key path.\n\nSecrets are only applicable when using HMAC algorithms.\n\nPublic keys must be in either the PKCS#1 format (for RSA keys, starting with BEGIN RSA PUBLIC KEY) or SPKI format (Subject Public Key Info, starting with BEGIN PUBLIC KEY). Public keys must be available during the configuration parsing and cannot be updated or loaded at runtime. See \"jwt_verify_cert\" converter for JWT token validation based on full-on PEM certificates.\n\nAll the public keys that might be used to verify JWTs must be known during init in order to be added into a dedicated cache so that no disk access is required during runtime.\n\nReturns 1 in case of verification success, 0 in case of verification failure and a strictly negative value for any other error. Because of all those non-null error return values, the result of this converter should never be converted to a boolean. See below for a full list of the possible return values.\n\nThe possible return values are the following :\n\n+----+----------------------------------------------------------------------+ | ID | message                                                              | +----+----------------------------------------------------------------------+ |  1 | \"Verification success\"                                               | |  0 | \"Verification failure\"                                               | | -1 | \"Unknown algorithm (not mentioned in RFC7518)\"                       | | -2 | \"Unmanaged algorithm\"                                                | | -3 | \"Invalid token\"                                                      | | -4 | \"Out of memory\"                                                      | | -5 | \"Unknown pubkey/certificate\"                                         | | -6 | \"Internal error\"                                                     | +----+----------------------------------------------------------------------+\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
       "in_type": "sint",
       "max_args": 2,
       "min_args": null,
@@ -85449,7 +85425,7 @@
         false
       ],
       "deprecated": false,
-      "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
+      "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. The fetch fails when the host part is a name, as no resolution is performed. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -85525,7 +85501,7 @@
         false
       ],
       "deprecated": false,
-      "description": "This extracts the port part from the request's URL. Note that if the port is not specified in the request, port 80 is assumed..",
+      "description": "This extracts the port part from the request's URL. Note that if the port is not specified in the request, port 80 is assumed. As for \"url_ip\", this only works when the authority of the URL is presented as an address, the fetch fails when it is a host name since no resolution is performed here.",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -85844,7 +85820,6 @@
         "filter opentracing",
         "filter spoe",
         "filter trace",
-        "filter-sequence",
         "force-persist",
         "fullconn",
         "guid",
@@ -86367,7 +86342,6 @@
         "filter opentracing",
         "filter spoe",
         "filter trace",
-        "filter-sequence",
         "force-be-switch",
         "guid",
         "http-after-response",
@@ -86532,6 +86506,7 @@
         "insecure-fork-wanted",
         "insecure-setuid-wanted",
         "issuers-chain-path",
+        "jwt.allow_none_alg",
         "jwt.decrypt_alg_list",
         "jwt.decrypt_enc_list",
         "key-base",
@@ -86885,7 +86860,6 @@
         "filter opentracing",
         "filter spoe",
         "filter trace",
-        "filter-sequence",
         "force-be-switch",
         "force-persist",
         "fullconn",
@@ -88080,7 +88054,8 @@
       "X",
       "bin",
       "cbor",
-      "json"
+      "json",
+      "utf8"
     ],
     "macros": [
       ".if",

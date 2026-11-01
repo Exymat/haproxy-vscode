@@ -126,8 +126,8 @@ describe("completion and hover", () => {
     {
       directive: "filter-sequence ",
       section: "frontend",
-      expected: ["request", "response"],
-      forbidden: ["acl"],
+      expected: [],
+      forbidden: ["request", "response", "acl"],
     },
     {
       directive: "balance ",

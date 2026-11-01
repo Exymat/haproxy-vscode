@@ -525,6 +525,22 @@
         "signature": "shdr_sub ..."
       },
       {
+        "description": "This extracts the Server Name Indication TLS extension (SNI) field from an incoming connection made via an SSL/TLS transport layer and locally deciphered by HAProxy. The result (when present) typically is a string matching the HTTPS host name (253 chars or less). The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv).\n\nThis fetch is different from \"req.ssl_sni\" above in that it applies to the connection being deciphered by HAProxy and not to SSL contents being blindly forwarded. See also \"ssl_fc_sni_end\" and \"ssl_fc_sni_reg\" below. This requires that the SSL library is built with support for TLS extensions enabled (check haproxy -vv).\n\nCAUTION! Except under very specific conditions, it is normally not correct to use this field as a substitute for the HTTP \"Host\" header field. For example, when forwarding an HTTPS connection to a server, the SNI field must be set from the HTTP Host header field using \"req.hdr(host)\" and not from the front SNI value. The reason is that SNI is solely used to select the certificate the server side will present, and that clients are then allowed to send requests with different Host values as long as they match the names in the certificate. As such, \"ssl_fc_sni\" should normally not be used as an argument to the \"sni\" server keyword, unless the backend works in TCP mode.",
+        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#7.3.2-ssl_fc_sni_end",
+        "examples": [],
+        "name": "ssl_fc_sni_end",
+        "rulesets": [],
+        "signature": "ssl_fc_sni_end ..."
+      },
+      {
+        "description": "This extracts the Server Name Indication TLS extension (SNI) field from an incoming connection made via an SSL/TLS transport layer and locally deciphered by HAProxy. The result (when present) typically is a string matching the HTTPS host name (253 chars or less). The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv).\n\nThis fetch is different from \"req.ssl_sni\" above in that it applies to the connection being deciphered by HAProxy and not to SSL contents being blindly forwarded. See also \"ssl_fc_sni_end\" and \"ssl_fc_sni_reg\" below. This requires that the SSL library is built with support for TLS extensions enabled (check haproxy -vv).\n\nCAUTION! Except under very specific conditions, it is normally not correct to use this field as a substitute for the HTTP \"Host\" header field. For example, when forwarding an HTTPS connection to a server, the SNI field must be set from the HTTP Host header field using \"req.hdr(host)\" and not from the front SNI value. The reason is that SNI is solely used to select the certificate the server side will present, and that clients are then allowed to send requests with different Host values as long as they match the names in the certificate. As such, \"ssl_fc_sni\" should normally not be used as an argument to the \"sni\" server keyword, unless the backend works in TCP mode.",
+        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#7.3.2-ssl_fc_sni_reg",
+        "examples": [],
+        "name": "ssl_fc_sni_reg",
+        "rulesets": [],
+        "signature": "ssl_fc_sni_reg ..."
+      },
+      {
         "description": "This extracts the request's URL as presented in the request. A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. With ACLs, using \"path\" is preferred over using \"url\", because clients may send a full URL as is normally done with proxies. The only real use is to match \"*\" which does not match in \"path\", and for which there is already a predefined ACL. See also \"path\" and \"base\". Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the url.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#7.3.2-url",
         "examples": [],
@@ -1219,14 +1235,6 @@
         "signature": "curves <curves>"
       },
       {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-default-crt",
-        "examples": [],
-        "name": "default-crt",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Is an optional keyword which is supported only on certain Linux kernels. It states that a connection will only be accepted once some data arrive on it, or at worst after the first retransmit. This should be used only on protocols for which the client talks first (e.g. HTTP). It can slightly improve performance by ensuring that most of the request is already available when the connection is accepted. On the other hand, it will not be able to detect connections which don't talk. It is important to note that this option is broken in all kernels up to 2.6.31, as the connection is never accepted until the client talks. This can cause issues with front firewalls which would see an established connection while the proxy will only see it in SYN_RECV. This option is only supported on TCPv4/TCPv6 sockets and ignored by other ones.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-defer-accept",
         "examples": [],
@@ -1315,14 +1323,6 @@
         "signature": "group <group>"
       },
       {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-guid-prefix",
-        "examples": [],
-        "name": "guid-prefix",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Fixes the socket ID. By default, socket IDs are automatically assigned, but sometimes it is more convenient to fix them to ease monitoring. This value must be strictly positive and unique within the listener/frontend. This option can only be used when defining only a single socket.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-id",
         "examples": [],
@@ -1331,28 +1331,12 @@
         "signature": "id <id>"
       },
       {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-idle-ping",
-        "examples": [],
-        "name": "idle-ping",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Restricts the socket to a specific interface. When specified, only packets received from that particular interface are processed by the socket. This is currently only supported on Linux. The interface must be a primary system interface, not an aliased interface. It is also possible to bind multiple frontends to the same address if they are bound to different interfaces. Note that binding to a network interface requires root privileges. This parameter is only compatible with TCPv4/TCPv6 sockets. When specified, return traffic uses the same interface as inbound traffic, and its associated routing table, even if there are explicit routes through different interfaces configured. This can prove useful to address asymmetric routing issues when the same client IP addresses need to be able to reach frontends hosted on different interfaces.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-interface",
         "examples": [],
         "name": "interface",
         "rulesets": [],
         "signature": "interface <interface>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-label",
-        "examples": [],
-        "name": "label",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "This setting is used with the stats sockets only to restrict the nature of the commands that can be issued on the socket. It is ignored by other sockets. <level> can be one of : - \"user\" is the least privileged level; only non-sensitive stats can be read, and no change is allowed. It would make sense on systems where it is not easy to restrict access to the socket. - \"operator\" is the default level and fits most common uses. All data can be read, and only non-sensitive changes are permitted (e.g. clear max counters). - \"admin\" should be used with care, as everything is permitted (e.g. clear all counters).",
@@ -1403,14 +1387,6 @@
         "signature": "namespace <name>"
       },
       {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-nbconn",
-        "examples": [],
-        "name": "nbconn",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Sets the 'niceness' of connections initiated from the socket. Value must be in the range -1024..1024 inclusive, and defaults to zero. Positive values means that such connections are more friendly to others and easily offer their place in the scheduler. On the opposite, negative values mean that connections want to run with a higher priority than others. The difference only happens under high loads when the system is close to saturation. Negative values are appropriate for low-latency or administration services, and high values are generally recommended for CPU intensive tasks such as SSL processing or bulk transfers which are less sensible to latency. For example, it may make sense to use a positive value for an SMTP socket and a negative one for an RDP socket.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-nice",
         "examples": [],
@@ -1441,14 +1417,6 @@
         "name": "no-sslv3",
         "rulesets": [],
         "signature": "no-sslv3"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-no-strict-sni",
-        "examples": [],
-        "name": "no-strict-sni",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "This setting is only available when support for OpenSSL was built in. It disables the stateless session resumption (RFC 5077 TLS Ticket extension) and force to use stateful session resumption. Stateless session resumption is more expensive in CPU usage. This option is also available on global statement \"ssl-default-bind-options\". The TLS ticket mechanism is only used up to TLS 1.2. Forward Secrecy is compromised with TLS tickets, unless ticket keys are periodically rotated (via reload or by using \"tls-ticket-keys\").",
@@ -1521,30 +1489,6 @@
         "name": "proto",
         "rulesets": [],
         "signature": "proto <name>"
-      },
-      {
-        "description": "This is a QUIC specific setting to select the congestion control algorithm for any connection attempts to the configured QUIC listeners. They are similar to those used by TCP.\n\nDefault value: cubic",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-quic-cc-algo",
-        "examples": [],
-        "name": "quic-cc-algo",
-        "rulesets": [],
-        "signature": "quic-cc-algo { cubic | newreno }"
-      },
-      {
-        "description": "This is a QUIC specific setting which forces the use of the QUIC Retry feature for all the connection attempts to the configured QUIC listeners. It consists in veryfying the peers are able to receive packets at the transport address they used to initiate a new connection, sending them a Retry packet which contains a token. This token must be sent back to the Retry packet sender, this latter being the only one to be able to validate the token. Note that QUIC Retry will always be used even if a Retry threshold was set (see \"tune.quic.retry-threshold\" setting).\n\nThis setting requires the cluster secret to be set or else an error will be reported on startup (see \"cluster-secret\").\n\nSee https://www.rfc-editor.org/rfc/rfc9000.html#section-8.1.2 for more information about QUIC retry.",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-quic-force-retry",
-        "examples": [],
-        "name": "quic-force-retry",
-        "rulesets": [],
-        "signature": "quic-force-retry"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-quic-socket",
-        "examples": [],
-        "name": "quic-socket",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "This setting is used with the stats sockets only to configure severity level output prepended to informational feedback messages. Severity level of messages can range between 0 and 7, conforming to syslog rfc5424. Valid and successful socket commands requesting data (i.e. \"show map\", \"get acl foo\" etc.) will never have a severity level prepended. It is ignored by other sockets. <format> can be one of : - \"none\" (default) no severity level is prepended to feedback messages. - \"number\" severity level is prepended as a number. - \"string\" severity level is prepended as a string following the rfc5424 convention.",
@@ -1633,14 +1577,6 @@
         "name": "tls-ticket-keys",
         "rulesets": [],
         "signature": "tls-ticket-keys <keyfile>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.1-tls-tickets",
-        "examples": [],
-        "name": "tls-tickets",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "Is an optional keyword which is supported only on certain Linux kernels. It indicates that the addresses will be bound even if they do not belong to the local machine, and that packets targeting any of these addresses will be intercepted just as if the addresses were locally configured. This normally requires that IP forwarding is enabled. Caution! do not use this with the default address '*', as it would redirect any traffic for the specified port. This keyword is available only when HAProxy is built with USE_LINUX_TPROXY=1. This parameter is only compatible with TCPv4 and TCPv6 sockets, depending on kernel version. Some distribution kernels include backports of the feature, so check for support with your vendor.",
@@ -4193,7 +4129,7 @@
         "signature": "hex"
       },
       {
-        "description": "Converts a hex string containing two hex digits per input byte to an integer. If the input value cannot be converted, then zero is returned.",
+        "description": "Converts a hex string containing two hex digits per input byte to an integer. If the input value contains a character which is not a hexadecimal digit, the converter fails and returns nothing, which makes it possible to differentiate an invalid input from a valid zero.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#hex2i",
         "examples": [],
         "name": "hex2i",
@@ -8867,6 +8803,54 @@
         "signature": "ssl_fc_use_keysize"
       },
       {
+        "description": "",
+        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#ssl_ocsp_certid",
+        "examples": [],
+        "name": "ssl_ocsp_certid",
+        "rulesets": [],
+        "signature": ""
+      },
+      {
+        "description": "",
+        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#ssl_ocsp_certname",
+        "examples": [],
+        "name": "ssl_ocsp_certname",
+        "rulesets": [],
+        "signature": ""
+      },
+      {
+        "description": "",
+        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#ssl_ocsp_fail_cnt",
+        "examples": [],
+        "name": "ssl_ocsp_fail_cnt",
+        "rulesets": [],
+        "signature": ""
+      },
+      {
+        "description": "",
+        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#ssl_ocsp_status",
+        "examples": [],
+        "name": "ssl_ocsp_status",
+        "rulesets": [],
+        "signature": ""
+      },
+      {
+        "description": "",
+        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#ssl_ocsp_status_str",
+        "examples": [],
+        "name": "ssl_ocsp_status_str",
+        "rulesets": [],
+        "signature": ""
+      },
+      {
+        "description": "",
+        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#ssl_ocsp_success_cnt",
+        "examples": [],
+        "name": "ssl_ocsp_success_cnt",
+        "rulesets": [],
+        "signature": ""
+      },
+      {
         "description": "Returns the DER formatted chain certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form. One can parse the result with any lib accepting ASN.1 DER data. It currently does not support resumed sessions.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#ssl_s_chain_der",
         "examples": [],
@@ -9035,7 +9019,7 @@
         "signature": "url32+src"
       },
       {
-        "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
+        "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. The fetch fails when the host part is a name, as no resolution is performed. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#url_ip",
         "examples": [],
         "name": "url_ip",
@@ -9056,7 +9040,7 @@
         "signature": "url_param([<name>[,<delim>[,i]]])"
       },
       {
-        "description": "This extracts the port part from the request's URL. Note that if the port is not specified in the request, port 80 is assumed..",
+        "description": "This extracts the port part from the request's URL. Note that if the port is not specified in the request, port 80 is assumed. As for \"url_ip\", this only works when the authority of the URL is presented as an address, the fetch fails when it is a host name since no resolution is performed here.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#url_port",
         "examples": [],
         "name": "url_port",
@@ -9217,28 +9201,12 @@
         "signature": "check-alpn <protocols>"
       },
       {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-check-pool-conn-name",
-        "examples": [],
-        "name": "check-pool-conn-name",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Forces the multiplexer's protocol to use for the server's health-check connections. It must be compatible with the health-check type (TCP or HTTP). It must also be usable on the backend side. The list of available protocols is reported in haproxy -vv. The protocols properties are reported : the mode (TCP/HTTP), the side (FE/BE), the mux name and its flags.\n\nSome protocols are subject to the head-of-line blocking on server side (flag=HOL_RISK). Finally some protocols don't support upgrades (flag=NO_UPG). The HTX compatibility is also reported (flag=HTX).\n\nHere are the protocols that may be used as argument to a \"check-proto\" directive on a server line:\n\nh2   : mode=HTTP  side=FE|BE  mux=H2    flags=HTX|HOL_RISK|NO_UPG\n    fcgi : mode=HTTP  side=BE     mux=FCGI  flags=HTX|HOL_RISK|NO_UPG\n    h1   : mode=HTTP  side=FE|BE  mux=H1    flags=HTX|NO_UPG\n    none : mode=TCP   side=FE|BE  mux=PASS  flags=NO_UPG\n\nIdea behind this option is to bypass the selection of the best multiplexer's protocol for health-check connections established to this server. If not defined, the server one will be used, if set.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-check-proto",
         "examples": [],
         "name": "check-proto",
         "rulesets": [],
         "signature": "check-proto <name>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-check-reuse-pool",
-        "examples": [],
-        "name": "check-reuse-pool",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "This option forces emission of a PROXY protocol line with outgoing health checks, regardless of whether the server uses send-proxy or not for the normal traffic. By default, the PROXY protocol is enabled for health checks if it is already enabled for normal traffic and if no \"port\" nor \"addr\" directive is present. However, if such a directive is present, the \"check-send-proxy\" option needs to be used to force the use of the protocol. See also the \"send-proxy\" option for more information.",
@@ -9289,14 +9257,6 @@
         "signature": "ciphersuites <ciphersuites>"
       },
       {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-client-sigalgs",
-        "examples": [],
-        "name": "client-sigalgs",
-        "rulesets": [],
-        "signature": "client-sigalgs <sigalgs>"
-      },
-      {
         "description": "The \"cookie\" parameter sets the cookie value assigned to the server to <value>. This value will be checked in incoming requests, and the first operational server possessing the same value will be selected. In return, in cookie insertion or rewrite modes, this value will be assigned to the cookie sent to the client. There is nothing wrong in having several servers sharing the same cookie value, and it is in fact somewhat common between normal and backup servers. See also the \"cookie\" keyword in backend section.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-cookie",
         "examples": [],
@@ -9319,14 +9279,6 @@
         "name": "crt",
         "rulesets": [],
         "signature": "crt <cert>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-curves",
-        "examples": [],
-        "name": "curves",
-        "rulesets": [],
-        "signature": "curves <curves>"
       },
       {
         "description": "The \"disabled\" keyword starts the server in the \"disabled\" state. That means that it is marked down in maintenance mode, and no connection other than the ones allowed by persist mode will reach it. It is very well suited to setup new servers, because normal traffic will never reach them, while it is still possible to test the service by making use of the force-persist mechanism.",
@@ -9417,36 +9369,12 @@
         "signature": "force-tlsv13"
       },
       {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-guid",
-        "examples": [],
-        "name": "guid",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-hash-key",
-        "examples": [],
-        "name": "hash-key",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Set a persistent ID for the server. This ID must be positive and unique for the proxy. An unused ID will automatically be assigned if unset. The first assigned value will be 1. This ID is currently only returned in statistics.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-id",
         "examples": [],
         "name": "id",
         "rulesets": [],
         "signature": "id <value>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-idle-ping",
-        "examples": [],
-        "name": "idle-ping",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "Indicate in what order the server's address should be resolved upon startup if it uses an FQDN. Attempts are made to resolve the address by applying in turn each of the methods mentioned in the comma-delimited list. The first method which succeeds is used. If the end of the list is reached without finding a working method, an error is thrown. Method \"last\" suggests to pick the address which appears in the state file (see \"server-state-file\"). Method \"libc\" uses the libc's internal resolver (gethostbyname() or getaddrinfo() depending on the operating system and build options). Method \"none\" specifically indicates that the server should start without any valid IP address in a down state. It can be useful to ignore some DNS issues upon startup, waiting for the situation to get fixed later. Finally, an IP address (IPv4 or IPv6) may be provided. It can be the currently known address of the server (e.g. filled by a configuration generator), or the address of a dummy server used to catch old sessions and present them with a decent error message for example. When the \"first\" load balancing algorithm is used, this IP address could point to a fake server used to trigger the creation of new instances on the fly. This option defaults to \"last,libc\" indicating that the previous address found in the state file (if any) is used first, otherwise the libc's resolver is used. This ensures continued compatibility with the historic behavior. When using internal resolvers, it is generally recommended to either disable libc-based resolution, or make it explicit (see section 5.3 for more details).\n\nExample 1: defaults # never fail on address resolution default-server init-addr last,libc,none\n\nExample 2: defaults # disable libc resolution in combination with resolvers default-server init-addr last,none",
@@ -9457,28 +9385,12 @@
         "signature": "init-addr {last | libc | none | <ip>},[...]*"
       },
       {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-init-state",
-        "examples": [],
-        "name": "init-state",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "The \"inter\" parameter sets the interval between two consecutive health checks to <delay> milliseconds. If left unspecified, the delay defaults to 2000 ms. It is also possible to use \"fastinter\" and \"downinter\" to optimize delays between checks depending on the server state :\n\nServer state                   |         Interval used\n    ----------------------------------------+----------------------------------\n     UP 100% (non-transitional)             | \"inter\"\n    ----------------------------------------+----------------------------------\n     Transitionally UP (going down \"fall\"), | \"fastinter\" if set,\n     Transitionally DOWN (going up \"rise\"), | \"inter\" otherwise.\n     or yet unchecked.                      |\n    ----------------------------------------+----------------------------------\n     DOWN 100% (non-transitional)           | \"downinter\" if set,\n                                            | \"inter\" otherwise.\n    ----------------------------------------+----------------------------------\n\nJust as with every other time-based parameter, they can be entered in any other explicit unit among { us, ms, s, m, h, d }. The \"inter\" parameter also serves as a timeout for health checks sent to servers if \"timeout check\" is not set. In order to reduce \"resonance\" effects when multiple servers are hosted on the same hardware, the agent and health checks of all servers are started with a small time offset between them. It is also possible to add some random noise in the agent and health checks interval using the global \"spread-checks\" keyword. This makes sense for instance when a lot of backends use the same servers.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-inter",
         "examples": [],
         "name": "inter",
         "rulesets": [],
         "signature": "inter <delay>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-log-bufsize",
-        "examples": [],
-        "name": "log-bufsize",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "The \"log-proto\" specifies the protocol used to forward event messages to a server configured in a ring section. Possible values are \"legacy\" and \"octet-count\" corresponding respectively to \"Non-transparent-framing\" and \"Octet counting\" in rfc6587. \"legacy\" is the default.",
@@ -9551,14 +9463,6 @@
         "name": "no-check",
         "rulesets": [],
         "signature": "no-check"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-no-check-reuse-pool",
-        "examples": [],
-        "name": "no-check-reuse-pool",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "",
@@ -9729,14 +9633,6 @@
         "signature": "on-marked-up <action>"
       },
       {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-pool-conn-name",
-        "examples": [],
-        "name": "pool-conn-name",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Set a low threshold on the number of idling connections for a server, below which a thread will not try to steal a connection from another thread. This can be useful to improve CPU usage patterns in scenarios involving many very fast servers, in order to ensure all threads will keep a few idle connections all the time instead of letting them accumulate over one thread and migrating them from thread to thread. Typical values of twice the number of threads seem to show very good performance already with sub-millisecond response times. The default is zero, indicating that any idle connection can be used at any time. It is the recommended setting for normal use. This only applies to connections that can be shared according to the same principles as those applying to \"http-reuse\". In case connection sharing between threads would be disabled via \"tune.idle-pool.shared\", it can become very important to use this setting to make sure each thread always has a few connections, or the connection reuse rate will decrease as thread count increases.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-pool-low-conn",
         "examples": [],
@@ -9885,14 +9781,6 @@
         "signature": "send-proxy-v2-ssl-cn"
       },
       {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-set-proxy-v2-tlv-fmt",
-        "examples": [],
-        "name": "set-proxy-v2-tlv-fmt",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "This parameter in used only in the context of stick-tables synchronisation with peers protocol. The \"shard\" parameter identifies the peers which will receive all the stick-table updates for keys with this shard as distribution hash. The accepted values are 0 up to \"shards\" parameter value specified in the \"peers\" section. 0 value is the default value meaning that the peer will receive all the key updates. Greater values than \"shards\" will be ignored. This is also the case for any value provided to the local peer.",
         "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-shard",
         "examples": [
@@ -9904,14 +9792,6 @@
         "name": "shard",
         "rulesets": [],
         "signature": "shard <shard>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-sigalgs",
-        "examples": [],
-        "name": "sigalgs",
-        "rulesets": [],
-        "signature": "sigalgs <sigalgs>"
       },
       {
         "description": "The \"slowstart\" parameter for a server accepts a value in milliseconds which indicates after how long a server which has just come back up will run at full speed. Just as with every other time-based parameter, it can be entered in any other explicit unit among { us, ms, s, m, h, d }. The speed grows linearly from 0 to 100% during this time. The limitation applies to two parameters :\n\n- maxconn: the number of connections accepted by the server will grow from 1 to 100% of the usual dynamic limit defined by (minconn,maxconn,fullconn).\n\n- weight: when the backend uses a dynamic weighted algorithm, the weight grows linearly from 1 to 100%. In this case, the weight is updated at every health-check. For this reason, it is important that the \"inter\" parameter is smaller than the \"slowstart\", in order to maximize the number of steps.\n\nThe slowstart never applies when HAProxy starts, otherwise it would cause trouble to running servers. It only applies when a server has been previously seen as failed.",
@@ -9984,14 +9864,6 @@
         "name": "stick",
         "rulesets": [],
         "signature": "stick"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#5.2-strict-maxconn",
-        "examples": [],
-        "name": "strict-maxconn",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "Sets the TCP User Timeout for all outgoing connections to this server. This option is available on Linux since version 2.6.37. It allows HAProxy to configure a timeout for sockets which contain data not receiving an acknowledgment for the configured delay. This is especially useful on long-lived connections experiencing long idle periods such as remote terminals or database connection pools, where the client and server timeouts must remain high to allow a long period of idle, but where it is important to detect that the server has disappeared in order to release all resources associated with its connection (and the client's session). One typical use case is also to force dead server connections to die when health checks are too slow or during a soft reload since health checks are then disabled. The argument is a delay expressed in milliseconds by default. This only works for regular TCP connections, and is ignored for other protocols.",
@@ -23047,7 +22919,7 @@
     },
     "option checkcache": {
       "arguments": [],
-      "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie)\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
+      "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie) - those which carry neither freshness information (\"Cache-control\" with a \"max-age\" or an \"s-maxage\", or an \"Expires\" header) nor a validator (an \"ETag\" or a \"Last-Modified\" header), since such a response is not stored by a compliant cache.\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
       "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#4.2-option%20checkcache",
       "examples": [],
       "name": "option checkcache",
@@ -23065,7 +22937,7 @@
           "arguments": [],
           "chapter": "4.2",
           "contexts": [],
-          "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie)\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
+          "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie) - those which carry neither freshness information (\"Cache-control\" with a \"max-age\" or an \"s-maxage\", or an \"Expires\" header) nor a validator (an \"ETag\" or a \"Last-Modified\" header), since such a response is not stored by a compliant cache.\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
           "docsUrl": "https://www.haproxy.com/documentation/haproxy-configuration-manual/2-8r1#4.2-option%20checkcache",
           "examples": [],
           "sections": [

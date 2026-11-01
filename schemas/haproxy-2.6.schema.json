@@ -115,6 +115,8 @@
       "shdr_len",
       "shdr_reg",
       "shdr_sub",
+      "ssl_fc_sni_end",
+      "ssl_fc_sni_reg",
       "url",
       "url_beg",
       "url_dir",
@@ -145,13 +147,11 @@
       "ca-verify-file",
       "ciphers",
       "ciphersuites",
-      "client-sigalgs",
       "crl-file",
       "crt",
       "crt-ignore-err",
       "crt-list",
       "curves",
-      "default-crt",
       "defer-accept",
       "ecdhe",
       "expose-fd",
@@ -163,23 +163,17 @@
       "generate-certificates",
       "gid",
       "group",
-      "guid-prefix",
       "id",
-      "idle-ping",
       "interface",
-      "label",
       "level",
       "maxconn",
       "mode",
       "mss",
       "name",
       "namespace",
-      "nbconn",
       "nice",
-      "no-alpn",
       "no-ca-names",
       "no-sslv3",
-      "no-strict-sni",
       "no-tls-tickets",
       "no-tlsv10",
       "no-tlsv11",
@@ -189,12 +183,8 @@
       "prefer-client-ciphers",
       "process",
       "proto",
-      "quic-cc-algo",
-      "quic-force-retry",
-      "quic-socket",
       "severity-output",
       "shards",
-      "sigalgs",
       "ssl",
       "ssl-max-ver",
       "ssl-min-ver",
@@ -203,7 +193,6 @@
       "tfo",
       "thread",
       "tls-ticket-keys",
-      "tls-tickets",
       "transparent",
       "uid",
       "user",
@@ -243,7 +232,6 @@
       "npn",
       "process",
       "proto",
-      "quic-cc-algo",
       "severity-output",
       "shards",
       "ssl-max-ver",
@@ -461,6 +449,7 @@
     "sample_converters": [
       "add",
       "add_item",
+      "aes_gcm_dec",
       "and",
       "b64dec",
       "base64",
@@ -476,6 +465,7 @@
       "crc32c",
       "cut_crlf",
       "debug",
+      "digest",
       "div",
       "djb2",
       "even",
@@ -484,6 +474,7 @@
       "fix_tag_value",
       "hex",
       "hex2i",
+      "hmac",
       "host_only",
       "htonl",
       "http_date",
@@ -492,6 +483,9 @@
       "ipmask",
       "json",
       "json_query",
+      "jwt_header_query",
+      "jwt_payload_query",
+      "jwt_verify",
       "language",
       "length",
       "lower",
@@ -540,8 +534,10 @@
       "regsub",
       "rtrim",
       "sdbm",
+      "secure_memcmp",
       "set-var",
       "sha1",
+      "sha2",
       "srv_queue",
       "strcmp",
       "sub",
@@ -937,6 +933,92 @@
       "srv_sess_rate",
       "srv_uweight",
       "srv_weight",
+      "ssl_bc",
+      "ssl_bc_alg_keysize",
+      "ssl_bc_alpn",
+      "ssl_bc_cipher",
+      "ssl_bc_client_random",
+      "ssl_bc_err",
+      "ssl_bc_err_str",
+      "ssl_bc_is_resumed",
+      "ssl_bc_npn",
+      "ssl_bc_protocol",
+      "ssl_bc_server_random",
+      "ssl_bc_session_id",
+      "ssl_bc_session_key",
+      "ssl_bc_unique_id",
+      "ssl_bc_use_keysize",
+      "ssl_c_ca_err",
+      "ssl_c_ca_err_depth",
+      "ssl_c_chain_der",
+      "ssl_c_der",
+      "ssl_c_err",
+      "ssl_c_i_dn",
+      "ssl_c_key_alg",
+      "ssl_c_notafter",
+      "ssl_c_notbefore",
+      "ssl_c_s_dn",
+      "ssl_c_serial",
+      "ssl_c_sha1",
+      "ssl_c_sig_alg",
+      "ssl_c_used",
+      "ssl_c_verify",
+      "ssl_c_version",
+      "ssl_f_der",
+      "ssl_f_i_dn",
+      "ssl_f_key_alg",
+      "ssl_f_notafter",
+      "ssl_f_notbefore",
+      "ssl_f_s_dn",
+      "ssl_f_serial",
+      "ssl_f_sha1",
+      "ssl_f_sig_alg",
+      "ssl_f_version",
+      "ssl_fc",
+      "ssl_fc_alg_keysize",
+      "ssl_fc_alpn",
+      "ssl_fc_cipher",
+      "ssl_fc_cipherlist_bin",
+      "ssl_fc_cipherlist_hex",
+      "ssl_fc_cipherlist_str",
+      "ssl_fc_cipherlist_xxh",
+      "ssl_fc_client_early_traffic_secret",
+      "ssl_fc_client_handshake_traffic_secret",
+      "ssl_fc_client_random",
+      "ssl_fc_client_traffic_secret_0",
+      "ssl_fc_early_exporter_secret",
+      "ssl_fc_ecformats_bin",
+      "ssl_fc_eclist_bin",
+      "ssl_fc_err",
+      "ssl_fc_err_str",
+      "ssl_fc_exporter_secret",
+      "ssl_fc_extlist_bin",
+      "ssl_fc_has_crt",
+      "ssl_fc_has_early",
+      "ssl_fc_has_sni",
+      "ssl_fc_is_resumed",
+      "ssl_fc_npn",
+      "ssl_fc_protocol",
+      "ssl_fc_protocol_hello_id",
+      "ssl_fc_server_handshake_traffic_secret",
+      "ssl_fc_server_random",
+      "ssl_fc_server_traffic_secret_0",
+      "ssl_fc_session_id",
+      "ssl_fc_session_key",
+      "ssl_fc_sni",
+      "ssl_fc_unique_id",
+      "ssl_fc_use_keysize",
+      "ssl_s_chain_der",
+      "ssl_s_der",
+      "ssl_s_i_dn",
+      "ssl_s_key_alg",
+      "ssl_s_notafter",
+      "ssl_s_notbefore",
+      "ssl_s_s_dn",
+      "ssl_s_serial",
+      "ssl_s_sha1",
+      "ssl_s_sig_alg",
+      "ssl_s_version",
       "status",
       "stopping",
       "str",
@@ -969,20 +1051,16 @@
       "ca-file",
       "check",
       "check-alpn",
-      "check-pool-conn-name",
       "check-proto",
-      "check-reuse-pool",
       "check-send-proxy",
       "check-sni",
       "check-ssl",
       "check-via-socks4",
       "ciphers",
       "ciphersuites",
-      "client-sigalgs",
       "cookie",
       "crl-file",
       "crt",
-      "curves",
       "disabled",
       "downinter",
       "enabled",
@@ -994,14 +1072,9 @@
       "force-tlsv11",
       "force-tlsv12",
       "force-tlsv13",
-      "guid",
-      "hash-key",
       "id",
-      "idle-ping",
       "init-addr",
-      "init-state",
       "inter",
-      "log-bufsize",
       "log-proto",
       "max-reuse",
       "maxconn",
@@ -1011,7 +1084,6 @@
       "no-agent-check",
       "no-backup",
       "no-check",
-      "no-check-reuse-pool",
       "no-check-send-proxy",
       "no-check-ssl",
       "no-send-proxy",
@@ -1033,7 +1105,6 @@
       "on-error",
       "on-marked-down",
       "on-marked-up",
-      "pool-conn-name",
       "pool-low-conn",
       "pool-max-conn",
       "pool-purge-delay",
@@ -1050,9 +1121,6 @@
       "send-proxy-v2",
       "send-proxy-v2-ssl",
       "send-proxy-v2-ssl-cn",
-      "set-proxy-v2-tlv-fmt",
-      "shard",
-      "sigalgs",
       "slowstart",
       "sni",
       "socks4",
@@ -1062,7 +1130,6 @@
       "ssl-min-ver",
       "ssl-reuse",
       "stick",
-      "strict-maxconn",
       "tcp-ut",
       "tfo",
       "tls-tickets",
@@ -1834,7 +1901,9 @@
         }
       ],
       "name": "allow-0rtt",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -1901,7 +1970,9 @@
         }
       ],
       "name": "alpn",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -3036,6 +3107,7 @@
         "ca-base <dir>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -3094,7 +3166,9 @@
         }
       ],
       "name": "ca-file",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -3347,7 +3421,9 @@
         }
       ],
       "name": "ca-verify-file",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -3835,26 +3911,6 @@
         }
       ]
     },
-    "check-pool-conn-name": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "check-pool-conn-name",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
-    },
     "check-proto": {
       "argument_model": {
         "max_args": 1,
@@ -3908,26 +3964,6 @@
           ]
         }
       ]
-    },
-    "check-reuse-pool": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "check-reuse-pool",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "check-send-proxy": {
       "argument_model": {
@@ -4185,7 +4221,9 @@
         }
       ],
       "name": "ciphers",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -4266,7 +4304,9 @@
         }
       ],
       "name": "ciphersuites",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -4316,32 +4356,6 @@
           ]
         }
       ]
-    },
-    "client-sigalgs": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        },
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "client-sigalgs",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "clitcpka-cnt": {
       "argument_model": {
@@ -5745,7 +5759,9 @@
         }
       ],
       "name": "crl-file",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -5901,6 +5917,7 @@
         "crt-base <dir>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -6058,16 +6075,12 @@
           "option_group": "bind_options",
           "parent_kind": "bind",
           "takes_value": true
-        },
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
         }
       ],
       "name": "curves",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -6301,26 +6314,6 @@
           ]
         }
       ]
-    },
-    "default-crt": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        }
-      ],
-      "name": "default-crt",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "default-path": {
       "argument_model": {
@@ -7311,7 +7304,9 @@
         }
       ],
       "name": "ecdhe",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -10748,46 +10743,6 @@
         }
       ]
     },
-    "guid": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "guid",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
-    },
-    "guid-prefix": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        }
-      ],
-      "name": "guid-prefix",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
-    },
     "h1-accept-payload-with-any-method": {
       "argument_model": {
         "max_args": 0,
@@ -11231,26 +11186,6 @@
           ]
         }
       ]
-    },
-    "hash-key": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "hash-key",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "hash-type": {
       "argument_model": {
@@ -13939,6 +13874,7 @@
         "httpclient.ssl.ca-file <cafile>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -13990,6 +13926,7 @@
         "httpclient.ssl.verify [none|required]"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -14130,32 +14067,6 @@
           ]
         }
       ]
-    },
-    "idle-ping": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        },
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "idle-ping",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "ignore-persist": {
       "argument_model": {
@@ -14354,26 +14265,6 @@
           ]
         }
       ]
-    },
-    "init-state": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "init-state",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "insecure-fork-wanted": {
       "argument_model": {
@@ -14583,6 +14474,7 @@
         "issuers-chain-path <dir>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -14610,26 +14502,6 @@
           ]
         }
       ]
-    },
-    "label": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        }
-      ],
-      "name": "label",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "level": {
       "argument_model": {
@@ -15909,26 +15781,6 @@
           ]
         }
       ]
-    },
-    "log-bufsize": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "log-bufsize",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "log-format": {
       "argument_model": {
@@ -17782,6 +17634,7 @@
         "maxsslconn <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -18582,26 +18435,6 @@
           ]
         }
       ]
-    },
-    "nbconn": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        }
-      ],
-      "name": "nbconn",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "nbthread": {
       "argument_model": {
@@ -20648,26 +20481,6 @@
         }
       ]
     },
-    "no-alpn": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        }
-      ],
-      "name": "no-alpn",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
-    },
     "no-backup": {
       "argument_model": {
         "max_args": 0,
@@ -20725,7 +20538,9 @@
         }
       ],
       "name": "no-ca-names",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -20787,26 +20602,6 @@
           ]
         }
       ]
-    },
-    "no-check-reuse-pool": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "no-check-reuse-pool",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "no-check-send-proxy": {
       "argument_model": null,
@@ -21206,26 +21001,6 @@
           ]
         }
       ]
-    },
-    "no-strict-sni": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        }
-      ],
-      "name": "no-strict-sni",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "no-tfo": {
       "argument_model": {
@@ -21987,7 +21762,9 @@
         }
       ],
       "name": "npn",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -25773,26 +25550,6 @@
         }
       ]
     },
-    "pool-conn-name": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "pool-conn-name",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
-    },
     "pool-low-conn": {
       "argument_model": {
         "max_args": 1,
@@ -26606,19 +26363,11 @@
       },
       "arguments": [],
       "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": true
-        }
-      ],
+      "line_option_semantics": [],
       "name": "quic-cc-algo",
       "sections": [],
       "signatures": [],
       "sources": [
-        "dkall",
         "doc"
       ],
       "variants": [
@@ -26656,19 +26405,11 @@
       },
       "arguments": [],
       "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        }
-      ],
+      "line_option_semantics": [],
       "name": "quic-force-retry",
       "sections": [],
       "signatures": [],
       "sources": [
-        "dkall",
         "doc"
       ],
       "variants": [
@@ -26687,26 +26428,6 @@
           ]
         }
       ]
-    },
-    "quic-socket": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        }
-      ],
-      "name": "quic-socket",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "quiet": {
       "argument_model": {
@@ -28794,26 +28515,6 @@
         }
       ]
     },
-    "set-proxy-v2-tlv-fmt": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "set-proxy-v2-tlv-fmt",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
-    },
     "set-var": {
       "argument_model": {
         "max_args": 2,
@@ -29062,26 +28763,6 @@
         }
       ]
     },
-    "shard": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "shard",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
-    },
     "shards": {
       "argument_model": {
         "max_args": 3,
@@ -29167,32 +28848,6 @@
           ]
         }
       ]
-    },
-    "sigalgs": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        },
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "sigalgs",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "size": {
       "argument_model": {
@@ -30020,6 +29675,7 @@
         "ssl-default-bind-ciphers <ciphers>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30072,6 +29728,7 @@
         "ssl-default-bind-ciphersuites <ciphersuites>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30124,6 +29781,7 @@
         "ssl-default-bind-curves <curves>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30176,6 +29834,7 @@
         "ssl-default-bind-options [<option>]..."
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30228,6 +29887,7 @@
         "ssl-default-server-ciphers <ciphers>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30280,6 +29940,7 @@
         "ssl-default-server-ciphersuites <ciphersuites>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30332,6 +29993,7 @@
         "ssl-default-server-options [<option>]..."
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30384,6 +30046,7 @@
         "ssl-dh-param-file <file>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30509,6 +30172,7 @@
         "ssl-load-extra-del-ext"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30562,6 +30226,7 @@
         "ssl-load-extra-files <none|all|bundle|sctl|ocsp|issuer|key>*"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30634,7 +30299,9 @@
         }
       ],
       "name": "ssl-max-ver",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -30733,7 +30400,9 @@
         }
       ],
       "name": "ssl-min-ver",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -30813,6 +30482,7 @@
         "ssl-mode-async"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30858,6 +30528,7 @@
         "ssl-propquery <query>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30910,6 +30581,7 @@
         "ssl-provider <name>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -30962,6 +30634,7 @@
         "ssl-provider-path <path>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -31105,6 +30778,7 @@
         "ssl-skip-self-issued-ca"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -33196,26 +32870,6 @@
           ]
         }
       ]
-    },
-    "strict-maxconn": {
-      "argument_model": null,
-      "arguments": [],
-      "contexts": [],
-      "line_option_semantics": [
-        {
-          "chapter": "5.2",
-          "option_group": "server_options",
-          "parent_kind": "server",
-          "takes_value": false
-        }
-      ],
-      "name": "strict-maxconn",
-      "sections": [],
-      "signatures": [],
-      "sources": [
-        "dkall"
-      ],
-      "variants": []
     },
     "strict-sni": {
       "argument_model": {
@@ -37204,12 +36858,6 @@
       "contexts": [],
       "line_option_semantics": [
         {
-          "chapter": "5.1",
-          "option_group": "bind_options",
-          "parent_kind": "bind",
-          "takes_value": false
-        },
-        {
           "chapter": "5.2",
           "option_group": "server_options",
           "parent_kind": "server",
@@ -39604,6 +39252,7 @@
         "tune.ssl.cachesize <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -39656,6 +39305,7 @@
         "tune.ssl.capture-buffer-size <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -39708,6 +39358,7 @@
         "tune.ssl.capture-cipherlist-size <number> (deprecated)"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -39760,6 +39411,7 @@
         "tune.ssl.default-dh-param <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -39805,6 +39457,7 @@
         "tune.ssl.force-private-cache"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -39850,6 +39503,7 @@
         "tune.ssl.hard-maxrecord <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -39905,6 +39559,7 @@
         "tune.ssl.keylog { on | off }"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -39960,6 +39615,7 @@
         "tune.ssl.lifetime <timeout>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -40012,6 +39668,7 @@
         "tune.ssl.maxrecord <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -40064,6 +39721,7 @@
         "tune.ssl.ssl-ctx-cache-size <number>"
       ],
       "sources": [
+        "dkall",
         "doc"
       ],
       "variants": [
@@ -41640,7 +41298,9 @@
         }
       ],
       "name": "verify",
-      "sections": [],
+      "sections": [
+        "crt-list"
+      ],
       "signatures": [],
       "sources": [
         "dkall",
@@ -42391,6 +42051,24 @@
       "out_type": "str",
       "signature": "add_item(<delim>,[<var>][,<suff>]])"
     },
+    "aes_gcm_dec": {
+      "args": [
+        "integer",
+        "string",
+        "string",
+        "string"
+      ],
+      "chapter": "7.3.1",
+      "contexts": [],
+      "deprecated": false,
+      "description": "Decrypts the raw byte input using the AES128-GCM, AES192-GCM or AES256-GCM algorithm, depending on the <bits> parameter. All other parameters need to be base64 encoded and the returned result is in raw byte format. If the <aead_tag> validation fails, the converter doesn't return any data. The <nonce>, <key> and <aead_tag> can either be strings or variables. This converter requires at least OpenSSL 1.0.1.",
+      "in_type": "bin",
+      "max_args": 4,
+      "min_args": null,
+      "name": "aes_gcm_dec",
+      "out_type": "bin",
+      "signature": "aes_gcm_dec(<bits>,<nonce>,<key>,<aead_tag>)"
+    },
     "and": {
       "args": [
         "string"
@@ -42614,6 +42292,21 @@
       "out_type": "any",
       "signature": "debug([<prefix][,<destination>])"
     },
+    "digest": {
+      "args": [
+        "string"
+      ],
+      "chapter": "7.3.1",
+      "contexts": [],
+      "deprecated": false,
+      "description": "Converts a binary input sample to a message digest. The result is a binary sample. The <algorithm> must be an OpenSSL message digest name (e.g. sha256).\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+      "in_type": "bin",
+      "max_args": 1,
+      "min_args": null,
+      "name": "digest",
+      "out_type": "bin",
+      "signature": "digest(<algorithm>)"
+    },
     "div": {
       "args": [
         "string"
@@ -42720,13 +42413,29 @@
       "chapter": "7.3.1",
       "contexts": [],
       "deprecated": false,
-      "description": "Converts a hex string containing two hex digits per input byte to an integer. If the input value cannot be converted, then zero is returned.",
+      "description": "Converts a hex string containing two hex digits per input byte to an integer. If the input value contains a character which is not a hexadecimal digit, the converter fails and returns nothing, which makes it possible to differentiate an invalid input from a valid zero.",
       "in_type": "sint",
       "max_args": null,
       "min_args": null,
       "name": "hex2i",
       "out_type": "str",
       "signature": "hex2i"
+    },
+    "hmac": {
+      "args": [
+        "string",
+        "string"
+      ],
+      "chapter": "7.3.1",
+      "contexts": [],
+      "deprecated": false,
+      "description": "Converts a binary input sample to a message authentication code with the given key. The result is a binary sample. The <algorithm> must be one of the registered OpenSSL message digest names (e.g. sha256). The <key> parameter must be base64 encoded and can either be a string or a variable.\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+      "in_type": "bin",
+      "max_args": 2,
+      "min_args": null,
+      "name": "hmac",
+      "out_type": "bin",
+      "signature": "hmac(<algorithm>,<key>)"
     },
     "host_only": {
       "args": [],
@@ -42847,6 +42556,54 @@
       "name": "json_query",
       "out_type": "str",
       "signature": "json_query(<json_path>,[<output_type>])"
+    },
+    "jwt_header_query": {
+      "args": [
+        "string",
+        "string"
+      ],
+      "chapter": "7.3.1",
+      "contexts": [],
+      "deprecated": false,
+      "description": "When given a JSON Web Token (JWT) in input, either returns the decoded header part of the token (the first base64-url encoded part of the JWT) if no parameter is given, or performs a json_query on the decoded header part of the token. See \"json_query\" converter for details about the accepted json_path and output_type parameters.\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+      "in_type": "any",
+      "max_args": 2,
+      "min_args": null,
+      "name": "jwt_header_query",
+      "out_type": "bin",
+      "signature": "jwt_header_query([<json_path>],[<output_type>])"
+    },
+    "jwt_payload_query": {
+      "args": [
+        "string",
+        "string"
+      ],
+      "chapter": "7.3.1",
+      "contexts": [],
+      "deprecated": false,
+      "description": "When given a JSON Web Token (JWT) in input, either returns the decoded payload part of the token (the second base64-url encoded part of the JWT) if no parameter is given, or performs a json_query on the decoded payload part of the token. See \"json_query\" converter for details about the accepted json_path and output_type parameters.\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+      "in_type": "any",
+      "max_args": 2,
+      "min_args": null,
+      "name": "jwt_payload_query",
+      "out_type": "bin",
+      "signature": "jwt_payload_query([<json_path>],[<output_type>])"
+    },
+    "jwt_verify": {
+      "args": [
+        "string",
+        "string"
+      ],
+      "chapter": "7.3.1",
+      "contexts": [],
+      "deprecated": false,
+      "description": "Performs a signature verification for the JSON Web Token (JWT) given in input by using the <alg> algorithm and the <key> parameter, which should either hold a secret or a path to a public certificate. Returns 1 in case of verification success, 0 in case of verification error and a strictly negative value for any other error. Because of all those non-null error return values, the result of this converter should never be converted to a boolean. See below for a full list of the possible return values.\n\nFor now, only JWS tokens using the Compact Serialization format can be processed (three dot-separated base64-url encoded strings). Among the accepted algorithms for a JWS (see section 3.1 of RFC7518), the PSXXX ones are not managed yet.\n\nIf the used algorithm is of the HMAC family, <key> should be the secret used in the HMAC signature calculation. Otherwise, <key> should be the path to the public certificate that can be used to validate the token's signature. All the certificates that might be used to verify JWTs must be known during init in order to be added into a dedicated certificate cache so that no disk access is required during runtime. For this reason, any used certificate must be mentioned explicitly at least once in a jwt_verify call. Passing an intermediate variable as second parameter is then not advised.\n\nThis converter only verifies the signature of the token and does not perform a full JWT validation as specified in section 7.2 of RFC7519. We do not ensure that the header and payload contents are fully valid JSON's once decoded for instance, and no checks are performed regarding their respective contents.\n\nThe possible return values are the following :\n\n+----+----------------------------------------------------------------------+ | ID | message                                                              | +----+----------------------------------------------------------------------+ |  0 | \"Verification failure\"                                               | |  1 | \"Verification success\"                                               | | -1 | \"Unknown algorithm (not mentioned in RFC7518)\"                       | | -2 | \"Unmanaged algorithm (PSXXX algorithm family)\"                       | | -3 | \"Invalid token\"                                                      | | -4 | \"Out of memory\"                                                      | | -5 | \"Unknown certificate\"                                                | +----+----------------------------------------------------------------------+\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+      "in_type": "sint",
+      "max_args": 2,
+      "min_args": null,
+      "name": "jwt_verify",
+      "out_type": "bin",
+      "signature": "jwt_verify(<alg>,<key>)"
     },
     "language": {
       "args": [
@@ -43587,6 +43344,21 @@
       "out_type": "bin",
       "signature": "sdbm([<avalanche>])"
     },
+    "secure_memcmp": {
+      "args": [
+        "string"
+      ],
+      "chapter": "7.3.1",
+      "contexts": [],
+      "deprecated": false,
+      "description": "Compares the contents of <var> with the input value. Both values are treated as a binary string. Returns a boolean indicating whether both binary strings match.\n\nIf both binary strings have the same length then the comparison will be performed in constant time.\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+      "in_type": "bool",
+      "max_args": 1,
+      "min_args": null,
+      "name": "secure_memcmp",
+      "out_type": "bin",
+      "signature": "secure_memcmp(<var>)"
+    },
     "set-var": {
       "args": [
         "string",
@@ -43618,6 +43390,21 @@
       "name": "sha1",
       "out_type": "bin",
       "signature": "sha1"
+    },
+    "sha2": {
+      "args": [
+        "integer"
+      ],
+      "chapter": "7.3.1",
+      "contexts": [],
+      "deprecated": false,
+      "description": "Converts a binary input sample to a digest in the SHA-2 family. The result is a binary sample with length of <bits>/8 bytes.\n\nValid values for <bits> are 224, 256, 384, 512, each corresponding to SHA-<bits>. The default value is 256.\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+      "in_type": "bin",
+      "max_args": 1,
+      "min_args": null,
+      "name": "sha2",
+      "out_type": "bin",
+      "signature": "sha2([<bits>])"
     },
     "srv_queue": {
       "args": [],
@@ -57382,6 +57169,3136 @@
       "out_type": "sint",
       "signature": "srv_weight([<backend>/]<server>)"
     },
+    "ssl_bc": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns true when the back connection was made via an SSL/TLS transport layer and is locally deciphered. This means the outgoing connection was made to a server with the \"ssl\" option. It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc",
+      "out_type": "bool",
+      "signature": "ssl_bc"
+    },
+    "ssl_bc_alg_keysize": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the symmetric cipher key size supported in bits when the outgoing connection was made over an SSL/TLS transport layer. It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_alg_keysize",
+      "out_type": "sint",
+      "signature": "ssl_bc_alg_keysize"
+    },
+    "ssl_bc_alpn": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "This extracts the Application Layer Protocol Negotiation field from an outgoing connection made via a TLS transport layer. The result is a string containing the protocol name negotiated with the server. The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv). Note that the TLS ALPN extension is not advertised unless the \"alpn\" keyword on the \"server\" line specifies a protocol list. Also, nothing forces the server to pick a protocol from this list, any other one may be requested. The TLS ALPN extension is meant to replace the TLS NPN extension. See also \"ssl_bc_npn\". It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_alpn",
+      "out_type": "str",
+      "signature": "ssl_bc_alpn"
+    },
+    "ssl_bc_cipher": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the name of the used cipher when the outgoing connection was made over an SSL/TLS transport layer. It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_cipher",
+      "out_type": "str",
+      "signature": "ssl_bc_cipher"
+    },
+    "ssl_bc_client_random": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the client random of the back connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL. It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_client_random",
+      "out_type": "bin",
+      "signature": "ssl_bc_client_random"
+    },
+    "ssl_bc_err": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the ID of the last error of the first error stack raised on the backend side. It can raise handshake errors as well as other read or write errors occurring during the connection's lifetime. In order to get a text description of this error code, you can either use the \"ssl_bc_err_str\" sample fetch or use the \"openssl errstr\" command (which takes an error code in hexadecimal representation as parameter). Please refer to your SSL library's documentation to find the exhaustive list of error codes.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_err",
+      "out_type": "sint",
+      "signature": "ssl_bc_err"
+    },
+    "ssl_bc_err_str": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns a string representation of the last error of the first error stack that was raised on the connection from the backend's perspective. See also \"ssl_fc_err\".",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_err_str",
+      "out_type": "str",
+      "signature": "ssl_bc_err_str"
+    },
+    "ssl_bc_is_resumed": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns true when the back connection was made over an SSL/TLS transport layer and the newly created SSL session was resumed using a cached session or a TLS ticket. It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_is_resumed",
+      "out_type": "bool",
+      "signature": "ssl_bc_is_resumed"
+    },
+    "ssl_bc_npn": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "This extracts the Next Protocol Negotiation field from an outgoing connection made via a TLS transport layer. The result is a string containing the protocol name negotiated with the server . The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv). Note that the TLS NPN extension is not advertised unless the \"npn\" keyword on the \"server\" line specifies a protocol list. Also, nothing forces the server to pick a protocol from this list, any other one may be used. Please note that the TLS NPN extension was replaced with ALPN. It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_npn",
+      "out_type": "str",
+      "signature": "ssl_bc_npn"
+    },
+    "ssl_bc_protocol": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the name of the used protocol when the outgoing connection was made over an SSL/TLS transport layer. It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_protocol",
+      "out_type": "str",
+      "signature": "ssl_bc_protocol"
+    },
+    "ssl_bc_server_random": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the server random of the back connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL. It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_server_random",
+      "out_type": "bin",
+      "signature": "ssl_bc_server_random"
+    },
+    "ssl_bc_session_id": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the SSL ID of the back connection when the outgoing connection was made over an SSL/TLS transport layer. It is useful to log if we want to know if session was reused or not. It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_session_id",
+      "out_type": "bin",
+      "signature": "ssl_bc_session_id"
+    },
+    "ssl_bc_session_key": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the SSL session master key of the back connection when the outgoing connection was made over an SSL/TLS transport layer. It is useful to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL. It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_session_key",
+      "out_type": "bin",
+      "signature": "ssl_bc_session_key"
+    },
+    "ssl_bc_unique_id": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the TLS unique ID as defined in RFC5929 section 3. The unique id can be encoded to base64 using the converter: \"ssl_bc_unique_id,base64\". It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_unique_id",
+      "out_type": "bin",
+      "signature": "ssl_bc_unique_id"
+    },
+    "ssl_bc_use_keysize": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the symmetric cipher key size used in bits when the outgoing connection was made over an SSL/TLS transport layer. It can be used in a tcp-check or an http-check ruleset.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_bc_use_keysize",
+      "out_type": "sint",
+      "signature": "ssl_bc_use_keysize"
+    },
+    "ssl_c_ca_err": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the ID of the first error detected during verification of the client certificate at depth > 0, or 0 if no error was encountered during this verification process. Please refer to your SSL library's documentation to find the exhaustive list of error codes.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_ca_err",
+      "out_type": "sint",
+      "signature": "ssl_c_ca_err"
+    },
+    "ssl_c_ca_err_depth": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the depth in the CA chain of the first error detected during the verification of the client certificate. If no error is encountered, 0 is returned.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_ca_err_depth",
+      "out_type": "sint",
+      "signature": "ssl_c_ca_err_depth"
+    },
+    "ssl_c_chain_der": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the DER formatted chain certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form. One can parse the result with any lib accepting ASN.1 DER data. It currently does not support resumed sessions.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_chain_der",
+      "out_type": "bin",
+      "signature": "ssl_c_chain_der"
+    },
+    "ssl_c_der": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the DER formatted certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_der",
+      "out_type": "bin",
+      "signature": "ssl_c_der"
+    },
+    "ssl_c_err": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the ID of the first error detected during verification at depth 0, or 0 if no error was encountered during this verification process. Please refer to your SSL library's documentation to find the exhaustive list of error codes.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_err",
+      "out_type": "sint",
+      "signature": "ssl_c_err"
+    },
+    "ssl_c_i_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the client when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_c_i_dn(OU,2)\" the second organization unit, and \"ssl_c_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_c_i_dn(,0,rfc2253)",
+      "in_type": "",
+      "max_args": 3,
+      "min_args": null,
+      "name": "ssl_c_i_dn",
+      "out_type": "str",
+      "signature": "ssl_c_i_dn([<entry>[,<occ>[,<format>]]])"
+    },
+    "ssl_c_key_alg": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the name of the algorithm used to generate the key of the certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_key_alg",
+      "out_type": "str",
+      "signature": "ssl_c_key_alg"
+    },
+    "ssl_c_notafter": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the end date presented by the client as a formatted string YYMMDDhhmmss[Z] when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_notafter",
+      "out_type": "str",
+      "signature": "ssl_c_notafter"
+    },
+    "ssl_c_notbefore": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the start date presented by the client as a formatted string YYMMDDhhmmss[Z] when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_notbefore",
+      "out_type": "str",
+      "signature": "ssl_c_notbefore"
+    },
+    "ssl_c_s_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the client when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_c_s_dn(OU,2)\" the second organization unit, and \"ssl_c_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_c_s_dn(,0,rfc2253)",
+      "in_type": "",
+      "max_args": 3,
+      "min_args": null,
+      "name": "ssl_c_s_dn",
+      "out_type": "str",
+      "signature": "ssl_c_s_dn([<entry>[,<occ>[,<format>]]])"
+    },
+    "ssl_c_serial": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the serial of the certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_serial",
+      "out_type": "bin",
+      "signature": "ssl_c_serial"
+    },
+    "ssl_c_sha1": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the SHA-1 fingerprint of the certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer. This can be used to stick a client to a server, or to pass this information to a server. Note that the output is binary, so if you want to pass that signature to the server, you need to encode it in hex or base64, such as in the example below:",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_sha1",
+      "out_type": "bin",
+      "signature": "ssl_c_sha1"
+    },
+    "ssl_c_sig_alg": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the name of the algorithm used to sign the certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_sig_alg",
+      "out_type": "str",
+      "signature": "ssl_c_sig_alg"
+    },
+    "ssl_c_used": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns true if current SSL session uses a client certificate even if current connection uses SSL session resumption. See also \"ssl_fc_has_crt\".",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_used",
+      "out_type": "bool",
+      "signature": "ssl_c_used"
+    },
+    "ssl_c_verify": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the verify result error ID when the incoming connection was made over an SSL/TLS transport layer, otherwise zero if no error is encountered. Please refer to your SSL library's documentation for an exhaustive list of error codes.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_verify",
+      "out_type": "sint",
+      "signature": "ssl_c_verify"
+    },
+    "ssl_c_version": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the version of the certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_c_version",
+      "out_type": "sint",
+      "signature": "ssl_c_version"
+    },
+    "ssl_f_der": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the DER formatted certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_f_der",
+      "out_type": "bin",
+      "signature": "ssl_f_der"
+    },
+    "ssl_f_i_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the frontend when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_f_i_dn(OU,2)\" the second organization unit, and \"ssl_f_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_f_i_dn(,0,rfc2253)",
+      "in_type": "",
+      "max_args": 3,
+      "min_args": null,
+      "name": "ssl_f_i_dn",
+      "out_type": "str",
+      "signature": "ssl_f_i_dn([<entry>[,<occ>[,<format>]]])"
+    },
+    "ssl_f_key_alg": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the name of the algorithm used to generate the key of the certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_f_key_alg",
+      "out_type": "str",
+      "signature": "ssl_f_key_alg"
+    },
+    "ssl_f_notafter": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the end date presented by the frontend as a formatted string YYMMDDhhmmss[Z] when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_f_notafter",
+      "out_type": "str",
+      "signature": "ssl_f_notafter"
+    },
+    "ssl_f_notbefore": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the start date presented by the frontend as a formatted string YYMMDDhhmmss[Z] when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_f_notbefore",
+      "out_type": "str",
+      "signature": "ssl_f_notbefore"
+    },
+    "ssl_f_s_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the frontend when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_f_s_dn(OU,2)\" the second organization unit, and \"ssl_f_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_f_s_dn(,0,rfc2253)",
+      "in_type": "",
+      "max_args": 3,
+      "min_args": null,
+      "name": "ssl_f_s_dn",
+      "out_type": "str",
+      "signature": "ssl_f_s_dn([<entry>[,<occ>[,<format>]]])"
+    },
+    "ssl_f_serial": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the serial of the certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_f_serial",
+      "out_type": "bin",
+      "signature": "ssl_f_serial"
+    },
+    "ssl_f_sha1": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the SHA-1 fingerprint of the certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer. This can be used to know which certificate was chosen using SNI.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_f_sha1",
+      "out_type": "bin",
+      "signature": "ssl_f_sha1"
+    },
+    "ssl_f_sig_alg": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the name of the algorithm used to sign the certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_f_sig_alg",
+      "out_type": "str",
+      "signature": "ssl_f_sig_alg"
+    },
+    "ssl_f_version": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the version of the certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_f_version",
+      "out_type": "sint",
+      "signature": "ssl_f_version"
+    },
+    "ssl_fc": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns true when the front connection was made via an SSL/TLS transport layer and is locally deciphered. This means it has matched a socket declared with a \"bind\" line having the \"ssl\" option.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc",
+      "out_type": "bool",
+      "signature": "ssl_fc"
+    },
+    "ssl_fc_alg_keysize": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the symmetric cipher key size supported in bits when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_alg_keysize",
+      "out_type": "sint",
+      "signature": "ssl_fc_alg_keysize"
+    },
+    "ssl_fc_alpn": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "This extracts the Application Layer Protocol Negotiation field from an incoming connection made via a TLS transport layer and locally deciphered by HAProxy. The result is a string containing the protocol name advertised by the client. The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv). Note that the TLS ALPN extension is not advertised unless the \"alpn\" keyword on the \"bind\" line specifies a protocol list. Also, nothing forces the client to pick a protocol from this list, any other one may be requested. The TLS ALPN extension is meant to replace the TLS NPN extension. See also \"ssl_fc_npn\".",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_alpn",
+      "out_type": "str",
+      "signature": "ssl_fc_alpn"
+    },
+    "ssl_fc_cipher": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the name of the used cipher when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_cipher",
+      "out_type": "str",
+      "signature": "ssl_fc_cipher"
+    },
+    "ssl_fc_cipherlist_bin": {
+      "args": [
+        "integer"
+      ],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the binary form of the client hello cipher list. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting. Setting <filter_option> allows to filter returned data. Accepted values: 0 : return the full list of ciphers (default) 1 : exclude GREASE (RFC8701) values from the output",
+      "in_type": "",
+      "max_args": 1,
+      "min_args": null,
+      "name": "ssl_fc_cipherlist_bin",
+      "out_type": "str",
+      "signature": "ssl_fc_cipherlist_bin([<filter_option>])"
+    },
+    "ssl_fc_cipherlist_hex": {
+      "args": [
+        "integer"
+      ],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the binary form of the client hello cipher list encoded as hexadecimal. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting. Setting <filter_option> allows to filter returned data. Accepted values: 0 : return the full list of ciphers (default) 1 : exclude GREASE (RFC8701) values from the output",
+      "in_type": "",
+      "max_args": 1,
+      "min_args": null,
+      "name": "ssl_fc_cipherlist_hex",
+      "out_type": "bin",
+      "signature": "ssl_fc_cipherlist_hex([<filter_option>])"
+    },
+    "ssl_fc_cipherlist_str": {
+      "args": [
+        "integer"
+      ],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the decoded text form of the client hello cipher list. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting. Setting <filter_option> allows to filter returned data. Accepted values: 0 : return the full list of ciphers (default) 1 : exclude GREASE (RFC8701) values from the output Note that this sample-fetch is only available with OpenSSL >= 1.0.2. If the function is not enabled, this sample-fetch returns the hash like \"ssl_fc_cipherlist_xxh\".",
+      "in_type": "",
+      "max_args": 1,
+      "min_args": null,
+      "name": "ssl_fc_cipherlist_str",
+      "out_type": "str",
+      "signature": "ssl_fc_cipherlist_str([<filter_option>])"
+    },
+    "ssl_fc_cipherlist_xxh": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns a xxh64 of the cipher list. This hash can return only if the value \"tune.ssl.capture-buffer-size\" is set greater than 0, however the hash take into account all the data of the cipher list.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_cipherlist_xxh",
+      "out_type": "sint",
+      "signature": "ssl_fc_cipherlist_xxh"
+    },
+    "ssl_fc_client_early_traffic_secret": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Return the CLIENT_EARLY_TRAFFIC_SECRET as an hexadecimal string for the front connection when the incoming connection was made over a TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_client_early_traffic_secret",
+      "out_type": "str",
+      "signature": "ssl_fc_client_early_traffic_secret"
+    },
+    "ssl_fc_client_handshake_traffic_secret": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Return the CLIENT_HANDSHAKE_TRAFFIC_SECRET as an hexadecimal string for the front connection when the incoming connection was made over a TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_client_handshake_traffic_secret",
+      "out_type": "str",
+      "signature": "ssl_fc_client_handshake_traffic_secret"
+    },
+    "ssl_fc_client_random": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the client random of the front connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_client_random",
+      "out_type": "bin",
+      "signature": "ssl_fc_client_random"
+    },
+    "ssl_fc_client_traffic_secret_0": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Return the CLIENT_TRAFFIC_SECRET_0 as an hexadecimal string for the front connection when the incoming connection was made over a TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_client_traffic_secret_0",
+      "out_type": "str",
+      "signature": "ssl_fc_client_traffic_secret_0"
+    },
+    "ssl_fc_early_exporter_secret": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Return the EARLY_EXPORTER_SECRET as an hexadecimal string for the front connection when the incoming connection was made over an TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_early_exporter_secret",
+      "out_type": "str",
+      "signature": "ssl_fc_early_exporter_secret"
+    },
+    "ssl_fc_ecformats_bin": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Return the binary form of the client hello supported elliptic curve point formats. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_ecformats_bin",
+      "out_type": "str",
+      "signature": "ssl_fc_ecformats_bin"
+    },
+    "ssl_fc_eclist_bin": {
+      "args": [
+        "integer"
+      ],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the binary form of the client hello supported elliptic curves. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting. Setting <filter_option> allows to filter returned data. Accepted values: 0 : return the full list of supported elliptic curves (default) 1 : exclude GREASE (RFC8701) values from the output",
+      "in_type": "",
+      "max_args": 1,
+      "min_args": null,
+      "name": "ssl_fc_eclist_bin",
+      "out_type": "str",
+      "signature": "ssl_fc_eclist_bin([<filter_option>])"
+    },
+    "ssl_fc_err": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the ID of the last error of the first error stack raised on the frontend side, or 0 if no error was encountered. It can be used to identify handshake related errors other than verify ones (such as cipher mismatch), as well as other read or write errors occurring during the connection's lifetime.  Any error happening during the client's certificate verification process will not be raised through this fetch but via the existing \"ssl_c_err\", \"ssl_c_ca_err\" and \"ssl_c_ca_err_depth\" fetches. In order to get a text description of this error code, you can either use the \"ssl_fc_err_str\" sample fetch or use the \"openssl errstr\" command (which takes an error code in hexadecimal representation as parameter). Please refer to your SSL library's documentation to find the exhaustive list of error codes.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_err",
+      "out_type": "sint",
+      "signature": "ssl_fc_err"
+    },
+    "ssl_fc_err_str": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns a string representation of the last error of the first error stack that was raised on the frontend side. Any error happening during the client's certificate verification process will not be raised through this fetch. See also \"ssl_fc_err\".",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_err_str",
+      "out_type": "str",
+      "signature": "ssl_fc_err_str"
+    },
+    "ssl_fc_exporter_secret": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Return the EXPORTER_SECRET as an hexadecimal string for the front connection when the incoming connection was made over a TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_exporter_secret",
+      "out_type": "str",
+      "signature": "ssl_fc_exporter_secret"
+    },
+    "ssl_fc_extlist_bin": {
+      "args": [
+        "integer"
+      ],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the binary form of the client hello extension list. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting. Setting <filter_option> allows to filter returned data. Accepted values: 0 : return the full list of extensions (default) 1 : exclude GREASE (RFC8701) values from the output",
+      "in_type": "",
+      "max_args": 1,
+      "min_args": null,
+      "name": "ssl_fc_extlist_bin",
+      "out_type": "str",
+      "signature": "ssl_fc_extlist_bin([<filter_option>])"
+    },
+    "ssl_fc_has_crt": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns true if a client certificate is present in an incoming connection over SSL/TLS transport layer. Useful if 'verify' statement is set to 'optional'.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_has_crt",
+      "out_type": "bool",
+      "signature": "ssl_fc_has_crt"
+    },
+    "ssl_fc_has_early": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns true if early data were sent, and the handshake didn't happen yet. As it has security implications, it is useful to be able to refuse those, or wait until the handshake happened.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_has_early",
+      "out_type": "bool",
+      "signature": "ssl_fc_has_early"
+    },
+    "ssl_fc_has_sni": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "This checks for the presence of a Server Name Indication TLS extension (SNI) in an incoming connection was made over an SSL/TLS transport layer. Returns true when the incoming connection presents a TLS SNI field. This requires that the SSL library is built with support for TLS extensions enabled (check haproxy -vv).",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_has_sni",
+      "out_type": "bool",
+      "signature": "ssl_fc_has_sni"
+    },
+    "ssl_fc_is_resumed": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns true if the SSL/TLS session has been resumed through the use of SSL session cache or TLS tickets on an incoming connection over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_is_resumed",
+      "out_type": "bool",
+      "signature": "ssl_fc_is_resumed"
+    },
+    "ssl_fc_npn": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "This extracts the Next Protocol Negotiation field from an incoming connection made via a TLS transport layer and locally deciphered by HAProxy. The result is a string containing the protocol name advertised by the client. The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv). Note that the TLS NPN extension is not advertised unless the \"npn\" keyword on the \"bind\" line specifies a protocol list. Also, nothing forces the client to pick a protocol from this list, any other one may be requested. Please note that the TLS NPN extension was replaced with ALPN.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_npn",
+      "out_type": "str",
+      "signature": "ssl_fc_npn"
+    },
+    "ssl_fc_protocol": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the name of the used protocol when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_protocol",
+      "out_type": "str",
+      "signature": "ssl_fc_protocol"
+    },
+    "ssl_fc_protocol_hello_id": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "The version of the TLS protocol by which the client wishes to communicate during the session as indicated in client hello message. This value can return only if the value \"tune.ssl.capture-buffer-size\" is set greater than 0.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_protocol_hello_id",
+      "out_type": "sint",
+      "signature": "ssl_fc_protocol_hello_id"
+    },
+    "ssl_fc_server_handshake_traffic_secret": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Return the SERVER_HANDSHAKE_TRAFFIC_SECRET as an hexadecimal string for the front connection when the incoming connection was made over a TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_server_handshake_traffic_secret",
+      "out_type": "str",
+      "signature": "ssl_fc_server_handshake_traffic_secret"
+    },
+    "ssl_fc_server_random": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the server random of the front connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_server_random",
+      "out_type": "bin",
+      "signature": "ssl_fc_server_random"
+    },
+    "ssl_fc_server_traffic_secret_0": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Return the SERVER_TRAFFIC_SECRET_0 as an hexadecimal string for the front connection when the incoming connection was made over an TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_server_traffic_secret_0",
+      "out_type": "str",
+      "signature": "ssl_fc_server_traffic_secret_0"
+    },
+    "ssl_fc_session_id": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the SSL ID of the front connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to stick a given client to a server. It is important to note that some browsers refresh their session ID every few minutes.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_session_id",
+      "out_type": "bin",
+      "signature": "ssl_fc_session_id"
+    },
+    "ssl_fc_session_key": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the SSL session master key of the front connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_session_key",
+      "out_type": "bin",
+      "signature": "ssl_fc_session_key"
+    },
+    "ssl_fc_sni": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "This extracts the Server Name Indication TLS extension (SNI) field from an incoming connection made via an SSL/TLS transport layer and locally deciphered by HAProxy. The result (when present) typically is a string matching the HTTPS host name (253 chars or less). The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv).\n\nThis fetch is different from \"req.ssl_sni\" above in that it applies to the connection being deciphered by HAProxy and not to SSL contents being blindly forwarded. See also \"ssl_fc_sni_end\" and \"ssl_fc_sni_reg\" below. This requires that the SSL library is built with support for TLS extensions enabled (check haproxy -vv).\n\nCAUTION! Except under very specific conditions, it is normally not correct to use this field as a substitute for the HTTP \"Host\" header field. For example, when forwarding an HTTPS connection to a server, the SNI field must be set from the HTTP Host header field using \"req.hdr(host)\" and not from the front SNI value. The reason is that SNI is solely used to select the certificate the server side will present, and that clients are then allowed to send requests with different Host values as long as they match the names in the certificate. As such, \"ssl_fc_sni\" should normally not be used as an argument to the \"sni\" server keyword, unless the backend works in TCP mode.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_sni",
+      "out_type": "str",
+      "signature": "ssl_fc_sni"
+    },
+    "ssl_fc_unique_id": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the TLS unique ID as defined in RFC5929 section 3. The unique id can be encoded to base64 using the converter: \"ssl_fc_unique_id,base64\".",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_unique_id",
+      "out_type": "bin",
+      "signature": "ssl_fc_unique_id"
+    },
+    "ssl_fc_use_keysize": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the symmetric cipher key size used in bits when the incoming connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_fc_use_keysize",
+      "out_type": "sint",
+      "signature": "ssl_fc_use_keysize"
+    },
+    "ssl_s_chain_der": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the DER formatted chain certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form. One can parse the result with any lib accepting ASN.1 DER data. It currently does not support resumed sessions.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_s_chain_der",
+      "out_type": "bin",
+      "signature": "ssl_s_chain_der"
+    },
+    "ssl_s_der": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the DER formatted certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_s_der",
+      "out_type": "bin",
+      "signature": "ssl_s_der"
+    },
+    "ssl_s_i_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the server when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_s_i_dn(OU,2)\" the second organization unit, and \"ssl_s_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_s_i_dn(,0,rfc2253)",
+      "in_type": "",
+      "max_args": 3,
+      "min_args": null,
+      "name": "ssl_s_i_dn",
+      "out_type": "str",
+      "signature": "ssl_s_i_dn([<entry>[,<occ>[,<format>]]])"
+    },
+    "ssl_s_key_alg": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the name of the algorithm used to generate the key of the certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_s_key_alg",
+      "out_type": "str",
+      "signature": "ssl_s_key_alg"
+    },
+    "ssl_s_notafter": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the end date presented by the server as a formatted string YYMMDDhhmmss[Z] when the outgoing connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_s_notafter",
+      "out_type": "str",
+      "signature": "ssl_s_notafter"
+    },
+    "ssl_s_notbefore": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the start date presented by the server as a formatted string YYMMDDhhmmss[Z] when the outgoing connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_s_notbefore",
+      "out_type": "str",
+      "signature": "ssl_s_notbefore"
+    },
+    "ssl_s_s_dn": {
+      "args": [
+        "string",
+        "integer",
+        "string"
+      ],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the server when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_s_s_dn(OU,2)\" the second organization unit, and \"ssl_s_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_s_s_dn(,0,rfc2253)",
+      "in_type": "",
+      "max_args": 3,
+      "min_args": null,
+      "name": "ssl_s_s_dn",
+      "out_type": "str",
+      "signature": "ssl_s_s_dn([<entry>[,<occ>[,<format>]]])"
+    },
+    "ssl_s_serial": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the serial of the certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_s_serial",
+      "out_type": "bin",
+      "signature": "ssl_s_serial"
+    },
+    "ssl_s_sha1": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the SHA-1 fingerprint of the certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer. This can be used to know which certificate was chosen using SNI.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_s_sha1",
+      "out_type": "bin",
+      "signature": "ssl_s_sha1"
+    },
+    "ssl_s_sig_alg": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the name of the algorithm used to sign the certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_s_sig_alg",
+      "out_type": "str",
+      "signature": "ssl_s_sig_alg"
+    },
+    "ssl_s_version": {
+      "args": [],
+      "chapter": "7.3.4",
+      "contexts": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "deprecated": false,
+      "description": "Returns the version of the certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer.",
+      "in_type": "",
+      "max_args": 0,
+      "min_args": null,
+      "name": "ssl_s_version",
+      "out_type": "sint",
+      "signature": "ssl_s_version"
+    },
     "status": {
       "args": [],
       "chapter": "7.3.6",
@@ -57776,7 +60693,7 @@
         false
       ],
       "deprecated": false,
-      "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
+      "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. The fetch fails when the host part is a name, as no resolution is performed. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -57851,7 +60768,7 @@
         false
       ],
       "deprecated": false,
-      "description": "This extracts the port part from the request's URL. Note that if the port is not specified in the request, port 80 is assumed..",
+      "description": "This extracts the port part from the request's URL. Note that if the port is not specified in the request, port 80 is assumed. As for \"url_ip\", this only works when the authority of the URL is presented as an address, the fetch fails when it is a host name since no resolution is performed here.",
       "in_type": "",
       "max_args": 0,
       "min_args": null,
@@ -58258,7 +61175,22 @@
       "name": "cache"
     },
     "crt-list": {
-      "keywords": [],
+      "keywords": [
+        "allow-0rtt",
+        "alpn",
+        "ca-file",
+        "ca-verify-file",
+        "ciphers",
+        "ciphersuites",
+        "crl-file",
+        "curves",
+        "ecdhe",
+        "no-ca-names",
+        "npn",
+        "ssl-max-ver",
+        "ssl-min-ver",
+        "verify"
+      ],
       "name": "crt-list"
     },
     "defaults": {

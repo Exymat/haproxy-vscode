@@ -525,6 +525,22 @@
         "signature": "shdr_sub ..."
       },
       {
+        "description": "This extracts the Server Name Indication TLS extension (SNI) field from an incoming connection made via an SSL/TLS transport layer and locally deciphered by HAProxy. The result (when present) typically is a string matching the HTTPS host name (253 chars or less). The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv).\n\nThis fetch is different from \"req.ssl_sni\" above in that it applies to the connection being deciphered by HAProxy and not to SSL contents being blindly forwarded. See also \"ssl_fc_sni_end\" and \"ssl_fc_sni_reg\" below. This requires that the SSL library is built with support for TLS extensions enabled (check haproxy -vv).\n\nCAUTION! Except under very specific conditions, it is normally not correct to use this field as a substitute for the HTTP \"Host\" header field. For example, when forwarding an HTTPS connection to a server, the SNI field must be set from the HTTP Host header field using \"req.hdr(host)\" and not from the front SNI value. The reason is that SNI is solely used to select the certificate the server side will present, and that clients are then allowed to send requests with different Host values as long as they match the names in the certificate. As such, \"ssl_fc_sni\" should normally not be used as an argument to the \"sni\" server keyword, unless the backend works in TCP mode.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.2-ssl_fc_sni_end",
+        "examples": [],
+        "name": "ssl_fc_sni_end",
+        "rulesets": [],
+        "signature": "ssl_fc_sni_end ..."
+      },
+      {
+        "description": "This extracts the Server Name Indication TLS extension (SNI) field from an incoming connection made via an SSL/TLS transport layer and locally deciphered by HAProxy. The result (when present) typically is a string matching the HTTPS host name (253 chars or less). The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv).\n\nThis fetch is different from \"req.ssl_sni\" above in that it applies to the connection being deciphered by HAProxy and not to SSL contents being blindly forwarded. See also \"ssl_fc_sni_end\" and \"ssl_fc_sni_reg\" below. This requires that the SSL library is built with support for TLS extensions enabled (check haproxy -vv).\n\nCAUTION! Except under very specific conditions, it is normally not correct to use this field as a substitute for the HTTP \"Host\" header field. For example, when forwarding an HTTPS connection to a server, the SNI field must be set from the HTTP Host header field using \"req.hdr(host)\" and not from the front SNI value. The reason is that SNI is solely used to select the certificate the server side will present, and that clients are then allowed to send requests with different Host values as long as they match the names in the certificate. As such, \"ssl_fc_sni\" should normally not be used as an argument to the \"sni\" server keyword, unless the backend works in TCP mode.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.2-ssl_fc_sni_reg",
+        "examples": [],
+        "name": "ssl_fc_sni_reg",
+        "rulesets": [],
+        "signature": "ssl_fc_sni_reg ..."
+      },
+      {
         "description": "This extracts the request's URL as presented in the request. A typical use is with prefetch-capable caches, and with portals which need to aggregate multiple information from databases and keep them in caches. With ACLs, using \"path\" is preferred over using \"url\", because clients may send a full URL as is normally done with proxies. The only real use is to match \"*\" which does not match in \"path\", and for which there is already a predefined ACL. See also \"path\" and \"base\". Please note that any fragment reference in the URI ('#' after the path) is strictly forbidden by the HTTP standard and will be rejected. However, if the frontend receiving the request has \"option accept-invalid-http-request\", then this fragment part will be accepted and will also appear in the url.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#7.3.2-url",
         "examples": [],
@@ -1166,14 +1182,6 @@
         "signature": "ciphersuites <ciphersuites>"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-client-sigalgs",
-        "examples": [],
-        "name": "client-sigalgs",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "This setting is only available when support for OpenSSL was built in. It designates a PEM file from which to load certificate revocation list used to verify client's certificate. You need to provide a certificate revocation list for every certificate of your certificate authority chain.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-crl-file",
         "examples": [],
@@ -1217,14 +1225,6 @@
         "name": "curves",
         "rulesets": [],
         "signature": "curves <curves>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-default-crt",
-        "examples": [],
-        "name": "default-crt",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "Is an optional keyword which is supported only on certain Linux kernels. It states that a connection will only be accepted once some data arrive on it, or at worst after the first retransmit. This should be used only on protocols for which the client talks first (e.g. HTTP). It can slightly improve performance by ensuring that most of the request is already available when the connection is accepted. On the other hand, it will not be able to detect connections which don't talk. It is important to note that this option is broken in all kernels up to 2.6.31, as the connection is never accepted until the client talks. This can cause issues with front firewalls which would see an established connection while the proxy will only see it in SYN_RECV. This option is only supported on TCPv4/TCPv6 sockets and ignored by other ones.",
@@ -1315,14 +1315,6 @@
         "signature": "group <group>"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-guid-prefix",
-        "examples": [],
-        "name": "guid-prefix",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Fixes the socket ID. By default, socket IDs are automatically assigned, but sometimes it is more convenient to fix them to ease monitoring. This value must be strictly positive and unique within the listener/frontend. This option can only be used when defining only a single socket.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-id",
         "examples": [],
@@ -1331,28 +1323,12 @@
         "signature": "id <id>"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-idle-ping",
-        "examples": [],
-        "name": "idle-ping",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Restricts the socket to a specific interface. When specified, only packets received from that particular interface are processed by the socket. This is currently only supported on Linux. The interface must be a primary system interface, not an aliased interface. It is also possible to bind multiple frontends to the same address if they are bound to different interfaces. Note that binding to a network interface requires root privileges. This parameter is only compatible with TCPv4/TCPv6 sockets. When specified, return traffic uses the same interface as inbound traffic, and its associated routing table, even if there are explicit routes through different interfaces configured. This can prove useful to address asymmetric routing issues when the same client IP addresses need to be able to reach frontends hosted on different interfaces.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-interface",
         "examples": [],
         "name": "interface",
         "rulesets": [],
         "signature": "interface <interface>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-label",
-        "examples": [],
-        "name": "label",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "This setting is used with the stats sockets only to restrict the nature of the commands that can be issued on the socket. It is ignored by other sockets. <level> can be one of : - \"user\" is the least privileged level; only non-sensitive stats can be read, and no change is allowed. It would make sense on systems where it is not easy to restrict access to the socket. - \"operator\" is the default level and fits most common uses. All data can be read, and only non-sensitive changes are permitted (e.g. clear max counters). - \"admin\" should be used with care, as everything is permitted (e.g. clear all counters).",
@@ -1403,28 +1379,12 @@
         "signature": "namespace <name>"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-nbconn",
-        "examples": [],
-        "name": "nbconn",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Sets the 'niceness' of connections initiated from the socket. Value must be in the range -1024..1024 inclusive, and defaults to zero. Positive values means that such connections are more friendly to others and easily offer their place in the scheduler. On the opposite, negative values mean that connections want to run with a higher priority than others. The difference only happens under high loads when the system is close to saturation. Negative values are appropriate for low-latency or administration services, and high values are generally recommended for CPU intensive tasks such as SSL processing or bulk transfers which are less sensible to latency. For example, it may make sense to use a positive value for an SMTP socket and a negative one for an RDP socket.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-nice",
         "examples": [],
         "name": "nice",
         "rulesets": [],
         "signature": "nice <nice>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-no-alpn",
-        "examples": [],
-        "name": "no-alpn",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "This setting is only available when support for OpenSSL was built in. It prevents from send CA names in server hello message when ca-file is used. Use \"ca-verify-file\" instead of \"ca-file\" with \"no-ca-names\".",
@@ -1441,14 +1401,6 @@
         "name": "no-sslv3",
         "rulesets": [],
         "signature": "no-sslv3"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-no-strict-sni",
-        "examples": [],
-        "name": "no-strict-sni",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "This setting is only available when support for OpenSSL was built in. It disables the stateless session resumption (RFC 5077 TLS Ticket extension) and force to use stateful session resumption. Stateless session resumption is more expensive in CPU usage. This option is also available on global statement \"ssl-default-bind-options\". The TLS ticket mechanism is only used up to TLS 1.2. Forward Secrecy is compromised with TLS tickets, unless ticket keys are periodically rotated (via reload or by using \"tls-ticket-keys\").",
@@ -1523,30 +1475,6 @@
         "signature": "proto <name>"
       },
       {
-        "description": "Warning: QUIC support in HAProxy is currently experimental. Configuration may change without deprecation in the future.\n\nThis is a QUIC specific setting to select the congestion control algorithm for any connection attempts to the configured QUIC listeners. They are similar to those used by TCP.\n\nDefault value: cubic",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-quic-cc-algo",
-        "examples": [],
-        "name": "quic-cc-algo",
-        "rulesets": [],
-        "signature": "quic-cc-algo { cubic | newreno }"
-      },
-      {
-        "description": "Warning: QUIC support in HAProxy is currently experimental. Configuration may change without deprecation in the future.\n\nThis is a QUIC specific setting which forces the use of the QUIC Retry feature for all the connection attempts to the configured QUIC listeners. It consists in veryfying the peers are able to receive packets at the transport address they used to initiate a new connection, sending them a Retry packet which contains a token. This token must be sent back to the Retry packet sender, this latter being the only one to be able to validate the token. Note that QUIC Retry will always be used even if a Retry threshold was set (see \"tune.quic.retry-threshold\" setting).\n\nThis setting requires the cluster secret to be set or else an error will be reported on startup (see \"cluster-secret\").\n\nSee https://www.rfc-editor.org/rfc/rfc9000.html#section-8.1.2 for more information about QUIC retry.",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-quic-force-retry",
-        "examples": [],
-        "name": "quic-force-retry",
-        "rulesets": [],
-        "signature": "quic-force-retry"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-quic-socket",
-        "examples": [],
-        "name": "quic-socket",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "This setting is used with the stats sockets only to configure severity level output prepended to informational feedback messages. Severity level of messages can range between 0 and 7, conforming to syslog rfc5424. Valid and successful socket commands requesting data (i.e. \"show map\", \"get acl foo\" etc.) will never have a severity level prepended. It is ignored by other sockets. <format> can be one of : - \"none\" (default) no severity level is prepended to feedback messages. - \"number\" severity level is prepended as a number. - \"string\" severity level is prepended as a string following the rfc5424 convention.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-severity-output",
         "examples": [],
@@ -1561,14 +1489,6 @@
         "name": "shards",
         "rulesets": [],
         "signature": "shards <number> | by-thread"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-sigalgs",
-        "examples": [],
-        "name": "sigalgs",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "This setting is only available when support for OpenSSL was built in. It enables SSL deciphering on connections instantiated from this listener. A certificate is necessary (see \"crt\" above). All contents in the buffers will appear in clear text, so that ACLs and HTTP processing will only have access to deciphered contents. SSLv3 is disabled per default, use \"ssl-min-ver SSLv3\" to enable it.",
@@ -1633,14 +1553,6 @@
         "name": "tls-ticket-keys",
         "rulesets": [],
         "signature": "tls-ticket-keys <keyfile>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.1-tls-tickets",
-        "examples": [],
-        "name": "tls-tickets",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "Is an optional keyword which is supported only on certain Linux kernels. It indicates that the addresses will be bound even if they do not belong to the local machine, and that packets targeting any of these addresses will be intercepted just as if the addresses were locally configured. This normally requires that IP forwarding is enabled. Caution! do not use this with the default address '*', as it would redirect any traffic for the specified port. This keyword is available only when HAProxy is built with USE_LINUX_TPROXY=1. This parameter is only compatible with TCPv4 and TCPv6 sockets, depending on kernel version. Some distribution kernels include backports of the feature, so check for support with your vendor.",
@@ -1759,7 +1671,7 @@
         "signature": "http-request allow [ { if | unless } <condition> ]"
       },
       {
-        "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Please check section 7.3 (Fetching samples) and \"capture request header\" for more information.\n\nIf the keyword \"id\" is used instead of \"len\", the action tries to store the captured string in a previously declared capture slot. This is useful to run captures in backends. The slot id can be declared by a previous directive \"http-request capture\" or with the \"declare capture\" keyword.\n\nWhen using this action in a backend, double check that the relevant frontend(s) have the required capture slots otherwise, this rule will be ignored at run time. This can't be detected at configuration parsing time due to HAProxy's ability to dynamically resolve backend name at runtime.",
+        "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Such a slot only exists in the section which declares it, so when this rule is placed in a \"listen\" section which is also used as the backend of another frontend, it is ignored for the streams coming from that frontend.  Please check section 7.3 (Fetching samples), \"capture request header\" and \"capture response header\" for more information.\n\nIf the keyword \"id\" is used instead of \"len\", the action tries to store the captured string in a previously declared capture slot. This is useful to run captures in backends. The slot id can be declared by a previous directive \"http-request capture\" or with the \"declare capture\" keyword.\n\nWhen using this action in a backend, double check that the relevant frontend(s) have the required capture slots otherwise, this rule will be ignored at run time. This can't be detected at configuration parsing time due to HAProxy's ability to dynamically resolve backend name at runtime.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20capture",
         "examples": [],
         "name": "capture",
@@ -2077,7 +1989,7 @@
         "signature": "http-request cache-use <name> [ { if | unless } <condition> ]"
       },
       {
-        "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Please check section 7.3 (Fetching samples) and \"capture request header\" for more information.\n\nIf the keyword \"id\" is used instead of \"len\", the action tries to store the captured string in a previously declared capture slot. This is useful to run captures in backends. The slot id can be declared by a previous directive \"http-request capture\" or with the \"declare capture\" keyword.\n\nWhen using this action in a backend, double check that the relevant frontend(s) have the required capture slots otherwise, this rule will be ignored at run time. This can't be detected at configuration parsing time due to HAProxy's ability to dynamically resolve backend name at runtime.",
+        "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Such a slot only exists in the section which declares it, so when this rule is placed in a \"listen\" section which is also used as the backend of another frontend, it is ignored for the streams coming from that frontend.  Please check section 7.3 (Fetching samples), \"capture request header\" and \"capture response header\" for more information.\n\nIf the keyword \"id\" is used instead of \"len\", the action tries to store the captured string in a previously declared capture slot. This is useful to run captures in backends. The slot id can be declared by a previous directive \"http-request capture\" or with the \"declare capture\" keyword.\n\nWhen using this action in a backend, double check that the relevant frontend(s) have the required capture slots otherwise, this rule will be ignored at run time. This can't be detected at configuration parsing time due to HAProxy's ability to dynamically resolve backend name at runtime.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20capture",
         "examples": [],
         "name": "capture",
@@ -2789,7 +2701,7 @@
         "signature": "http-response cache-store <name> [ { if | unless } <condition> ]"
       },
       {
-        "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Please check section 7.3 (Fetching samples) and \"capture request header\" for more information.\n\nIf the keyword \"id\" is used instead of \"len\", the action tries to store the captured string in a previously declared capture slot. This is useful to run captures in backends. The slot id can be declared by a previous directive \"http-request capture\" or with the \"declare capture\" keyword.\n\nWhen using this action in a backend, double check that the relevant frontend(s) have the required capture slots otherwise, this rule will be ignored at run time. This can't be detected at configuration parsing time due to HAProxy's ability to dynamically resolve backend name at runtime.",
+        "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Such a slot only exists in the section which declares it, so when this rule is placed in a \"listen\" section which is also used as the backend of another frontend, it is ignored for the streams coming from that frontend.  Please check section 7.3 (Fetching samples), \"capture request header\" and \"capture response header\" for more information.\n\nIf the keyword \"id\" is used instead of \"len\", the action tries to store the captured string in a previously declared capture slot. This is useful to run captures in backends. The slot id can be declared by a previous directive \"http-request capture\" or with the \"declare capture\" keyword.\n\nWhen using this action in a backend, double check that the relevant frontend(s) have the required capture slots otherwise, this rule will be ignored at run time. This can't be detected at configuration parsing time due to HAProxy's ability to dynamically resolve backend name at runtime.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20capture",
         "examples": [],
         "name": "capture",
@@ -3757,6 +3669,19 @@
         "signature": "add_item(<delim>,[<var>][,<suff>]])"
       },
       {
+        "description": "Decrypts the raw byte input using the AES128-GCM, AES192-GCM or AES256-GCM algorithm, depending on the <bits> parameter. All other parameters need to be base64 encoded and the returned result is in raw byte format. If the <aead_tag> validation fails, the converter doesn't return any data. The <nonce>, <key> and <aead_tag> can either be strings or variables. This converter requires at least OpenSSL 1.0.1.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#aes_gcm_dec",
+        "examples": [
+          {
+            "code": "http-response set-header X-Decrypted-Text %[var(txn.enc),\\\n  aes_gcm_dec(128,txn.nonce,Zm9vb2Zvb29mb29wZm9vbw==,txn.aead_tag)]",
+            "title": ""
+          }
+        ],
+        "name": "aes_gcm_dec",
+        "rulesets": [],
+        "signature": "aes_gcm_dec(<bits>,<nonce>,<key>,<aead_tag>)"
+      },
+      {
         "description": "Performs a bitwise \"AND\" between <value> and the input value of type signed integer, and returns the result as an signed integer. <value> can be a numeric value or a variable name. The name of the variable starts with an indication about its scope. The scopes allowed are: \"proc\" : the variable is shared with the whole process \"sess\" : the variable is shared with the whole session \"txn\"  : the variable is shared with the transaction (request and response) \"req\"  : the variable is shared only during request processing \"res\"  : the variable is shared only during response processing This prefix is followed by a name. The separator is a '.'. The name may only contain characters 'a-z', 'A-Z', '0-9', '.' and '_'.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#and",
         "examples": [],
@@ -3897,6 +3822,14 @@
         "signature": "debug([<prefix][,<destination>])"
       },
       {
+        "description": "Converts a binary input sample to a message digest. The result is a binary sample. The <algorithm> must be an OpenSSL message digest name (e.g. sha256).\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#digest",
+        "examples": [],
+        "name": "digest",
+        "rulesets": [],
+        "signature": "digest(<algorithm>)"
+      },
+      {
         "description": "Divides the input value of type signed integer by <value>, and returns the result as an signed integer. If <value> is null, the largest unsigned integer is returned (typically 2^63-1). <value> can be a numeric value or a variable name. The name of the variable starts with an indication about its scope. The scopes allowed are: \"proc\" : the variable is shared with the whole process \"sess\" : the variable is shared with the whole session \"txn\"  : the variable is shared with the transaction (request and response) \"req\"  : the variable is shared only during request processing \"res\"  : the variable is shared only during response processing This prefix is followed by a name. The separator is a '.'. The name may only contain characters 'a-z', 'A-Z', '0-9', '.' and '_'.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#div",
         "examples": [],
@@ -3968,12 +3901,20 @@
         "signature": "hex"
       },
       {
-        "description": "Converts a hex string containing two hex digits per input byte to an integer. If the input value cannot be converted, then zero is returned.",
+        "description": "Converts a hex string containing two hex digits per input byte to an integer. If the input value contains a character which is not a hexadecimal digit, the converter fails and returns nothing, which makes it possible to differentiate an invalid input from a valid zero.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#hex2i",
         "examples": [],
         "name": "hex2i",
         "rulesets": [],
         "signature": "hex2i"
+      },
+      {
+        "description": "Converts a binary input sample to a message authentication code with the given key. The result is a binary sample. The <algorithm> must be one of the registered OpenSSL message digest names (e.g. sha256). The <key> parameter must be base64 encoded and can either be a string or a variable.\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#hmac",
+        "examples": [],
+        "name": "hmac",
+        "rulesets": [],
+        "signature": "hmac(<algorithm>,<key>)"
       },
       {
         "description": "Converts a string which contains a Host header value and removes its port. The input must respect the format of the host header value (rfc9110#section-7.2). It will support that kind of input: hostname, hostname:80, 127.0.0.1, 127.0.0.1:80, [::1], [::1]:80.\n\nThis converter also sets the string in lowercase.",
@@ -4053,6 +3994,35 @@
         "name": "json_query",
         "rulesets": [],
         "signature": "json_query(<json_path>,[<output_type>])"
+      },
+      {
+        "description": "When given a JSON Web Token (JWT) in input, either returns the decoded header part of the token (the first base64-url encoded part of the JWT) if no parameter is given, or performs a json_query on the decoded header part of the token. See \"json_query\" converter for details about the accepted json_path and output_type parameters.\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#jwt_header_query",
+        "examples": [],
+        "name": "jwt_header_query",
+        "rulesets": [],
+        "signature": "jwt_header_query([<json_path>],[<output_type>])"
+      },
+      {
+        "description": "When given a JSON Web Token (JWT) in input, either returns the decoded payload part of the token (the second base64-url encoded part of the JWT) if no parameter is given, or performs a json_query on the decoded payload part of the token. See \"json_query\" converter for details about the accepted json_path and output_type parameters.\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#jwt_payload_query",
+        "examples": [],
+        "name": "jwt_payload_query",
+        "rulesets": [],
+        "signature": "jwt_payload_query([<json_path>],[<output_type>])"
+      },
+      {
+        "description": "Performs a signature verification for the JSON Web Token (JWT) given in input by using the <alg> algorithm and the <key> parameter, which should either hold a secret or a path to a public certificate. Returns 1 in case of verification success, 0 in case of verification error and a strictly negative value for any other error. Because of all those non-null error return values, the result of this converter should never be converted to a boolean. See below for a full list of the possible return values.\n\nFor now, only JWS tokens using the Compact Serialization format can be processed (three dot-separated base64-url encoded strings). Among the accepted algorithms for a JWS (see section 3.1 of RFC7518), the PSXXX ones are not managed yet.\n\nIf the used algorithm is of the HMAC family, <key> should be the secret used in the HMAC signature calculation. Otherwise, <key> should be the path to the public certificate that can be used to validate the token's signature. All the certificates that might be used to verify JWTs must be known during init in order to be added into a dedicated certificate cache so that no disk access is required during runtime. For this reason, any used certificate must be mentioned explicitly at least once in a jwt_verify call. Passing an intermediate variable as second parameter is then not advised.\n\nThis converter only verifies the signature of the token and does not perform a full JWT validation as specified in section 7.2 of RFC7519. We do not ensure that the header and payload contents are fully valid JSON's once decoded for instance, and no checks are performed regarding their respective contents.\n\nThe possible return values are the following :\n\n+----+----------------------------------------------------------------------+ | ID | message                                                              | +----+----------------------------------------------------------------------+ |  0 | \"Verification failure\"                                               | |  1 | \"Verification success\"                                               | | -1 | \"Unknown algorithm (not mentioned in RFC7518)\"                       | | -2 | \"Unmanaged algorithm (PSXXX algorithm family)\"                       | | -3 | \"Invalid token\"                                                      | | -4 | \"Out of memory\"                                                      | | -5 | \"Unknown certificate\"                                                | +----+----------------------------------------------------------------------+\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#jwt_verify",
+        "examples": [
+          {
+            "code": "# Get a JWT from the authorization header, extract the \"alg\" field of its\n# JOSE header and use a public certificate to verify a signature\nhttp-request set-var(txn.bearer) http_auth_bearer\nhttp-request set-var(txn.jwt_alg) var(txn.bearer),jwt_header_query('$.alg')\nhttp-request deny unless { var(txn.jwt_alg) -m str \"RS256\" }\nhttp-request deny unless { var(txn.bearer),jwt_verify(txn.jwt_alg,\"/path/to/crt.pem\") 1 }",
+            "title": ""
+          }
+        ],
+        "name": "jwt_verify",
+        "rulesets": [],
+        "signature": "jwt_verify(<alg>,<key>)"
       },
       {
         "description": "Returns the value with the highest q-factor from a list as extracted from the \"accept-language\" header using \"req.fhdr\". Values with no q-factor have a q-factor of 1. Values with a q-factor of 0 are dropped. Only values which belong to the list of semi-colon delimited <values> will be considered. The argument <value> syntax is \"lang[;lang[;lang[;...]]]\". If no value matches the given list and a default value is provided, it is returned. Note that language names may have a variant after a dash ('-'). If this variant is present in the list, it will be matched, but if it is not, only the base language is checked. The match is case-sensitive, and the output string is always one of those provided in arguments. The ordering of arguments is meaningless, only the ordering of the values in the request counts, as the first value among multiple sharing the same q-factor is used.",
@@ -4469,6 +4439,19 @@
         "signature": "sdbm([<avalanche>])"
       },
       {
+        "description": "Compares the contents of <var> with the input value. Both values are treated as a binary string. Returns a boolean indicating whether both binary strings match.\n\nIf both binary strings have the same length then the comparison will be performed in constant time.\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#secure_memcmp",
+        "examples": [
+          {
+            "code": "http-request set-var(txn.token) hdr(token)\n# Check whether the token sent by the client matches the secret token\n# value, without leaking the contents using a timing attack.\nacl token_given str(my_secret_token),secure_memcmp(txn.token)",
+            "title": ""
+          }
+        ],
+        "name": "secure_memcmp",
+        "rulesets": [],
+        "signature": "secure_memcmp(<var>)"
+      },
+      {
         "description": "Sets a variable with the input content and returns the content on the output as-is if all of the specified conditions are true (see below for a list of possible conditions). The variable keeps the value and the associated input type. The name of the variable starts with an indication about its scope. The scopes allowed are: \"proc\" : the variable is shared with the whole process \"sess\" : the variable is shared with the whole session \"txn\"  : the variable is shared with the transaction (request and response), \"req\"  : the variable is shared only during request processing, \"res\"  : the variable is shared only during response processing. This prefix is followed by a name. The separator is a '.'. The name may only contain characters 'a-z', 'A-Z', '0-9', '.' and '_'.\n\nYou can pass at most four conditions to the converter among the following possible conditions : - \"ifexists\"/\"ifnotexists\": Checks if the variable already existed before the current set-var call. A variable is usually created through a successful set-var call. Note that variables of scope \"proc\" are created during configuration parsing so the \"ifexists\" condition will always be true for them. - \"ifempty\"/\"ifnotempty\": Checks if the input is empty or not. Scalar types are never empty so the ifempty condition will be false for them regardless of the input's contents (integers, booleans, IPs ...). - \"ifset\"/\"ifnotset\": Checks if the variable was previously set or not, or if unset-var was called on the variable. A variable that does not exist yet is considered as not set. A \"proc\" variable can exist while not being set since they are created during configuration parsing. - \"ifgt\"/\"iflt\": Checks if the content of the variable is \"greater than\" or \"less than\" the input. This check can only be performed if both the input and the variable are of type integer. Otherwise, the check is considered as true by default.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#set-var",
         "examples": [],
@@ -4491,6 +4474,14 @@
         "name": "sha1",
         "rulesets": [],
         "signature": "sha1"
+      },
+      {
+        "description": "Converts a binary input sample to a digest in the SHA-2 family. The result is a binary sample with length of <bits>/8 bytes.\n\nValid values for <bits> are 224, 256, 384, 512, each corresponding to SHA-<bits>. The default value is 256.\n\nPlease note that this converter is only available when HAProxy has been compiled with USE_OPENSSL.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#sha2",
+        "examples": [],
+        "name": "sha2",
+        "rulesets": [],
+        "signature": "sha2([<bits>])"
       },
       {
         "description": "Takes an input value of type string, either a server name or <backend>/<server> format and returns the number of queued sessions on that server. Can be used in places where we want to look up queued sessions from a dynamic name, like a cookie value (e.g. req.cook(SRVID),srv_queue) and then make a decision to break persistence or direct a request elsewhere.",
@@ -7802,6 +7793,729 @@
         "signature": "srv_weight([<backend>/]<server>)"
       },
       {
+        "description": "Returns true when the back connection was made via an SSL/TLS transport layer and is locally deciphered. This means the outgoing connection was made to a server with the \"ssl\" option. It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc",
+        "examples": [],
+        "name": "ssl_bc",
+        "rulesets": [],
+        "signature": "ssl_bc"
+      },
+      {
+        "description": "Returns the symmetric cipher key size supported in bits when the outgoing connection was made over an SSL/TLS transport layer. It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_alg_keysize",
+        "examples": [],
+        "name": "ssl_bc_alg_keysize",
+        "rulesets": [],
+        "signature": "ssl_bc_alg_keysize"
+      },
+      {
+        "description": "This extracts the Application Layer Protocol Negotiation field from an outgoing connection made via a TLS transport layer. The result is a string containing the protocol name negotiated with the server. The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv). Note that the TLS ALPN extension is not advertised unless the \"alpn\" keyword on the \"server\" line specifies a protocol list. Also, nothing forces the server to pick a protocol from this list, any other one may be requested. The TLS ALPN extension is meant to replace the TLS NPN extension. See also \"ssl_bc_npn\". It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_alpn",
+        "examples": [],
+        "name": "ssl_bc_alpn",
+        "rulesets": [],
+        "signature": "ssl_bc_alpn"
+      },
+      {
+        "description": "Returns the name of the used cipher when the outgoing connection was made over an SSL/TLS transport layer. It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_cipher",
+        "examples": [],
+        "name": "ssl_bc_cipher",
+        "rulesets": [],
+        "signature": "ssl_bc_cipher"
+      },
+      {
+        "description": "Returns the client random of the back connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL. It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_client_random",
+        "examples": [],
+        "name": "ssl_bc_client_random",
+        "rulesets": [],
+        "signature": "ssl_bc_client_random"
+      },
+      {
+        "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the ID of the last error of the first error stack raised on the backend side. It can raise handshake errors as well as other read or write errors occurring during the connection's lifetime. In order to get a text description of this error code, you can either use the \"ssl_bc_err_str\" sample fetch or use the \"openssl errstr\" command (which takes an error code in hexadecimal representation as parameter). Please refer to your SSL library's documentation to find the exhaustive list of error codes.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_err",
+        "examples": [],
+        "name": "ssl_bc_err",
+        "rulesets": [],
+        "signature": "ssl_bc_err"
+      },
+      {
+        "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns a string representation of the last error of the first error stack that was raised on the connection from the backend's perspective. See also \"ssl_fc_err\".",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_err_str",
+        "examples": [],
+        "name": "ssl_bc_err_str",
+        "rulesets": [],
+        "signature": "ssl_bc_err_str"
+      },
+      {
+        "description": "Returns true when the back connection was made over an SSL/TLS transport layer and the newly created SSL session was resumed using a cached session or a TLS ticket. It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_is_resumed",
+        "examples": [],
+        "name": "ssl_bc_is_resumed",
+        "rulesets": [],
+        "signature": "ssl_bc_is_resumed"
+      },
+      {
+        "description": "This extracts the Next Protocol Negotiation field from an outgoing connection made via a TLS transport layer. The result is a string containing the protocol name negotiated with the server . The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv). Note that the TLS NPN extension is not advertised unless the \"npn\" keyword on the \"server\" line specifies a protocol list. Also, nothing forces the server to pick a protocol from this list, any other one may be used. Please note that the TLS NPN extension was replaced with ALPN. It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_npn",
+        "examples": [],
+        "name": "ssl_bc_npn",
+        "rulesets": [],
+        "signature": "ssl_bc_npn"
+      },
+      {
+        "description": "Returns the name of the used protocol when the outgoing connection was made over an SSL/TLS transport layer. It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_protocol",
+        "examples": [],
+        "name": "ssl_bc_protocol",
+        "rulesets": [],
+        "signature": "ssl_bc_protocol"
+      },
+      {
+        "description": "Returns the server random of the back connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL. It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_server_random",
+        "examples": [],
+        "name": "ssl_bc_server_random",
+        "rulesets": [],
+        "signature": "ssl_bc_server_random"
+      },
+      {
+        "description": "Returns the SSL ID of the back connection when the outgoing connection was made over an SSL/TLS transport layer. It is useful to log if we want to know if session was reused or not. It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_session_id",
+        "examples": [],
+        "name": "ssl_bc_session_id",
+        "rulesets": [],
+        "signature": "ssl_bc_session_id"
+      },
+      {
+        "description": "Returns the SSL session master key of the back connection when the outgoing connection was made over an SSL/TLS transport layer. It is useful to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL. It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_session_key",
+        "examples": [],
+        "name": "ssl_bc_session_key",
+        "rulesets": [],
+        "signature": "ssl_bc_session_key"
+      },
+      {
+        "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the TLS unique ID as defined in RFC5929 section 3. The unique id can be encoded to base64 using the converter: \"ssl_bc_unique_id,base64\". It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_unique_id",
+        "examples": [],
+        "name": "ssl_bc_unique_id",
+        "rulesets": [],
+        "signature": "ssl_bc_unique_id"
+      },
+      {
+        "description": "Returns the symmetric cipher key size used in bits when the outgoing connection was made over an SSL/TLS transport layer. It can be used in a tcp-check or an http-check ruleset.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_bc_use_keysize",
+        "examples": [],
+        "name": "ssl_bc_use_keysize",
+        "rulesets": [],
+        "signature": "ssl_bc_use_keysize"
+      },
+      {
+        "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the ID of the first error detected during verification of the client certificate at depth > 0, or 0 if no error was encountered during this verification process. Please refer to your SSL library's documentation to find the exhaustive list of error codes.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_ca_err",
+        "examples": [],
+        "name": "ssl_c_ca_err",
+        "rulesets": [],
+        "signature": "ssl_c_ca_err"
+      },
+      {
+        "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the depth in the CA chain of the first error detected during the verification of the client certificate. If no error is encountered, 0 is returned.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_ca_err_depth",
+        "examples": [],
+        "name": "ssl_c_ca_err_depth",
+        "rulesets": [],
+        "signature": "ssl_c_ca_err_depth"
+      },
+      {
+        "description": "Returns the DER formatted chain certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form. One can parse the result with any lib accepting ASN.1 DER data. It currently does not support resumed sessions.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_chain_der",
+        "examples": [],
+        "name": "ssl_c_chain_der",
+        "rulesets": [],
+        "signature": "ssl_c_chain_der"
+      },
+      {
+        "description": "Returns the DER formatted certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_der",
+        "examples": [],
+        "name": "ssl_c_der",
+        "rulesets": [],
+        "signature": "ssl_c_der"
+      },
+      {
+        "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the ID of the first error detected during verification at depth 0, or 0 if no error was encountered during this verification process. Please refer to your SSL library's documentation to find the exhaustive list of error codes.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_err",
+        "examples": [],
+        "name": "ssl_c_err",
+        "rulesets": [],
+        "signature": "ssl_c_err"
+      },
+      {
+        "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the client when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_c_i_dn(OU,2)\" the second organization unit, and \"ssl_c_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_c_i_dn(,0,rfc2253)",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_i_dn",
+        "examples": [],
+        "name": "ssl_c_i_dn",
+        "rulesets": [],
+        "signature": "ssl_c_i_dn([<entry>[,<occ>[,<format>]]])"
+      },
+      {
+        "description": "Returns the name of the algorithm used to generate the key of the certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_key_alg",
+        "examples": [],
+        "name": "ssl_c_key_alg",
+        "rulesets": [],
+        "signature": "ssl_c_key_alg"
+      },
+      {
+        "description": "Returns the end date presented by the client as a formatted string YYMMDDhhmmss[Z] when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_notafter",
+        "examples": [],
+        "name": "ssl_c_notafter",
+        "rulesets": [],
+        "signature": "ssl_c_notafter"
+      },
+      {
+        "description": "Returns the start date presented by the client as a formatted string YYMMDDhhmmss[Z] when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_notbefore",
+        "examples": [],
+        "name": "ssl_c_notbefore",
+        "rulesets": [],
+        "signature": "ssl_c_notbefore"
+      },
+      {
+        "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the client when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_c_s_dn(OU,2)\" the second organization unit, and \"ssl_c_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_c_s_dn(,0,rfc2253)",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_s_dn",
+        "examples": [],
+        "name": "ssl_c_s_dn",
+        "rulesets": [],
+        "signature": "ssl_c_s_dn([<entry>[,<occ>[,<format>]]])"
+      },
+      {
+        "description": "Returns the serial of the certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_serial",
+        "examples": [],
+        "name": "ssl_c_serial",
+        "rulesets": [],
+        "signature": "ssl_c_serial"
+      },
+      {
+        "description": "Returns the SHA-1 fingerprint of the certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer. This can be used to stick a client to a server, or to pass this information to a server. Note that the output is binary, so if you want to pass that signature to the server, you need to encode it in hex or base64, such as in the example below:",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_sha1",
+        "examples": [
+          {
+            "code": "http-request set-header X-SSL-Client-SHA1 %[ssl_c_sha1,hex]",
+            "title": ""
+          }
+        ],
+        "name": "ssl_c_sha1",
+        "rulesets": [],
+        "signature": "ssl_c_sha1"
+      },
+      {
+        "description": "Returns the name of the algorithm used to sign the certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_sig_alg",
+        "examples": [],
+        "name": "ssl_c_sig_alg",
+        "rulesets": [],
+        "signature": "ssl_c_sig_alg"
+      },
+      {
+        "description": "Returns true if current SSL session uses a client certificate even if current connection uses SSL session resumption. See also \"ssl_fc_has_crt\".",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_used",
+        "examples": [],
+        "name": "ssl_c_used",
+        "rulesets": [],
+        "signature": "ssl_c_used"
+      },
+      {
+        "description": "Returns the verify result error ID when the incoming connection was made over an SSL/TLS transport layer, otherwise zero if no error is encountered. Please refer to your SSL library's documentation for an exhaustive list of error codes.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_verify",
+        "examples": [],
+        "name": "ssl_c_verify",
+        "rulesets": [],
+        "signature": "ssl_c_verify"
+      },
+      {
+        "description": "Returns the version of the certificate presented by the client when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_c_version",
+        "examples": [],
+        "name": "ssl_c_version",
+        "rulesets": [],
+        "signature": "ssl_c_version"
+      },
+      {
+        "description": "Returns the DER formatted certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_f_der",
+        "examples": [],
+        "name": "ssl_f_der",
+        "rulesets": [],
+        "signature": "ssl_f_der"
+      },
+      {
+        "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the frontend when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_f_i_dn(OU,2)\" the second organization unit, and \"ssl_f_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_f_i_dn(,0,rfc2253)",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_f_i_dn",
+        "examples": [],
+        "name": "ssl_f_i_dn",
+        "rulesets": [],
+        "signature": "ssl_f_i_dn([<entry>[,<occ>[,<format>]]])"
+      },
+      {
+        "description": "Returns the name of the algorithm used to generate the key of the certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_f_key_alg",
+        "examples": [],
+        "name": "ssl_f_key_alg",
+        "rulesets": [],
+        "signature": "ssl_f_key_alg"
+      },
+      {
+        "description": "Returns the end date presented by the frontend as a formatted string YYMMDDhhmmss[Z] when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_f_notafter",
+        "examples": [],
+        "name": "ssl_f_notafter",
+        "rulesets": [],
+        "signature": "ssl_f_notafter"
+      },
+      {
+        "description": "Returns the start date presented by the frontend as a formatted string YYMMDDhhmmss[Z] when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_f_notbefore",
+        "examples": [],
+        "name": "ssl_f_notbefore",
+        "rulesets": [],
+        "signature": "ssl_f_notbefore"
+      },
+      {
+        "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the frontend when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_f_s_dn(OU,2)\" the second organization unit, and \"ssl_f_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_f_s_dn(,0,rfc2253)",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_f_s_dn",
+        "examples": [],
+        "name": "ssl_f_s_dn",
+        "rulesets": [],
+        "signature": "ssl_f_s_dn([<entry>[,<occ>[,<format>]]])"
+      },
+      {
+        "description": "Returns the serial of the certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_f_serial",
+        "examples": [],
+        "name": "ssl_f_serial",
+        "rulesets": [],
+        "signature": "ssl_f_serial"
+      },
+      {
+        "description": "Returns the SHA-1 fingerprint of the certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer. This can be used to know which certificate was chosen using SNI.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_f_sha1",
+        "examples": [],
+        "name": "ssl_f_sha1",
+        "rulesets": [],
+        "signature": "ssl_f_sha1"
+      },
+      {
+        "description": "Returns the name of the algorithm used to sign the certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_f_sig_alg",
+        "examples": [],
+        "name": "ssl_f_sig_alg",
+        "rulesets": [],
+        "signature": "ssl_f_sig_alg"
+      },
+      {
+        "description": "Returns the version of the certificate presented by the frontend when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_f_version",
+        "examples": [],
+        "name": "ssl_f_version",
+        "rulesets": [],
+        "signature": "ssl_f_version"
+      },
+      {
+        "description": "Returns true when the front connection was made via an SSL/TLS transport layer and is locally deciphered. This means it has matched a socket declared with a \"bind\" line having the \"ssl\" option.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc",
+        "examples": [
+          {
+            "code": "# This passes \"X-Proto: https\" to servers when client connects over SSL\nlisten http-https\n    bind :80\n    bind :443 ssl crt /etc/haproxy.pem\n    http-request add-header X-Proto https if { ssl_fc }",
+            "title": ""
+          }
+        ],
+        "name": "ssl_fc",
+        "rulesets": [],
+        "signature": "ssl_fc"
+      },
+      {
+        "description": "Returns the symmetric cipher key size supported in bits when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_alg_keysize",
+        "examples": [],
+        "name": "ssl_fc_alg_keysize",
+        "rulesets": [],
+        "signature": "ssl_fc_alg_keysize"
+      },
+      {
+        "description": "This extracts the Application Layer Protocol Negotiation field from an incoming connection made via a TLS transport layer and locally deciphered by HAProxy. The result is a string containing the protocol name advertised by the client. The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv). Note that the TLS ALPN extension is not advertised unless the \"alpn\" keyword on the \"bind\" line specifies a protocol list. Also, nothing forces the client to pick a protocol from this list, any other one may be requested. The TLS ALPN extension is meant to replace the TLS NPN extension. See also \"ssl_fc_npn\".",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_alpn",
+        "examples": [],
+        "name": "ssl_fc_alpn",
+        "rulesets": [],
+        "signature": "ssl_fc_alpn"
+      },
+      {
+        "description": "Returns the name of the used cipher when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_cipher",
+        "examples": [],
+        "name": "ssl_fc_cipher",
+        "rulesets": [],
+        "signature": "ssl_fc_cipher"
+      },
+      {
+        "description": "Returns the binary form of the client hello cipher list. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting. Setting <filter_option> allows to filter returned data. Accepted values: 0 : return the full list of ciphers (default) 1 : exclude GREASE (RFC8701) values from the output",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_cipherlist_bin",
+        "examples": [
+          {
+            "code": "http-request set-header X-SSL-JA3 %[ssl_fc_protocol_hello_id],\\\n    %[ssl_fc_cipherlist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_extlist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_eclist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_ecformats_bin,be2dec(-,1)]\nacl is_malware req.fhdr(x-ssl-ja3),digest(md5),hex \\\n    -f /path/to/file/with/malware-ja3.lst\nhttp-request set-header X-Malware True if is_malware\nhttp-request set-header X-Malware False if !is_malware",
+            "title": ""
+          }
+        ],
+        "name": "ssl_fc_cipherlist_bin",
+        "rulesets": [],
+        "signature": "ssl_fc_cipherlist_bin([<filter_option>])"
+      },
+      {
+        "description": "Returns the binary form of the client hello cipher list encoded as hexadecimal. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting. Setting <filter_option> allows to filter returned data. Accepted values: 0 : return the full list of ciphers (default) 1 : exclude GREASE (RFC8701) values from the output",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_cipherlist_hex",
+        "examples": [],
+        "name": "ssl_fc_cipherlist_hex",
+        "rulesets": [],
+        "signature": "ssl_fc_cipherlist_hex([<filter_option>])"
+      },
+      {
+        "description": "Returns the decoded text form of the client hello cipher list. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting. Setting <filter_option> allows to filter returned data. Accepted values: 0 : return the full list of ciphers (default) 1 : exclude GREASE (RFC8701) values from the output Note that this sample-fetch is only available with OpenSSL >= 1.0.2. If the function is not enabled, this sample-fetch returns the hash like \"ssl_fc_cipherlist_xxh\".",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_cipherlist_str",
+        "examples": [],
+        "name": "ssl_fc_cipherlist_str",
+        "rulesets": [],
+        "signature": "ssl_fc_cipherlist_str([<filter_option>])"
+      },
+      {
+        "description": "Returns a xxh64 of the cipher list. This hash can return only if the value \"tune.ssl.capture-buffer-size\" is set greater than 0, however the hash take into account all the data of the cipher list.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_cipherlist_xxh",
+        "examples": [],
+        "name": "ssl_fc_cipherlist_xxh",
+        "rulesets": [],
+        "signature": "ssl_fc_cipherlist_xxh"
+      },
+      {
+        "description": "Return the CLIENT_EARLY_TRAFFIC_SECRET as an hexadecimal string for the front connection when the incoming connection was made over a TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_client_early_traffic_secret",
+        "examples": [],
+        "name": "ssl_fc_client_early_traffic_secret",
+        "rulesets": [],
+        "signature": "ssl_fc_client_early_traffic_secret"
+      },
+      {
+        "description": "Return the CLIENT_HANDSHAKE_TRAFFIC_SECRET as an hexadecimal string for the front connection when the incoming connection was made over a TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_client_handshake_traffic_secret",
+        "examples": [],
+        "name": "ssl_fc_client_handshake_traffic_secret",
+        "rulesets": [],
+        "signature": "ssl_fc_client_handshake_traffic_secret"
+      },
+      {
+        "description": "Returns the client random of the front connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_client_random",
+        "examples": [],
+        "name": "ssl_fc_client_random",
+        "rulesets": [],
+        "signature": "ssl_fc_client_random"
+      },
+      {
+        "description": "Return the CLIENT_TRAFFIC_SECRET_0 as an hexadecimal string for the front connection when the incoming connection was made over a TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_client_traffic_secret_0",
+        "examples": [],
+        "name": "ssl_fc_client_traffic_secret_0",
+        "rulesets": [],
+        "signature": "ssl_fc_client_traffic_secret_0"
+      },
+      {
+        "description": "Return the EARLY_EXPORTER_SECRET as an hexadecimal string for the front connection when the incoming connection was made over an TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_early_exporter_secret",
+        "examples": [],
+        "name": "ssl_fc_early_exporter_secret",
+        "rulesets": [],
+        "signature": "ssl_fc_early_exporter_secret"
+      },
+      {
+        "description": "Return the binary form of the client hello supported elliptic curve point formats. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_ecformats_bin",
+        "examples": [
+          {
+            "code": "http-request set-header X-SSL-JA3 %[ssl_fc_protocol_hello_id],\\\n    %[ssl_fc_cipherlist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_extlist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_eclist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_ecformats_bin,be2dec(-,1)]\nacl is_malware req.fhdr(x-ssl-ja3),digest(md5),hex \\\n    -f /path/to/file/with/malware-ja3.lst\nhttp-request set-header X-Malware True if is_malware\nhttp-request set-header X-Malware False if !is_malware",
+            "title": ""
+          }
+        ],
+        "name": "ssl_fc_ecformats_bin",
+        "rulesets": [],
+        "signature": "ssl_fc_ecformats_bin"
+      },
+      {
+        "description": "Returns the binary form of the client hello supported elliptic curves. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting. Setting <filter_option> allows to filter returned data. Accepted values: 0 : return the full list of supported elliptic curves (default) 1 : exclude GREASE (RFC8701) values from the output",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_eclist_bin",
+        "examples": [
+          {
+            "code": "http-request set-header X-SSL-JA3 %[ssl_fc_protocol_hello_id],\\\n    %[ssl_fc_cipherlist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_extlist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_eclist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_ecformats_bin,be2dec(-,1)]\nacl is_malware req.fhdr(x-ssl-ja3),digest(md5),hex \\\n    -f /path/to/file/with/malware-ja3.lst\nhttp-request set-header X-Malware True if is_malware\nhttp-request set-header X-Malware False if !is_malware",
+            "title": ""
+          }
+        ],
+        "name": "ssl_fc_eclist_bin",
+        "rulesets": [],
+        "signature": "ssl_fc_eclist_bin([<filter_option>])"
+      },
+      {
+        "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the ID of the last error of the first error stack raised on the frontend side, or 0 if no error was encountered. It can be used to identify handshake related errors other than verify ones (such as cipher mismatch), as well as other read or write errors occurring during the connection's lifetime.  Any error happening during the client's certificate verification process will not be raised through this fetch but via the existing \"ssl_c_err\", \"ssl_c_ca_err\" and \"ssl_c_ca_err_depth\" fetches. In order to get a text description of this error code, you can either use the \"ssl_fc_err_str\" sample fetch or use the \"openssl errstr\" command (which takes an error code in hexadecimal representation as parameter). Please refer to your SSL library's documentation to find the exhaustive list of error codes.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_err",
+        "examples": [],
+        "name": "ssl_fc_err",
+        "rulesets": [],
+        "signature": "ssl_fc_err"
+      },
+      {
+        "description": "When the incoming connection was made over an SSL/TLS transport layer, returns a string representation of the last error of the first error stack that was raised on the frontend side. Any error happening during the client's certificate verification process will not be raised through this fetch. See also \"ssl_fc_err\".",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_err_str",
+        "examples": [],
+        "name": "ssl_fc_err_str",
+        "rulesets": [],
+        "signature": "ssl_fc_err_str"
+      },
+      {
+        "description": "Return the EXPORTER_SECRET as an hexadecimal string for the front connection when the incoming connection was made over a TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_exporter_secret",
+        "examples": [],
+        "name": "ssl_fc_exporter_secret",
+        "rulesets": [],
+        "signature": "ssl_fc_exporter_secret"
+      },
+      {
+        "description": "Returns the binary form of the client hello extension list. The maximum returned value length is limited by the shared capture buffer size controlled by \"tune.ssl.capture-buffer-size\" setting. Setting <filter_option> allows to filter returned data. Accepted values: 0 : return the full list of extensions (default) 1 : exclude GREASE (RFC8701) values from the output",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_extlist_bin",
+        "examples": [
+          {
+            "code": "http-request set-header X-SSL-JA3 %[ssl_fc_protocol_hello_id],\\\n    %[ssl_fc_cipherlist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_extlist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_eclist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_ecformats_bin,be2dec(-,1)]\nacl is_malware req.fhdr(x-ssl-ja3),digest(md5),hex \\\n    -f /path/to/file/with/malware-ja3.lst\nhttp-request set-header X-Malware True if is_malware\nhttp-request set-header X-Malware False if !is_malware",
+            "title": ""
+          }
+        ],
+        "name": "ssl_fc_extlist_bin",
+        "rulesets": [],
+        "signature": "ssl_fc_extlist_bin([<filter_option>])"
+      },
+      {
+        "description": "Returns true if a client certificate is present in an incoming connection over SSL/TLS transport layer. Useful if 'verify' statement is set to 'optional'.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_has_crt",
+        "examples": [],
+        "name": "ssl_fc_has_crt",
+        "rulesets": [],
+        "signature": "ssl_fc_has_crt"
+      },
+      {
+        "description": "Returns true if early data were sent, and the handshake didn't happen yet. As it has security implications, it is useful to be able to refuse those, or wait until the handshake happened.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_has_early",
+        "examples": [],
+        "name": "ssl_fc_has_early",
+        "rulesets": [],
+        "signature": "ssl_fc_has_early"
+      },
+      {
+        "description": "This checks for the presence of a Server Name Indication TLS extension (SNI) in an incoming connection was made over an SSL/TLS transport layer. Returns true when the incoming connection presents a TLS SNI field. This requires that the SSL library is built with support for TLS extensions enabled (check haproxy -vv).",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_has_sni",
+        "examples": [],
+        "name": "ssl_fc_has_sni",
+        "rulesets": [],
+        "signature": "ssl_fc_has_sni"
+      },
+      {
+        "description": "Returns true if the SSL/TLS session has been resumed through the use of SSL session cache or TLS tickets on an incoming connection over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_is_resumed",
+        "examples": [],
+        "name": "ssl_fc_is_resumed",
+        "rulesets": [],
+        "signature": "ssl_fc_is_resumed"
+      },
+      {
+        "description": "This extracts the Next Protocol Negotiation field from an incoming connection made via a TLS transport layer and locally deciphered by HAProxy. The result is a string containing the protocol name advertised by the client. The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv). Note that the TLS NPN extension is not advertised unless the \"npn\" keyword on the \"bind\" line specifies a protocol list. Also, nothing forces the client to pick a protocol from this list, any other one may be requested. Please note that the TLS NPN extension was replaced with ALPN.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_npn",
+        "examples": [],
+        "name": "ssl_fc_npn",
+        "rulesets": [],
+        "signature": "ssl_fc_npn"
+      },
+      {
+        "description": "Returns the name of the used protocol when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_protocol",
+        "examples": [],
+        "name": "ssl_fc_protocol",
+        "rulesets": [],
+        "signature": "ssl_fc_protocol"
+      },
+      {
+        "description": "The version of the TLS protocol by which the client wishes to communicate during the session as indicated in client hello message. This value can return only if the value \"tune.ssl.capture-buffer-size\" is set greater than 0.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_protocol_hello_id",
+        "examples": [
+          {
+            "code": "http-request set-header X-SSL-JA3 %[ssl_fc_protocol_hello_id],\\\n    %[ssl_fc_cipherlist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_extlist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_eclist_bin(1),be2dec(-,2)],\\\n    %[ssl_fc_ecformats_bin,be2dec(-,1)]\nacl is_malware req.fhdr(x-ssl-ja3),digest(md5),hex \\\n    -f /path/to/file/with/malware-ja3.lst\nhttp-request set-header X-Malware True if is_malware\nhttp-request set-header X-Malware False if !is_malware",
+            "title": ""
+          }
+        ],
+        "name": "ssl_fc_protocol_hello_id",
+        "rulesets": [],
+        "signature": "ssl_fc_protocol_hello_id"
+      },
+      {
+        "description": "Return the SERVER_HANDSHAKE_TRAFFIC_SECRET as an hexadecimal string for the front connection when the incoming connection was made over a TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_server_handshake_traffic_secret",
+        "examples": [],
+        "name": "ssl_fc_server_handshake_traffic_secret",
+        "rulesets": [],
+        "signature": "ssl_fc_server_handshake_traffic_secret"
+      },
+      {
+        "description": "Returns the server random of the front connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_server_random",
+        "examples": [],
+        "name": "ssl_fc_server_random",
+        "rulesets": [],
+        "signature": "ssl_fc_server_random"
+      },
+      {
+        "description": "Return the SERVER_TRAFFIC_SECRET_0 as an hexadecimal string for the front connection when the incoming connection was made over an TLS 1.3 transport layer. Require OpenSSL >= 1.1.1. This is one of the keys dumped by the OpenSSL keylog callback to generate the SSLKEYLOGFILE. The SSL Key logging must be activated with \"tune.ssl.keylog on\" in the global section. See also \"tune.ssl.keylog\"",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_server_traffic_secret_0",
+        "examples": [],
+        "name": "ssl_fc_server_traffic_secret_0",
+        "rulesets": [],
+        "signature": "ssl_fc_server_traffic_secret_0"
+      },
+      {
+        "description": "Returns the SSL ID of the front connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to stick a given client to a server. It is important to note that some browsers refresh their session ID every few minutes.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_session_id",
+        "examples": [],
+        "name": "ssl_fc_session_id",
+        "rulesets": [],
+        "signature": "ssl_fc_session_id"
+      },
+      {
+        "description": "Returns the SSL session master key of the front connection when the incoming connection was made over an SSL/TLS transport layer. It is useful to decrypt traffic sent using ephemeral ciphers. This requires OpenSSL >= 1.1.0, or BoringSSL.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_session_key",
+        "examples": [],
+        "name": "ssl_fc_session_key",
+        "rulesets": [],
+        "signature": "ssl_fc_session_key"
+      },
+      {
+        "description": "This extracts the Server Name Indication TLS extension (SNI) field from an incoming connection made via an SSL/TLS transport layer and locally deciphered by HAProxy. The result (when present) typically is a string matching the HTTPS host name (253 chars or less). The SSL library must have been built with support for TLS extensions enabled (check haproxy -vv).\n\nThis fetch is different from \"req.ssl_sni\" above in that it applies to the connection being deciphered by HAProxy and not to SSL contents being blindly forwarded. See also \"ssl_fc_sni_end\" and \"ssl_fc_sni_reg\" below. This requires that the SSL library is built with support for TLS extensions enabled (check haproxy -vv).\n\nCAUTION! Except under very specific conditions, it is normally not correct to use this field as a substitute for the HTTP \"Host\" header field. For example, when forwarding an HTTPS connection to a server, the SNI field must be set from the HTTP Host header field using \"req.hdr(host)\" and not from the front SNI value. The reason is that SNI is solely used to select the certificate the server side will present, and that clients are then allowed to send requests with different Host values as long as they match the names in the certificate. As such, \"ssl_fc_sni\" should normally not be used as an argument to the \"sni\" server keyword, unless the backend works in TCP mode.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_sni",
+        "examples": [],
+        "name": "ssl_fc_sni",
+        "rulesets": [],
+        "signature": "ssl_fc_sni"
+      },
+      {
+        "description": "When the incoming connection was made over an SSL/TLS transport layer, returns the TLS unique ID as defined in RFC5929 section 3. The unique id can be encoded to base64 using the converter: \"ssl_fc_unique_id,base64\".",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_unique_id",
+        "examples": [],
+        "name": "ssl_fc_unique_id",
+        "rulesets": [],
+        "signature": "ssl_fc_unique_id"
+      },
+      {
+        "description": "Returns the symmetric cipher key size used in bits when the incoming connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_fc_use_keysize",
+        "examples": [],
+        "name": "ssl_fc_use_keysize",
+        "rulesets": [],
+        "signature": "ssl_fc_use_keysize"
+      },
+      {
+        "description": "Returns the DER formatted chain certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form. One can parse the result with any lib accepting ASN.1 DER data. It currently does not support resumed sessions.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_s_chain_der",
+        "examples": [],
+        "name": "ssl_s_chain_der",
+        "rulesets": [],
+        "signature": "ssl_s_chain_der"
+      },
+      {
+        "description": "Returns the DER formatted certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_s_der",
+        "examples": [],
+        "name": "ssl_s_der",
+        "rulesets": [],
+        "signature": "ssl_s_der"
+      },
+      {
+        "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the full distinguished name of the issuer of the certificate presented by the server when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_s_i_dn(OU,2)\" the second organization unit, and \"ssl_s_i_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_s_i_dn(,0,rfc2253)",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_s_i_dn",
+        "examples": [],
+        "name": "ssl_s_i_dn",
+        "rulesets": [],
+        "signature": "ssl_s_i_dn([<entry>[,<occ>[,<format>]]])"
+      },
+      {
+        "description": "Returns the name of the algorithm used to generate the key of the certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_s_key_alg",
+        "examples": [],
+        "name": "ssl_s_key_alg",
+        "rulesets": [],
+        "signature": "ssl_s_key_alg"
+      },
+      {
+        "description": "Returns the end date presented by the server as a formatted string YYMMDDhhmmss[Z] when the outgoing connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_s_notafter",
+        "examples": [],
+        "name": "ssl_s_notafter",
+        "rulesets": [],
+        "signature": "ssl_s_notafter"
+      },
+      {
+        "description": "Returns the start date presented by the server as a formatted string YYMMDDhhmmss[Z] when the outgoing connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_s_notbefore",
+        "examples": [],
+        "name": "ssl_s_notbefore",
+        "rulesets": [],
+        "signature": "ssl_s_notbefore"
+      },
+      {
+        "description": "When the outgoing connection was made over an SSL/TLS transport layer, returns the full distinguished name of the subject of the certificate presented by the server when no <entry> is specified, or the value of the first given entry found from the beginning of the DN. If a positive/negative occurrence number is specified as the optional second argument, it returns the value of the nth given entry value from the beginning/end of the DN. For instance, \"ssl_s_s_dn(OU,2)\" the second organization unit, and \"ssl_s_s_dn(CN)\" retrieves the common name. The <format> parameter allows you to receive the DN suitable for consumption by different protocols. Currently supported is rfc2253 for LDAP v3. If you'd like to modify the format only you can specify an empty string and zero for the first two parameters. Example: ssl_s_s_dn(,0,rfc2253)",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_s_s_dn",
+        "examples": [],
+        "name": "ssl_s_s_dn",
+        "rulesets": [],
+        "signature": "ssl_s_s_dn([<entry>[,<occ>[,<format>]]])"
+      },
+      {
+        "description": "Returns the serial of the certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer. When used for an ACL, the value(s) to match against can be passed in hexadecimal form.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_s_serial",
+        "examples": [],
+        "name": "ssl_s_serial",
+        "rulesets": [],
+        "signature": "ssl_s_serial"
+      },
+      {
+        "description": "Returns the SHA-1 fingerprint of the certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer. This can be used to know which certificate was chosen using SNI.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_s_sha1",
+        "examples": [],
+        "name": "ssl_s_sha1",
+        "rulesets": [],
+        "signature": "ssl_s_sha1"
+      },
+      {
+        "description": "Returns the name of the algorithm used to sign the certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_s_sig_alg",
+        "examples": [],
+        "name": "ssl_s_sig_alg",
+        "rulesets": [],
+        "signature": "ssl_s_sig_alg"
+      },
+      {
+        "description": "Returns the version of the certificate presented by the server when the outgoing connection was made over an SSL/TLS transport layer.",
+        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#ssl_s_version",
+        "examples": [],
+        "name": "ssl_s_version",
+        "rulesets": [],
+        "signature": "ssl_s_version"
+      },
+      {
         "description": "Returns an integer containing the HTTP status code in the HTTP response, for example, 302. It is mostly used within ACLs and integer ranges, for example, to remove any Location header if the response is not a 3xx.\n\nIt may be used in tcp-check based expect rules.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#status",
         "examples": [],
@@ -7882,7 +8596,7 @@
         "signature": "url32+src"
       },
       {
-        "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
+        "description": "This extracts the IP address from the request's URL when the host part is presented as an IP address. The fetch fails when the host part is a name, as no resolution is performed. Its use is very limited. For instance, a monitoring system might use this field as an alternative for the source IP in order to test what path a given source address would follow, or to force an entry in a table for a given source address. It may be used in combination with 'http-request set-dst' to emulate the older 'option http_proxy'.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#url_ip",
         "examples": [],
         "name": "url_ip",
@@ -7903,7 +8617,7 @@
         "signature": "url_param([<name>[,<delim>]])"
       },
       {
-        "description": "This extracts the port part from the request's URL. Note that if the port is not specified in the request, port 80 is assumed..",
+        "description": "This extracts the port part from the request's URL. Note that if the port is not specified in the request, port 80 is assumed. As for \"url_ip\", this only works when the authority of the URL is presented as an address, the fetch fails when it is a host name since no resolution is performed here.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#url_port",
         "examples": [],
         "name": "url_port",
@@ -8064,28 +8778,12 @@
         "signature": "check-alpn <protocols>"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-check-pool-conn-name",
-        "examples": [],
-        "name": "check-pool-conn-name",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Forces the multiplexer's protocol to use for the server's health-check connections. It must be compatible with the health-check type (TCP or HTTP). It must also be usable on the backend side. The list of available protocols is reported in haproxy -vv. The protocols properties are reported : the mode (TCP/HTTP), the side (FE/BE), the mux name and its flags.\n\nSome protocols are subject to the head-of-line blocking on server side (flag=HOL_RISK). Finally some protocols don't support upgrades (flag=NO_UPG). The HTX compatibility is also reported (flag=HTX).\n\nHere are the protocols that may be used as argument to a \"check-proto\" directive on a server line:\n\nh2   : mode=HTTP  side=FE|BE  mux=H2    flags=HTX|HOL_RISK|NO_UPG\n    fcgi : mode=HTTP  side=BE     mux=FCGI  flags=HTX|HOL_RISK|NO_UPG\n    h1   : mode=HTTP  side=FE|BE  mux=H1    flags=HTX|NO_UPG\n    none : mode=TCP   side=FE|BE  mux=PASS  flags=NO_UPG\n\nIdea behind this option is to bypass the selection of the best multiplexer's protocol for health-check connections established to this server. If not defined, the server one will be used, if set.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-check-proto",
         "examples": [],
         "name": "check-proto",
         "rulesets": [],
         "signature": "check-proto <name>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-check-reuse-pool",
-        "examples": [],
-        "name": "check-reuse-pool",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "This option forces emission of a PROXY protocol line with outgoing health checks, regardless of whether the server uses send-proxy or not for the normal traffic. By default, the PROXY protocol is enabled for health checks if it is already enabled for normal traffic and if no \"port\" nor \"addr\" directive is present. However, if such a directive is present, the \"check-send-proxy\" option needs to be used to force the use of the protocol. See also the \"send-proxy\" option for more information.",
@@ -8136,14 +8834,6 @@
         "signature": "ciphersuites <ciphersuites>"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-client-sigalgs",
-        "examples": [],
-        "name": "client-sigalgs",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "The \"cookie\" parameter sets the cookie value assigned to the server to <value>. This value will be checked in incoming requests, and the first operational server possessing the same value will be selected. In return, in cookie insertion or rewrite modes, this value will be assigned to the cookie sent to the client. There is nothing wrong in having several servers sharing the same cookie value, and it is in fact somewhat common between normal and backup servers. See also the \"cookie\" keyword in backend section.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-cookie",
         "examples": [],
@@ -8166,14 +8856,6 @@
         "name": "crt",
         "rulesets": [],
         "signature": "crt <cert>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-curves",
-        "examples": [],
-        "name": "curves",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "The \"disabled\" keyword starts the server in the \"disabled\" state. That means that it is marked down in maintenance mode, and no connection other than the ones allowed by persist mode will reach it. It is very well suited to setup new servers, because normal traffic will never reach them, while it is still possible to test the service by making use of the force-persist mechanism.",
@@ -8264,36 +8946,12 @@
         "signature": "force-tlsv13"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-guid",
-        "examples": [],
-        "name": "guid",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-hash-key",
-        "examples": [],
-        "name": "hash-key",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Set a persistent ID for the server. This ID must be positive and unique for the proxy. An unused ID will automatically be assigned if unset. The first assigned value will be 1. This ID is currently only returned in statistics.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-id",
         "examples": [],
         "name": "id",
         "rulesets": [],
         "signature": "id <value>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-idle-ping",
-        "examples": [],
-        "name": "idle-ping",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "Indicate in what order the server's address should be resolved upon startup if it uses an FQDN. Attempts are made to resolve the address by applying in turn each of the methods mentioned in the comma-delimited list. The first method which succeeds is used. If the end of the list is reached without finding a working method, an error is thrown. Method \"last\" suggests to pick the address which appears in the state file (see \"server-state-file\"). Method \"libc\" uses the libc's internal resolver (gethostbyname() or getaddrinfo() depending on the operating system and build options). Method \"none\" specifically indicates that the server should start without any valid IP address in a down state. It can be useful to ignore some DNS issues upon startup, waiting for the situation to get fixed later. Finally, an IP address (IPv4 or IPv6) may be provided. It can be the currently known address of the server (e.g. filled by a configuration generator), or the address of a dummy server used to catch old sessions and present them with a decent error message for example. When the \"first\" load balancing algorithm is used, this IP address could point to a fake server used to trigger the creation of new instances on the fly. This option defaults to \"last,libc\" indicating that the previous address found in the state file (if any) is used first, otherwise the libc's resolver is used. This ensures continued compatibility with the historic behavior. When using internal resolvers, it is generally recommended to either disable libc-based resolution, or make it explicit (see section 5.3 for more details).\n\nExample 1: defaults # never fail on address resolution default-server init-addr last,libc,none\n\nExample 2: defaults # disable libc resolution in combination with resolvers default-server init-addr last,none",
@@ -8304,28 +8962,12 @@
         "signature": "init-addr {last | libc | none | <ip>},[...]*"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-init-state",
-        "examples": [],
-        "name": "init-state",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "The \"inter\" parameter sets the interval between two consecutive health checks to <delay> milliseconds. If left unspecified, the delay defaults to 2000 ms. It is also possible to use \"fastinter\" and \"downinter\" to optimize delays between checks depending on the server state :\n\nServer state                   |         Interval used\n    ----------------------------------------+----------------------------------\n     UP 100% (non-transitional)             | \"inter\"\n    ----------------------------------------+----------------------------------\n     Transitionally UP (going down \"fall\"), | \"fastinter\" if set,\n     Transitionally DOWN (going up \"rise\"), | \"inter\" otherwise.\n     or yet unchecked.                      |\n    ----------------------------------------+----------------------------------\n     DOWN 100% (non-transitional)           | \"downinter\" if set,\n                                            | \"inter\" otherwise.\n    ----------------------------------------+----------------------------------\n\nJust as with every other time-based parameter, they can be entered in any other explicit unit among { us, ms, s, m, h, d }. The \"inter\" parameter also serves as a timeout for health checks sent to servers if \"timeout check\" is not set. In order to reduce \"resonance\" effects when multiple servers are hosted on the same hardware, the agent and health checks of all servers are started with a small time offset between them. It is also possible to add some random noise in the agent and health checks interval using the global \"spread-checks\" keyword. This makes sense for instance when a lot of backends use the same servers.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-inter",
         "examples": [],
         "name": "inter",
         "rulesets": [],
         "signature": "inter <delay>"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-log-bufsize",
-        "examples": [],
-        "name": "log-bufsize",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "The \"log-proto\" specifies the protocol used to forward event messages to a server configured in a ring section. Possible values are \"legacy\" and \"octet-count\" corresponding respectively to \"Non-transparent-framing\" and \"Octet counting\" in rfc6587. \"legacy\" is the default.",
@@ -8398,14 +9040,6 @@
         "name": "no-check",
         "rulesets": [],
         "signature": "no-check"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-no-check-reuse-pool",
-        "examples": [],
-        "name": "no-check-reuse-pool",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "",
@@ -8576,14 +9210,6 @@
         "signature": "on-marked-up <action>"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-pool-conn-name",
-        "examples": [],
-        "name": "pool-conn-name",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "Set a low threshold on the number of idling connections for a server, below which a thread will not try to steal a connection from another thread. This can be useful to improve CPU usage patterns in scenarios involving many very fast servers, in order to ensure all threads will keep a few idle connections all the time instead of letting them accumulate over one thread and migrating them from thread to thread. Typical values of twice the number of threads seem to show very good performance already with sub-millisecond response times. The default is zero, indicating that any idle connection can be used at any time. It is the recommended setting for normal use. This only applies to connections that can be shared according to the same principles as those applying to \"http-reuse\". In case connection sharing between threads would be disabled via \"tune.idle-pool.shared\", it can become very important to use this setting to make sure each thread always has a few connections, or the connection reuse rate will decrease as thread count increases.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-pool-low-conn",
         "examples": [],
@@ -8732,30 +9358,6 @@
         "signature": "send-proxy-v2-ssl-cn"
       },
       {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-set-proxy-v2-tlv-fmt",
-        "examples": [],
-        "name": "set-proxy-v2-tlv-fmt",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-shard",
-        "examples": [],
-        "name": "shard",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-sigalgs",
-        "examples": [],
-        "name": "sigalgs",
-        "rulesets": [],
-        "signature": ""
-      },
-      {
         "description": "The \"slowstart\" parameter for a server accepts a value in milliseconds which indicates after how long a server which has just come back up will run at full speed. Just as with every other time-based parameter, it can be entered in any other explicit unit among { us, ms, s, m, h, d }. The speed grows linearly from 0 to 100% during this time. The limitation applies to two parameters :\n\n- maxconn: the number of connections accepted by the server will grow from 1 to 100% of the usual dynamic limit defined by (minconn,maxconn,fullconn).\n\n- weight: when the backend uses a dynamic weighted algorithm, the weight grows linearly from 1 to 100%. In this case, the weight is updated at every health-check. For this reason, it is important that the \"inter\" parameter is smaller than the \"slowstart\", in order to maximize the number of steps.\n\nThe slowstart never applies when HAProxy starts, otherwise it would cause trouble to running servers. It only applies when a server has been previously seen as failed.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-slowstart",
         "examples": [],
@@ -8826,14 +9428,6 @@
         "name": "stick",
         "rulesets": [],
         "signature": "stick"
-      },
-      {
-        "description": "",
-        "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#5.2-strict-maxconn",
-        "examples": [],
-        "name": "strict-maxconn",
-        "rulesets": [],
-        "signature": ""
       },
       {
         "description": "Sets the TCP User Timeout for all outgoing connections to this server. This option is available on Linux since version 2.6.37. It allows HAProxy to configure a timeout for sockets which contain data not receiving an acknowledgment for the configured delay. This is especially useful on long-lived connections experiencing long idle periods such as remote terminals or database connection pools, where the client and server timeouts must remain high to allow a long period of idle, but where it is important to detect that the server has disappeared in order to release all resources associated with its connection (and the client's session). One typical use case is also to force dead server connections to die when health checks are too slow or during a soft reload since health checks are then disabled. The argument is a delay expressed in milliseconds by default. This only works for regular TCP connections, and is ignored for other protocols.",
@@ -8924,7 +9518,7 @@
         "signature": "tcp-request connection accept [ { if | unless } <condition> ]"
       },
       {
-        "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Please check section 7.3 (Fetching samples) and \"capture request header\" for more information.\n\nIf the keyword \"id\" is used instead of \"len\", the action tries to store the captured string in a previously declared capture slot. This is useful to run captures in backends. The slot id can be declared by a previous directive \"http-request capture\" or with the \"declare capture\" keyword.\n\nWhen using this action in a backend, double check that the relevant frontend(s) have the required capture slots otherwise, this rule will be ignored at run time. This can't be detected at configuration parsing time due to HAProxy's ability to dynamically resolve backend name at runtime.",
+        "description": "This captures sample expression <sample> from the request buffer, and converts it to a string of at most <len> characters. The resulting string is stored into the next request \"capture\" slot, so it will possibly appear next to some captured HTTP headers. It will then automatically appear in the logs, and it will be possible to extract it using sample fetch rules to feed it into headers or anything. The length should be limited given that this size will be allocated for each capture during the whole session life. Such a slot only exists in the section which declares it, so when this rule is placed in a \"listen\" section which is also used as the backend of another frontend, it is ignored for the streams coming from that frontend.  Please check section 7.3 (Fetching samples), \"capture request header\" and \"capture response header\" for more information.\n\nIf the keyword \"id\" is used instead of \"len\", the action tries to store the captured string in a previously declared capture slot. This is useful to run captures in backends. The slot id can be declared by a previous directive \"http-request capture\" or with the \"declare capture\" keyword.\n\nWhen using this action in a backend, double check that the relevant frontend(s) have the required capture slots otherwise, this rule will be ignored at run time. This can't be detected at configuration parsing time due to HAProxy's ability to dynamically resolve backend name at runtime.",
         "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-http-request%20capture",
         "examples": [],
         "name": "capture",
@@ -18051,7 +18645,7 @@
     },
     "no option checkcache": {
       "arguments": [],
-      "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie)\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
+      "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie) - those which carry neither freshness information (\"Cache-control\" with a \"max-age\" or an \"s-maxage\", or an \"Expires\" header) nor a validator (an \"ETag\" or a \"Last-Modified\" header), since such a response is not stored by a compliant cache.\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
       "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-no%20option%20checkcache",
       "examples": [],
       "name": "no option checkcache",
@@ -18068,7 +18662,7 @@
           "arguments": [],
           "chapter": "4.2",
           "contexts": [],
-          "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie)\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
+          "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie) - those which carry neither freshness information (\"Cache-control\" with a \"max-age\" or an \"s-maxage\", or an \"Expires\" header) nor a validator (an \"ETag\" or a \"Last-Modified\" header), since such a response is not stored by a compliant cache.\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
           "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-no%20option%20checkcache",
           "examples": [],
           "sections": [
@@ -19717,7 +20311,7 @@
     },
     "option checkcache": {
       "arguments": [],
-      "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie)\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
+      "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie) - those which carry neither freshness information (\"Cache-control\" with a \"max-age\" or an \"s-maxage\", or an \"Expires\" header) nor a validator (an \"ETag\" or a \"Last-Modified\" header), since such a response is not stored by a compliant cache.\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
       "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-option%20checkcache",
       "examples": [],
       "name": "option checkcache",
@@ -19734,7 +20328,7 @@
           "arguments": [],
           "chapter": "4.2",
           "contexts": [],
-          "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie)\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
+          "description": "Analyze all server responses and block responses with cacheable cookies\n\nSome high-level frameworks set application cookies everywhere and do not always let enough control to the developer to manage how the responses should be cached. When a session cookie is returned on a cacheable object, there is a high risk of session crossing or stealing between users traversing the same caches. In some situations, it is better to block the response than to let some sensitive session information go in the wild.\n\nThe option \"checkcache\" enables deep inspection of all server responses for strict compliance with HTTP specification in terms of cacheability. It carefully checks \"Cache-control\", \"Pragma\" and \"Set-cookie\" headers in server response to check if there's a risk of caching a cookie on a client-side proxy. When this option is enabled, the only responses which can be delivered to the client are : - all those without \"Set-Cookie\" header; - all those with a return code other than 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501, provided that the server has not set a \"Cache-control: public\" header field; - all those that result from a request using a method other than GET, HEAD, OPTIONS, TRACE, provided that the server has not set a 'Cache-Control: public' header field; - those with a 'Pragma: no-cache' header - those with a 'Cache-control: private' header - those with a 'Cache-control: no-store' header - those with a 'Cache-control: max-age=0' header - those with a 'Cache-control: s-maxage=0' header - those with a 'Cache-control: no-cache' header - those with a 'Cache-control: no-cache=\"set-cookie\"' header - those with a 'Cache-control: no-cache=\"set-cookie,' header (allowing other fields after set-cookie) - those which carry neither freshness information (\"Cache-control\" with a \"max-age\" or an \"s-maxage\", or an \"Expires\" header) nor a validator (an \"ETag\" or a \"Last-Modified\" header), since such a response is not stored by a compliant cache.\n\nIf a response doesn't respect these requirements, then it will be blocked just as if it was from an \"http-response deny\" rule, with an \"HTTP 502 bad gateway\". The session state shows \"PH--\" meaning that the proxy blocked the response during headers processing. Additionally, an alert will be sent in the logs so that admins are informed that there's something to be fixed.\n\nDue to the high impact on the application, the application should be tested in depth with the option enabled before going to production. It is also a good practice to always activate it during tests, even if it is not used in production, as it will report potentially dangerous application behaviors.\n\nIf this option has been enabled in a \"defaults\" section, it can be disabled in a specific instance by prepending the \"no\" keyword before it.",
           "docsUrl": "https://docs.haproxy.org/2.6/configuration.html#4.2-option%20checkcache",
           "examples": [],
           "sections": [

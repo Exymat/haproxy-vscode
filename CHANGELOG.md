@@ -2,6 +2,11 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.22.1
+
+- Refresh all community and HAPEE schemas, language data, and grammars against the latest supported documentation, using OSS 2.6.35, 2.8.31, 3.0.30, 3.2.26, and 3.4.7 keyword inventories.
+- Community 3.4 recognizes the new `jwt.allow_none_alg` directive and no longer offers the reverted `filter-sequence` directive or its phase arguments.
+
 ## 0.22.0
 
 - **HAPEE hover text** — Enterprise hovers for 2.6r1–3.4r1 keep each keyword’s or sample’s own description. They no longer include the HTML manual’s section menu (`This keyword is available in sections`, `Usable in :`) or the following item’s text. Hovering `http-request del-header` stays on `del-header`, and hovering `tcp-request connection accept` stays on `accept`.
