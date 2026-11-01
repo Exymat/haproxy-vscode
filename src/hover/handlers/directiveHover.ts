@@ -147,6 +147,9 @@ function buildDirectiveHover(
   addContextExtra(extras, getKeywordFromSchema(schema, kw.name, ctx.line.section)?.contexts);
 
   if (onDirectiveToken) {
+    const first = ctx.line.tokens[directive.start];
+    const last = ctx.line.tokens[directive.end];
+    const directiveRange = new vscode.Range(ctx.line.line, first.start, ctx.line.line, last.end);
     const schemaKw = getKeywordFromSchema(schema, kw.name, ctx.line.section);
     const documentedValues = documentedEnumValueNames(kw, schemaKw);
     if (documentedValues.length > 0) {
@@ -157,7 +160,7 @@ function buildDirectiveHover(
       extras.unshift("**Forms:**");
       return new vscode.Hover(
         hoverMarkdown(kw.name, "", kw.description, extras, kw.docsUrl, kw.examples),
-        range,
+        directiveRange,
       );
     }
     return new vscode.Hover(
@@ -169,7 +172,7 @@ function buildDirectiveHover(
         kw.docsUrl,
         kw.examples,
       ),
-      range,
+      directiveRange,
     );
   }
 

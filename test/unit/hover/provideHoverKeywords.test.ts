@@ -7,6 +7,29 @@ import { bundles, hoverMarkdown, hoverText } from "./helpers";
 import { loadHapeeBundle } from "../../helpers/schema";
 
 describe("provideHover keyword docs", () => {
+  it.each(["    stats timeout 2m", "\tstats\t timeout 2m", "    timeout client 30s"])(
+    "highlights the complete keyword in %s from either word",
+    (line) => {
+      const section = line.includes("stats") ? "global" : "defaults";
+      const { languageData, schema } = bundles["3.4"];
+      const document = createDocument(`${section}\n${line}`);
+      const words = [...line.matchAll(/\S+/g)];
+      for (const word of words.slice(0, 2)) {
+        const hover = provideHover(
+          document,
+          { line: 1, character: word.index + 1 } as never,
+          languageData,
+          schema,
+        );
+        expect(hover?.range?.start).toEqual({ line: 1, character: words[0].index });
+        expect(hover?.range?.end).toEqual({
+          line: 1,
+          character: words[1].index + words[1][0].length,
+        });
+      }
+    },
+  );
+
   afterEach(() => {
     vi.restoreAllMocks();
   });
