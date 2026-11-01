@@ -267,8 +267,8 @@ export async function analyzeDocument(content: string) {
   return { lineResults, colorRules };
 }
 
-export async function tokenizeDocument(content: string) {
-  const grammar = await createHaproxyGrammar();
+export async function tokenizeDocument(content: string, version = "3.2") {
+  const grammar = await createHaproxyGrammar(version);
   const colorRules = loadColorRules();
   const lines = content.split(/\r?\n/);
   let ruleStack: StateStack | null = null;

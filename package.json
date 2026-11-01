@@ -2,7 +2,7 @@
   "name": "haproxy-config",
   "displayName": "HAProxy Language Support",
   "description": "HAProxy config support: syntax highlighting, completion, hovers, diagnostics, formatting, rename, cross-file navigation, and workspace symbol graph — community LTS 2.6-3.4 and HAProxy Enterprise (HAPEE) 2.6r1-3.4r1.",
-  "version": "0.22.1",
+  "version": "0.22.2",
   "publisher": "Exymat",
   "icon": "icon.png",
   "license": "MIT",
@@ -60,7 +60,7 @@
   ],
   "engines": {
     "node": ">=24",
-    "vscode": "^1.125.0"
+    "vscode": "^1.128.0"
   },
   "extensionKind": [
     "workspace"
@@ -545,7 +545,7 @@
     "@eslint/js": "^10.0.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "^26.6.5",
-    "@types/vscode": "^1.125.0",
+    "@types/vscode": "^1.128.0",
     "@vitest/coverage-v8": "^5.0.5",
     "@vitest/eslint-plugin": "^1.6.28",
     "@vscode/test-cli": "^0.0.15",
@@ -571,7 +571,8 @@
     "glob": "^13.0.6",
     "nanoid": "3.3.18",
     "serialize-javascript": "^7.1.4",
-    "@azure/msal-node": "7.1.2"
+    "@azure/msal-node": "7.1.2",
+    "minimatch": "11.0.3"
   },
   "allowScripts": {
     "esbuild@0.28.2": true

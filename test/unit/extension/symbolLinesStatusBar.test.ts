@@ -156,7 +156,7 @@ describe("symbolLinesStatusBar", () => {
     );
   });
 
-  it("command opens symbol line settings", async () => {
+  it("opens Settings through the workbench without serializing its editor result", async () => {
     registerSymbolLinesStatusBar(
       mockExtensionContext() as never,
       () =>
@@ -167,10 +167,14 @@ describe("symbolLinesStatusBar", () => {
     const handler = getRegisteredCommand(OPEN_SYMBOL_LINES_SETTINGS_COMMAND);
     await handler?.();
 
-    expect(commands.executeCommand).toHaveBeenCalledWith(
-      "workbench.action.openSettings",
-      "@id:haproxy.symbols.maxLines",
-    );
+    expect(commands.executeCommand).toHaveBeenCalledWith("runCommands", {
+      commands: [
+        {
+          command: "workbench.action.openSettings",
+          args: ["@id:haproxy.symbols.maxLines"],
+        },
+      ],
+    });
   });
 
   it("refreshes when symbol max lines setting changes", () => {

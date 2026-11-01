@@ -54,11 +54,18 @@ export function registerSymbolLinesStatusBar(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(OPEN_SYMBOL_LINES_SETTINGS_COMMAND, () => {
-      void vscode.commands.executeCommand(
-        "workbench.action.openSettings",
-        "@id:haproxy.symbols.maxLines",
-      );
+    vscode.commands.registerCommand(OPEN_SYMBOL_LINES_SETTINGS_COMMAND, async () => {
+      // Settings commands return an internal editor pane. Sending that object
+      // back through extension RPC can freeze the renderer during serialization.
+      // runCommands awaits it inside the workbench and returns only void.
+      await vscode.commands.executeCommand("runCommands", {
+        commands: [
+          {
+            command: "workbench.action.openSettings",
+            args: ["@id:haproxy.symbols.maxLines"],
+          },
+        ],
+      });
     }),
   );
 

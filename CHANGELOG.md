@@ -2,6 +2,14 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.22.2
+
+- **Fetch and converter highlighting** — community and HAPEE grammars for 2.6–3.4 color sample fetches (`req.hdr`, `var`) and converters (`lower`, `ipmask`) separately, including converter calls after a comma inside `%[…]`.
+- **Values are not directives** — a directive word used as a value or call argument is no longer highlighted as a directive. `set-header X-Label timeout`, `%[req.hdr(timeout),lower]`, and `set-header X-Label deny` leave `timeout` and `deny` uncolored as keywords. A `setenv` value such as `example.invalid` is not colored as a fetch. `server … check` stays an option. `${CONFIG_DIR}` in double quotes is an environment variable. `.if` predicates `defined`, `feature`, `streq`, `strneq`, `strstr`, `version_atleast`, `version_before`, and `enabled` are builtin functions.
+- **Semantic highlighting for symbols** — section names, ACLs, servers, `server-template` names, runtime variables, and environment variables use semantic tokens, with definitions marked separately from references. `use_backend` and `default_backend` names stay `backendReference`.
+- **Symbol cap settings** — clicking the **HAProxy symbols capped** status bar item opens `haproxy.symbols.maxLines` without freezing the editor.
+- **Minimum VS Code 1.128** — raised the extension engine requirement from 1.125.
+
 ## 0.22.1
 
 - Refresh all community and HAPEE schemas, language data, and grammars against the latest supported documentation, using OSS 2.6.35, 2.8.31, 3.0.30, 3.2.26, and 3.4.7 keyword inventories.

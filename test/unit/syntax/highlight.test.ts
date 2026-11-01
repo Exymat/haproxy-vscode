@@ -68,23 +68,23 @@ describe("highlight", () => {
   it("tokenizes nested sample fetch and converter expressions", async () => {
     const aclContent = readFileSync(join(fixturesDir, "hapee-acl-snippet.cfg"), "utf-8");
     const aclTokens = await tokenizeDocument(aclContent);
-    expect(findTokenOnLine(aclTokens, 3, "req.hdr").displayScope).toBe(SCOPES.storage);
-    expect(findTokenOnLine(aclTokens, 4, "var").displayScope).toBe(SCOPES.storage);
+    expect(findTokenOnLine(aclTokens, 3, "req.hdr").displayScope).toBe("support.variable.fetch.haproxy");
+    expect(findTokenOnLine(aclTokens, 4, "var").displayScope).toBe("support.variable.fetch.haproxy");
 
     const convContent = readFileSync(
       join(fixturesDir, "golden", "test-sample-fetch-conv.cfg"),
       "utf-8",
     );
     const convTokens = await tokenizeDocument(convContent);
-    expect(findTokenOnLine(convTokens, 15, "hdr").displayScope).toBe(SCOPES.storage);
-    expect(findTokenOnLine(convTokens, 18, "ipmask").displayScope).toBe(SCOPES.storage);
+    expect(findTokenOnLine(convTokens, 15, "hdr").displayScope).toBe("support.variable.fetch.haproxy");
+    expect(findTokenOnLine(convTokens, 18, "ipmask").displayScope).toBe("support.function.converter.haproxy");
   });
 
   it("tokenizes sample fetches inside inline acl conditions", async () => {
     const lineTokens = await tokenizeDocument(
       "frontend web\n    http-request set-header Host unless { req.hdr(Host) -m found }\n",
     );
-    expect(findTokenOnLine(lineTokens, 2, "req.hdr").displayScope).toBe(SCOPES.storage);
+    expect(findTokenOnLine(lineTokens, 2, "req.hdr").displayScope).toBe("support.variable.fetch.haproxy");
   });
 
   it("tokenizes cache-use and cache-store as single rule actions", async () => {
@@ -124,7 +124,7 @@ describe("highlight", () => {
     const tokens = lineTokens[1]?.tokens ?? [];
     const vars = tokens.filter((token) => token.text === "var");
     expect(vars).toHaveLength(3);
-    expect(vars.every((token) => token.displayScope === SCOPES.storage)).toBe(true);
+    expect(vars.every((token) => token.displayScope === "support.variable.fetch.haproxy")).toBe(true);
 
     const closes = tokens.filter((token) => token.text === "]");
     expect(closes.length).toBe(4);
@@ -155,4 +155,21 @@ describe("highlight", () => {
       "keyword.other.directive.haproxy",
     );
   });
+});
+
+it("keeps directive words in values and call arguments out of directive scopes", async () => {
+  const tokens = await tokenizeDocument('http-request set-header X-Label timeout\nhttp-request set-header X-Test %[req.hdr(timeout),lower]\nsetenv CONFIG "${CONFIG_DIR}"\n.if defined(SSL) && !feature(QUIC)');
+  expect(findTokenOnLine(tokens, 1, "timeout").displayScope).not.toBe(SCOPES.directive);
+  expect(findTokenOnLine(tokens, 2, "timeout").displayScope).not.toBe(SCOPES.directive);
+  expect(findTokenOnLine(tokens, 3, "${CONFIG_DIR}").displayScope).toBe("variable.other.environment.haproxy");
+  expect(findTokenOnLine(tokens, 4, "defined").displayScope).toBe("support.function.builtin.haproxy");
+});
+
+it.each(["2.6", "2.6r1", "2.8", "2.8r1", "3.0", "3.0r1", "3.2", "3.2r1", "3.4", "3.4r1"])("uses precise expression scopes in %s", async (version) => {
+  const tokens = await tokenizeDocument('http-request set-header X-Test %[req.hdr(host),lower]\nhttp-request set-header X-Label deny\nsetenv HOST example.invalid\nserver s1 127.0.0.1:80 check', version);
+  expect(findTokenOnLine(tokens, 1, "req.hdr").displayScope).toBe("support.variable.fetch.haproxy");
+  expect(findTokenOnLine(tokens, 1, "lower").displayScope).toBe("support.function.converter.haproxy");
+  expect(findTokenOnLine(tokens, 2, "deny").displayScope).not.toBe(SCOPES.directive);
+  expect(findTokenOnLine(tokens, 3, "example.invalid").displayScope).not.toBe("support.variable.fetch.haproxy");
+  expect(findTokenOnLine(tokens, 4, "check").displayScope).toBe("keyword.other.option.haproxy");
 });
