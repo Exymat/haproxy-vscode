@@ -6,6 +6,11 @@ import { describe, expect, it } from "vitest";
 import { hapeeSchemaAvailable, schemaArtifactId } from "../../../src/extension/version";
 import { loadHapeeBundle, loadSchemaBundle } from "../../helpers/schema";
 
+function expectSubset(actual: readonly string[], expected: readonly string[]): void {
+  const names = new Set(actual);
+  expect(expected.filter((name) => !names.has(name))).toEqual([]);
+}
+
 describe("hapee schema artifacts", () => {
   it("maps every supported LTS to an r1 HAPEE artifact", () => {
     expect(hapeeSchemaAvailable("3.2")).toBe(true);
@@ -34,21 +39,16 @@ describe("hapee schema artifacts", () => {
     (version) => {
       const community = loadSchemaBundle(version).schema;
       const enterprise = loadHapeeBundle(version).schema;
-      expect(Object.keys(enterprise.keywords)).toEqual(
-        expect.arrayContaining(Object.keys(community.keywords)),
-      );
+      expectSubset(Object.keys(enterprise.keywords), Object.keys(community.keywords));
       for (const [section, item] of Object.entries(community.sections)) {
-        expect(enterprise.sections[section]?.keywords).toEqual(
-          expect.arrayContaining(item.keywords),
-        );
+        expect(enterprise.sections[section]?.keywords).toBeDefined();
+        expectSubset(enterprise.sections[section]?.keywords ?? [], item.keywords);
       }
       for (const [group, names] of Object.entries(community.keyword_groups)) {
-        expect(enterprise.keyword_groups[group] ?? []).toEqual(expect.arrayContaining(names));
+        expectSubset(enterprise.keyword_groups[group] ?? [], names);
       }
       for (const group of ["sample_fetches", "sample_converters"] as const) {
-        expect(Object.keys(enterprise[group] ?? {})).toEqual(
-          expect.arrayContaining(Object.keys(community[group] ?? {})),
-        );
+        expectSubset(Object.keys(enterprise[group] ?? {}), Object.keys(community[group] ?? {}));
         expect(
           Object.keys(enterprise[group] ?? {}).every(
             (name) => name.trim() === name && !/\s/.test(name),

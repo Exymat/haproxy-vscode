@@ -8,7 +8,7 @@ import { HaproxyExtensionSettings } from "./settings";
 import {
   clearWorkspaceSymbolIndex,
   effectiveWorkspaceSymbolIncludePatterns,
-  invalidateDiscoveryCache,
+  removeWorkspaceSymbolFolders,
   isUriExcludedFromWorkspaceSymbols,
   isUriIncludedInWorkspaceSymbols,
   scheduleWorkspaceSymbolIndexRebuild,
@@ -50,13 +50,19 @@ interface ExtensionWorkspaceSymbolServiceOptions {
 export function createExtensionWorkspaceSymbolService(
   options: ExtensionWorkspaceSymbolServiceOptions,
 ): ExtensionWorkspaceSymbolService {
-  let watcherRegistrations: WorkspaceWatcherRegistration[] = [];
+  const watcherRegistrations = new Map<string, WorkspaceWatcherRegistration>();
+  let knownFolders = new Map(
+    (vscode.workspace.workspaceFolders ?? []).map((folder) => [
+      workspaceUriKey(folder.uri),
+      folder,
+    ]),
+  );
 
   const disposeWorkspaceWatchers = (): void => {
-    for (const registration of watcherRegistrations) {
+    for (const registration of watcherRegistrations.values()) {
       registration.dispose();
     }
-    watcherRegistrations = [];
+    watcherRegistrations.clear();
   };
 
   const workspaceSymbolSettings = (): WorkspaceSymbolSettings => {
@@ -81,7 +87,9 @@ export function createExtensionWorkspaceSymbolService(
   const openHaproxyDocumentsInFolder = (uri: vscode.Uri): readonly vscode.TextDocument[] => {
     const folder = vscode.workspace.getWorkspaceFolder?.(uri);
     if (!folder) {
-      return openHaproxyDocuments();
+      return openHaproxyDocuments().filter(
+        (document) => !vscode.workspace.getWorkspaceFolder?.(document.uri),
+      );
     }
     const folderKey = workspaceUriKey(folder.uri);
     return openHaproxyDocuments().filter((document) => {
@@ -129,18 +137,17 @@ export function createExtensionWorkspaceSymbolService(
 
   const onWorkspaceIndexChanged = (event: WorkspaceIndexChangeEvent): void => {
     options.refreshWorkspaceIndexStatusBar();
-    const documents = event.document
-      ? openHaproxyDocumentsInFolder(event.document.uri)
-      : openHaproxyDocuments();
+    const uri = event.document?.uri ?? event.uri;
+    const documents = uri ? openHaproxyDocumentsInFolder(uri) : openHaproxyDocuments();
     for (const document of documents) {
       options.scheduler.runNow(document);
     }
   };
 
   const configureWatchers = (): void => {
-    disposeWorkspaceWatchers();
     const settings = options.getSettings();
     if (!settings.workspaceSymbolsEnabled) {
+      disposeWorkspaceWatchers();
       clearWorkspaceSymbolIndex();
       return;
     }
@@ -148,17 +155,30 @@ export function createExtensionWorkspaceSymbolService(
       vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0
         ? vscode.workspace.workspaceFolders
         : [undefined];
+    const desiredKeys = new Set<string>();
+    const workspaceSettings = workspaceSymbolSettings();
     for (const folder of folders) {
-      const workspaceSettings = workspaceSymbolSettings();
-      for (const include of effectiveWorkspaceSymbolIncludePatterns(workspaceSettings)) {
+      for (const include of new Set(effectiveWorkspaceSymbolIncludePatterns(workspaceSettings))) {
+        const key = JSON.stringify([folder ? workspaceUriKey(folder.uri) : undefined, include]);
+        desiredKeys.add(key);
+        if (watcherRegistrations.has(key)) {
+          continue;
+        }
+        const onEvent = (uri: vscode.Uri, scope: WorkspaceRebuildScope): void => {
+          const owner = vscode.workspace.getWorkspaceFolder?.(uri);
+          if (folder && (!owner || workspaceUriKey(owner.uri) !== workspaceUriKey(folder.uri))) {
+            return;
+          }
+          void scheduleForUri(uri, scope);
+        };
         const pattern = folder ? new vscode.RelativePattern(folder, include) : include;
         const watcher = vscode.workspace.createFileSystemWatcher(pattern);
         const listeners = [
-          watcher.onDidCreate((uri) => void scheduleForUri(uri, "full")),
-          watcher.onDidChange((uri) => void scheduleForUri(uri, "content")),
-          watcher.onDidDelete((uri) => void scheduleForUri(uri, "full")),
+          watcher.onDidCreate((uri) => onEvent(uri, "full")),
+          watcher.onDidChange((uri) => onEvent(uri, "content")),
+          watcher.onDidDelete((uri) => onEvent(uri, "full")),
         ];
-        watcherRegistrations.push({
+        watcherRegistrations.set(key, {
           watcher,
           listeners,
           dispose() {
@@ -170,6 +190,12 @@ export function createExtensionWorkspaceSymbolService(
         });
       }
     }
+    for (const [key, registration] of watcherRegistrations) {
+      if (!desiredKeys.has(key)) {
+        registration.dispose();
+        watcherRegistrations.delete(key);
+      }
+    }
   };
 
   setWorkspaceSymbolIndexChangeListener(onWorkspaceIndexChanged);
@@ -177,9 +203,44 @@ export function createExtensionWorkspaceSymbolService(
   return {
     configureWatchers,
     handleWorkspaceFoldersChanged() {
+      const currentFolders = new Map(
+        (vscode.workspace.workspaceFolders ?? []).map((folder) => [
+          workspaceUriKey(folder.uri),
+          folder,
+        ]),
+      );
+      const added = [...currentFolders].filter(([key]) => !knownFolders.has(key));
+      const removed = [...knownFolders].filter(([key]) => !currentFolders.has(key));
+      knownFolders = currentFolders;
+      if (added.length === 0 && removed.length === 0) {
+        return;
+      }
       configureWatchers();
-      invalidateDiscoveryCache();
-      void schedule("full");
+      removeWorkspaceSymbolFolders(removed.map(([, folder]) => folder.uri));
+      // Adding/removing a nested root also changes ownership in its surviving parent.
+      const changedKeys = [...added, ...removed].map(([key]) => key);
+      for (const [key, folder] of currentFolders) {
+        if (
+          added.some(([addedKey]) => addedKey === key) ||
+          changedKeys.some((changedKey) => changedKey.startsWith(`${key}/`))
+        ) {
+          void schedule("full", undefined, folder.uri);
+        }
+      }
+      for (const document of openHaproxyDocuments()) {
+        const owner = vscode.workspace.getWorkspaceFolder?.(document.uri);
+        const ownerKey = owner ? workspaceUriKey(owner.uri) : undefined;
+        if (
+          removed.some(
+            ([key]) =>
+              workspaceUriKey(document.uri).startsWith(`${key}/`) &&
+              !ownerKey?.startsWith(`${key}/`),
+          )
+        ) {
+          options.scheduler.runNow(document);
+        }
+      }
+      options.refreshWorkspaceIndexStatusBar();
     },
     schedule,
     scheduleForUri,

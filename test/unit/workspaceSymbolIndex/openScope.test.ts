@@ -1,3 +1,5 @@
+import { it } from "vitest";
+
 import {
   findWorkspaceDefinitions,
   getWorkspaceSymbolIndex,
@@ -52,6 +54,73 @@ describe("workspace open scope and uri targeting", () => {
     expect(resolveWorkspaceRebuildScopeOnOpen(opened)).toBe("none");
   });
 
+  it.each(["git:/repo/a.cfg?ref=HEAD", "untitled:Untitled-1", "file:///outside/a.cfg"])(
+    "does not rebuild for a virtual or outside document: %s",
+    async (uri) => {
+      setMockWorkspaceFolders([workspaceFolder("file:///repo")]);
+      setMockWorkspaceFile("file:///repo/a.cfg", "backend a");
+      await buildWorkspace();
+      const document = createDocument("backend historical", uri);
+      const findFiles = vi.spyOn(workspace, "findFiles").mockClear();
+      const readFile = vi.spyOn(workspace.fs, "readFile").mockClear();
+      expect(resolveWorkspaceRebuildScopeOnOpen(document)).toBe("none");
+      for (const scope of ["full", "incremental", "content"] as const) {
+        scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000, {
+          scope,
+          document,
+        });
+      }
+      expect(isWorkspaceRebuildPending()).toBe(false);
+      await vi.runAllTimersAsync();
+      expect(findFiles).not.toHaveBeenCalled();
+      expect(readFile).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([false, true])(
+    "limits incremental fallback to its own folder (seeded: %s)",
+    async (seeded) => {
+      setMockWorkspaceFolders([workspaceFolder("file:///repo"), workspaceFolder("file:///other")]);
+      setMockWorkspaceFile("file:///other/b.cfg", "backend b");
+      if (seeded) {
+        setMockWorkspaceFile("file:///repo/seed.cfg", "backend seed");
+        await buildWorkspace();
+      }
+      setMockWorkspaceFile("file:///repo/a.cfg", "backend a");
+      const document = createDocument("backend a", "file:///repo/a.cfg");
+      const findFiles = vi.spyOn(workspace, "findFiles").mockClear();
+      const readFile = vi.spyOn(workspace.fs, "readFile").mockClear();
+      scheduleWorkspaceSymbolIndexRebuild(schema, defaultWorkspaceSymbolSettings(), 4000, {
+        scope: "incremental",
+        document,
+      });
+      await vi.runAllTimersAsync();
+      expect(findFiles).toHaveBeenCalledTimes(1);
+      expect(readFile.mock.calls.every(([uri]) => uri.toString().startsWith("file:///repo/"))).toBe(
+        true,
+      );
+      expect(workspaceEntryForDocument(document)).toBeDefined();
+    },
+  );
+
+  it("ignores document events outside configured symbol globs", async () => {
+    setMockWorkspaceFolders([workspaceFolder("file:///repo")]);
+    const findFiles = vi.spyOn(workspace, "findFiles").mockClear();
+    const settings = defaultWorkspaceSymbolSettings({
+      roots: ["haproxy.d"],
+      exclude: ["**/vendor/**"],
+    });
+    for (const path of ["file:///repo/other.cfg", "file:///repo/haproxy.d/vendor/old.cfg"]) {
+      scheduleWorkspaceSymbolIndexRebuild(schema, settings, 4000, {
+        scope: "full",
+        document: createDocument("backend api", path),
+      });
+    }
+    expect(isWorkspaceRebuildPending()).toBe(false);
+    await vi.runAllTimersAsync();
+    expect(findFiles).not.toHaveBeenCalled();
+  });
+
   it("reports pending rebuild state while debounced work is scheduled", async () => {
     scheduleWorkspaceSymbolIndexRebuild(
       schema,
@@ -84,7 +153,7 @@ describe("workspace open scope and uri targeting", () => {
     ).toBe(false);
   });
 
-  it("falls back to content rebuild when incremental update hits a capped index", async () => {
+  it("skips reopening and incremental indexing in a capped folder", async () => {
     const content = "backend api";
     setMockWorkspaceFile("file:///api.cfg", content);
     setMockWorkspaceFile("file:///other.cfg", "backend other");
@@ -99,6 +168,9 @@ describe("workspace open scope and uri targeting", () => {
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
+    expect(resolveWorkspaceRebuildScopeOnOpen(doc)).toBe("none");
+    const findFiles = vi.spyOn(workspace, "findFiles").mockClear();
+    const readFile = vi.spyOn(workspace.fs, "readFile").mockClear();
     updateDocument(doc, "backend renamed");
     scheduleWorkspaceSymbolIndexRebuild(
       schema,
@@ -110,6 +182,8 @@ describe("workspace open scope and uri targeting", () => {
     await Promise.resolve();
 
     expect(workspaceEntryForDocument(doc)).toBeUndefined();
+    expect(findFiles).not.toHaveBeenCalled();
+    expect(readFile).not.toHaveBeenCalled();
   });
 });
 
@@ -220,7 +294,7 @@ describe("workspace debounced burst rebuilds", () => {
 
     setMockWorkspaceFile("file:///repo/c.cfg", "backend c");
 
-    const findFilesSpy = vi.spyOn(workspace, "findFiles");
+    const findFilesSpy = vi.spyOn(workspace, "findFiles").mockClear();
     findFilesSpy.mockClear();
 
     scheduleWorkspaceSymbolIndexRebuild(schema, settings, 4000, {
@@ -305,7 +379,7 @@ describe("workspace debounced burst rebuilds", () => {
     mockTextDocuments.push(doc as never);
     await buildWorkspace();
 
-    const findFilesSpy = vi.spyOn(workspace, "findFiles");
+    const findFilesSpy = vi.spyOn(workspace, "findFiles").mockClear();
     findFilesSpy.mockClear();
 
     updateDocument(doc, "frontend web\n    use_backend renamed");

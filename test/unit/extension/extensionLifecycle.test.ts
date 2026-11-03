@@ -34,60 +34,11 @@ describe("extension lifecycle", () => {
 
   it("schedules folder-scoped workspace rebuilds after folder version changes", async () => {
     setMockWorkspaceFolders([workspaceFolder("file:///folder-a")]);
-    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "3.4");
+    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "3.2");
     vi.spyOn(grammar, "syncAllOpenDocumentGrammarLanguages").mockResolvedValue();
-    const scheduleForUri = vi.fn((_uri: unknown, _scope: string) => Promise.resolve());
-    const diagnostics = {
-      scheduler: {
-        schedule: vi.fn(),
-        runNow: vi.fn(),
-        disposeDocument: vi.fn(),
-        clearPending: vi.fn(),
-      },
-      refreshAllDocuments: vi.fn(),
-      refreshDocumentsInWorkspaceFolders: vi.fn(),
-      dispose: vi.fn(),
-    };
-
-    registerExtensionLifecycle({
-      context: mockExtensionContext() as never,
-      extensionVersion: "test",
-      getSettings: getExtensionSettings,
-      refreshSettings: vi.fn(),
-      diagnostics,
-      bundle: {
-        ensureBundleResilient: vi.fn(() => Promise.resolve(bundle)),
-        safeEnsureBundle: vi.fn(() => Promise.resolve(bundle)),
-        resolveWorkspaceSchema: vi.fn(() => Promise.resolve(bundle.schema)),
-        invalidate: vi.fn(),
-        reportBundleError: vi.fn(),
-        resetErrorReporting: vi.fn(),
-        dispose: vi.fn(),
-      },
-      workspaceSymbols: {
-        settings: () => defaultWorkspaceSymbolSettings(),
-        scheduleForUri,
-        schedule: vi.fn(() => Promise.resolve()),
-        scheduleRebuildWithReadyBundle: vi.fn(),
-        configureWatchers: vi.fn(),
-        handleWorkspaceFoldersChanged: vi.fn(),
-      } as never,
-    });
-
-    triggerMockFolderConfigurationChange("haproxy.version", {
-      folderUris: ["file:///folder-a"],
-    });
-    await vi.runAllTimersAsync();
-
-    const firstCall = scheduleForUri.mock.calls[0];
-    expect(firstCall?.[1]).toBe("full");
-    const uri = firstCall?.[0] as { toString: () => string } | undefined;
-    expect(uri?.toString()).toBe("file:///folder-a");
-  });
-
-  it("does not index the workspace on activation when no HAProxy document is open", async () => {
-    setMockWorkspaceFolders([workspaceFolder("file:///folder-a")]);
-    const scheduleRebuildWithReadyBundle = vi.fn();
+    const schedule = vi.fn((_scope: string, _document?: unknown, _uri?: unknown) =>
+      Promise.resolve(),
+    );
     const diagnostics = {
       scheduler: {
         schedule: vi.fn(),
@@ -118,16 +69,81 @@ describe("extension lifecycle", () => {
       workspaceSymbols: {
         settings: () => defaultWorkspaceSymbolSettings(),
         scheduleForUri: vi.fn(),
-        schedule: vi.fn(() => Promise.resolve()),
-        scheduleRebuildWithReadyBundle,
+        schedule,
+        scheduleRebuildWithReadyBundle: vi.fn(),
         configureWatchers: vi.fn(),
         handleWorkspaceFoldersChanged: vi.fn(),
       } as never,
     });
 
+    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "3.4");
+    triggerMockFolderConfigurationChange("haproxy.version", {
+      folderUris: ["file:///folder-a"],
+    });
     await vi.runAllTimersAsync();
-    expect(scheduleRebuildWithReadyBundle).not.toHaveBeenCalled();
+
+    const firstCall = schedule.mock.calls[0];
+    expect(firstCall?.[0]).toBe("full");
+    const uri = firstCall?.[2] as { toString: () => string } | undefined;
+    expect(uri?.toString()).toBe("file:///folder-a");
   });
+
+  it.each([undefined, "git", "untitled"])(
+    "does not index on activation with only non-workspace documents (%s)",
+    async (scheme) => {
+      setMockWorkspaceFolders([workspaceFolder("file:///folder-a")]);
+      if (scheme) {
+        mockTextDocuments.push({
+          uri: { toString: () => `${scheme}:/folder-a/haproxy.cfg`, scheme },
+          languageId: "haproxy",
+          version: 1,
+          lineCount: 1,
+          lineAt: () => ({ text: "global" }),
+          getText: () => "global",
+        } as never);
+      }
+      const scheduleRebuildWithReadyBundle = vi.fn();
+      const diagnostics = {
+        scheduler: {
+          schedule: vi.fn(),
+          runNow: vi.fn(),
+          disposeDocument: vi.fn(),
+          clearPending: vi.fn(),
+        },
+        refreshAllDocuments: vi.fn(),
+        refreshDocumentsInWorkspaceFolders: vi.fn(),
+        dispose: vi.fn(),
+      };
+
+      registerExtensionLifecycle({
+        context: mockExtensionContext() as never,
+        extensionVersion: "test",
+        getSettings: getExtensionSettings,
+        refreshSettings: vi.fn(),
+        diagnostics,
+        bundle: {
+          ensureBundleResilient: vi.fn(() => Promise.resolve(bundle)),
+          safeEnsureBundle: vi.fn(() => Promise.resolve(bundle)),
+          resolveWorkspaceSchema: vi.fn(() => Promise.resolve(bundle.schema)),
+          invalidate: vi.fn(),
+          reportBundleError: vi.fn(),
+          resetErrorReporting: vi.fn(),
+          dispose: vi.fn(),
+        },
+        workspaceSymbols: {
+          settings: () => defaultWorkspaceSymbolSettings(),
+          scheduleForUri: vi.fn(),
+          schedule: vi.fn(() => Promise.resolve()),
+          scheduleRebuildWithReadyBundle,
+          configureWatchers: vi.fn(),
+          handleWorkspaceFoldersChanged: vi.fn(),
+        } as never,
+      });
+
+      await vi.runAllTimersAsync();
+      expect(scheduleRebuildWithReadyBundle).not.toHaveBeenCalled();
+    },
+  );
 
   it("skips workspace indexing on activation when the schema bundle is unavailable", async () => {
     setMockWorkspaceFolders([workspaceFolder("file:///folder-a")]);

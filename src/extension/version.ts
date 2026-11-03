@@ -251,6 +251,9 @@ function collectVersionConfigurationChange(
   }
 
   if (affectedFolderUris.length === 0) {
+    if (workspace.workspaceFolders?.length) {
+      return undefined;
+    }
     affectedFolderUris.push(undefined);
     versions.add(getConfiguredVersion());
   }
@@ -258,17 +261,40 @@ function collectVersionConfigurationChange(
   return { versions: [...versions], affectedFolderUris };
 }
 
+function configuredFolderProfiles(): Map<string | undefined, string> {
+  const folders = workspace.workspaceFolders ?? [];
+  const resources = folders.length > 0 ? folders.map((folder) => folder.uri) : [undefined];
+  return new Map(
+    resources.map((uri) => [
+      uri?.toString(),
+      bundleCacheKey(getConfiguredVersionForUri(uri), getConfiguredEditionForUri(uri)),
+    ]),
+  );
+}
+
 export function onVersionConfigurationChanged(
   listener: (change: VersionConfigurationChange) => void,
 ): vscode.Disposable {
+  let profiles = configuredFolderProfiles();
   let pendingVersions = new Set<HaproxyVersion>();
   let pendingFolderUris = new Set<string | undefined>();
   let timer: ReturnType<typeof setTimeout> | undefined;
   const subscription = workspace.onDidChangeConfiguration((event) => {
     const change = collectVersionConfigurationChange(event);
     if (change) {
-      change.versions.forEach((version) => pendingVersions.add(version));
-      change.affectedFolderUris.forEach((uri) => pendingFolderUris.add(uri));
+      const currentProfiles = configuredFolderProfiles();
+      const changedFolders = change.affectedFolderUris.filter(
+        (uri) => profiles.has(uri) && profiles.get(uri) !== currentProfiles.get(uri),
+      );
+      profiles = currentProfiles;
+      if (changedFolders.length === 0) {
+        return;
+      }
+      for (const folderUri of changedFolders) {
+        const uri = folderUri ? vscode.Uri.parse(folderUri) : undefined;
+        pendingVersions.add(getConfiguredVersionForUri(uri));
+        pendingFolderUris.add(folderUri);
+      }
       if (timer) {
         clearTimeout(timer);
       }

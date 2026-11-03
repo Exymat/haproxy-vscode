@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.22.3
+
+- **Scoped workspace indexing** — Git diff previews, folder reordering, and unchanged configuration events no longer trigger workspace-wide scans. Incremental fallbacks rebuild only the affected folder, capped folders stay in single-file mode when opened or edited, and adding or removing roots preserves unrelated folder indexes and discovery caches.
+
+- **Multi-root isolation** — watcher refreshes and batches of edits update diagnostics only in affected roots. Independent root builds no longer cancel each other or repeat completed roots; pending file discovery survives content refreshes. Root changes retain existing watchers, nested-root events have one owner, and removed-root work cannot restore stale indexes. Duplicate watcher events preserve diagnostic caches, unchanged version/edition profiles skip bundle reloads, dirty-state-only document events skip indexing, and comment-only edits respect folder line and byte caps.
+
 ## 0.22.2
 
 - **Fetch and converter highlighting** — community and HAPEE grammars for 2.6–3.4 color sample fetches (`req.hdr`, `var`) and converters (`lower`, `ipmask`) separately, including converter calls after a comma inside `%[…]`.

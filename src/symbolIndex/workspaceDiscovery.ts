@@ -78,8 +78,22 @@ function discoverySettingsKey(settings: WorkspaceSymbolSettings, folderKey: stri
   });
 }
 
-export function invalidateDiscoveryCache(): void {
-  discoveryCache.clear();
+export function invalidateDiscoveryCache(folderKey?: string): void {
+  if (folderKey !== undefined) {
+    discoveryCache.delete(folderKey);
+  } else {
+    discoveryCache.clear();
+  }
+}
+
+/** Git revisions and untitled buffers are not files in the workspace graph. */
+export function isWorkspaceSymbolUri(uri: vscode.Uri): boolean {
+  const scheme = uri.scheme ?? uri.toString().split(":")[0];
+  if (scheme === "git" || scheme === "untitled") {
+    return false;
+  }
+  const folder = workspaceFolderForUri(uri);
+  return !workspace.workspaceFolders?.length || folder !== undefined;
 }
 
 function excludePattern(settings: WorkspaceSymbolSettings): string | undefined {

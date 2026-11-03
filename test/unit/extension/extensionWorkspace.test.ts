@@ -146,6 +146,7 @@ describe("extension workspace symbol integration", () => {
 
     const settingsChangeCount = 5;
     for (let i = 0; i < settingsChangeCount; i++) {
+      setMockConfig("haproxy", "workspaceSymbols.include", [`**/*-${i}.cfg`, `**/*-${i}.conf`]);
       triggerMockConfigurationChange("haproxy");
       await vi.runAllTimersAsync();
     }
@@ -269,7 +270,12 @@ describe("extension workspace symbol integration", () => {
     mockTextDocuments.push(doc);
 
     activate(mockExtensionContext() as never);
-    await vi.runAllTimersAsync();
+    await waitUntilIndexed("file:///test.cfg");
+    const rebuild = vi.spyOn(symbolIndex, "scheduleWorkspaceSymbolIndexRebuild");
+    const metadataEvent = { document: doc, contentChanges: [] };
+    changeListeners.at(-1)?.(metadataEvent);
+    await pumpRebuildTimers();
+    expect(rebuild).not.toHaveBeenCalled();
 
     updateDocument(doc as never, "backend renamed");
     changeListeners.at(-1)?.({ document: doc });
@@ -350,6 +356,10 @@ describe("extension workspace symbol integration", () => {
     await vi.runAllTimersAsync();
 
     const collection = getLastDiagnosticCollection();
+    await vi.waitFor(async () => {
+      await pumpRebuildTimers();
+      expect(collection?.set).toHaveBeenCalled();
+    });
     collection?.set.mockClear();
 
     const reopened = createDocument("backend api", "file:///test.cfg") as MockDoc;
@@ -688,7 +698,7 @@ describe("extension workspace symbol integration", () => {
     triggerMockWorkspaceFoldersChange([confd], []);
     await waitUntilIndexed("file:///repo/confd/backends.cfg");
 
-    expect(watcherSpy.mock.calls.length).toBeGreaterThan(initialWatcherCount);
+    expect(watcherSpy.mock.calls.length).toBe(1);
     expect(findFilesSpy).toHaveBeenCalled();
 
     const watchersAfterAdd = watchers.length;
@@ -705,11 +715,58 @@ describe("extension workspace symbol integration", () => {
       { timeout: 2000 },
     );
 
-    expect(watcherSpy).toHaveBeenCalled();
-    for (let i = 0; i < watchersAfterAdd; i += 1) {
-      expect(watchers[i]?.dispose).toHaveBeenCalled();
-    }
+    expect(watcherSpy).not.toHaveBeenCalled();
+    expect(watchers[0]?.dispose).not.toHaveBeenCalled();
+    expect(watchers[watchersAfterAdd - 1]?.dispose).toHaveBeenCalled();
     expect(findFilesSpy).toHaveBeenCalled();
+  });
+
+  it("ignores folder reorder and unchanged configuration events", async () => {
+    const repo = workspaceFolder("file:///repo");
+    const other = workspaceFolder("file:///other");
+    setMockWorkspaceFolders([repo, other]);
+    setMockWorkspaceFile("file:///repo/a.cfg", "backend a");
+    mockTextDocuments.push(createDocument("backend a", "file:///repo/a.cfg") as never);
+    activate(mockExtensionContext() as never);
+    await waitUntilIndexed("file:///repo/a.cfg");
+    const findFiles = vi.spyOn(workspace, "findFiles");
+    const watchers = vi.spyOn(workspace, "createFileSystemWatcher");
+
+    setMockWorkspaceFolders([other, repo]);
+    triggerMockWorkspaceFoldersChange([repo, other], [repo, other]);
+    triggerMockConfigurationChange("haproxy");
+    setMockConfig("haproxy", "diagnostics.unusedSymbols", false);
+    triggerMockConfigurationChange("haproxy.diagnostics.unusedSymbols");
+    await pumpRebuildTimers();
+
+    expect(findFiles).not.toHaveBeenCalled();
+    expect(watchers).not.toHaveBeenCalled();
+  });
+
+  it("adds and removes independent roots without rescanning existing roots", async () => {
+    const repo = workspaceFolder("file:///repo");
+    const other = workspaceFolder("file:///other");
+    setMockWorkspaceFolders([repo]);
+    setMockWorkspaceFile("file:///repo/a.cfg", "backend a");
+    setMockWorkspaceFile("file:///other/b.cfg", "backend b");
+    mockTextDocuments.push(createDocument("backend a", "file:///repo/a.cfg") as never);
+    activate(mockExtensionContext() as never);
+    await waitUntilIndexed("file:///repo/a.cfg");
+    const findFiles = vi.spyOn(workspace, "findFiles");
+
+    setMockWorkspaceFolders([repo, other]);
+    triggerMockWorkspaceFoldersChange([other], []);
+    await waitUntilIndexed("file:///other/b.cfg");
+    expect(findFiles).toHaveBeenCalledTimes(1);
+    expect(findFiles.mock.calls[0]?.[0]).toEqual(expect.objectContaining({ baseUri: other.uri }));
+    findFiles.mockClear();
+
+    setMockWorkspaceFolders([repo]);
+    triggerMockWorkspaceFoldersChange([], [other]);
+    await pumpRebuildTimers();
+    expect(findFiles).not.toHaveBeenCalled();
+    expect(hasIndexedUri("file:///other/b.cfg")).toBe(false);
+    expect(hasIndexedUri("file:///repo/a.cfg")).toBe(true);
   });
 
   it("refreshes diagnostics for the affected workspace folder after a folder-scoped version change", async () => {

@@ -17,6 +17,7 @@ export {
   clearWorkspaceSymbolIndex,
   isWorkspaceRebuildPending,
   refreshWorkspaceSymbolIndexNow,
+  removeWorkspaceSymbolFolders,
   resolveWorkspaceRebuildScopeOnOpen,
   scheduleWorkspaceSymbolIndexRebuild,
   setWorkspaceSymbolIndexChangeListener,

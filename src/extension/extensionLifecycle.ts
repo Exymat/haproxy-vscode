@@ -23,6 +23,7 @@ import {
 import { logConfiguredVersion, logSupportSnapshot } from "./outputChannel";
 import { HaproxyExtensionSettings, onSettingsChanged } from "./settings";
 import { resolveWorkspaceRebuildScopeOnOpen } from "../symbolIndex";
+import { isWorkspaceSymbolUri } from "../symbolIndex/workspaceDiscovery";
 import {
   getConfiguredVersionForUri,
   HaproxyVersion,
@@ -45,6 +46,7 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
     options;
   const { scheduler } = diagnostics;
   resetLanguagePromotionState();
+  let settingsSnapshot = JSON.stringify(options.getSettings());
 
   const logSupportSnapshotIfReady = (bundleVersion: HaproxyVersion): void => {
     logSupportSnapshot({
@@ -72,7 +74,7 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
         logSupportSnapshotIfReady(loadedBundle.version);
       }
       if (folderUri) {
-        await workspaceSymbols.scheduleForUri(vscode.Uri.parse(folderUri), "full");
+        await workspaceSymbols.schedule("full", undefined, vscode.Uri.parse(folderUri));
       } else {
         await workspaceSymbols.schedule("full");
       }
@@ -115,6 +117,9 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
       void onTextDocumentOpened(document);
     }),
     vscode.workspace.onDidChangeTextDocument((event) => {
+      if (event.contentChanges?.length === 0) {
+        return;
+      }
       scheduler.schedule(event.document);
       if (isHaproxyLanguageId(event.document.languageId)) {
         void workspaceSymbols.schedule("incremental", event.document);
@@ -138,9 +143,21 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
       void reloadBundleForChange(change);
     }),
     onSettingsChanged(() => {
+      const previousWorkspaceSettings = JSON.stringify(workspaceSymbols.settings());
+      const previousMaxSymbolLines = options.getSettings().maxSymbolLines;
       refreshSettings();
-      workspaceSymbols.configureWatchers();
-      void workspaceSymbols.schedule("full");
+      const nextSnapshot = JSON.stringify(options.getSettings());
+      if (nextSnapshot === settingsSnapshot) {
+        return;
+      }
+      settingsSnapshot = nextSnapshot;
+      if (
+        previousWorkspaceSettings !== JSON.stringify(workspaceSymbols.settings()) ||
+        previousMaxSymbolLines !== options.getSettings().maxSymbolLines
+      ) {
+        workspaceSymbols.configureWatchers();
+        void workspaceSymbols.schedule("full");
+      }
       diagnostics.refreshAllDocuments();
     }),
     vscode.workspace.onDidChangeWorkspaceFolders(() => {
@@ -150,8 +167,9 @@ export function registerExtensionLifecycle(options: ExtensionLifecycleOptions): 
 
   setImmediate(() => {
     void (async () => {
-      const openHaproxyDocs = vscode.workspace.textDocuments.filter((document) =>
-        isHaproxyLanguageId(document.languageId),
+      const openHaproxyDocs = vscode.workspace.textDocuments.filter(
+        (document) =>
+          isHaproxyLanguageId(document.languageId) && isWorkspaceSymbolUri(document.uri),
       );
       if (openHaproxyDocs.length === 0) {
         return;

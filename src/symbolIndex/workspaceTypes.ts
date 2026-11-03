@@ -64,6 +64,8 @@ export interface WorkspaceSymbolIndex {
 export interface WorkspaceIndexChangeEvent {
   scope: WorkspaceRebuildScope;
   document?: vscode.TextDocument;
+  /** Target of a folder rebuild; absent only for a workspace-wide reset. */
+  uri?: vscode.Uri;
 }
 
 export interface FolderRef {

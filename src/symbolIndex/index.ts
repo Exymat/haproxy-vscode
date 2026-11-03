@@ -36,6 +36,7 @@ export {
   effectiveWorkspaceSymbolIncludePatterns,
   isWorkspaceRebuildPending,
   refreshWorkspaceSymbolIndexNow,
+  removeWorkspaceSymbolFolders,
   resolveWorkspaceRebuildScopeOnOpen,
   scheduleWorkspaceSymbolIndexRebuild,
   setWorkspaceSymbolIndexChangeListener,

@@ -328,7 +328,7 @@ describe("workspace symbol coverage paths", () => {
     );
   });
 
-  it("falls back to content rebuild when incremental update hits a capped index", async () => {
+  it("keeps incremental edits in a capped folder from scanning the workspace", async () => {
     const content = "backend api";
     setMockWorkspaceFile("file:///api.cfg", content);
     setMockWorkspaceFile("file:///other.cfg", "backend other");
@@ -351,7 +351,7 @@ describe("workspace symbol coverage paths", () => {
     await vi.runAllTimersAsync();
     await Promise.resolve();
 
-    expect(findFilesSpy).toHaveBeenCalled();
+    expect(findFilesSpy).not.toHaveBeenCalled();
   });
 
   it("removes workspace entries when incremental updates produce no symbols", async () => {

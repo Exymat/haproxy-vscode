@@ -185,11 +185,11 @@ describe("version", () => {
       { uri: { toString: () => "file:///folder-a", fsPath: "/folder-a" }, name: "a" },
       { uri: { toString: () => "file:///folder-b", fsPath: "/folder-b" }, name: "b" },
     ]);
-    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "2.6");
     setMockConfigForUri({ toString: () => "file:///folder-b" }, "haproxy", "version", "3.4");
 
     const listener = vi.fn();
     onVersionConfigurationChanged(listener);
+    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "2.6");
     triggerMockFolderConfigurationChange("haproxy.version", {
       folderUris: ["file:///folder-a"],
     });
@@ -207,10 +207,10 @@ describe("version", () => {
       { uri: { toString: () => "file:///folder-a", fsPath: "/folder-a" }, name: "a" },
       { uri: { toString: () => "file:///folder-a", fsPath: "/folder-a" }, name: "a-copy" },
     ]);
-    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "2.6");
 
     const listener = vi.fn();
     onVersionConfigurationChanged(listener);
+    setMockConfigForUri({ toString: () => "file:///folder-a" }, "haproxy", "version", "2.6");
     triggerMockFolderConfigurationChange("haproxy.version", {
       folderUris: ["file:///folder-a"],
     });
@@ -223,14 +223,59 @@ describe("version", () => {
     );
   });
 
+  it("does not turn a change outside current roots into a global profile reload", () => {
+    vi.useFakeTimers();
+    const listener = vi.fn();
+    setMockWorkspaceFolders([{ uri: Uri.parse("file:///current") }]);
+    const subscription = onVersionConfigurationChanged(listener);
+    try {
+      triggerMockFolderConfigurationChange("haproxy.version", {
+        global: true,
+        folderUris: ["file:///removed"],
+      });
+      vi.runAllTimers();
+      expect(listener).not.toHaveBeenCalled();
+    } finally {
+      subscription.dispose();
+      vi.useRealTimers();
+    }
+  });
+
+  it("ignores unchanged profiles and refreshes only roots whose effective profile changed", () => {
+    vi.useFakeTimers();
+    setMockWorkspaceFolders([{ uri: Uri.parse("file:///a") }, { uri: Uri.parse("file:///b") }]);
+    const listener = vi.fn();
+    const subscription = onVersionConfigurationChanged(listener);
+    try {
+      triggerMockConfigurationChange("haproxy.version");
+      vi.runAllTimers();
+      expect(listener).not.toHaveBeenCalled();
+      setMockConfigForUri(Uri.parse("file:///a"), "haproxy", "edition", "hapee");
+      triggerMockConfigurationChange("haproxy.edition");
+      vi.runAllTimers();
+      expect(listener).toHaveBeenCalledExactlyOnceWith({
+        versions: [DEFAULT_HAPROXY_VERSION],
+        affectedFolderUris: ["file:///a"],
+      });
+    } finally {
+      subscription.dispose();
+      vi.useRealTimers();
+    }
+  });
+
   it("coalesces adjacent version and edition events into one profile change", async () => {
     const listener = vi.fn();
     onVersionConfigurationChanged(listener);
-    setMockConfig("haproxy", "version", "3.2");
-    setMockConfig("haproxy", "edition", "hapee");
+    setMockConfig("haproxy", "version", "3.0");
     triggerMockConfigurationChange("haproxy.version");
+    setMockConfig("haproxy", "edition", "hapee");
     triggerMockConfigurationChange("haproxy.edition");
-    await vi.waitFor(() => expect(listener).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() =>
+      expect(listener).toHaveBeenCalledExactlyOnceWith({
+        versions: ["3.0"],
+        affectedFolderUris: [undefined],
+      }),
+    );
   });
 
   it("cancels a pending profile change when disposed", () => {
@@ -238,6 +283,7 @@ describe("version", () => {
     try {
       const listener = vi.fn();
       const disposable = onVersionConfigurationChanged(listener);
+      setMockConfig("haproxy", "edition", "hapee");
       triggerMockConfigurationChange("haproxy.edition");
 
       disposable.dispose();

@@ -709,10 +709,12 @@ export const workspace = {
   },
   getWorkspaceFolder(uri: { toString: () => string }) {
     const key = uriKey(uri);
-    return mockWorkspaceFolders?.find((folder) => {
-      const folderKey = uriKey(folder.uri);
-      return key === folderKey || key.startsWith(`${folderKey}/`);
-    });
+    return mockWorkspaceFolders
+      ?.filter((folder) => {
+        const folderKey = uriKey(folder.uri);
+        return key === folderKey || key.startsWith(`${folderKey}/`);
+      })
+      .sort((left, right) => uriKey(right.uri).length - uriKey(left.uri).length)[0];
   },
   asRelativePath(
     uri: { fsPath?: string; toString: () => string },
