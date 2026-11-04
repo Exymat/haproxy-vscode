@@ -13,9 +13,8 @@ import { sameSymbolGraph } from "./utils";
 import {
   aggregateDocuments,
   createOpenDocumentEntry,
+  loadDiskEntry,
   sameLineTexts,
-  totalDocumentBytes,
-  totalDocumentLines,
 } from "./workspaceDocuments";
 import {
   invalidateDiscoveryCache,
@@ -32,7 +31,7 @@ import {
   folderLabel,
   getActiveGeneration,
   getActiveWorkspaceIndexes,
-  limitExceeded,
+  documentSizeCapReason,
   notifyWorkspaceIndexChanged,
   rebuildCappedFolderKeys,
   rethrowUnlessStaleWorkspaceGeneration,
@@ -78,13 +77,18 @@ interface PendingFolderTarget {
   uri?: vscode.Uri;
 }
 
+interface IncrementalTarget {
+  uri: vscode.Uri;
+  document?: vscode.TextDocument;
+}
+
 interface PendingRebuild {
   folderTargets: Map<string, PendingFolderTarget>;
-  incrementalDocuments: Map<string, vscode.TextDocument>;
+  incrementalTargets: Map<string, IncrementalTarget>;
 }
 
 function createEmptyPendingRebuild(): PendingRebuild {
-  return { folderTargets: new Map(), incrementalDocuments: new Map() };
+  return { folderTargets: new Map(), incrementalTargets: new Map() };
 }
 
 let pendingRebuild = createEmptyPendingRebuild();
@@ -92,13 +96,13 @@ let inFlightRebuild: PendingRebuild | null = null;
 let inFlightPromise: Promise<void> | null = null;
 let rebuildRequest = 0;
 
-function removeIncrementalDocumentsInFolder(
-  incrementalDocuments: Map<string, vscode.TextDocument>,
+function removeIncrementalTargetsInFolder(
+  incrementalTargets: Map<string, IncrementalTarget>,
   folderKey: string,
 ): void {
-  for (const [uriKey, document] of incrementalDocuments) {
+  for (const [uriKey, document] of incrementalTargets) {
     if (workspaceFolderKey(workspaceFolderForUri(document.uri)) === folderKey) {
-      incrementalDocuments.delete(uriKey);
+      incrementalTargets.delete(uriKey);
     }
   }
 }
@@ -111,22 +115,21 @@ function mergePendingRebuild(
 
   const next: PendingRebuild = {
     folderTargets: new Map(current.folderTargets),
-    incrementalDocuments: new Map(current.incrementalDocuments),
+    incrementalTargets: new Map(current.incrementalTargets),
   };
 
-  if (scope === "incremental" && options.document) {
-    next.incrementalDocuments.set(workspaceUriKey(options.document.uri), options.document);
-    return next;
-  }
-
   if (scope === "incremental") {
+    const uri = options.document?.uri ?? options.uri;
+    if (uri) {
+      next.incrementalTargets.set(workspaceUriKey(uri), { uri, document: options.document });
+    }
     return next;
   }
   // Expand workspace requests here so each root retains its strongest pending scope.
   for (const { folder, folderKey } of targetFolderRefs(options, [])) {
     const forceRediscover = scope === "full";
     if (forceRediscover) {
-      removeIncrementalDocumentsInFolder(next.incrementalDocuments, folderKey);
+      removeIncrementalTargetsInFolder(next.incrementalTargets, folderKey);
     }
     const existing = next.folderTargets.get(folderKey);
     next.folderTargets.set(folderKey, {
@@ -140,11 +143,11 @@ function mergePendingRebuild(
 function mergePendingRebuilds(current: PendingRebuild, incoming: PendingRebuild): PendingRebuild {
   const next: PendingRebuild = {
     folderTargets: new Map(current.folderTargets),
-    incrementalDocuments: new Map(current.incrementalDocuments),
+    incrementalTargets: new Map(current.incrementalTargets),
   };
   for (const [folderKey, target] of incoming.folderTargets) {
     if (target.forceRediscover) {
-      removeIncrementalDocumentsInFolder(next.incrementalDocuments, folderKey);
+      removeIncrementalTargetsInFolder(next.incrementalTargets, folderKey);
     }
     const previous = next.folderTargets.get(folderKey);
     next.folderTargets.set(folderKey, {
@@ -152,10 +155,10 @@ function mergePendingRebuilds(current: PendingRebuild, incoming: PendingRebuild)
       forceRediscover: target.forceRediscover || (previous?.forceRediscover ?? false),
     });
   }
-  for (const [uriKey, document] of incoming.incrementalDocuments) {
+  for (const [uriKey, document] of incoming.incrementalTargets) {
     const folderKey = workspaceFolderKey(workspaceFolderForUri(document.uri));
     if (!next.folderTargets.get(folderKey)?.forceRediscover) {
-      next.incrementalDocuments.set(uriKey, document);
+      next.incrementalTargets.set(uriKey, document);
     }
   }
   return next;
@@ -164,7 +167,7 @@ function mergePendingRebuilds(current: PendingRebuild, incoming: PendingRebuild)
 function pendingFolderKeys(pending: PendingRebuild): Set<string> {
   return new Set([
     ...pending.folderTargets.keys(),
-    ...[...pending.incrementalDocuments.values()].map((document) =>
+    ...[...pending.incrementalTargets.values()].map((document) =>
       workspaceFolderKey(workspaceFolderForUri(document.uri)),
     ),
   ]);
@@ -177,34 +180,31 @@ async function flushPendingRebuild(
   generation: number,
   pending: PendingRebuild,
 ): Promise<void> {
-  const changedDocuments = new Map<string, vscode.TextDocument[]>();
-  try {
-    for (const [uriKey, document] of pending.incrementalDocuments) {
-      assertCurrentWorkspaceGeneration(generation);
-      const graphChanged = await rebuildWorkspaceIndexes(
-        resolveSchema,
-        settings,
-        maxLines,
-        generation,
-        {
-          scope: "incremental",
-          document,
-        },
-      );
-      assertCurrentWorkspaceGeneration(generation);
-      pending.incrementalDocuments.delete(uriKey);
-      if (graphChanged) {
-        const folderKey = workspaceFolderKey(workspaceFolderForUri(document.uri));
-        const documents = changedDocuments.get(folderKey) ?? [];
-        documents.push(document);
-        changedDocuments.set(folderKey, documents);
-      }
+  const batches = new Map<string, IncrementalTarget[]>();
+  for (const target of pending.incrementalTargets.values()) {
+    const folderKey = workspaceFolderKey(workspaceFolderForUri(target.uri));
+    const batch = batches.get(folderKey) ?? [];
+    batch.push(target);
+    batches.set(folderKey, batch);
+  }
+  for (const batch of batches.values()) {
+    assertCurrentWorkspaceGeneration(generation);
+    const graphChanged = await updateFolderDocuments(
+      batch,
+      resolveSchema,
+      settings,
+      maxLines,
+      generation,
+    );
+    assertCurrentWorkspaceGeneration(generation);
+    for (const target of batch) {
+      pending.incrementalTargets.delete(workspaceUriKey(target.uri));
     }
-  } finally {
-    for (const documents of changedDocuments.values()) {
+    if (graphChanged) {
       notifyWorkspaceIndexChanged({
-        scope: documents.length === 1 ? "incremental" : "content",
-        document: documents[0],
+        scope: batch.length === 1 && batch[0].document ? "incremental" : "content",
+        document: batch[0].document,
+        uri: batch[0].uri,
       });
     }
   }
@@ -261,71 +261,84 @@ export function isWorkspaceRebuildPending(): boolean {
   return rebuildTimer !== undefined || pendingFolderKeys(pendingRebuild).size > 0;
 }
 
-async function updateSingleDocumentInWorkspaceIndex(
-  document: vscode.TextDocument,
+async function updateFolderDocuments(
+  targets: readonly IncrementalTarget[],
   resolveSchema: (folder: vscode.WorkspaceFolder | undefined) => Promise<HaproxySchema>,
   settings: WorkspaceSymbolSettings,
   maxLines: number,
   generation: number,
 ): Promise<boolean> {
-  const folder = workspaceFolderForUri(document.uri);
+  const uri = targets[0].uri;
+  const folder = workspaceFolderForUri(uri);
   const folderKey = workspaceFolderKey(folder);
-  const activeWorkspaceIndexes = getActiveWorkspaceIndexes();
-  const existing = activeWorkspaceIndexes.get(folderKey);
-  if (existing?.capped) {
-    return false;
-  }
-  if (!existing) {
+  const existing = getActiveWorkspaceIndexes().get(folderKey);
+  const missingEntry = targets.some(
+    (target) => !existing?.documents.has(workspaceUriKey(target.uri)),
+  );
+  if (!settings.enabled || !existing || missingEntry) {
+    if (settings.enabled && existing?.capped && targets.every((target) => target.document)) {
+      return false;
+    }
     await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
-      scope: "content",
-      uri: document.uri,
-    });
-    return false;
-  }
-
-  const uriKey = workspaceUriKey(document.uri);
-  if (!existing.documents.has(uriKey)) {
-    await rebuildWorkspaceIndexes(resolveSchema, settings, maxLines, generation, {
-      scope: "full",
-      uri: document.uri,
+      scope: existing && !existing.capped ? "full" : "content",
+      uri,
     });
     return false;
   }
 
   const schema = await resolveSchema(folder);
   assertCurrentWorkspaceGeneration(generation);
-
-  const byteLimits = {
-    maxFileBytes: settings.maxFileBytes,
-    maxLineBytes: settings.maxLineBytes,
-  };
-  const previous = existing.documents.get(uriKey);
-  const { entry } = createOpenDocumentEntry(document, schema, maxLines, previous, byteLimits);
+  const { documents, totalLines, totalBytes, graphChanged, documentsChanged } =
+    await stageFolderDocumentUpdates(existing, targets, schema, settings, maxLines, generation);
   assertCurrentWorkspaceGeneration(generation);
-  if (!entry) {
-    const documents = new Map(existing.documents);
-    documents.delete(uriKey);
-    setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, false, documents));
-    return true;
+  if (!documentsChanged) {
+    return false;
   }
-
-  const documents = new Map(existing.documents);
-  documents.set(entry.uriKey, entry);
-  if (
-    limitExceeded(totalDocumentLines(documents), settings.maxTotalLines) ||
-    limitExceeded(totalDocumentBytes(documents), settings.maxTotalBytes)
-  ) {
+  if (documentSizeCapReason(totalLines, totalBytes, settings)) {
     setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, true, new Map()));
     return true;
   }
-  if (previous && sameSymbolGraph(previous.index, entry.index)) {
-    if (previous.fingerprint !== entry.fingerprint || previous.version !== entry.version) {
-      setFolderWorkspaceIndex(folderKey, { ...existing, documents });
+  setFolderWorkspaceIndex(
+    folderKey,
+    graphChanged
+      ? aggregateDocuments(generation, false, documents)
+      : { ...existing, documents, totalLines, totalBytes },
+  );
+  return graphChanged;
+}
+
+async function stageFolderDocumentUpdates(
+  existing: WorkspaceSymbolIndex,
+  targets: readonly IncrementalTarget[],
+  schema: HaproxySchema,
+  settings: WorkspaceSymbolSettings,
+  maxLines: number,
+  generation: number,
+) {
+  const byteLimits = { maxFileBytes: settings.maxFileBytes, maxLineBytes: settings.maxLineBytes };
+  const documents = new Map(existing.documents);
+  let totalLines = existing.totalLines;
+  let totalBytes = existing.totalBytes;
+  let graphChanged = false;
+  let documentsChanged = false;
+  for (const target of targets) {
+    const key = workspaceUriKey(target.uri);
+    const previous = existing.documents.get(key)!;
+    const { entry } = target.document
+      ? createOpenDocumentEntry(target.document, schema, maxLines, previous, byteLimits)
+      : await loadDiskEntry(target.uri, schema, maxLines, previous, byteLimits);
+    assertCurrentWorkspaceGeneration(generation);
+    documentsChanged ||= previous !== entry;
+    totalLines += (entry?.lineCount ?? 0) - previous.lineCount;
+    totalBytes += (entry?.byteLength ?? 0) - previous.byteLength;
+    if (entry) {
+      documents.set(key, entry);
+    } else {
+      documents.delete(key);
     }
-    return false;
+    graphChanged ||= !entry || !sameSymbolGraph(previous.index, entry.index);
   }
-  setFolderWorkspaceIndex(folderKey, aggregateDocuments(generation, false, documents));
-  return true;
+  return { documents, totalLines, totalBytes, graphChanged, documentsChanged };
 }
 
 function sameWorkspaceGraph(
@@ -376,16 +389,6 @@ async function rebuildWorkspaceIndexes(
   }
 
   const { scope } = options;
-  if (scope === "incremental" && options.document) {
-    return updateSingleDocumentInWorkspaceIndex(
-      options.document,
-      resolveSchema,
-      settings,
-      maxLines,
-      generation,
-    );
-  }
-
   const forceRediscover = scope === "full";
   if (forceRediscover) {
     const uri = options.document?.uri ?? options.uri;
@@ -537,7 +540,7 @@ export function removeWorkspaceSymbolFolders(uris: readonly vscode.Uri[]): void 
     return;
   }
   const removedKeys = new Set(uris.map(workspaceUriKey));
-  const documentWasRemoved = (document: vscode.TextDocument): boolean => {
+  const documentWasRemoved = (document: IncrementalTarget): boolean => {
     const documentKey = workspaceUriKey(document.uri);
     const owner = workspaceFolderForUri(document.uri);
     const ownerKey = owner ? workspaceUriKey(owner.uri) : undefined;
@@ -548,7 +551,7 @@ export function removeWorkspaceSymbolFolders(uris: readonly vscode.Uri[]): void 
   const cancelsRunning =
     inFlightRebuild !== null &&
     ([...inFlightRebuild.folderTargets.keys()].some((key) => removedKeys.has(key)) ||
-      [...inFlightRebuild.incrementalDocuments.values()].some(documentWasRemoved));
+      [...inFlightRebuild.incrementalTargets.values()].some(documentWasRemoved));
   if (cancelsRunning && inFlightRebuild) {
     pendingRebuild = mergePendingRebuilds(inFlightRebuild, pendingRebuild);
     inFlightRebuild = null;
@@ -567,9 +570,9 @@ export function removeWorkspaceSymbolFolders(uris: readonly vscode.Uri[]): void 
     invalidateDiscoveryCache(key);
     pendingRebuild.folderTargets.delete(key);
   }
-  for (const [documentKey, document] of pendingRebuild.incrementalDocuments) {
+  for (const [documentKey, document] of pendingRebuild.incrementalTargets) {
     if (documentWasRemoved(document)) {
-      pendingRebuild.incrementalDocuments.delete(documentKey);
+      pendingRebuild.incrementalTargets.delete(documentKey);
     }
   }
   rebuildCappedFolderKeys(indexes);

@@ -175,7 +175,7 @@ export function createExtensionWorkspaceSymbolService(
         const watcher = vscode.workspace.createFileSystemWatcher(pattern);
         const listeners = [
           watcher.onDidCreate((uri) => onEvent(uri, "full")),
-          watcher.onDidChange((uri) => onEvent(uri, "content")),
+          watcher.onDidChange((uri) => onEvent(uri, "incremental")),
           watcher.onDidDelete((uri) => onEvent(uri, "full")),
         ];
         watcherRegistrations.set(key, {

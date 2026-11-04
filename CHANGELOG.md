@@ -2,6 +2,12 @@
 
 All notable user-facing changes to **HAProxy Language Support**.
 
+## 0.22.4
+
+- **Single-file workspace updates** — saving an indexed config, or changing it outside the editor, refreshes only that file in the workspace symbol graph. Neighbors are not stat’d or read. A burst of edits in the same folder is applied together, so the graph is rebuilt once and cross-file diagnostics refresh once.
+- **Unchanged symbol graphs** — an edit that does not add, rename, or retarget symbols updates the stored file without refreshing diagnostics. Folder line and byte totals stay current, so a later edit still respects `haproxy.workspaceSymbols.maxTotalLines` and `haproxy.workspaceSymbols.maxTotalBytes`.
+- **Skipped `.cfg` files** — when include globs also match non-HAProxy `.cfg` files, the pass that keeps the real configs does not read those candidates again.
+
 ## 0.22.3
 
 - **Scoped workspace indexing** — Git diff previews, folder reordering, and unchanged configuration events no longer trigger workspace-wide scans. Incremental fallbacks rebuild only the affected folder, capped folders stay in single-file mode when opened or edited, and adding or removing roots preserves unrelated folder indexes and discovery caches.

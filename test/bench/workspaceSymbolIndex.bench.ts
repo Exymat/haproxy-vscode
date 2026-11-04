@@ -1,12 +1,16 @@
-import { describe, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import type { WorkspaceFolder } from "vscode";
 
 import {
   buildWorkspaceSymbolIndexFromOpenDocuments as buildWorkspaceSymbolIndexFromOpenDocumentsImpl,
   fingerprintText as fingerprintTextImpl,
+  clearWorkspaceSymbolIndex,
+  getWorkspaceSymbolIndex,
+  scheduleWorkspaceSymbolIndexRebuild,
   type WorkspaceSymbolSettings,
 } from "../../src/symbolIndex";
 import { getDiscoveredUris as getDiscoveredUrisImpl } from "../../src/symbolIndex/workspaceDiscovery";
+import * as workspaceDocuments from "../../src/symbolIndex/workspaceDocuments";
 import { loadDiskEntry as loadDiskEntryImpl } from "../../src/symbolIndex/workspaceDocuments";
 import {
   resetVscodeMock,
@@ -14,6 +18,7 @@ import {
   setMockWorkspaceFileStat,
   setMockWorkspaceFolders,
   Uri as UriImpl,
+  workspace,
 } from "../__mocks__/vscode";
 import { createDocument as createDocumentImpl } from "../helpers/document";
 import { loadSchemaBundle } from "../helpers/schema";
@@ -199,4 +204,71 @@ describe("workspaceSymbolIndex", () => {
       }
     }).run();
   });
+});
+
+describe("workspace index scheduler (1000 files)", () => {
+  const scenarios = [
+    ["single symbol edit", 1],
+    ["burst of symbol edits", 10],
+    ["external file change", 0],
+  ] as const;
+  for (const [scenario, editCount] of scenarios) {
+    // eslint-disable-next-line vitest/valid-title
+    test(scenario, async ({ bench }) => {
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+      clearWorkspaceSymbolIndex();
+      const uriFor = (i: number) =>
+        `${discoveryWorkspacePath}/cfg_${String(i).padStart(4, "0")}.cfg`;
+      for (let i = 0; i < discoveryCfgFileCount; i += 1) {
+        setMockWorkspaceFile(uriFor(i), haproxySplitContent(i));
+      }
+      const flush = () => vi.runAllTimersAsync();
+      const schedule = (options?: Parameters<typeof scheduleWorkspaceSymbolIndexRebuild>[3]) =>
+        scheduleWorkspaceSymbolIndexRebuild(bundle.schema, discoverySettings, 4000, options);
+      const aggregations = vi.spyOn(workspaceDocuments, "aggregateDocuments");
+      const stats = vi.spyOn(workspace.fs, "stat");
+      const reads = vi.spyOn(workspace.fs, "readFile");
+      try {
+        schedule();
+        await flush();
+        expect(getWorkspaceSymbolIndex()?.documents.size).toBe(discoveryCfgFileCount);
+        let revision = 0;
+        await bench(scenario, async () => {
+          aggregations.mockClear();
+          stats.mockClear();
+          reads.mockClear();
+          revision += 1;
+          if (editCount > 0) {
+            for (let i = 0; i < editCount; i += 1) {
+              const document = {
+                ...createDocument(`backend edit_${i}_${revision}`, uriFor(i)),
+                version: revision,
+              };
+              schedule({ scope: "incremental", document });
+            }
+          } else {
+            const path = uriFor(0);
+            const content = `backend disk_${revision}`;
+            setMockWorkspaceFile(path, content);
+            setMockWorkspaceFileStat(path, revision, content.length);
+            const uri = Uri.file(path) as unknown as WorkspaceFolder["uri"];
+            schedule({ scope: "incremental", uri });
+          }
+          await flush();
+        }).run({ time: 500, warmupIterations: 2 });
+        expect(aggregations).toHaveBeenCalledTimes(1);
+        expect(stats).toHaveBeenCalledTimes(editCount === 0 ? 1 : 0);
+        expect(reads).toHaveBeenCalledTimes(editCount === 0 ? 1 : 0);
+        console.info(
+          `${scenario}: ${aggregations.mock.calls.length} aggregation, ${stats.mock.calls.length} stat, ${reads.mock.calls.length} read`,
+        );
+      } finally {
+        aggregations.mockRestore();
+        stats.mockRestore();
+        reads.mockRestore();
+        clearWorkspaceSymbolIndex();
+        vi.useRealTimers();
+      }
+    });
+  }
 });

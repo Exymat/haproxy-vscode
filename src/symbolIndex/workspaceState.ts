@@ -10,6 +10,7 @@ import {
   WorkspaceDocumentSymbols,
   WorkspaceIndexChangeEvent,
   WorkspaceSymbolIndex,
+  WorkspaceSymbolSettings,
 } from "./workspaceTypes";
 import { workspaceUriKey as workspaceUriKeyImpl } from "../core/uriKey";
 
@@ -151,6 +152,20 @@ export function rebuildCappedFolderKeys(indexes: Map<string, WorkspaceSymbolInde
 
 export function limitExceeded(value: number, limit: number): boolean {
   return limit > 0 && value > limit;
+}
+
+export function documentSizeCapReason(
+  totalLines: number,
+  totalBytes: number,
+  settings: WorkspaceSymbolSettings,
+): "maxTotalLines" | "maxTotalBytes" | undefined {
+  if (limitExceeded(totalLines, settings.maxTotalLines)) {
+    return "maxTotalLines";
+  }
+  if (limitExceeded(totalBytes, settings.maxTotalBytes)) {
+    return "maxTotalBytes";
+  }
+  return undefined;
 }
 
 export function fileLimitReached(count: number, limit: number): boolean {

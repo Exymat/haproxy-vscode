@@ -50,6 +50,8 @@ export interface WorkspaceDocumentSymbols {
 }
 
 export interface WorkspaceSymbolIndex {
+  totalLines: number;
+  totalBytes: number;
   generation: number;
   /** Monotonic id for published graph contents; used to invalidate diagnostics caches. */
   revision: number;

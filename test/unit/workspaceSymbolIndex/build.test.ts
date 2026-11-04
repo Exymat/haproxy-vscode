@@ -285,8 +285,10 @@ describe("workspace symbol index build", () => {
     setMockWorkspaceFile("file:///consul.cfg", 'services { name = "api" }');
     setMockWorkspaceFile("file:///api.cfg", "backend api");
 
+    const load = vi.spyOn(workspaceDocuments, "loadDiskEntry");
     const workspaceIndex = expectWorkspaceIndex(await buildWorkspace(1));
 
+    expect(load).toHaveBeenCalledTimes(4);
     expect(workspaceIndex.capped).toBe(false);
     expect(workspaceIndex.documents.size).toBe(1);
     expect(workspaceIndex.documents.has("file:///api.cfg")).toBe(true);

@@ -133,9 +133,13 @@ export function aggregateDocuments(
 ): WorkspaceSymbolIndex {
   const definitions = new Map<string, WorkspaceSymbolSite[]>();
   const references: WorkspaceSymbolSite[] = [];
+  let totalLines = 0;
+  let totalBytes = 0;
   let scopedSymbolKinds: Set<SymbolKind> | undefined;
 
   for (const entry of documents.values()) {
+    totalLines += entry.lineCount;
+    totalBytes += entry.byteLength;
     scopedSymbolKinds = entry.index.scopedSymbolKinds;
     for (const [key, defs] of entry.index.definitions) {
       const list = definitions.get(key) ?? [];
@@ -154,6 +158,8 @@ export function aggregateDocuments(
     generation,
     revision: bumpWorkspaceContentRevision(),
     capped,
+    totalLines,
+    totalBytes,
     documents,
     definitions,
     references,
@@ -406,20 +412,4 @@ export async function createDiskEntry(
 ): Promise<WorkspaceDocumentSymbols | null> {
   const { entry } = await loadDiskEntry(uri, schema, maxLines, cached, limits);
   return entry;
-}
-
-export function totalDocumentLines(documents: Map<string, WorkspaceDocumentSymbols>): number {
-  let totalLines = 0;
-  for (const entry of documents.values()) {
-    totalLines += entry.lineCount;
-  }
-  return totalLines;
-}
-
-export function totalDocumentBytes(documents: Map<string, WorkspaceDocumentSymbols>): number {
-  let totalBytes = 0;
-  for (const entry of documents.values()) {
-    totalBytes += entry.byteLength;
-  }
-  return totalBytes;
 }

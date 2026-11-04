@@ -16,7 +16,7 @@ import {
   fileLimitReached,
   folderLabel,
   isStaleGeneration,
-  limitExceeded,
+  documentSizeCapReason,
 } from "./workspaceState";
 import {
   WorkspaceDocumentSymbols,
@@ -61,6 +61,7 @@ async function* loadDiskEntriesInDiscoveryOrder(
   previousDocuments: Map<string, WorkspaceDocumentSymbols>,
   byteLimits: { maxFileBytes: number; maxLineBytes: number },
   generation: number,
+  loadCache: Map<string, Promise<WorkspaceEntryLoadResult>> | undefined,
 ): AsyncGenerator<LoadedDiskEntry> {
   const concurrency = Math.min(DISK_ENTRY_LOAD_CONCURRENCY, uris.length);
   const results = new Map<number, WorkspaceEntryLoadResult>();
@@ -90,7 +91,11 @@ async function* loadDiskEntriesInDiscoveryOrder(
       activeLoads += 1;
       const uri = uris[index];
       const uriKey = workspaceUriKey(uri);
-      void loadDiskEntry(uri, schema, maxLines, previousDocuments.get(uriKey), byteLimits)
+      const load =
+        loadCache?.get(uriKey) ??
+        loadDiskEntry(uri, schema, maxLines, previousDocuments.get(uriKey), byteLimits);
+      loadCache?.set(uriKey, load);
+      void load
         .then((result) => {
           results.set(index, result);
         })
@@ -150,6 +155,9 @@ export async function buildFolderWorkspaceIndex(
   let discoverySettings = settings;
   let discovery = await getDiscoveryResult(discoverySettings, folder, folderKey, forceRediscover);
   let expandedDiscovery = false;
+  const loadCache = discovery.capped
+    ? new Map<string, Promise<WorkspaceEntryLoadResult>>()
+    : undefined;
 
   for (;;) {
     const uris = discovery.uris;
@@ -168,6 +176,7 @@ export async function buildFolderWorkspaceIndex(
       previousDocuments,
       byteLimits,
       generation,
+      loadCache,
     )) {
       const { entry, skipReason } = result;
       assertCurrentWorkspaceGeneration(generation);
@@ -178,64 +187,20 @@ export async function buildFolderWorkspaceIndex(
       }
       if (fileLimitReached(documents.size, settings.maxFiles)) {
         capReason = "maxFiles";
-        logWorkspaceIndexCompleted({
-          folderKey,
-          folderLabel: label,
-          scope,
-          discoveredFiles: uris.length,
-          indexedFiles: documents.size,
-          skippedFiles: uris.length - documents.size,
-          skipReasons,
-          capped: true,
-          capReason,
-          totalLines,
-          totalBytes,
-          durationMs: Date.now() - startedAt,
-        });
-        return aggregateDocuments(generation, true, new Map());
+        break;
       }
       totalLines += entry.lineCount;
-      if (limitExceeded(totalLines, settings.maxTotalLines)) {
-        capReason = "maxTotalLines";
-        logWorkspaceIndexCompleted({
-          folderKey,
-          folderLabel: label,
-          scope,
-          discoveredFiles: uris.length,
-          indexedFiles: documents.size,
-          skippedFiles: uris.length - documents.size,
-          skipReasons,
-          capped: true,
-          capReason,
-          totalLines,
-          totalBytes,
-          durationMs: Date.now() - startedAt,
-        });
-        return aggregateDocuments(generation, true, new Map());
+      capReason = documentSizeCapReason(totalLines, totalBytes + entry.byteLength, settings);
+      if (capReason !== "maxTotalLines") {
+        totalBytes += entry.byteLength;
       }
-      totalBytes += entry.byteLength;
-      if (limitExceeded(totalBytes, settings.maxTotalBytes)) {
-        capReason = "maxTotalBytes";
-        logWorkspaceIndexCompleted({
-          folderKey,
-          folderLabel: label,
-          scope,
-          discoveredFiles: uris.length,
-          indexedFiles: documents.size,
-          skippedFiles: uris.length - documents.size,
-          skipReasons,
-          capped: true,
-          capReason,
-          totalLines,
-          totalBytes,
-          durationMs: Date.now() - startedAt,
-        });
-        return aggregateDocuments(generation, true, new Map());
+      if (capReason) {
+        break;
       }
       documents.set(entry.uriKey, entry);
     }
 
-    if (discovery.capped && hasSkipReasons(skipReasons) && !expandedDiscovery) {
+    if (!capReason && discovery.capped && hasSkipReasons(skipReasons) && !expandedDiscovery) {
       expandedDiscovery = true;
       discoverySettings = {
         ...settings,
@@ -245,26 +210,13 @@ export async function buildFolderWorkspaceIndex(
       continue;
     }
 
-    if (discovery.capped) {
-      capReason = "maxFiles";
-      logWorkspaceIndexCompleted({
-        folderKey,
-        folderLabel: label,
-        scope,
-        discoveredFiles: uris.length,
-        indexedFiles: documents.size,
-        skippedFiles: uris.length - documents.size,
-        skipReasons,
-        capped: true,
-        capReason,
-        totalLines,
-        totalBytes,
-        durationMs: Date.now() - startedAt,
-      });
-      return aggregateDocuments(generation, true, new Map());
-    }
-
-    const index = aggregateDocuments(generation, false, documents);
+    capReason ??= discovery.capped ? "maxFiles" : undefined;
+    const capped = capReason !== undefined;
+    const index = aggregateDocuments(
+      generation,
+      capped,
+      capped ? new Map<string, WorkspaceDocumentSymbols>() : documents,
+    );
     logWorkspaceIndexCompleted({
       folderKey,
       folderLabel: label,
@@ -273,7 +225,8 @@ export async function buildFolderWorkspaceIndex(
       indexedFiles: documents.size,
       skippedFiles: uris.length - documents.size,
       skipReasons,
-      capped: false,
+      capped,
+      capReason,
       totalLines,
       totalBytes,
       durationMs: Date.now() - startedAt,
