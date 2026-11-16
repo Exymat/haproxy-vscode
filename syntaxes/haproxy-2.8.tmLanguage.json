@@ -1,7 +1,7 @@
 {
   "$schema": "./tmlanguage.schema.json",
   "name": "HAProxy 2.8",
-  "scopeName": "source.haproxy",
+  "scopeName": "source.haproxy.2.8",
   "patterns": [
     {
       "include": "#comments"

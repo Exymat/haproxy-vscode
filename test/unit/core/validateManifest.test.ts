@@ -6,9 +6,22 @@ import {
   collectMissingScriptReferences,
   extractNpmRunScriptNames,
   findMissingScriptReferences,
+  scopeNameForGrammarPath,
 } from "../../../scripts/validate-manifest.mjs";
 
 const repoRoot = join(__dirname, "../../..");
+
+describe("scopeNameForGrammarPath", () => {
+  it("derives a unique scope from the grammar filename", () => {
+    expect(scopeNameForGrammarPath("./syntaxes/haproxy-3.2.tmLanguage.json")).toBe(
+      "source.haproxy.3.2",
+    );
+    expect(scopeNameForGrammarPath("./syntaxes/haproxy-2.6r1.tmLanguage.json")).toBe(
+      "source.haproxy.2.6.r1",
+    );
+    expect(scopeNameForGrammarPath("./syntaxes/haproxy.tmLanguage.json")).toBeNull();
+  });
+});
 
 describe("extractNpmRunScriptNames", () => {
   it("extracts script names from npm run invocations", () => {

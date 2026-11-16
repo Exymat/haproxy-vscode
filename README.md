@@ -202,7 +202,7 @@ Schemas for **2.6** and **2.8** are generated from the legacy `configuration.txt
 - **Command Palette** — run **HAProxy: Select HAProxy Version and Edition**.
 - **Settings** — set **HAProxy: Version** (`haproxy.version`) and **HAProxy: Edition** (`haproxy.edition`).
 
-Completion, diagnostics, hover, and highlighting update as soon as the setting changes. Syntax highlighting switches the active TextMate grammar (`haproxy-3.2` vs `haproxy-3.2r1`); if colors do not refresh, use **Developer: Reload Window** when prompted.
+Completion, diagnostics, hover, and highlighting update as soon as the setting changes. Syntax highlighting switches the active TextMate grammar (`haproxy-3.2` vs `haproxy-3.2r1`) without reloading the window.
 
 ![Quick-pick to select the HAProxy release and edition](docs/images/version-select.png)
 

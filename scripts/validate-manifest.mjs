@@ -12,6 +12,21 @@ function fail(message) {
   process.exit(1);
 }
 
+/**
+ * Scope name implied by a shipped grammar path.
+ * `haproxy-3.2.tmLanguage.json` -> `source.haproxy.3.2`
+ * `haproxy-3.2r1.tmLanguage.json` -> `source.haproxy.3.2.r1`
+ * @param {string} grammarPath
+ * @returns {string | null}
+ */
+export function scopeNameForGrammarPath(grammarPath) {
+  const artifact = /haproxy-(\d+\.\d+)(r1)?\.tmLanguage\.json$/.exec(grammarPath.replace(/\\/g, "/"));
+  if (!artifact) {
+    return null;
+  }
+  return `source.haproxy.${artifact[1]}${artifact[2] ? `.${artifact[2]}` : ""}`;
+}
+
 /** @param {string} text */
 export function extractNpmRunScriptNames(text) {
   const names = [];
@@ -122,6 +137,8 @@ if (isMainModule) {
   }
 
   const grammarLanguages = new Set();
+  /** @type {Map<string, string>} */
+  const scopeToPath = new Map();
   for (const grammar of pkg.contributes?.grammars ?? []) {
     if (!languageIds.has(grammar.language)) {
       fail(`grammar references undeclared language id: ${grammar.language}`);
@@ -143,6 +160,29 @@ if (isMainModule) {
       }
     }
     requireFile(grammar.path);
+    const expectedScope = scopeNameForGrammarPath(grammar.path);
+    if (!expectedScope) {
+      fail(`${grammar.language} grammar path has no version scope: ${grammar.path}`);
+    }
+    if (grammar.scopeName !== expectedScope) {
+      fail(
+        `${grammar.language} scopeName must be ${expectedScope}, found ${grammar.scopeName}`,
+      );
+    }
+    const grammarFile = join(root, grammar.path.replace(/^\.\//, ""));
+    const grammarJson = JSON.parse(readFileSync(grammarFile, "utf8"));
+    if (grammarJson.scopeName !== grammar.scopeName) {
+      fail(
+        `${grammar.path} scopeName is ${grammarJson.scopeName}, package.json declares ${grammar.scopeName}`,
+      );
+    }
+    const previousPath = scopeToPath.get(grammar.scopeName);
+    if (previousPath && previousPath !== grammar.path) {
+      fail(
+        `scope ${grammar.scopeName} is used by both ${previousPath} and ${grammar.path}`,
+      );
+    }
+    scopeToPath.set(grammar.scopeName, grammar.path);
   }
 
   const activationEvents = new Set(pkg.activationEvents ?? []);

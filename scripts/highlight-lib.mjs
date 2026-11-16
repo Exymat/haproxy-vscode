@@ -95,8 +95,13 @@ function scopeSpecificity(scope) {
   return scope.split(".").length;
 }
 
+/** Root scope for any shipped grammar, including `source.haproxy.3.2` and `source.haproxy.3.2.r1`. */
+export function isHaproxyRootScope(scope) {
+  return scope === "source.haproxy" || scope.startsWith("source.haproxy.");
+}
+
 export function pickDisplayScope(scopes) {
-  const meaningful = scopes.filter((s) => s !== "source.haproxy");
+  const meaningful = scopes.filter((scope) => !isHaproxyRootScope(scope));
   if (meaningful.length === 0) {
     return scopes[0] ?? "source.haproxy";
   }
@@ -104,7 +109,7 @@ export function pickDisplayScope(scopes) {
 }
 
 export function hasHaproxyScope(scopes) {
-  return scopes.some((s) => s !== "source.haproxy");
+  return scopes.some((scope) => !isHaproxyRootScope(scope));
 }
 
 export function resolveForeground(scopes, colorRules) {
