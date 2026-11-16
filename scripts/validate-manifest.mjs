@@ -20,7 +20,9 @@ function fail(message) {
  * @returns {string | null}
  */
 export function scopeNameForGrammarPath(grammarPath) {
-  const artifact = /haproxy-(\d+\.\d+)(r1)?\.tmLanguage\.json$/.exec(grammarPath.replace(/\\/g, "/"));
+  const artifact = /haproxy-(\d+\.\d+)(r1)?\.tmLanguage\.json$/.exec(
+    grammarPath.replace(/\\/g, "/"),
+  );
   if (!artifact) {
     return null;
   }
@@ -165,9 +167,7 @@ if (isMainModule) {
       fail(`${grammar.language} grammar path has no version scope: ${grammar.path}`);
     }
     if (grammar.scopeName !== expectedScope) {
-      fail(
-        `${grammar.language} scopeName must be ${expectedScope}, found ${grammar.scopeName}`,
-      );
+      fail(`${grammar.language} scopeName must be ${expectedScope}, found ${grammar.scopeName}`);
     }
     const grammarFile = join(root, grammar.path.replace(/^\.\//, ""));
     const grammarJson = JSON.parse(readFileSync(grammarFile, "utf8"));
@@ -178,9 +178,7 @@ if (isMainModule) {
     }
     const previousPath = scopeToPath.get(grammar.scopeName);
     if (previousPath && previousPath !== grammar.path) {
-      fail(
-        `scope ${grammar.scopeName} is used by both ${previousPath} and ${grammar.path}`,
-      );
+      fail(`scope ${grammar.scopeName} is used by both ${previousPath} and ${grammar.path}`);
     }
     scopeToPath.set(grammar.scopeName, grammar.path);
   }

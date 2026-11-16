@@ -1,3 +1,5 @@
+export function scopeNameForGrammarPath(grammarPath: string): string | null;
+
 export function extractNpmRunScriptNames(text: string): string[];
 
 export function findMissingScriptReferences(
